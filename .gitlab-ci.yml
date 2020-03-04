@@ -1,0 +1,54 @@
+tag_checker:
+  stage: build
+  script:
+    - python tag_checker.py $CI_COMMIT_TAG
+  only:
+    - tags
+
+junit:
+  stage: test
+  script:
+    - cd server
+    - ./gradlew test
+
+dev-build:
+  stage: deploy
+  script:
+    - fuser -k 9499/tcp 9500/tcp
+    - cd client
+    - npm install
+    - npm run build
+    - cd ../server
+    - ./gradlew bootJar
+    - cd ..
+    - mkdir -p ../client-dev/
+    - mkdir -p ../server-dev/
+    - cp -r ./client/dist/ ../client-dev/
+    - cp -r ./server/build/libs ../server-dev
+    # - java -jar ../server-dev/libs/server-0.0.1-SNAPSHOT.jar --server.port=9499 # convert to be run with service
+    # - serve -s ../client-dev/dist -l 9500 # convert to be run with service
+  except:
+    - tags
+
+release-build:
+ stage: deploy
+ script:
+    - fuser -k 8999/tcp 9000/tcp
+    - cd client
+    - npm install
+    - npm run build-prod
+    - cd ../server
+    - ./gradlew bootJar
+    - cd ..
+    - mkdir -p ../client-prod/
+    - mkdir -p ../server-prod/
+    - cp -r ./client/dist/ ../client-prod/
+    - cp -r ./server/build/libs ../server-prod/
+    # - java -jar ../server-prod/libs/server-0.0.1-SNAPSHOT.jar --server.port=8999 # convert to be run with service
+    # - serve -s ../client-prod/dist -l 9000 # convert to be run with service
+ artifacts:
+    paths:
+    - client/dist
+    - server/out
+ only:
+    - tags
