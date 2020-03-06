@@ -14,7 +14,8 @@ export default {
   // (R)ead  
   getAll: () => instance.get('students', {  
     transformResponse: [function (data) {  
-      return data? JSON.parse(data)._embedded.students : data;  
+      return data? JSON.parse(data)._embedded.stfatal: refusing to merge unrelated histories
+      udents : data;
     }]  
   }),  
   // (U)pdate  

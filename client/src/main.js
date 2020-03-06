@@ -1,9 +1,13 @@
 import Vue from 'vue'
-import App from './App'
+import App from './App/App'
 
 Vue.config.productionTip = false
 
 import VueLogger from 'vuejs-logger';
+
+import router from './index'
+
+Vue.config.productionTip = false
 
 const options = {
   isEnabled: true,
@@ -21,5 +25,6 @@ Vue.use(VueLogger, options);
 new Vue({
   el: '#app',
   template: '<App/>',
+  router,
   components: { App }
 });
