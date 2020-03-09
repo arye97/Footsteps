@@ -61,8 +61,8 @@ public class UserController {
     public String logIn(@RequestBody String jsonLogInString) throws JsonProcessingException, UserNotFoundException {
         ObjectNode node = new ObjectMapper().readValue(jsonLogInString, ObjectNode.class);
         if (node.has("email") && node.has("password")) {
-            String email = node.get("email").toString().replace("\"", "");;
-            String password = node.get("password").toString().replace("\"", "");;
+            String email = node.get("email").toString().replace("\"", "");
+            String password = node.get("password").toString().replace("\"", "");
 
             for (User user: repository.findAll()) {
                 if (user.getEmails().getPrimaryEmail().equals(email) && user.checkPassword(password)) {

@@ -26,6 +26,7 @@ class UserControllerTest {
 
     //    private ObjectMapper objMapper = new ObjectMapper();
     private String createUserJsonPost;
+    private String createUserJsonPostPassport;
     private String editProfileJsonPost;
 
     private ObjectMapper objectMapper;
@@ -37,11 +38,25 @@ class UserControllerTest {
                 "  \"firstname\": \"Maurice\",\n" +
                 "  \"middlename\": \"Jack\",\n" +
                 "  \"nickname\": \"Jacky\",\n" +
-                "  \"email\": \"jacky@google.com\",\n" +
+                "  \"primary_email\": \"jacky@google.com\",\n" +
                 "  \"password\": \"jacky'sSecuredPwd\",\n" +
                 "  \"bio\": \"Jacky loves to ride his bike on crazy mountains.\",\n" +
                 "  \"date_of_birth\": \"1985-12-20\",\n" +
                 "  \"gender\": \"male\"\n" +
+                "}";
+
+        createUserJsonPostPassport = "{\n" +
+                "  \"lastname\": \"Pocket\",\n" +
+                "  \"firstname\": \"Poly\",\n" +
+                "  \"middlename\": \"Michelle\",\n" +
+                "  \"nickname\": \"Pino\",\n" +
+                "  \"primary_email\": \"poly@pocket.com\",\n" +
+                "  \"password\": \"somepwd\",\n" +
+                "  \"bio\": \"Poly Pocket is so tiny.\",\n" +
+                "  \"date_of_birth\": \"2000-11-11\",\n" +
+                "  \"gender\": \"female\",\n" +
+                "  \"fitness\": 3,\n" +
+                "  \"passports\": [\"Australia\", \"Antarctica\"]\n" +
                 "}";
 
         editProfileJsonPost = "{\n" +
@@ -55,7 +70,7 @@ class UserControllerTest {
 
     @Test
     /**Test if a new User can be created*/
-    public void newUserTest() throws Exception {
+    public void newUserTestU1() throws Exception {
 
         // Setup POST
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post("/profiles")
@@ -74,7 +89,32 @@ class UserControllerTest {
 
         // Test response
         assertEquals("Benson", jsonNode.get("lastname").asText());
-        assertEquals("jacky@google.com", jsonNode.get("email").get("primaryEmail").asText());
+        assertEquals("jacky@google.com", jsonNode.get("primary_email").get("primaryEmail").asText());
+    }
+
+    @Test
+    /**Test if a new User can be created*/
+    public void newUserTestU2() throws Exception {
+
+        // Setup POST
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post("/profiles")
+                .content(createUserJsonPostPassport)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        // Perform POST
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // Get Response as JsonNode
+        String jsonResponseStr = result.getResponse().getContentAsString();
+        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
+
+        // Test response
+        assertEquals("Pocket", jsonNode.get("lastname").asText());
+        assertEquals("poly@pocket.com", jsonNode.get("primary_email").get("primaryEmail").asText());
+        assertEquals("Antarctica", jsonNode.get("passports").get(1).asText());
     }
 
 
