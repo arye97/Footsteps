@@ -42,9 +42,9 @@ public class UserController {
 
 
     /**
-    Returns a new User from the requested body
+    Creates and returns a new User from the requested body
      */
-    @PostMapping("/createprofile")
+    @PostMapping("/profiles")
     public User newUser(@Validated @RequestBody User newUser) throws EmailAlreadyRegisteredException {
         // maybe using try catch would be better?
         if (repository.findByEmails(newUser.getEmails()) == null) {
@@ -79,48 +79,24 @@ public class UserController {
 
     /**Finds a User by id and updates its atributes*/
     @PostMapping("/editprofile")
-    public void editProfile(@RequestBody String jsonLogInString) throws JsonProcessingException {
+    public User editProfile(@RequestBody String jsonLogInString) throws JsonProcessingException {
         ObjectNode node = new ObjectMapper().readValue(jsonLogInString, ObjectNode.class);
-        if (node.has("id")) {
-            long id = node.get("id").asLong();
+        long id = node.get("id").asLong();
 
-            // change findAll to findById
-            for (User user : repository.findAll()) {
-                if (user.getId() == id) {
-                    //Edit user with new attributes
-                    Iterator<Map.Entry<String, JsonNode>> expectedChildren = node.fields();
-                    for (Map.Entry<String, JsonNode> entry; expectedChildren.hasNext(); ) {
-                        entry = expectedChildren.next();
-                        if (entry.getKey() == "id") {continue;}
-                        PropertyAccessor fieldSetter = PropertyAccessorFactory.forBeanPropertyAccess(user);
-                        fieldSetter.setPropertyValue(entry.getKey(), entry.getValue().asText());
-                        //System.out.println(user.toString());
-                        //System.out.println(user.getBio());
-                        repository.save(user);
-                    }
-                }
+        User user = repository.findById(id).get();
+        //Edit user with new attributes
+        Iterator<Map.Entry<String, JsonNode>> expectedChildren = node.fields();
+        for (Map.Entry<String, JsonNode> entry; expectedChildren.hasNext(); ) {
+            entry = expectedChildren.next();
+            if (entry.getKey() == "id") {continue;}
+            PropertyAccessor fieldSetter = PropertyAccessorFactory.forBeanPropertyAccess(user);
+            fieldSetter.setPropertyValue(entry.getKey(), entry.getValue().asText());
 
-            }
-
+            repository.save(user);
         }
+        return user;
     }
 
-
-
-
-
-    /*
-    Returns one User with the given primaryEmail
-     */
-//    @GetMapping("/searchprofile/{email}")
-//    public User byPrimaryEmail(@PathVariable String email) throws UserNotFoundException {
-//        User user = repository.findByEmails(email);
-//        if (user == null) {
-//            throw new UserNotFoundException(email);
-//        } else {
-//            return user;
-//        }
-//    }
 
 
 }
