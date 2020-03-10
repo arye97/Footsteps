@@ -1,4 +1,4 @@
-package com.springvuegradle.seng302example.exceptions;
+package com.springvuegradle.seng302example.exception;
 
 /**
  * Thrown when a maximum number of emails have already been reached

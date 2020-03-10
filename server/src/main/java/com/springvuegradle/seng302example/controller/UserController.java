@@ -1,11 +1,12 @@
-package com.springvuegradle.seng302example;
+package com.springvuegradle.seng302example.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.springvuegradle.seng302example.exceptions.EmailAlreadyRegisteredException;
-import com.springvuegradle.seng302example.exceptions.UserNotFoundException;
+import com.springvuegradle.seng302example.UserRepository;
+import com.springvuegradle.seng302example.exception.EmailAlreadyRegisteredException;
+import com.springvuegradle.seng302example.exception.UserNotFoundException;
 import com.springvuegradle.seng302example.model.User;
 
 import org.springframework.beans.PropertyAccessor;
@@ -57,7 +58,7 @@ public class UserController {
     /**
      Logs in a valid user with a registered email
      */
-    @GetMapping("/login")
+    @PostMapping("/login")
     public String logIn(@RequestBody String jsonLogInString) throws JsonProcessingException, UserNotFoundException {
         ObjectNode node = new ObjectMapper().readValue(jsonLogInString, ObjectNode.class);
         if (node.has("email") && node.has("password")) {
