@@ -1,13 +1,13 @@
-package com.springvuegradle.seng302example.controller;
+package com.springvuegradle.seng302team600.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.springvuegradle.seng302example.UserRepository;
-import com.springvuegradle.seng302example.exception.EmailAlreadyRegisteredException;
-import com.springvuegradle.seng302example.exception.UserNotFoundException;
-import com.springvuegradle.seng302example.model.User;
+import com.springvuegradle.seng302team600.repository.UserRepository;
+import com.springvuegradle.seng302team600.exception.EmailAlreadyRegisteredException;
+import com.springvuegradle.seng302team600.exception.UserNotFoundException;
+import com.springvuegradle.seng302team600.model.User;
 
 import org.springframework.beans.PropertyAccessor;
 import org.springframework.beans.PropertyAccessorFactory;

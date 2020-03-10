@@ -1,4 +1,4 @@
-package com.springvuegradle.seng302example;
+package com.springvuegradle.seng302team600;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.BeforeEach;

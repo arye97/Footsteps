@@ -1,4 +1,4 @@
-package com.springvuegradle.seng302example.model;
+package com.springvuegradle.seng302team600.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -64,6 +64,7 @@ public class User {
     @JsonProperty("gender")
     private Gender gender;
 
+    @Transient
     @JsonProperty("passports")
     private ArrayList<String> passports;
 
