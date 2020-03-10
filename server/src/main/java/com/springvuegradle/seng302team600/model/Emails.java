@@ -3,6 +3,7 @@ package com.springvuegradle.seng302team600.model;
 import com.springvuegradle.seng302team600.exception.EmailAlreadyRegisteredException;
 import com.springvuegradle.seng302team600.exception.MaximumEmailsException;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Transient;
@@ -18,14 +19,19 @@ import java.util.List;
  * */
 @Entity
 public class Emails {
-    @Id
-    private String primaryEmail;
 
     @Transient
-    private LinkedList<String> secondaryEmails = new LinkedList<String>();
     private final int MAX_EMAILS = 5;
+
+    @Transient
     private final String MAX_EMAILS_EXCEPTION_MESSAGE = "Only " + (MAX_EMAILS-1) + "or less secondary emails are permitted";
+    @Transient
     private final String EMAIL_ALREADY_REGISTERED_MESSAGE = "This email is already registered.";
+    @Transient
+    private LinkedList<String> secondaryEmails = new LinkedList<String>();
+    @Id
+    @Column(name = "primary_email", nullable = false)
+    private String primaryEmail;
 
     /**
      * Create a new Emails object
