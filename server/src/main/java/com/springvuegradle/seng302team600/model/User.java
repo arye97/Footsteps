@@ -21,25 +21,24 @@ public class User {
     private static PasswordEncoder encoder = new BCryptPasswordEncoder();
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue
     @JsonProperty("id")
     private Long id;
 
+    @JsonProperty("fitness")
+    private int fitnessLevel;
+
     @NotNull(message = "Please provide a first name")
-    @Column(name = "first_name", nullable = false)
     @JsonProperty("firstname")
     private String firstName;
 
-    @Column(name = "middle_name", nullable = false)
     @JsonProperty("middlename")
     private String middleName;
 
     @NotNull(message = "Please provide a last name")
-    @Column(name = "last_name", nullable = false)
     @JsonProperty("lastname")
     private String lastName;
 
-    @Column(name = "nickname")
     @JsonProperty("nickname")
     private String nickName;
 
@@ -48,33 +47,27 @@ public class User {
 
     @OneToOne(fetch = FetchType.EAGER,cascade=CascadeType.ALL)
     @NotNull(message = "Please provide a primary email address")
-    @JoinColumn(name = "primary_email", nullable = false)
     @JsonProperty("primary_email")
     private Emails emails;
 
     @NotNull(message = "Please provide a password")
-    @Column(name = "password", nullable = false)
     @JsonProperty("password")
     private String password;
 
     @NotNull(message = "Please provide a date of birth")
-    @Column(name = "date_of_birth", nullable = false)
     @JsonFormat(pattern="yyyy-MM-dd")
     @JsonProperty("date_of_birth")
     private Date dateOfBirth;
 
     @NotNull(message = "Please provide a gender from the following: male, female, non_binary")
     @Enumerated(EnumType.STRING)
-    @Column(name = "gender", nullable = false)
     @JsonProperty("gender")
     private Gender gender;
-
-    @JsonProperty("fitness")
-    private int fitnessLevel;
 
     @Transient
     @JsonProperty("passports")
     private ArrayList<String> passports;
+
 
     public enum Gender {
         @JsonProperty("male")
