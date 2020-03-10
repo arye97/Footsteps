@@ -26,20 +26,20 @@ public class User {
     private Long id;
 
     @NotNull(message = "Please provide a first name")
-    @Column(name = "first_name", length = 15, nullable = false)
+    @Column(name = "first_name", nullable = false)
     @JsonProperty("firstname")
     private String firstName;
 
-    @Column(name = "middle_name", length = 15, nullable = false)
+    @Column(name = "middle_name", nullable = false)
     @JsonProperty("middlename")
     private String middleName;
 
     @NotNull(message = "Please provide a last name")
-    @Column(name = "last_name", length = 15, nullable = false)
+    @Column(name = "last_name", nullable = false)
     @JsonProperty("lastname")
     private String lastName;
 
-    @Column(name = "nickname", length = 15)
+    @Column(name = "nickname")
     @JsonProperty("nickname")
     private String nickName;
 
@@ -65,7 +65,7 @@ public class User {
 
     @NotNull(message = "Please provide a gender from the following: male, female, non_binary")
     @Enumerated(EnumType.STRING)
-    @Column(name = "gender", length = 15, nullable = false)
+    @Column(name = "gender", nullable = false)
     @JsonProperty("gender")
     private Gender gender;
 
