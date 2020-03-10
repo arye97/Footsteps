@@ -28,6 +28,7 @@ class UserControllerTest {
     private String createUserJsonPost;
     private String createUserJsonPostPassport;
     private String editProfileJsonPost;
+    private String jsonLoginDetails;
 
     private ObjectMapper objectMapper;
 
@@ -63,6 +64,11 @@ class UserControllerTest {
                 "  \"id\": \"1\",\n" +
                 "  \"bio\": \"About ME\",\n" +
                 "  \"firstname\": \"Ben\"\n" +
+                "}";
+
+        jsonLoginDetails = "{\n" +
+                "  \"email\": \"jacky@google.com\",\n" +
+                "  \"password\": \"somepwd\"\n" +
                 "}";
 
         objectMapper = new ObjectMapper();
@@ -128,6 +134,31 @@ class UserControllerTest {
                 .andExpect(status().isOk());
 
     }
+
+//    @Test
+//    public void logInAndOutTest() throws Exception {
+//        MockHttpServletRequestBuilder httpReqLogin = MockMvcRequestBuilders.get("/login")
+//                .content(jsonLoginDetails)
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .accept(MediaType.APPLICATION_JSON);
+//
+//        // Perform POST
+//        MvcResult result = mvc.perform(httpReqLogin)
+//                .andExpect(status().isOk())
+//                .andReturn();
+//
+//        MockHttpServletRequestBuilder httpReqLogout = MockMvcRequestBuilders.get("/logout")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .accept(MediaType.APPLICATION_JSON);
+//
+//        // Perform POST
+//        MvcResult result = mvc.perform(httpReqLogout)
+//                .andExpect(status().isOk())
+//                .andReturn();
+//
+//        // Test response
+//        assertEquals(, httpReq.);
+//    }
 
 //    @Test
 //    /**Test if a new User can be created*/
