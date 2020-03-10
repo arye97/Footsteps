@@ -178,7 +178,7 @@
                 }
                 // console.log(newUser)     // view data in console for testing with this
                 // The HTTP Post Request
-                server.post(  'http://localhost:9499/profiles',
+                server.post(  '/profiles',
                     newUser
                 ).then(function(){
                         console.log('User Registered Successfully!');
