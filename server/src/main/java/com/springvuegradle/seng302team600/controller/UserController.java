@@ -1,7 +1,6 @@
 package com.springvuegradle.seng302team600.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.repository.UserRepository;
@@ -9,17 +8,13 @@ import com.springvuegradle.seng302team600.exception.EmailAlreadyRegisteredExcept
 import com.springvuegradle.seng302team600.exception.UserNotFoundException;
 import com.springvuegradle.seng302team600.model.User;
 
-import org.springframework.beans.PropertyAccessor;
-import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.ArrayList;
 
 @RestController
@@ -34,6 +29,7 @@ public class UserController {
     }
 
     /**
+    For testing
     Return a list of Users saved in the repository
      */
     @GetMapping("/listprofile")
@@ -47,6 +43,23 @@ public class UserController {
         return repository.findAll();
     }
 
+    /**
+     Return a User saved in the repository via userId
+     */
+    @GetMapping("/profiles")
+    public User findUserData(HttpServletRequest request, HttpServletResponse response) {
+        HttpSession session = request.getSession(false);
+        if (session != null && session.getAttribute("userId") != null) {
+            //Gets userId from client session
+            Long userId = (Long) session.getAttribute("userId");
+            response.setStatus(200);
+            return repository.findByUserId(userId);
+        }
+
+        response.setStatus(403);
+        return null;
+    }
+
 
     /**
     Creates and returns a new User from the requested body
@@ -56,13 +69,14 @@ public class UserController {
         // maybe using try catch would be better?
         if (repository.findByEmails(newUser.getEmails()) == null) {
             //Adds user ID to activeUsers
-            activeUsers.add(newUser.getId());
+            activeUsers.add(newUser.getUserId());
             HttpSession session = request.getSession();
             //Sets this user's ID to session userId
-            session.setAttribute("userId", newUser.getId());
+            session.setAttribute("userId", newUser.getUserId());
             response.setStatus(201);
             return repository.save(newUser);
         } else {
+            response.setStatus(403);
             throw new EmailAlreadyRegisteredException("Email: " + newUser.getEmails().getPrimaryEmail() + " is already registered!");
         }
     }
@@ -82,19 +96,21 @@ public class UserController {
             for (User user: repository.findAll()) {
                 if (user.getEmails().contains(email) && user.checkPassword(password)) {
                     //Client session will store the ID of currently logged in user
-                    session.setAttribute("userId", user.getId());
+                    session.setAttribute("userId", user.getUserId());
                     //Server adds new active user ID to activeUsers
-                    activeUsers.add(user.getId());
-                    response.setStatus(200);
+                    activeUsers.add(user.getUserId());
+                    response.setStatus(201);
                     return "Successful login with " + email;
 
-                } else if (user.getEmails().getPrimaryEmail().equals(email) && !user.checkPassword(password)) {
+                } else if (user.getEmails().contains(email) && !user.checkPassword(password)) {
+                    response.setStatus(401);
                     return "Unsuccessful login with " + email + ", please enter a valid password";
                 }
             }
-            //response.setStatus();
+            response.setStatus(401);
             throw new UserNotFoundException(email);
         }
+        response.setStatus(403);
         return "Please enter an email and a password";
     }
 
@@ -113,28 +129,30 @@ public class UserController {
             response.setStatus(200);
             return "Logged out successful";
         }
+        response.setStatus(403);
         return "Already logged out";
     }
 
-    /**Finds a User by id and updates its atributes*/
-    @PostMapping("/editprofile")
-    public User editProfile(@RequestBody String jsonLogInString) throws JsonProcessingException {
-        ObjectNode node = new ObjectMapper().readValue(jsonLogInString, ObjectNode.class);
-        long id = node.get("id").asLong();
-
-        User user = repository.findById(id).get();
-        //Edit user with new attributes
-        Iterator<Map.Entry<String, JsonNode>> expectedChildren = node.fields();
-        for (Map.Entry<String, JsonNode> entry; expectedChildren.hasNext(); ) {
-            entry = expectedChildren.next();
-            if (entry.getKey() == "id") {continue;}
-            PropertyAccessor fieldSetter = PropertyAccessorFactory.forBeanPropertyAccess(user);
-            fieldSetter.setPropertyValue(entry.getKey(), entry.getValue().asText());
-
-            repository.save(user);
-        }
-        return user;
-    }
+    //TODO: change this to PUT /profiles/{profileId} for story 4
+//    /**Finds a User by id and updates its atributes*/
+//    @PostMapping("/editprofile")
+//    public User editProfile(@RequestBody String jsonLogInString) throws JsonProcessingException {
+//        ObjectNode node = new ObjectMapper().readValue(jsonLogInString, ObjectNode.class);
+//        long id = node.get("id").asLong();
+//
+//        User user = repository.findById(id).get();
+//        //Edit user with new attributes
+//        Iterator<Map.Entry<String, JsonNode>> expectedChildren = node.fields();
+//        for (Map.Entry<String, JsonNode> entry; expectedChildren.hasNext(); ) {
+//            entry = expectedChildren.next();
+//            if (entry.getKey() == "id") {continue;}
+//            PropertyAccessor fieldSetter = PropertyAccessorFactory.forBeanPropertyAccess(user);
+//            fieldSetter.setPropertyValue(entry.getKey(), entry.getValue().asText());
+//
+//            repository.save(user);
+//        }
+//        return user;
+//    }
 
 
 

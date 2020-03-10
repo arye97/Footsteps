@@ -23,7 +23,7 @@ public class User {
     @Id
     @GeneratedValue
     @JsonProperty("id")
-    private Long id;
+    private Long userId;
 
     @JsonProperty("fitness")
     private int fitnessLevel;
@@ -86,12 +86,12 @@ public class User {
     public User() {}
 
 
-    public Long getId() {
-        return id;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setUserId(Long id) {
+        this.userId = id;
     }
 
     public String getFirstName() {
@@ -223,6 +223,6 @@ public class User {
 
     @Override
     public String toString() {
-        return String.format("%s %s, ID: %d, %s", getFirstName(), getLastName(), getId(), super.toString());
+        return String.format("%s %s, ID: %d, %s", getFirstName(), getLastName(), getUserId(), super.toString());
     }
 }
