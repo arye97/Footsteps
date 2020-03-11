@@ -85,9 +85,8 @@
             <div class="form-group">
                 <!-- passport country -->
                 <label for="passportCountry">Passport Country:</label>
-                <select class="form-control" v-model="passportCountry" id="passportCountry" name="passportCountry">
-                    <option value="" disabled selected hidden>Select country</option>
-                </select>
+                <multiselect class="form-control" v-model="passportCountry" id="passportCountry" :options="passportCountry" :searchable="searchable" placeholder="Select country">
+                </multiselect>
             </div>
             <div class="form-group">
                 <!-- user bio -->
@@ -108,7 +107,9 @@
 
 <script>
     import server from '../../Api';
+    import Multiselect from 'vue-multiselect'
     export default {
+        components: { Multiselect },
         name: "NewUser",
         data() {
             return {
@@ -122,13 +123,13 @@
                 gender: '',
                 dob: '',
                 fitnessLevel: '',
-                passportCountry: '',
-                bio: ''
+                passportCountry: ['hello', 'world'],
+                bio: '',
             }
         },
 
         mounted () {
-            let select = document.getElementById('passportCountry')
+            /*let select = document.getElementById('passportCountry')
             // Create a request variable and assign a new XMLHttpRequest object to it.
             let request = new XMLHttpRequest()
             //build url
@@ -156,7 +157,7 @@
                 }
             }
             // Send request
-            request.send()
+            request.send()*/
         },
 
         methods: {
@@ -193,3 +194,5 @@
 
 
 </script>
+
+<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
