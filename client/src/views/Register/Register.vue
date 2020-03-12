@@ -70,12 +70,8 @@
             <div class="form-group">
                 <!-- gender field -->
                 <label for="gender">Gender: *</label>
-                <select class="form-control" v-model="gender" id="gender" name="gender" required>
-                    <option value="" disabled selected hidden>Your Gender... </option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="non-binary">Non Binary</option>
-                </select>
+                <multiselect v-model="gender" id="gender"
+                             :options="genders" placeholder="Your gender" required></multiselect>
             </div>
             <div class="form-group">
                 <!-- date of birth field-->
@@ -85,7 +81,7 @@
             <div class="form-group">
                 <!-- passport country -->
                 <label for="passportCountries">Passport Country:</label>
-                <multiselect class="form-control" v-model="passportCountries" id="passportCountries"
+                <multiselect v-model="passportCountries" id="passportCountries"
                              :options="countries" :multiple="true" :searchable="true" :close-on-select="false"
                              placeholder="Select your passport countries">
                 </multiselect>
@@ -129,7 +125,8 @@
                 fitnessLevel: '',
                 passportCountries: [],
                 bio: '',
-                countries: []
+                countries: [],
+                genders: ['Male', 'Female', 'Non-Binary'],
             }
         },
 
@@ -143,13 +140,15 @@
             request.open('GET', url, true)
 
             request.onload = function() {
+                // If the request is successful
                 if(request.status >= 200 && request.status < 400) {
                     let data = JSON.parse(this.response)
                     data.forEach(country => {
                         let elmt = country.name;
-                        console.log(country.name);
                         select.push(elmt)
                     } )
+                } else {
+                    select = 'List is empty'
                 }
             }
             // Send request
