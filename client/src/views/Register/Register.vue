@@ -71,7 +71,9 @@
                 <!-- gender field -->
                 <label for="gender">Gender: *</label>
                 <multiselect v-model="gender" id="gender"
-                             :options="genders" placeholder="Your gender" required></multiselect>
+                             :options="genders" placeholder="Your gender" required>
+                    <template slot="noResult">Invalid gender</template>
+                </multiselect>
             </div>
             <div class="form-group">
                 <!-- date of birth field-->
@@ -84,6 +86,7 @@
                 <multiselect v-model="passportCountries" id="passportCountries"
                              :options="countries" :multiple="true" :searchable="true" :close-on-select="false"
                              placeholder="Select your passport countries">
+                    <template slot="noResult">Country not found</template>
                 </multiselect>
             </div>
             <div class="form-group">
@@ -170,7 +173,7 @@
                     gender: this.gender,
                     date_of_birth: this.dob,
                     fitnessLevel: this.fitnessLevel,
-                    passportCountries: null,
+                    passportCountries: this.passportCountries,
                     bio: document.getElementById('bio').value
                 }
                 // console.log(newUser)     // view data in console for testing with this
@@ -191,4 +194,8 @@
 
 </script>
 
-<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
+<style src="vue-multiselect/dist/vue-multiselect.min.css">
+    .multiselect {
+        color: black;
+    }
+</style>
