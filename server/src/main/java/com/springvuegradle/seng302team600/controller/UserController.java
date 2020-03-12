@@ -68,14 +68,20 @@ public class UserController {
     public User newUser(@Validated @RequestBody User newUser, HttpServletRequest request, HttpServletResponse response) throws EmailAlreadyRegisteredException {
         // maybe using try catch would be better?
         HttpSession session = request.getSession();
+        if (session.getAttribute("userId") != null) { //Check if already logged in
+            //Removes user ID from activeUsers
+            activeUsers.remove((Long) session.getAttribute("userId"));
+            //Removes this user's ID from session
+            session.removeAttribute("userId");
+        }
         if (repository.findByEmails(newUser.getEmails()) == null) {
+            //If mandatory fields not given, exception in UserRepository.save ends function execution and makes response body
             User user = repository.save(newUser);
             //Adds user ID to activeUsers
             activeUsers.add(user.getUserId());
             //Sets this user's ID to session userId
             session.setAttribute("userId", user.getUserId());
             response.setStatus(HttpServletResponse.SC_CREATED);
-            System.out.println(activeUsers);
             return user;
         } else {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -91,6 +97,13 @@ public class UserController {
         ObjectNode node = new ObjectMapper().readValue(jsonLogInString, ObjectNode.class);
         HttpSession session = request.getSession();
 
+        if (session.getAttribute("userId") != null) { //Check if already logged in
+            //Removes user ID from activeUsers
+            activeUsers.remove((Long) session.getAttribute("userId"));
+            //Removes this user's ID from session
+            session.removeAttribute("userId");
+        }
+
         if (node.has("email") && node.has("password")) {
             String email = node.get("email").toString().replace("\"", "");
             String password = node.get("password").toString().replace("\"", "");
@@ -102,7 +115,6 @@ public class UserController {
                     //Server adds new active user ID to activeUsers
                     activeUsers.add(user.getUserId());
                     response.setStatus(HttpServletResponse.SC_CREATED);
-                    System.out.println(activeUsers);
                     return user;
 
 //                } else if (user.getEmails().contains(email) && !user.checkPassword(password)) {
@@ -124,12 +136,6 @@ public class UserController {
     @PostMapping("/logout")
     public String logOut(HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession(false);
-        if (session == null) {
-            return "Session == null";
-        }
-        if (session.getAttribute("userId") == null) {
-            return "userId == null";
-        }
         if (session != null && session.getAttribute("userId") != null) {
             //Remove userId from activeUsers on server
             Long userId = (Long) session.getAttribute("userId");
@@ -137,7 +143,6 @@ public class UserController {
             //Remove userId, associated with user, in client session
             session.removeAttribute("userId");
             response.setStatus(HttpServletResponse.SC_OK);
-            System.out.println(activeUsers);
             return "Logged out successful";
         }
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
