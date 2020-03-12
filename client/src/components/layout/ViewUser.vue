@@ -14,7 +14,7 @@
 </template>
 
 <script>
-    import server from '../../';
+    //import server from '../../';
     export default {
         name: "ViewUser",
         data() {
