@@ -3,6 +3,7 @@ package com.springvuegradle.seng302team600.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.springvuegradle.seng302team600.exception.IncorrectPasswordException;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.exception.EmailAlreadyRegisteredException;
 import com.springvuegradle.seng302team600.exception.UserNotFoundException;
@@ -66,7 +67,6 @@ public class UserController {
      */
     @PostMapping("/profiles")
     public User newUser(@Validated @RequestBody User newUser, HttpServletRequest request, HttpServletResponse response) throws EmailAlreadyRegisteredException {
-        // maybe using try catch would be better?
         HttpSession session = request.getSession();
         if (session.getAttribute("userId") != null) { //Check if already logged in
             //Removes user ID from activeUsers
@@ -93,7 +93,7 @@ public class UserController {
      Logs in a valid user with a registered email
      */
     @PostMapping("/login")
-    public User logIn(@RequestBody String jsonLogInString, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, UserNotFoundException {
+    public User logIn(@RequestBody String jsonLogInString, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, UserNotFoundException, IncorrectPasswordException {
         ObjectNode node = new ObjectMapper().readValue(jsonLogInString, ObjectNode.class);
         HttpSession session = request.getSession();
 
@@ -109,24 +109,25 @@ public class UserController {
             String password = node.get("password").toString().replace("\"", "");
 
             for (User user: repository.findAll()) {
-                if (user.getEmails().contains(email) && user.checkPassword(password)) {
-                    //Client session will store the ID of currently logged in user
-                    session.setAttribute("userId", user.getUserId());
-                    //Server adds new active user ID to activeUsers
-                    activeUsers.add(user.getUserId());
-                    response.setStatus(HttpServletResponse.SC_CREATED);
-                    return user;
-
-//                } else if (user.getEmails().contains(email) && !user.checkPassword(password)) {
-////                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-////                    return "Unsuccessful login with " + email + ", please enter a valid password";
+                if (user.getEmails().contains(email)) {
+                    if (user.checkPassword(password)) {
+                        //Client session will store the ID of currently logged in user
+                        session.setAttribute("userId", user.getUserId());
+                        //Server adds new active user ID to activeUsers
+                        activeUsers.add(user.getUserId());
+                        response.setStatus(HttpServletResponse.SC_CREATED);
+                        return user;
+                    } else {
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        throw new IncorrectPasswordException(email);
+                    }
                 }
             }
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             throw new UserNotFoundException(email);
         }
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-//        return "Please enter an email and a password";
+        //email and/or password fields not given
+        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         return null;
     }
 
