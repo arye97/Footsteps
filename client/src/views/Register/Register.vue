@@ -86,7 +86,7 @@
                 <!-- passport country -->
                 <label for="passportCountries">Passport Country:</label>
                 <multiselect class="form-control" v-model="passportCountries" id="passportCountries"
-                             :options="countries" :multiple="true" :searchable="true"
+                             :options="countries" :multiple="true" :searchable="true" :close-on-select="false"
                              placeholder="Select your passport countries">
                 </multiselect>
             </div>
@@ -110,7 +110,6 @@
 <script>
     import server from '../../Api';
     import Multiselect from 'vue-multiselect'
-    import axios from "axios";
     export default {
         components: { Multiselect },
         name: "NewUser",
@@ -126,21 +125,14 @@
                 gender: '',
                 dob: '',
                 fitnessLevel: '',
-                passportCountries: null,
+                passportCountries: [],
                 bio: '',
                 countries: []
             }
         },
 
         mounted () {
-            axios
-                .get('https://restcountries.eu/rest/v2/all?fields=name')
-                .then(response => {
-                    this.countries = response.data.name
-                    return this.countries
-                    })
-                .catch(error => console.log(error))
-            /*let select = document.getElementById('passportCountries')
+            let select = []
             // Create a request variable and assign a new XMLHttpRequest object to it.
             let request = new XMLHttpRequest()
             //build url
@@ -153,22 +145,14 @@
                 if(request.status >= 200 && request.status < 400) {
                     let data = JSON.parse(this.response)
                     data.forEach(country => {
-                        // console.log(country.name)
-                        let elmt = document.createElement('option')
-                        elmt.textContent = country.name
-                        elmt.value = country.name
-                        //console.log(elmt)
-                        select.appendChild(elmt)
+                        let elmt = country.name;
+                        select.push(elmt)
                     } )
-                } else {
-                    let elmt = document.createElement('error')
-                    elmt.textContent = 'error fetching countries'
-                    elmt.value = 'error'
-                    select.appendChild(elmt)
                 }
             }
             // Send request
-            request.send()*/
+            this.countries = select
+            request.send()
         },
 
         methods: {
@@ -200,10 +184,6 @@
                 });
                 this.$router.push("/");
             },
-
-            updatePassportCountries (newSelected) {
-                this.passportCountries = newSelected
-            }
         }
     }
 
