@@ -84,8 +84,10 @@
             </div>
             <div class="form-group">
                 <!-- passport country -->
-                <label for="passportCountry">Passport Country:</label>
-                <multiselect class="form-control" v-model="passportCountry" id="passportCountry" :options="passportCountry" :searchable="searchable" placeholder="Select country">
+                <label for="passportCountries">Passport Country:</label>
+                <multiselect class="form-control" v-model="passportCountries" id="passportCountries"
+                             :options="countries" :multiple="true" :searchable="true"
+                             placeholder="Select your passport countries">
                 </multiselect>
             </div>
             <div class="form-group">
@@ -108,6 +110,7 @@
 <script>
     import server from '../../Api';
     import Multiselect from 'vue-multiselect'
+    import axios from "axios";
     export default {
         components: { Multiselect },
         name: "NewUser",
@@ -123,13 +126,21 @@
                 gender: '',
                 dob: '',
                 fitnessLevel: '',
-                passportCountry: ['hello', 'world'],
+                passportCountries: null,
                 bio: '',
+                countries: []
             }
         },
 
         mounted () {
-            /*let select = document.getElementById('passportCountry')
+            axios
+                .get('https://restcountries.eu/rest/v2/all?fields=name')
+                .then(response => {
+                    this.countries = response.data.name
+                    return this.countries
+                    })
+                .catch(error => console.log(error))
+            /*let select = document.getElementById('passportCountries')
             // Create a request variable and assign a new XMLHttpRequest object to it.
             let request = new XMLHttpRequest()
             //build url
@@ -174,7 +185,7 @@
                     gender: this.gender,
                     date_of_birth: this.dob,
                     fitnessLevel: this.fitnessLevel,
-                    passportCountry: this.passportCountry,
+                    passportCountries: null,
                     bio: document.getElementById('bio').value
                 }
                 // console.log(newUser)     // view data in console for testing with this
@@ -188,6 +199,10 @@
                     console.log(error);
                 });
                 this.$router.push("/");
+            },
+
+            updatePassportCountries (newSelected) {
+                this.passportCountries = newSelected
             }
         }
     }
