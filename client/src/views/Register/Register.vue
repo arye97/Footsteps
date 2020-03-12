@@ -110,6 +110,8 @@
 <script>
     import server from '../../Api';
     import Multiselect from 'vue-multiselect'
+    import {getCountryNames} from '../../constants';
+
     export default {
         components: { Multiselect },
         name: "NewUser",
@@ -136,8 +138,7 @@
             // Create a request variable and assign a new XMLHttpRequest object to it.
             let request = new XMLHttpRequest()
             //build url
-            let restCountriesName = 'https://restcountries.eu/rest/v2/all?fields=name'     //needs to be const somewhere
-            let url = new URL(restCountriesName)
+            let url = new URL(getCountryNames)
             // Open a new connection, using the GET request on the URL endpoint;
             request.open('GET', url, true)
 
@@ -146,6 +147,7 @@
                     let data = JSON.parse(this.response)
                     data.forEach(country => {
                         let elmt = country.name;
+                        console.log(country.name);
                         select.push(elmt)
                     } )
                 }
