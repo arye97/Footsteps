@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -148,19 +149,20 @@ class UserControllerTest {
 
     @Test
     public void logInAndOutTest() throws Exception {
+        MockHttpSession session = new MockHttpSession();
         // Register profile
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/profiles")
                 .content(createUserJsonPostLogin)
                 .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON);
+                .accept(MediaType.APPLICATION_JSON)
+                .session(session);
 
         mvc.perform(request);
 
         // Logout profile
         request = MockMvcRequestBuilders.post("/logout")
-                // userId not already attr of session after registering, this needs fixing, currently artificially inserting to prove error
-                .sessionAttr("userId", 3L)
-                .accept(MediaType.APPLICATION_JSON);
+                .accept(MediaType.APPLICATION_JSON)
+                .session(session);
 
         // Perform POST
         MvcResult result = mvc.perform(request)
@@ -174,7 +176,8 @@ class UserControllerTest {
         request = MockMvcRequestBuilders.post("/login")
                 .content(jsonLoginDetails)
                 .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON);
+                .accept(MediaType.APPLICATION_JSON)
+                .session(session);;
 
         // Perform POST
         result = mvc.perform(request)

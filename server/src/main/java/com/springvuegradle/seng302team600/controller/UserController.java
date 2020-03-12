@@ -69,12 +69,14 @@ public class UserController {
         // maybe using try catch would be better?
         HttpSession session = request.getSession();
         if (repository.findByEmails(newUser.getEmails()) == null) {
+            User user = repository.save(newUser);
             //Adds user ID to activeUsers
-            activeUsers.add(newUser.getUserId());
+            activeUsers.add(user.getUserId());
             //Sets this user's ID to session userId
-            session.setAttribute("userId", newUser.getUserId());
+            session.setAttribute("userId", user.getUserId());
             response.setStatus(HttpServletResponse.SC_CREATED);
-            return repository.save(newUser);
+            System.out.println(activeUsers);
+            return user;
         } else {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             throw new EmailAlreadyRegisteredException("Email: " + newUser.getEmails().getPrimaryEmail() + " is already registered!");
@@ -100,6 +102,7 @@ public class UserController {
                     //Server adds new active user ID to activeUsers
                     activeUsers.add(user.getUserId());
                     response.setStatus(HttpServletResponse.SC_CREATED);
+                    System.out.println(activeUsers);
                     return user;
 
 //                } else if (user.getEmails().contains(email) && !user.checkPassword(password)) {
@@ -121,6 +124,12 @@ public class UserController {
     @PostMapping("/logout")
     public String logOut(HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession(false);
+        if (session == null) {
+            return "Session == null";
+        }
+        if (session.getAttribute("userId") == null) {
+            return "userId == null";
+        }
         if (session != null && session.getAttribute("userId") != null) {
             //Remove userId from activeUsers on server
             Long userId = (Long) session.getAttribute("userId");
@@ -128,6 +137,7 @@ public class UserController {
             //Remove userId, associated with user, in client session
             session.removeAttribute("userId");
             response.setStatus(HttpServletResponse.SC_OK);
+            System.out.println(activeUsers);
             return "Logged out successful";
         }
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
