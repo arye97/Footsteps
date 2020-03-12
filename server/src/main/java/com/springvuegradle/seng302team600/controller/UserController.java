@@ -52,11 +52,11 @@ public class UserController {
         if (session != null && session.getAttribute("userId") != null) {
             //Gets userId from client session
             Long userId = (Long) session.getAttribute("userId");
-            response.setStatus(200);
+            response.setStatus(HttpServletResponse.SC_OK);
             return repository.findByUserId(userId);
         }
 
-        response.setStatus(403);
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         return null;
     }
 
@@ -67,16 +67,16 @@ public class UserController {
     @PostMapping("/profiles")
     public User newUser(@Validated @RequestBody User newUser, HttpServletRequest request, HttpServletResponse response) throws EmailAlreadyRegisteredException {
         // maybe using try catch would be better?
+        HttpSession session = request.getSession();
         if (repository.findByEmails(newUser.getEmails()) == null) {
             //Adds user ID to activeUsers
             activeUsers.add(newUser.getUserId());
-            HttpSession session = request.getSession();
             //Sets this user's ID to session userId
             session.setAttribute("userId", newUser.getUserId());
-            response.setStatus(201);
+            response.setStatus(HttpServletResponse.SC_CREATED);
             return repository.save(newUser);
         } else {
-            response.setStatus(403);
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             throw new EmailAlreadyRegisteredException("Email: " + newUser.getEmails().getPrimaryEmail() + " is already registered!");
         }
     }
@@ -85,7 +85,7 @@ public class UserController {
      Logs in a valid user with a registered email
      */
     @PostMapping("/login")
-    public String logIn(@RequestBody String jsonLogInString, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, UserNotFoundException {
+    public User logIn(@RequestBody String jsonLogInString, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, UserNotFoundException {
         ObjectNode node = new ObjectMapper().readValue(jsonLogInString, ObjectNode.class);
         HttpSession session = request.getSession();
 
@@ -99,19 +99,20 @@ public class UserController {
                     session.setAttribute("userId", user.getUserId());
                     //Server adds new active user ID to activeUsers
                     activeUsers.add(user.getUserId());
-                    response.setStatus(201);
-                    return "Successful login with " + email;
+                    response.setStatus(HttpServletResponse.SC_CREATED);
+                    return user;
 
-                } else if (user.getEmails().contains(email) && !user.checkPassword(password)) {
-                    response.setStatus(401);
-                    return "Unsuccessful login with " + email + ", please enter a valid password";
+//                } else if (user.getEmails().contains(email) && !user.checkPassword(password)) {
+////                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+////                    return "Unsuccessful login with " + email + ", please enter a valid password";
                 }
             }
-            response.setStatus(401);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             throw new UserNotFoundException(email);
         }
-        response.setStatus(403);
-        return "Please enter an email and a password";
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+//        return "Please enter an email and a password";
+        return null;
     }
 
     /**
@@ -126,10 +127,10 @@ public class UserController {
             activeUsers.remove(userId);
             //Remove userId, associated with user, in client session
             session.removeAttribute("userId");
-            response.setStatus(200);
+            response.setStatus(HttpServletResponse.SC_OK);
             return "Logged out successful";
         }
-        response.setStatus(403);
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         return "Already logged out";
     }
 
