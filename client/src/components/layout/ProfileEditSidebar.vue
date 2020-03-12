@@ -6,21 +6,21 @@
 
         <ul class="sidebar-items">
             <li class>
-                <a href="/profile/details" class="sidebar-item">
+                <router-link to="/profile/details" class="sidebar-item">
                     <span class="sidebar-item-name">Details</span>
-                </a>
-            </li>
-
-            <li class>
-                <a href="/profile/email" class="sidebar-item">
-                    <span class="sidebar-item-name">Email</span>
-                </a>
+                </router-link>
             </li>
 
             <!--<li class>
-                <a href="/profile/password" class="sidebar-item">
+                <router-link to="/profile/email"  class="sidebar-item">
+                    <span class="sidebar-item-name">Email</span>
+                </router-link>
+            </li>-->
+
+            <!--<li class>
+                <router-link to="/profile/password" class="sidebar-item">
                     <span class="sidebar-item-name">Password</span>
-                </a>
+                </router-link>
             </li>-->
 
         </ul>
@@ -28,6 +28,9 @@
 </template>
 
 <script>
+    export default {
+        name: "Sidebar",
+    }
 </script>
 
 <style scoped>
