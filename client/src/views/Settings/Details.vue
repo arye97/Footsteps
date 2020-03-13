@@ -1,8 +1,13 @@
 <template>
   <div class="settings-page">
+    <div class="alert alert-success alert-dismissible fade show sticky-top" role="alert" id="alert" hidden>
+      <p id="alert-message">{{  message  }}</p>
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
     <Sidebar />
     <div class="container-fluid">
-      <form>
         <div class="form-group">
           <!-- full-name field-->
           <label for="first-name">First Name: *</label>
@@ -89,13 +94,13 @@
           <button class="btn btn-primary" id="bio-btn" v-on:click="mutate" type="button">+</button>
           </div>
         </div>
-      </form>
     </div>
   </div>
 </template>
 
 <script>
   import Sidebar from "../../components/layout/ProfileEditSidebar"
+  import server from "../../Api";
     export default {
         name: "Details.vue",
         components: {
@@ -111,24 +116,42 @@
         dob: '',
         fitnessLevel: '',
         passportCountry: '',
-        bio: ''
+        bio: '',
+        message: ''
       }
     },
       methods: {
           mutate: function (event) {
-            let mutateButton = event.target.id;
-            let mutateTarget = event.target.id.replace("-btn", "");
+            const alertDiv = document.getElementById("alert");
+            //This function is used to swap the purpose of the buttons and to
+            const mutateButton = document.getElementById(event.target.id);
+            const mutateTarget = document.getElementById(event.target.id.replace("-btn", ""));
+            mutateButton.setAttribute('disabled', "true");
             if (event.target.type === "submit") {
-              document.getElementById(mutateTarget).setAttribute('disabled', "true");
-              document.getElementById(mutateButton).innerText = "+";
-              document.getElementById(mutateButton).type = "button";
+              if (mutateTarget.hasAttribute("required") && mutateTarget.value === "" || mutateTarget.value === undefined) {
+                this.message = "This is a required field. Please enter some valid data";
+              } else {
+                this.message = "Successfully updated the database";
+                mutateTarget.setAttribute('disabled', "true");
+                mutateButton.innerText = "+";
+                mutateButton.type = "button";
+              }
+              alertDiv.removeAttribute("hidden");
+              setTimeout(function () {
+                alertDiv.hidden = true;
+              }, 3000);
             } else {
-              document.getElementById(mutateTarget).removeAttribute('disabled');
-              document.getElementById(mutateButton).innerText = "Save";
-              document.getElementById(mutateButton).type = "submit";
+              mutateTarget.removeAttribute('disabled');
+              mutateButton.innerText = "Save";
+              mutateButton.type = "submit";
             }
+            mutateButton.removeAttribute('disabled');
+          },
+          pushUpdate: function(update) {
+            server.post(update).then(function (response) {
+              console.log(response);
+            })
           }
-
       }
     }
 </script>
@@ -143,5 +166,8 @@
 .form-control {
   max-width: 85%;
   margin-right: 1%;
+}
+.alert {
+  top: 60px;
 }
 </style>
