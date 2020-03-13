@@ -181,12 +181,13 @@
                 server.post(  'http://localhost:9499/profiles',
                     newUser
                 ).then(function(){
-                        console.log('User Registered Successfully!');
-                    }
+                    console.log('User Registered Successfully!');
+                    this.$router.push("/");
+                }
                 ).catch(error => {
                     console.log(error);
                 });
-                this.$router.push("/");
+
             }
         }
     }

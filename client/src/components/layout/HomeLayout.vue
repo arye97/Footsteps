@@ -15,15 +15,14 @@
 </template>
 
 <script>
-    import router from '../../index';
     export default {
         name: "HomeLayout",
         methods: {
             login() {
-                router.push('login');
+                this.$router.push('login');
             },
             register() {
-                router.push('register');
+                this.$router.push('register');
             }
         }
     }
