@@ -12,6 +12,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 public class User {
@@ -46,11 +47,25 @@ public class User {
     @JsonProperty("bio")
     private String bio;
 
-    @OneToOne(fetch = FetchType.EAGER,cascade=CascadeType.ALL)
+//    @OneToOne(fetch = FetchType.EAGER,cascade=CascadeType.ALL)
+//    @NotNull(message = "Please provide a primary email address")
+//    @JoinColumn(name = "primary_email", nullable = false)
+//    @JsonProperty("primary_email")
+//    private Emails emails;
+
     @NotNull(message = "Please provide a primary email address")
-    @JoinColumn(name = "primary_email", nullable = false)
     @JsonProperty("primary_email")
-    private Emails emails;
+    //@Column(name = "primary_email", nullable = false)
+    @OneToMany(mappedBy = "email")
+    private List<Emails> emails;
+//
+//    public List<Emails> getEmails() {
+//        return emails;
+//    }
+//
+//    public void setEmails(List<Emails> emails) {
+//        this.emails = emails;
+//    }
 
     @NotNull(message = "Please provide a password")
     @Column(name = "password", nullable = false)
@@ -141,13 +156,13 @@ public class User {
         this.bio = bio;
     }
 
-    public Emails getEmails() {
-        return emails;
-    }
-
-    public void setEmails(Emails emails) {
-        this.emails = emails;
-    }
+//    public Emails getEmails() {
+//        return emails;
+//    }
+//
+//    public void setEmails(Emails emails) {
+//        this.emails = emails;
+//    }
 
     public boolean checkPassword(String password) {
         return encoder.matches(password, this.password);
@@ -198,35 +213,35 @@ public class User {
     }
 
 
-    @PrePersist
-    public void logNewUserAttempt() {
-        log.info("Attempting to add new user with email: " + emails.getPrimaryEmail());
-    }
-
-    @PostPersist
-    public void logNewUserAdded() {
-        log.info("Added user '" + firstName + " " + lastName + "' with primary email: " + emails.getPrimaryEmail());
-    }
-
-    @PreRemove
-    public void logUserRemovalAttempt() {
-        log.info("Attempting to delete user: " + emails.getPrimaryEmail());
-    }
-
-    @PostRemove
-    public void logUserRemoval() {
-        log.info("Deleted user: " + emails.getPrimaryEmail());
-    }
-
-    @PreUpdate
-    public void logUserUpdateAttempt() {
-        log.info("Attempting to update user: " + emails.getPrimaryEmail());
-    }
-
-    @PostUpdate
-    public void logUserUpdate() {
-        log.info("Updated user: " + emails.getPrimaryEmail());
-    }
+//    @PrePersist
+//    public void logNewUserAttempt() {
+//        log.info("Attempting to add new user with email: " + emails);
+//    }
+//
+//    @PostPersist
+//    public void logNewUserAdded() {
+//        log.info("Added user '" + firstName + " " + lastName + "' with primary email: " + emails.getPrimaryEmail());
+//    }
+//
+//    @PreRemove
+//    public void logUserRemovalAttempt() {
+//        log.info("Attempting to delete user: " + emails.getPrimaryEmail());
+//    }
+//
+//    @PostRemove
+//    public void logUserRemoval() {
+//        log.info("Deleted user: " + emails.getPrimaryEmail());
+//    }
+//
+//    @PreUpdate
+//    public void logUserUpdateAttempt() {
+//        log.info("Attempting to update user: " + emails.getPrimaryEmail());
+//    }
+//
+//    @PostUpdate
+//    public void logUserUpdate() {
+//        log.info("Updated user: " + emails.getPrimaryEmail());
+//    }
 
     @Override
     public String toString() {
