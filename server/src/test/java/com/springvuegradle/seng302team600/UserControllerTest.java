@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -24,10 +26,11 @@ class UserControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    //    private ObjectMapper objMapper = new ObjectMapper();
     private String createUserJsonPost;
     private String createUserJsonPostPassport;
     private String editProfileJsonPost;
+    private String createUserJsonPostLogin;
+    private String jsonLoginDetails;
 
     private ObjectMapper objectMapper;
 
@@ -43,6 +46,16 @@ class UserControllerTest {
                 "  \"bio\": \"Jacky loves to ride his bike on crazy mountains.\",\n" +
                 "  \"date_of_birth\": \"1985-12-20\",\n" +
                 "  \"gender\": \"male\"\n" +
+                "}";
+
+        createUserJsonPostLogin = "{\n" +
+                "  \"lastname\": \"Dean\",\n" +
+                "  \"firstname\": \"Bob\",\n" +
+                "  \"middlename\": \"Mark\",\n" +
+                "  \"primary_email\": \"bobby@gmail.com\",\n" +
+                "  \"password\": \"bobbyPwd\",\n" +
+                "  \"date_of_birth\": \"1976-9-2\",\n" +
+                "  \"gender\": \"non_binary\"\n" +
                 "}";
 
         createUserJsonPostPassport = "{\n" +
@@ -65,6 +78,11 @@ class UserControllerTest {
                 "  \"firstname\": \"Ben\"\n" +
                 "}";
 
+        jsonLoginDetails = "{\n" +
+                "  \"email\": \"bobby@gmail.com\",\n" +
+                "  \"password\": \"bobbyPwd\"\n" +
+                "}";
+
         objectMapper = new ObjectMapper();
     }
 
@@ -80,7 +98,7 @@ class UserControllerTest {
 
         // Perform POST
         MvcResult result = mvc.perform(httpReq)
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andReturn();
 
         // Get Response as JsonNode
@@ -104,7 +122,7 @@ class UserControllerTest {
 
         // Perform POST
         MvcResult result = mvc.perform(httpReq)
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andReturn();
 
         // Get Response as JsonNode
@@ -127,6 +145,51 @@ class UserControllerTest {
         mvc.perform(httpReq)
                 .andExpect(status().isOk());
 
+    }
+
+    @Test
+    public void logInAndOutTest() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        // Register profile
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/profiles")
+                .content(createUserJsonPostLogin)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .session(session);
+
+        mvc.perform(request);
+
+        // Logout profile
+        request = MockMvcRequestBuilders.post("/logout")
+                .accept(MediaType.APPLICATION_JSON)
+                .session(session);
+
+        // Perform POST
+        MvcResult result = mvc.perform(request)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // Test response
+        assertEquals("Logged out successful", result.getResponse().getContentAsString());
+
+        // Login profile
+        request = MockMvcRequestBuilders.post("/login")
+                .content(jsonLoginDetails)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .session(session);;
+
+        // Perform POST
+        result = mvc.perform(request)
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        // Get Response as JsonNode
+        String jsonResponseStr = result.getResponse().getContentAsString();
+        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
+
+        // Test response
+        assertEquals("Dean", jsonNode.get("lastname").asText());
     }
 
 //    @Test

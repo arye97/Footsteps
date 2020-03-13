@@ -12,10 +12,10 @@ import org.springframework.web.filter.CorsFilter;
 import java.util.*;
 
 @SpringBootApplication
-public class Team4ServerApplication {
+public class Application {
 
     public static void main(String[] args) {
-        SpringApplication.run(Team4ServerApplication.class, args);
+        SpringApplication.run(Application.class, args);
     }
 //
 //    @Bean
