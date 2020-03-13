@@ -49,16 +49,17 @@ public class UserController {
      */
     @GetMapping("/profiles")
     public User findUserData(HttpServletRequest request, HttpServletResponse response) {
+        //getSession(false) ensures that a session is not created
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("userId") != null) {
             //Gets userId from client session
             Long userId = (Long) session.getAttribute("userId");
             response.setStatus(HttpServletResponse.SC_OK);
             return repository.findByUserId(userId);
+        } else {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return null;
         }
-
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        return null;
     }
 
 
@@ -75,11 +76,13 @@ public class UserController {
             session.removeAttribute("userId");
         }
         if (repository.findByEmails(newUser.getEmails()) == null) {
-            //If mandatory fields not given, exception in UserRepository.save ends function execution and makes response body
+                //If mandatory fields not given, exception in UserRepository.save ends function execution and makes response body
+                //Gives request status:400 and specifies needed field if null in required field
+            //Saving generates user id
             User user = repository.save(newUser);
             //Adds user ID to activeUsers
             activeUsers.add(user.getUserId());
-            //Sets this user's ID to session userId
+            Sets this user's ID to session userId
             session.setAttribute("userId", user.getUserId());
             response.setStatus(HttpServletResponse.SC_CREATED);
             return user;
