@@ -164,17 +164,15 @@
             registerUser() {
                 // Save the data as a newUser object
                 const newUser = {
+                    lastname: this.lastname,
                     firstname: this.firstname,
                     middlename: this.middlename,
-                    lastname: this.lastname,
+                    nickname: this.nickname,
                     primary_email: this.email,
                     password: this.password,
-                    nickname: this.nickname,
-                    gender: this.gender,
                     date_of_birth: this.dob,
-                    fitnessLevel: this.fitnessLevel,
-                    passportCountry: this.passportCountry,
-                    bio: document.getElementById('bio').value
+                    gender: this.gender,
+                    bio: this.bio
                 }
                 // console.log(newUser)     // view data in console for testing with this
                 // The HTTP Post Request
@@ -182,7 +180,7 @@
                     newUser
                 ).then(function(){
                     console.log('User Registered Successfully!');
-                    this.$router.push("/");
+                    this.$router.push("/profile");
                 }
                 ).catch(error => {
                     console.log(error);

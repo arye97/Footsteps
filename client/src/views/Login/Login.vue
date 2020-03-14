@@ -46,6 +46,7 @@
             return {
                 email: '',
                 password: '',
+                hasError: false
             }
         },
         methods: {
@@ -53,7 +54,7 @@
                 const user = {
                     email: this.email,
                     password: this.password
-                }
+                };
                 //Perform password encryption
                 server.post(  'http://localhost:9499/login',
                     user
@@ -61,9 +62,12 @@
                         console.log('User Logged In Successfully!');
                 }
                 ).catch(error => {
-                    console.log(error);
+                    console.log(error.response);
+                    this.hasError = true;
                 });
-            this.$router.push("/profile");
+                if (this.hasError === false) {
+                    this.$router.push("profile");
+                }
             }
 
         }

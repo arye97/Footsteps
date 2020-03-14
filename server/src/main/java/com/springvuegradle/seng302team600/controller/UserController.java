@@ -1,4 +1,5 @@
 package com.springvuegradle.seng302team600.controller;
+import com.springvuegradle.seng302team600.model.User;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,7 +8,7 @@ import com.springvuegradle.seng302team600.exception.IncorrectPasswordException;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.exception.EmailAlreadyRegisteredException;
 import com.springvuegradle.seng302team600.exception.UserNotFoundException;
-import com.springvuegradle.seng302team600.model.User;
+
 
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;

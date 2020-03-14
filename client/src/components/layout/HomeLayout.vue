@@ -19,10 +19,10 @@
         name: "HomeLayout",
         methods: {
             login() {
-                this.$router.push('login');
+                this.$router.push('/login');
             },
             register() {
-                this.$router.push('register');
+                this.$router.push('/register');
             }
         }
     }

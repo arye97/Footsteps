@@ -1,15 +1,28 @@
 <template>
     <div id="app">
-        <h1>Hi {{this.user.firstname + " " + this.user.lastname}}!</h1>
-        <p>You're logged in to your Hakinakina Account</p>
-        <h3>All about you</h3>
-        <p v-if="this.user.nickname">Nickname: {{ this.user.nickname }}</p>
-        <p>Gender: {{ this.user.gender }}</p>
-        <p>Date Of Birth: {{ this.user.date_of_birth }}</p>
-        <p>Email: {{ this.user.primary_email }}</p>
-        <p v-if="this.user.fitnessLevel">Fitness Level: {{ this.user.fitnessLevel }}</p>
-        <p v-if="this.user.passportCountry">Passport Country: {{ this.user.passportCountry }}</p>
-        <p v-if="this.user.bio">Bio: {{ this.user.bio }}</p>
+        <h1><br/></h1>
+        <h1>Welcome to Hakinakina!</h1>
+
+        <section v-if="errored">
+            <p>Sorry, looks like we can't get your info! Please try again soon.</p>
+        </section>
+
+        <section v-else>
+            <div v-if="loading"> Loading...</div>
+            <div v-else class="form-group">
+                <h1>Hi {{user.firstname}}!</h1>
+                <p>You're logged in to your Hakinakina Account</p>
+                <h3>All about you</h3>
+                <span class="accordion">
+                    <span v-if="user.nickname">Nickname: {{ user.nickname }}</span>
+                    <span>Gender: {{ user.gender }}</span>
+                    <span>Date Of Birth: {{ user.date_of_birth }}</span>
+                    <span>Email: {{ user.primary_email }}</span>
+                    <span>Bio: {{ user.bio }}</span>
+                </span>
+            </div>
+        </section>
+
     </div>
 </template>
 
@@ -20,17 +33,20 @@
         name: "ViewUser",
         data() {
             return {
-                user: null
+                user: null,
+                loading: true,
+                errored: false
             }
         },
         mounted() {
             server.get(  'http://localhost:9499/profiles').
-            then(function(res){
-                this.user = res; //set our user set above to returned user from backend
-                console.log('User Data Acquired Successfully!');
-                }
+            then( res => {
+                (this.user = res);
+                console.log("User data acquired");
+            }
             ).catch(error => {
-                console.log(error.response); // catch error as the backend response status code
+                console.log(error.response);
+                this.errored = true;
             });
         }
     }
