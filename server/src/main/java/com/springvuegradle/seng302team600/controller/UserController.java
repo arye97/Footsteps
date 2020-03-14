@@ -3,7 +3,7 @@ package com.springvuegradle.seng302team600.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.springvuegradle.seng302team600.LoggedUser;
+import com.springvuegradle.seng302team600.model.LoggedUser;
 import com.springvuegradle.seng302team600.exception.IncorrectPasswordException;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.exception.EmailAlreadyRegisteredException;
