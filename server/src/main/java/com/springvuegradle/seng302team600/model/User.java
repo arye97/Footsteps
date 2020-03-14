@@ -58,14 +58,14 @@ public class User {
     //@Column(name = "primary_email", nullable = false)
     @OneToMany(mappedBy = "email")
     private List<Emails> emails;
-//
-//    public List<Emails> getEmails() {
-//        return emails;
-//    }
-//
-//    public void setEmails(List<Emails> emails) {
-//        this.emails = emails;
-//    }
+
+    public List<Emails> getEmails() {
+        return emails;
+    }
+
+    public void setEmails(List<Emails> emails) {
+        this.emails = emails;
+    }
 
     @NotNull(message = "Please provide a password")
     @Column(name = "password", nullable = false)

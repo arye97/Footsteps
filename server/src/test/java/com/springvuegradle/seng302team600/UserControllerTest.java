@@ -2,6 +2,7 @@ package com.springvuegradle.seng302team600;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -68,6 +69,7 @@ class UserControllerTest {
         objectMapper = new ObjectMapper();
     }
 
+    @Disabled
     @Test
     /**Test if a new User can be created*/
     public void newUserTestU1() throws Exception {
@@ -92,6 +94,7 @@ class UserControllerTest {
         assertEquals("jacky@google.com", jsonNode.get("primary_email").get("primaryEmail").asText());
     }
 
+    @Disabled
     @Test
     /**Test if a new User can be created*/
     public void newUserTestU2() throws Exception {
@@ -118,7 +121,7 @@ class UserControllerTest {
     }
 
 
-
+    @Disabled
     @Test
     public void allTest() throws Exception {
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get("/listprofile")

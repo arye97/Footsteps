@@ -63,7 +63,6 @@ public class Emails {
         this.primaryEmail = isPrimaryEmail;
     }
 
-
     public Long getId() {
         return id;
     }
@@ -105,7 +104,7 @@ public class Emails {
                 ", user=" + user +
                 '}';
     }
-//
+
 //    /**
 //     * Create a new Emails object
 //     * */

@@ -1,10 +1,6 @@
 package com.springvuegradle.seng302team600.controller;
 
-import org.json.*;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.springvuegradle.seng302team600.model.Emails;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.exception.EmailAlreadyRegisteredException;
 import com.springvuegradle.seng302team600.model.User;
@@ -12,9 +8,7 @@ import com.springvuegradle.seng302team600.model.User;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 public class UserController {
@@ -25,26 +19,26 @@ public class UserController {
         this.repository = repository;
     }
 
-    /**
-    Return a list of Users saved in the repository
-     */
-    @GetMapping("/listprofile")
-    public List<User> all() {
-        // Use this to see the location in memory of each User
-//        List<User> users = repository.findAll();
-//        for (User user : users) {
-//            System.out.println(user.toString());
-//        }
-//        return users;
-        return repository.findAll();
-    }
+//    /**
+//    Return a list of Users saved in the repository
+//     */
+//    @GetMapping("/listprofile")
+//    public List<User> all() {
+//        // Use this to see the location in memory of each User
+////        List<User> users = repository.findAll();
+////        for (User user : users) {
+////            System.out.println(user.toString());
+////        }
+////        return users;
+//        return repository.findAll();
+//    }
 
 
     /**
      Creates and returns a new User from the requested body
      */
     @PostMapping("/profiles")
-    public Object newUser(@Validated @RequestBody User body) throws EmailAlreadyRegisteredException, JsonProcessingException {
+    public Object newUser(@Validated @RequestBody User newUser) throws EmailAlreadyRegisteredException, JsonProcessingException {
 //        List<Emails> emails = new ArrayList<Emails>();
 //        Emails primaryEmail = new Emails(body.get("primary_email").toString(), true);
 //        emails.add(primaryEmail);
@@ -55,8 +49,9 @@ public class UserController {
 
         //JSONObject jsonObject=new JSONObject(body);
 
-        return body;
-
+        //make function for this
+        newUser.getEmails().get(0).setPrimary(true);
+        return repository.save(newUser);
 
         // maybe using try catch would be better?
 //        if (repository.findByEmails(newUser.getEmails()) == null) {
