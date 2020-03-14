@@ -47,7 +47,7 @@
                 <input type="password" class="form-control" v-model="password" id="password" name="password" placeholder="Your Password..." required>
             </div>
             <div class="form-group">
-                <label for="passwordCheck">Retype your Password: </label>
+                <label for="passwordCheck">Retype your Password: *</label>
                 <input type="password" class="form-control" v-model="passwordCheck" id="passwordCheck" name="passwordCheck" placeholder="Retype Password..." required>
             </div>
             <div class="form-group">
@@ -99,6 +99,7 @@
                 <button type="submit" class="btn btn-primary" v-on:click="registerUser">Register</button>
                 <router-link to="/login" class="btn btn-link">Login</router-link>
             </div>
+            <label v-show="regError" id="error">Error</label>
         </form>
         <footer>
             Entries marked with * are required
@@ -123,7 +124,8 @@
                 dob: '',
                 fitnessLevel: '',
                 passportCountry: '',
-                bio: ''
+                bio: '',
+                regError: false
             }
         },
 
@@ -180,12 +182,21 @@
                     newUser
                 ).then(function(){
                     console.log('User Registered Successfully!');
-                    this.$router.push("/profile");
+                    this.regError = false;
                 }
                 ).catch(error => {
-                    console.log(error);
+                    console.log(error.response);
+                    let errorLabel = document.getElementById("error");
+                    if (error.response.status == 403) {
+                        errorLabel.textContent = error.response.data.toString();
+                    } else {
+                        errorLabel.textContent = "An unknown error has occurred during login"
+                    }
+                    this.regError = true;
                 });
-
+                if (!this.regError) {
+                    this.$router.push("/profile");
+                }
             }
         }
     }

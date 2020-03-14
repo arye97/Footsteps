@@ -33,6 +33,7 @@
             </div>
             </div>
         </form>
+        <label v-show="hasError" id="error">Error</label>
     </div>
 </template>
 
@@ -60,14 +61,20 @@
                     user
                 ).then(function(){
                         console.log('User Logged In Successfully!');
+                        this.$router.push("profile");
                 }
                 ).catch(error => {
                     console.log(error.response);
+                    let errorLabel = document.getElementById("error");
+                    if (error.response.status == 403) {
+                        errorLabel.textContent = error.response.data.toString();
+                    } else if (error.response.status == 400) {
+                        errorLabel.textContent = "An invalid login request has been received please try again"
+                    } else {
+                        errorLabel.textContent = "An unknown error has occurred during login"
+                    }
                     this.hasError = true;
                 });
-                if (this.hasError === false) {
-                    this.$router.push("profile");
-                }
             }
 
         }
