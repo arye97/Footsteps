@@ -31,22 +31,26 @@ public class UserRequestBodyAdvice implements RequestBodyAdvice {
     @Override
     public HttpInputMessage beforeBodyRead(HttpInputMessage inputMessage, MethodParameter parameter, Type targetType,
                                            Class<? extends HttpMessageConverter<?>> converterType) throws IOException {
-        InputStream body = inputMessage.getBody();
-        String bodyStr = IOUtils.toString(body, StandardCharsets.UTF_8);
+        // Checks method name
+        String methodName = parameter.getMethod().getName();
+        if (methodName.equals("newUser")) {
+            InputStream body = inputMessage.getBody();
+            String inputMessageString = IOUtils.toString(body, StandardCharsets.UTF_8);
 
-        StringBuilder sb = new StringBuilder(bodyStr);
-        int passwordIndex = bodyStr.indexOf("\"password\"");
-        int primaryEmailIndex = bodyStr.indexOf("\"primary_email\"");
+            // Modifies primary_email from request body into a list
+            StringBuilder stringBuilder = new StringBuilder(inputMessageString);
+            int passwordIndex = inputMessageString.indexOf("\"password\"");
+            int primaryEmailIndex = inputMessageString.indexOf("\"primary_email\"");
 
-        sb.insert(passwordIndex - 4, "}]");
-        sb.insert(primaryEmailIndex + 18, "[{\"email\": ");
+            stringBuilder.insert(passwordIndex - 4, "}]");
+            stringBuilder.insert(primaryEmailIndex + 18, "[{\"email\": ");
 
-        bodyStr = sb.toString();
-
-        HttpInputMessage ret = new MappingJacksonInputMessage(new ByteArrayInputStream(bodyStr.getBytes()), inputMessage.getHeaders()); //set the updated bodyStr
-
+            // Converts string back to inputMessage
+            inputMessageString = stringBuilder.toString();
+            inputMessage = new MappingJacksonInputMessage(new ByteArrayInputStream(inputMessageString.getBytes()), inputMessage.getHeaders()); //set the updated bodyStr
+        }
         System.out.println("In beforeBodyRead() method of " + getClass().getSimpleName());
-        return ret;
+        return inputMessage;
     }
 
     @Override

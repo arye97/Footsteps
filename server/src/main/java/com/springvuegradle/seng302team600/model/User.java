@@ -48,25 +48,10 @@ public class User {
     @JsonProperty("bio")
     private String bio;
 
-//    @OneToOne(fetch = FetchType.EAGER,cascade=CascadeType.ALL)
-//    @NotNull(message = "Please provide a primary email address")
-//    @JoinColumn(name = "primary_email", nullable = false)
-//    @JsonProperty("primary_email")
-//    private Emails emails;
-
     @NotNull(message = "Please provide a primary email address")
+    @OneToMany(mappedBy = "email", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonProperty("primary_email")
-    @OneToMany(mappedBy = "email", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Emails> emails;
-
-    public List<Emails> getEmails() {
-        return emails;
-    }
-
-    public void setEmails(List<Emails> emails) {
-        emails.get(0).setUser(this);
-        this.emails = emails;
-    }
 
     @NotNull(message = "Please provide a password")
     @Column(name = "password", nullable = false)
@@ -157,13 +142,15 @@ public class User {
         this.bio = bio;
     }
 
-//    public Emails getEmails() {
-//        return emails;
-//    }
-//
-//    public void setEmails(Emails emails) {
-//        this.emails = emails;
-//    }
+    public List<Emails> getEmails() {
+        return emails;
+    }
+
+    public void setEmails(List<Emails> emails) {
+        //hacky
+        emails.get(0).setUser(this);
+        this.emails = emails;
+    }
 
     public boolean checkPassword(String password) {
         return encoder.matches(password, this.password);
