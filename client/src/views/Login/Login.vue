@@ -57,7 +57,7 @@
                     password: this.password
                 };
                 //Perform password encryption
-                server.post(  'http://localhost:9499/login',
+                server.post('/login',
                     user
                 ).then(function(){
                         console.log('User Logged In Successfully!');

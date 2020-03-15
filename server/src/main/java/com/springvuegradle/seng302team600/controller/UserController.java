@@ -4,6 +4,7 @@ import com.springvuegradle.seng302team600.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.springvuegradle.seng302team600.model.LoggedUser;
 import com.springvuegradle.seng302team600.exception.IncorrectPasswordException;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.exception.EmailAlreadyRegisteredException;
@@ -46,63 +47,74 @@ public class UserController {
     }
 
     /**
-     Return a User saved in the repository via userId
+     * Return a User saved in the repository via userId
+     * @param request
+     * @param response
+     * @return User requested or null
      */
     @GetMapping("/profiles")
     public User findUserData(HttpServletRequest request, HttpServletResponse response) {
+        //getSession(false) ensures that a session is not created
         HttpSession session = request.getSession(false);
-        if (session != null && session.getAttribute("userId") != null) {
+        if (session != null && session.getAttribute("loggedUser") != null) {
             //Gets userId from client session
-            Long userId = (Long) session.getAttribute("userId");
+            Long userId = ((LoggedUser) session.getAttribute("loggedUser")).getUserId();
             response.setStatus(HttpServletResponse.SC_OK);
             return repository.findByUserId(userId);
+        } else {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return null;
         }
-
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        return null;
     }
 
 
     /**
-    Creates and returns a new User from the requested body
+     * Creates and returns a new User from the requested body
+     * @param newUser
+     * @param request
+     * @param response
+     * @return User that is created
+     * @throws EmailAlreadyRegisteredException
      */
     @PostMapping("/profiles")
     public User newUser(@Validated @RequestBody User newUser, HttpServletRequest request, HttpServletResponse response) throws EmailAlreadyRegisteredException {
         HttpSession session = request.getSession();
-        if (session.getAttribute("userId") != null) { //Check if already logged in
-            //Removes user ID from activeUsers
-            activeUsers.remove((Long) session.getAttribute("userId"));
+        if (session.getAttribute("loggedUser") != null) { //Check if already logged in
             //Removes this user's ID from session
-            session.removeAttribute("userId");
+            session.removeAttribute("loggedUser");
         }
         if (repository.findByEmails(newUser.getEmails()) == null) {
-            //If mandatory fields not given, exception in UserRepository.save ends function execution and makes response body
+                //If mandatory fields not given, exception in UserRepository.save ends function execution and makes response body
+                //Gives request status:400 and specifies needed field if null in required field
+            //Saving generates user id
             User user = repository.save(newUser);
-            //Adds user ID to activeUsers
-            activeUsers.add(user.getUserId());
             //Sets this user's ID to session userId
-            session.setAttribute("userId", user.getUserId());
+            session.setAttribute("loggedUser", new LoggedUser(user.getUserId(), activeUsers));
             response.setStatus(HttpServletResponse.SC_CREATED);
             return user;
         } else {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            throw new EmailAlreadyRegisteredException("Email: " + newUser.getEmails().getPrimaryEmail() + " is already registered!");
+            throw new EmailAlreadyRegisteredException(newUser.getEmails().getPrimaryEmail());
         }
     }
 
     /**
-     Logs in a valid user with a registered email
+     * Logs in a valid user with a registered email and password
+     * @param jsonLogInString
+     * @param request
+     * @param response
+     * @return The logged in User
+     * @throws JsonProcessingException
+     * @throws UserNotFoundException
+     * @throws IncorrectPasswordException
      */
     @PostMapping("/login")
     public User logIn(@RequestBody String jsonLogInString, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, UserNotFoundException, IncorrectPasswordException {
         ObjectNode node = new ObjectMapper().readValue(jsonLogInString, ObjectNode.class);
         HttpSession session = request.getSession();
 
-        if (session.getAttribute("userId") != null) { //Check if already logged in
-            //Removes user ID from activeUsers
-            activeUsers.remove((Long) session.getAttribute("userId"));
+        if (session.getAttribute("loggedUser") != null) { //Check if already logged in
             //Removes this user's ID from session
-            session.removeAttribute("userId");
+            session.removeAttribute("loggedUser");
         }
 
         if (node.has("email") && node.has("password")) {
@@ -113,18 +125,14 @@ public class UserController {
                 if (user.getEmails().contains(email)) {
                     if (user.checkPassword(password)) {
                         //Client session will store the ID of currently logged in user
-                        session.setAttribute("userId", user.getUserId());
-                        //Server adds new active user ID to activeUsers
-                        activeUsers.add(user.getUserId());
+                        session.setAttribute("loggedUser", new LoggedUser(user.getUserId(), activeUsers));
                         response.setStatus(HttpServletResponse.SC_CREATED);
                         return user;
                     } else {
-                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                         throw new IncorrectPasswordException(email);
                     }
                 }
             }
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             throw new UserNotFoundException(email);
         }
         //email and/or password fields not given
@@ -133,19 +141,19 @@ public class UserController {
     }
 
     /**
-     Logs out a user if they are not already logged out.
+     * Logs out a user if they are not already logged out.
+     * @param request
+     * @param response
+     * @return String, Success status.
      */
     @PostMapping("/logout")
     public String logOut(HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession(false);
-        if (session != null && session.getAttribute("userId") != null) {
-            //Remove userId from activeUsers on server
-            Long userId = (Long) session.getAttribute("userId");
-            activeUsers.remove(userId);
+        if (session != null && session.getAttribute("loggedUser") != null) {
             //Remove userId, associated with user, in client session
-            session.removeAttribute("userId");
+            session.removeAttribute("loggedUser");
             response.setStatus(HttpServletResponse.SC_OK);
-            return "Logged out successful";
+            return "Logout successful";
         }
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         return "Already logged out";
