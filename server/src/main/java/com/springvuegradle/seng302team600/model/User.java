@@ -1,6 +1,8 @@
 package com.springvuegradle.seng302team600.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.apache.commons.logging.Log;
@@ -49,6 +51,7 @@ public class User {
     private String bio;
 
     @NotNull(message = "Please provide a primary email address")
+    @JsonManagedReference
     @OneToMany(mappedBy = "email", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonProperty("primary_email")
     private List<Emails> emails;

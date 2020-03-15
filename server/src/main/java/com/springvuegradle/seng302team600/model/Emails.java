@@ -1,5 +1,6 @@
 package com.springvuegradle.seng302team600.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springvuegradle.seng302team600.exception.EmailAlreadyRegisteredException;
 import com.springvuegradle.seng302team600.exception.MaximumEmailsException;
@@ -40,6 +41,7 @@ public class Emails {
     @Column(name = "is_primary_email", columnDefinition = "boolean", nullable = false)
     private boolean isPrimaryEmail;
 
+    @JsonBackReference
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

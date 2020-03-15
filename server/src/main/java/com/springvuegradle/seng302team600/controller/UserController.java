@@ -38,22 +38,10 @@ public class UserController {
      Creates and returns a new User from the requested body
      */
     @PostMapping("/profiles")
-    public User newUser(@Validated @RequestBody User newUser) throws EmailAlreadyRegisteredException, JsonProcessingException {
-//        List<Emails> emails = new ArrayList<Emails>();
-//        Emails primaryEmail = new Emails(body.get("primary_email").toString(), true);
-//        emails.add(primaryEmail);
-//        body.put("primary_email", emails);
-//
-//        ObjectMapper mapper = new ObjectMapper();
-//        User obj = mapper.readValue("{\"middlename\":\"Jack\",\"lastname\":\"DADSSA\",\"nickname\":\"Jacky\",\"primary_email\":[{\"email\":\"mauricejacask@yahoo.com\",\"primary\":true,\"id\":null}],\"password\":\"jack\",\"bio\":\"Jacky loves to ride his bike on crazy mountains.\",\"date_of_birth\":\"1985-12-20\",\"gender\":\"male\"}", User.class);
-
-        //JSONObject jsonObject=new JSONObject(body);
-
-        //make function for this
+    public List<User> newUser(@Validated @RequestBody User newUser) throws EmailAlreadyRegisteredException, JsonProcessingException {
         newUser.getEmails().get(0).setPrimary(true);
         repository.save(newUser);
-
-        return newUser;
+        return repository.findAll();
 
         // maybe using try catch would be better?
 //        if (repository.findByEmails(newUser.getEmails()) == null) {
