@@ -122,24 +122,21 @@
     },
       methods: {
           mutate: function (event) {
-            const alertDiv = document.getElementById("alert");
-            //This function is used to swap the purpose of the buttons and to
+            //const alertDiv = document.getElementById("alert");
+            //This function is used to swap the purpose of the buttons
             const mutateButton = document.getElementById(event.target.id);
             const mutateTarget = document.getElementById(event.target.id.replace("-btn", ""));
+            //Disable the buttons to prevent issues with them being rapidly clicked, which would cause issues
             mutateButton.setAttribute('disabled', "true");
             if (event.target.type === "submit") {
               if (mutateTarget.hasAttribute("required") && mutateTarget.value === "" || mutateTarget.value === undefined) {
                 this.message = "This is a required field. Please enter some valid data";
               } else {
-                this.message = "Successfully updated the database";
+                //mutateTarget.value;
                 mutateTarget.setAttribute('disabled', "true");
                 mutateButton.innerText = "+";
                 mutateButton.type = "button";
               }
-              alertDiv.removeAttribute("hidden");
-              setTimeout(function () {
-                alertDiv.hidden = true;
-              }, 3000);
             } else {
               mutateTarget.removeAttribute('disabled');
               mutateButton.innerText = "Save";
@@ -147,9 +144,26 @@
             }
             mutateButton.removeAttribute('disabled');
           },
-          pushUpdate: function(update) {
-            server.post(update).then(function (response) {
-              console.log(response);
+          putUpdate: function(update, alertDiv) {
+            server.put(update).then(function (response) {
+              switch (response.status) {
+                case 200:
+                  alertDiv.addClass("alert-success");
+                  alertDiv.removeClass("alert-danger");
+                  break;
+                case 400:
+                case 401:
+                case 403:
+                case 500:
+                  alertDiv.remove("alert-success");
+                  alertDiv.addClass("alert-danger");
+                  break;
+              }
+              this.message = response.statusText;
+              alertDiv.removeAttribute("hidden");
+              setTimeout(function () {
+                alertDiv.hidden = true;
+              }, 3000);
             })
           }
       }
