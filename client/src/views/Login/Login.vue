@@ -47,52 +47,42 @@
             return {
                 email: '',
                 password: '',
-                hasError: false
+                hasError: false,
+                loggedIn: false
             }
         },
         methods: {
 
-            // login() {
-            //     const user = {
-            //         email: this.email,
-            //         password: this.password
-            //     };
-            //     //Perform password encryption
-            //     server.post('/login',
-            //         user
-            //     ).then(function(){
-            //             console.log('User Logged In Successfully!');
-            //             this.$router.push("profile");
-            //         }
-            //     ).catch(error => {
-            //         console.log(error.response);
-            //         let errorLabel = document.getElementById("error");
-            //         if (error.response.status == 403) {
-            //             errorLabel.textContent = error.response.data.toString();
-            //         } else if (error.response.status == 400) {
-            //             errorLabel.textContent = "An invalid login request has been received please try again"
-            //         } else {
-            //             errorLabel.textContent = "An unknown error has occurred during login"
-            //         }
-            //         this.hasError = true;
-            //     });
-
-                async login() {
-                const user = {
+            login() {
+                const userLogin = {
                     email: this.email,
                     password: this.password
                 };
                 //Perform password encryption
-                try {
-                    await server.post('http://localhost:9499/login', user);
-                    console.log('User Logged In Successfully!');
-                    await this.$router.push("profile");
-                } catch(error) {
-                    console.error(error);
+                server.post('http:/localhost:9499/login', userLogin, {headers: {"Access-Control-Allow-Origin": "*"}}
+                ).then(function (user) {
+                        console.log(user);
+                        console.log('User Logged In Successfully!');
+                        this.loggedIn = true;
+                    }
+                ).catch(error => {
                     this.hasError = true;
-                }
-            }
+                    console.log(error.response);
+                    // let errorLabel = document.getElementById("error");
+                    // if (error.response.status == 403) {
+                    //     errorLabel.textContent = error.response.data.toString();
+                    // } else if (error.response.status == 400) {
+                    //     errorLabel.textContent = "An invalid login request has been received please try again"
+                    // } else {
+                    //     errorLabel.textContent = "An unknown error has occurred during login"
+                    // }
 
+                });
+                if (this.loggedIn && !this.hasError) {
+                    this.$router.push("/profile");
+                }
+
+            }
         }
     }
 </script>

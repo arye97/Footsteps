@@ -52,8 +52,8 @@
             </div>
             <div class="form-group">
                 <!-- fitness level field -->
-                <label for="fitnessLevel">Fitness Level:</label>
-                <select class="form-control" v-model="fitnessLevel" name="fitnessLevel" id="fitnessLevel">
+                <label for="fitness">Fitness Level:</label>
+                <select class="form-control" v-model="fitness" name="fitness" id="fitness">
                     <option disabled value="">Please select a fitness level</option>
                     <option value="1">Unfit, no regular exercise, being active is very rare</option>
                     <option value="2">Not overly fit, occasional recreational fitness activity, active a few times a month</option>
@@ -74,7 +74,7 @@
                     <option value="" disabled selected hidden>Your Gender... </option>
                     <option value="male">Male</option>
                     <option value="female">Female</option>
-                    <option value="non-binary">Non Binary</option>
+                    <option value="non_binary">Non Binary</option>
                 </select>
             </div>
             <div class="form-group">
@@ -96,7 +96,7 @@
             </div>
             <div class="form-group">
                 <!-- SignIn Button-->
-                <button type="submit" class="btn btn-primary" v-on:click="registerUser">Register</button>
+                <button type="submit" class="btn btn-primary">Register</button>
                 <router-link to="/login" class="btn btn-link">Login</router-link>
             </div>
             <label v-show="regError" id="error">Error</label>
@@ -122,10 +122,11 @@
                 nickname: '',
                 gender: '',
                 date_of_birth: '',
-                fitnessLevel: '',
-                passports: '',
+                fitness: '',
+                passports: [],
                 bio: '',
-                regError: false
+                regError: false,
+                hasRegistered: false
             }
         },
 
@@ -163,45 +164,7 @@
 
         methods: {
 
-            // registerUser() {
-            //     // Save the data as a newUser object
-            //     const newUser = {
-            //         lastname: this.lastname,
-            //         firstname: this.firstname,
-            //         middlename: this.middlename,
-            //         nickname: this.nickname,
-            //         primary_email: this.email,
-            //         password: this.password,
-            //         date_of_birth: this.dob,
-            //         gender: this.gender,
-            //         bio: this.bio
-            //     }
-            //     // console.log(newUser)     // view data in console for testing with this
-            //     // The HTTP Post Request
-            //     server.post(  '/profiles',
-            //         newUser
-            //     ).then(function(){
-            //             console.log('User Registered Successfully!');
-            //             this.regError = false;
-            //         }
-            //     ).catch(error => {
-            //         console.log(error.response);
-            //         let errorLabel = document.getElementById("error");
-            //         if (error.response.status == 403) {
-            //             errorLabel.textContent = error.response.data.toString();
-            //         } else {
-            //             errorLabel.textContent = "An unknown error has occurred during login"
-            //         }
-            //         this.regError = true;
-            //     });
-            //     if (!this.regError) {
-            //         this.$router.push("/profile");
-            //     }
-            // }
-
-
-            // Method is called when the register button is selected
-            async registerUser() {
+            registerUser() {
                 // Save the data as a newUser object
                 const newUser = {
                     lastname: this.lastname,
@@ -212,18 +175,35 @@
                     password: this.password,
                     date_of_birth: this.date_of_birth,
                     gender: this.gender,
-                    bio: this.bio
+                    bio: this.bio,
+                    fitness: this.fitness
+                    //passports: this.passports
                 };
                 // console.log(newUser)     // view data in console for testing with this
                 // The HTTP Post Request
-                try {
-                    await server.post('http://localhost:9499/profiles', newUser);
-                    console.log('User Registered Successfully')
-                    await this.$router.push('/profile');
-                } catch (error) {
-                    console.error(error);
+                server.post(  'http://localhost:9499/profiles',
+                    newUser,
+                    { headers: { "Access-Control-Allow-Origin": "*", "content-type":"application/json"}}
+                ).then(function(){
+                    console.log('User Registered Successfully!');
+                    this.hasRegistered = true;
+                }).catch(error => {
+                    this.regError = true;
+                    console.log(error.response);
+                    // let errorLabel = document.getElementById("error");
+                    // if (error.response.status === 403) {
+                    //     errorLabel.textContent = error.response.data.toString();
+                    // } else {
+                    //     errorLabel.textContent = "An unknown error has occurred during login"
+                    // }
+
+                });
+                if (!this.regError && this.hasRegistered) {
+                    this.$router.push('/profile');
                 }
             }
+
+
         }
     }
 

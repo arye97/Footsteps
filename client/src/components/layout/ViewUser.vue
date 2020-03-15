@@ -39,7 +39,7 @@
             }
         },
         async mounted() {
-            server.get(  'http://localhost:9499/profiles')
+            server.get(  'http://localhost:9499/profiles', {headers: { "Access-Control-Allow-Origin": "*"}})
             .then(function (response) {
                 console.log(response);
                 this.loading = false;
