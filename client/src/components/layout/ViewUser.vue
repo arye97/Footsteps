@@ -10,15 +10,17 @@
         <section v-else>
             <div v-if="loading"> Loading...</div>
             <div v-else class="form-group">
-                <h1>Hi {{user.firstname}}!</h1>
+                <h1>Hi {{this.user.firstname}}!</h1>
                 <p>You're logged in to your Hakinakina Account</p>
                 <h3>All about you</h3>
                 <span class="accordion">
-                    <span v-if="user.nickname">Nickname: {{ user.nickname }}</span>
-                    <span>Gender: {{ user.gender }}</span>
-                    <span>Date Of Birth: {{ user.date_of_birth }}</span>
-                    <span>Email: {{ user.primary_email }}</span>
-                    <span>Bio: {{ user.bio }}</span>
+                    <span v-if="this.user.nickname">Nickname: {{ this.user.nickname }}</span>
+                    <span >Gender: {{ this.user.gender }}</span><br/>
+                    <span>Date Of Birth: {{ this.user.date_of_birth }}</span><br/>
+                    <span>Email(s): {{ this.user.primary_email }}</span><br/>
+                    <span v-if="this.user.passports">Passports: {{this.user.passports}}</span><br/>
+                    <span v-if="this.user.fitness">Fitness Level: {{this.user.fitness}}</span>
+                    <span v-if="this.user.bio">Bio: {{ this.user.bio }}</span><br/>
                 </span>
             </div>
         </section>
@@ -39,14 +41,21 @@
             }
         },
         async mounted() {
-            server.get(  'http://localhost:9499/profiles', {headers: { "Access-Control-Allow-Origin": "*"}})
-            .then(function (response) {
-                console.log(response);
+            server.get(  'http://localhost:9499/listprofile',
+                {headers:
+                        {'Content-Type': 'application/json',}
+                })
+            .then(response => {
+                console.log(response.data);
+                //user is set to the user data retrieved
+                this.user = response.data[0];
+                //no longer loading, so show data
                 this.loading = false;
             }).catch(function(error) {
+                console.error(error);
                 console.error(error.response);
 
             })
-        }
+        },
     }
 </script>

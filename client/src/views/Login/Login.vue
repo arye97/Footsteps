@@ -59,7 +59,7 @@
                     password: this.password
                 };
                 //Perform password encryption
-                server.post('http:/localhost:9499/login', userLogin, {headers: {"Access-Control-Allow-Origin": "*"}}
+                server.post('http:/localhost:9499/login', userLogin,
                 ).then(function (user) {
                         console.log(user);
                         console.log('User Logged In Successfully!');

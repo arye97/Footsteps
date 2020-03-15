@@ -189,6 +189,7 @@
                     this.hasRegistered = true;
                 }).catch(error => {
                     this.regError = true;
+                    console.log(error);
                     console.log(error.response);
                     // let errorLabel = document.getElementById("error");
                     // if (error.response.status === 403) {
