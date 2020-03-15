@@ -152,7 +152,7 @@ public class UserController {
             //Remove userId, associated with user, in client session
             session.removeAttribute("loggedUser");
             response.setStatus(HttpServletResponse.SC_OK);
-            return "Logged out successful";
+            return "Logout successful";
         }
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         return "Already logged out";

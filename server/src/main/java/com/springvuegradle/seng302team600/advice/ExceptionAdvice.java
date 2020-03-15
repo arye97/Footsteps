@@ -27,7 +27,7 @@ public class ExceptionAdvice {
     @ResponseBody
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String MethodArgumentNotValidExceptionHandler(UserNotFoundException ex) {
+    public String MethodArgumentNotValidExceptionHandler(MethodArgumentNotValidException ex) {
         return ex.getMessage();
     }
 
