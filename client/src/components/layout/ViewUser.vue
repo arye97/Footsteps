@@ -38,16 +38,15 @@
                 errored: false
             }
         },
-        mounted() {
-            server.get(  'http://localhost:9499/profiles').
-            then( res => {
-                (this.user = res);
-                console.log("User data acquired");
-            }
-            ).catch(error => {
-                console.log(error.response);
-                this.errored = true;
-            });
+        async mounted() {
+            server.get(  'http://localhost:9499/profiles')
+            .then(function (response) {
+                console.log(response);
+                this.loading = false;
+            }).catch(function(error) {
+                console.error(error.response);
+
+            })
         }
     }
 </script>

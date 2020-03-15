@@ -79,13 +79,13 @@
             </div>
             <div class="form-group">
                 <!-- date of birth field-->
-                <label for="dob">Date of Birth: *</label>
-                <input type="date" class="form-control" v-model="dob" id="dob" name="dob" required>
+                <label for="date_of_birth">Date of Birth: *</label>
+                <input type="date" class="form-control" v-model="date_of_birth" id="date_of_birth" name="date_of_birth" required>
             </div>
             <div class="form-group">
                 <!-- passport country -->
-                <label for="passportCountry">Passport Country:</label>
-                <select class="form-control" v-model="passportCountry" id="passportCountry" name="passportCountry">
+                <label for="passports">Passport Country:</label>
+                <select class="form-control" v-model="passports" id="passports" name="passports">
                     <option value="" disabled selected hidden>Select country</option>
                 </select>
             </div>
@@ -121,16 +121,16 @@
                 passwordCheck: '',
                 nickname: '',
                 gender: '',
-                dob: '',
+                date_of_birth: '',
                 fitnessLevel: '',
-                passportCountry: '',
+                passports: '',
                 bio: '',
                 regError: false
             }
         },
 
         mounted () {
-            let select = document.getElementById('passportCountry')
+            let select = document.getElementById('passports')
             // Create a request variable and assign a new XMLHttpRequest object to it.
             let request = new XMLHttpRequest()
             //build url
@@ -162,8 +162,46 @@
         },
 
         methods: {
+
+            // registerUser() {
+            //     // Save the data as a newUser object
+            //     const newUser = {
+            //         lastname: this.lastname,
+            //         firstname: this.firstname,
+            //         middlename: this.middlename,
+            //         nickname: this.nickname,
+            //         primary_email: this.email,
+            //         password: this.password,
+            //         date_of_birth: this.dob,
+            //         gender: this.gender,
+            //         bio: this.bio
+            //     }
+            //     // console.log(newUser)     // view data in console for testing with this
+            //     // The HTTP Post Request
+            //     server.post(  '/profiles',
+            //         newUser
+            //     ).then(function(){
+            //             console.log('User Registered Successfully!');
+            //             this.regError = false;
+            //         }
+            //     ).catch(error => {
+            //         console.log(error.response);
+            //         let errorLabel = document.getElementById("error");
+            //         if (error.response.status == 403) {
+            //             errorLabel.textContent = error.response.data.toString();
+            //         } else {
+            //             errorLabel.textContent = "An unknown error has occurred during login"
+            //         }
+            //         this.regError = true;
+            //     });
+            //     if (!this.regError) {
+            //         this.$router.push("/profile");
+            //     }
+            // }
+
+
             // Method is called when the register button is selected
-            registerUser() {
+            async registerUser() {
                 // Save the data as a newUser object
                 const newUser = {
                     lastname: this.lastname,
@@ -172,30 +210,18 @@
                     nickname: this.nickname,
                     primary_email: this.email,
                     password: this.password,
-                    date_of_birth: this.dob,
+                    date_of_birth: this.date_of_birth,
                     gender: this.gender,
                     bio: this.bio
-                }
+                };
                 // console.log(newUser)     // view data in console for testing with this
                 // The HTTP Post Request
-                server.post(  '/profiles',
-                    newUser
-                ).then(function(){
-                    console.log('User Registered Successfully!');
-                    this.regError = false;
-                }
-                ).catch(error => {
-                    console.log(error.response);
-                    let errorLabel = document.getElementById("error");
-                    if (error.response.status == 403) {
-                        errorLabel.textContent = error.response.data.toString();
-                    } else {
-                        errorLabel.textContent = "An unknown error has occurred during login"
-                    }
-                    this.regError = true;
-                });
-                if (!this.regError) {
-                    this.$router.push("/profile");
+                try {
+                    await server.post('http://localhost:9499/profiles', newUser);
+                    console.log('User Registered Successfully')
+                    await this.$router.push('/profile');
+                } catch (error) {
+                    console.error(error);
                 }
             }
         }

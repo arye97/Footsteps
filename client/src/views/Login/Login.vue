@@ -51,30 +51,46 @@
             }
         },
         methods: {
-            login() {
+
+            // login() {
+            //     const user = {
+            //         email: this.email,
+            //         password: this.password
+            //     };
+            //     //Perform password encryption
+            //     server.post('/login',
+            //         user
+            //     ).then(function(){
+            //             console.log('User Logged In Successfully!');
+            //             this.$router.push("profile");
+            //         }
+            //     ).catch(error => {
+            //         console.log(error.response);
+            //         let errorLabel = document.getElementById("error");
+            //         if (error.response.status == 403) {
+            //             errorLabel.textContent = error.response.data.toString();
+            //         } else if (error.response.status == 400) {
+            //             errorLabel.textContent = "An invalid login request has been received please try again"
+            //         } else {
+            //             errorLabel.textContent = "An unknown error has occurred during login"
+            //         }
+            //         this.hasError = true;
+            //     });
+
+                async login() {
                 const user = {
                     email: this.email,
                     password: this.password
                 };
                 //Perform password encryption
-                server.post('/login',
-                    user
-                ).then(function(){
-                        console.log('User Logged In Successfully!');
-                        this.$router.push("profile");
-                }
-                ).catch(error => {
-                    console.log(error.response);
-                    let errorLabel = document.getElementById("error");
-                    if (error.response.status == 403) {
-                        errorLabel.textContent = error.response.data.toString();
-                    } else if (error.response.status == 400) {
-                        errorLabel.textContent = "An invalid login request has been received please try again"
-                    } else {
-                        errorLabel.textContent = "An unknown error has occurred during login"
-                    }
+                try {
+                    await server.post('http://localhost:9499/login', user);
+                    console.log('User Logged In Successfully!');
+                    await this.$router.push("profile");
+                } catch(error) {
+                    console.error(error);
                     this.hasError = true;
-                });
+                }
             }
 
         }
