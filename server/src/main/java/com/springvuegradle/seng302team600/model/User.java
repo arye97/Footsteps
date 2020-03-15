@@ -13,6 +13,7 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class User {
@@ -22,7 +23,7 @@ public class User {
     private static PasswordEncoder encoder = new BCryptPasswordEncoder();
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonProperty("id")
     private Long id;
 
@@ -55,8 +56,7 @@ public class User {
 
     @NotNull(message = "Please provide a primary email address")
     @JsonProperty("primary_email")
-    //@Column(name = "primary_email", nullable = false)
-    @OneToMany(mappedBy = "email")
+    @OneToMany(mappedBy = "email", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Emails> emails;
 
     public List<Emails> getEmails() {
@@ -64,6 +64,7 @@ public class User {
     }
 
     public void setEmails(List<Emails> emails) {
+        emails.get(0).setUser(this);
         this.emails = emails;
     }
 

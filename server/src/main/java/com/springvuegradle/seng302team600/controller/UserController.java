@@ -38,7 +38,7 @@ public class UserController {
      Creates and returns a new User from the requested body
      */
     @PostMapping("/profiles")
-    public Object newUser(@Validated @RequestBody User newUser) throws EmailAlreadyRegisteredException, JsonProcessingException {
+    public User newUser(@Validated @RequestBody User newUser) throws EmailAlreadyRegisteredException, JsonProcessingException {
 //        List<Emails> emails = new ArrayList<Emails>();
 //        Emails primaryEmail = new Emails(body.get("primary_email").toString(), true);
 //        emails.add(primaryEmail);
@@ -51,7 +51,9 @@ public class UserController {
 
         //make function for this
         newUser.getEmails().get(0).setPrimary(true);
-        return repository.save(newUser);
+        repository.save(newUser);
+
+        return newUser;
 
         // maybe using try catch would be better?
 //        if (repository.findByEmails(newUser.getEmails()) == null) {

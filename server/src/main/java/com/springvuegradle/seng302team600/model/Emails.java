@@ -29,26 +29,20 @@ public class Emails {
 //    @Transient
 //    private LinkedList<String> secondaryEmails = new LinkedList<String>();
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonProperty("id")
+    private Long id;
+
     @Column(name = "email", nullable = false)
     private String email;
 
-//
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @JsonProperty("id")
-    private Long id;
-//
-//    @Column(name = "email")
-//    private String email;
-//
-    @Column(name = "is_primary_email", nullable = false)
-    private boolean primaryEmail;
+    @Column(name = "is_primary_email", columnDefinition = "boolean", nullable = false)
+    private boolean isPrimaryEmail;
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
-
 
     public Emails() {
 
@@ -60,7 +54,7 @@ public class Emails {
      //     * */
     public Emails(String email, boolean isPrimaryEmail) {
         this.email = email;
-        this.primaryEmail = isPrimaryEmail;
+        this.isPrimaryEmail = isPrimaryEmail;
     }
 
     public Long getId() {
@@ -71,14 +65,6 @@ public class Emails {
         this.id = id;
     }
 
-//    public User getUser() {
-//        return user;
-//    }
-//
-//    public void setUser(User user) {
-//        this.user = user;
-//    }
-
     public String getEmail() {
         return email;
     }
@@ -88,11 +74,19 @@ public class Emails {
     }
 
     public boolean isPrimary() {
-        return primaryEmail;
+        return isPrimaryEmail;
     }
 
     public void setPrimary(boolean isPrimaryEmail) {
-        primaryEmail = isPrimaryEmail;
+        this.isPrimaryEmail = isPrimaryEmail;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override
@@ -100,7 +94,7 @@ public class Emails {
         return "Emails{" +
                 "email='" + email + '\'' +
                 ", id=" + id +
-                ", primaryEmail=" + primaryEmail +
+                ", primaryEmail=" + isPrimaryEmail +
                 ", user=" + user +
                 '}';
     }
