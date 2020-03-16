@@ -1,7 +1,7 @@
 <template>
   <div class="settings-page">
     <div class="alert alert-success alert-dismissible fade show sticky-top" role="alert" id="alert" hidden>
-      <p id="alert-message">{{  message  }}</p>
+      <p id="alert-message"><strong>{{  code  }}</strong>{{  message  }}</p>
       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
       </button>
@@ -117,7 +117,8 @@
         fitnessLevel: '',
         passportCountry: '',
         bio: '',
-        message: ''
+        message: '',
+        code: ''
       }
     },
       methods: {
@@ -146,25 +147,20 @@
           },
           putUpdate: function(update, alertDiv) {
             server.put(update).then(function (response) {
-              switch (response.status) {
-                case 200:
-                  alertDiv.addClass("alert-success");
-                  alertDiv.removeClass("alert-danger");
-                  break;
-                case 400:
-                case 401:
-                case 403:
-                case 500:
-                  alertDiv.remove("alert-success");
-                  alertDiv.addClass("alert-danger");
-                  break;
-              }
+              alertDiv.addClass("alert-success");
+              alertDiv.removeClass("alert-danger");
               this.message = response.statusText;
-              alertDiv.removeAttribute("hidden");
-              setTimeout(function () {
-                alertDiv.hidden = true;
-              }, 3000);
-            })
+              this.code = '';
+            }).catch(function (response) {
+              alertDiv.remove("alert-success");
+              alertDiv.addClass("alert-danger");
+              this.message = response.statusText;
+              this.code = response.code;
+            });
+            alertDiv.removeAttribute("hidden");
+            setTimeout(function () {
+              alertDiv.hidden = true;
+            }, 3000);
           }
       }
     }
