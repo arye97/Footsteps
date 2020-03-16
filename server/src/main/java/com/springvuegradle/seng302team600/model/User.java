@@ -1,6 +1,5 @@
 package com.springvuegradle.seng302team600.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -15,7 +14,6 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 public class User {
@@ -50,11 +48,15 @@ public class User {
     @JsonProperty("bio")
     private String bio;
 
+    @Transient
+    @JsonProperty("primary_email")
+    private String primaryEmail;
+
     @NotNull(message = "Please provide a primary email address")
     @JsonManagedReference
     @OneToMany(mappedBy = "email", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonProperty("primary_email")
-    private List<Emails> emails;
+    @JsonProperty("additional_emails")
+    private List<Email> emails = new ArrayList<>();
 
     @NotNull(message = "Please provide a password")
     @Column(name = "password", nullable = false)
@@ -145,14 +147,33 @@ public class User {
         this.bio = bio;
     }
 
-    public List<Emails> getEmails() {
+    public List<Email> getEmails() {
         return emails;
     }
 
-    public void setEmails(List<Emails> emails) {
+    public void setEmails(List<Email> emails) {
         //hacky
+        System.out.println("hello");
         emails.get(0).setUser(this);
         this.emails = emails;
+    }
+
+    public void setPrimaryEmail(String email) {
+        boolean alreadyIn = false;
+        for (Email e: emails) {
+            if (e.getEmail() == email) {
+                alreadyIn = true;
+                e.setRank(0);
+                break;
+            }
+        }
+        int size = emails.size();
+        if (!alreadyIn && size < 5) {
+//            increaseAllEmailRanks();
+            Email newEmail = new Email(email, 0);
+            emails.add(newEmail);
+        }
+        setEmails(emails);
     }
 
     public boolean checkPassword(String password) {
@@ -201,6 +222,12 @@ public class User {
 
     public boolean removePassport(String passport) {
         return passports.remove(passport);
+    }
+
+    public void increaseAllEmailRanks() {
+        for (Email e: emails) {
+            e.setRank(e.getRank() + 1);
+        }
     }
 
 

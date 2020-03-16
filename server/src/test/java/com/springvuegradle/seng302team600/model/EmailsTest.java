@@ -1,24 +1,18 @@
 package com.springvuegradle.seng302team600.model;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
-import java.util.Arrays;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class EmailsTest {
 
-    String email1;
-    String email2;
-    String email3;
-    String email4;
-    String email5;
-    String email6;
-    ArrayList<String> secondaries;
-    Emails emails1;
-    Emails emails2;
+//    String email1;
+//    String email2;
+//    String email3;
+//    String email4;
+//    String email5;
+//    String email6;
+//    ArrayList<String> secondaries;
+//    Email email1;
+//    Email email2;
 
 //    @BeforeEach
 //    void setUp() {

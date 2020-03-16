@@ -2,13 +2,8 @@ package com.springvuegradle.seng302team600.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.springvuegradle.seng302team600.exception.EmailAlreadyRegisteredException;
-import com.springvuegradle.seng302team600.exception.MaximumEmailsException;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
 
 /**
@@ -18,7 +13,7 @@ import java.util.List;
  * */
 @Entity
 @Table(name = "email")
-public class Emails {
+public class Email {
 
 //    @Transient
 //    private final int MAX_EMAILS = 5;
@@ -38,25 +33,26 @@ public class Emails {
     @Column(name = "email", nullable = false)
     private String email;
 
-    @Column(name = "is_primary_email", columnDefinition = "boolean", nullable = false)
-    private boolean isPrimaryEmail;
+    @Column(name = "rank", columnDefinition = "int", nullable = false)
+    private int rank;
 
     @JsonBackReference
-    @ManyToOne(fetch=FetchType.EAGER)
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public Emails() {
+    public Email() {
 
     }
 
     /**
-     //     * Create a new Emails object
-     //     * @param primaryEmail a primary email address
-     //     * */
-    public Emails(String email, boolean isPrimaryEmail) {
+     * Create a new Emails object
+     * @param email an email address
+     * @param rank the rank of the email - 0 = primary email
+     */
+    public Email(String email, int rank) {
         this.email = email;
-        this.isPrimaryEmail = isPrimaryEmail;
+        this.rank = rank;
     }
 
     public Long getId() {
@@ -75,14 +71,6 @@ public class Emails {
         this.email = email;
     }
 
-    public boolean isPrimary() {
-        return isPrimaryEmail;
-    }
-
-    public void setPrimary(boolean isPrimaryEmail) {
-        this.isPrimaryEmail = isPrimaryEmail;
-    }
-
     public User getUser() {
         return user;
     }
@@ -91,15 +79,25 @@ public class Emails {
         this.user = user;
     }
 
+    public int getRank() {
+        return rank;
+    }
+
+    public void setRank(int rank) {
+
+    }
+
     @Override
     public String toString() {
-        return "Emails{" +
-                "email='" + email + '\'' +
-                ", id=" + id +
-                ", primaryEmail=" + isPrimaryEmail +
+        return "Email{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", rank=" + rank +
                 ", user=" + user +
                 '}';
     }
+
+
 
 //    /**
 //     * Create a new Emails object

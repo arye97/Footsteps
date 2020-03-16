@@ -1,8 +1,6 @@
 package com.springvuegradle.seng302team600.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.springvuegradle.seng302team600.repository.UserRepository;
-import com.springvuegradle.seng302team600.exception.EmailAlreadyRegisteredException;
 import com.springvuegradle.seng302team600.model.User;
 
 import org.springframework.validation.annotation.Validated;
@@ -19,28 +17,37 @@ public class UserController {
         this.repository = repository;
     }
 
-//    /**
-//    Return a list of Users saved in the repository
-//     */
-//    @GetMapping("/listprofile")
-//    public List<User> all() {
-//        // Use this to see the location in memory of each User
-////        List<User> users = repository.findAll();
-////        for (User user : users) {
-////            System.out.println(user.toString());
-////        }
-////        return users;
-//        return repository.findAll();
-//    }
+    /**
+    Return a list of Users saved in the repository
+     */
+    @GetMapping("/listprofile")
+    public List<User> all() {
+        // Use this to see the location in memory of each User
+//        List<User> users = repository.findAll();
+//        for (User user : users) {
+//            System.out.println(user.toString());
+//        }
+//        return users;
+
+        // create email
+        System.out.println(repository.findAll().get(0).getEmails());
+        return repository.findAll();
+    }
 
 
     /**
      Creates and returns a new User from the requested body
      */
     @PostMapping("/profiles")
-    public List<User> newUser(@Validated @RequestBody User newUser) throws EmailAlreadyRegisteredException, JsonProcessingException {
-        newUser.getEmails().get(0).setPrimary(true);
+    public List<User> newUser(@Validated @RequestBody User newUser)  {
+        System.out.println("after");
+//        newUser.getEmails().get(0).setPrimary(true);
         repository.save(newUser);
+
+
+        // maybe do emailrepository.save(email)
+
+        System.out.println(repository.findAll().get(0).getEmails());
         return repository.findAll();
 
         // maybe using try catch would be better?
