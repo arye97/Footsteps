@@ -82,7 +82,7 @@ public class UserController {
             User user = repository.save(newUser);
             //Adds user ID to activeUsers
             activeUsers.add(user.getUserId());
-            Sets this user's ID to session userId
+            //Sets this user's ID to session userId
             session.setAttribute("userId", user.getUserId());
             response.setStatus(HttpServletResponse.SC_CREATED);
             return user;
