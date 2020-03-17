@@ -43,14 +43,17 @@
         mounted() {
             server.get(  'http://localhost:9499/profiles',
                 {headers:
-                        {'Content-Type': 'application/json',}
-                })
+                        {'Content-Type': 'application/json'}, withCredentials: true
+                }, )
             .then(response => {
-                console.log(response.data);
-                //user is set to the user data retrieved
-                this.user = response.data;
-                //no longer loading, so show data
-                this.loading = false;
+                if (response.status === 200) {
+                    console.log('Status = OK. response.data:');
+                    console.log(response.data);
+                    //user is set to the user data retrieved
+                    this.user = response.data;
+                    //no longer loading, so show data
+                    this.loading = false;
+                }
             }).catch(function(error) {
                 console.error(error);
                 console.error(error.response);

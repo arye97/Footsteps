@@ -183,13 +183,11 @@
                 // The HTTP Post Request
                 server.post(  'http://localhost:9499/profiles',
                     newUser,
-                    { headers: { "Access-Control-Allow-Origin": "*", "content-type":"application/json", }}
+                    { headers: { "Access-Control-Allow-Origin": "*", "content-type":"application/json"},
+                        withCredentials: true}
                 ).then(response => {
                     if (response.status === 201) {
                         console.log('User Registered Successfully!');
-                        if (this.$session.exists()) {
-                            console.log("Session exists");
-                        }
                         this.$router.push('/profile');
                     }
 
