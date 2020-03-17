@@ -1,13 +1,13 @@
 import Vue from 'vue'
 import App from './App/App'
 
-Vue.config.productionTip = false
-
+Vue.config.productionTip = false;
 import VueLogger from 'vuejs-logger';
-
 import router from './index'
+import VueSession from "vue-session";
 
-Vue.config.productionTip = false
+
+Vue.config.productionTip = false;
 
 const options = {
   isEnabled: true,
@@ -20,6 +20,8 @@ const options = {
 };
 
 Vue.use(VueLogger, options);
+
+Vue.use(VueSession, {persist: true});
 
 /* eslint-disable no-new */
 new Vue({

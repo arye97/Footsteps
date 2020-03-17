@@ -164,7 +164,7 @@
 
         methods: {
 
-            registerUser() {
+            async registerUser() {
                 // Save the data as a newUser object
                 const newUser = {
                     lastname: this.lastname,
@@ -183,10 +183,16 @@
                 // The HTTP Post Request
                 server.post(  'http://localhost:9499/profiles',
                     newUser,
-                    { headers: { "Access-Control-Allow-Origin": "*", "content-type":"application/json"}}
-                ).then(function(){
-                    console.log('User Registered Successfully!');
-                    this.hasRegistered = true;
+                    { headers: { "Access-Control-Allow-Origin": "*", "content-type":"application/json", }}
+                ).then(response => {
+                    if (response.status === 201) {
+                        console.log('User Registered Successfully!');
+                        if (this.$session.exists()) {
+                            console.log("Session exists");
+                        }
+                        this.$router.push('/profile');
+                    }
+
                 }).catch(error => {
                     this.regError = true;
                     console.log(error);
@@ -199,9 +205,7 @@
                     // }
 
                 });
-                if (!this.regError && this.hasRegistered) {
-                    this.$router.push('/profile');
-                }
+
             }
 
 
