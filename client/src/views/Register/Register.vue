@@ -70,12 +70,10 @@
             <div class="form-group">
                 <!-- gender field -->
                 <label for="gender">Gender: *</label>
-                <select class="form-control" v-model="gender" id="gender" name="gender" required>
-                    <option value="" disabled selected hidden>Your Gender... </option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="non-binary">Non Binary</option>
-                </select>
+                <multiselect v-model="gender" id="gender"
+                             :options="genders" placeholder="Your gender" required>
+                    <template slot="noResult">Invalid gender</template>
+                </multiselect>
             </div>
             <div class="form-group">
                 <!-- date of birth field-->
@@ -84,10 +82,12 @@
             </div>
             <div class="form-group">
                 <!-- passport country -->
-                <label for="passportCountry">Passport Country:</label>
-                <select class="form-control" v-model="passportCountry" id="passportCountry" name="passportCountry">
-                    <option value="" disabled selected hidden>Select country</option>
-                </select>
+                <label for="passportCountries">Passport Country:</label>
+                <multiselect v-model="passportCountries" id="passportCountries"
+                             :options="countries" :multiple="true" :searchable="true" :close-on-select="false"
+                             placeholder="Select your passport countries">
+                    <template slot="noResult">Country not found</template>
+                </multiselect>
             </div>
             <div class="form-group">
                 <!-- user bio -->
@@ -108,7 +108,11 @@
 
 <script>
     import server from '../../Api';
+    import Multiselect from 'vue-multiselect'
+    import {getCountryNames} from '../../constants';
+
     export default {
+        components: { Multiselect },
         name: "NewUser",
         data() {
             return {
@@ -122,40 +126,36 @@
                 gender: '',
                 dob: '',
                 fitnessLevel: '',
-                passportCountry: '',
-                bio: ''
+                passportCountries: [],
+                bio: '',
+                countries: [],
+                genders: ['Male', 'Female', 'Non-Binary'],
             }
         },
 
         mounted () {
-            let select = document.getElementById('passportCountry')
+            let select = []
             // Create a request variable and assign a new XMLHttpRequest object to it.
             let request = new XMLHttpRequest()
             //build url
-            let restCountriesName = 'https://restcountries.eu/rest/v2/all?fields=name'     //needs to be const somewhere
-            let url = new URL(restCountriesName)
+            let url = new URL(getCountryNames)
             // Open a new connection, using the GET request on the URL endpoint;
             request.open('GET', url, true)
 
             request.onload = function() {
+                // If the request is successful
                 if(request.status >= 200 && request.status < 400) {
                     let data = JSON.parse(this.response)
                     data.forEach(country => {
-                        // console.log(country.name)
-                        let elmt = document.createElement('option')
-                        elmt.textContent = country.name
-                        elmt.value = country.name
-                        //console.log(elmt)
-                        select.appendChild(elmt)
+                        let elmt = country.name;
+                        select.push(elmt)
                     } )
                 } else {
-                    let elmt = document.createElement('error')
-                    elmt.textContent = 'error fetching countries'
-                    elmt.value = 'error'
-                    select.appendChild(elmt)
+                    select = 'List is empty'
                 }
             }
             // Send request
+            this.countries = select
             request.send()
         },
 
@@ -173,7 +173,7 @@
                     gender: this.gender,
                     date_of_birth: this.dob,
                     fitnessLevel: this.fitnessLevel,
-                    passportCountry: this.passportCountry,
+                    passportCountries: this.passportCountries,
                     bio: document.getElementById('bio').value
                 }
                 // console.log(newUser)     // view data in console for testing with this
@@ -187,9 +187,15 @@
                     console.log(error);
                 });
                 this.$router.push("/");
-            }
+            },
         }
     }
 
 
 </script>
+
+<style src="vue-multiselect/dist/vue-multiselect.min.css">
+    .multiselect {
+        color: black;
+    }
+</style>
