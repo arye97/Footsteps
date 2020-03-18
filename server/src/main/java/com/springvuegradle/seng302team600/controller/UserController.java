@@ -202,21 +202,55 @@ public class UserController {
 //        }
 //        return user;
 //    }
+
+    /**
+     *
+     * @param jsonEditProfileString the json body of the request as a string
+     * @param request the http request to the endpoint
+     * @param response the http response
+     * @param profileId user id obtained from the request url
+     * @throws JsonProcessingException thrown if there is an issue when coverting the body to an object node
+     */
     @PutMapping("/profiles/{profileId}")
     public void editProfile(@RequestBody String jsonEditProfileString, HttpServletRequest request,
-                            HttpServletResponse response, @PathVariable(value = "profileId") Long id) throws JsonProcessingException {
+                            HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) throws JsonProcessingException {
         HttpSession session = request.getSession();
         if (session != null && session.getAttribute("userId") != null) {
-            ObjectNode node = new ObjectMapper().readValue(jsonEditProfileString, ObjectNode.class);
-            User user = repository.findById(id).get();
-            Iterator<Map.Entry<String, JsonNode>> expectedChildren = node.fields();
-            for (Map.Entry<String, JsonNode> entry; expectedChildren.hasNext(); ) {
-                entry = expectedChildren.next();
-                PropertyAccessor fieldSetter = PropertyAccessorFactory.forBeanPropertyAccess(user);
-                fieldSetter.setPropertyValue(entry.getKey(), entry.getValue().asText());
-
-                repository.save(user);
+            String sessionId = session.getId();
+            Long userId = (Long) session.getAttribute("userId");
+            if (validUser(userId, sessionId, profileId)) {
+                ObjectNode node = new ObjectMapper().readValue(jsonEditProfileString, ObjectNode.class);
+                User user = repository.findById(profileId).get();
+                Iterator<Map.Entry<String, JsonNode>> expectedChildren = node.fields();
+                for (Map.Entry<String, JsonNode> entry; expectedChildren.hasNext(); ) {
+                    entry = expectedChildren.next();
+                    PropertyAccessor fieldSetter = PropertyAccessorFactory.forBeanPropertyAccess(user);
+                    //FIXME: Having key issues when updating a single field
+                    fieldSetter.setPropertyValue(entry.getKey(), entry.getValue().asText());
+                    repository.save(user);
+                }
+            } else {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             }
+        } else {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        }
+    }
+
+    /**
+     * Will need to be changed later when the database is fully implemented
+     * Checks that the session gives the request access to modify the user with a given id
+     * This will allow for checking both admins and users
+     * @param userId the id of the user linked to the session
+     * @param sessionId the session id/token
+     * @param profileId the id of the user to access the profile of
+     * @return true if the session has permission to modify the user; false otherwise
+     */
+    private boolean validUser(long userId, String sessionId, long profileId) {
+        if (userId == profileId) {
+            return true;
+        } else {
+            return false;
         }
     }
 
