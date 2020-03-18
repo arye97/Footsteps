@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
 
+import com.springvuegradle.seng302team600.exception.MustHavePrimaryEmailException;
+
 
 /**
  * A class that handles the emails of a User.  An Email object holds one primary email and
@@ -33,8 +35,8 @@ public class Email {
     @Column(name = "email", nullable = false)
     private String email;
 
-    @Column(name = "rank", columnDefinition = "int", nullable = false)
-    private int rank;
+    @Column(name = "isPrimary", columnDefinition = "boolean", nullable = false)
+    private boolean isPrimary;
 
     @JsonBackReference
     @ManyToOne(fetch=FetchType.LAZY)
@@ -48,11 +50,11 @@ public class Email {
     /**
      * Create a new Emails object
      * @param email an email address
-     * @param rank the rank of the email - 0 = primary email
+     * @param isPrimary the rank of the email - true = primary email
      */
-    public Email(String email, int rank) {
+    public Email(String email, boolean isPrimary) {
         this.email = email;
-        this.rank = rank;
+        this.isPrimary = isPrimary;
     }
 
     public Long getId() {
@@ -79,12 +81,17 @@ public class Email {
         this.user = user;
     }
 
-    public int getRank() {
-        return rank;
+    public boolean getIsPrimary() {
+        return isPrimary;
     }
 
-    public void setRank(int rank) {
-
+    public void setIsPrimary(boolean isPrimary) {
+        if (this.isPrimary == isPrimary) {
+            return;
+        }
+        if (isPrimary == false) {
+            throw new MustHavePrimaryEmailException(this.email, "a secondary email as no primary email is declared");
+        }
     }
 
     @Override
@@ -92,7 +99,7 @@ public class Email {
         return "Email{" +
                 "id=" + id +
                 ", email='" + email + '\'' +
-                ", rank=" + rank +
+                ", isPrimary=" + isPrimary +
                 ", user=" + user +
                 '}';
     }
