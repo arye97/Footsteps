@@ -65,7 +65,10 @@
                     password: this.password
                 };
                 //Perform password encryption
-                server.post('http://localhost:9499/login', userLogin,
+                server.post('http://localhost:9499/login',
+                    userLogin,
+                    { headers: { "Access-Control-Allow-Origin": "*", "content-type":"application/json"},
+                        withCredentials: true}
                 ).then(response => {
                     if (response.status === 201) {
                         console.log('User Logged In Successfully!');
