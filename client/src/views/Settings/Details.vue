@@ -9,7 +9,7 @@
     <Sidebar />
     <div class="container-fluid">
         <div class="form-group">
-          <!-- full-name field-->
+          <!-- first-name field-->
           <label for="first-name">First Name: *</label>
           <div class="edit-area">
             <input type="text" class="form-control" v-model="firstname" id="first-name" name="first-name" placeholder="Your First Name..." required disabled>
@@ -17,7 +17,7 @@
           </div>
         </div>
         <div class="form-group">
-          <!-- full-name field-->
+          <!-- middle-name field-->
           <label for="middle-name">Middle Name: </label>
           <div class="edit-area">
           <input type="text" class="form-control" v-model="middlename" id="middle-name" name="middle-name" placeholder="Your Middle Name..." disabled>
@@ -25,7 +25,7 @@
           </div>
         </div>
         <div class="form-group">
-          <!-- full-name field-->
+          <!-- last-name field-->
           <label for="last-name">Last Name: *</label>
           <div class="edit-area">
           <input type="text" class="form-control" v-model="lastname" id="last-name" name="last-name" placeholder="Your Last Name..." required disabled>
