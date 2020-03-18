@@ -124,6 +124,7 @@ public class UserController {
                         //Client session will store the ID of currently logged in user
                         session.setAttribute("loggedUser", new LoggedUser(user.getUserId(), activeUsers));
                         response.setStatus(HttpServletResponse.SC_CREATED);
+                        return;
                     } else {
                         throw new IncorrectPasswordException(email);
                     }

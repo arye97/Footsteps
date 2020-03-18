@@ -33,7 +33,7 @@ public class ExceptionAdvice {
 
     @ResponseBody
     @ExceptionHandler(UserNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public String userNotFoundHandler(UserNotFoundException ex) {
         return ex.getMessage();
     }

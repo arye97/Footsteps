@@ -1,4 +1,4 @@
-package com.springvuegradle.seng302team600;
+package com.springvuegradle.seng302team600.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.springvuegradle.seng302team600.model.LoggedUser;
@@ -178,21 +178,15 @@ class UserControllerTest {
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post("/profiles")
                 .content(createUserJsonPost)
                 .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON);
+                .accept(MediaType.APPLICATION_JSON)
+                .session(session);
 
         // Perform POST
-        MvcResult result = mvc.perform(httpReq)
-                .andExpect(status().isCreated())
-                .andReturn();
+        mvc.perform(httpReq)
+                .andExpect(status().isCreated());
 
-        // Get Response as JsonNode
-        String jsonResponseStr = result.getResponse().getContentAsString();
-        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
-
-        // Test response
-        assertEquals("Pocket", jsonNode.get("lastname").asText());
-        assertEquals("poly@pocket.com", jsonNode.get("primary_email").get("primaryEmail").asText());
-        assertEquals("Antarctica", jsonNode.get("passports").get(1).asText());
+        // Test session
+        assertNotNull(((LoggedUser) session.getAttribute("loggedUser")).getUserId());
     }
 
     @Test
@@ -285,7 +279,7 @@ class UserControllerTest {
                 .session(session);
 
         mvc.perform(request)
-                .andExpect(status().isNotFound());
+                .andExpect(status().isUnauthorized());
 
         // Login profile (Success)
         request = MockMvcRequestBuilders.post("/login")
@@ -295,16 +289,11 @@ class UserControllerTest {
                 .session(session);
 
         // Perform POST
-        MvcResult result = mvc.perform(request)
-                .andExpect(status().isCreated())
-                .andReturn();
+        mvc.perform(request)
+                .andExpect(status().isCreated());
 
-        // Get Response as JsonNode
-        String jsonResponseStr = result.getResponse().getContentAsString();
-        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
-
-        // Test response
-        assertEquals("Dean", jsonNode.get("lastname").asText());
+        // Test session
+        assertNotNull(((LoggedUser) session.getAttribute("loggedUser")).getUserId());
     }
 
     @Test

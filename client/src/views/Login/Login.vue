@@ -65,12 +65,14 @@
                     password: this.password
                 };
                 //Perform password encryption
-                server.post('http:/localhost:9499/login', userLogin,
-                ).then(function () {
+                server.post('http://localhost:9499/login', userLogin,
+                ).then(response => {
+                    if (response.status === 201) {
                         console.log('User Logged In Successfully!');
                         this.loggedIn = true;
+                        this.$router.push("/profile");
                     }
-                ).catch(error => {
+                }).catch(error => {
                     this.hasError = true;
                     console.log(error.response);
                     let errorAlert = document.getElementById("alert");
@@ -87,10 +89,6 @@
                         errorAlert.hidden = true;
                     }, 5000);
                 });
-                if (this.loggedIn && !this.hasError) {
-                    this.$router.push("/profile");
-                }
-
             }
         }
     }
