@@ -49,7 +49,55 @@
 </template>
 
 <script>
+    import server from '../../Api';
 
+    export default {
+        name: "EditEmail",
+        data () {
+            return {
+                loading: true,
+                post: null,
+                error: false,
+                user: null,
+            }
+        },
+        async mounted() {
+            server.get(  `http://localhost:9499/profiles`,
+                {headers:
+                        {'Content-Type': 'application/json',}
+                })
+                .then(response => {
+
+                    console.log(response.data);
+                    //user is set to the user data retrieved
+                    this.user = response.data[0];
+                    this.primaryEmail = this.user.primary_email[0];
+                    this.secondaryEmails = this.user.primary_email[1]
+                    //no longer loading, so show data
+                    this.loading = false;
+                }).catch(function(error) {
+                console.error(error);
+                console.error(error.response);
+
+            })
+        },
+        methods: {
+            submitEmail() {
+                const updateEmail = {
+                    primaryEmail: this.primaryEmail,
+                    secondaryEmails: this.secondaryEmails
+                }
+                server.put(`http://localhost:9499/profiles/${this.user.id}/emails`,
+                    updateEmail
+                ).then(function() {
+                    console.log('User Emails updated Successfully!');
+                }).catch(function(error) {
+                    console.error(error);
+                    console.error(error.response);
+                })
+            }
+        }
+    }
 </script>
 
 <style scoped>
