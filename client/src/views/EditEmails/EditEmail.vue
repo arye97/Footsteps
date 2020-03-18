@@ -1,0 +1,56 @@
+<template>
+    <div>
+        <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+        <h1><br/></h1>
+        <header class="masthead">
+            <div class="container h-100">
+                <div class="row h-100 align-items-center">
+                    <div class="col-12 text-center">
+                        <h1 class="font-weight-light">Edit Emails</h1>
+                        <p class="lead">Edit the emails linked to your profile</p><br/>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <section v-if="error">
+            <p>Sorry, looks like we can't get your info! Please try again soon.</p>
+            <p>{{ error }}</p>
+        </section>
+        <section v-else>
+            <div v-if="loading" class="loading">
+                Loading...
+            </div>
+            <div v-else class="form-group">
+                <form method="put" v-on:submit.prevent="submitEmail">
+                    <dl class="form-group">
+                        <dt>
+                            <label id="primary_email_select_label" for="primary_email_select">Primary email address</label>
+                            <p class="mt-2">
+                            </p>
+                        </dt>
+                        <dd>
+                            <select id="primary_email_select" name="id" class="form-select">
+                            </select>
+                            <button type="submit" class="btn">Save</button>
+                        </dd>
+                    </dl>
+                </form>
+                <div class="form-group">
+                    <!-- SignIn Button-->
+                    <button type="submit" class="btn btn-primary" v-on:click="submitEmail">Submit</button>
+                    <router-link to="/" class="btn btn-link">Go Back</router-link>
+                </div>
+            </div>
+        </section>
+        <footer>
+            Entries marked with * are required
+        </footer>
+    </div>
+</template>
+
+<script>
+
+</script>
+
+<style scoped>
+</style>
