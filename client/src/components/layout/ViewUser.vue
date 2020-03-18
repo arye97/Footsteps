@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h1>Hi {{fullname}}!</h1>
+        <h1>Hi {{firstname + " " + lastname}}!</h1>
         <p>You're logged in to your Hakinakina Account</p>
         <h3>All about you</h3>
         <p v-if="nickname">Nickname: {{ nickname }}</p>
@@ -14,13 +14,15 @@
 </template>
 
 <script>
-    import axios from 'axios';
+    //import server from '../../';
     export default {
         name: "ViewUser",
         data() {
             return {
-                fullname: '',
-                email: '',
+                firstname: '',
+                middlename: '',
+                lastname: '',
+                primary_email: '',
                 password: '',
                 nickname: '',
                 gender: '',
@@ -29,10 +31,6 @@
                 passportCountry: '',
                 bio: ''
             }
-        },
-        mounted() {
-            axios.get("./home")
-                .then(response => {this.results = response.data.results})
         }
     }
 </script>

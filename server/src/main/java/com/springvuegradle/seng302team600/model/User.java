@@ -1,4 +1,4 @@
-package com.springvuegradle.seng302example.model;
+package com.springvuegradle.seng302team600.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.Date;
 
 @Entity
@@ -46,7 +47,7 @@ public class User {
 
     @OneToOne(fetch = FetchType.EAGER,cascade=CascadeType.ALL)
     @NotNull(message = "Please provide a primary email address")
-    @JsonProperty("email")
+    @JsonProperty("primary_email")
     private Emails emails;
 
     @NotNull(message = "Please provide a password")
@@ -62,6 +63,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     @JsonProperty("gender")
     private Gender gender;
+
+    @Transient
+    @JsonProperty("passports")
+    private ArrayList<String> passports;
 
 
     public enum Gender {
@@ -168,6 +173,23 @@ public class User {
     public void setFitnessLevel(int fitnessLevel) {
         this.fitnessLevel = fitnessLevel;
     }
+
+    public ArrayList<String> getPassports() {
+        return passports;
+    }
+
+    public void setPassports(ArrayList<String> passports) {
+        this.passports = passports;
+    }
+
+    public void addPassport(String passport) {
+        passports.add(passport);
+    }
+
+    public boolean removePassport(String passport) {
+        return passports.remove(passport);
+    }
+
 
     @PrePersist
     public void logNewUserAttempt() {

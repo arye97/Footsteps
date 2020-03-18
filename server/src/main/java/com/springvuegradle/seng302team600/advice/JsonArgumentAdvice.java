@@ -1,6 +1,6 @@
-package com.springvuegradle.seng302example;
+package com.springvuegradle.seng302team600.advice;
 
-import com.springvuegradle.seng302example.exceptions.UserNotFoundException;
+import com.springvuegradle.seng302team600.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
