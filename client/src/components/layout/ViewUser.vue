@@ -18,7 +18,7 @@
                     <span >Gender: {{ this.user.gender }}</span><br/>
                     <span>Date Of Birth: {{ this.user.date_of_birth }}</span><br/>
                     <span>Email(s): {{ this.user.primary_email }}</span><br/>
-                    <span v-if="this.user.passports">Passports: {{this.user.passports}}</span><br/>
+                    <span v-if="this.user.passports">Passports: {{this.user.passports.join(", ")}}</span><br/>
                     <span v-if="this.user.fitness">Fitness Level: {{this.user.fitness}}</span><br/>
                     <span v-if="this.user.bio">Bio: {{ this.user.bio }}</span><br/>
                 </span>
