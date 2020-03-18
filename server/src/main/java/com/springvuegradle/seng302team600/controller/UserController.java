@@ -3,12 +3,15 @@ import com.springvuegradle.seng302team600.model.User;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.model.LoggedUser;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.exception.*;
 
 
+import org.springframework.beans.PropertyAccessor;
+import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +20,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.ArrayList;
 
 @RestController
@@ -197,6 +202,23 @@ public class UserController {
 //        }
 //        return user;
 //    }
+    @PutMapping("/profiles/{profileId}")
+    public void editProfile(@RequestBody String jsonEditProfileString, HttpServletRequest request,
+                            HttpServletResponse response, @PathVariable(value = "profileId") Long id) throws JsonProcessingException {
+        HttpSession session = request.getSession();
+        if (session != null && session.getAttribute("userId") != null) {
+            ObjectNode node = new ObjectMapper().readValue(jsonEditProfileString, ObjectNode.class);
+            User user = repository.findById(id).get();
+            Iterator<Map.Entry<String, JsonNode>> expectedChildren = node.fields();
+            for (Map.Entry<String, JsonNode> entry; expectedChildren.hasNext(); ) {
+                entry = expectedChildren.next();
+                PropertyAccessor fieldSetter = PropertyAccessorFactory.forBeanPropertyAccess(user);
+                fieldSetter.setPropertyValue(entry.getKey(), entry.getValue().asText());
+
+                repository.save(user);
+            }
+        }
+    }
 
 
 
