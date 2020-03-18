@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springvuegradle.seng302team600.exception.MustHavePrimaryEmailException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -22,6 +23,8 @@ public class User {
     private static Log log = LogFactory.getLog(User.class);
 
     private static PasswordEncoder encoder = new BCryptPasswordEncoder();
+
+    final static public int MAX_EMAILS = 5;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,10 +56,13 @@ public class User {
     @JsonProperty("primary_email")
     private String primaryEmail;
 
+    @Transient
+    @JsonProperty("additional_emails")
+    private List<String> additionalEmails;
+
     @NotNull(message = "Please provide a primary email address")
     @JsonManagedReference
     @OneToMany(mappedBy = "email", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonProperty("additional_emails")
     private List<Email> emails = new ArrayList<>();
 
     @NotNull(message = "Please provide a password")
@@ -78,10 +84,10 @@ public class User {
 
     @JsonProperty("fitness")
     private int fitnessLevel;
-
+    
     @Transient
     @JsonProperty("passports")
-    private ArrayList<String> passports;
+    private List<String> passports;
 
     public enum Gender {
         @JsonProperty("male")
@@ -148,42 +154,92 @@ public class User {
         this.bio = bio;
     }
 
-    public List<Email> getEmails() {
-        return emails;
+
+    public void updatePrimaryEmail(String updatedPrimaryEmail) throws MustHavePrimaryEmailException {
+//        Email newPrimaryEmail = new Email(updatedPrimaryEmail, true);
+//        if (primaryEmail == null) {
+//            primaryEmail = updatedPrimaryEmail;
+//            emails.add(newPrimaryEmail);
+//        } else {
+        for (Email email: emails) {
+            if (email.getEmail().equals(primaryEmail)) {
+                email.setIsPrimary(false);
+            }
+        }
+
+        primaryEmail = updatedPrimaryEmail;
+        Email newPrimaryEmail = new Email(updatedPrimaryEmail, true);
+        emails.add(newPrimaryEmail);
     }
 
-    public void setEmails(List<Email> emails) {
-//        emails.get(0).setUser(this);
-        this.emails = emails;
+    public void deletePrimaryEmail(String deletedPrimaryEmail) {
+        for (Email email: emails) {
+            if (email.getEmail().equals(deletedPrimaryEmail)) {
+                emails.remove(email);
+                break;
+            }
+        }
+        this.primaryEmail = null;
     }
 
-    public void setPrimaryEmail(String email) throws MustHavePrimaryEmailException {
-        boolean alreadyIn = false;
+    /**
+     * Sets primary email of User
+     * @param primaryEmail an email to be set primary
+     * @throws MustHavePrimaryEmailException
+     */
+    public void setPrimaryEmail(String primaryEmail) throws MustHavePrimaryEmailException {
+        // this.primaryEmail = primaryEmail;
 
-        // iterate through all User's Emails
-        for (Email e: emails) {
-            // check if Email to be set primary is already associated with User
-            if (e.getEmail() == email) {
-                alreadyIn = true;
-                e.setIsPrimary(true);
+        // if email already in list of emails
+        boolean isAlreadyIn = false;
+        // iterate through emails
+        for (Email email: emails) {
+            // if email in user == email provided
+            if (email.getEmail().equals(primaryEmail)) {
+                this.primaryEmail = primaryEmail;
+                email.setIsPrimary(true);
+                isAlreadyIn = true;
                 break;
             }
         }
 
-        int size = emails.size();
-        // when creating account
-        if (!alreadyIn && size < 5) {
-            Email newEmail = new Email(email, true);
+        // when email not already stored in User
+        int numOfEmails = emails.size();
+        if (!isAlreadyIn && numOfEmails < MAX_EMAILS) {
+            this.primaryEmail = primaryEmail;
+            Email newEmail = new Email(primaryEmail, true);
             newEmail.setUser(this);
             emails.add(newEmail);
         }
-
+        setEmails(emails);
         // should we have a case where emails is null (when creating user) we call setEmails?
         // because if email alreadyIn the list then its already pointing to User, so we don't need to point it to User again right?
         // actually don't really know how it updates the database though so might still nee dto call setEmails
+    }
 
+
+    public List<String> getAdditionalEmails() {
+        return additionalEmails;
+    }
+
+    /**
+     * Iterates over a list of additional email strings,
+     * adds each string to the list of additional emails,
+     * before appending them to a list of Email objects
+     * @param additionalEmails a String list of additional emails
+     */
+    public void setAdditionalEmails(List<String> additionalEmails) {
+//        this.additionalEmails = additionalEmails;
+        for (String email: additionalEmails) {
+            if (emails.size() < MAX_EMAILS) {
+                this.additionalEmails.add(email);
+                emails.add(new Email(email, false));
+            }
+        }
         setEmails(emails);
     }
+
+
 
 // Creating account with Primary Email: Create an Email object and add to Email List
 // Updating primary email: Can't set primary email unless Email is already in List
@@ -197,9 +253,14 @@ public class User {
 
 
 
+    public List<Email> getEmails() {
+        return emails;
+    }
 
-
-
+    public void setEmails(List<Email> emails) {
+//        emails.get(0).setUser(this);
+        this.emails = emails;
+    }
 
     public boolean checkPassword(String password) {
         return encoder.matches(password, this.password);
@@ -233,11 +294,11 @@ public class User {
         this.fitnessLevel = fitnessLevel;
     }
 
-    public ArrayList<String> getPassports() {
+    public List<String> getPassports() {
         return passports;
     }
 
-    public void setPassports(ArrayList<String> passports) {
+    public void setPassports(List<String> passports) {
         this.passports = passports;
     }
 
