@@ -73,11 +73,10 @@ public class UserController {
      * @param newUser
      * @param request
      * @param response
-     * @return User that is created
      * @throws EmailAlreadyRegisteredException
      */
     @PostMapping("/profiles")
-    public User newUser(@Validated @RequestBody User newUser, HttpServletRequest request, HttpServletResponse response) throws EmailAlreadyRegisteredException {
+    public void newUser(@Validated @RequestBody User newUser, HttpServletRequest request, HttpServletResponse response) throws EmailAlreadyRegisteredException {
         HttpSession session = request.getSession();
         if (session.getAttribute("loggedUser") != null) { //Check if already logged in
             //Removes this user's ID from session
@@ -91,7 +90,6 @@ public class UserController {
             //Sets this user's ID to session userId
             session.setAttribute("loggedUser", new LoggedUser(user.getUserId(), activeUsers));
             response.setStatus(HttpServletResponse.SC_CREATED);
-            return user;
         } else {
             throw new EmailAlreadyRegisteredException(newUser.getEmails().getPrimaryEmail());
         }
@@ -102,13 +100,12 @@ public class UserController {
      * @param jsonLogInString
      * @param request
      * @param response
-     * @return The logged in User
      * @throws JsonProcessingException
      * @throws UserNotFoundException
      * @throws IncorrectPasswordException
      */
     @PostMapping("/login")
-    public User logIn(@RequestBody String jsonLogInString, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, UserNotFoundException, IncorrectPasswordException {
+    public void logIn(@RequestBody String jsonLogInString, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, UserNotFoundException, IncorrectPasswordException {
         ObjectNode node = new ObjectMapper().readValue(jsonLogInString, ObjectNode.class);
         HttpSession session = request.getSession();
 
@@ -127,7 +124,6 @@ public class UserController {
                         //Client session will store the ID of currently logged in user
                         session.setAttribute("loggedUser", new LoggedUser(user.getUserId(), activeUsers));
                         response.setStatus(HttpServletResponse.SC_CREATED);
-                        return user;
                     } else {
                         throw new IncorrectPasswordException(email);
                     }
@@ -137,7 +133,6 @@ public class UserController {
         }
         //email and/or password fields not given
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        return null;
     }
 
     /**
