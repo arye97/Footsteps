@@ -30,7 +30,6 @@ public class UserController {
 //        return users;
 
         // create email
-        System.out.println(repository.findAll().get(0).getEmails());
         return repository.findAll();
     }
 
@@ -40,14 +39,12 @@ public class UserController {
      */
     @PostMapping("/profiles")
     public List<User> newUser(@Validated @RequestBody User newUser)  {
-        System.out.println("after");
 //        newUser.getEmails().get(0).setPrimary(true);
         repository.save(newUser);
 
 
         // maybe do emailrepository.save(email)
 
-        System.out.println(repository.findAll().get(0).getEmails());
         return repository.findAll();
 
         // maybe using try catch would be better?

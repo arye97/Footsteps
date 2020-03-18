@@ -85,7 +85,7 @@ public class Email {
         return isPrimary;
     }
 
-    public void setIsPrimary(boolean isPrimary) {
+    public void setIsPrimary(boolean isPrimary) throws MustHavePrimaryEmailException {
         if (this.isPrimary == isPrimary) {
             return;
         }

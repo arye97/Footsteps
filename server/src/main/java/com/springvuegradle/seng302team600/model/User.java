@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import com.springvuegradle.seng302team600.exception.MustHavePrimaryEmailException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -152,29 +153,53 @@ public class User {
     }
 
     public void setEmails(List<Email> emails) {
-        //hacky
-        System.out.println("hello");
-        emails.get(0).setUser(this);
+//        emails.get(0).setUser(this);
         this.emails = emails;
     }
 
-    public void setPrimaryEmail(String email) {
+    public void setPrimaryEmail(String email) throws MustHavePrimaryEmailException {
         boolean alreadyIn = false;
+
+        // iterate through all User's Emails
         for (Email e: emails) {
+            // check if Email to be set primary is already associated with User
             if (e.getEmail() == email) {
                 alreadyIn = true;
-                e.setRank(0);
+                e.setIsPrimary(true);
                 break;
             }
         }
+
         int size = emails.size();
+        // when creating account
         if (!alreadyIn && size < 5) {
-//            increaseAllEmailRanks();
-            Email newEmail = new Email(email, 0);
+            Email newEmail = new Email(email, true);
+            newEmail.setUser(this);
             emails.add(newEmail);
         }
+
+        // should we have a case where emails is null (when creating user) we call setEmails?
+        // because if email alreadyIn the list then its already pointing to User, so we don't need to point it to User again right?
+        // actually don't really know how it updates the database though so might still nee dto call setEmails
+
         setEmails(emails);
     }
+
+// Creating account with Primary Email: Create an Email object and add to Email List
+// Updating primary email: Can't set primary email unless Email is already in List
+// If only one email address, then cannot change to not primary
+
+
+
+
+
+
+
+
+
+
+
+
 
     public boolean checkPassword(String password) {
         return encoder.matches(password, this.password);
@@ -224,11 +249,11 @@ public class User {
         return passports.remove(passport);
     }
 
-    public void increaseAllEmailRanks() {
-        for (Email e: emails) {
-            e.setRank(e.getRank() + 1);
-        }
-    }
+//    public void increaseAllEmailRanks() {
+//        for (Email e: emails) {
+//            e.setRank(e.getRank() + 1);
+//        }
+//    }
 
 
 //    @PrePersist
