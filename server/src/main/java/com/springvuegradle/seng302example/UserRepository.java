@@ -1,7 +1,7 @@
-package com.springvuegradle.seng302team600.repository;
+package com.springvuegradle.seng302example;
 
-import com.springvuegradle.seng302team600.model.Emails;
-import com.springvuegradle.seng302team600.model.User;
+import com.springvuegradle.seng302example.model.Emails;
+import com.springvuegradle.seng302example.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 

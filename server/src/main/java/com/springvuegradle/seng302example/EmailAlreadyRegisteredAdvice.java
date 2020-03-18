@@ -1,6 +1,6 @@
-package com.springvuegradle.seng302team600.advice;
+package com.springvuegradle.seng302example;
 
-import com.springvuegradle.seng302team600.exception.EmailAlreadyRegisteredException;
+import com.springvuegradle.seng302example.exceptions.EmailAlreadyRegisteredException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;

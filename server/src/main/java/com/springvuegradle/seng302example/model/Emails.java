@@ -1,7 +1,7 @@
-package com.springvuegradle.seng302team600.model;
+package com.springvuegradle.seng302example.model;
 
-import com.springvuegradle.seng302team600.exception.EmailAlreadyRegisteredException;
-import com.springvuegradle.seng302team600.exception.MaximumEmailsException;
+import com.springvuegradle.seng302example.exceptions.EmailAlreadyRegisteredException;
+import com.springvuegradle.seng302example.exceptions.MaximumEmailsException;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

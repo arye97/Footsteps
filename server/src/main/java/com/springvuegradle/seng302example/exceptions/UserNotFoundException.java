@@ -1,4 +1,4 @@
-package com.springvuegradle.seng302team600.exception;
+package com.springvuegradle.seng302example.exceptions;
 
 public class UserNotFoundException extends Exception {
     public UserNotFoundException(String email) {
