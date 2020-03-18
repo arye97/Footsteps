@@ -1,4 +1,4 @@
-package com.springvuegradle.seng302team600;
+package com.springvuegradle.seng302example;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

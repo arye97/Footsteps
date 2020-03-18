@@ -3,7 +3,7 @@
         <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
         <!-- Full Page Image Header with Vertically Centered Content -->
         <h1><br/></h1>
-        <header class="masthead">
+        <header v-i="notHome" class="masthead">
             <div class="container h-100">
                 <div class="row h-100 align-items-center">
                     <div class="col-12 text-center">
@@ -19,7 +19,7 @@
             <h1>Login</h1>
         </div>
         <form @submit.prevent="login">
-            <div class="form-group">
+            <div class="form-signin">
                 <label for="email">Email Address: </label>
                 <input type="email" class="form-control" v-model="email" id="email" placeholder="Email Address" required><br/>
             <div class="form-group">
@@ -33,6 +33,7 @@
             </div>
             </div>
         </form>
+        <span class="response" v-if="responseMessage">{{  message  }}</span>
     </div>
 </template>
 
@@ -40,32 +41,42 @@
 </style>
 
 <script>
-    import server from '../../Api';
+    import axios from 'axios';
     export default {
         data() {
             return {
                 email: '',
                 password: '',
+                responseMessage: false,
+                message: ''
             }
         },
         methods: {
             login() {
-                const user = {
-                    email: this.email,
-                    password: this.password
-                }
                 //Perform password encryption
-                server.post(  'http://localhost:9499/login',
-                    user
-                ).then(function(){
-                        console.log('User Logged In Successfully!');
-                }
-                ).catch(error => {
-                    console.log(error);
-                });
-            this.$router.push("/");
-            }
-
+                axios.post('/login', {password: this.password, email: this.email})
+                    .then(function (response) {
+                        switch (response.status) {
+                            case 200 :
+                                this.responseMessage = true;
+                                this.message = 'Login successful. You will be redirected shortly.';
+                                this.router.push('/home')
+                                break;
+                            case 404 :
+                                this.responseMessage = true;
+                                this.message = 'Login unsuccessful. You will be redirected shortly.';
+                                break;
+                            case 401 :
+                                this.responseMessage = true;
+                                this.message = 'Login unsuccessful. Bad email or password.';
+                                break;
+                            case 500 :
+                                this.responseMessage = true;
+                                this.message = 'Login unsuccessful due to a server error. Please try again shortly.';
+                                break;
+                        }
+                    });
+            },
         }
     }
 </script>

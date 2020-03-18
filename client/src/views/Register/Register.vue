@@ -23,19 +23,8 @@
 
             <div class="form-group">
                 <!-- full-name field-->
-                <label for="first-name">Full Name: *</label>
-                <input type="text" class="form-control" v-model="firstname" id="first-name" name="first-name" placeholder="Your First Name..." required><br/>
-            </div>
-            <div class="form-group">
-                <!-- full-name field-->
-                <label for="middle-name">Middle Name: </label>
-                <input type="text" class="form-control" v-model="middlename" id="middle-name" name="middle-name" placeholder="Your Middle Name..."><br/>
-            </div>
-            <div class="form-group">
-                <!-- full-name field-->
-                <label for="last-name">Full Name: *</label>
-                <input type="text" class="form-control" v-model="lastname" id="last-name" name="last-name" placeholder="Your Last Name..." required><br/>
-            </div>
+                <label for="full-name">Full Name: *</label>
+                <input type="text" class="form-control" v-model="fullname" id="full-name" name="full-name" placeholder="Your Full Name..." required><br/>
             <div class="form-group">
                 <!-- email field -->
                 <label for="email">Email Address: *</label>
@@ -50,7 +39,7 @@
                 <label for="passwordCheck">Retype your Password: </label>
                 <input type="password" class="form-control" v-model="passwordCheck" id="passwordCheck" name="passwordCheck" placeholder="Retype Password..." required>
             </div>
-            <div class="form-group">
+            <div class="form-group"></div>
                 <!-- fitness level field -->
                 <label for="fitnessLevel">Fitness Level:</label>
                 <select class="form-control" v-model="fitnessLevel" name="fitnessLevel" id="fitnessLevel">
@@ -107,14 +96,12 @@
 </template>
 
 <script>
-    import server from '../../Api';
+    import axios from 'axios';
     export default {
         name: "NewUser",
         data() {
             return {
-                firstname: '',
-                middlename: '',
-                lastname: '',
+                fullname: '',
                 email: '',
                 password: '',
                 passwordCheck: '',
@@ -164,29 +151,26 @@
             registerUser() {
                 // Save the data as a newUser object
                 const newUser = {
-                    firstname: this.firstname,
-                    middlename: this.middlename,
-                    lastname: this.lastname,
-                    primary_email: this.email,
+                    fullname: this.fullname,
+                    email: this.email,
                     password: this.password,
                     nickname: this.nickname,
                     gender: this.gender,
-                    date_of_birth: this.dob,
+                    dob: this.dob,
                     fitnessLevel: this.fitnessLevel,
                     passportCountry: this.passportCountry,
                     bio: document.getElementById('bio').value
                 }
                 // console.log(newUser)     // view data in console for testing with this
                 // The HTTP Post Request
-                server.post(  'http://localhost:9499/profiles',
+                axios.post( '/register',
                     newUser
                 ).then(function(){
-                        console.log('User Registered Successfully!');
+                        console.log('SUCCESS!!');
                     }
                 ).catch(error => {
                     console.log(error);
                 });
-                this.$router.push("/");
             }
         }
     }

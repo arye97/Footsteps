@@ -1,4 +1,4 @@
-package com.springvuegradle.seng302team600.exception;
+package com.springvuegradle.seng302example.exceptions;
 
 /**
  * Thrown when a user tries to register an email that is already in the system

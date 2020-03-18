@@ -1,4 +1,4 @@
-package com.springvuegradle.seng302team600.model;
+package com.springvuegradle.seng302example.model;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
