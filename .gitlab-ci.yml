@@ -14,7 +14,7 @@ junit:
 dev-build:
   stage: deploy
   script:
-    - fuser -k 9499/tcp 9500/tcp
+    - fuser -k 9499/tcp 9500/tcp || true
     - cd client
     - npm install
     - npm run build
