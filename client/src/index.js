@@ -18,6 +18,7 @@ export default new Router({
   {path: '/register', component: Register},
   {path: '/profile', component: ViewUser},
     {path: '/editemail', component: EditEmail},
+  {path: '/profile/emails', component: EditEmail},
   {path: "/profile/details", component: Details},
 
   // otherwise redirect to home

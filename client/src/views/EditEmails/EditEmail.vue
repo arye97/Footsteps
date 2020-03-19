@@ -1,5 +1,6 @@
 <template>
     <div>
+    <Sidebar/>
         <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
         <h1><br/></h1>
         <header class="masthead">
@@ -50,23 +51,27 @@
 
 <script>
     import server from '../../Api';
+    import Sidebar from '../../components/layout/ProfileEditSidebar'
 
     export default {
         name: "EditEmail",
+        components: {Sidebar},
         data () {
             return {
                 loading: true,
                 post: null,
                 error: false,
                 user: null,
+                primaryEmail: null,
+                secondaryEmails: null
             }
         },
         mounted() {
             server.get(  `http://localhost:9499/profiles`,
                 {headers:
-                        {'Content-Type': 'application/json',}, withCredentials: true
-                })
-                .then(function(response) {
+                        {'Content-Type': 'application/json'}, withCredentials: true
+                }
+            ).then(response => {
                     if (response.status === 200) {
                         console.log('Status = OK. response.data:');
                         console.log(response.data);

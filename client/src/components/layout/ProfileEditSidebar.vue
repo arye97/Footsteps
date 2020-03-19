@@ -12,7 +12,7 @@
             </li>
             <!-- Email and Password are yet to be implemented -->
             <!--<li class>
-                <router-link to="/profile/email"  class="sidebar-item">
+                <router-link to="/profile/emails"  class="sidebar-item">
                     <span class="sidebar-item-name">Email</span>
                 </router-link>
             </li>-->
