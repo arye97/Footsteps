@@ -5,10 +5,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.model.LoggedUser;
-import com.springvuegradle.seng302team600.exception.IncorrectPasswordException;
 import com.springvuegradle.seng302team600.repository.UserRepository;
-import com.springvuegradle.seng302team600.exception.EmailAlreadyRegisteredException;
-import com.springvuegradle.seng302team600.exception.UserNotFoundException;
+import com.springvuegradle.seng302team600.exception.*;
 
 
 import org.springframework.validation.annotation.Validated;
@@ -17,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -76,7 +76,7 @@ public class UserController {
      * @throws EmailAlreadyRegisteredException
      */
     @PostMapping("/profiles")
-    public void newUser(@Validated @RequestBody User newUser, HttpServletRequest request, HttpServletResponse response) throws EmailAlreadyRegisteredException {
+    public void newUser(@Validated @RequestBody User newUser, HttpServletRequest request, HttpServletResponse response) throws EmailAlreadyRegisteredException, InvalidDateOfBirthException, UserTooYoungException {
         HttpSession session = request.getSession();
         if (session.getAttribute("loggedUser") != null) { //Check if already logged in
             //Removes this user's ID from session
@@ -85,6 +85,10 @@ public class UserController {
         if (repository.findByEmails(newUser.getEmails()) == null) {
                 //If mandatory fields not given, exception in UserRepository.save ends function execution and makes response body
                 //Gives request status:400 and specifies needed field if null in required field
+            Date DoB = newUser.getDateOfBirth();
+            if (ageCheck(DoB, 13, true)) { throw new UserTooYoungException(); }
+            if (ageCheck(DoB, 150, false)) { throw new InvalidDateOfBirthException(); }
+
             //Saving generates user id
             User user = repository.save(newUser);
             //Sets this user's ID to session userId
@@ -92,6 +96,24 @@ public class UserController {
             response.setStatus(HttpServletResponse.SC_CREATED); //201
         } else {
             throw new EmailAlreadyRegisteredException(newUser.getEmails().getPrimaryEmail());
+        }
+    }
+
+    /**
+     *
+     * @param DoB date of birth for prespective new user
+     * @param age age to check against
+     * @param younger boolean tag to determine if checking if the person is younger (false checks if older)
+     * @return boolean tag denoting how given DoB compares to given age with respect to younger tag
+     */
+    private boolean ageCheck(Date DoB, int age, boolean younger) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.YEAR, -age);
+        Date AGE = calendar.getTime();
+        if ( younger ) {
+            return AGE.before(DoB);
+        } else {
+            return AGE.after(DoB);
         }
     }
 

@@ -1,8 +1,6 @@
 package com.springvuegradle.seng302team600.advice;
 
-import com.springvuegradle.seng302team600.exception.EmailAlreadyRegisteredException;
-import com.springvuegradle.seng302team600.exception.IncorrectPasswordException;
-import com.springvuegradle.seng302team600.exception.UserNotFoundException;
+import com.springvuegradle.seng302team600.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -44,4 +42,14 @@ public class ExceptionAdvice {
     public String incorrectPasswordHandler(IncorrectPasswordException ex) {
         return ex.getMessage();
     }
+
+    @ResponseBody
+    @ExceptionHandler(InvalidDateOfBirthException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN) //403
+    public String invalidDateOfBirthHandler(InvalidDateOfBirthException ex) { return ex.getMessage(); }
+
+    @ResponseBody
+    @ExceptionHandler(UserTooYoungException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN) //403
+    public String UserTooYoungExceptionHandler(UserTooYoungException ex) { return ex.getMessage(); }
 }
