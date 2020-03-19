@@ -1,3 +1,5 @@
+<!--TODO: Make dropdown be able to change the primary email, Make a list of email below that which we can edit/change Have an empty text box we can add new secondary emails into, Have default option in dropdown menu as the primary email-->
+
 <template>
     <div>
     <Sidebar/>
@@ -31,7 +33,21 @@
                         </dt>
                         <dd>
                             <select id="primary_email_select" name="id" class="form-select">
+
                             </select>
+
+
+                            <!-- Gender code from register page -->
+                            <div class="form-group">
+                                <!-- gender field -->
+                                <label for="gender">Edit Emails:</label>
+                                <multiselect v-model="gender" id="gender"
+                                             :options="edits" placeholder="Your email" required>
+                                    <template slot="noResult">Invalid email</template>
+                                </multiselect>
+                            </div>
+
+
                             <button type="submit" class="btn">Save</button>
                         </dd>
                     </dl>
@@ -52,10 +68,24 @@
 <script>
     import server from '../../Api';
     import Sidebar from '../../components/layout/ProfileEditSidebar'
+    import Multiselect from "vue-multiselect";
+    //  Code from register page
+    // export default {
+    //     components: {Multiselect},
+    //     name: "NewUser",
+    //     data() {
+    //         return {
+    //             genders: ['male', 'female', 'non-binary'],
+    //         }
+    //     },
+    // }
+    // this.primaryEmail = this.user.primary_email[0];
+    // this.secondaryEmails = this.user.primary_email[1];
+
 
     export default {
         name: "EditEmail",
-        components: {Sidebar},
+        components: {Sidebar, Multiselect},
         data () {
             return {
                 loading: true,
@@ -63,7 +93,9 @@
                 error: false,
                 user: null,
                 primaryEmail: null,
-                secondaryEmails: null
+                secondaryEmails: null,
+                edits: null,
+
             }
         },
         mounted() {
@@ -75,10 +107,20 @@
                     if (response.status === 200) {
                         console.log('Status = OK. response.data:');
                         console.log(response.data);
+
                         //user is set to the user data retrieved
                         this.user = response.data;
-                        this.primaryEmail = this.user.primary_email[0];
-                        this.secondaryEmails = this.user.primary_email[1];
+                        this.primaryEmail = this.user.primary_email.primaryEmail;
+                        this.secondaryEmails = this.user.primary_email.secondaryEmails;
+                        console.log('THIS.PRIMARYEMAIL BELOW!!!')
+                        console.log(this.primaryEmail)
+                        console.log('TYPE OF BELOW')
+                        console.log(typeof this.primaryEmail)
+                        //Set the drop down list to contain users emails
+                        //Fake list of secondary emails until we have the ability to add our own secondary emails
+                        let mock_secondaries = ["fake1@sekj.com", "fake2@skeg.com"]
+                        this.edits = [this.primaryEmail];
+                        this.edits.push(...mock_secondaries);
                         //no longer loading, so show data
                         this.loading = false;
                     }
