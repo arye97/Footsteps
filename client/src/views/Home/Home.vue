@@ -10,9 +10,15 @@
 <script>
     import ViewUser from '../../components/layout/ViewUser'
     import HomeLayout from '../../components/layout/HomeLayout'
+    import Log from '../../views/Login/Login'
     export default {
         name: "Home",
         components: {ViewUser, HomeLayout},
+        data () {
+            return {
+                isloggedIn: Log.loggedIn
+            }
+        }
     }
 </script>
 
