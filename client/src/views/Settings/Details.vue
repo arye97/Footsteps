@@ -7,7 +7,7 @@
       </button>
     </div>
     <Sidebar/>
-    <div class="container-fluid">
+    <div class="container-fluid" v-if="isLoggedIn">
       <div class="form-group">
         <!-- first-name field-->
         <label for="first-name">First Name: *</label>
@@ -96,7 +96,6 @@
           <button class="btn btn-primary" id="passportCountriesDiv-btn" v-on:click="mutate" type="button">+</button>
         </div>
       </div>
-    </div>
     <div class="form-group">
       <!-- user bio -->
       <label for="bio">Tell us about yourself, your Bio: </label>
@@ -107,6 +106,7 @@
       </div>
     </div>
   </div>
+  </div>
 </template>
 
 <script>
@@ -114,13 +114,32 @@
     import Multiselect from 'vue-multiselect'
     import server from "../../Api";
     import {getCountryNames} from '../../constants';
+    import router from '../../index';
 
     export default {
         name: "Details.vue",
         components: {
             Sidebar, Multiselect
         },
+        data() {
+          return {
+            firstname: '',
+            middlename: '',
+            lastname: '',
+            nickname: '',
+            gender: '',
+            dob: '',
+            fitnessLevel: '',
+            passportCountries: '',
+            bio: '',
+            message: '',
+            code: '',
+            countries: [],
+            genders: ['Male', 'Female', 'Non-Binary'],
+          }
+        },
         mounted() {
+            //Fill Passport countries
             let select = []
             // Create a request variable and assign a new XMLHttpRequest object to it.
             let request = new XMLHttpRequest()
@@ -144,23 +163,9 @@
             // Send request
             this.countries = select
             request.send()
-        },
-        data() {
-            return {
-                firstname: '',
-                middlename: '',
-                lastname: '',
-                nickname: '',
-                gender: '',
-                dob: '',
-                fitnessLevel: '',
-                passportCountries: '',
-                bio: '',
-                message: '',
-                code: '',
-                countries: [],
-                genders: ['Male', 'Female', 'Non-Binary'],
-            }
+
+            //Populate input fields with profile data
+            this.updateInputs();
         },
         methods: {
             mutate: function (event) {
@@ -212,6 +217,26 @@
                 setTimeout(function () {
                     alertDiv.hidden = true;
                 }, 3000);
+            },
+            updateInputs: function () {
+              server.get('/profiles').then(response => {
+                this.firstname = response.data.firstname;
+                this.middlename = response.data.middlename;
+                this.lastname = response.data.lastname;
+                this.nickname = response.data.nickname;
+                this.gender = response.data.gender;
+                this.dob = response.data.dob;
+                this.fitnessLevel = response.data.fitnessLevel;
+                this.passportCountries = response.data.passportCountries;
+                this.bio = response.data.bio;
+              }).catch(error => {
+                const alertDiv = document.getElementById("alert");
+                this.message = error;
+                alertDiv.removeAttribute("hidden");
+                setTimeout(function () {
+                  router.push("/");
+                }, 5000);
+              });
             }
         }
     }
