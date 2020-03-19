@@ -23,7 +23,7 @@
 
             <div class="form-group">
                 <!-- full-name field-->
-                <label for="first-name">Full Name: *</label>
+                <label for="first-name">First Name: *</label>
                 <input type="text" class="form-control" v-model="firstname" id="first-name" name="first-name" placeholder="Your First Name..." required><br/>
             </div>
             <div class="form-group">
@@ -33,7 +33,7 @@
             </div>
             <div class="form-group">
                 <!-- full-name field-->
-                <label for="last-name">Full Name: *</label>
+                <label for="last-name">Last Name: *</label>
                 <input type="text" class="form-control" v-model="lastname" id="last-name" name="last-name" placeholder="Your Last Name..." required><br/>
             </div>
             <div class="form-group">
@@ -47,13 +47,13 @@
                 <input type="password" class="form-control" v-model="password" id="password" name="password" placeholder="Your Password..." required>
             </div>
             <div class="form-group">
-                <label for="passwordCheck">Retype your Password: </label>
+                <label for="passwordCheck">Retype your Password: *</label>
                 <input type="password" class="form-control" v-model="passwordCheck" id="passwordCheck" name="passwordCheck" placeholder="Retype Password..." required>
             </div>
             <div class="form-group">
                 <!-- fitness level field -->
-                <label for="fitnessLevel">Fitness Level:</label>
-                <select class="form-control" v-model="fitnessLevel" name="fitnessLevel" id="fitnessLevel">
+                <label for="fitness">Fitness Level:</label>
+                <select class="form-control" v-model="fitness" name="fitness" id="fitness">
                     <option disabled value="">Please select a fitness level</option>
                     <option value="1">Unfit, no regular exercise, being active is very rare</option>
                     <option value="2">Not overly fit, occasional recreational fitness activity, active a few times a month</option>
@@ -77,8 +77,8 @@
             </div>
             <div class="form-group">
                 <!-- date of birth field-->
-                <label for="dob">Date of Birth: *</label>
-                <input type="date" class="form-control" v-model="dob" id="dob" name="dob" required>
+                <label for="date_of_birth">Date of Birth: *</label>
+                <input type="date" class="form-control" v-model="date_of_birth" id="date_of_birth" name="date_of_birth" required>
             </div>
             <div class="form-group">
                 <!-- passport country -->
@@ -96,10 +96,16 @@
             </div>
             <div class="form-group">
                 <!-- SignIn Button-->
-                <button type="submit" class="btn btn-primary" v-on:click="registerUser">Register</button>
+                <button type="submit" class="btn btn-primary">Register</button>
                 <router-link to="/login" class="btn btn-link">Login</router-link>
             </div>
         </form>
+        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" hidden="true" id="alert">
+            {{  message  }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
         <footer>
             Entries marked with * are required
         </footer>
@@ -124,10 +130,13 @@
                 passwordCheck: '',
                 nickname: '',
                 gender: '',
-                dob: '',
-                fitnessLevel: '',
-                passportCountries: [],
+                date_of_birth: '',
+                fitness: '',
                 bio: '',
+                hasRegistered: false,
+                isLoggedIn: false,
+                message: ""
+                passportCountries: [],
                 countries: [],
                 genders: ['Male', 'Female', 'Non-Binary'],
             }
@@ -136,58 +145,79 @@
         mounted () {
             let select = []
             // Create a request variable and assign a new XMLHttpRequest object to it.
-            let request = new XMLHttpRequest()
+            let request = new XMLHttpRequest();
             //build url
             let url = new URL(getCountryNames)
             // Open a new connection, using the GET request on the URL endpoint;
-            request.open('GET', url, true)
+            request.open('GET', url, true);
 
             request.onload = function() {
                 // If the request is successful
                 if(request.status >= 200 && request.status < 400) {
-                    let data = JSON.parse(this.response)
+                    let data = JSON.parse(this.response);
                     data.forEach(country => {
                         let elmt = country.name;
                         select.push(elmt)
                     } )
                 } else {
                     select = 'List is empty'
+                    let errorAlert = document.getElementById("alert");
+                    this.message = 'Error fetching countries';
+                    errorAlert.hidden = false;          //Show alert bar
                 }
-            }
+            };
             // Send request
             this.countries = select
             request.send()
         },
 
         methods: {
-            // Method is called when the register button is selected
-            registerUser() {
+
+            async registerUser() {
                 // Save the data as a newUser object
                 const newUser = {
+                    lastname: this.lastname,
                     firstname: this.firstname,
                     middlename: this.middlename,
-                    lastname: this.lastname,
+                    nickname: this.nickname,
                     primary_email: this.email,
                     password: this.password,
-                    nickname: this.nickname,
+                    date_of_birth: this.date_of_birth,
                     gender: this.gender,
-                    date_of_birth: this.dob,
-                    fitnessLevel: this.fitnessLevel,
+                    bio: this.bio,
+                    fitness: this.fitness,
                     passportCountries: this.passportCountries,
-                    bio: document.getElementById('bio').value
-                }
-                // console.log(newUser)     // view data in console for testing with this
+                };
                 // The HTTP Post Request
                 server.post(  '/profiles',
-                    newUser
-                ).then(function(){
+                    newUser,
+                    { headers: { "Access-Control-Allow-Origin": "*", "content-type":"application/json"},
+                        withCredentials: true}
+                ).then(response => { //If successfully registered the response will have a status of 201
+                    if (response.status === 201) {
                         console.log('User Registered Successfully!');
+                        this.isLoggedIn = true;
+                        this.$router.push('/profile'); //Routes to profile on successful register
                     }
-                ).catch(error => {
+                }).catch(error => {
                     console.log(error);
+                    //Get alert bar element
+                    let errorAlert = document.getElementById("alert");
+                    if (error.message == "Network Error") {
+                        this.message = error.message;
+                    } else if (error.response.status === 403) { //Error 401: Email already exists or invalid date of birth
+                        this.message = error.response.data.toString(); //Set alert bar message to error message from server
+                    } else if (error.response.status === 400) { //Error 400: Bad request (missing fields)
+                        this.message = "An invalid register request has been received please try again"
+                    } else {    //Catch for any errors that are not specifically caught
+                        this.message = "An unknown error has occurred during register"
+                    }
+                    errorAlert.hidden = false;          //Show alert bar
+                    setTimeout(function () {    //Hide alert bar after ~5000ms
+                        errorAlert.hidden = true;
+                    }, 5000);
                 });
-                this.$router.push("/");
-            },
+            }
         }
     }
 

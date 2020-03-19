@@ -1,5 +1,7 @@
 <template>
     <div id="app">
+        <h1><br/></h1>
+        <h1>Welcome to Hakinakina!</h1>
         <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
         <div class="text-center">
             <p></p>
@@ -15,15 +17,14 @@
 </template>
 
 <script>
-    import router from '../../index';
     export default {
         name: "HomeLayout",
         methods: {
             login() {
-                router.push('login');
+                this.$router.push('/login');
             },
             register() {
-                router.push('register');
+                this.$router.push('/register');
             }
         }
     }

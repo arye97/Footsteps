@@ -1,8 +1,6 @@
 <template>
     <div id="app">
-        <h1><br/></h1>
-        <h1>Welcome to Hakinakina!</h1>
-        <ViewUser v-if="this.isLoggedIn"></ViewUser>
+        <ViewUser v-if="checkLoggedIn"></ViewUser>
         <HomeLayout v-else></HomeLayout>
     </div>
 </template>
@@ -10,9 +8,27 @@
 <script>
     import ViewUser from '../../components/layout/ViewUser'
     import HomeLayout from '../../components/layout/HomeLayout'
+    import Log from '../../views/Login/Login'
+    import Reg from '../../views/Register/Register'
     export default {
         name: "Home",
         components: {ViewUser, HomeLayout},
+        data () {
+            return {
+                isLoggedIn: false
+            }
+        },
+        methods: {
+            checkLoggedIn() {
+                ///DIDNT LIKE THE || OPERATOR FOR ONE IF STATMENT??
+                if (Log.loggedIn === true) {
+                    this.isLoggedIn = true;
+                } else if (Reg.isLoggedIn === true) {
+                    this.isLoggedIn = true;
+                }
+                return false;
+            }
+        }
     }
 </script>
 

@@ -15,6 +15,7 @@ export default new Router({
   {path: '/', component: Home},
   {path: '/login', component: Login},
   {path: '/register', component: Register},
+  {path: '/profile', component: Home},
   {path: "/profile/details", component: Details},
 
   // otherwise redirect to home

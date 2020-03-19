@@ -8,8 +8,8 @@ public class EmailAlreadyRegisteredException extends Exception {
         // TODO Auto-generated constructor stub
     }
 
-    public EmailAlreadyRegisteredException(String message) {
-        super(message);
+    public EmailAlreadyRegisteredException(String email) {
+        super("Email: " + email + " is already registered!");
         // TODO Auto-generated constructor stub
     }
 
