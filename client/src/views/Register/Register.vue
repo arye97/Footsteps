@@ -23,7 +23,7 @@
 
             <div class="form-group">
                 <!-- full-name field-->
-                <label for="first-name">Full Name: *</label>
+                <label for="first-name">First Name: *</label>
                 <input type="text" class="form-control" v-model="firstname" id="first-name" name="first-name" placeholder="Your First Name..." required><br/>
             </div>
             <div class="form-group">
@@ -33,7 +33,7 @@
             </div>
             <div class="form-group">
                 <!-- full-name field-->
-                <label for="last-name">Full Name: *</label>
+                <label for="last-name">Last Name: *</label>
                 <input type="text" class="form-control" v-model="lastname" id="last-name" name="last-name" placeholder="Your Last Name..." required><br/>
             </div>
             <div class="form-group">
