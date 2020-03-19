@@ -12,10 +12,10 @@ import org.springframework.web.filter.CorsFilter;
 import java.util.*;
 
 @SpringBootApplication
-public class Team4ServerApplication {
+public class Application {
 
     public static void main(String[] args) {
-        SpringApplication.run(Team4ServerApplication.class, args);
+        SpringApplication.run(Application.class, args);
     }
 //
 //    @Bean
@@ -54,7 +54,7 @@ public class Team4ServerApplication {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         // *** URL below needs to match the Vue client URL and port ***
-        config.setAllowedOrigins(new ArrayList(Arrays.asList("http://localhost:9000", "http://localhost:9500", "https://csse-s302g0.canterbury.ac.nz/test", "https://csse-s302g0.canterbury.ac.nz/prod")));
+        config.setAllowedOrigins(new ArrayList(Arrays.asList("https://localhost:9000", "https://localhost:9500", "http://localhost:9000", "http://localhost:9500", "https://csse-s302g0.canterbury.ac.nz/test", "https://csse-s302g0.canterbury.ac.nz/prod")));
         config.setAllowedMethods(Collections.singletonList("*"));
         config.setAllowedHeaders(Collections.singletonList("*"));
         source.registerCorsConfiguration("/**", config);

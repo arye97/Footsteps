@@ -47,13 +47,13 @@
                 <input type="password" class="form-control" v-model="password" id="password" name="password" placeholder="Your Password..." required>
             </div>
             <div class="form-group">
-                <label for="passwordCheck">Retype your Password: </label>
+                <label for="passwordCheck">Retype your Password: *</label>
                 <input type="password" class="form-control" v-model="passwordCheck" id="passwordCheck" name="passwordCheck" placeholder="Retype Password..." required>
             </div>
             <div class="form-group">
                 <!-- fitness level field -->
-                <label for="fitnessLevel">Fitness Level:</label>
-                <select class="form-control" v-model="fitnessLevel" name="fitnessLevel" id="fitnessLevel">
+                <label for="fitness">Fitness Level:</label>
+                <select class="form-control" v-model="fitness" name="fitness" id="fitness">
                     <option disabled value="">Please select a fitness level</option>
                     <option value="1">Unfit, no regular exercise, being active is very rare</option>
                     <option value="2">Not overly fit, occasional recreational fitness activity, active a few times a month</option>
@@ -74,18 +74,18 @@
                     <option value="" disabled selected hidden>Your Gender... </option>
                     <option value="male">Male</option>
                     <option value="female">Female</option>
-                    <option value="non-binary">Non Binary</option>
+                    <option value="non_binary">Non Binary</option>
                 </select>
             </div>
             <div class="form-group">
                 <!-- date of birth field-->
-                <label for="dob">Date of Birth: *</label>
-                <input type="date" class="form-control" v-model="dob" id="dob" name="dob" required>
+                <label for="date_of_birth">Date of Birth: *</label>
+                <input type="date" class="form-control" v-model="date_of_birth" id="date_of_birth" name="date_of_birth" required>
             </div>
             <div class="form-group">
                 <!-- passport country -->
-                <label for="passportCountry">Passport Country:</label>
-                <select class="form-control" v-model="passportCountry" id="passportCountry" name="passportCountry">
+                <label for="passports">Passport Country:</label>
+                <select class="form-control" v-model="passports" id="passports" name="passports">
                     <option value="" disabled selected hidden>Select country</option>
                 </select>
             </div>
@@ -96,10 +96,16 @@
             </div>
             <div class="form-group">
                 <!-- SignIn Button-->
-                <button type="submit" class="btn btn-primary" v-on:click="registerUser">Register</button>
+                <button type="submit" class="btn btn-primary">Register</button>
                 <router-link to="/login" class="btn btn-link">Login</router-link>
             </div>
         </form>
+        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" hidden="true" id="alert">
+            {{  message  }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
         <footer>
             Entries marked with * are required
         </footer>
@@ -120,76 +126,93 @@
                 passwordCheck: '',
                 nickname: '',
                 gender: '',
-                dob: '',
-                fitnessLevel: '',
-                passportCountry: '',
-                bio: ''
+                date_of_birth: '',
+                fitness: '',
+                passports: [],
+                bio: '',
+                message: ""
             }
         },
 
-        mounted () {
-            let select = document.getElementById('passportCountry')
+        mounted() {
+            let select = document.getElementById('passports');
             // Create a request variable and assign a new XMLHttpRequest object to it.
-            let request = new XMLHttpRequest()
+            let request = new XMLHttpRequest();
             //build url
-            let restCountriesName = 'https://restcountries.eu/rest/v2/all?fields=name'     //needs to be const somewhere
-            let url = new URL(restCountriesName)
+            let restCountriesName = 'https://restcountries.eu/rest/v2/all?fields=name';  //needs to be const somewhere
+            let url = new URL(restCountriesName);
             // Open a new connection, using the GET request on the URL endpoint;
-            request.open('GET', url, true)
+            request.open('GET', url, true);
 
-            request.onload = function() {
-                if(request.status >= 200 && request.status < 400) {
-                    let data = JSON.parse(this.response)
+            request.onload = function () {
+                if (request.status >= 200 && request.status < 400) {
+                    let data = JSON.parse(this.response);
                     data.forEach(country => {
                         // console.log(country.name)
-                        let elmt = document.createElement('option')
-                        elmt.textContent = country.name
-                        elmt.value = country.name
+                        let elmt = document.createElement('option');
+                        elmt.textContent = country.name;
+                        elmt.value = country.name;
                         //console.log(elmt)
                         select.appendChild(elmt)
-                    } )
+                    })
                 } else {
-                    let elmt = document.createElement('error')
-                    elmt.textContent = 'error fetching countries'
-                    elmt.value = 'error'
+                    let elmt = document.createElement('error');
+                    elmt.textContent = 'error fetching countries';
+                    elmt.value = 'error';
                     select.appendChild(elmt)
                 }
-            }
+            };
             // Send request
             request.send()
         },
 
         methods: {
-            // Method is called when the register button is selected
-            registerUser() {
+
+            async registerUser() {
                 // Save the data as a newUser object
                 const newUser = {
+                    lastname: this.lastname,
                     firstname: this.firstname,
                     middlename: this.middlename,
-                    lastname: this.lastname,
+                    nickname: this.nickname,
                     primary_email: this.email,
                     password: this.password,
-                    nickname: this.nickname,
+                    date_of_birth: this.date_of_birth,
                     gender: this.gender,
-                    date_of_birth: this.dob,
-                    fitnessLevel: this.fitnessLevel,
-                    passportCountry: this.passportCountry,
-                    bio: document.getElementById('bio').value
-                }
-                // console.log(newUser)     // view data in console for testing with this
+                    bio: this.bio,
+                    fitness: this.fitness,
+                    // passports: this.passports
+                };
                 // The HTTP Post Request
-                server.post(  'http://localhost:9499/profiles',
-                    newUser
-                ).then(function(){
-                        console.log('User Registered Successfully!');
+                server.post('http://localhost:9499/profiles',
+                    newUser,
+                    {
+                        headers: {"Access-Control-Allow-Origin": "*", "content-type": "application/json"},
+                        withCredentials: true
                     }
-                ).catch(error => {
-                    console.log(error);
+                ).then(response => { //If successfully registered the response will have a status of 201
+                    if (response.status === 201) {
+                        console.log('User Registered Successfully!');
+                        this.$router.push('/profile'); //Routes to profile on successful register
+                    }
+                }).catch(error => {
+                    console.log(error.response);
+                    //Get alert bar element
+                    let errorAlert = document.getElementById("alert");
+                    if (error.response.status === 403) { //Error 401: Email already exists or invalid date of birth
+                        this.message = error.response.data.toString(); //Set alert bar message to error message from server
+                    } else if (error.response.status === 400) { //Error 400: Bad request (missing fields)
+                        this.message = "An invalid register request has been received please try again"
+                    } else {    //Catch for any errors that are not specifically caught
+                        this.message = "An unknown error has occurred during register"
+                    }
+                    errorAlert.hidden = false;          //Show alert bar
+                    setTimeout(function () {    //Hide alert bar after ~5000ms
+                        errorAlert.hidden = true;
+                    }, 5000);
                 });
-                this.$router.push("/");
             }
         }
     }
-
 
 </script>
