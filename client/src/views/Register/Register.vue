@@ -99,8 +99,13 @@
                 <button type="submit" class="btn btn-primary">Register</button>
                 <router-link to="/login" class="btn btn-link">Login</router-link>
             </div>
-            <label v-show="regError" id="error">Error</label>
         </form>
+        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" hidden="true" id="alert">
+            {{  message  }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
         <footer>
             Entries marked with * are required
         </footer>
@@ -125,9 +130,9 @@
                 fitness: '',
                 passports: [],
                 bio: '',
-                regError: false,
                 hasRegistered: false,
-                isLoggedIn: false
+                isLoggedIn: false,
+                message: ""
             }
         },
 
@@ -180,37 +185,34 @@
                     fitness: this.fitness,
                    // passports: this.passports
                 };
-                // console.log(newUser)     // view data in console for testing with this
                 // The HTTP Post Request
                 server.post(  'http://localhost:9499/profiles',
                     newUser,
                     { headers: { "Access-Control-Allow-Origin": "*", "content-type":"application/json"},
                         withCredentials: true}
-                ).then(response => {
+                ).then(response => { //If successfully registered the response will have a status of 201
                     if (response.status === 201) {
                         console.log('User Registered Successfully!');
                         this.isLoggedIn = true;
-                        this.$router.push('/profile');
-
+                        this.$router.push('/profile'); //Routes to profile on successful register
                     }
-
                 }).catch(error => {
-                    this.regError = true;
-                    console.log(error);
-                    if (error.response !== undefined) {
-                        let errorLabel = document.getElementById("error");
-                        if (error.response.status >= 400) {
-                            errorLabel.textContent = error.response.data.toString();
-                        } else {
-                            errorLabel.textContent = "An unknown error has occurred during login"
-                        }
+                    console.log(error.response);
+                    //Get alert bar element
+                    let errorAlert = document.getElementById("alert");
+                    if (error.response.status === 403) { //Error 401: Email already exists
+                        this.message = error.response.data.toString(); //Set alert bar message to error message from server
+                    } else if (error.response.status === 400) { //Error 400: Bad request (missing fields)
+                        this.message = "An invalid register request has been received please try again"
+                    } else {    //Catch for any errors that are not specifically caught
+                        this.message = "An unknown error has occurred during register"
                     }
-
+                    errorAlert.hidden = false;          //Show alert bar
+                    setTimeout(function () {    //Hide alert bar after ~5000ms
+                        errorAlert.hidden = true;
+                    }, 5000);
                 });
-
             }
-
-
         }
     }
 

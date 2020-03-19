@@ -89,7 +89,7 @@ public class UserController {
             User user = repository.save(newUser);
             //Sets this user's ID to session userId
             session.setAttribute("loggedUser", new LoggedUser(user.getUserId(), activeUsers));
-            response.setStatus(HttpServletResponse.SC_CREATED);
+            response.setStatus(HttpServletResponse.SC_CREATED); //201
         } else {
             throw new EmailAlreadyRegisteredException(newUser.getEmails().getPrimaryEmail());
         }
