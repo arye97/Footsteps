@@ -19,28 +19,28 @@ public class ExceptionAdvice {
 
     @ResponseBody
     @ExceptionHandler(EmailAlreadyRegisteredException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseStatus(HttpStatus.FORBIDDEN) //403
     public String emailAlreadyRegisteredHandler(EmailAlreadyRegisteredException ex) {
         return ex.getMessage();
     }
 
     @ResponseBody
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.BAD_REQUEST) //400
     public String MethodArgumentNotValidExceptionHandler(MethodArgumentNotValidException ex) {
         return ex.getMessage();
     }
 
     @ResponseBody
     @ExceptionHandler(UserNotFoundException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED) //401
     public String userNotFoundHandler(UserNotFoundException ex) {
         return ex.getMessage();
     }
 
     @ResponseBody
     @ExceptionHandler(IncorrectPasswordException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED) //401
     public String incorrectPasswordHandler(IncorrectPasswordException ex) {
         return ex.getMessage();
     }
