@@ -63,7 +63,7 @@
                     password: this.password
                 };
                 // Send login post to serve
-                server.post('http://localhost:9499/login',
+                server.post('/login',
                     userLogin,
                     {
                         headers: {"Access-Control-Allow-Origin": "*", "content-type": "application/json"},
@@ -75,10 +75,12 @@
                         this.$router.push("/profile"); //Route to profile screen on successful login
                     }
                 }).catch(error => { //If an error occurs during login (includes server side errors)
-                    console.log(error.response);
+                    console.log(error);
                     //Get alert bar element
                     let errorAlert = document.getElementById("alert");
-                    if (error.response.status === 401) { //Error 401: User not found or incorrect password
+                    if (error.message == "Network Error") {
+                        this.message = error.message;
+                    } else if (error.response.status === 401) { //Error 401: User not found or incorrect password
                         this.message = error.response.data.toString(); //Set alert bar message to error message from server
                     } else if (error.response.status === 400) { //Error 400: Bad request (email and/or password fields not given)
                         this.message = "An invalid login request has been received please try again"
