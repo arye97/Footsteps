@@ -83,7 +83,7 @@
             <div class="form-group">
                 <!-- passport country -->
                 <label for="passportCountries">Passport Country:</label>
-                <multiselect v-model="passportCountries" id="passportCountries"
+                <multiselect v-model="passports" id="passportCountries"
                              :options="countries" :multiple="true" :searchable="true" :close-on-select="false"
                              placeholder="Select your passport countries">
                     <template slot="noResult">Country not found</template>
@@ -135,7 +135,8 @@
                 bio: '',
                 message: "",
                 countries: [],
-                genders: ['Male', 'Female', 'Non-Binary'],
+                genders: ['male', 'female', 'non_binary'],
+                passports: []
             }
         },
 
@@ -201,7 +202,7 @@
                     console.log(error);
                     //Get alert bar element
                     let errorAlert = document.getElementById("alert");
-                    if (error.message == "Network Error") {
+                    if (error.message === "Network Error") {
                         this.message = error.message;
                     } else if (error.response.status === 403) { //Error 401: Email already exists or invalid date of birth
                         this.message = error.response.data.toString(); //Set alert bar message to error message from server
