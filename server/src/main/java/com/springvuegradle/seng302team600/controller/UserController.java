@@ -103,7 +103,33 @@ public class UserController {
         }
     }
 
-    //TODO: Error handling and checking and tests for this method. Tested in postman but will update the current user thats logged in with the primary email due to unimplementation of adding a list of secondary emails in the database.
+    @PostMapping("/profiles/{profileId}/emails")
+    public void addEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, UserNotFoundException {
+        ObjectNode node = new ObjectMapper().readValue(jsonString, ObjectNode.class);
+        HttpSession session = request.getSession(false);
+
+        if (session != null && session.getAttribute("loggedUser") != null) {
+            if (profileId == repository.findByUserId(profileId).getUserId()) {
+                //Gets userId from client session
+                Long userId = ((LoggedUser) session.getAttribute("loggedUser")).getUserId();
+                if (node.has("additional_email")) {
+                    List<String> secondaryEmails = node.findValuesAsText("additional_email");
+                    System.out.println(secondaryEmails.toString());
+                    if (userId == profileId) {
+                        User updateUser = repository.findByUserId(profileId);
+                        //updateUser.setEmails(new Emails(secondaryEmails));
+                        response.setStatus(HttpServletResponse.SC_OK);
+                        repository.save(updateUser);
+                    }
+                }
+            } else {
+                throw new UserNotFoundException(profileId);
+            }
+        }
+    }
+
+    //TODO: Tests for this method. Tested in postman but will update the current user thats logged in with the primary email due to unimplementation of adding a list of secondary emails in the database.
+    //check if session is null, check if the profile id is the logged in id, check if user exists after
     /**
      * Updates primary and secondary emails from a given profileID
      * @param jsonString
@@ -111,12 +137,12 @@ public class UserController {
      * @throws JsonProcessingException
      */
     @PutMapping("/profiles/{profileId}/emails")
-    public void updateEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException {
-        if (profileId == repository.findByUserId(profileId).getUserId()) {
-            ObjectNode node = new ObjectMapper().readValue(jsonString, ObjectNode.class);
-            HttpSession session = request.getSession(false);
+    public void updateEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, UserNotFoundException {
+        ObjectNode node = new ObjectMapper().readValue(jsonString, ObjectNode.class);
+        HttpSession session = request.getSession(false);
 
-            if (session != null && session.getAttribute("loggedUser") != null) {
+        if (session != null && session.getAttribute("loggedUser") != null) {
+            if (profileId == repository.findByUserId(profileId).getUserId()) {
                 //Gets userId from client session
                 Long userId = ((LoggedUser) session.getAttribute("loggedUser")).getUserId();
                 if (node.has("primary_email") && node.has("additional_email")) {
@@ -129,12 +155,10 @@ public class UserController {
                         response.setStatus(HttpServletResponse.SC_OK);
                         repository.save(updateUser);
                     }
-
                 }
-
+            } else {
+                throw new UserNotFoundException(profileId);
             }
-        } else {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         }
     }
 
