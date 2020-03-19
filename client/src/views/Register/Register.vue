@@ -184,7 +184,7 @@
                    // passports: this.passports
                 };
                 // The HTTP Post Request
-                server.post(  'http://localhost:9499/profiles',
+                server.post(  '/profiles',
                     newUser,
                     { headers: { "Access-Control-Allow-Origin": "*", "content-type":"application/json"},
                         withCredentials: true}

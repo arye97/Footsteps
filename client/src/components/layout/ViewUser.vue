@@ -41,7 +41,7 @@
             }
         },
         mounted() {
-            server.get(  'http://localhost:9499/profiles',
+            server.get(  '/profiles',
                 {headers:
                         {'Content-Type': 'application/json'}, withCredentials: true
                 }, )
