@@ -135,7 +135,7 @@
                 bio: '',
                 hasRegistered: false,
                 isLoggedIn: false,
-                message: ""
+                message: "",
                 passportCountries: [],
                 countries: [],
                 genders: ['Male', 'Female', 'Non-Binary'],
