@@ -195,7 +195,7 @@
                         this.$router.push('/profile'); //Routes to profile on successful register
                     }
                 }).catch(error => {
-                    console.log(error.message);
+                    console.log(error);
                     //Get alert bar element
                     let errorAlert = document.getElementById("alert");
                     if (error.message == "Network Error") {

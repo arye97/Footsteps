@@ -75,7 +75,7 @@
                         this.$router.push("/profile"); //Route to profile screen on successful login
                     }
                 }).catch(error => { //If an error occurs during login (includes server side errors)
-                    console.log(error.response);
+                    console.log(error);
                     //Get alert bar element
                     let errorAlert = document.getElementById("alert");
                     if (error.message == "Network Error") {
