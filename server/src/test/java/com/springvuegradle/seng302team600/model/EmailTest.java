@@ -1,8 +1,10 @@
 package com.springvuegradle.seng302team600.model;
 
-import java.util.ArrayList;
 
-class EmailsTest {
+class EmailTest {
+
+
+}
 
 //    String email1;
 //    String email2;
@@ -124,4 +126,3 @@ class EmailsTest {
 //        emails2.shiftSecondaryEmail(email4, 7);
 //        assertEquals(emails2.getSecondaryEmails().get(i - 1), email4);
 //    }
-}

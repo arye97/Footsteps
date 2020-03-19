@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import com.springvuegradle.seng302team600.exception.MaximumEmailsException;
 import com.springvuegradle.seng302team600.exception.MustHavePrimaryEmailException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -58,7 +59,7 @@ public class User {
 
     @Transient
     @JsonProperty("additional_emails")
-    private List<String> additionalEmails;
+    private List<String> additionalEmails = new ArrayList<>();
 
     @NotNull(message = "Please provide a primary email address")
     @JsonManagedReference
@@ -104,7 +105,6 @@ public class User {
     }
 
     public User() {}
-
 
     public Long getId() {
         return id;
@@ -162,6 +162,7 @@ public class User {
 //            emails.add(newPrimaryEmail);
 //        } else {
         for (Email email: emails) {
+            // Set current primary email to false
             if (email.getEmail().equals(primaryEmail)) {
                 email.setIsPrimary(false);
             }
@@ -180,6 +181,10 @@ public class User {
             }
         }
         this.primaryEmail = null;
+    }
+
+    public String getPrimaryEmail() {
+        return primaryEmail;
     }
 
     /**
@@ -228,12 +233,14 @@ public class User {
      * before appending them to a list of Email objects
      * @param additionalEmails a String list of additional emails
      */
-    public void setAdditionalEmails(List<String> additionalEmails) {
+    public void setAdditionalEmails(List<String> additionalEmails) throws MaximumEmailsException {
 //        this.additionalEmails = additionalEmails;
         for (String email: additionalEmails) {
             if (emails.size() < MAX_EMAILS) {
                 this.additionalEmails.add(email);
                 emails.add(new Email(email, false));
+            } else {
+                throw new MaximumEmailsException("Maximum email limit reached");
             }
         }
         setEmails(emails);
