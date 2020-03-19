@@ -154,14 +154,12 @@
                         let elmt = document.createElement('option');
                         elmt.textContent = country.name;
                         elmt.value = country.name;
-                        //console.log(elmt)
                         select.appendChild(elmt)
                     } )
                 } else {
-                    let elmt = document.createElement('error');
-                    elmt.textContent = 'error fetching countries';
-                    elmt.value = 'error';
-                    select.appendChild(elmt)
+                    let errorAlert = document.getElementById("alert");
+                    this.message = 'Error fetching countries';
+                    errorAlert.hidden = false;          //Show alert bar
                 }
             };
             // Send request
