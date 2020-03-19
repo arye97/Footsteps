@@ -4,6 +4,7 @@ import com.springvuegradle.seng302team600.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.model.LoggedUser;
 import com.springvuegradle.seng302team600.repository.UserRepository;
@@ -219,16 +220,11 @@ public class UserController {
             String sessionId = session.getId();
             Long userId = (Long) session.getAttribute("userId");
             if (validUser(userId, sessionId, profileId)) {
-                ObjectNode node = new ObjectMapper().readValue(jsonEditProfileString, ObjectNode.class);
+                ObjectMapper nodeMapper = new ObjectMapper();
                 User user = repository.findById(profileId).get();
-                Iterator<Map.Entry<String, JsonNode>> expectedChildren = node.fields();
-                for (Map.Entry<String, JsonNode> entry; expectedChildren.hasNext(); ) {
-                    entry = expectedChildren.next();
-                    PropertyAccessor fieldSetter = PropertyAccessorFactory.forBeanPropertyAccess(user);
-                    //FIXME: Having key issues when updating a single field
-                    fieldSetter.setPropertyValue(entry.getKey(), entry.getValue().asText());
-                    repository.save(user);
-                }
+                ObjectReader userReader = nodeMapper.readerForUpdating(user);
+                User modUser = userReader.readValue(jsonEditProfileString);
+                repository.save(modUser);
             } else {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             }
