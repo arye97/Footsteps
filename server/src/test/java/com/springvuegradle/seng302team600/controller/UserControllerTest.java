@@ -83,7 +83,7 @@ class UserControllerTest {
                 "  \"firstname\": \"Tim\",\n" +
                 "  \"primary_email\": \"tim@gmail.com\",\n" +
                 "  \"password\": \"pinPwd\",\n" +
-                "  \"date_of_birth\": \"2010-7-9\",\n" +
+                "  \"date_of_birth\": \"2001-7-9\",\n" +
                 "  \"gender\": \"non_binary\"\n" +
                 "}";
 
@@ -102,7 +102,7 @@ class UserControllerTest {
                 "  \"firstname\": \"Kate\",\n" +
                 "  \"primary_email\": \"kite@gmail.com\",\n" +
                 "  \"password\": \"kitPwd\",\n" +
-                "  \"date_of_birth\": \"2020-1-2\",\n" +
+                "  \"date_of_birth\": \"2002-1-2\",\n" +
                 "  \"gender\": \"female\"\n" +
                 "}";
 
