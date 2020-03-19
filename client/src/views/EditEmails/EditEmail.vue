@@ -42,6 +42,9 @@
                                 <!-- to change "gender" to somethigne else-->
                                 <multiselect v-model="selectedEmail" id="primary_email_select" :searchable="false" :close-on-select="true" :options="edits" :show-labels="false" :preselectFirst="true" :allow-empty="false" placeholder="No Additional Emails"></multiselect>
                             </div>
+                            <button type="submit" class="btn btn-secondary">Set as Primary</button>
+                            <button type="submit" class="btn btn-secondary">Delete</button>
+                            <br/><br/><br/>
 
                             <div class="form-group">
                                 <!-- full-name field-->
@@ -50,7 +53,7 @@
                             </div>
 
 
-                            <button type="submit" class="btn btn-success">Add </button>
+                            <button type="submit" class="btn btn-secondary">Add </button>
                         </dd>
                     </dl>
                 </form>
@@ -61,9 +64,6 @@
                 </div>
             </div>
         </section>
-        <footer>
-            Entries marked with * are required
-        </footer>
     </div>
 </template>
 
@@ -139,4 +139,7 @@
 </script>
 
 <style scoped>
+    .btn {
+        margin-right: 1%;
+    }
 </style>
