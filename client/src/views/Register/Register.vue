@@ -126,38 +126,39 @@
                 passports: [],
                 bio: '',
                 regError: false,
-                hasRegistered: false
+                hasRegistered: false,
+                isLoggedIn: false
             }
         },
 
         mounted () {
-            let select = document.getElementById('passports')
+            let select = document.getElementById('passports');
             // Create a request variable and assign a new XMLHttpRequest object to it.
-            let request = new XMLHttpRequest()
+            let request = new XMLHttpRequest();
             //build url
-            let restCountriesName = 'https://restcountries.eu/rest/v2/all?fields=name'     //needs to be const somewhere
-            let url = new URL(restCountriesName)
+            let restCountriesName = 'https://restcountries.eu/rest/v2/all?fields=name'   ;  //needs to be const somewhere
+            let url = new URL(restCountriesName);
             // Open a new connection, using the GET request on the URL endpoint;
-            request.open('GET', url, true)
+            request.open('GET', url, true);
 
             request.onload = function() {
                 if(request.status >= 200 && request.status < 400) {
-                    let data = JSON.parse(this.response)
+                    let data = JSON.parse(this.response);
                     data.forEach(country => {
                         // console.log(country.name)
-                        let elmt = document.createElement('option')
-                        elmt.textContent = country.name
-                        elmt.value = country.name
+                        let elmt = document.createElement('option');
+                        elmt.textContent = country.name;
+                        elmt.value = country.name;
                         //console.log(elmt)
                         select.appendChild(elmt)
                     } )
                 } else {
-                    let elmt = document.createElement('error')
-                    elmt.textContent = 'error fetching countries'
-                    elmt.value = 'error'
+                    let elmt = document.createElement('error');
+                    elmt.textContent = 'error fetching countries';
+                    elmt.value = 'error';
                     select.appendChild(elmt)
                 }
-            }
+            };
             // Send request
             request.send()
         },
@@ -176,8 +177,8 @@
                     date_of_birth: this.date_of_birth,
                     gender: this.gender,
                     bio: this.bio,
-                    fitness: this.fitness
-                    //passports: this.passports
+                    fitness: this.fitness,
+                   // passports: this.passports
                 };
                 // console.log(newUser)     // view data in console for testing with this
                 // The HTTP Post Request
@@ -188,19 +189,22 @@
                 ).then(response => {
                     if (response.status === 201) {
                         console.log('User Registered Successfully!');
+                        this.isLoggedIn = true;
                         this.$router.push('/profile');
+
                     }
 
                 }).catch(error => {
                     this.regError = true;
                     console.log(error);
-                    console.log(error.response);
-                    // let errorLabel = document.getElementById("error");
-                    // if (error.response.status === 403) {
-                    //     errorLabel.textContent = error.response.data.toString();
-                    // } else {
-                    //     errorLabel.textContent = "An unknown error has occurred during login"
-                    // }
+                    if (error.response !== undefined) {
+                        let errorLabel = document.getElementById("error");
+                        if (error.response.status >= 400) {
+                            errorLabel.textContent = error.response.data.toString();
+                        } else {
+                            errorLabel.textContent = "An unknown error has occurred during login"
+                        }
+                    }
 
                 });
 
