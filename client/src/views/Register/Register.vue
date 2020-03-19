@@ -47,13 +47,13 @@
                 <input type="password" class="form-control" v-model="password" id="password" name="password" placeholder="Your Password..." required>
             </div>
             <div class="form-group">
-                <label for="passwordCheck">Retype your Password: </label>
+                <label for="passwordCheck">Retype your Password: *</label>
                 <input type="password" class="form-control" v-model="passwordCheck" id="passwordCheck" name="passwordCheck" placeholder="Retype Password..." required>
             </div>
             <div class="form-group">
                 <!-- fitness level field -->
-                <label for="fitnessLevel">Fitness Level:</label>
-                <select class="form-control" v-model="fitnessLevel" name="fitnessLevel" id="fitnessLevel">
+                <label for="fitness">Fitness Level:</label>
+                <select class="form-control" v-model="fitness" name="fitness" id="fitness">
                     <option disabled value="">Please select a fitness level</option>
                     <option value="1">Unfit, no regular exercise, being active is very rare</option>
                     <option value="2">Not overly fit, occasional recreational fitness activity, active a few times a month</option>
@@ -77,13 +77,13 @@
             </div>
             <div class="form-group">
                 <!-- date of birth field-->
-                <label for="dob">Date of Birth: *</label>
-                <input type="date" class="form-control" v-model="dob" id="dob" name="dob" required>
+                <label for="date_of_birth">Date of Birth: *</label>
+                <input type="date" class="form-control" v-model="date_of_birth" id="date_of_birth" name="date_of_birth" required>
             </div>
             <div class="form-group">
                 <!-- passport country -->
-                <label for="passportCountries">Passport Country:</label>
-                <multiselect v-model="passportCountries" id="passportCountries"
+                <label for="passports">Passport Country:</label>
+                <multiselect v-model="passports" id="passports"
                              :options="countries" :multiple="true" :searchable="true" :close-on-select="false"
                              placeholder="Select your passport countries">
                     <template slot="noResult">Country not found</template>
@@ -96,9 +96,10 @@
             </div>
             <div class="form-group">
                 <!-- SignIn Button-->
-                <button type="submit" class="btn btn-primary" v-on:click="registerUser">Register</button>
+                <button type="submit" class="btn btn-primary">Register</button>
                 <router-link to="/login" class="btn btn-link">Login</router-link>
             </div>
+            <label v-show="regError" id="error">Error</label>
         </form>
         <footer>
             Entries marked with * are required
@@ -124,17 +125,20 @@
                 passwordCheck: '',
                 nickname: '',
                 gender: '',
-                dob: '',
-                fitnessLevel: '',
-                passportCountries: [],
+                date_of_birth: '',
+                fitness: '',
+                passports: [],
                 bio: '',
                 countries: [],
-                genders: ['Male', 'Female', 'Non-Binary'],
+                genders: ['male', 'female', 'non-binary'],
+                regError: false,
+                hasRegistered: false
             }
         },
 
         mounted () {
             let select = []
+
             // Create a request variable and assign a new XMLHttpRequest object to it.
             let request = new XMLHttpRequest()
             //build url
@@ -160,34 +164,41 @@
         },
 
         methods: {
-            // Method is called when the register button is selected
-            registerUser() {
+
+            async registerUser() {
                 // Save the data as a newUser object
                 const newUser = {
+                    lastname: this.lastname,
                     firstname: this.firstname,
                     middlename: this.middlename,
-                    lastname: this.lastname,
+                    nickname: this.nickname,
                     primary_email: this.email,
                     password: this.password,
-                    nickname: this.nickname,
+                    date_of_birth: this.date_of_birth,
                     gender: this.gender,
-                    date_of_birth: this.dob,
-                    fitnessLevel: this.fitnessLevel,
-                    passportCountries: this.passportCountries,
-                    bio: document.getElementById('bio').value
+                    fitness: this.fitness,
+                    passports: this.passports,
+                    bio: this.bio
                 }
-                // console.log(newUser)     // view data in console for testing with this
                 // The HTTP Post Request
-                server.post(  '/profiles',
-                    newUser
-                ).then(function(){
-                        console.log('User Registered Successfully!');
+                server.post('http://localhost:9499/profiles',
+                    newUser,
+                    {
+                        headers: {"Access-Control-Allow-Origin": "*", "content-type": "application/json"},
+                        withCredentials: true
                     }
-                ).catch(error => {
+                ).then(response => {
+                    if (response.status === 201) {
+                        console.log('User Registered Successfully!');
+                        this.$router.push('/profile');
+                    }
+
+                }).catch(error => {
+                    this.regError = true;
                     console.log(error);
+                    console.log(error.response);
                 });
-                this.$router.push("/");
-            },
+            }
         }
     }
 

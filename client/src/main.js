@@ -1,12 +1,12 @@
 import Vue from 'vue'
 import App from './App/App'
 
-Vue.config.productionTip = false
-
+Vue.config.productionTip = false;
 import VueLogger from 'vuejs-logger';
 import router from './index'
 
-Vue.config.productionTip = false
+
+Vue.config.productionTip = false;
 
 Vue.use(VueLogger);
 
@@ -15,5 +15,5 @@ new Vue({
   el: '#app',
   template: '<App/>',
   router,
-  components: { App },
+  components: { App }
 });
