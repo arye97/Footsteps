@@ -1,4 +1,5 @@
 package com.springvuegradle.seng302team600.controller;
+import com.springvuegradle.seng302team600.model.Emails;
 import com.springvuegradle.seng302team600.model.User;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 @RestController
 public class UserController {
@@ -92,6 +94,41 @@ public class UserController {
             response.setStatus(HttpServletResponse.SC_CREATED);
         } else {
             throw new EmailAlreadyRegisteredException(newUser.getEmails().getPrimaryEmail());
+        }
+    }
+
+    //TODO: Error handling and checking and tests for this method. Tested in postman but will update the current user thats logged in with the primary email due to unimplementation of adding a list of secondary emails in the database.
+    /**
+     * Updates primary and secondary emails from a given profileID
+     * @param jsonString
+     * @param profileId
+     * @throws JsonProcessingException
+     */
+    @PutMapping("/profiles/{profileId}/emails")
+    public void updateEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException {
+        if (profileId == repository.findByUserId(profileId).getUserId()) {
+            ObjectNode node = new ObjectMapper().readValue(jsonString, ObjectNode.class);
+            HttpSession session = request.getSession(false);
+
+            if (session != null && session.getAttribute("loggedUser") != null) {
+                //Gets userId from client session
+                Long userId = ((LoggedUser) session.getAttribute("loggedUser")).getUserId();
+                if (node.has("primary_email") && node.has("additional_email")) {
+                    String primaryEmail = node.get("primary_email").asText();
+                    List<String> secondaryEmails = node.findValuesAsText("additional_email");
+                    System.out.println(secondaryEmails.toString());
+                    if (userId == profileId) {
+                        User updateUser = repository.findByUserId(profileId);
+                        updateUser.setEmails(new Emails(primaryEmail, secondaryEmails));
+                        response.setStatus(HttpServletResponse.SC_OK);
+                        repository.save(updateUser);
+                    }
+
+                }
+
+            }
+        } else {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         }
     }
 
@@ -175,7 +212,4 @@ public class UserController {
 //        }
 //        return user;
 //    }
-
-
-
 }
