@@ -40,7 +40,11 @@
                             <div class="form-group">
                                 <label for="primary_email_select">Edit Additional Emails:</label>
                                 <!-- to change "gender" to somethigne else-->
-                                <multiselect v-model="selectedEmail" id="primary_email_select" :searchable="false" :close-on-select="true" :options="edits" :show-labels="false" :preselectFirst="true" :allow-empty="false" placeholder="No Additional Emails"></multiselect>
+                                <multiselect v-model="selectedEmail" id="primary_email_select" :searchable="false"
+                                             :close-on-select="true" :options="additionalEmails" :show-labels="false"
+                                             :preselectFirst="true" :allow-empty="false"
+                                             placeholder="No Additional Emails">
+                                </multiselect>
                             </div>
                             <button type="submit" class="btn btn-secondary">Set as Primary</button>
                             <button type="submit" class="btn btn-secondary">Delete</button>
@@ -49,11 +53,11 @@
                             <div class="form-group">
                                 <!-- full-name field-->
                                 <label for="add-email">Add email address</label>
-                                <input type="text" class="form-control" v-model="addedEmail" id="add-email" name="add-email" placeholder="Email address">
+                                <input type="email" class="form-control" v-model="addedEmail" id="add-email" name="add-email" placeholder="Email address">
                             </div>
 
 
-                            <button type="submit" class="btn btn-secondary">Add </button>
+                            <button type="submit" class="btn btn-secondary" v-on:click="addEmail">Add</button>
                         </dd>
                     </dl>
                 </form>
@@ -83,7 +87,7 @@
                 user: null,
                 primaryEmail: null,
                 secondaryEmails: null,
-                edits: null,
+                additionalEmails: null,
                 selectedEmail: null,
                 addedEmail: null,
             }
@@ -109,7 +113,8 @@
                         //Set the drop down list to contain users emails
                         //Fake list of secondary emails until we have the ability to add our own secondary emails
                         let mock_secondaries = ["fake1@sekj.com", "fake2@skeg.com"]  // JUST FOR TESTING.  REMOVE SOON.
-                        this.edits = mock_secondaries;
+                        this.additionalEmails = mock_secondaries;
+                        this.addedEmail = "";
                         //no longer loading, so show data
                         this.loading = false;
                     }
@@ -120,6 +125,9 @@
             })
         },
         methods: {
+            addEmail() {
+                this.additionalEmails.push(this.addedEmail);
+            },
             submitEmail() {
                 const updateEmail = {
                     primaryEmail: this.primaryEmail,
