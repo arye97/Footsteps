@@ -130,24 +130,22 @@
                 fitness: '',
                 passports: [],
                 bio: '',
-                hasRegistered: false,
-                isLoggedIn: false,
                 message: ""
             }
         },
 
-        mounted () {
+        mounted() {
             let select = document.getElementById('passports');
             // Create a request variable and assign a new XMLHttpRequest object to it.
             let request = new XMLHttpRequest();
             //build url
-            let restCountriesName = 'https://restcountries.eu/rest/v2/all?fields=name'   ;  //needs to be const somewhere
+            let restCountriesName = 'https://restcountries.eu/rest/v2/all?fields=name';  //needs to be const somewhere
             let url = new URL(restCountriesName);
             // Open a new connection, using the GET request on the URL endpoint;
             request.open('GET', url, true);
 
-            request.onload = function() {
-                if(request.status >= 200 && request.status < 400) {
+            request.onload = function () {
+                if (request.status >= 200 && request.status < 400) {
                     let data = JSON.parse(this.response);
                     data.forEach(country => {
                         // console.log(country.name)
@@ -156,7 +154,7 @@
                         elmt.value = country.name;
                         //console.log(elmt)
                         select.appendChild(elmt)
-                    } )
+                    })
                 } else {
                     let elmt = document.createElement('error');
                     elmt.textContent = 'error fetching countries';
@@ -183,17 +181,18 @@
                     gender: this.gender,
                     bio: this.bio,
                     fitness: this.fitness,
-                   // passports: this.passports
+                    // passports: this.passports
                 };
                 // The HTTP Post Request
-                server.post(  'http://localhost:9499/profiles',
+                server.post('http://localhost:9499/profiles',
                     newUser,
-                    { headers: { "Access-Control-Allow-Origin": "*", "content-type":"application/json"},
-                        withCredentials: true}
+                    {
+                        headers: {"Access-Control-Allow-Origin": "*", "content-type": "application/json"},
+                        withCredentials: true
+                    }
                 ).then(response => { //If successfully registered the response will have a status of 201
                     if (response.status === 201) {
                         console.log('User Registered Successfully!');
-                        this.isLoggedIn = true;
                         this.$router.push('/profile'); //Routes to profile on successful register
                     }
                 }).catch(error => {
@@ -215,6 +214,5 @@
             }
         }
     }
-
 
 </script>

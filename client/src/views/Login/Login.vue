@@ -52,7 +52,6 @@
             return {
                 email: '',
                 password: '',
-                loggedIn: false,
                 message: ""
             }
         },
@@ -66,12 +65,13 @@
                 // Send login post to serve
                 server.post('http://localhost:9499/login',
                     userLogin,
-                    { headers: { "Access-Control-Allow-Origin": "*", "content-type":"application/json"},
-                        withCredentials: true}
+                    {
+                        headers: {"Access-Control-Allow-Origin": "*", "content-type": "application/json"},
+                        withCredentials: true
+                    }
                 ).then(response => { //If successfully logged the response will have a status of 201
                     if (response.status === 201) {
                         console.log('User Logged In Successfully!');
-                        this.loggedIn = true;
                         this.$router.push("/profile"); //Route to profile screen on successful login
                     }
                 }).catch(error => { //If an error occurs during login (includes server side errors)
