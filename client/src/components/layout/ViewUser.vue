@@ -17,7 +17,8 @@
                     <span v-if="this.user.nickname">Nickname: {{ this.user.nickname }}</span><br/>
                     <span >Gender: {{ this.user.gender }}</span><br/>
                     <span>Date Of Birth: {{ this.user.date_of_birth }}</span><br/>
-                    <span>Email(s): {{ this.user.primary_email }}</span><br/>
+                    <span>Email: {{ this.user.primary_email }}</span><br/>
+<!--                    <span>Secondary Emails: {{this.user.additional_email.join(", ")}}-->
                     <button type="button" class="btn btn-link" v-on:click="editEmail">Edit Emails</button><br/>
                     <span v-if="this.user.passports">Passports: {{this.user.passports.join(", ")}}</span><br/>
                     <span v-if="this.user.fitness">Fitness Level: {{this.user.fitness}}</span><br/>

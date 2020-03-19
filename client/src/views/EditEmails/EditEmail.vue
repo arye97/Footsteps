@@ -26,29 +26,31 @@
             <div v-else class="form-group">
                 <form method="put" v-on:submit.prevent="submitEmail">
                     <dl class="form-group">
+
+<!--                        Displays Current Primary Email-->
+                            <span>Primary email address:</span><br/>
                         <dt>
-                            <label id="primary_email_select_label" for="primary_email_select">Primary email address</label>
+                            <span>{{ this.user.primary_email }}</span>
                             <p class="mt-2">
                             </p>
                         </dt>
                         <dd>
-                            <select id="primary_email_select" name="id" class="form-select">
 
-                            </select>
-
-
-                            <!-- Gender code from register page -->
+                            <!-- Multiselect for choosing new primary email -->
                             <div class="form-group">
-                                <!-- gender field -->
-                                <label for="gender">Edit Emails:</label>
-                                <multiselect v-model="gender" id="gender"
-                                             :options="edits" placeholder="Your email" required>
-                                    <template slot="noResult">Invalid email</template>
-                                </multiselect>
+                                <label for="primary_email_select">Edit Additional Emails:</label>
+                                <!-- to change "gender" to somethigne else-->
+                                <multiselect v-model="selectedEmail" id="primary_email_select" :searchable="false" :close-on-select="true" :options="edits" :show-labels="false" :preselectFirst="true" :allow-empty="false" placeholder="No Additional Emails"></multiselect>
+                            </div>
+
+                            <div class="form-group">
+                                <!-- full-name field-->
+                                <label for="add-email">Add email address</label>
+                                <input type="text" class="form-control" v-model="addedEmail" id="add-email" name="add-email" placeholder="Email address">
                             </div>
 
 
-                            <button type="submit" class="btn">Save</button>
+                            <button type="submit" class="btn btn-success">Add </button>
                         </dd>
                     </dl>
                 </form>
@@ -69,19 +71,6 @@
     import server from '../../Api';
     import Sidebar from '../../components/layout/ProfileEditSidebar'
     import Multiselect from "vue-multiselect";
-    //  Code from register page
-    // export default {
-    //     components: {Multiselect},
-    //     name: "NewUser",
-    //     data() {
-    //         return {
-    //             genders: ['male', 'female', 'non-binary'],
-    //         }
-    //     },
-    // }
-    // this.primaryEmail = this.user.primary_email[0];
-    // this.secondaryEmails = this.user.primary_email[1];
-
 
     export default {
         name: "EditEmail",
@@ -95,7 +84,8 @@
                 primaryEmail: null,
                 secondaryEmails: null,
                 edits: null,
-
+                selectedEmail: null,
+                addedEmail: null,
             }
         },
         mounted() {
@@ -118,9 +108,8 @@
                         console.log(typeof this.primaryEmail)
                         //Set the drop down list to contain users emails
                         //Fake list of secondary emails until we have the ability to add our own secondary emails
-                        let mock_secondaries = ["fake1@sekj.com", "fake2@skeg.com"]
-                        this.edits = [this.primaryEmail];
-                        this.edits.push(...mock_secondaries);
+                        let mock_secondaries = ["fake1@sekj.com", "fake2@skeg.com"]  // JUST FOR TESTING.  REMOVE SOON.
+                        this.edits = mock_secondaries;
                         //no longer loading, so show data
                         this.loading = false;
                     }
