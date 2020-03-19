@@ -12,6 +12,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 public class User {
@@ -64,9 +65,14 @@ public class User {
     @JsonProperty("gender")
     private Gender gender;
 
-    @Transient
+    @ElementCollection
+    @CollectionTable(
+            name="passport_countries",
+            joinColumns=@JoinColumn(name="user_id")
+    )
+    @Column(name="passport_countries")
     @JsonProperty("passports")
-    private ArrayList<String> passports;
+    private List<String> passports;
 
 
     public enum Gender {
@@ -174,11 +180,11 @@ public class User {
         this.fitnessLevel = fitnessLevel;
     }
 
-    public ArrayList<String> getPassports() {
+    public List<String> getPassports() {
         return passports;
     }
 
-    public void setPassports(ArrayList<String> passports) {
+    public void setPassports(List<String> passports) {
         this.passports = passports;
     }
 
