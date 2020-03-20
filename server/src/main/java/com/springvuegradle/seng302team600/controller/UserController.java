@@ -58,7 +58,9 @@ public class UserController {
             //Gets userId from client session
             Long userId = ((LoggedUser) session.getAttribute("loggedUser")).getUserId();
             response.setStatus(HttpServletResponse.SC_OK);
-            return repository.findByUserId(userId);
+            User user = repository.findByUserId(userId);
+            user.setPassword(null);
+            return user;
         } else {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return null;

@@ -43,7 +43,7 @@
         },
         mounted() {
             this.loading = true;
-            server.get(  'http://localhost:9499/profiles',
+            server.get(  '/profiles',
                 {headers:
                         {'Content-Type': 'application/json'}, withCredentials: true
                 }, )
@@ -65,7 +65,7 @@
         },
         methods: {
             logout () {
-                server.post('http://localhost:9499/logout', null,
+                server.post('/logout', null,
                     {
                         headers: {"Access-Control-Allow-Origin": "*", "content-type": "application/json"},
                         withCredentials: true

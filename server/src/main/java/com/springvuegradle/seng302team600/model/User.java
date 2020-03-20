@@ -151,7 +151,11 @@ public class User {
     }
 
     public void setPassword(String password) {
-        this.password = encoder.encode(password);
+        if (password == null) {
+            this.password = null;
+        } else {
+            this.password = encoder.encode(password);
+        }
     }
 
     public Date getDateOfBirth() {
