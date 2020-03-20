@@ -3,6 +3,9 @@ package com.springvuegradle.seng302team600.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import com.springvuegradle.seng302team600.exception.InvalidDateOfBirthException;
+import com.springvuegradle.seng302team600.exception.InvalidUserNameException;
+import com.springvuegradle.seng302team600.exception.UserTooYoungException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -11,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 @Entity
@@ -224,5 +228,36 @@ public class User {
     @Override
     public String toString() {
         return String.format("%s %s, ID: %d, %s", getFirstName(), getLastName(), getUserId(), super.toString());
+    }
+
+    public void isValid() throws InvalidUserNameException, UserTooYoungException, InvalidDateOfBirthException {
+        if (! firstName.matches("[a-zA-Z]+") ) { throw new InvalidUserNameException(); }
+        if (! lastName.matches("[a-zA-Z]+") ) { throw new InvalidUserNameException(); }
+        if (! middleName.isEmpty()) {
+            if (! middleName.matches("[a-zA-Z]+") ) { throw new InvalidUserNameException(); }
+        }
+        if (ageCheck(dateOfBirth, 13, true)) { throw new UserTooYoungException(); }
+        if (ageCheck(dateOfBirth, 150, false)) { throw new InvalidDateOfBirthException(); }
+        //fitnessLevel
+        //this.gender
+
+    }
+
+    /**
+     *
+     * @param DoB date of birth for prespective new user
+     * @param age age to check against
+     * @param younger boolean tag to determine if checking if the person is younger (false checks if older)
+     * @return boolean tag denoting how given DoB compares to given age with respect to younger tag
+     */
+    private boolean ageCheck(Date DoB, int age, boolean younger) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.YEAR, -age);
+        Date AGE = calendar.getTime();
+        if ( younger ) {
+            return AGE.before(DoB);
+        } else {
+            return AGE.after(DoB);
+        }
     }
 }

@@ -52,4 +52,9 @@ public class ExceptionAdvice {
     @ExceptionHandler(UserTooYoungException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN) //403
     public String UserTooYoungExceptionHandler(UserTooYoungException ex) { return ex.getMessage(); }
+
+    @ResponseBody
+    @ExceptionHandler(InvalidUserNameException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN) //403
+    public String InvalidUserNameExceptionHandler(InvalidUserNameException ex) { return ex.getMessage(); }
 }
