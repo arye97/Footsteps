@@ -183,27 +183,6 @@ public class UserController {
         return "Already logged out";
     }
 
-    //TODO: change this to PUT /profiles/{profileId} for story 4
-//    /**Finds a User by id and updates its atributes*/
-//    @PostMapping("/editprofile")
-//    public User editProfile(@RequestBody String jsonLogInString) throws JsonProcessingException {
-//        ObjectNode node = new ObjectMapper().readValue(jsonLogInString, ObjectNode.class);
-//        long id = node.get("id").asLong();
-//
-//        User user = repository.findById(id).get();
-//        //Edit user with new attributes
-//        Iterator<Map.Entry<String, JsonNode>> expectedChildren = node.fields();
-//        for (Map.Entry<String, JsonNode> entry; expectedChildren.hasNext(); ) {
-//            entry = expectedChildren.next();
-//            if (entry.getKey() == "id") {continue;}
-//            PropertyAccessor fieldSetter = PropertyAccessorFactory.forBeanPropertyAccess(user);
-//            fieldSetter.setPropertyValue(entry.getKey(), entry.getValue().asText());
-//
-//            repository.save(user);
-//        }
-//        return user;
-//    }
-
     /**
      *
      * @param jsonEditProfileString the json body of the request as a string
@@ -216,9 +195,9 @@ public class UserController {
     public void editProfile(@RequestBody String jsonEditProfileString, HttpServletRequest request,
                             HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) throws JsonProcessingException {
         HttpSession session = request.getSession();
-        if (session != null && session.getAttribute("userId") != null) {
+        if (session != null && session.getAttribute("loggedUser") != null) {
             String sessionId = session.getId();
-            Long userId = (Long) session.getAttribute("userId");
+            Long userId = ((LoggedUser)session.getAttribute("loggedUser")).getUserId();
             if (validUser(userId, sessionId, profileId)) {
                 ObjectMapper nodeMapper = new ObjectMapper();
                 User user = repository.findById(profileId).get();
