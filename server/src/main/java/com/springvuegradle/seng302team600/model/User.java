@@ -97,11 +97,11 @@ public class User {
 
 
     public enum Gender {
-        @JsonProperty("male")
+        @JsonProperty("Male")
         MALE,
-        @JsonProperty("female")
+        @JsonProperty("Female")
         FEMALE,
-        @JsonProperty("non_binary")
+        @JsonProperty("Non-Binary")
         NON_BINARY
     }
 
