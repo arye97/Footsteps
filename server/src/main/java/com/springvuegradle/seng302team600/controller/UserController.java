@@ -1,4 +1,6 @@
 package com.springvuegradle.seng302team600.controller;
+
+import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -7,7 +9,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.model.LoggedUser;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.exception.*;
-
 
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -41,6 +42,8 @@ public class UserController {
 //            System.out.println(user.toString());
 //        }
 //        return users;
+
+        // create email
         return repository.findAll();
     }
 
@@ -74,6 +77,9 @@ public class UserController {
      * @param request
      * @param response
      * @throws EmailAlreadyRegisteredException
+     * @throws InvalidDateOfBirthException
+     * @throws UserTooYoungException
+     * @throws InvalidUserNameException
      */
     @PostMapping("/profiles")
     public void newUser(@Validated @RequestBody User newUser, HttpServletRequest request, HttpServletResponse response)
@@ -83,20 +89,21 @@ public class UserController {
             //Removes this user's ID from session
             session.removeAttribute("loggedUser");
         }
-        if (repository.findByEmails(newUser.getEmails()) == null) {
-                //If mandatory fields not given, exception in UserRepository.save ends function execution and makes response body
-                //Gives request status:400 and specifies needed field if null in required field
-
-            newUser.isValid();
-
-            //Saving generates user id
-            User user = repository.save(newUser);
-            //Sets this user's ID to session userId
-            session.setAttribute("loggedUser", new LoggedUser(user.getUserId(), activeUsers));
-            response.setStatus(HttpServletResponse.SC_CREATED); //201
-        } else {
-            throw new EmailAlreadyRegisteredException(newUser.getEmails().getPrimaryEmail());
+        for (User checkUser : repository.findAll()) {
+            for (Email email : checkUser.getEmails()) {
+                if (email.getEmail().equals(newUser.getPrimaryEmail())) {
+                    throw new EmailAlreadyRegisteredException(newUser.getPrimaryEmail());
+                }
+            }
         }
+        //If mandatory fields not given, exception in UserRepository.save ends function execution and makes response body
+        //Gives request status:400 and specifies needed field if null in required field
+        //newUser.isValid();
+        //Saving generates user id
+        User user = repository.save(newUser);
+        //Sets this user's ID to session userId
+        session.setAttribute("loggedUser", new LoggedUser(user.getUserId(), activeUsers));
+        response.setStatus(HttpServletResponse.SC_CREATED); //201
     }
 
     /**
@@ -123,16 +130,19 @@ public class UserController {
             String password = node.get("password").toString().replace("\"", "");
 
             for (User user: repository.findAll()) {
-                if (user.getEmails().contains(email)) {
-                    if (user.checkPassword(password)) {
-                        //Client session will store the ID of currently logged in user
-                        session.setAttribute("loggedUser", new LoggedUser(user.getUserId(), activeUsers));
-                        response.setStatus(HttpServletResponse.SC_CREATED);
-                        return;
-                    } else {
-                        throw new IncorrectPasswordException(email);
+                for (Email checkEmail : user.getEmails()) {
+                    if (checkEmail.getEmail().equals(email)) {
+                        if (user.checkPassword(password)) {
+                            //Client session will store the ID of currently logged in user
+                            session.setAttribute("loggedUser", new LoggedUser(user.getUserId(), activeUsers));
+                            response.setStatus(HttpServletResponse.SC_CREATED);
+                            return;
+                        } else {
+                            throw new IncorrectPasswordException(email);
+                        }
                     }
                 }
+
             }
             throw new UserNotFoundException(email);
         }
