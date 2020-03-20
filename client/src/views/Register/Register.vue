@@ -202,7 +202,7 @@
                     console.log(error);
                     //Get alert bar element
                     let errorAlert = document.getElementById("alert");
-                    if (error.message === "Network Error") {
+                    if (error.message === "Network Error" || error.message.includes("timeout")) {
                         this.message = error.message;
                     } else if (error.response.status === 403) { //Error 401: Email already exists, invalid date of birth or invalid name field
                         this.message = error.response.data.toString(); //Set alert bar message to error message from server
