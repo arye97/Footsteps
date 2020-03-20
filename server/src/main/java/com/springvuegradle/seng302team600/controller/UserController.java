@@ -95,6 +95,7 @@ public class UserController {
                     throw new EmailAlreadyRegisteredException(newUser.getPrimaryEmail());
                 }
             }
+            //Throws errors if user is erroneous
         }
         //If mandatory fields not given, exception in UserRepository.save ends function execution and makes response body
         //Gives request status:400 and specifies needed field if null in required field

@@ -356,34 +356,46 @@ public class User {
         return String.format("%s %s, ID: %d, %s", getFirstName(), getLastName(), getUserId(), super.toString());
     }
 
-    public void isValid() throws InvalidUserNameException, UserTooYoungException, InvalidDateOfBirthException {
+    /**
+     * Runs a sanity check on the user and throws errors if the are invalid fields
+     * @throws InvalidUserNameException thrown if the users first, middle or last names are invalid
+     * @throws UserTooYoungException thrown if the user is younger than 13
+     * @throws InvalidDateOfBirthException thrown if the user if older than 150yr
+     * @return returns true if valid user
+     */
+    public boolean isValid() throws InvalidUserNameException, UserTooYoungException, InvalidDateOfBirthException {
+        if (firstName == null || lastName == null) { throw new InvalidUserNameException(); }
         if (! firstName.matches("[a-zA-Z]+") ) { throw new InvalidUserNameException(); }
         if (! lastName.matches("[a-zA-Z]+") ) { throw new InvalidUserNameException(); }
-        if (! middleName.isEmpty()) {
+        if (middleName != null) {
             if (! middleName.matches("[a-zA-Z]+") ) { throw new InvalidUserNameException(); }
         }
         if (ageCheck(dateOfBirth, 13, true)) { throw new UserTooYoungException(); }
         if (ageCheck(dateOfBirth, 150, false)) { throw new InvalidDateOfBirthException(); }
-        //fitnessLevel
-        //this.gender
-
+        return true;
     }
 
     /**
-     *
+     * Checks if the given date of birth would result in the user being younger or older than the given age
      * @param DoB date of birth for prespective new user
      * @param age age to check against
-     * @param younger boolean tag to determine if checking if the person is younger (false checks if older)
+     * @param younger boolean tag to determine if checking if the person is younger or older (false:older, true:younger)
      * @return boolean tag denoting how given DoB compares to given age with respect to younger tag
      */
     private boolean ageCheck(Date DoB, int age, boolean younger) {
         Calendar calendar = Calendar.getInstance();
+        //Lock calender time to end of day to ensure comparison is accurate and reliable
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 99);
         calendar.add(Calendar.YEAR, -age);
-        Date AGE = calendar.getTime();
+        Date ageDate = calendar.getTime();
+        System.out.println(ageDate);
         if ( younger ) {
-            return AGE.before(DoB);
+            return ageDate.before(DoB);
         } else {
-            return AGE.after(DoB);
+            return ageDate.after(DoB);
         }
     }
 }

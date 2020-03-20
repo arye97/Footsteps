@@ -204,7 +204,7 @@
                     let errorAlert = document.getElementById("alert");
                     if (error.message === "Network Error") {
                         this.message = error.message;
-                    } else if (error.response.status === 403) { //Error 401: Email already exists or invalid date of birth
+                    } else if (error.response.status === 403) { //Error 401: Email already exists, invalid date of birth or invalid name field
                         this.message = error.response.data.toString(); //Set alert bar message to error message from server
                     } else if (error.response.status === 400) { //Error 400: Bad request (missing fields)
                         this.message = "An invalid register request has been received please try again"
