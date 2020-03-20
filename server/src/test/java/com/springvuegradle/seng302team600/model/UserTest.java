@@ -9,7 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -27,11 +27,11 @@ public class UserTest {
 
     @BeforeEach
     void setUp() {
-         user1 = new User();
-         user1.setFirstName("Jimmy");
-         user1.setMiddleName(null);
-         user1.setLastName("Jones");
-         user1.setDateOfBirth(getAgeDate(50));
+        userTest = new User();
+         userTest.setFirstName("Jimmy");
+         userTest.setMiddleName(null);
+         userTest.setLastName("Jones");
+         userTest.setDateOfBirth(getAgeDate(50));
     }
 
     @Test
@@ -39,15 +39,15 @@ public class UserTest {
      * Checks ages 12, 13 and today (0)
      */
     void ageTooYoung() throws UserTooYoungException, InvalidUserNameException, InvalidDateOfBirthException {
-        assertTrue(user1.isValid());
-        user1.setDateOfBirth(getAgeDate(12));
-        assertThrows(UserTooYoungException.class, () -> user1.isValid());
-        user1.setDateOfBirth(Calendar.getInstance().getTime());
-        assertThrows(UserTooYoungException.class, () -> user1.isValid());
-        user1.setDateOfBirth(getAgeDate(13));
-        assertTrue(user1.isValid());
-        user1.setDateOfBirth(getAgeDate(14));
-        assertTrue(user1.isValid());
+        assertTrue(userTest.isValid());
+        userTest.setDateOfBirth(getAgeDate(12));
+        assertThrows(UserTooYoungException.class, () -> userTest.isValid());
+        userTest.setDateOfBirth(Calendar.getInstance().getTime());
+        assertThrows(UserTooYoungException.class, () -> userTest.isValid());
+        userTest.setDateOfBirth(getAgeDate(13));
+        assertTrue(userTest.isValid());
+        userTest.setDateOfBirth(getAgeDate(14));
+        assertTrue(userTest.isValid());
     }
 
     @Test
@@ -55,96 +55,95 @@ public class UserTest {
      * Checks ages 151, 150 and 149
      */
     void ageTooOld() throws UserTooYoungException, InvalidUserNameException, InvalidDateOfBirthException {
-        assertTrue(user1.isValid());
-        user1.setDateOfBirth(getAgeDate(151));
-        assertThrows(InvalidDateOfBirthException.class, () -> user1.isValid());
-        user1.setDateOfBirth(getAgeDate(150));
-        assertThrows(InvalidDateOfBirthException.class, () -> user1.isValid());
-        user1.setDateOfBirth(getAgeDate(149));
-        assertTrue(user1.isValid());
+        assertTrue(userTest.isValid());
+        userTest.setDateOfBirth(getAgeDate(151));
+        assertThrows(InvalidDateOfBirthException.class, () -> userTest.isValid());
+        userTest.setDateOfBirth(getAgeDate(150));
+        assertThrows(InvalidDateOfBirthException.class, () -> userTest.isValid());
+        userTest.setDateOfBirth(getAgeDate(149));
+        assertTrue(userTest.isValid());
     }
 
     @Test
     void invalidFirstNameEmpty() throws UserTooYoungException, InvalidUserNameException, InvalidDateOfBirthException {
-        assertTrue(user1.isValid());
-        user1.setFirstName("");
-        assertThrows(InvalidUserNameException.class, () -> user1.isValid());
-        user1.setFirstName("    ");
-        assertThrows(InvalidUserNameException.class, () -> user1.isValid());
+        assertTrue(userTest.isValid());
+        userTest.setFirstName("");
+        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
+        userTest.setFirstName("    ");
+        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
     }
 
     @Test
     void invalidFirstNameNull() throws UserTooYoungException, InvalidUserNameException, InvalidDateOfBirthException {
-        assertTrue(user1.isValid());
-        user1.setFirstName(null);
-        assertThrows(InvalidUserNameException.class, () -> user1.isValid());
+        assertTrue(userTest.isValid());
+        userTest.setFirstName(null);
+        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
     }
 
     @Test
     void invalidFirstNameNonAlphaChar() throws UserTooYoungException, InvalidUserNameException, InvalidDateOfBirthException {
-        assertTrue(user1.isValid());
-        user1.setFirstName("Jimmy7");
-        assertThrows(InvalidUserNameException.class, () -> user1.isValid());
-        user1.setFirstName("Jimmy@");
-        assertThrows(InvalidUserNameException.class, () -> user1.isValid());
-        user1.setFirstName("!");
-        assertThrows(InvalidUserNameException.class, () -> user1.isValid());
+        assertTrue(userTest.isValid());
+        userTest.setFirstName("Jimmy7");
+        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
+        userTest.setFirstName("Jimmy@");
+        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
+        userTest.setFirstName("!");
+        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
     }
 
     @Test
     void invalidLastNameEmpty() throws UserTooYoungException, InvalidUserNameException, InvalidDateOfBirthException {
-        assertTrue(user1.isValid());
-        user1.setLastName("");
-        assertThrows(InvalidUserNameException.class, () -> user1.isValid());
-        user1.setLastName("     ");
-        assertThrows(InvalidUserNameException.class, () -> user1.isValid());
+        assertTrue(userTest.isValid());
+        userTest.setLastName("");
+        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
+        userTest.setLastName("     ");
+        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
     }
 
     @Test
     void invalidLastNameNull() throws UserTooYoungException, InvalidUserNameException, InvalidDateOfBirthException {
-        assertTrue(user1.isValid());
-        user1.setLastName(null);
-        assertThrows(InvalidUserNameException.class, () -> user1.isValid());
+        assertTrue(userTest.isValid());
+        userTest.setLastName(null);
+        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
     }
 
     @Test
     void invalidLastNameNonAlphaChar() throws UserTooYoungException, InvalidUserNameException, InvalidDateOfBirthException {
-        assertTrue(user1.isValid());
-        user1.setLastName("Jones7");
-        assertThrows(InvalidUserNameException.class, () -> user1.isValid());
-        user1.setLastName("Jones^");
-        assertThrows(InvalidUserNameException.class, () -> user1.isValid());
-        user1.setLastName("%");
-        assertThrows(InvalidUserNameException.class, () -> user1.isValid());
+        assertTrue(userTest.isValid());
+        userTest.setLastName("Jones7");
+        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
+        userTest.setLastName("Jones^");
+        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
+        userTest.setLastName("%");
+        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
     }
 
     @Test
     void invalidMiddleNameEmpty() throws UserTooYoungException, InvalidUserNameException, InvalidDateOfBirthException {
-        assertTrue(user1.isValid());
-        user1.setMiddleName("");
-        assertThrows(InvalidUserNameException.class, () -> user1.isValid());
-        user1.setMiddleName("     ");
-        assertThrows(InvalidUserNameException.class, () -> user1.isValid());
+        assertTrue(userTest.isValid());
+        userTest.setMiddleName("");
+        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
+        userTest.setMiddleName("     ");
+        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
     }
 
     @Test
     void validMiddleNameNull() throws UserTooYoungException, InvalidUserNameException, InvalidDateOfBirthException {
-        assertTrue(user1.isValid());
-        user1.setMiddleName(null);
-        assertTrue(user1.isValid());
+        assertTrue(userTest.isValid());
+        userTest.setMiddleName(null);
+        assertTrue(userTest.isValid());
     }
 
     @Test
     void invalidMiddleNameNonAlphaChar() throws UserTooYoungException, InvalidUserNameException, InvalidDateOfBirthException {
-        assertTrue(user1.isValid());
-        user1.setMiddleName("Johnny7");
-        assertThrows(InvalidUserNameException.class, () -> user1.isValid());
-        user1.setMiddleName("Johnny*");
-        assertThrows(InvalidUserNameException.class, () -> user1.isValid());
-        user1.setMiddleName("+");
-        assertThrows(InvalidUserNameException.class, () -> user1.isValid());
+        assertTrue(userTest.isValid());
+        userTest.setMiddleName("Johnny7");
+        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
+        userTest.setMiddleName("Johnny*");
+        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
+        userTest.setMiddleName("+");
+        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
     }
-}
 
     @Test
     void setOnePrimaryEmail_Success_WhenCreatingUser() throws MustHavePrimaryEmailException {

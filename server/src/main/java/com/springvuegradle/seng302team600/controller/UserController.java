@@ -95,12 +95,14 @@ public class UserController {
                     throw new EmailAlreadyRegisteredException(newUser.getPrimaryEmail());
                 }
             }
-            //Throws errors if user is erroneous
         }
+
+        //Throws errors if user is erroneous
+        newUser.isValid();
+
+        //Saving generates user id
         //If mandatory fields not given, exception in UserRepository.save ends function execution and makes response body
         //Gives request status:400 and specifies needed field if null in required field
-        //newUser.isValid();
-        //Saving generates user id
         User user = repository.save(newUser);
         //Sets this user's ID to session userId
         session.setAttribute("loggedUser", new LoggedUser(user.getUserId(), activeUsers));
@@ -143,7 +145,6 @@ public class UserController {
                         }
                     }
                 }
-
             }
             throw new UserNotFoundException(email);
         }
