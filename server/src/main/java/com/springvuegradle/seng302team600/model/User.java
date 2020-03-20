@@ -58,7 +58,7 @@ public class User {
     private String primaryEmail;
 
     @Transient
-    @JsonProperty("additional_emails")
+    @JsonProperty("additional_email")
     private List<String> additionalEmails = new ArrayList<>();
 
     @NotNull(message = "Please provide a primary email address")
@@ -154,75 +154,53 @@ public class User {
         this.bio = bio;
     }
 
-
-    public void updatePrimaryEmail(String updatedPrimaryEmail) throws MustHavePrimaryEmailException {
-//        Email newPrimaryEmail = new Email(updatedPrimaryEmail, true);
-//        if (primaryEmail == null) {
-//            primaryEmail = updatedPrimaryEmail;
-//            emails.add(newPrimaryEmail);
-//        } else {
-        for (Email email: emails) {
-            // Set current primary email to false
-            if (email.getEmail().equals(primaryEmail)) {
-                email.setIsPrimary(false);
-            }
-        }
-
-        primaryEmail = updatedPrimaryEmail;
-        Email newPrimaryEmail = new Email(updatedPrimaryEmail, true);
-        emails.add(newPrimaryEmail);
-    }
-
-    public void deletePrimaryEmail(String deletedPrimaryEmail) {
-        for (Email email: emails) {
-            if (email.getEmail().equals(deletedPrimaryEmail)) {
-                emails.remove(email);
-                break;
-            }
-        }
-        this.primaryEmail = null;
-    }
-
     public String getPrimaryEmail() {
         return primaryEmail;
     }
 
     /**
      * Sets primary email of User
-     * @param primaryEmail an email to be set primary
-     * @throws MustHavePrimaryEmailException
+     * @param newPrimaryEmail an email to be set primary
      */
-    public void setPrimaryEmail(String primaryEmail) throws MustHavePrimaryEmailException {
-        // this.primaryEmail = primaryEmail;
-
-        // if email already in list of emails
+    public void setPrimaryEmail(String newPrimaryEmail) {
+        // IF EMAIL ALREADY ASSOCIATED TO USER (FROM ADDITIONAL EMAILS)
+        // Set isPrimary to false for current primary Email object
+        // If newPrimaryEmail in Email list
+        // Add old primary email to additional email list
+        // Set primary email string field to newPrimaryEmail string
+        // Remove newPrimaryEmail from additional emails list
+        // Set isPrimary to true in newPrimaryEmail Email object
         boolean isAlreadyIn = false;
-        // iterate through emails
         for (Email email: emails) {
-            // if email in user == email provided
             if (email.getEmail().equals(primaryEmail)) {
-                this.primaryEmail = primaryEmail;
+                email.setIsPrimary(false);
+            } else if (email.getEmail().equals(newPrimaryEmail)) {
+                additionalEmails.add(primaryEmail);
+                primaryEmail = newPrimaryEmail;
+                additionalEmails.remove(newPrimaryEmail);
                 email.setIsPrimary(true);
                 isAlreadyIn = true;
-                break;
             }
         }
 
-        // when email not already stored in User
+        // IF EMAIL HAS NOT BEEN ASSOCIATED TO USER
+        // TWO CASES:
+        // - If primary email exists and needs to be replaced
+        // - If primary email does not exist (creating a user)
+        // --- Set primary email field to new primary email
+        // --- Create new Email object and add to list of Email objects
         int numOfEmails = emails.size();
         if (!isAlreadyIn && numOfEmails < MAX_EMAILS) {
-            this.primaryEmail = primaryEmail;
-            Email newEmail = new Email(primaryEmail, true);
-            newEmail.setUser(this);
-            emails.add(newEmail);
+            primaryEmail = newPrimaryEmail;
+            Email email = new Email(newPrimaryEmail, true, this);
+            emails.add(email);
         }
-        setEmails(emails);
-        // should we have a case where emails is null (when creating user) we call setEmails?
-        // because if email alreadyIn the list then its already pointing to User, so we don't need to point it to User again right?
-        // actually don't really know how it updates the database though so might still nee dto call setEmails
     }
 
-
+    /**
+     * Gets a String list of additional emails
+     * @return a list of additional email Strings
+     */
     public List<String> getAdditionalEmails() {
         return additionalEmails;
     }
@@ -230,20 +208,47 @@ public class User {
     /**
      * Iterates over a list of additional email strings,
      * adds each string to the list of additional emails,
-     * before appending them to a list of Email objects
-     * @param additionalEmails a String list of additional emails
+     * before appending them to a list of Email objects.
+     * If primary email has not been set in User throw MustHavePrimaryEmailException
+     * @param newAdditionalEmails a String list of additional emails
+     * @throws MustHavePrimaryEmailException if primary email has not been set
+     * @throws MaximumEmailsException if maximum emails limit reached
      */
-    public void setAdditionalEmails(List<String> additionalEmails) throws MaximumEmailsException {
-//        this.additionalEmails = additionalEmails;
-        for (String email: additionalEmails) {
-            if (emails.size() < MAX_EMAILS) {
-                this.additionalEmails.add(email);
-                emails.add(new Email(email, false));
+    // Maybe add handler for duplicate additional emails
+    // Only able to add if primaryEmail is not null
+    public void setAdditionalEmails(List<String> newAdditionalEmails) throws MustHavePrimaryEmailException, MaximumEmailsException {
+        if (primaryEmail == null) {
+            // primaryEmail can never be null
+            throw new MustHavePrimaryEmailException();
+        }
+
+        for (String email: newAdditionalEmails) {
+            // If email in newAdditionalEmails is a duplicate from additionalEmails
+            if (additionalEmails.contains(email)) {
+                continue;
+            } else if (emails.size() < MAX_EMAILS) {
+                additionalEmails.add(email);
+                Email additionalEmail = new Email(email, false, this);
+                emails.add(additionalEmail);
             } else {
-                throw new MaximumEmailsException("Maximum email limit reached");
+                throw new MaximumEmailsException();
             }
         }
-        setEmails(emails);
+    }
+
+    /**
+     * Removes additional email from String list of additional emails
+     * and Email object list of emails
+     * @param removedAdditionalEmail additional email to be removed
+     */
+    public void deleteAdditionalEmail(String removedAdditionalEmail) {
+        additionalEmails.remove(removedAdditionalEmail);
+        for (Email email: emails) {
+            if (email.getEmail().equals(removedAdditionalEmail)) {
+                emails.remove(email);
+                break;
+            }
+        }
     }
 
 
@@ -264,8 +269,12 @@ public class User {
         return emails;
     }
 
-    public void setEmails(List<Email> emails) {
-//        emails.get(0).setUser(this);
+    /**
+     * Private method to setEmails that should never be called
+     * @param emails a list of Email objects
+     */
+    private void setEmails(List<Email> emails) {
+        emails.get(0).setUser(this);
         this.emails = emails;
     }
 
