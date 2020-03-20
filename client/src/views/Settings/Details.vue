@@ -7,39 +7,39 @@
       </button>
     </div>
     <Sidebar/>
-    <div class="container-fluid" v-if="isLoggedIn">
+    <div class="container-fluid" v-if="loggedIn">
       <div class="form-group">
         <!-- first-name field-->
-        <label for="first-name">First Name: *</label>
+        <label for="firstname">First Name: *</label>
         <div class="edit-area">
-          <input type="text" class="form-control" v-model="firstname" id="first-name" name="first-name"
+          <input type="text" class="form-control" v-model="firstname" id="firstname" name="firstname"
                  placeholder="Your First Name..." required disabled>
-          <button class="btn btn-primary" id="first-name-btn" v-on:click="mutate" type="button">+</button>
+          <button class="btn btn-primary" id="firstname-btn" v-on:click="mutate" type="button">+</button>
         </div>
       </div>
       <div class="form-group">
         <!-- middle-name field-->
-        <label for="middle-name">Middle Name: </label>
+        <label for="middlename">Middle Name: </label>
         <div class="edit-area">
-          <input type="text" class="form-control" v-model="middlename" id="middle-name" name="middle-name"
+          <input type="text" class="form-control" v-model="middlename" id="middlename" name="middlename"
                  placeholder="Your Middle Name..." disabled>
-          <button class="btn btn-primary" id="middle-name-btn" v-on:click="mutate" type="button">+</button>
+          <button class="btn btn-primary" id="middlename-btn" v-on:click="mutate" type="button">+</button>
         </div>
       </div>
       <div class="form-group">
         <!-- last-name field-->
-        <label for="last-name">Last Name: *</label>
+        <label for="lastname">Last Name: *</label>
         <div class="edit-area">
-          <input type="text" class="form-control" v-model="lastname" id="last-name" name="last-name"
+          <input type="text" class="form-control" v-model="lastname" id="lastname" name="lastname"
                  placeholder="Your Last Name..." required disabled>
-          <button class="btn btn-primary" id="last-name-btn" v-on:click="mutate" type="button">+</button>
+          <button class="btn btn-primary" id="lastname-btn" v-on:click="mutate" type="button">+</button>
         </div>
       </div>
       <div class="form-group">
         <!-- fitness level field -->
-        <label for="fitnessLevel">Fitness Level:</label>
+        <label for="fitness">Fitness Level:</label>
         <div class="edit-area">
-          <select class="form-control" v-model="fitnessLevel" name="fitnessLevel" id="fitnessLevel" disabled>
+          <select class="form-control" v-model="fitness" name="fitness" id="fitness" disabled>
             <option disabled value="">Please select a fitness level</option>
             <option value="1">Unfit, no regular exercise, being active is very rare</option>
             <option value="2">Not overly fit, occasional recreational fitness activity, active a few times a month
@@ -49,7 +49,7 @@
             <option value="4">Fit, may compete occasionally in small scale events, active most days</option>
             <option value="5">Very fit, competitive athlete, extremely active</option>
           </select>
-          <button class="btn btn-primary" id="fitnessLevel-btn" v-on:click="mutate" type="button">+</button>
+          <button class="btn btn-primary" id="fitness-btn" v-on:click="mutate" type="button">+</button>
         </div>
       </div>
       <div class="form-group">
@@ -75,25 +75,17 @@
         </div>
       </div>
       <div class="form-group">
-        <!-- date of birth field-->
-        <label for="dob">Date of Birth: *</label>
-        <div class="edit-area">
-          <input type="date" class="form-control" v-model="dob" id="dob" name="dob" required disabled>
-          <button class="btn btn-primary" id="dob-btn" v-on:click="mutate" type="button">+</button>
-        </div>
-      </div>
-      <div class="form-group">
         <!-- passport country -->
-        <label for="passportCountries">Passport Country:</label>
+        <label for="passports">Passport Country:</label>
         <div class="edit-area">
-          <div id="passportCountriesDiv" class="multiselect--disabled multiselect-box">
-          <multiselect v-model="passportCountries" id="passportCountries"
+          <div id="passportsDiv" class="multiselect--disabled multiselect-box">
+          <multiselect v-model="passports" id="passports"
                        :options="countries" :multiple="true" :searchable="true" :close-on-select="false"
                        placeholder="Select your passport countries">
             <template slot="noResult">Country not found</template>
           </multiselect>
           </div>
-          <button class="btn btn-primary" id="passportCountriesDiv-btn" v-on:click="mutate" type="button">+</button>
+          <button class="btn btn-primary" id="passportsDiv-btn" v-on:click="mutate" type="button">+</button>
         </div>
       </div>
     <div class="form-group">
@@ -123,35 +115,36 @@
         },
         data() {
           return {
+            profileId: '',
             firstname: '',
             middlename: '',
             lastname: '',
             nickname: '',
             gender: '',
-            dob: '',
-            fitnessLevel: '',
-            passportCountries: '',
+            fitness: '',
+            passports: '',
             bio: '',
             message: '',
             code: '',
             countries: [],
             genders: ['Male', 'Female', 'Non-Binary'],
+            loggedIn: false
           }
         },
         mounted() {
             //Fill Passport countries
-            let select = []
+            let select = [];
             // Create a request variable and assign a new XMLHttpRequest object to it.
-            let request = new XMLHttpRequest()
+            let request = new XMLHttpRequest();
             //build url
-            let url = new URL(getCountryNames)
+            let url = new URL(getCountryNames);
             // Open a new connection, using the GET request on the URL endpoint;
-            request.open('GET', url, true)
+            request.open('GET', url, true);
 
             request.onload = function () {
                 // If the request is successful
                 if (request.status >= 200 && request.status < 400) {
-                    let data = JSON.parse(this.response)
+                    let data = JSON.parse(this.response);
                     data.forEach(country => {
                         let elmt = country.name;
                         select.push(elmt)
@@ -159,17 +152,17 @@
                 } else {
                     select = 'List is empty'
                 }
-            }
+            };
             // Send request
-            this.countries = select
-            request.send()
+            this.countries = select;
+            request.send();
 
             //Populate input fields with profile data
             this.updateInputs();
         },
         methods: {
             mutate: function (event) {
-                //const alertDiv = document.getElementById("alert");
+                const alertDiv = document.getElementById("alert");
                 //This function is used to swap the purpose of the buttons
                 const mutateButton = document.getElementById(event.target.id);
                 const mutateTarget = document.getElementById(event.target.id.replace("-btn", ""));
@@ -180,12 +173,26 @@
                       if (mutateTarget.hasAttribute("required") && mutateTarget.value === "" || mutateTarget.value === undefined) {
                           this.message = "This is a required field. Please enter some valid data";
                       } else {
-                          //mutateTarget.value;
+                          const update = {};
+                          update[mutateTarget.id] = mutateTarget.value;
+                          this.putUpdate(update, alertDiv);
                           mutateTarget.setAttribute('disabled', "true");
                           mutateButton.innerText = "+";
                           mutateButton.type = "button";
                       }
                     } else {
+                      //Need to fix issues with
+                      const updateField = document.getElementById(mutateTarget.id.replace("Div", ""));
+                      const update = {};
+                      switch (updateField.id) {
+                        case "gender":
+                          update['gender'] = this.gender.toLowerCase();
+                          break;
+                        case "passports":
+                          update['passports'] = this.passports;
+                          break;
+                      }
+                      this.putUpdate(update, alertDiv);
                       mutateTarget.className = "multiselect--disabled multiselect-box";
                       mutateButton.innerText = "+";
                       mutateButton.type = "button";
@@ -202,24 +209,33 @@
                 mutateButton.removeAttribute('disabled');
             },
             putUpdate: function (update, alertDiv) {
-                server.put(update).then(function (response) {
-                    alertDiv.addClass("alert-success");
-                    alertDiv.removeClass("alert-danger");
-                    this.message = response.statusText;
+              //Sends the put request to the server to update the user profile
+                server.put('profiles/'.concat(this.profileId), update,
+                  {headers: {'Content-Type': 'application/json'},
+                    withCredentials: true}).then(() => {
+                    alertDiv.classList.add("alert-success");
+                    alertDiv.classList.remove("alert-danger");
+                    this.message = "Successfully updated field";
                     this.code = '';
-                }).catch(function (response) {
-                    alertDiv.remove("alert-success");
-                    alertDiv.addClass("alert-danger");
-                    this.message = response.statusText;
-                    this.code = response.code;
+                }).catch(error => {
+                  console.log(error);
+                    alertDiv.classList.remove("alert-success");
+                    alertDiv.classList.add("alert-danger");
+                    this.message = error.statusText;
+                    this.code = error.code;
                 });
                 alertDiv.removeAttribute("hidden");
                 setTimeout(function () {
                     alertDiv.hidden = true;
                 }, 3000);
             },
+
             updateInputs: function () {
-              server.get('/profiles').then(response => {
+              //Updates the input fields to contain the info stored in the database
+              server.get('/profiles', {headers:
+              {'Content-Type': 'application/json'}, withCredentials: true
+              }, ).then(response => {
+                this.profileId = response.data.id;
                 this.firstname = response.data.firstname;
                 this.middlename = response.data.middlename;
                 this.lastname = response.data.lastname;
@@ -227,11 +243,15 @@
                 this.gender = response.data.gender;
                 this.dob = response.data.dob;
                 this.fitnessLevel = response.data.fitnessLevel;
-                this.passportCountries = response.data.passportCountries;
+                this.passports = response.data.passports;
                 this.bio = response.data.bio;
+                this.loggedIn = true;
               }).catch(error => {
                 const alertDiv = document.getElementById("alert");
-                this.message = error;
+                this.message = error + ". You will be redirected to the home page shortly";
+                this.code = error.statusCode;
+                alertDiv.classList.remove("alert-success");
+                alertDiv.classList.add("alert-danger");
                 alertDiv.removeAttribute("hidden");
                 setTimeout(function () {
                   router.push("/");
@@ -242,10 +262,8 @@
     }
 </script>
 <style>
-  .multiselect-box {
-    max-width: 85%;
-    margin-right: 1%;
-    max-height: 38px;
+  .multiselect {
+    min-width: 85%;
   }
 </style>
 <style scoped>
@@ -265,5 +283,11 @@
 
   .alert {
     top: 60px;
+  }
+
+  .multiselect-box {
+    max-width: 85%;
+    margin-right: 1%;
+    max-height: 38px;
   }
 </style>
