@@ -26,13 +26,15 @@ public class Email {
     private boolean isPrimary;
 
     @JsonBackReference
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public Email() {
-
-    }
+    /**
+     * Default constructor for Email.
+     * Mandatory for repository actions.
+     */
+    public Email() {}
 
     /**
      * Create a new Emails object

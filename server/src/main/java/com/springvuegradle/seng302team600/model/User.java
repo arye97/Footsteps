@@ -68,7 +68,8 @@ public class User {
 
     @NotNull(message = "Please provide a primary email address")
     @JsonManagedReference
-    @OneToMany(mappedBy = "email", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    //orphan removal removes 'child' when 'parent' is deleted
     private List<Email> emails = new ArrayList<>();
 
     @NotNull(message = "Please provide a password")
@@ -110,6 +111,10 @@ public class User {
         SEDENTARY, LOW, MEDIUM, HIGH, VERY_HIGH
     }
 
+    /**
+     * Default constructor for User.
+     * Mandatory for repository actions.
+     */
     public User() {}
 
     public Long getUserId() {
@@ -351,10 +356,10 @@ public class User {
         log.info("Updated user: " + primaryEmail);
     }
 
-    @Override
-    public String toString() {
-        return String.format("%s %s, ID: %d, %s", getFirstName(), getLastName(), getUserId(), super.toString());
-    }
+//    @Override
+//    public String toString() {
+//        return String.format("%s %s, ID: %d, %s", getFirstName(), getLastName(), getUserId(), super.toString());
+//    }
 
     /**
      * Runs a sanity check on the user and throws errors if the are invalid fields

@@ -61,7 +61,9 @@ public class UserController {
             //Gets userId from client session
             Long userId = ((LoggedUser) session.getAttribute("loggedUser")).getUserId();
             response.setStatus(HttpServletResponse.SC_OK);
+
             User user = repository.findByUserId(userId);
+
             user.setPassword(null);
             return user;
         } else {
@@ -82,7 +84,7 @@ public class UserController {
      * @throws InvalidUserNameException
      */
     @PostMapping("/profiles")
-    public void newUser(@Validated @RequestBody User newUser, HttpServletRequest request, HttpServletResponse response)
+    public User newUser(@Validated @RequestBody User newUser, HttpServletRequest request, HttpServletResponse response)
             throws EmailAlreadyRegisteredException, InvalidDateOfBirthException, UserTooYoungException, InvalidUserNameException {
         HttpSession session = request.getSession();
         if (session.getAttribute("loggedUser") != null) { //Check if already logged in
@@ -91,6 +93,7 @@ public class UserController {
         }
         for (User checkUser : repository.findAll()) {
             for (Email email : checkUser.getEmails()) {
+                // if email of existing checkUser is identical to newUser's email
                 if (email.getEmail().equals(newUser.getPrimaryEmail())) {
                     throw new EmailAlreadyRegisteredException(newUser.getPrimaryEmail());
                 }
@@ -107,6 +110,7 @@ public class UserController {
         //Sets this user's ID to session userId
         session.setAttribute("loggedUser", new LoggedUser(user.getUserId(), activeUsers));
         response.setStatus(HttpServletResponse.SC_CREATED); //201
+        return user;
     }
 
     /**
