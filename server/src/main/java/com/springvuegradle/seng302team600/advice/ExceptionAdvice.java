@@ -57,4 +57,14 @@ public class ExceptionAdvice {
     @ExceptionHandler(InvalidUserNameException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN) //403
     public String InvalidUserNameExceptionHandler(InvalidUserNameException ex) { return ex.getMessage(); }
+
+    @ResponseBody
+    @ExceptionHandler(MaximumEmailsException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN) //403
+    public String MaximumEmailsExceptionHandler(MaximumEmailsException ex) { return ex.getMessage(); }
+
+    @ResponseBody
+    @ExceptionHandler(MustHavePrimaryEmailException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN) //403
+    public String MustHavePrimaryEmailExceptionHandler(MustHavePrimaryEmailException ex) { return ex.getMessage(); }
 }
