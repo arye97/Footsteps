@@ -110,6 +110,7 @@ class UserControllerTest {
 
         editProfileJsonPut = "{\n" +
                 "  \"bio\": \"A guy\",\n" +
+                "  \"date_of_birth\": \"1953-6-4\",\n" +
                 "  \"lastname\": \"Doe\"\n" +
                 "}";
 
@@ -127,7 +128,7 @@ class UserControllerTest {
                 "  \"firstname\": \"Jane\",\n" +
                 "  \"primary_email\": \"janesmith@gmail.com\",\n" +
                 "  \"password\": \"pass\",\n" +
-                "  \"date_of_birth\": \"1980-6-4\",\n" +
+                "  \"date_of_birth\": \"1980-6-5\",\n" +
                 "  \"gender\": \"female\"\n" +
                 "}";
 
@@ -357,7 +358,7 @@ class UserControllerTest {
     @Test
     /**Test if a user can be edited successfully*/
     public void editProfileSuccessfulTest() throws Exception {
-        // Register profile
+        // Register a new user to edit the profile of
         MockHttpServletRequestBuilder registerRequest = MockMvcRequestBuilders.post("/profiles")
                 .content(editProfileUserJson)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -369,7 +370,7 @@ class UserControllerTest {
 
         long userId = ((LoggedUser)session.getAttribute("loggedUser")).getUserId();
 
-        // Setup PUT
+        // Setup edit profile PUT request and GET request
         MockHttpServletRequestBuilder editRequest = MockMvcRequestBuilders.put("/profiles/{id}", userId)
                 .content(editProfileJsonPut)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -387,19 +388,22 @@ class UserControllerTest {
                               .andExpect(status().isOk())
                               .andReturn();
 
-                // Get Response as JsonNode
+        // Get Response as JsonNode
         String jsonResponseStr = result.getResponse().getContentAsString();
         JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
 
-        // Test response
+        // Check that fields have been updated
         assertEquals("A guy", jsonNode.get("bio").asText());
         assertEquals("Doe", jsonNode.get("lastname").asText());
+        // Check that protected fields have not been updated
+        assertNotEquals("1953-1-1", jsonNode.get("date_of_birth").asText());
+        assertNotEquals("1980-6-4", jsonNode.get("date_of_birth").asText());
     }
 
     @Test
-    /**Test if a user cannot be edited */
+    /** Tests that a user cannot edit another user's profile */
     public void editProfileFailureTest() throws Exception {
-        // Register profile
+        // Register a new user to not edit the profile of
         MockHttpServletRequestBuilder registerRequest = MockMvcRequestBuilders.post("/profiles")
                 .content(editProfileNastyUserJson)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -411,7 +415,7 @@ class UserControllerTest {
 
         long userId = ((LoggedUser)session.getAttribute("loggedUser")).getUserId();
 
-        // Setup PUT
+        // Setup bad edit profile PUT request
         MockHttpServletRequestBuilder editRequest = MockMvcRequestBuilders.put("/profiles/{id}", userId - 1)
                 .content(editProfileJsonPut)
                 .contentType(MediaType.APPLICATION_JSON)

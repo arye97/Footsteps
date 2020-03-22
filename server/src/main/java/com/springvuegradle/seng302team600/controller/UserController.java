@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
@@ -193,7 +194,7 @@ public class UserController {
      */
     @PutMapping("/profiles/{profileId}")
     public void editProfile(@RequestBody String jsonEditProfileString, HttpServletRequest request,
-                            HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) throws JsonProcessingException {
+                            HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) throws IOException {
         HttpSession session = request.getSession();
         if (session != null && session.getAttribute("loggedUser") != null) {
             String sessionId = session.getId();
@@ -201,8 +202,15 @@ public class UserController {
             if (validUser(userId, sessionId, profileId)) {
                 ObjectMapper nodeMapper = new ObjectMapper();
                 User user = repository.findById(profileId).get();
+                //Remove fields that should not be modified here
+                ObjectNode modData = nodeMapper.readValue(jsonEditProfileString, ObjectNode.class);
+                modData.remove("date_of_birth");
+                modData.remove("primary_email");
+                modData.remove("additional_email");
+                modData.remove("password");
+
                 ObjectReader userReader = nodeMapper.readerForUpdating(user);
-                User modUser = userReader.readValue(jsonEditProfileString);
+                User modUser = userReader.readValue(modData);
                 repository.save(modUser);
             } else {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
