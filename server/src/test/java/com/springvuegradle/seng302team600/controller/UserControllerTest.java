@@ -54,7 +54,7 @@ class UserControllerTest {
                 "  \"password\": \"jacky'sSecuredPwd\",\n" +
                 "  \"bio\": \"Jacky loves to ride his bike on crazy mountains.\",\n" +
                 "  \"date_of_birth\": \"1985-12-20\",\n" +
-                "  \"gender\": \"male\"\n" +
+                "  \"gender\": \"Male\"\n" +
                 "}";
 
         userForbiddenJsonPost = "{\n" +
@@ -63,7 +63,7 @@ class UserControllerTest {
                 "  \"primary_email\": \"jsmith@google.com\",\n" +
                 "  \"password\": \"JimJamPwd\",\n" +
                 "  \"date_of_birth\": \"1995-1-1\",\n" +
-                "  \"gender\": \"male\"\n" +
+                "  \"gender\": \"Male\"\n" +
                 "}";
 
         createUserJsonPost = "{\n" +
@@ -75,7 +75,7 @@ class UserControllerTest {
                 "  \"password\": \"somepwd\",\n" +
                 "  \"bio\": \"Poly Pocket is so tiny.\",\n" +
                 "  \"date_of_birth\": \"2000-11-11\",\n" +
-                "  \"gender\": \"female\",\n" +
+                "  \"gender\": \"Female\",\n" +
                 "  \"fitness\": 3,\n" +
                 "  \"passports\": [\"Australia\", \"Antarctica\"]\n" +
                 "}";
@@ -85,8 +85,8 @@ class UserControllerTest {
                 "  \"firstname\": \"Tim\",\n" +
                 "  \"primary_email\": \"tim@gmail.com\",\n" +
                 "  \"password\": \"pinPwd\",\n" +
-                "  \"date_of_birth\": \"2010-7-9\",\n" +
-                "  \"gender\": \"non_binary\"\n" +
+                "  \"date_of_birth\": \"2001-7-9\",\n" +
+                "  \"gender\": \"Non-Binary\"\n" +
                 "}";
 
         createUserJsonPostLogin = "{\n" +
@@ -96,7 +96,7 @@ class UserControllerTest {
                 "  \"primary_email\": \"bobby@gmail.com\",\n" +
                 "  \"password\": \"bobbyPwd\",\n" +
                 "  \"date_of_birth\": \"1976-9-2\",\n" +
-                "  \"gender\": \"non_binary\"\n" +
+                "  \"gender\": \"Non-Binary\"\n" +
                 "}";
 
         createUserJsonPostLogout = "{\n" +
@@ -104,8 +104,8 @@ class UserControllerTest {
                 "  \"firstname\": \"Kate\",\n" +
                 "  \"primary_email\": \"kite@gmail.com\",\n" +
                 "  \"password\": \"kitPwd\",\n" +
-                "  \"date_of_birth\": \"2020-1-2\",\n" +
-                "  \"gender\": \"female\"\n" +
+                "  \"date_of_birth\": \"2002-1-2\",\n" +
+                "  \"gender\": \"Female\"\n" +
                 "}";
 
         editProfileJsonPut = "{\n" +

@@ -24,17 +24,17 @@
             <div class="form-group">
                 <!-- full-name field-->
                 <label for="first-name">First Name: *</label>
-                <input type="text" class="form-control" v-model="firstname" id="first-name" name="first-name" placeholder="Your First Name..." required><br/>
+                <input type="text" class="form-control" v-model="firstname" id="first-name" name="first-name" placeholder="Your First Name..." required>
             </div>
             <div class="form-group">
                 <!-- full-name field-->
                 <label for="middle-name">Middle Name: </label>
-                <input type="text" class="form-control" v-model="middlename" id="middle-name" name="middle-name" placeholder="Your Middle Name..."><br/>
+                <input type="text" class="form-control" v-model="middlename" id="middle-name" name="middle-name" placeholder="Your Middle Name...">
             </div>
             <div class="form-group">
                 <!-- full-name field-->
                 <label for="last-name">Last Name: *</label>
-                <input type="text" class="form-control" v-model="lastname" id="last-name" name="last-name" placeholder="Your Last Name..." required><br/>
+                <input type="text" class="form-control" v-model="lastname" id="last-name" name="last-name" placeholder="Your Last Name..." required>
             </div>
             <div class="form-group">
                 <!-- email field -->
@@ -53,14 +53,10 @@
             <div class="form-group">
                 <!-- fitness level field -->
                 <label for="fitness">Fitness Level:</label>
-                <select class="form-control" v-model="fitness" name="fitness" id="fitness">
-                    <option disabled value="">Please select a fitness level</option>
-                    <option value="1">Unfit, no regular exercise, being active is very rare</option>
-                    <option value="2">Not overly fit, occasional recreational fitness activity, active a few times a month</option>
-                    <option value="3">Moderately fit, enjoys fitness activities for recreation, active once or twice a week</option>
-                    <option value="4">Fit, may compete occasionally in small scale events, active most days</option>
-                    <option value="5">Very fit, competitive athlete, extremely active</option>
-                </select>
+                <multiselect v-model="fitness" id="fitness" :options="fitnessOptions" :multiple="false" label="desc" :return="fitnessOptions.desc"
+                             placeholder="Please select a fitness level" track-by="value">
+                    <template slot="singleLabel" slot-scope="{ option }"><footer> {{ option.desc }}</footer></template>
+                </multiselect>
             </div>
             <div class="form-group">
                 <!-- nickname field-->
@@ -132,20 +128,27 @@
                 gender: '',
                 date_of_birth: '',
                 fitness: '',
+                fitnessOptions: [{value: 1, desc: "Unfit, no regular exercise, being active is very rare"},
+                                 {value: 2, desc: "Not overly fit, occasional recreational fitness activity, active a few times a month"},
+                                 {value: 3, desc: "Moderately fit, enjoys fitness activities for recreation, active once or twice a week"},
+                                 {value: 4, desc: "Fit, may compete occasionally in small scale events, active most days"},
+                                 {value: 5, desc: "Very fit, competitive athlete, extremely active"}
+                ],
                 bio: '',
                 message: "",
                 countries: [],
-                genders: ['male', 'female', 'non_binary'],
+                genders: ['Male', 'Female', 'Non-Binary'],
                 passports: []
             }
         },
 
         mounted () {
+            console.log(server.baseURL);
             let select = []
             // Create a request variable and assign a new XMLHttpRequest object to it.
             let request = new XMLHttpRequest();
             //build url
-            let url = new URL(getCountryNames)
+            let url = new URL(getCountryNames);
             // Open a new connection, using the GET request on the URL endpoint;
             request.open('GET', url, true);
 
@@ -165,7 +168,7 @@
                 }
             };
             // Send request
-            this.countries = select
+            this.countries = select;
             request.send()
         },
 
@@ -183,11 +186,11 @@
                     date_of_birth: this.date_of_birth,
                     gender: this.gender,
                     bio: this.bio,
-                    fitness: this.fitness,
-                    // passports: this.passports
+                    fitness: this.fitness.value,
+                    passports: this.passports
                 };
                 // The HTTP Post Request
-                server.post('http://localhost:9499/profiles',
+                server.post('/profiles',
                     newUser,
                     {
                         headers: {"Access-Control-Allow-Origin": "*", "content-type": "application/json"},
@@ -202,9 +205,9 @@
                     console.log(error);
                     //Get alert bar element
                     let errorAlert = document.getElementById("alert");
-                    if (error.message === "Network Error") {
+                    if (error.message === "Network Error" || error.message.includes("timeout")) {
                         this.message = error.message;
-                    } else if (error.response.status === 403) { //Error 401: Email already exists or invalid date of birth
+                    } else if (error.response.status === 403) { //Error 401: Email already exists, invalid date of birth or invalid name field
                         this.message = error.response.data.toString(); //Set alert bar message to error message from server
                     } else if (error.response.status === 400) { //Error 400: Bad request (missing fields)
                         this.message = "An invalid register request has been received please try again"
@@ -216,6 +219,18 @@
                         errorAlert.hidden = true;
                     }, 5000);
                 });
+            }
+        },
+        computed: {
+            value: {
+                get () {
+                    return this.fitnessOptions.filter(
+                        option => this.fitness.includes(option.desc)
+                    )
+                },
+                set (newSelectedOptions) {
+                    this.fitness = newSelectedOptions.map(option => option.desc)
+                }
             }
         }
     }
