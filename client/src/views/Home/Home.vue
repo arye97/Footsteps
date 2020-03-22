@@ -5,7 +5,7 @@
 </template>
 
 <script>
-    import HomeLayout from '../../components/layout/HomeLayout'
+    import HomeLayout from '../../components/layout/HomeLayout.vue'
     export default {
         name: "Home",
         components: {HomeLayout}
