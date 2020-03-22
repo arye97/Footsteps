@@ -189,7 +189,7 @@ public class UserController {
      * @param request the http request to the endpoint
      * @param response the http response
      * @param profileId user id obtained from the request url
-     * @throws JsonProcessingException thrown if there is an issue when coverting the body to an object node
+     * @throws JsonProcessingException thrown if there is an issue when converting the body to an object node
      */
     @PutMapping("/profiles/{profileId}")
     public void editProfile(@RequestBody String jsonEditProfileString, HttpServletRequest request,

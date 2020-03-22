@@ -33,7 +33,9 @@ class UserControllerTest {
     private String userMissJsonPost;
     private String userForbiddenJsonPost;
     private String createUserJsonPostFindUser;
-    private String editProfileJsonPost;
+    private String editProfileJsonPut;
+    private String editProfileUserJson;
+    private String editProfileNastyUserJson;
     private String createUserJsonPostLogin;
     private String jsonLoginDetails;
     private String jsonLoginDetailsIncorrectPass;
@@ -106,10 +108,27 @@ class UserControllerTest {
                 "  \"gender\": \"female\"\n" +
                 "}";
 
-        editProfileJsonPost = "{\n" +
-                "  \"id\": \"1\",\n" +
-                "  \"bio\": \"About ME\",\n" +
-                "  \"firstname\": \"Ben\"\n" +
+        editProfileJsonPut = "{\n" +
+                "  \"bio\": \"A guy\",\n" +
+                "  \"lastname\": \"Doe\"\n" +
+                "}";
+
+        editProfileUserJson = "{\n" +
+                "  \"lastname\": \"Smith\",\n" +
+                "  \"firstname\": \"John\",\n" +
+                "  \"primary_email\": \"jsmith@gmail.com\",\n" +
+                "  \"password\": \"pass\",\n" +
+                "  \"date_of_birth\": \"1980-6-4\",\n" +
+                "  \"gender\": \"male\"\n" +
+                "}";
+
+        editProfileNastyUserJson = "{\n" +
+                "  \"lastname\": \"Smith\",\n" +
+                "  \"firstname\": \"Jane\",\n" +
+                "  \"primary_email\": \"janesmith@gmail.com\",\n" +
+                "  \"password\": \"pass\",\n" +
+                "  \"date_of_birth\": \"1980-6-4\",\n" +
+                "  \"gender\": \"female\"\n" +
                 "}";
 
         jsonLoginDetails = "{\n" +
@@ -335,27 +354,75 @@ class UserControllerTest {
         assertEquals("Logout successful", result.getResponse().getContentAsString());
     }
 
-//    @Test
-//    /**Test if a new User can be created*/
-//    public void editProfileTest() throws Exception {
-//
-//        // Setup POST
-//        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post("/editprofile")
-//                .content(editProfileJsonPost)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .accept(MediaType.APPLICATION_JSON);
-//
-//        // Perform POST
-//        MvcResult result = mvc.perform(httpReq)
-//                .andExpect(status().isOk())
-//                .andReturn();
-//
-//        // Get Response as JsonNode
-//        String jsonResponseStr = result.getResponse().getContentAsString();
-//        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
-//
-//        // Test response
-//        assertEquals("About ME", jsonNode.get("bio").asText());
-//        assertEquals("Ben", jsonNode.get("firstname").asText());
-//    }
+    @Test
+    /**Test if a user can be edited successfully*/
+    public void editProfileSuccessfulTest() throws Exception {
+        // Register profile
+        MockHttpServletRequestBuilder registerRequest = MockMvcRequestBuilders.post("/profiles")
+                .content(editProfileUserJson)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .session(session);
+
+        mvc.perform(registerRequest)
+                .andExpect(status().isCreated());
+
+        long userId = ((LoggedUser)session.getAttribute("loggedUser")).getUserId();
+
+        // Setup PUT
+        MockHttpServletRequestBuilder editRequest = MockMvcRequestBuilders.put("/profiles/{id}", userId)
+                .content(editProfileJsonPut)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .session(session);
+
+        MockHttpServletRequestBuilder getRequest = MockMvcRequestBuilders.get("/profiles")
+                .session(session);
+
+        // Perform PUT
+        mvc.perform(editRequest)
+                .andExpect(status().isOk());
+
+        MvcResult result = mvc.perform(getRequest)
+                              .andExpect(status().isOk())
+                              .andReturn();
+
+                // Get Response as JsonNode
+        String jsonResponseStr = result.getResponse().getContentAsString();
+        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
+
+        // Test response
+        assertEquals("A guy", jsonNode.get("bio").asText());
+        assertEquals("Doe", jsonNode.get("lastname").asText());
+    }
+
+    @Test
+    /**Test if a user cannot be edited */
+    public void editProfileFailureTest() throws Exception {
+        // Register profile
+        MockHttpServletRequestBuilder registerRequest = MockMvcRequestBuilders.post("/profiles")
+                .content(editProfileNastyUserJson)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .session(session);
+
+        mvc.perform(registerRequest)
+                .andExpect(status().isCreated());
+
+        long userId = ((LoggedUser)session.getAttribute("loggedUser")).getUserId();
+
+        // Setup PUT
+        MockHttpServletRequestBuilder editRequest = MockMvcRequestBuilders.put("/profiles/{id}", userId - 1)
+                .content(editProfileJsonPut)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .session(session);
+
+        MockHttpServletRequestBuilder getRequest = MockMvcRequestBuilders.get("/profiles")
+                .session(session);
+
+        // Perform PUT
+        mvc.perform(editRequest)
+                .andExpect(status().isForbidden());
+    }
 }
