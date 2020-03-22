@@ -261,11 +261,6 @@
         }
     }
 </script>
-<style>
-  .multiselect {
-    min-width: 85%;
-  }
-</style>
 <style scoped>
   .form-group {
     padding-top: 15px;
@@ -287,6 +282,7 @@
 
   .multiselect-box {
     max-width: 85%;
+    min-width: 85%;
     margin-right: 1%;
     max-height: 38px;
   }
