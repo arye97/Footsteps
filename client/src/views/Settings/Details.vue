@@ -39,17 +39,13 @@
         <!-- fitness level field -->
         <label for="fitness">Fitness Level:</label>
         <div class="edit-area">
-          <select class="form-control" v-model="fitness" name="fitness" id="fitness" disabled>
-            <option disabled value="">Please select a fitness level</option>
-            <option value="1">Unfit, no regular exercise, being active is very rare</option>
-            <option value="2">Not overly fit, occasional recreational fitness activity, active a few times a month
-            </option>
-            <option value="3">Moderately fit, enjoys fitness activities for recreation, active once or twice a week
-            </option>
-            <option value="4">Fit, may compete occasionally in small scale events, active most days</option>
-            <option value="5">Very fit, competitive athlete, extremely active</option>
-          </select>
-          <button class="btn btn-primary" id="fitness-btn" v-on:click="mutate" type="button">+</button>
+          <div id="fitnessDiv" class="multiselect--disabled multiselect-box">
+          <multiselect v-model="fitness" id="fitness" :options="fitnessOptions" :multiple="false" label="desc" :return="fitnessOptions.desc"
+                       placeholder="Please select a fitness level" track-by="value">
+            <template slot="singleLabel" slot-scope="{ option }"><footer> {{ option.desc }}</footer></template>
+          </multiselect>
+          </div>
+          <button class="btn btn-primary" id="fitnessDiv-btn" v-on:click="mutate" type="button">+</button>
         </div>
       </div>
       <div class="form-group">
@@ -92,7 +88,7 @@
       <!-- user bio -->
       <label for="bio">Tell us about yourself, your Bio: </label>
       <div class="edit-area">
-        <textarea name="bio" class="form-control" id="bio" v-model="bio" cols="30" rows="1" placeholder="Who are you?"
+        <textarea name="bio" class="form-control" id="bio" v-model="bio" cols="30" rows="2" placeholder="Who are you?"
                   disabled></textarea>
         <button class="btn btn-primary" id="bio-btn" v-on:click="mutate" type="button">+</button>
       </div>
@@ -128,7 +124,12 @@
             code: '',
             countries: [],
             genders: ['Male', 'Female', 'Non-Binary'],
-            loggedIn: false
+            loggedIn: false,
+            fitnessOptions: [{value: 1, desc: "Unfit, no regular exercise, being active is very rare"},
+                             {value: 2, desc: "Not overly fit, occasional recreational fitness activity, active a few times a month"},
+                             {value: 3, desc: "Moderately fit, enjoys fitness activities for recreation, active once or twice a week"},
+                             {value: 4, desc: "Fit, may compete occasionally in small scale events, active most days"},
+                             {value: 5, desc: "Very fit, competitive athlete, extremely active"}]
           }
         },
         mounted() {
@@ -191,6 +192,13 @@
                         case "passports":
                           update['passports'] = this.passports;
                           break;
+                        case "fitness":
+                          if (this.fitness === null) {
+                            update['fitness'] = null;
+                          } else {
+                            update['fitness'] = this.fitness.value;
+                          }
+                          break;
                       }
                       this.putUpdate(update, alertDiv);
                       mutateTarget.className = "multiselect--disabled multiselect-box";
@@ -218,7 +226,6 @@
                     this.message = "Successfully updated field";
                     this.code = '';
                 }).catch(error => {
-                  console.log(error);
                     alertDiv.classList.remove("alert-success");
                     alertDiv.classList.add("alert-danger");
                     this.message = error.statusText;
@@ -241,10 +248,13 @@
                 this.lastname = response.data.lastname;
                 this.nickname = response.data.nickname;
                 this.gender = response.data.gender;
-                this.dob = response.data.dob;
-                this.fitnessLevel = response.data.fitnessLevel;
                 this.passports = response.data.passports;
                 this.bio = response.data.bio;
+                for (const option in this.fitnessOptions) {
+                  if (this.fitnessOptions[option].value === response.data.fitness) {
+                    this.fitness = this.fitnessOptions[option];
+                  }
+                }
                 this.loggedIn = true;
               }).catch(error => {
                 const alertDiv = document.getElementById("alert");
@@ -273,7 +283,7 @@
   .form-control {
     max-width: 85%;
     margin-right: 1%;
-    max-height: 38px;
+    min-width: 85%;
   }
 
   .alert {
@@ -284,6 +294,5 @@
     max-width: 85%;
     min-width: 85%;
     margin-right: 1%;
-    max-height: 38px;
   }
 </style>

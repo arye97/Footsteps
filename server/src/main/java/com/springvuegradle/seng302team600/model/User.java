@@ -57,7 +57,6 @@ public class User {
     @JsonProperty("bio")
     private String bio;
 
-    @NotNull(message = "Please provide a primary email address")
     @Transient
     @JsonProperty("primary_email")
     private String primaryEmail;
@@ -66,7 +65,7 @@ public class User {
     @JsonProperty("additional_email")
     private List<String> additionalEmails = new ArrayList<>();
 
-    @NotNull(message = "Please provide a primary email address")
+    @NotNull
     @JsonManagedReference
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     //orphan removal removes 'child' when 'parent' is deleted
