@@ -8,8 +8,8 @@
 </template>
 
 <script>
-    import ViewUser from '../../components/layout/ViewUser'
-    import HomeLayout from '../../components/layout/HomeLayout'
+    import ViewUser from '../../components/layout/ViewUser.vue'
+    import HomeLayout from '../../components/layout/HomeLayout.vue'
     export default {
         name: "Home",
         components: {ViewUser, HomeLayout},

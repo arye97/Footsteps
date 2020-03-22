@@ -6,7 +6,7 @@
         </div>
         <form v-on:submit.prevent="registerUser">
             <div class="col text-center">
-                <button type="submit" class="btn btn-primary" v-on:click="login">Log In</button><br/><br/>
+                <button type="submit" id="loginButton" class="btn btn-primary" v-on:click="login">Log In</button><br/><br/>
                 <button type="submit" class="btn btn-outline-primary" v-on:click="register">Register</button>
             </div>
         </form>
