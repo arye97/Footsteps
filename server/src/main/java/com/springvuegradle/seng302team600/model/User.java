@@ -165,8 +165,17 @@ public class User {
         this.bio = bio;
     }
 
+    /**
+     * Gets the primary email from Emails
+     * @return primaryEmail or null
+     */
     public String getPrimaryEmail() {
-        return primaryEmail;
+        for (Email email : emails) {
+            if (email.getIsPrimary()) {
+                return email.getEmail();
+            }
+        }
+        return null;
     }
 
     /**
@@ -213,6 +222,11 @@ public class User {
      * @return a list of additional email Strings
      */
     public List<String> getAdditionalEmails() {
+        for (Email email : emails) {
+            if (!email.getIsPrimary()) {
+                additionalEmails.add(email.getEmail());
+            }
+        }
         return additionalEmails;
     }
 
