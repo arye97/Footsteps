@@ -134,10 +134,24 @@
                     updateEmail
                 ).then(function() {
                     console.log('User Emails updated Successfully!');
-                }).catch(function(error) {
-                    console.error(error);
-                    console.error(error.response);
-                })
+                }).catch(error => {
+                    console.log(error);
+                    //Get alert bar element
+                    let errorAlert = document.getElementById("alert");
+                    if (error.message === "Network Error") {
+                        this.message = error.message;
+                    } else if (error.response.status === 403) { //Error 401: Email already exists or invalid date of birth
+                        this.message = error.response.data.toString(); //Set alert bar message to error message from server
+                    } else if (error.response.status === 400) { //Error 400: Bad request (missing fields)
+                        this.message = "An invalid update request has been received please try again"
+                    } else {    //Catch for any errors that are not specifically caught
+                        this.message = "An unknown error has occurred during update"
+                    }
+                    errorAlert.hidden = false;          //Show alert bar
+                    setTimeout(function () {    //Hide alert bar after ~5000ms
+                        errorAlert.hidden = true;
+                    }, 5000);
+                });
             }
         }
     }
