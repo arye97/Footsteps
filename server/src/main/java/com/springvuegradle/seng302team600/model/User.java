@@ -165,6 +165,10 @@ public class User {
         this.bio = bio;
     }
 
+    /**
+     * Gets the primary email from Emails
+     * @return primaryEmail or null
+     */
     public String getPrimaryEmail() {
         return primaryEmail;
     }
