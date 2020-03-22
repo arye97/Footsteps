@@ -93,7 +93,7 @@
             }
         },
         mounted() {
-            server.get(  `http://localhost:9499/profiles`,
+            server.get(  `/profiles`,
                 {headers:
                         {'Content-Type': 'application/json'}, withCredentials: true
                 }
@@ -106,13 +106,13 @@
                         this.user = response.data;
                         this.primaryEmail = this.user.primary_email.primaryEmail;
                         this.secondaryEmails = this.user.primary_email.secondaryEmails;
-                        console.log('THIS.PRIMARYEMAIL BELOW!!!')
-                        console.log(this.primaryEmail)
-                        console.log('TYPE OF BELOW')
-                        console.log(typeof this.primaryEmail)
+                        console.log('THIS.PRIMARYEMAIL BELOW!!!');
+                        console.log(this.primaryEmail);
+                        console.log('TYPE OF BELOW');
+                        console.log(typeof this.primaryEmail);
                         //Set the drop down list to contain users emails
                         //Fake list of secondary emails until we have the ability to add our own secondary emails
-                        let mock_secondaries = ["fake1@sekj.com", "fake2@skeg.com"]  // JUST FOR TESTING.  REMOVE SOON.
+                        let mock_secondaries = ["fake1@sekj.com", "fake2@skeg.com"];  // JUST FOR TESTING.  REMOVE SOON.
                         this.additionalEmails = mock_secondaries;
                         this.addedEmail = "";
                         //no longer loading, so show data
@@ -132,8 +132,8 @@
                 const updateEmail = {
                     primaryEmail: this.primaryEmail,
                     secondaryEmails: this.secondaryEmails
-                }
-                server.put(`http://localhost:9499/profiles/${this.user.id}/emails`,
+                };
+                server.put(`/profiles/${this.user.id}/emails`,
                     updateEmail
                 ).then(function() {
                     console.log('User Emails updated Successfully!');
