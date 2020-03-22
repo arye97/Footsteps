@@ -63,7 +63,7 @@
                     password: this.password
                 };
                 // Send login post to serve
-                server.post('/login',
+                server.post('https://localhost:9499/login',
                     userLogin,
                     {
                         headers: {"Access-Control-Allow-Origin": "*", "content-type": "application/json"},
