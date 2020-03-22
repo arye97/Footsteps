@@ -16,7 +16,7 @@
                             <router-link to='/register' class="nav-link">Register</router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link to='/login' class="nav-link" replace>Logout</router-link>
+                            <router-link to='/login' class="nav-link" >Login</router-link>
                         </li>
                     </ul>
                 </div>

@@ -23,18 +23,18 @@
 
             <div class="form-group">
                 <!-- full-name field-->
-                <label for="first-name">Full Name: *</label>
-                <input type="text" class="form-control" v-model="firstname" id="first-name" name="first-name" placeholder="Your First Name..." required><br/>
+                <label for="first-name">First Name: *</label>
+                <input type="text" class="form-control" v-model="firstname" id="first-name" name="first-name" placeholder="Your First Name..." required>
             </div>
             <div class="form-group">
                 <!-- full-name field-->
                 <label for="middle-name">Middle Name: </label>
-                <input type="text" class="form-control" v-model="middlename" id="middle-name" name="middle-name" placeholder="Your Middle Name..."><br/>
+                <input type="text" class="form-control" v-model="middlename" id="middle-name" name="middle-name" placeholder="Your Middle Name...">
             </div>
             <div class="form-group">
                 <!-- full-name field-->
-                <label for="last-name">Full Name: *</label>
-                <input type="text" class="form-control" v-model="lastname" id="last-name" name="last-name" placeholder="Your Last Name..." required><br/>
+                <label for="last-name">Last Name: *</label>
+                <input type="text" class="form-control" v-model="lastname" id="last-name" name="last-name" placeholder="Your Last Name..." required>
             </div>
             <div class="form-group">
                 <!-- email field -->
@@ -47,20 +47,16 @@
                 <input type="password" class="form-control" v-model="password" id="password" name="password" placeholder="Your Password..." required>
             </div>
             <div class="form-group">
-                <label for="passwordCheck">Retype your Password: </label>
+                <label for="passwordCheck">Retype your Password: *</label>
                 <input type="password" class="form-control" v-model="passwordCheck" id="passwordCheck" name="passwordCheck" placeholder="Retype Password..." required>
             </div>
             <div class="form-group">
                 <!-- fitness level field -->
-                <label for="fitnessLevel">Fitness Level:</label>
-                <select class="form-control" v-model="fitnessLevel" name="fitnessLevel" id="fitnessLevel">
-                    <option disabled value="">Please select a fitness level</option>
-                    <option value="1">Unfit, no regular exercise, being active is very rare</option>
-                    <option value="2">Not overly fit, occasional recreational fitness activity, active a few times a month</option>
-                    <option value="3">Moderately fit, enjoys fitness activities for recreation, active once or twice a week</option>
-                    <option value="4">Fit, may compete occasionally in small scale events, active most days</option>
-                    <option value="5">Very fit, competitive athlete, extremely active</option>
-                </select>
+                <label for="fitness">Fitness Level:</label>
+                <multiselect v-model="fitness" id="fitness" :options="fitnessOptions" :multiple="false" label="desc" :return="fitnessOptions.desc"
+                             placeholder="Please select a fitness level" track-by="value">
+                    <template slot="singleLabel" slot-scope="{ option }"><footer> {{ option.desc }}</footer></template>
+                </multiselect>
             </div>
             <div class="form-group">
                 <!-- nickname field-->
@@ -70,24 +66,24 @@
             <div class="form-group">
                 <!-- gender field -->
                 <label for="gender">Gender: *</label>
-                <select class="form-control" v-model="gender" id="gender" name="gender" required>
-                    <option value="" disabled selected hidden>Your Gender... </option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="non-binary">Non Binary</option>
-                </select>
+                <multiselect v-model="gender" id="gender"
+                             :options="genders" placeholder="Your gender" required>
+                    <template slot="noResult">Invalid gender</template>
+                </multiselect>
             </div>
             <div class="form-group">
                 <!-- date of birth field-->
-                <label for="dob">Date of Birth: *</label>
-                <input type="date" class="form-control" v-model="dob" id="dob" name="dob" required>
+                <label for="date_of_birth">Date of Birth: *</label>
+                <input type="date" class="form-control" v-model="date_of_birth" id="date_of_birth" name="date_of_birth" required>
             </div>
             <div class="form-group">
                 <!-- passport country -->
-                <label for="passportCountry">Passport Country:</label>
-                <select class="form-control" v-model="passportCountry" id="passportCountry" name="passportCountry">
-                    <option value="" disabled selected hidden>Select country</option>
-                </select>
+                <label for="passportCountries">Passport Country:</label>
+                <multiselect v-model="passports" id="passportCountries"
+                             :options="countries" :multiple="true" :searchable="true" :close-on-select="false"
+                             placeholder="Select your passport countries">
+                    <template slot="noResult">Country not found</template>
+                </multiselect>
             </div>
             <div class="form-group">
                 <!-- user bio -->
@@ -96,10 +92,16 @@
             </div>
             <div class="form-group">
                 <!-- SignIn Button-->
-                <button type="submit" class="btn btn-primary" v-on:click="registerUser">Register</button>
+                <button type="submit" class="btn btn-primary">Register</button>
                 <router-link to="/login" class="btn btn-link">Login</router-link>
             </div>
         </form>
+        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" hidden="true" id="alert">
+            {{  message  }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
         <footer>
             Entries marked with * are required
         </footer>
@@ -108,7 +110,11 @@
 
 <script>
     import server from '../../Api';
+    import Multiselect from 'vue-multiselect'
+    import {getCountryNames} from '../../constants';
+
     export default {
+        components: { Multiselect },
         name: "NewUser",
         data() {
             return {
@@ -120,76 +126,119 @@
                 passwordCheck: '',
                 nickname: '',
                 gender: '',
-                dob: '',
-                fitnessLevel: '',
-                passportCountry: '',
-                bio: ''
+                date_of_birth: '',
+                fitness: '',
+                fitnessOptions: [{value: 1, desc: "Unfit, no regular exercise, being active is very rare"},
+                                 {value: 2, desc: "Not overly fit, occasional recreational fitness activity, active a few times a month"},
+                                 {value: 3, desc: "Moderately fit, enjoys fitness activities for recreation, active once or twice a week"},
+                                 {value: 4, desc: "Fit, may compete occasionally in small scale events, active most days"},
+                                 {value: 5, desc: "Very fit, competitive athlete, extremely active"}
+                ],
+                bio: '',
+                message: "",
+                countries: [],
+                genders: ['Male', 'Female', 'Non-Binary'],
+                passports: []
             }
         },
 
         mounted () {
-            let select = document.getElementById('passportCountry')
+            console.log(server.baseURL);
+            let select = []
             // Create a request variable and assign a new XMLHttpRequest object to it.
-            let request = new XMLHttpRequest()
+            let request = new XMLHttpRequest();
             //build url
-            let restCountriesName = 'https://restcountries.eu/rest/v2/all?fields=name'     //needs to be const somewhere
-            let url = new URL(restCountriesName)
+            let url = new URL(getCountryNames);
             // Open a new connection, using the GET request on the URL endpoint;
-            request.open('GET', url, true)
+            request.open('GET', url, true);
 
             request.onload = function() {
+                // If the request is successful
                 if(request.status >= 200 && request.status < 400) {
-                    let data = JSON.parse(this.response)
+                    let data = JSON.parse(this.response);
                     data.forEach(country => {
-                        // console.log(country.name)
-                        let elmt = document.createElement('option')
-                        elmt.textContent = country.name
-                        elmt.value = country.name
-                        //console.log(elmt)
-                        select.appendChild(elmt)
+                        let elmt = country.name;
+                        select.push(elmt)
                     } )
                 } else {
-                    let elmt = document.createElement('error')
-                    elmt.textContent = 'error fetching countries'
-                    elmt.value = 'error'
-                    select.appendChild(elmt)
+                    select = 'List is empty'
+                    let errorAlert = document.getElementById("alert");
+                    this.message = 'Error fetching countries';
+                    errorAlert.hidden = false;          //Show alert bar
                 }
-            }
+            };
             // Send request
+            this.countries = select;
             request.send()
         },
 
         methods: {
-            // Method is called when the register button is selected
-            registerUser() {
+
+            async registerUser() {
                 // Save the data as a newUser object
                 const newUser = {
+                    lastname: this.lastname,
                     firstname: this.firstname,
                     middlename: this.middlename,
-                    lastname: this.lastname,
+                    nickname: this.nickname,
                     primary_email: this.email,
                     password: this.password,
-                    nickname: this.nickname,
+                    date_of_birth: this.date_of_birth,
                     gender: this.gender,
-                    date_of_birth: this.dob,
-                    fitnessLevel: this.fitnessLevel,
-                    passportCountry: this.passportCountry,
-                    bio: document.getElementById('bio').value
-                }
-                // console.log(newUser)     // view data in console for testing with this
+                    bio: this.bio,
+                    fitness: this.fitness.value,
+                    passports: this.passports
+                };
                 // The HTTP Post Request
-                server.post(  'http://localhost:9499/profiles',
-                    newUser
-                ).then(function(){
-                        console.log('User Registered Successfully!');
+                server.post('/profiles',
+                    newUser,
+                    {
+                        headers: {"Access-Control-Allow-Origin": "*", "content-type": "application/json"},
+                        withCredentials: true
                     }
-                ).catch(error => {
+                ).then(response => { //If successfully registered the response will have a status of 201
+                    if (response.status === 201) {
+                        console.log('User Registered Successfully!');
+                        this.$router.push('/profile'); //Routes to profile on successful register
+                    }
+                }).catch(error => {
                     console.log(error);
+                    //Get alert bar element
+                    let errorAlert = document.getElementById("alert");
+                    if (error.message === "Network Error" || error.message.includes("timeout")) {
+                        this.message = error.message;
+                    } else if (error.response.status === 403) { //Error 401: Email already exists, invalid date of birth or invalid name field
+                        this.message = error.response.data.toString(); //Set alert bar message to error message from server
+                    } else if (error.response.status === 400) { //Error 400: Bad request (missing fields)
+                        this.message = "An invalid register request has been received please try again"
+                    } else {    //Catch for any errors that are not specifically caught
+                        this.message = "An unknown error has occurred during register"
+                    }
+                    errorAlert.hidden = false;          //Show alert bar
+                    setTimeout(function () {    //Hide alert bar after ~5000ms
+                        errorAlert.hidden = true;
+                    }, 5000);
                 });
-                this.$router.push("/");
+            }
+        },
+        computed: {
+            value: {
+                get () {
+                    return this.fitnessOptions.filter(
+                        option => this.fitness.includes(option.desc)
+                    )
+                },
+                set (newSelectedOptions) {
+                    this.fitness = newSelectedOptions.map(option => option.desc)
+                }
             }
         }
     }
 
-
 </script>
+
+<style src="vue-multiselect/dist/vue-multiselect.min.css">
+    .multiselect {
+        color: black;
+    }
+</style>
