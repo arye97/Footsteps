@@ -1,23 +1,42 @@
 import {shallowMount} from '@vue/test-utils'
 import HomeLayout from '../components/layout/HomeLayout.vue'
+import each from 'jest-each'
 
-describe('HomeLayout', () => {
-    let homeLayout;
+let homeLayout;
 
-    beforeEach(() => {
-        homeLayout = shallowMount(HomeLayout);
-    });
+beforeEach(() => {
+    homeLayout = shallowMount(HomeLayout);
+});
 
-    test('Home Layout is a vue instance', () => {
-        expect(homeLayout.isVueInstance).toBeTruthy();
-    });
+test('Is a vue instance', () => {
+    expect(homeLayout.isVueInstance).toBeTruthy();
+});
 
-    test('Home Layout does not have a mounted hook', () => {
-        expect(typeof HomeLayout.mounted).toBe('undefined');
-    });
+test('Does not have a mounted hook', () => {
+    expect(HomeLayout.mounted).toBeUndefined();
+});
 
-    test('Home Layout has 2 buttons', () => {
-        let length = homeLayout.findAll('button').length;
-        expect(length).toBe(2);
-    })
+test('Has 2 buttons', () => {
+    expect(homeLayout.findAll('button')).toHaveLength(2);
+});
+
+each([
+    ['register'],
+    ['login'],
+]).test('%s button click should direct to page', (button) => {
+    console.log(button);
+    const spy = jest.fn();
+    homeLayout.vm.$on(button, spy);
+
+    let foundButton = homeLayout.find('#'+ button + 'Button');
+    foundButton.trigger('click');
+
+    expect(spy).toHaveBeenCalledTimes(1);
+});
+
+each([
+    ['register'],
+    ['login'],
+]).test('Has a %s button', (button) => {
+    expect(homeLayout.find('#'+ button + 'Button').is('button')).toBeTruthy();
 });
