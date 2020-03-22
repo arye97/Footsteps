@@ -194,7 +194,7 @@ public class UserController {
             Long userId = ((LoggedUser)session.getAttribute("loggedUser")).getUserId();
             if (validUser(userId, sessionId, profileId)) {
                 ObjectMapper nodeMapper = new ObjectMapper();
-                User user = repository.findById(profileId).get();
+                User user = userRepository.findById(profileId).get();
                 //Remove fields that should not be modified here
                 ObjectNode modData = nodeMapper.readValue(jsonEditProfileString, ObjectNode.class);
                 modData.remove("date_of_birth");
@@ -204,7 +204,7 @@ public class UserController {
 
                 ObjectReader userReader = nodeMapper.readerForUpdating(user);
                 User modUser = userReader.readValue(modData);
-                repository.save(modUser);
+                userRepository.save(modUser);
             } else {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             }
