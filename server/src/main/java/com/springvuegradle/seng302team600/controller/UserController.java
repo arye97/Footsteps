@@ -34,8 +34,8 @@ public class UserController {
     }
 
     /**
-    For testing
-    Return a list of Users saved in the repository
+     * For testing
+     * Return a list of Users saved in the repository
      */
     @GetMapping("/listprofile")
     public List<User> all() {
@@ -50,6 +50,7 @@ public class UserController {
 
     /**
      * Return a User saved in the repository via userId
+     *
      * @param request
      * @param response
      * @return User requested or null
@@ -74,6 +75,7 @@ public class UserController {
 
     /**
      * Creates and returns a new User from the requested body
+     *
      * @param newUser
      * @param request
      * @param response
@@ -87,11 +89,15 @@ public class UserController {
             session.removeAttribute("loggedUser");
         }
         if (repository.findByEmails(newUser.getEmails()) == null) {
-                //If mandatory fields not given, exception in UserRepository.save ends function execution and makes response body
-                //Gives request status:400 and specifies needed field if null in required field
+            //If mandatory fields not given, exception in UserRepository.save ends function execution and makes response body
+            //Gives request status:400 and specifies needed field if null in required field
             Date DoB = newUser.getDateOfBirth();
-            if (ageCheck(DoB, 13, true)) { throw new UserTooYoungException(); }
-            if (ageCheck(DoB, 150, false)) { throw new InvalidDateOfBirthException(); }
+            if (ageCheck(DoB, 13, true)) {
+                throw new UserTooYoungException();
+            }
+            if (ageCheck(DoB, 150, false)) {
+                throw new InvalidDateOfBirthException();
+            }
 
             //Saving generates user id
             User user = repository.save(newUser);
@@ -104,7 +110,7 @@ public class UserController {
     }
 
     @PostMapping("/profiles/{profileId}/emails")
-    public void addEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, UserNotFoundException {
+    public void addEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, UserNotFoundException, EmailAlreadyRegisteredException, MaximumEmailsException {
         ObjectNode node = new ObjectMapper().readValue(jsonString, ObjectNode.class);
         HttpSession session = request.getSession(false);
 
@@ -117,7 +123,14 @@ public class UserController {
                     System.out.println(secondaryEmails.toString());
                     if (userId == profileId) {
                         User updateUser = repository.findByUserId(profileId);
-                        //updateUser.setEmails(new Emails(secondaryEmails));
+                        for (String additionalEmail : secondaryEmails) {
+                            if (updateUser.getEmails().getPrimaryEmail() != additionalEmail &&
+                                    updateUser.getEmails().getSecondaryEmails().contains(additionalEmail)) {
+                                updateUser.getEmails().addSecondaryEmail(additionalEmail);
+                            } else {
+                                throw new EmailAlreadyRegisteredException();
+                            }
+                        }
                         response.setStatus(HttpServletResponse.SC_OK);
                         repository.save(updateUser);
                     }
@@ -130,14 +143,16 @@ public class UserController {
 
     //TODO: Tests for this method. Tested in postman but will update the current user thats logged in with the primary email due to unimplementation of adding a list of secondary emails in the database.
     //check if session is null, check if the profile id is the logged in id, check if user exists after
+
     /**
      * Updates primary and secondary emails from a given profileID
+     *
      * @param jsonString
      * @param profileId
      * @throws JsonProcessingException
      */
     @PutMapping("/profiles/{profileId}/emails")
-    public void updateEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, UserNotFoundException {
+    public void updateEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, UserNotFoundException, EmailAlreadyRegisteredException, MaximumEmailsException {
         ObjectNode node = new ObjectMapper().readValue(jsonString, ObjectNode.class);
         HttpSession session = request.getSession(false);
 
@@ -151,7 +166,15 @@ public class UserController {
                     System.out.println(secondaryEmails.toString());
                     if (userId == profileId) {
                         User updateUser = repository.findByUserId(profileId);
-                        updateUser.setEmails(new Emails(primaryEmail, secondaryEmails));
+                        updateUser.getEmails().setPrimaryEmail(primaryEmail);
+                        for (String additionalEmail : secondaryEmails) {
+                            if (updateUser.getEmails().getPrimaryEmail() != additionalEmail &&
+                                    updateUser.getEmails().getSecondaryEmails().contains(additionalEmail)) {
+                                updateUser.getEmails().addSecondaryEmail(additionalEmail);
+                            } else {
+                                throw new EmailAlreadyRegisteredException();
+                            }
+                        }
                         response.setStatus(HttpServletResponse.SC_OK);
                         repository.save(updateUser);
                     }
