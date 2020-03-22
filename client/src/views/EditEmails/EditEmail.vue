@@ -86,14 +86,13 @@
                 error: false,
                 user: null,
                 primaryEmail: null,
-                secondaryEmails: null,
                 additionalEmails: null,
                 selectedEmail: null,
                 addedEmail: null,
             }
         },
         mounted() {
-            server.get(  `http://localhost:9499/profiles`,
+            server.get(  `/emails`,
                 {headers:
                         {'Content-Type': 'application/json'}, withCredentials: true
                 }
@@ -102,17 +101,15 @@
                         console.log('Status = OK. response.data:');
                         console.log(response.data);
 
-                        //user is set to the user data retrieved
-                        this.user = response.data;
-                        this.primaryEmail = this.user.primary_email.primaryEmail;
-                        this.secondaryEmails = this.user.primary_email.secondaryEmails;
-                        console.log('THIS.PRIMARYEMAIL BELOW!!!')
-                        console.log(this.primaryEmail)
-                        console.log('TYPE OF BELOW')
-                        console.log(typeof this.primaryEmail)
+                        this.primaryEmail = response.data.primaryEmail;
+                        this.additionalEmails = response.data.additionalEmails;
+                        console.log('THIS.PRIMARYEMAIL BELOW!!!');
+                        console.log(this.primaryEmail);
+                        console.log('TYPE OF BELOW');
+                        console.log(typeof this.primaryEmail);
                         //Set the drop down list to contain users emails
                         //Fake list of secondary emails until we have the ability to add our own secondary emails
-                        let mock_secondaries = ["fake1@sekj.com", "fake2@skeg.com"]  // JUST FOR TESTING.  REMOVE SOON.
+                        let mock_secondaries = ["fake1@sekj.com", "fake2@skeg.com"];  // JUST FOR TESTING.  REMOVE SOON.
                         this.additionalEmails = mock_secondaries;
                         this.addedEmail = "";
                         //no longer loading, so show data
@@ -131,16 +128,30 @@
             submitEmail() {
                 const updateEmail = {
                     primaryEmail: this.primaryEmail,
-                    secondaryEmails: this.secondaryEmails
-                }
-                server.put(`http://localhost:9499/profiles/${this.user.id}/emails`,
+                    additionalEmails: this.additionalEmails
+                };
+                server.put(`/profiles/${this.user.id}/emails`,
                     updateEmail
                 ).then(function() {
                     console.log('User Emails updated Successfully!');
-                }).catch(function(error) {
-                    console.error(error);
-                    console.error(error.response);
-                })
+                }).catch(error => {
+                    console.log(error);
+                    //Get alert bar element
+                    let errorAlert = document.getElementById("alert");
+                    if (error.message === "Network Error") {
+                        this.message = error.message;
+                    } else if (error.response.status === 403) { //Error 401: Email already exists or invalid date of birth
+                        this.message = error.response.data.toString(); //Set alert bar message to error message from server
+                    } else if (error.response.status === 400) { //Error 400: Bad request (missing fields)
+                        this.message = "An invalid update request has been received please try again"
+                    } else {    //Catch for any errors that are not specifically caught
+                        this.message = "An unknown error has occurred during update"
+                    }
+                    errorAlert.hidden = false;          //Show alert bar
+                    setTimeout(function () {    //Hide alert bar after ~5000ms
+                        errorAlert.hidden = true;
+                    }, 5000);
+                });
             }
         }
     }

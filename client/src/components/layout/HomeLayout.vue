@@ -1,5 +1,7 @@
 <template>
     <div id="app">
+        <h1><br/></h1>
+        <h1>Welcome to Hakinakina!</h1>
         <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
         <div class="text-center">
             <p></p>

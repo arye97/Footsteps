@@ -1,8 +1,6 @@
 package com.springvuegradle.seng302team600.advice;
 
-import com.springvuegradle.seng302team600.exception.EmailAlreadyRegisteredException;
-import com.springvuegradle.seng302team600.exception.IncorrectPasswordException;
-import com.springvuegradle.seng302team600.exception.UserNotFoundException;
+import com.springvuegradle.seng302team600.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -19,29 +17,54 @@ public class ExceptionAdvice {
 
     @ResponseBody
     @ExceptionHandler(EmailAlreadyRegisteredException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseStatus(HttpStatus.FORBIDDEN) //403
     public String emailAlreadyRegisteredHandler(EmailAlreadyRegisteredException ex) {
         return ex.getMessage();
     }
 
     @ResponseBody
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.BAD_REQUEST) //400
     public String MethodArgumentNotValidExceptionHandler(MethodArgumentNotValidException ex) {
         return ex.getMessage();
     }
 
     @ResponseBody
     @ExceptionHandler(UserNotFoundException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED) //401
     public String userNotFoundHandler(UserNotFoundException ex) {
         return ex.getMessage();
     }
 
     @ResponseBody
     @ExceptionHandler(IncorrectPasswordException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED) //401
     public String incorrectPasswordHandler(IncorrectPasswordException ex) {
         return ex.getMessage();
     }
+
+    @ResponseBody
+    @ExceptionHandler(InvalidDateOfBirthException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN) //403
+    public String invalidDateOfBirthHandler(InvalidDateOfBirthException ex) { return ex.getMessage(); }
+
+    @ResponseBody
+    @ExceptionHandler(UserTooYoungException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN) //403
+    public String UserTooYoungExceptionHandler(UserTooYoungException ex) { return ex.getMessage(); }
+
+    @ResponseBody
+    @ExceptionHandler(InvalidUserNameException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN) //403
+    public String InvalidUserNameExceptionHandler(InvalidUserNameException ex) { return ex.getMessage(); }
+
+    @ResponseBody
+    @ExceptionHandler(MaximumEmailsException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN) //403
+    public String MaximumEmailsExceptionHandler(MaximumEmailsException ex) { return ex.getMessage(); }
+
+    @ResponseBody
+    @ExceptionHandler(MustHavePrimaryEmailException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN) //403
+    public String MustHavePrimaryEmailExceptionHandler(MustHavePrimaryEmailException ex) { return ex.getMessage(); }
 }

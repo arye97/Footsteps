@@ -53,14 +53,10 @@
             <div class="form-group">
                 <!-- fitness level field -->
                 <label for="fitness">Fitness Level:</label>
-                <select class="form-control" v-model="fitness" name="fitness" id="fitness">
-                    <option disabled value="">Please select a fitness level</option>
-                    <option value="1">Unfit, no regular exercise, being active is very rare</option>
-                    <option value="2">Not overly fit, occasional recreational fitness activity, active a few times a month</option>
-                    <option value="3">Moderately fit, enjoys fitness activities for recreation, active once or twice a week</option>
-                    <option value="4">Fit, may compete occasionally in small scale events, active most days</option>
-                    <option value="5">Very fit, competitive athlete, extremely active</option>
-                </select>
+                <multiselect v-model="fitness" id="fitness" :options="fitnessOptions" :multiple="false" label="desc" :return="fitnessOptions.desc"
+                             placeholder="Please select a fitness level" track-by="value">
+                    <template slot="singleLabel" slot-scope="{ option }"><footer> {{ option.desc }}</footer></template>
+                </multiselect>
             </div>
             <div class="form-group">
                 <!-- nickname field-->
@@ -82,8 +78,8 @@
             </div>
             <div class="form-group">
                 <!-- passport country -->
-                <label for="passports">Passport Country:</label>
-                <multiselect v-model="passports" id="passports"
+                <label for="passportCountries">Passport Country:</label>
+                <multiselect v-model="passports" id="passportCountries"
                              :options="countries" :multiple="true" :searchable="true" :close-on-select="false"
                              placeholder="Select your passport countries">
                     <template slot="noResult">Country not found</template>
@@ -99,8 +95,13 @@
                 <button type="submit" class="btn btn-primary">Register</button>
                 <router-link to="/login" class="btn btn-link">Login</router-link>
             </div>
-            <label v-show="regError" id="error">Error</label>
         </form>
+        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" hidden="true" id="alert">
+            {{  message  }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
         <footer>
             Entries marked with * are required
         </footer>
@@ -127,39 +128,47 @@
                 gender: '',
                 date_of_birth: '',
                 fitness: '',
-                passports: [],
+                fitnessOptions: [{value: 1, desc: "Unfit, no regular exercise, being active is very rare"},
+                                 {value: 2, desc: "Not overly fit, occasional recreational fitness activity, active a few times a month"},
+                                 {value: 3, desc: "Moderately fit, enjoys fitness activities for recreation, active once or twice a week"},
+                                 {value: 4, desc: "Fit, may compete occasionally in small scale events, active most days"},
+                                 {value: 5, desc: "Very fit, competitive athlete, extremely active"}
+                ],
                 bio: '',
+                message: "",
                 countries: [],
-                genders: ['male', 'female', 'non-binary'],
-                regError: false,
-                hasRegistered: false
+                genders: ['Male', 'Female', 'Non-Binary'],
+                passports: []
             }
         },
 
         mounted () {
+            console.log(server.baseURL);
             let select = []
-
             // Create a request variable and assign a new XMLHttpRequest object to it.
-            let request = new XMLHttpRequest()
+            let request = new XMLHttpRequest();
             //build url
-            let url = new URL(getCountryNames)
+            let url = new URL(getCountryNames);
             // Open a new connection, using the GET request on the URL endpoint;
-            request.open('GET', url, true)
+            request.open('GET', url, true);
 
             request.onload = function() {
                 // If the request is successful
                 if(request.status >= 200 && request.status < 400) {
-                    let data = JSON.parse(this.response)
+                    let data = JSON.parse(this.response);
                     data.forEach(country => {
                         let elmt = country.name;
                         select.push(elmt)
                     } )
                 } else {
                     select = 'List is empty'
+                    let errorAlert = document.getElementById("alert");
+                    this.message = 'Error fetching countries';
+                    errorAlert.hidden = false;          //Show alert bar
                 }
-            }
+            };
             // Send request
-            this.countries = select
+            this.countries = select;
             request.send()
         },
 
@@ -176,32 +185,55 @@
                     password: this.password,
                     date_of_birth: this.date_of_birth,
                     gender: this.gender,
-                    fitness: this.fitness,
-                    passports: this.passports,
-                    bio: this.bio
-                }
+                    bio: this.bio,
+                    fitness: this.fitness.value,
+                    passports: this.passports
+                };
                 // The HTTP Post Request
-                server.post('http://localhost:9499/profiles',
+                server.post('/profiles',
                     newUser,
                     {
                         headers: {"Access-Control-Allow-Origin": "*", "content-type": "application/json"},
                         withCredentials: true
                     }
-                ).then(response => {
+                ).then(response => { //If successfully registered the response will have a status of 201
                     if (response.status === 201) {
                         console.log('User Registered Successfully!');
-                        this.$router.push('/profile');
+                        this.$router.push('/profile'); //Routes to profile on successful register
                     }
-
                 }).catch(error => {
-                    this.regError = true;
                     console.log(error);
-                    console.log(error.response);
+                    //Get alert bar element
+                    let errorAlert = document.getElementById("alert");
+                    if (error.message === "Network Error" || error.message.includes("timeout")) {
+                        this.message = error.message;
+                    } else if (error.response.status === 403) { //Error 401: Email already exists, invalid date of birth or invalid name field
+                        this.message = error.response.data.toString(); //Set alert bar message to error message from server
+                    } else if (error.response.status === 400) { //Error 400: Bad request (missing fields)
+                        this.message = "An invalid register request has been received please try again"
+                    } else {    //Catch for any errors that are not specifically caught
+                        this.message = "An unknown error has occurred during register"
+                    }
+                    errorAlert.hidden = false;          //Show alert bar
+                    setTimeout(function () {    //Hide alert bar after ~5000ms
+                        errorAlert.hidden = true;
+                    }, 5000);
                 });
+            }
+        },
+        computed: {
+            value: {
+                get () {
+                    return this.fitnessOptions.filter(
+                        option => this.fitness.includes(option.desc)
+                    )
+                },
+                set (newSelectedOptions) {
+                    this.fitness = newSelectedOptions.map(option => option.desc)
+                }
             }
         }
     }
-
 
 </script>
 

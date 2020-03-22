@@ -24,6 +24,7 @@
                     <span v-if="this.user.fitness">Fitness Level: {{this.user.fitness}}</span><br/>
                     <span v-if="this.user.bio">Bio: {{ this.user.bio }}</span><br/>
                 </span>
+                <button type="submit" class="btn btn-link" v-on:click="logout" >Logout</button>
             </div>
         </section>
 
@@ -48,7 +49,8 @@
             }
         },
         mounted() {
-            server.get(  'http://localhost:9499/profiles',
+            this.loading = true;
+            server.get(  '/profiles',
                 {headers:
                         {'Content-Type': 'application/json'}, withCredentials: true
                 }, )
@@ -61,11 +63,29 @@
                     //no longer loading, so show data
                     this.loading = false;
                 }
-            }).catch(function(error) {
+            }).catch(error => {
+                this.errored = true;
                 console.error(error);
                 console.error(error.response);
 
             })
         },
+        methods: {
+            logout () {
+                server.post('/logout', null,
+                    {
+                        headers: {"Access-Control-Allow-Origin": "*", "content-type": "application/json"},
+                        withCredentials: true
+                    }
+                ).then(response => {
+                    console.log(response);
+                    console.log('User Logged Out Successfully!');
+                    this.$router.push('/'); //Routes to home on logout
+                }).catch(error => {
+                    console.error(error);
+                    this.$router.push('/'); //Routes to home on logout
+                })
+            }
+        }
     }
 </script>

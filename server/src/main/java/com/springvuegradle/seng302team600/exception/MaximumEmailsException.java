@@ -5,11 +5,7 @@ package com.springvuegradle.seng302team600.exception;
  * */
 public class MaximumEmailsException extends Exception {
     public MaximumEmailsException() {
-        // TODO Auto-generated constructor stub
-    }
-
-    public MaximumEmailsException(String message) {
-        super(message);
+        super("Maximum email limit reached");
         // TODO Auto-generated constructor stub
     }
 
