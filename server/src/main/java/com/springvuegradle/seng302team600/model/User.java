@@ -170,12 +170,7 @@ public class User {
      * @return primaryEmail or null
      */
     public String getPrimaryEmail() {
-        for (Email email : emails) {
-            if (email.getIsPrimary()) {
-                return email.getEmail();
-            }
-        }
-        return null;
+        return primaryEmail;
     }
 
     /**
@@ -222,11 +217,6 @@ public class User {
      * @return a list of additional email Strings
      */
     public List<String> getAdditionalEmails() {
-        for (Email email : emails) {
-            if (!email.getIsPrimary()) {
-                additionalEmails.add(email.getEmail());
-            }
-        }
         return additionalEmails;
     }
 
