@@ -89,9 +89,9 @@ public class User {
     @JsonProperty("gender")
     private Gender gender;
 
-    
-    )
-    
+    @JsonProperty("fitness")
+    private int fitnessLevel;
+
     @Transient
     @ElementCollection
     @CollectionTable(
@@ -179,39 +179,41 @@ public class User {
      * Sets primary email of User
      * @param newPrimaryEmail an email to be set primary
      */
-    public void setPrimaryEmail(String newPrimaryEmail) {
-        // IF EMAIL ALREADY ASSOCIATED TO USER (FROM ADDITIONAL EMAILS)
-        // Set isPrimary to false for current primary Email object
-        // If newPrimaryEmail in Email list
-        // Add old primary email to additional email list
-        // Set primary email string field to newPrimaryEmail string
-        // Remove newPrimaryEmail from additional emails list
-        // Set isPrimary to true in newPrimaryEmail Email object
-        boolean isAlreadyIn = false;
-        for (Email email: emails) {
-            if (email.getEmail().equals(primaryEmail)) {
-                email.setIsPrimary(false);
-            } else if (email.getEmail().equals(newPrimaryEmail)) {
-                additionalEmails.add(primaryEmail);
-                primaryEmail = newPrimaryEmail;
-                additionalEmails.remove(newPrimaryEmail);
-                email.setIsPrimary(true);
-                isAlreadyIn = true;
+    public void setPrimaryEmail(String newPrimaryEmail) throws MaximumEmailsException {
+        if (primaryEmail != null) {
+            // If newPrimaryEmail is already the primary email
+            if (primaryEmail.equals(newPrimaryEmail)) {
+                return;
+            }
+            // If at max email count and newPrimaryEmail doesn't already exist
+            if (emails.size() >= MAX_EMAILS && !additionalEmails.contains(newPrimaryEmail)) {
+                throw new MaximumEmailsException();
+            }
+
+            // Change old primary to additional
+            for (Email email : emails) {
+                if (email.getEmail().equals(primaryEmail)) {
+                    additionalEmails.add(primaryEmail);
+                    email.setIsPrimary(false);
+                    break;
+                }
+            }
+
+            // If newPrimaryEmail in Email list
+            for (Email email : emails) {
+                if (email.getEmail().equals(newPrimaryEmail)) {
+                    primaryEmail = newPrimaryEmail;
+                    additionalEmails.remove(newPrimaryEmail);
+                    email.setIsPrimary(true);
+                    return;
+                }
             }
         }
 
         // IF EMAIL HAS NOT BEEN ASSOCIATED TO USER
-        // TWO CASES:
-        // - If primary email exists and needs to be replaced
-        // - If primary email does not exist (creating a user)
-        // --- Set primary email field to new primary email
-        // --- Create new Email object and add to list of Email objects
-        int numOfEmails = emails.size();
-        if (!isAlreadyIn && numOfEmails < MAX_EMAILS) {
-            primaryEmail = newPrimaryEmail;
-            Email email = new Email(newPrimaryEmail, true, this);
-            emails.add(email);
-        }
+        primaryEmail = newPrimaryEmail;
+        Email email = new Email(newPrimaryEmail, true, this);
+        emails.add(email);
     }
 
     /**
@@ -231,17 +233,28 @@ public class User {
      * @throws MustHavePrimaryEmailException if primary email has not been set
      * @throws MaximumEmailsException if maximum emails limit reached
      */
-    // Maybe add handler for duplicate additional emails
-    // Only able to add if primaryEmail is not null
     public void setAdditionalEmails(List<String> newAdditionalEmails) throws MustHavePrimaryEmailException, MaximumEmailsException {
         if (primaryEmail == null) {
             // primaryEmail can never be null
             throw new MustHavePrimaryEmailException();
         }
 
+        List<String> removals = new ArrayList<>();
+        boolean remove = false;
+        for (String email: additionalEmails) {
+            if (!newAdditionalEmails.contains(email)) {
+                removals.add(email);
+                remove = true;
+            }
+        }
+        if (remove) {
+            for (String email: removals) {
+                additionalEmails.remove(email);
+            }
+        }
         for (String email: newAdditionalEmails) {
             // If email in newAdditionalEmails is a duplicate from additionalEmails
-            if (additionalEmails.contains(email)) {
+            if (additionalEmails.contains(email) || primaryEmail.equals(email)) {
                 continue;
             } else if (emails.size() < MAX_EMAILS) {
                 additionalEmails.add(email);
@@ -270,14 +283,6 @@ public class User {
 
     public List<Email> getEmails() {
         return emails;
-    }
-
-    /**
-     * Private method to setEmails that should never be called
-     * @param emails a list of Email objects
-     */
-    private void setEmails(List<Email> emails) {
-        this.emails = emails;
     }
 
     public boolean checkPassword(String password) {

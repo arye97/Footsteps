@@ -146,7 +146,7 @@ public class UserTest {
     }
 
     @Test
-    void setOnePrimaryEmail_Success_WhenCreatingUser() throws MustHavePrimaryEmailException {
+    void setOnePrimaryEmail_Success_WhenCreatingUser() throws MustHavePrimaryEmailException, MaximumEmailsException {
         String email = "terry_tester@yahoo.com";
         userTest.setPrimaryEmail(email);
 

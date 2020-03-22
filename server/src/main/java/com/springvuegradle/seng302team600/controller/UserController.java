@@ -10,6 +10,7 @@ import com.springvuegradle.seng302team600.model.LoggedUser;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.exception.*;
 
+import org.json.JSONObject;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +19,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
 @RestController
 public class UserController {
@@ -74,10 +74,35 @@ public class UserController {
         }
     }
 
+    /**
+     * Return a users emails
+     * @param request
+     * @param response
+     * @return JSON object with primaryEmails and additionalEmails field
+     */
+    @GetMapping("/emails")
+    public Object findUserEmails(HttpServletRequest request, HttpServletResponse response) {
+        //getSession(false) ensures that a session is not created
+        HttpSession session = request.getSession(false);
+        if (session != null && session.getAttribute("loggedUser") != null) {
+            //Gets userId from client session
+            Long userId = ((LoggedUser) session.getAttribute("loggedUser")).getUserId();
+            response.setStatus(HttpServletResponse.SC_OK);
+
+            JSONObject emails = new JSONObject();
+            User user = repository.findByUserId(userId);
+            emails.put("primaryEmail", user.getPrimaryEmail());
+            emails.put("additionalEmails", user.getAdditionalEmails());
+            return emails;
+        } else {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return null;
+        }
+    }
+
 
     /**
      * Creates and returns a new User from the requested body
-     *
      * @param newUser
      * @param request
      * @param response
@@ -103,11 +128,22 @@ public class UserController {
             }
         }
 
+        //Throws errors if user is erroneous
+        newUser.isValid();
+
+        //Saving generates user id
+        //If mandatory fields not given, exception in UserRepository.save ends function execution and makes response body
+        //Gives request status:400 and specifies needed field if null in required field
+        User user = repository.save(newUser);
+        //Sets this user's ID to session userId
+        session.setAttribute("loggedUser", new LoggedUser(user.getUserId(), activeUsers));
+        response.setStatus(HttpServletResponse.SC_CREATED); //201
         return user;
+    }
         
         
     @PostMapping("/profiles/{profileId}/emails")
-    public void addEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, UserNotFoundException, EmailAlreadyRegisteredException, MaximumEmailsException {
+    public void addEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, UserNotFoundException, EmailAlreadyRegisteredException, MaximumEmailsException, MustHavePrimaryEmailException {
         ObjectNode node = new ObjectMapper().readValue(jsonString, ObjectNode.class);
         HttpSession session = request.getSession(false);
 
@@ -116,18 +152,11 @@ public class UserController {
                 //Gets userId from client session
                 Long userId = ((LoggedUser) session.getAttribute("loggedUser")).getUserId();
                 if (node.has("additional_email")) {
-                    List<String> secondaryEmails = node.findValuesAsText("additional_email");
-                    System.out.println(secondaryEmails.toString());
+                    List<String> additionalEmails = node.findValuesAsText("additional_email");
+                    System.out.println(additionalEmails.toString());
                     if (userId == profileId) {
                         User updateUser = repository.findByUserId(profileId);
-                        for (String additionalEmail : secondaryEmails) {
-                            if (updateUser.getEmails().getPrimaryEmail() != additionalEmail &&
-                                    updateUser.getEmails().getSecondaryEmails().contains(additionalEmail)) {
-                                updateUser.getEmails().addSecondaryEmail(additionalEmail);
-                            } else {
-                                throw new EmailAlreadyRegisteredException();
-                            }
-                        }
+                        updateUser.setAdditionalEmails(additionalEmails);
                         response.setStatus(HttpServletResponse.SC_OK);
                         repository.save(updateUser);
                     }
@@ -149,7 +178,7 @@ public class UserController {
      * @throws JsonProcessingException
      */
     @PutMapping("/profiles/{profileId}/emails")
-    public void updateEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, UserNotFoundException, EmailAlreadyRegisteredException, MaximumEmailsException {
+    public void updateEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, UserNotFoundException, MaximumEmailsException, MustHavePrimaryEmailException {
         ObjectNode node = new ObjectMapper().readValue(jsonString, ObjectNode.class);
         HttpSession session = request.getSession(false);
 
@@ -159,19 +188,12 @@ public class UserController {
                 Long userId = ((LoggedUser) session.getAttribute("loggedUser")).getUserId();
                 if (node.has("primary_email") && node.has("additional_email")) {
                     String primaryEmail = node.get("primary_email").asText();
-                    List<String> secondaryEmails = node.findValuesAsText("additional_email");
-                    System.out.println(secondaryEmails.toString());
+                    List<String> additionalEmails = node.findValuesAsText("additional_email");
+                    System.out.println(additionalEmails.toString());
                     if (userId == profileId) {
                         User updateUser = repository.findByUserId(profileId);
-                        updateUser.getEmails().setPrimaryEmail(primaryEmail);
-                        for (String additionalEmail : secondaryEmails) {
-                            if (updateUser.getEmails().getPrimaryEmail() != additionalEmail &&
-                                    updateUser.getEmails().getSecondaryEmails().contains(additionalEmail)) {
-                                updateUser.getEmails().addSecondaryEmail(additionalEmail);
-                            } else {
-                                throw new EmailAlreadyRegisteredException();
-                            }
-                        }
+                        updateUser.setPrimaryEmail(primaryEmail);
+                        updateUser.setAdditionalEmails(additionalEmails);
                         response.setStatus(HttpServletResponse.SC_OK);
                         repository.save(updateUser);
                     }
@@ -182,34 +204,7 @@ public class UserController {
         }
     }
 
-    /**
-     *
-     * @param DoB date of birth for prespective new user
-     * @param age age to check against
-     * @param younger boolean tag to determine if checking if the person is younger (false checks if older)
-     * @return boolean tag denoting how given DoB compares to given age with respect to younger tag
-     */
-    private boolean ageCheck(Date DoB, int age, boolean younger) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.YEAR, -age);
-        Date AGE = calendar.getTime();
-        if ( younger ) {
-            return AGE.before(DoB);
-        } else {
-            return AGE.after(DoB);
-        }
-        //Throws errors if user is erroneous
-        newUser.isValid();
 
-        //Saving generates user id
-        //If mandatory fields not given, exception in UserRepository.save ends function execution and makes response body
-        //Gives request status:400 and specifies needed field if null in required field
-        User user = repository.save(newUser);
-        //Sets this user's ID to session userId
-        session.setAttribute("loggedUser", new LoggedUser(user.getUserId(), activeUsers));
-        response.setStatus(HttpServletResponse.SC_CREATED); //201
-        return user;
-    }
 
     /**
      * Logs in a valid user with a registered email and password

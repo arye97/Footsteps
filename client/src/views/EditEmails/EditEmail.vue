@@ -86,14 +86,13 @@
                 error: false,
                 user: null,
                 primaryEmail: null,
-                secondaryEmails: null,
                 additionalEmails: null,
                 selectedEmail: null,
                 addedEmail: null,
             }
         },
         mounted() {
-            server.get(  `/profiles`,
+            server.get(  `/emails`,
                 {headers:
                         {'Content-Type': 'application/json'}, withCredentials: true
                 }
@@ -102,10 +101,8 @@
                         console.log('Status = OK. response.data:');
                         console.log(response.data);
 
-                        //user is set to the user data retrieved
-                        this.user = response.data;
-                        this.primaryEmail = this.user.primary_email.primaryEmail;
-                        this.secondaryEmails = this.user.primary_email.secondaryEmails;
+                        this.primaryEmail = response.data.primaryEmail;
+                        this.additionalEmails = response.data.additionalEmails;
                         console.log('THIS.PRIMARYEMAIL BELOW!!!');
                         console.log(this.primaryEmail);
                         console.log('TYPE OF BELOW');
@@ -131,7 +128,7 @@
             submitEmail() {
                 const updateEmail = {
                     primaryEmail: this.primaryEmail,
-                    secondaryEmails: this.secondaryEmails
+                    additionalEmails: this.additionalEmails
                 };
                 server.put(`/profiles/${this.user.id}/emails`,
                     updateEmail
