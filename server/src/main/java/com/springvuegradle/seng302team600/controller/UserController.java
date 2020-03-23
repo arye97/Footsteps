@@ -101,7 +101,7 @@ public class UserController {
             response.setStatus(HttpServletResponse.SC_OK);
 
             JSONObject emails = new JSONObject();
-            User user = repository.findByUserId(userId);
+            User user = userRepository.findByUserId(userId);
             emails.put("primaryEmail", user.getPrimaryEmail());
             emails.put("additionalEmails", user.getAdditionalEmails());
             return emails;
@@ -153,17 +153,17 @@ public class UserController {
         HttpSession session = request.getSession(false);
 
         if (session != null && session.getAttribute("loggedUser") != null) {
-            if (profileId == repository.findByUserId(profileId).getUserId()) {
+            if (profileId == userRepository.findByUserId(profileId).getUserId()) {
                 //Gets userId from client session
                 Long userId = ((LoggedUser) session.getAttribute("loggedUser")).getUserId();
                 if (node.has("additional_email")) {
                     List<String> additionalEmails = node.findValuesAsText("additional_email");
                     System.out.println(additionalEmails.toString());
                     if (userId == profileId) {
-                        User updateUser = repository.findByUserId(profileId);
+                        User updateUser = userRepository.findByUserId(profileId);
                         updateUser.setAdditionalEmails(additionalEmails);
                         response.setStatus(HttpServletResponse.SC_OK);
-                        repository.save(updateUser);
+                        userRepository.save(updateUser);
                     }
                 }
             } else {
@@ -188,7 +188,7 @@ public class UserController {
         HttpSession session = request.getSession(false);
 
         if (session != null && session.getAttribute("loggedUser") != null) {
-            if (profileId == repository.findByUserId(profileId).getUserId()) {
+            if (profileId == userRepository.findByUserId(profileId).getUserId()) {
                 //Gets userId from client session
                 Long userId = ((LoggedUser) session.getAttribute("loggedUser")).getUserId();
                 if (node.has("primary_email") && node.has("additional_email")) {
@@ -196,11 +196,11 @@ public class UserController {
                     List<String> additionalEmails = node.findValuesAsText("additional_email");
                     System.out.println(additionalEmails.toString());
                     if (userId == profileId) {
-                        User updateUser = repository.findByUserId(profileId);
+                        User updateUser = userRepository.findByUserId(profileId);
                         updateUser.setPrimaryEmail(primaryEmail);
                         updateUser.setAdditionalEmails(additionalEmails);
                         response.setStatus(HttpServletResponse.SC_OK);
-                        repository.save(updateUser);
+                        userRepository.save(updateUser);
                     }
                 }
             } else {
