@@ -57,7 +57,6 @@ public class User {
     @JsonProperty("bio")
     private String bio;
 
-    @NotNull(message = "Please provide a primary email address")
     @Transient
     @JsonProperty("primary_email")
     private String primaryEmail;
@@ -66,7 +65,7 @@ public class User {
     @JsonProperty("additional_email")
     private List<String> additionalEmails = new ArrayList<>();
 
-    @NotNull(message = "Please provide a primary email address")
+    @NotNull
     @JsonManagedReference
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     //orphan removal removes 'child' when 'parent' is deleted
@@ -171,6 +170,10 @@ public class User {
         this.bio = bio;
     }
 
+    /**
+     * Gets the primary email from Emails
+     * @return primaryEmail or null
+     */
     public String getPrimaryEmail() {
         return primaryEmail;
     }
@@ -384,7 +387,7 @@ public class User {
         if (! firstName.matches("[a-zA-Z]+") ) { throw new InvalidUserNameException(); }
         if (! lastName.matches("[a-zA-Z]+") ) { throw new InvalidUserNameException(); }
         if (middleName != null) {
-            if (! middleName.matches("[a-zA-Z]+") ) { throw new InvalidUserNameException(); }
+            if (! middleName.matches("[a-zA-Z]*") ) { throw new InvalidUserNameException(); }
         }
         if (ageCheck(dateOfBirth, 13, true)) { throw new UserTooYoungException(); }
         if (ageCheck(dateOfBirth, 150, false)) { throw new InvalidDateOfBirthException(); }
