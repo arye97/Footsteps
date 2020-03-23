@@ -187,7 +187,7 @@
                       const update = {};
                       switch (updateField.id) {
                         case "gender":
-                          update['gender'] = this.gender.toLowerCase();
+                          update['gender'] = this.gender;
                           break;
                         case "passports":
                           update['passports'] = this.passports;
