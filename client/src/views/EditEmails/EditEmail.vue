@@ -46,8 +46,8 @@
                                              placeholder="No Additional Emails">
                                 </multiselect>
                             </div>
-                            <button type="submit" class="btn btn-secondary">Set as Primary</button>
-                            <button type="submit" class="btn btn-secondary">Delete</button>
+                            <button type="submit" class="btn btn-secondary" v-on:click="setPrimary">Set as Primary</button>
+                            <button type="submit" class="btn btn-secondary" v-on:click="deleteEmail">Delete</button>
                             <br/><br/><br/>
 
                             <div class="form-group">
@@ -105,12 +105,14 @@
                         this.additionalEmails = response.data.additionalEmails;
                         console.log('THIS.PRIMARYEMAIL BELOW!!!');
                         console.log(this.primaryEmail);
-                        console.log('TYPE OF BELOW');
+                        console.log('TYPE OF PRIMARY EMAIL BELOW');
                         console.log(typeof this.primaryEmail);
                         //Set the drop down list to contain users emails
                         //Fake list of secondary emails until we have the ability to add our own secondary emails
-                        let mock_secondaries = ["fake1@sekj.com", "fake2@skeg.com"];  // JUST FOR TESTING.  REMOVE SOON.
-                        this.additionalEmails = mock_secondaries;
+                        //let mock_secondaries = ["fake1@sekj.com", "fake2@skeg.com"];  // JUST FOR TESTING.  REMOVE SOON.
+                        //this.additionalEmails = mock_secondaries;
+                        this.additionalEmails = this.secondaryEmails;
+                        this.additionalEmails.push('abc123@gmail.com', '456def@yahoo.com', '777@777.777');
                         this.addedEmail = "";
                         //no longer loading, so show data
                         this.loading = false;
@@ -122,8 +124,45 @@
             })
         },
         methods: {
-            addEmail() {
-                this.additionalEmails.push(this.addedEmail);
+            deleteEmail: function() {
+                //Remove an email
+                let selectedIndex = this.additionalEmails.indexOf(this.selectedEmail);
+                if (selectedIndex > -1) {
+                    this.additionalEmails.splice(selectedIndex, 1);
+                }
+            },
+            setPrimary: function() {
+                //if(this.selectedEmail != null && this.selectedEmail !== "") {
+                let newPrimary = this.selectedEmail;
+                let oldPrimary = this.primaryEmail;
+                //let selectedIndex = this.additionalEmails.indexOf(this.selectedEmail);
+
+                //this.additionalEmails[selectedIndex] = oldPrimary;
+                //this.primaryEmail = newPrimary;
+                this.deleteEmail();
+                this.additionalEmails.unshift(oldPrimary);
+                // this.primaryEmail = null;
+                this.user.primary_email.primaryEmail = newPrimary;
+
+
+                console.log('newPrimary: ' + newPrimary + ' Old primary: ' + oldPrimary)
+                //}
+            },
+            addEmail: function () {
+                //Make sure there are no more than 5 emails already and the email is valid
+                if (this.additionalEmails.length >= 4) {
+                    console.log('Error: maximum number of emails reached. Please remove an email before adding any more (Limit 5)')
+                } else if(this.additionalEmails.includes(this.selectedEmail) || (this.primaryEmail == this.selectedEmail)){
+                    //Can't have duplicate emails
+                    console.log("Error: Can't add duplicate email");
+                }
+                else if (/(.+)@(.+){2,}\.(.+){2,}/.test(this.addedEmail)) {
+                    //Email is valid
+                    this.additionalEmails.unshift(this.addedEmail);
+                } else {
+                    //Email's not valid
+                    console.log('Error: Invalid email. Please change to proper email format and try again')
+                }
             },
             submitEmail() {
                 const updateEmail = {
