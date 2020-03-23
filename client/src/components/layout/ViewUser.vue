@@ -25,6 +25,7 @@
                     <span v-if="this.user.bio">Bio: {{ this.user.bio }}</span><br/>
                 </span>
                 <button type="submit" class="btn btn-link" v-on:click="logout" >Logout</button>
+                <button type="submit" class="btn btn-link" v-on:click="editProfile" >Edit Profile</button>
             </div>
         </section>
 
@@ -85,7 +86,10 @@
                     console.error(error);
                     this.$router.push('/'); //Routes to home on logout
                 })
-            }
+            },
+        editProfile () {
+            this.$router.push('/profile/details');
+        }
         }
     }
 </script>
