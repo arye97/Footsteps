@@ -91,7 +91,6 @@ public class User {
     @JsonProperty("fitness")
     private int fitnessLevel;
 
-    @Transient
     @ElementCollection
     @CollectionTable(
             name="passport_countries",

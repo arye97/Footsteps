@@ -44,11 +44,6 @@
                 errored: false
             }
         },
-        methods: {
-            editEmail() {
-                this.$router.push('/profile/emails');
-            }
-        },
         mounted() {
             this.loading = true;
             server.get(  '/profiles',
@@ -72,6 +67,9 @@
             })
         },
         methods: {
+            editEmail () {
+                this.$router.push('/profile/emails');
+            },
             logout () {
                 server.post('/logout', null,
                     {
@@ -87,9 +85,9 @@
                     this.$router.push('/'); //Routes to home on logout
                 })
             },
-        editProfile () {
-            this.$router.push('/profile/details');
-        }
+            editProfile () {
+                this.$router.push('/profile/details');
+            }
         }
     }
 </script>
