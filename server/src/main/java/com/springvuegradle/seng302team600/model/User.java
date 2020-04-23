@@ -413,7 +413,7 @@ public class User {
         if (! firstName.matches("[a-zA-Z]+") ) { throw new InvalidUserNameException(); }
         if (! lastName.matches("[a-zA-Z]+") ) { throw new InvalidUserNameException(); }
         if (middleName != null) {
-            if (! middleName.matches("[a-zA-Z]*") ) { throw new InvalidUserNameException(); }
+            if (! middleName.matches("[a-zA-Z]*") && ! middleName.trim().isEmpty() ) { throw new InvalidUserNameException(); }
         }
         if (ageCheck(dateOfBirth, 13, true)) { throw new UserTooYoungException(); }
         if (ageCheck(dateOfBirth, 150, false)) { throw new InvalidDateOfBirthException(); }

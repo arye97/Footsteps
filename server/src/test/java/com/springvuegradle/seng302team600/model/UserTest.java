@@ -119,12 +119,12 @@ public class UserTest {
     }
 
     @Test
-    void invalidMiddleNameEmpty() throws UserTooYoungException, InvalidUserNameException, InvalidDateOfBirthException {
+    void validMiddleNameEmpty() throws UserTooYoungException, InvalidUserNameException, InvalidDateOfBirthException {
         assertTrue(userTest.isValid());
         userTest.setMiddleName("");
-        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
+        assertTrue(userTest.isValid());
         userTest.setMiddleName("     ");
-        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
+        assertTrue(userTest.isValid());
     }
 
     @Test
