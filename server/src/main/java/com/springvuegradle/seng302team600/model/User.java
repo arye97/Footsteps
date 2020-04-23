@@ -182,6 +182,9 @@ public class User {
      * @param newPrimaryEmail an email to be set primary
      */
     public void setPrimaryEmail(String newPrimaryEmail) throws MaximumEmailsException {
+        // Call this function to set up primaryEmail and additional Emails string from existing Email objects
+        setTransientEmailStrings();
+
         if (primaryEmail != null) {
             // If newPrimaryEmail is already the primary email
             if (primaryEmail.equals(newPrimaryEmail)) {
@@ -236,6 +239,9 @@ public class User {
      * @throws MaximumEmailsException if maximum emails limit reached
      */
     public void setAdditionalEmails(List<String> newAdditionalEmails) throws MustHavePrimaryEmailException, MaximumEmailsException {
+        // Call this function to set up primaryEmail and additional Emails string from existing Email objects
+        setTransientEmailStrings();
+
         if (primaryEmail == null) {
             // primaryEmail can never be null
             throw new MustHavePrimaryEmailException();
@@ -274,6 +280,9 @@ public class User {
      * @param removedAdditionalEmail additional email to be removed
      */
     public void deleteAdditionalEmail(String removedAdditionalEmail) {
+        // Call this function to set up primaryEmail and additional Emails string from existing Email objects
+        setTransientEmailStrings();
+
         additionalEmails.remove(removedAdditionalEmail);
         for (Email email: emails) {
             if (email.getEmail().equals(removedAdditionalEmail)) {
@@ -285,6 +294,22 @@ public class User {
 
     public List<Email> getEmails() {
         return emails;
+    }
+
+    /**
+     * Iterates through a list of Email objects and
+     * assigns @Transient String variables a primaryEmail and additionalEmails.
+     * Simplifies data processing associated with emails
+     * and also its representation in the front end.
+     */
+    public void setTransientEmailStrings() {
+        for (Email e: emails) {
+            if (e.getIsPrimary()) {
+                primaryEmail = e.getEmail();
+            } else {
+                additionalEmails.add(e.getEmail());
+            }
+        }
     }
 
     public boolean checkPassword(String password) {
