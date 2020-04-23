@@ -28,10 +28,10 @@ public class UserTest {
     @BeforeEach
     void setUp() {
         userTest = new User();
-         userTest.setFirstName("Jimmy");
-         userTest.setMiddleName(null);
-         userTest.setLastName("Jones");
-         userTest.setDateOfBirth(getAgeDate(50));
+        userTest.setFirstName("Jimmy");
+        userTest.setMiddleName(null);
+        userTest.setLastName("Jones");
+        userTest.setDateOfBirth(getAgeDate(50));
     }
 
     @Test
@@ -256,6 +256,7 @@ public class UserTest {
         }
     }
 
+
     @Test
     void deleteAdditionalEmail_Success_WhenRemovingEmailFromUser() throws MustHavePrimaryEmailException, MaximumEmailsException {
         String primaryEmail = "terry_tester@yahoo.com";
@@ -270,5 +271,25 @@ public class UserTest {
 
         assertEquals(0, userTest.getAdditionalEmails().size());
         assertEquals(1, userTest.getEmails().size());
+    }
+
+
+    @Test
+    void setTransientEmailStrings_DoesNotDuplicatePrimaryAndAdditionalEmails() throws MaximumEmailsException, MustHavePrimaryEmailException {
+        String primaryEmail = "lorenzo_haschestpain@yahoo.com";
+        userTest.setPrimaryEmail(primaryEmail);
+
+        List<String> additionalEmails = new ArrayList<>();
+        String additionalEmail1 = "lorenzos_mum_stayshealthy_and_makesfun_of_lorenzo@yahoo.com";
+        String additionalEmail2 = "lorenzo_hates_mum@yahoo.com";
+        additionalEmails.add(additionalEmail1);
+        additionalEmails.add(additionalEmail2);
+        userTest.setAdditionalEmails(additionalEmails);
+
+        assertEquals(primaryEmail, userTest.getPrimaryEmail());
+        assertEquals(additionalEmails, userTest.getAdditionalEmails());
+        userTest.setTransientEmailStrings();
+        assertEquals(primaryEmail, userTest.getPrimaryEmail());
+        assertEquals(additionalEmails, userTest.getAdditionalEmails());
     }
 }
