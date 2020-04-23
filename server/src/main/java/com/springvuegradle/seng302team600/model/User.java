@@ -303,6 +303,8 @@ public class User {
      * and also its representation in the front end.
      */
     public void setTransientEmailStrings() {
+        primaryEmail = null;
+        additionalEmails.clear();
         for (Email e: emails) {
             if (e.getIsPrimary()) {
                 primaryEmail = e.getEmail();
@@ -434,7 +436,6 @@ public class User {
         calendar.set(Calendar.MILLISECOND, 99);
         calendar.add(Calendar.YEAR, -age);
         Date ageDate = calendar.getTime();
-        System.out.println(ageDate);
         if ( younger ) {
             return ageDate.before(DoB);
         } else {

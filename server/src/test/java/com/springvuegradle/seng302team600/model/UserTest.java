@@ -248,8 +248,6 @@ public class UserTest {
         assertEquals(newPrimaryEmail, userTest.getPrimaryEmail());
 
         for (Email email: userTest.getEmails()) {
-            System.out.println(email.getEmail());
-            System.out.println(email.getIsPrimary());
             if (email.getEmail().equals(newPrimaryEmail)) {
                 assertTrue(email.getIsPrimary());
             } else {
