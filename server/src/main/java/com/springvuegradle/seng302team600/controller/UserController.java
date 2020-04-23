@@ -5,29 +5,22 @@ import com.springvuegradle.seng302team600.model.User;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.model.LoggedUser;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.exception.*;
-import org.json.JSONObject;
-import org.springframework.beans.PropertyAccessor;
-import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.ArrayList;
-import java.util.logging.Logger;
+import java.util.Map;
 
 @RestController
 public class UserController {
@@ -67,7 +60,7 @@ public class UserController {
      * @return User requested or null
      */
     @GetMapping("/profiles")
-    public User findUserData(HttpServletRequest request, HttpServletResponse response) {
+    public User findUserData(HttpServletRequest request, HttpServletResponse response) throws MaximumEmailsException, MustHavePrimaryEmailException {
         //getSession(false) ensures that a session is not created
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("loggedUser") != null) {
@@ -76,6 +69,7 @@ public class UserController {
             response.setStatus(HttpServletResponse.SC_OK);
 
             User user = userRepository.findByUserId(userId);
+            user.setTransientEmailStrings();
 
             user.setPassword(null);
             return user;
@@ -100,10 +94,13 @@ public class UserController {
             Long userId = ((LoggedUser) session.getAttribute("loggedUser")).getUserId();
             response.setStatus(HttpServletResponse.SC_OK);
 
-            JSONObject emails = new JSONObject();
             User user = userRepository.findByUserId(userId);
+            user.setTransientEmailStrings();
+
+            Map<String, Object> emails = new HashMap<String, Object>();
             emails.put("primaryEmail", user.getPrimaryEmail());
             emails.put("additionalEmails", user.getAdditionalEmails());
+            System.out.println(emails);
             return emails;
         } else {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

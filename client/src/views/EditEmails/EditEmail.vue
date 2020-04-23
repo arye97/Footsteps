@@ -101,18 +101,26 @@
                         console.log('Status = OK. response.data:');
                         console.log(response.data);
 
-                        this.primaryEmail = response.data.primaryEmail;
-                        this.additionalEmails = response.data.additionalEmails;
-                        console.log('THIS.PRIMARYEMAIL BELOW!!!');
+                        this.primaryEmail = response.data["primaryEmail"];
+                        this.additionalEmails = response.data["additionalEmails"];
+
+                        console.log('THIS.PRIMARY EMAIL BELOW!!!');
                         console.log(this.primaryEmail);
                         console.log('TYPE OF PRIMARY EMAIL BELOW');
                         console.log(typeof this.primaryEmail);
+
+                        console.log('THIS.ADDITIONAL EMAILS BELOW!!!');
+                        console.log(this.additionalEmails);
+                        console.log('TYPE OF ADDITIONAL EMAILS BELOW');
+                        console.log(typeof this.additionalEmails);
+
+
                         //Set the drop down list to contain users emails
                         //Fake list of secondary emails until we have the ability to add our own secondary emails
                         //let mock_secondaries = ["fake1@sekj.com", "fake2@skeg.com"];  // JUST FOR TESTING.  REMOVE SOON.
                         //this.additionalEmails = mock_secondaries;
-                        this.additionalEmails = this.secondaryEmails;
-                        this.additionalEmails.push('abc123@gmail.com', '456def@yahoo.com', '777@777.777');
+                        // this.additionalEmails = this.secondaryEmails;
+                        // this.additionalEmails.push('abc123@gmail.com', '456def@yahoo.com', '777@777.777');
                         this.addedEmail = "";
                         //no longer loading, so show data
                         this.loading = false;
