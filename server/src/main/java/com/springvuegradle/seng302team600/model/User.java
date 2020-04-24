@@ -9,6 +9,7 @@ import com.springvuegradle.seng302team600.exception.InvalidUserNameException;
 import com.springvuegradle.seng302team600.exception.UserTooYoungException;
 import com.springvuegradle.seng302team600.exception.MaximumEmailsException;
 import com.springvuegradle.seng302team600.exception.MustHavePrimaryEmailException;
+import com.springvuegradle.seng302team600.payload.RegisterRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -35,6 +36,8 @@ public class User {
     @Column(name = "user_id", nullable = false)
     @JsonProperty("id")
     private Long userId;
+
+    private String token;
 
     @NotNull(message = "Please provide a first name")
     @Column(name = "first_name", length = 15, nullable = false)
@@ -116,12 +119,38 @@ public class User {
      */
     public User() {}
 
+    /**
+     * Builds user from the payload, using getters and setters.
+     * @param userData payload for registering.
+     */
+    public void builder(RegisterRequest userData) {
+        this.setFirstName(userData.getFirstName());
+        this.setMiddleName(userData.getMiddleName());
+        this.setLastName(userData.getLastName());
+        this.setNickName(userData.getNickName());
+        this.setBio(userData.getBio());
+        this.setPrimaryEmail(userData.getPrimaryEmail());
+        this.setPassword(userData.getPassword());
+        this.setDateOfBirth(userData.getDateOfBirth());
+        this.setGender(userData.getGender());
+        this.setFitnessLevel(userData.getFitnessLevel());
+        this.setPassports(userData.getPassports());
+    }
+
     public Long getUserId() {
         return userId;
     }
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public String getFirstName() {
