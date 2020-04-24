@@ -77,7 +77,7 @@ public class User {
     private String password;
 
     @NotNull(message = "Please provide a date of birth")
-    @Column(name = "date_of_birth", nullable = false)
+    @Column(name = "date_of_birth", nullable = false, columnDefinition = "DATE")
     @JsonFormat(pattern="yyyy-MM-dd")
     @JsonProperty("date_of_birth")
     private Date dateOfBirth;
