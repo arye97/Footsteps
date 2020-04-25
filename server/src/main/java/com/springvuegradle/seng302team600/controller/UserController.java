@@ -1,27 +1,22 @@
 package com.springvuegradle.seng302team600.controller;
 
-import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.springvuegradle.seng302team600.model.LoggedUser;
 import com.springvuegradle.seng302team600.payload.RegisterRequest;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.exception.*;
 import com.springvuegradle.seng302team600.service.UserValidationService;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.List;
-import java.util.ArrayList;
 
 @RestController
 public class UserController {
@@ -154,14 +149,18 @@ public class UserController {
      */
     @PutMapping("/profiles/{profileId}")
     public void editProfile(@RequestBody String jsonEditProfileString, HttpServletRequest request,
-                            HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) throws IOException {
+                            HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) throws IOException, UserNotFoundException {
         HttpSession session = request.getSession();
-        if (session != null && session.getAttribute("loggedUser") != null) {
-            String sessionId = session.getId();
-            Long userId = ((LoggedUser)session.getAttribute("loggedUser")).getUserId();
-            if (validUser(userId, sessionId, profileId)) {
+        String token = ""; //TODO retrieve token from header
+        User thisUser = userRepository.findByToken(token);
+        if (thisUser != null) {
+            Long userId = thisUser.getUserId();
+            if (validUser(userId, token, profileId)) {
                 ObjectMapper nodeMapper = new ObjectMapper();
-                User user = userRepository.findById(profileId).get();
+                User user = userRepository.findByUserId(profileId);
+                if (user == null) {
+                    throw new UserNotFoundException(profileId);
+                }
                 //Remove fields that should not be modified here
                 ObjectNode modData = nodeMapper.readValue(jsonEditProfileString, ObjectNode.class);
                 modData.remove("date_of_birth");
@@ -185,11 +184,11 @@ public class UserController {
      * Checks that the session gives the request access to modify the user with a given id
      * This will allow for checking both admins and users
      * @param userId the id of the user linked to the session
-     * @param sessionId the session id/token
+     * @param token the session token
      * @param profileId the id of the user to access the profile of
      * @return true if the session has permission to modify the user; false otherwise
      */
-    private boolean validUser(long userId, String sessionId, long profileId) {
+    private boolean validUser(long userId, String token, long profileId) {
         if (userId == profileId) {
             return true;
         } else {
