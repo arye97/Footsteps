@@ -20,10 +20,10 @@ public class UserValidationService {
      * Generates a token and stores token in repository if valid email and password
      * @param email user's email to login
      * @param password user's password to login
-     * @return the token generated or empty string
+     * @return the token generated or null
      */
     public String login(String email, String password) {
-        String token = "";
+        String token = null;
         Email userEmail = emailRepository.findByEmail(email);
         if (userEmail == null) {
             return token;
@@ -45,6 +45,7 @@ public class UserValidationService {
         User user = userRepository.findByToken(token);
         if (user != null) {
             user.setToken(null);
+            userRepository.save(user);
         }
     }
 

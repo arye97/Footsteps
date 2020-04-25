@@ -70,7 +70,7 @@ public class User {
 
     @NotNull
     @JsonManagedReference
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     //orphan removal removes 'child' when 'parent' is deleted
     private List<Email> emails = new ArrayList<>();
 
@@ -122,8 +122,9 @@ public class User {
     /**
      * Builds user from the payload, using getters and setters.
      * @param userData payload for registering.
+     * @return the built user.
      */
-    public void builder(RegisterRequest userData) {
+    public User builder(RegisterRequest userData) {
         this.setFirstName(userData.getFirstName());
         this.setMiddleName(userData.getMiddleName());
         this.setLastName(userData.getLastName());
@@ -135,6 +136,7 @@ public class User {
         this.setGender(userData.getGender());
         this.setFitnessLevel(userData.getFitnessLevel());
         this.setPassports(userData.getPassports());
+        return this;
     }
 
     public Long getUserId() {
@@ -405,7 +407,7 @@ public class User {
         if (! firstName.matches("[a-zA-Z]+") ) { throw new InvalidUserNameException(); }
         if (! lastName.matches("[a-zA-Z]+") ) { throw new InvalidUserNameException(); }
         if (middleName != null) {
-            if (! middleName.matches("[a-zA-Z]*") ) { throw new InvalidUserNameException(); }
+            if (! middleName.matches("[a-zA-Z]+") ) { throw new InvalidUserNameException(); }
         }
         if (ageCheck(dateOfBirth, 13, true)) { throw new UserTooYoungException(); }
         if (ageCheck(dateOfBirth, 150, false)) { throw new InvalidDateOfBirthException(); }
