@@ -190,7 +190,7 @@
                     passports: this.passports
                 };
                 // The HTTP Post Request
-                server.post('/profiles',
+                await server.post('/profiles',
                     newUser,
                     {
                         headers: {"Access-Control-Allow-Origin": "*", "content-type": "application/json"},
@@ -199,6 +199,7 @@
                 ).then(response => { //If successfully registered the response will have a status of 201
                     if (response.status === 201) {
                         console.log('User Registered Successfully!');
+                        //TODO Store Token for later
                         this.$router.push('/profile'); //Routes to profile on successful register
                     }
                 }).catch(error => {

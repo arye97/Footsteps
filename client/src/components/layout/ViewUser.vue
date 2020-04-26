@@ -42,11 +42,12 @@
                 errored: false
             }
         },
-        mounted() {
+        async mounted() {
             this.loading = true;
-            server.get(  '/profiles',
+            await server.get(  '/profiles',
                 {headers:
-                        {'Content-Type': 'application/json'}, withCredentials: true
+                    //TODO Add Token to header
+                        {"Access-Control-Allow-Origin": "*", 'Content-Type': 'application/json'}, withCredentials: true
                 }, )
             .then(response => {
                 if (response.status === 200) {
@@ -67,7 +68,7 @@
         methods: {
             logout () {
                 server.post('/logout', null,
-                    {
+                    { //TODO Add Token to header
                         headers: {"Access-Control-Allow-Origin": "*", "content-type": "application/json"},
                         withCredentials: true
                     }

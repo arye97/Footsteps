@@ -40,7 +40,7 @@ public class UserController {
      */
     @GetMapping("/profiles")
     public User findUserData(HttpServletRequest request, HttpServletResponse response) {
-        String token = "token1"; //TODO retrieve token from header
+        String token = request.getHeader("Token");
         User user = userRepository.findByToken(token);
         if (user != null) {
             //Security breach if password sent to client
@@ -81,7 +81,7 @@ public class UserController {
         //Gives request status:400 and specifies needed field if null in required field
         User user = userRepository.save(newUser);
         String token = userService.login(newUserData.getPrimaryEmail(), newUserData.getPassword());
-        //TODO add token to header
+        response.setHeader("Token", token);
         response.setStatus(HttpServletResponse.SC_CREATED); //201
     }
 
@@ -113,7 +113,7 @@ public class UserController {
                 }
             }
             response.setStatus(HttpServletResponse.SC_CREATED);
-            //TODO add token to header
+            response.setHeader("Token", token);
             return;
         }
         //email and/or password fields not given
@@ -128,10 +128,9 @@ public class UserController {
      */
     @PostMapping("/logout")
     public String logOut(HttpServletRequest request, HttpServletResponse response) {
-        String token = ""; //TODO retrieve token from header
+        String token = request.getHeader("Token");
         if (!token.isEmpty()) {
             userService.logout(token);
-            //TODO Remove token from header
             response.setStatus(HttpServletResponse.SC_OK);
             return "Logout successful";
         }
@@ -150,8 +149,7 @@ public class UserController {
     @PutMapping("/profiles/{profileId}")
     public void editProfile(@RequestBody String jsonEditProfileString, HttpServletRequest request,
                             HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) throws IOException, UserNotFoundException {
-        HttpSession session = request.getSession();
-        String token = ""; //TODO retrieve token from header
+        String token = request.getHeader("Token");
         User thisUser = userRepository.findByToken(token);
         if (thisUser != null) {
             Long userId = thisUser.getUserId();

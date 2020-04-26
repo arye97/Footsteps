@@ -7,6 +7,8 @@ import com.springvuegradle.seng302team600.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
+
 @Service("userService")
 public class UserValidationService {
 
@@ -15,6 +17,18 @@ public class UserValidationService {
 
     @Autowired
     private UserRepository userRepository;
+
+    private static final SecureRandom secureRandom = new SecureRandom();
+
+    /**
+     * Login helper function. Generates a random String value for token, to be stored in the database.
+     * @return Random String for Token
+     */
+    public String generateNewToken() {
+        byte[] randomBytes = new byte[48];
+        secureRandom.nextBytes(randomBytes);
+        return randomBytes.toString(); //TODO Check randomness, should be a very random and long string
+    }
 
     /**
      * Generates a token and stores token in repository if valid email and password
@@ -26,11 +40,11 @@ public class UserValidationService {
         String token = null;
         Email userEmail = emailRepository.findByEmail(email);
         if (userEmail == null) {
-            return token;
+            return null;
         }
         User user = userEmail.getUser();
         if (user.checkPassword(password)) {
-            //TODO Make the token
+            token = generateNewToken();
             user.setToken(token);
             userRepository.save(user);
         }

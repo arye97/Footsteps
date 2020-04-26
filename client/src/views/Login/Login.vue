@@ -72,6 +72,7 @@
                 ).then(response => { //If successfully logged the response will have a status of 201
                     if (response.status === 201) {
                         console.log('User Logged In Successfully!');
+                        //TODO Store Token for later
                         this.$router.push("/profile"); //Route to profile screen on successful login
                     }
                 }).catch(error => { //If an error occurs during login (includes server side errors)

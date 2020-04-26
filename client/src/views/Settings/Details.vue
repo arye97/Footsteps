@@ -219,7 +219,7 @@
             putUpdate: function (update, alertDiv) {
               //Sends the put request to the server to update the user profile
                 server.put('profiles/'.concat(this.profileId), update,
-                  {headers: {'Content-Type': 'application/json'},
+                  {headers: {'Content-Type': 'application/json'}, //TODO Add Token to header
                     withCredentials: true}).then(() => {
                     alertDiv.classList.add("alert-success");
                     alertDiv.classList.remove("alert-danger");
@@ -239,7 +239,7 @@
 
             updateInputs: function () {
               //Updates the input fields to contain the info stored in the database
-              server.get('/profiles', {headers:
+              server.get('/profiles', {headers: //TODO Add Token to header
               {'Content-Type': 'application/json'}, withCredentials: true
               }, ).then(response => {
                 this.profileId = response.data.id;

@@ -2,18 +2,12 @@ package com.springvuegradle.seng302team600.service;
 
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.RegisterRequest;
-import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.Calendar;
 
