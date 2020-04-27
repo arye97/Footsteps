@@ -5,7 +5,6 @@ Vue.config.productionTip = false;
 import VueLogger from 'vuejs-logger';
 import router from './index'
 
-
 Vue.config.productionTip = false;
 
 Vue.use(VueLogger);
@@ -19,11 +18,11 @@ new Vue({
 });
 
 /* Token for authentication */
-// const tokenStore = {
-//   state: {
-//     token: null
-//   },
-//   setToken(newToken) {
-//     this.token = newToken
-//   }
-// };
+export const tokenStore = {
+  state: {
+    token: null
+  },
+  setToken(newToken) {
+    tokenStore.state.token = newToken
+  }
+};

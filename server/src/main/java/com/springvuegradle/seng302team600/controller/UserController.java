@@ -68,7 +68,7 @@ public class UserController {
      * @throws InvalidUserNameException thrown if user's name is invalid
      */
     @PostMapping("/profiles")
-    public void newUser(@Validated @RequestBody RegisterRequest newUserData, HttpServletRequest request, HttpServletResponse response)
+    public String newUser(@Validated @RequestBody RegisterRequest newUserData, HttpServletRequest request, HttpServletResponse response)
             throws EmailAlreadyRegisteredException, InvalidDateOfBirthException, UserTooYoungException, InvalidUserNameException {
         if (emailRepository.existsEmailByEmail(newUserData.getPrimaryEmail())) {
             throw new EmailAlreadyRegisteredException(newUserData.getPrimaryEmail());
@@ -84,9 +84,8 @@ public class UserController {
         //Gives request status:400 and specifies needed field if null in required field
         User user = userRepository.save(newUser);
         String token = userService.login(newUserData.getPrimaryEmail(), newUserData.getPassword());
-        response.setHeader("Token", token);
         response.setStatus(HttpServletResponse.SC_CREATED); //201
-        System.out.println(response.getHeaderNames());
+        return token;
     }
 
     /**
@@ -99,7 +98,7 @@ public class UserController {
      * @throws IncorrectPasswordException thrown if password was incorrect for given user
      */
     @PostMapping("/login")
-    public void logIn(@RequestBody String jsonLogInString, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, UserNotFoundException, IncorrectPasswordException {
+    public String logIn(@RequestBody String jsonLogInString, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, UserNotFoundException, IncorrectPasswordException {
         ObjectNode node = new ObjectMapper().readValue(jsonLogInString, ObjectNode.class);
 
         if (node.has("email") && node.has("password")) {
@@ -108,8 +107,8 @@ public class UserController {
 
             String token = userService.login(email, password);
 
-            if (token.isEmpty()) {
-                //Token was empty, either email not found or password incorrect
+            if (token == null) {
+                //Token was null, either email not found or password incorrect
                 if (emailRepository.existsEmailByEmail(email)) {
                     throw new IncorrectPasswordException(email);
                 } else {
@@ -117,11 +116,11 @@ public class UserController {
                 }
             }
             response.setStatus(HttpServletResponse.SC_CREATED);
-            response.setHeader("Token", token);
-            return;
+            return token;
         }
         //email and/or password fields not given
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        return null;
     }
 
     /**

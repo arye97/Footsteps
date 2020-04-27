@@ -112,7 +112,7 @@
     import server from '../../Api';
     import Multiselect from 'vue-multiselect'
     import {getCountryNames} from '../../constants';
-    // import tokenStore from '../../main';
+    import {tokenStore} from '../../main';
 
     export default {
         components: { Multiselect },
@@ -199,8 +199,7 @@
                 ).then(response => { //If successfully registered the response will have a status of 201
                     if (response.status === 201) {
                         console.log('User Registered Successfully!');
-                        console.log(response);
-                        // tokenStore.setToken(response.headers.token); //TODO Store Token for later
+                        tokenStore.setToken(response.data);
                         this.$router.push('/profile'); //Routes to profile on successful register
                     }
                 }).catch(error => {

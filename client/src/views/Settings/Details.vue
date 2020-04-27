@@ -103,6 +103,7 @@
     import server from "../../Api";
     import {getCountryNames} from '../../constants';
     import router from '../../index';
+    import {tokenStore} from "../../main";
 
     export default {
         name: "Details.vue",
@@ -219,7 +220,7 @@
             putUpdate: function (update, alertDiv) {
               //Sends the put request to the server to update the user profile
                 server.put('profiles/'.concat(this.profileId), update,
-                  {headers: {'Content-Type': 'application/json'}, //TODO Add Token to header
+                  {headers: {'Content-Type': 'application/json', 'Token': tokenStore.state.token},
                     withCredentials: true}).then(() => {
                     alertDiv.classList.add("alert-success");
                     alertDiv.classList.remove("alert-danger");
@@ -239,8 +240,9 @@
 
             updateInputs: function () {
               //Updates the input fields to contain the info stored in the database
-              server.get('/profiles', {headers: //TODO Add Token to header
-              {'Content-Type': 'application/json'}, withCredentials: true
+              server.get('/profiles',
+                      {headers: {'Content-Type': 'application/json', 'Token': tokenStore.state.token},
+                        withCredentials: true
               }, ).then(response => {
                 this.profileId = response.data.id;
                 this.firstname = response.data.firstname;
