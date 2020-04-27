@@ -17,3 +17,13 @@ new Vue({
   router,
   components: { App }
 });
+
+/* Token for authentication */
+// const tokenStore = {
+//   state: {
+//     token: null
+//   },
+//   setToken(newToken) {
+//     this.token = newToken
+//   }
+// };

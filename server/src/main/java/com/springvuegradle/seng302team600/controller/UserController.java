@@ -41,7 +41,10 @@ public class UserController {
     @GetMapping("/profiles")
     public User findUserData(HttpServletRequest request, HttpServletResponse response) {
         String token = request.getHeader("Token");
-        User user = userRepository.findByToken(token);
+        User user = null;
+        if (token != null) {
+            user = userRepository.findByToken(token);
+        }
         if (user != null) {
             //Security breach if password sent to client
             user.setPassword(null);
@@ -83,6 +86,7 @@ public class UserController {
         String token = userService.login(newUserData.getPrimaryEmail(), newUserData.getPassword());
         response.setHeader("Token", token);
         response.setStatus(HttpServletResponse.SC_CREATED); //201
+        System.out.println(response.getHeaderNames());
     }
 
     /**
@@ -129,7 +133,7 @@ public class UserController {
     @PostMapping("/logout")
     public String logOut(HttpServletRequest request, HttpServletResponse response) {
         String token = request.getHeader("Token");
-        if (!token.isEmpty()) {
+        if (token != null) {
             userService.logout(token);
             response.setStatus(HttpServletResponse.SC_OK);
             return "Logout successful";
@@ -150,7 +154,10 @@ public class UserController {
     public void editProfile(@RequestBody String jsonEditProfileString, HttpServletRequest request,
                             HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) throws IOException, UserNotFoundException {
         String token = request.getHeader("Token");
-        User thisUser = userRepository.findByToken(token);
+        User thisUser = null;
+        if (token != null) {
+            thisUser = userRepository.findByToken(token);
+        }
         if (thisUser != null) {
             Long userId = thisUser.getUserId();
             if (validUser(userId, token, profileId)) {
