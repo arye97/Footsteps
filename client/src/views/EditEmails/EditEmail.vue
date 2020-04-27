@@ -30,7 +30,7 @@
 <!--                        Displays Current Primary Email-->
                             <span>Primary email address:</span><br/>
                         <dt>
-                            <span>{{ this.user.primary_email }}</span>
+                            <span>{{ this.primaryEmail }}</span>
                             <p class="mt-2">
                             </p>
                         </dt>
@@ -84,7 +84,7 @@
                 loading: true,
                 post: null,
                 error: false,
-                user: null,
+                userId: null,
                 primaryEmail: null,
                 additionalEmails: null,
                 selectedEmail: null,
@@ -93,7 +93,7 @@
         },
         mounted() {
             server.get(  `/emails`,
-                {headers:
+                { headers:
                         {'Content-Type': 'application/json'}, withCredentials: true
                 }
             ).then(response => {
@@ -101,9 +101,11 @@
                         console.log('Status = OK. response.data:');
                         console.log(response.data);
 
+                        this.userId = response.data["userId"];
                         this.primaryEmail = response.data["primaryEmail"];
                         this.additionalEmails = response.data["additionalEmails"];
 
+                        console.log("User Id :" + this.userId);
                         console.log('THIS.PRIMARY EMAIL BELOW!!!');
                         console.log(this.primaryEmail);
                         console.log('TYPE OF PRIMARY EMAIL BELOW');
@@ -132,14 +134,14 @@
             })
         },
         methods: {
-            deleteEmail: function() {
+            deleteEmail() {
                 //Remove an email
                 let selectedIndex = this.additionalEmails.indexOf(this.selectedEmail);
                 if (selectedIndex > -1) {
                     this.additionalEmails.splice(selectedIndex, 1);
                 }
             },
-            setPrimary: function() {
+            setPrimary() {
                 //if(this.selectedEmail != null && this.selectedEmail !== "") {
                 let newPrimary = this.selectedEmail;
                 let oldPrimary = this.primaryEmail;
@@ -150,21 +152,20 @@
                 this.deleteEmail();
                 this.additionalEmails.unshift(oldPrimary);
                 // this.primaryEmail = null;
-                this.user.primary_email.primaryEmail = newPrimary;
+                this.primaryEmail = newPrimary;
 
 
                 console.log('newPrimary: ' + newPrimary + ' Old primary: ' + oldPrimary)
                 //}
             },
-            addEmail: function () {
+            addEmail() {
                 //Make sure there are no more than 5 emails already and the email is valid
                 if (this.additionalEmails.length >= 4) {
                     console.log('Error: maximum number of emails reached. Please remove an email before adding any more (Limit 5)')
-                } else if(this.additionalEmails.includes(this.selectedEmail) || (this.primaryEmail == this.selectedEmail)){
+                } else if (this.additionalEmails.includes(this.selectedEmail) || (this.primaryEmail == this.selectedEmail)) {
                     //Can't have duplicate emails
                     console.log("Error: Can't add duplicate email");
-                }
-                else if (/(.+)@(.+){2,}\.(.+){2,}/.test(this.addedEmail)) {
+                } else if (/(.+)@(.+){2,}\.(.+){2,}/.test(this.addedEmail)) {
                     //Email is valid
                     this.additionalEmails.unshift(this.addedEmail);
                 } else {
@@ -172,13 +173,22 @@
                     console.log('Error: Invalid email. Please change to proper email format and try again')
                 }
             },
+
+            // server.put('profiles/'.concat(this.profileId), update,
+            //     {headers: {'Content-Type': 'application/json'},
+            //         withCredentials: true})
+            //
             submitEmail() {
                 const updateEmail = {
                     primaryEmail: this.primaryEmail,
-                    additionalEmails: this.additionalEmails
+                    additionalEmails: this.addedEmail
                 };
-                server.put(`/profiles/${this.user.id}/emails`,
-                    updateEmail
+                server.put(`/profiles/${this.userId}/emails`,
+                    updateEmail,
+                    {
+                        headers: {"Access-Control-Allow-Origin": "*", "content-type": "application/json"},
+                        withCredentials: true
+                    }
                 ).then(function() {
                     console.log('User Emails updated Successfully!');
                 }).catch(error => {

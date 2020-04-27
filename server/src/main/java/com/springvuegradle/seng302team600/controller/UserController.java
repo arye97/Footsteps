@@ -97,11 +97,11 @@ public class UserController {
             User user = userRepository.findByUserId(userId);
             user.setTransientEmailStrings();
 
-            Map<String, Object> emails = new HashMap<String, Object>();
-            emails.put("primaryEmail", user.getPrimaryEmail());
-            emails.put("additionalEmails", user.getAdditionalEmails());
-            System.out.println(emails);
-            return emails;
+            Map<String, Object> userIdAndEmails = new HashMap<String, Object>();
+            userIdAndEmails.put("userId", user.getUserId());
+            userIdAndEmails.put("primaryEmail", user.getPrimaryEmail());
+            userIdAndEmails.put("additionalEmails", user.getAdditionalEmails());
+            return userIdAndEmails;
         } else {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return null;
@@ -185,19 +185,22 @@ public class UserController {
         HttpSession session = request.getSession(false);
 
         if (session != null && session.getAttribute("loggedUser") != null) {
-            if (profileId == userRepository.findByUserId(profileId).getUserId()) {
-                //Gets userId from client session
-                Long userId = ((LoggedUser) session.getAttribute("loggedUser")).getUserId();
-                if (node.has("primary_email") && node.has("additional_email")) {
-                    String primaryEmail = node.get("primary_email").asText();
-                    List<String> additionalEmails = node.findValuesAsText("additional_email");
-                    System.out.println(additionalEmails.toString());
-                    if (userId == profileId) {
-                        User updateUser = userRepository.findByUserId(profileId);
-                        updateUser.setPrimaryEmail(primaryEmail);
-                        updateUser.setAdditionalEmails(additionalEmails);
+            //Gets userId from client session
+            Long userId = ((LoggedUser) session.getAttribute("loggedUser")).getUserId();
+            //              why we need sessionid?
+            if (validUser(userId, session.getId(), profileId)) {
+                User updatedUser = userRepository.findByUserId(profileId);
+                if (updatedUser != null) {
+                    if (node.has("primaryEmail") && node.has("additionalEmails")) {
+                        String primaryEmail = node.get("primaryEmail").asText();
+                        String additionalEmailToBeAdded = node.get("additionalEmails").asText();
+                        List<String> additionalEmails = new ArrayList<>();
+                        additionalEmails.add(additionalEmailToBeAdded);
+
+                        updatedUser.setPrimaryEmail(primaryEmail);
+                        updatedUser.setAdditionalEmails(additionalEmails);
                         response.setStatus(HttpServletResponse.SC_OK);
-                        userRepository.save(updateUser);
+                        userRepository.save(updatedUser);
                     }
                 }
             } else {
