@@ -120,7 +120,7 @@ class UserControllerTest {
                 "  \"primary_email\": \"jsmith@gmail.com\",\n" +
                 "  \"password\": \"pass\",\n" +
                 "  \"date_of_birth\": \"1980-6-4\",\n" +
-                "  \"gender\": \"male\"\n" +
+                "  \"gender\": \"Male\"\n" +
                 "}";
 
         editProfileNastyUserJson = "{\n" +
@@ -129,7 +129,7 @@ class UserControllerTest {
                 "  \"primary_email\": \"janesmith@gmail.com\",\n" +
                 "  \"password\": \"pass\",\n" +
                 "  \"date_of_birth\": \"1980-6-5\",\n" +
-                "  \"gender\": \"female\"\n" +
+                "  \"gender\": \"Female\"\n" +
                 "}";
 
         jsonLoginDetails = "{\n" +
