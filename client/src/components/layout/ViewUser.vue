@@ -35,6 +35,7 @@
 <script>
     import server from "../../Api";
     import {tokenStore} from '../../main';
+    /*import {fitnessLevels} from '../../constants'*/
 
     export default {
         name: "ViewUser",

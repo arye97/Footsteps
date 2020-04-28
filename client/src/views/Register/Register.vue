@@ -111,7 +111,7 @@
 <script>
     import server from '../../Api';
     import Multiselect from 'vue-multiselect'
-    import {getCountryNames} from '../../constants';
+    import {getCountryNames, fitnessLevels} from '../../constants';
     import {tokenStore} from '../../main';
 
     export default {
@@ -129,12 +129,7 @@
                 gender: '',
                 date_of_birth: '',
                 fitness: '',
-                fitnessOptions: [{value: 1, desc: "Unfit, no regular exercise, being active is very rare"},
-                                 {value: 2, desc: "Not overly fit, occasional recreational fitness activity, active a few times a month"},
-                                 {value: 3, desc: "Moderately fit, enjoys fitness activities for recreation, active once or twice a week"},
-                                 {value: 4, desc: "Fit, may compete occasionally in small scale events, active most days"},
-                                 {value: 5, desc: "Very fit, competitive athlete, extremely active"}
-                ],
+                fitnessOptions: fitnessLevels,
                 bio: '',
                 message: "",
                 countries: [],
