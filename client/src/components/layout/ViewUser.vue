@@ -34,6 +34,7 @@
 
 <script>
     import server from "../../Api";
+    import {tokenStore} from '../../main';
 
     export default {
         name: "ViewUser",
@@ -44,11 +45,12 @@
                 errored: false
             }
         },
-        mounted() {
+        async mounted() {
             this.loading = true;
-            server.get(  '/profiles',
+            console.log(tokenStore.state.token);
+            await server.get(  '/profiles',
                 {headers:
-                        {'Content-Type': 'application/json'}, withCredentials: true
+                        {"Access-Control-Allow-Origin": "*", 'Content-Type': 'application/json', 'Token': tokenStore.state.token}, withCredentials: true
                 }, )
             .then(response => {
                 if (response.status === 200) {
@@ -73,12 +75,13 @@
             logout () {
                 server.post('/logout', null,
                     {
-                        headers: {"Access-Control-Allow-Origin": "*", "content-type": "application/json"},
+                        headers: {"Access-Control-Allow-Origin": "*", "content-type": "application/json", 'Token': tokenStore.state.token},
                         withCredentials: true
                     }
                 ).then(response => {
                     console.log(response);
                     console.log('User Logged Out Successfully!');
+                    tokenStore.setToken(null);
                     this.$router.push('/'); //Routes to home on logout
                 }).catch(error => {
                     console.error(error);

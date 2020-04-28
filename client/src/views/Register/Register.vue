@@ -112,6 +112,7 @@
     import server from '../../Api';
     import Multiselect from 'vue-multiselect'
     import {getCountryNames} from '../../constants';
+    import {tokenStore} from '../../main';
 
     export default {
         components: { Multiselect },
@@ -143,7 +144,6 @@
         },
 
         mounted () {
-            console.log(server.baseURL);
             let select = []
             // Create a request variable and assign a new XMLHttpRequest object to it.
             let request = new XMLHttpRequest();
@@ -190,7 +190,7 @@
                     passports: this.passports
                 };
                 // The HTTP Post Request
-                server.post('/profiles',
+                await server.post('/profiles',
                     newUser,
                     {
                         headers: {"Access-Control-Allow-Origin": "*", "content-type": "application/json"},
@@ -199,6 +199,7 @@
                 ).then(response => { //If successfully registered the response will have a status of 201
                     if (response.status === 201) {
                         console.log('User Registered Successfully!');
+                        tokenStore.setToken(response.data);
                         this.$router.push('/profile'); //Routes to profile on successful register
                     }
                 }).catch(error => {

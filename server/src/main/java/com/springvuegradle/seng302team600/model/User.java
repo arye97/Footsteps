@@ -9,6 +9,7 @@ import com.springvuegradle.seng302team600.exception.InvalidUserNameException;
 import com.springvuegradle.seng302team600.exception.UserTooYoungException;
 import com.springvuegradle.seng302team600.exception.MaximumEmailsException;
 import com.springvuegradle.seng302team600.exception.MustHavePrimaryEmailException;
+import com.springvuegradle.seng302team600.payload.RegisterRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -28,6 +29,8 @@ public class User {
 
     private static PasswordEncoder encoder = new BCryptPasswordEncoder();
 
+    private static int tokenDecayTime = 30000 * 30; // 30 minutes (30 sec * 30 mins = 15 mins)
+
     final static public int MAX_EMAILS = 5;
 
     @Id
@@ -35,6 +38,11 @@ public class User {
     @Column(name = "user_id", nullable = false)
     @JsonProperty("id")
     private Long userId;
+
+    private String token;
+
+    @Column(name = "token_time")
+    private Date tokenTime;
 
     @NotNull(message = "Please provide a first name")
     @Column(name = "first_name", length = 15, nullable = false)
@@ -67,7 +75,7 @@ public class User {
 
     @NotNull
     @JsonManagedReference
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     //orphan removal removes 'child' when 'parent' is deleted
     private List<Email> emails = new ArrayList<>();
 
@@ -121,8 +129,48 @@ public class User {
      */
     public User() {}
 
+    /**
+     * Builds user from the payload, using getters and setters.
+     * @param userData payload for registering.
+     * @return the built user.
+     */
+    public User builder(RegisterRequest userData) throws MaximumEmailsException {
+        this.setFirstName(userData.getFirstName());
+        this.setMiddleName(userData.getMiddleName());
+        this.setLastName(userData.getLastName());
+        this.setNickName(userData.getNickName());
+        this.setBio(userData.getBio());
+        this.setPrimaryEmail(userData.getPrimaryEmail());
+        this.setPassword(userData.getPassword());
+        this.setDateOfBirth(userData.getDateOfBirth());
+        this.setGender(userData.getGender());
+        this.setFitnessLevel(userData.getFitnessLevel());
+        this.setPassports(userData.getPassports());
+        return this;
+    }
+
     public Long getUserId() {
         return userId;
+    }
+
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public boolean isTimedOut() {
+        ///time calculated in milliseconds
+        Date now = new Date();
+        long diff = now.getTime() - tokenTime.getTime();
+        return diff >= tokenDecayTime;
+    }
+
+    public void setTokenTime() {
+        this.tokenTime = new Date();
     }
 
     public String getFirstName() {

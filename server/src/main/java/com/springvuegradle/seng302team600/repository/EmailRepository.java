@@ -10,4 +10,6 @@ import java.util.List;
 public interface EmailRepository extends JpaRepository<Email, Long> {
 
     Email findByEmail(String email);
+
+    boolean existsEmailByEmail(String email);
 }

@@ -47,6 +47,8 @@
 
 <script>
     import server from '../../Api';
+    import {tokenStore} from "../../main";
+
     export default {
         data() {
             return {
@@ -63,7 +65,7 @@
                     password: this.password
                 };
                 // Send login post to serve
-                server.post('https://localhost:9499/login',
+                server.post('/login',
                     userLogin,
                     {
                         headers: {"Access-Control-Allow-Origin": "*", "content-type": "application/json"},
@@ -72,6 +74,8 @@
                 ).then(response => { //If successfully logged the response will have a status of 201
                     if (response.status === 201) {
                         console.log('User Logged In Successfully!');
+                        console.log(response.data);
+                        tokenStore.setToken(response.data);
                         this.$router.push("/profile"); //Route to profile screen on successful login
                     }
                 }).catch(error => { //If an error occurs during login (includes server side errors)

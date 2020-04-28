@@ -10,7 +10,7 @@
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item active">
-                            <router-link to="/" class="nav-link">Home</router-link>
+                            <router-link v-if=isLoggedIn to="/profile" class="nav-link">Home</router-link>
                         </li>
                         <li class="nav-item">
                             <router-link to='/register' class="nav-link">Register</router-link>
@@ -29,8 +29,15 @@
 
 
 <script>
+    import {tokenStore} from '../../main';
     export default {
         name: 'Header',
+        methods: {
+            isLoggedIn() {
+                //checks if the user token hasn't timed out, used in header for home button functionality
+                return tokenStore.state.token !== null;
+            }
+        }
     }
 </script>
 

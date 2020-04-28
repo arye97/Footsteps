@@ -8,12 +8,7 @@
     import HomeLayout from '../../components/layout/HomeLayout.vue'
     export default {
         name: "Home",
-        components: {HomeLayout},
-        data () {
-            return {
-                isloggedIn: Log.loggedIn
-            }
-        }
+        components: {HomeLayout}
    }
 </script>
 
