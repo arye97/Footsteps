@@ -73,7 +73,8 @@
 
 <script>
     import server from '../../Api';
-    import Sidebar from '../../components/layout/ProfileEditSidebar'
+    import {tokenStore} from "../../main";
+    import Sidebar from '../../components/layout/ProfileEditSidebar';
     import Multiselect from "vue-multiselect";
 
     export default {
@@ -94,7 +95,8 @@
         mounted() {
             server.get(  `/emails`,
                 { headers:
-                        {'Content-Type': 'application/json'}, withCredentials: true
+                        {'Content-Type': 'application/json',
+                                'Token': tokenStore.state.token}, withCredentials: true
                 }
             ).then(response => {
                     if (response.status === 200) {
@@ -169,7 +171,9 @@
                 server.put(`/profiles/${this.userId}/emails`,
                     updateEmail,
                     {
-                        headers: {"Access-Control-Allow-Origin": "*", "content-type": "application/json"},
+                        headers: {"Access-Control-Allow-Origin": "*",
+                                                 "content-type": "application/json",
+                                                        "Token": tokenStore.state.token},
                         withCredentials: true
                     }
                 ).then(function() {
