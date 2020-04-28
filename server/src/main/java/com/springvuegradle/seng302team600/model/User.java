@@ -29,6 +29,8 @@ public class User {
 
     private static PasswordEncoder encoder = new BCryptPasswordEncoder();
 
+    private static int tokenDecayTime = 30; // 30 minutes
+
     final static public int MAX_EMAILS = 5;
 
     @Id
@@ -38,6 +40,9 @@ public class User {
     private Long userId;
 
     private String token;
+
+    @Column(name = "token_time")
+    private Date tokenTime;
 
     @NotNull(message = "Please provide a first name")
     @Column(name = "first_name", length = 15, nullable = false)
@@ -153,6 +158,15 @@ public class User {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public boolean isTimedOut() {
+        Date now = new Date();
+        return now.compareTo(tokenTime) >= tokenDecayTime || now.compareTo(tokenTime) < 0;
+    }
+
+    public void setTokenTime() {
+        this.tokenTime = new Date();
     }
 
     public String getFirstName() {

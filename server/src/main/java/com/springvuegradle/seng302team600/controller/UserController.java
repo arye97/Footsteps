@@ -41,10 +41,7 @@ public class UserController {
     @GetMapping("/profiles")
     public User findUserData(HttpServletRequest request, HttpServletResponse response) {
         String token = request.getHeader("Token");
-        User user = null;
-        if (token != null) {
-            user = userRepository.findByToken(token);
-        }
+        User user = userService.findByToken(token);
         if (user != null) {
             //Security breach if password sent to client
             user.setPassword(null);
