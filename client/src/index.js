@@ -5,8 +5,8 @@ import Register from './views/Register/Register.vue'
 import Home from './views/Home/Home.vue'
 import EditEmail from "./views/EditEmails/EditEmail";
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
-import Details from "./views/Settings/Details";
-import ViewUser from "./components/layout/ViewUser";
+import Details from "./views/Settings/Details.vue";
+import ViewUser from "./components/layout/ViewUser.vue";
 Vue.use(Router);
 Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);

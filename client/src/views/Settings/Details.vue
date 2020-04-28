@@ -98,7 +98,7 @@
 </template>
 
 <script>
-    import Sidebar from "../../components/layout/ProfileEditSidebar"
+    import Sidebar from "../../components/layout/ProfileEditSidebar.vue"
     import Multiselect from 'vue-multiselect'
     import server from "../../Api";
     import {getCountryNames} from '../../constants';
