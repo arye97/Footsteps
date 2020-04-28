@@ -45,19 +45,17 @@ public class UserController {
         if (user != null) {
             //Security breach if password sent to client
             user.setPassword(null);
-            response.setStatus(HttpServletResponse.SC_OK);
-            return user;
+            response.setStatus(HttpServletResponse.SC_OK); //200
         } else {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return null;
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); //401
         }
+        return user;
     }
 
 
     /**
      * Creates and returns a new User from the requested body
      * @param newUserData payload of request, data to be registered
-     * @param request the http request to the
      * @param response the http response
      * @throws EmailAlreadyRegisteredException thrown if provided email already used
      * @throws InvalidDateOfBirthException thrown if provided DateOfBirth is invalid
@@ -65,7 +63,7 @@ public class UserController {
      * @throws InvalidUserNameException thrown if user's name is invalid
      */
     @PostMapping("/profiles")
-    public String newUser(@Validated @RequestBody RegisterRequest newUserData, HttpServletRequest request, HttpServletResponse response)
+    public String newUser(@Validated @RequestBody RegisterRequest newUserData, HttpServletResponse response)
             throws EmailAlreadyRegisteredException, InvalidDateOfBirthException, UserTooYoungException, InvalidUserNameException {
         if (emailRepository.existsEmailByEmail(newUserData.getPrimaryEmail())) {
             throw new EmailAlreadyRegisteredException(newUserData.getPrimaryEmail());
@@ -79,7 +77,7 @@ public class UserController {
         //Saving generates user id
         //If mandatory fields not given, exception in UserRepository.save ends function execution and makes response body
         //Gives request status:400 and specifies needed field if null in required field
-        User user = userRepository.save(newUser);
+        userRepository.save(newUser);
         String token = userService.login(newUserData.getPrimaryEmail(), newUserData.getPassword());
         response.setStatus(HttpServletResponse.SC_CREATED); //201
         return token;
@@ -88,14 +86,14 @@ public class UserController {
     /**
      * Logs in a valid user with a registered email and password
      * @param jsonLogInString the json body of the request as a string
-     * @param request the http request to the endpoint
      * @param response the http response
      * @throws JsonProcessingException thrown if there is an issue when converting the body to an object node
      * @throws UserNotFoundException thrown if user email not found in repository
      * @throws IncorrectPasswordException thrown if password was incorrect for given user
+     * @return token to be stored by the client.
      */
     @PostMapping("/login")
-    public String logIn(@RequestBody String jsonLogInString, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, UserNotFoundException, IncorrectPasswordException {
+    public String logIn(@RequestBody String jsonLogInString, HttpServletResponse response) throws JsonProcessingException, UserNotFoundException, IncorrectPasswordException {
         ObjectNode node = new ObjectMapper().readValue(jsonLogInString, ObjectNode.class);
 
         if (node.has("email") && node.has("password")) {
@@ -112,91 +110,59 @@ public class UserController {
                     throw new UserNotFoundException(email);
                 }
             }
-            response.setStatus(HttpServletResponse.SC_CREATED);
+            response.setStatus(HttpServletResponse.SC_CREATED); //201
             return token;
         }
         //email and/or password fields not given
-        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
         return null;
     }
 
     /**
      * Logs out a user if they are not already logged out.
      * @param request the http request to the endpoint
-     * @param response the http response
-     * @return String, Success status.
+     * @param response the http response.
      */
     @PostMapping("/logout")
-    public String logOut(HttpServletRequest request, HttpServletResponse response) {
+    public void logOut(HttpServletRequest request, HttpServletResponse response) {
         String token = request.getHeader("Token");
         if (token != null) {
             userService.logout(token);
-            response.setStatus(HttpServletResponse.SC_OK);
-            return "Logout successful";
+            response.setStatus(HttpServletResponse.SC_OK); //200
         }
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        return "Already logged out";
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN); //403
     }
 
     /**
-     *
+     * If the current user has authorization edit user with given id.
      * @param jsonEditProfileString the json body of the request as a string
      * @param request the http request to the endpoint
      * @param response the http response
      * @param profileId user id obtained from the request url
      * @throws JsonProcessingException thrown if there is an issue when converting the body to an object node
+     * @throws UserNotFoundException throws if requested user not found.
      */
     @PutMapping("/profiles/{profileId}")
     public void editProfile(@RequestBody String jsonEditProfileString, HttpServletRequest request,
-                            HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) throws IOException, UserNotFoundException {
+                            HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) throws UserNotFoundException, IOException {
         String token = request.getHeader("Token");
-        User thisUser = null;
-        if (token != null) {
-            thisUser = userRepository.findByToken(token);
+        ObjectMapper nodeMapper = new ObjectMapper();
+        User user = userService.findByUserId(token, profileId);
+        if (user == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); //401
+            return;
         }
-        if (thisUser != null) {
-            Long userId = thisUser.getUserId();
-            if (validUser(userId, token, profileId)) {
-                ObjectMapper nodeMapper = new ObjectMapper();
-                User user = userRepository.findByUserId(profileId);
-                if (user == null) {
-                    throw new UserNotFoundException(profileId);
-                }
-                //Remove fields that should not be modified here
-                ObjectNode modData = nodeMapper.readValue(jsonEditProfileString, ObjectNode.class);
-                modData.remove("date_of_birth");
-                modData.remove("primary_email");
-                modData.remove("additional_email");
-                modData.remove("password");
+        //Remove fields that should not be modified here
+        ObjectNode modData = nodeMapper.readValue(jsonEditProfileString, ObjectNode.class);
+        modData.remove("date_of_birth");
+        modData.remove("primary_email");
+        modData.remove("additional_email");
+        modData.remove("password");
 
-                ObjectReader userReader = nodeMapper.readerForUpdating(user);
-                User modUser = userReader.readValue(modData);
-                userRepository.save(modUser);
-            } else {
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            }
-        } else {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        }
+        ObjectReader userReader = nodeMapper.readerForUpdating(user);
+        User modUser = userReader.readValue(modData);
+        userRepository.save(modUser);
+        response.setStatus(HttpServletResponse.SC_OK); //200
     }
-
-    /**
-     * Will need to be changed later when the database is fully implemented
-     * Checks that the session gives the request access to modify the user with a given id
-     * This will allow for checking both admins and users
-     * @param userId the id of the user linked to the session
-     * @param token the session token
-     * @param profileId the id of the user to access the profile of
-     * @return true if the session has permission to modify the user; false otherwise
-     */
-    private boolean validUser(long userId, String token, long profileId) {
-        if (userId == profileId) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-
 
 }
