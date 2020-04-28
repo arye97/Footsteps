@@ -29,7 +29,7 @@ public class User {
 
     private static PasswordEncoder encoder = new BCryptPasswordEncoder();
 
-    private static int tokenDecayTime = 30; // 30 minutes
+    private static int tokenDecayTime = 30000 * 30; // 30 minutes (30 sec * 30 mins = 15 mins)
 
     final static public int MAX_EMAILS = 5;
 
@@ -161,8 +161,10 @@ public class User {
     }
 
     public boolean isTimedOut() {
+        ///time calculated in milliseconds
         Date now = new Date();
-        return now.compareTo(tokenTime) >= tokenDecayTime || now.compareTo(tokenTime) < 0;
+        long diff = now.getTime() - tokenTime.getTime();
+        return diff >= tokenDecayTime;
     }
 
     public void setTokenTime() {
