@@ -36,23 +36,6 @@ public class UserController {
     }
 
     /**
-     * For testing
-     * Return a list of Users saved in the repository
-     */
-    @GetMapping("/listprofile")
-    public List<User> all() {
-        // Use this to see the location in memory of each User
-//        List<User> users = repository.findAll();
-//        for (User user : users) {
-//            System.out.println(user.toString());
-//        }
-//        return users;
-
-        // create email
-        return userRepository.findAll();
-    }
-
-    /**
      * Return a User saved in the repository via userId
      *
      * @param request
