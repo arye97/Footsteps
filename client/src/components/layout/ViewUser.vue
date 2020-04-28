@@ -21,7 +21,7 @@
                     <span>Additional Emails: {{ this.user.additional_email.join(", ") }}</span><br/>
                     <button type="button" class="btn btn-link" v-on:click="editEmail">Edit Emails</button><br/>
                     <span v-if="this.user.passports">Passports: {{this.user.passports.join(", ")}}</span><br/>
-                    <span v-if="this.user.fitness">Fitness Level: {{this.user.fitness}}</span><br/>
+                    <span v-if="this.user.fitness">Fitness Level: {{this.fitness}}</span><br/>
                     <span v-if="this.user.bio">Bio: {{ this.user.bio }}</span><br/>
                 </span>
                 <button type="submit" class="btn btn-link" v-on:click="logout" >Logout</button>
@@ -35,7 +35,7 @@
 <script>
     import server from "../../Api";
     import {tokenStore} from '../../main';
-    /*import {fitnessLevels} from '../../constants'*/
+    import {fitnessLevels} from '../../constants'
 
     export default {
         name: "ViewUser",
@@ -43,7 +43,8 @@
             return {
                 user: null,
                 loading: true,
-                errored: false
+                errored: false,
+                fitness: null
             }
         },
         async mounted() {
@@ -59,6 +60,11 @@
                     console.log(response.data);
                     //user is set to the user data retrieved
                     this.user = response.data;
+                    for (var i = 0; i < fitnessLevels.length; i++) {
+                        if (fitnessLevels[i].value == this.user.fitness) {
+                            this.fitness = fitnessLevels[i].desc;
+                        }
+                    }
                     //no longer loading, so show data
                     this.loading = false;
                 }
