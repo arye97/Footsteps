@@ -6,10 +6,16 @@
 
 <script>
     import HomeLayout from '../../components/layout/HomeLayout'
+    import Log from '../../views/Login/Login'
     export default {
         name: "Home",
-        components: {HomeLayout}
-    }
+        components: {HomeLayout},
+        data () {
+            return {
+                isloggedIn: Log.loggedIn
+            }
+        }
+   }
 </script>
 
 <style scoped>

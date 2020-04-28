@@ -1,6 +1,7 @@
 package com.springvuegradle.seng302team600.model;
 
 
+import com.springvuegradle.seng302team600.exception.MaximumEmailsException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +20,7 @@ class EmailTest {
     }
 
     @Test
-    void setUser_Successful_WhenUserExists() {
+    void setUser_Successful_WhenUserExists() throws MaximumEmailsException {
         String primaryEmail = "ferrymanperry@arrmatey.org";
         userTest.setPrimaryEmail(primaryEmail);
         emailTest = userTest.getEmails().get(0);
