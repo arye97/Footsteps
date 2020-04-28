@@ -145,7 +145,8 @@ public class UserController {
         
         
     @PostMapping("/profiles/{profileId}/emails")
-    public void addEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, UserNotFoundException, EmailAlreadyRegisteredException, MaximumEmailsException, MustHavePrimaryEmailException {
+    public void addEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response)
+            throws JsonProcessingException, UserNotFoundException, EmailAlreadyRegisteredException, MaximumEmailsException, MustHavePrimaryEmailException {
         ObjectNode node = new ObjectMapper().readValue(jsonString, ObjectNode.class);
         HttpSession session = request.getSession(false);
 

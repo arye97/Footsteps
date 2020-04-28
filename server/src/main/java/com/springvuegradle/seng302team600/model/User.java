@@ -125,10 +125,6 @@ public class User {
         return userId;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
     public String getFirstName() {
         return firstName;
     }
@@ -204,7 +200,7 @@ public class User {
                 }
             }
 
-            // If newPrimaryEmail in Email list
+            // Change newPrimaryEmail to primary email
             for (Email email : emails) {
                 if (email.getEmail().equals(newPrimaryEmail)) {
                     primaryEmail = newPrimaryEmail;

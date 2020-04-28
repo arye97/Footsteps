@@ -116,13 +116,6 @@
                         console.log('TYPE OF ADDITIONAL EMAILS BELOW');
                         console.log(typeof this.additionalEmails);
 
-
-                        //Set the drop down list to contain users emails
-                        //Fake list of secondary emails until we have the ability to add our own secondary emails
-                        //let mock_secondaries = ["fake1@sekj.com", "fake2@skeg.com"];  // JUST FOR TESTING.  REMOVE SOON.
-                        //this.additionalEmails = mock_secondaries;
-                        // this.additionalEmails = this.secondaryEmails;
-                        // this.additionalEmails.push('abc123@gmail.com', '456def@yahoo.com', '777@777.777');
                         this.addedEmail = "";
                         //no longer loading, so show data
                         this.loading = false;
@@ -142,16 +135,10 @@
                 }
             },
             setPrimary() {
-                //if(this.selectedEmail != null && this.selectedEmail !== "") {
                 let newPrimary = this.selectedEmail;
                 let oldPrimary = this.primaryEmail;
-                //let selectedIndex = this.additionalEmails.indexOf(this.selectedEmail);
-
-                //this.additionalEmails[selectedIndex] = oldPrimary;
-                //this.primaryEmail = newPrimary;
                 this.deleteEmail();
                 this.additionalEmails.unshift(oldPrimary);
-                // this.primaryEmail = null;
                 this.primaryEmail = newPrimary;
 
 
@@ -174,10 +161,6 @@
                 }
             },
 
-            // server.put('profiles/'.concat(this.profileId), update,
-            //     {headers: {'Content-Type': 'application/json'},
-            //         withCredentials: true})
-            //
             submitEmail() {
                 const updateEmail = {
                     primaryEmail: this.primaryEmail,
