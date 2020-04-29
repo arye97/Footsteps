@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div id="app">
         <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
         <h1><br/></h1>
         <header class="masthead">
@@ -23,36 +23,36 @@
 
             <div class="form-group">
                 <!-- full-name field-->
-                <label for="first-name">First Name: *</label>
+                <label id="first-name-label" for="first-name">First Name: *</label>
                 <input type="text" class="form-control" v-model="firstname" id="first-name" name="first-name" placeholder="Your First Name..." required>
             </div>
             <div class="form-group">
                 <!-- full-name field-->
-                <label for="middle-name">Middle Name: </label>
+                <label id="middle-name-label" for="middle-name">Middle Name: </label>
                 <input type="text" class="form-control" v-model="middlename" id="middle-name" name="middle-name" placeholder="Your Middle Name...">
             </div>
             <div class="form-group">
                 <!-- full-name field-->
-                <label for="last-name">Last Name: *</label>
+                <label id="last-name-label" for="last-name">Last Name: *</label>
                 <input type="text" class="form-control" v-model="lastname" id="last-name" name="last-name" placeholder="Your Last Name..." required>
             </div>
             <div class="form-group">
                 <!-- email field -->
-                <label for="email">Email Address: *</label>
+                <label id="email-label" for="email">Email Address: *</label>
                 <input type="email" class="form-control" v-model="email" id="email" name="email" placeholder="Your Email Address..." required>
             </div>
             <div class="form-group">
                 <!-- password field-->
-                <label for="password">Password: *</label>
+                <label id="password-label" for="password">Password: *</label>
                 <input type="password" class="form-control" v-model="password" id="password" name="password" placeholder="Your Password..." required>
             </div>
             <div class="form-group">
-                <label for="passwordCheck">Retype your Password: *</label>
+                <label id="passwordCheck-label" for="passwordCheck">Retype your Password: *</label>
                 <input type="password" class="form-control" v-model="passwordCheck" id="passwordCheck" name="passwordCheck" placeholder="Retype Password..." required>
             </div>
             <div class="form-group">
                 <!-- fitness level field -->
-                <label for="fitness">Fitness Level:</label>
+                <label id="fitness-label" for="fitness">Fitness Level:</label>
                 <multiselect v-model="fitness" id="fitness" :options="fitnessOptions" :multiple="false" label="desc" :return="fitnessOptions.desc"
                              placeholder="Please select a fitness level" track-by="value">
                     <template slot="singleLabel" slot-scope="{ option }"><footer> {{ option.desc }}</footer></template>
@@ -60,12 +60,12 @@
             </div>
             <div class="form-group">
                 <!-- nickname field-->
-                <label for="nickname">Nickname: </label>
+                <label id="nickname-label" for="nickname">Nickname: </label>
                 <input type="text" class="form-control" v-model="nickname" id="nickname" name="nickname" placeholder="Your Nickname...">
             </div>
             <div class="form-group">
                 <!-- gender field -->
-                <label for="gender">Gender: *</label>
+                <label id="gender-label" for="gender">Gender: *</label>
                 <multiselect v-model="gender" id="gender"
                              :options="genders" placeholder="Your gender" required>
                     <template slot="noResult">Invalid gender</template>
@@ -73,12 +73,12 @@
             </div>
             <div class="form-group">
                 <!-- date of birth field-->
-                <label for="date_of_birth">Date of Birth: *</label>
+                <label id="date_of_birth-label" for="date_of_birth">Date of Birth: *</label>
                 <input type="date" class="form-control" v-model="date_of_birth" id="date_of_birth" name="date_of_birth" required>
             </div>
             <div class="form-group">
                 <!-- passport country -->
-                <label for="passportCountries">Passport Country:</label>
+                <label id="passportCountries-label" for="passportCountries">Passport Country:</label>
                 <multiselect v-model="passports" id="passportCountries"
                              :options="countries" :multiple="true" :searchable="true" :close-on-select="false"
                              placeholder="Select your passport countries">
@@ -87,7 +87,7 @@
             </div>
             <div class="form-group">
                 <!-- user bio -->
-                <label for="bio">Tell us about yourself, your Bio: </label>
+                <label id="bio-label" for="bio">Tell us about yourself, your Bio: </label>
                 <textarea name="bio" class="form-control" id="bio" v-model="bio" cols="30" rows="1" placeholder="Who are you?"></textarea>
             </div>
             <div class="form-group">

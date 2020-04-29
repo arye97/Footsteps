@@ -62,6 +62,10 @@
     "transform": {
       "^.+\\.vue$": "vue-jest",
       "^.+\\.js$": "babel-jest"
-    }
+    },
+    "moduleNameMapper": {
+      "\\.(css|less)$": "<rootDir>/assets/css/__mocks__/styleMock.js"
+    },
+    "moduleFileExtensions": ["js", "json", "jsx", "ts", "tsx", "node", "vue"]
   }
 }
