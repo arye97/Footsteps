@@ -46,7 +46,6 @@ public class UserController {
     public User findUserData(HttpServletRequest request, HttpServletResponse response) {
         String token = request.getHeader("Token");
         User user = userService.findByToken(token);
-
         if (user != null) {
             user.setTransientEmailStrings();
             //Security breach if password sent to client
@@ -71,17 +70,16 @@ public class UserController {
         if (user == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return null;
+        } else {
+            user.setTransientEmailStrings();
+            Map<String, Object> userIdAndEmails = new HashMap<>();
+            userIdAndEmails.put("userId", user.getUserId());
+            userIdAndEmails.put("primaryEmail", user.getPrimaryEmail());
+            userIdAndEmails.put("additionalEmails", user.getAdditionalEmails());
+            response.setStatus(HttpServletResponse.SC_OK);
+            return userIdAndEmails;
         }
-
-        response.setStatus(HttpServletResponse.SC_OK);
-        user.setTransientEmailStrings();
-        Map<String, Object> userIdAndEmails = new HashMap<>();
-        userIdAndEmails.put("userId", user.getUserId());
-        userIdAndEmails.put("primaryEmail", user.getPrimaryEmail());
-        userIdAndEmails.put("additionalEmails", user.getAdditionalEmails());
-        return userIdAndEmails;
     }
-
 
     /**
      * Creates and returns a new User from the requested body
@@ -98,8 +96,6 @@ public class UserController {
         if (emailRepository.existsEmailByEmail(newUserData.getPrimaryEmail())) {
             throw new EmailAlreadyRegisteredException(newUserData.getPrimaryEmail());
         }
-
-
         User newUser = new User();
         newUser.builder(newUserData);
         //Throws errors if user is erroneous
@@ -113,8 +109,18 @@ public class UserController {
         response.setStatus(HttpServletResponse.SC_CREATED); //201
         return token;
     }
-        
-        
+
+    /**
+     * Adds a list of additional emails to a user
+     * @param jsonString
+     * @param profileId
+     * @param request
+     * @param response
+     * @throws JsonProcessingException
+     * @throws UserNotFoundException
+     * @throws MaximumEmailsException
+     * @throws MustHavePrimaryEmailException
+     */
     @PostMapping("/profiles/{profileId}/emails")
     public void addEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response)
             throws JsonProcessingException, UserNotFoundException, MaximumEmailsException, MustHavePrimaryEmailException {
@@ -125,14 +131,22 @@ public class UserController {
             return;
         }
 
+        //TODO do all this in Service I guess?
+        //TODO Need to check in DB if email provided has already been used or not
         ObjectNode node = new ObjectMapper().readValue(jsonString, ObjectNode.class);
-        if (node.has("primaryEmail") && node.has("additionalEmails")) {
-            String primaryEmail = node.get("primaryEmail").asText();
+        if (node.has("additionalEmails")) {
             String additionalEmailToBeAdded = node.get("additionalEmails").asText();
             List<String> additionalEmails = new ArrayList<>();
             additionalEmails.add(additionalEmailToBeAdded);
 
-            updatedUser.setPrimaryEmail(primaryEmail);
+            for (String email: additionalEmails) {
+                if (emailRepository.existsEmailByEmail(email)) {
+                    // EMAIL IN DB ALREADY DO SOMETHING LIKE MAYBE RETURN TO FRONT END SAYING
+                    // OY! THIS EMAIL IS ALREADY REGISTERED STEP THE Floop UP!!!!!
+                    return;
+                }
+            }
+
             updatedUser.setAdditionalEmails(additionalEmails);
             response.setStatus(HttpServletResponse.SC_OK);
             userRepository.save(updatedUser);
@@ -167,6 +181,14 @@ public class UserController {
             String additionalEmailToBeAdded = node.get("additionalEmails").asText();
             List<String> additionalEmails = new ArrayList<>();
             additionalEmails.add(additionalEmailToBeAdded);
+
+            for (String email: additionalEmails) {
+                if (emailRepository.existsEmailByEmail(email)) {
+                    // EMAIL IN DB ALREADY DO SOMETHING LIKE MAYBE RETURN TO FRONT END SAYING
+                    // OY! THIS EMAIL IS ALREADY REGISTERED STEP THE Floop UP!!!!!
+                    return;
+                }
+            }
 
             updatedUser.setPrimaryEmail(primaryEmail);
             updatedUser.setAdditionalEmails(additionalEmails);
