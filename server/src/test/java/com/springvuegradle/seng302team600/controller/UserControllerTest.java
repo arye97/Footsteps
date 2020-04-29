@@ -16,16 +16,34 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.mockito.Mockito.*;
+import org.mockito.Mock;
+import org.mockito.InjectMocks;
+import com.springvuegradle.seng302team600.repository.UserRepository;
+import com.springvuegradle.seng302team600.repository.EmailRepository;
+import com.springvuegradle.seng302team600.service.UserValidationService;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.*;
+
+
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @SpringBootTest
-@AutoConfigureMockMvc
+//@AutoConfigureMockMvc
 class UserControllerTest {
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private EmailRepository emailRepository;
+    @InjectMocks
+    private UserValidationService userValidationService;
+    @InjectMocks
+    private UserController userController;
 
-    @Autowired
     private MockMvc mvc;
     private MockHttpSession session;
 
@@ -149,6 +167,8 @@ class UserControllerTest {
 
         session = new MockHttpSession();
         objectMapper = new ObjectMapper();
+        userController = new UserController(userRepository, emailRepository, userValidationService);
+        mvc = standaloneSetup(userController).build();
     }
 
     @Test

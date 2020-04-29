@@ -8,6 +8,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import static org.mockito.Mockito.*;
+import org.mockito.Mock;
 
 import java.util.Calendar;
 
@@ -16,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 class UserValidationServiceTest {
 
-    @Autowired
+    @Mock
     private UserRepository userRepository;
 
     @Autowired
@@ -27,7 +29,7 @@ class UserValidationServiceTest {
     private Long userId;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws Exception {
         userData = new RegisterRequest();
         userData.setFirstName("Bill");
         userData.setLastName("Ford");
