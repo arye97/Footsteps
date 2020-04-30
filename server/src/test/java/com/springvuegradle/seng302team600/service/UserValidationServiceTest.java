@@ -1,15 +1,20 @@
 package com.springvuegradle.seng302team600.service;
 
+import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.RegisterRequest;
+import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import static org.mockito.Mockito.*;
 import org.mockito.Mock;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Calendar;
 
@@ -18,8 +23,10 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 class UserValidationServiceTest {
 
-    @Mock
+    @MockBean
     private UserRepository userRepository;
+    @MockBean
+    private EmailRepository emailRepository;
 
     @Autowired
     private UserValidationService userService;
@@ -27,6 +34,8 @@ class UserValidationServiceTest {
     private RegisterRequest userData;
 
     private Long userId;
+    private User dummyUser;
+    private Email dummyEmail;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -40,8 +49,41 @@ class UserValidationServiceTest {
                 .setTimeOfDay(14, 0, 0)
                 .build().getTime());
         userData.setGender(User.Gender.MALE);
-        User user = userRepository.save(new User().builder(userData));
-        userId = user.getUserId();
+        dummyUser = new User();
+        dummyUser.builder(userData);
+        dummyEmail = new Email(dummyUser.getPrimaryEmail(), true, dummyUser);
+        ReflectionTestUtils.setField(dummyUser, "userId", 1L);
+        ReflectionTestUtils.setField(dummyEmail, "id", 1L);
+        when(userRepository.save(Mockito.any(User.class))).then(i -> {
+            dummyUser = i.getArgument(0);
+            return dummyUser;
+        });
+        when(userRepository.findByUserId(Mockito.anyLong())).thenAnswer(i -> {
+            System.out.printf("%d %d", i.getArgument(0), dummyUser.getUserId());
+            if (i.getArgument(0).equals(dummyUser.getUserId())) return dummyUser;
+            else return null;
+        });
+        when(userRepository.findByToken(Mockito.anyString())).thenAnswer(i -> {
+            if (i.getArgument(0).equals(dummyUser.getToken())) return dummyUser;
+            else return null;
+        });
+        when(emailRepository.save(Mockito.any(Email.class))).then(i -> {
+            dummyEmail = i.getArgument(0);
+            return dummyEmail;
+        });
+        when(emailRepository.findByEmail(Mockito.anyString())).thenAnswer(i -> {
+            if (i.getArgument(0).equals(dummyEmail.getEmail())) return dummyEmail;
+            else return null;
+        });
+        when(emailRepository.getOne(Mockito.anyLong())).thenAnswer(i -> {
+            if (i.getArgument(0).equals(dummyEmail.getId())) return dummyEmail;
+            else return null;
+        });
+        when(emailRepository.existsEmailByEmail(Mockito.anyString())).thenAnswer(i -> {
+            if (i.getArgument(0).equals(dummyEmail.getEmail())) return dummyEmail;
+            else return null;
+        });
+        userId = dummyUser.getUserId();
     }
 
     @AfterEach
@@ -66,10 +108,11 @@ class UserValidationServiceTest {
     @Test
     public void tokenIsRemovedFromUser() {
         String token = "testToken";
+        System.out.println(userId);
         User user = userRepository.findByUserId(userId);
+        System.out.println(user);
         user.setToken(token);
         userRepository.save(user);
-
         userService.logout(token);
         user = userRepository.findByUserId(userId);
         assertNull(user.getToken());
