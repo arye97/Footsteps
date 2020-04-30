@@ -16,14 +16,14 @@
     "bootstrap-select": "^1.13.12",
     "bootstrap-vue": "^2.5.0",
     "core-js": "^3.6.4",
+    "jest-each": "latest",
     "jquery": "^3.4.1",
     "serve": "^11.3.0",
     "vue": "^2.6.11",
     "vue-multiselect": "^2.1.6",
     "vue-router": "^3.1.5",
     "vuejs-logger": "^1.5.4",
-    "vuex": "^3.1.2",
-    "jest-each": "latest"
+    "vuex": "^3.1.2"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.2.0",
@@ -66,6 +66,14 @@
     "moduleNameMapper": {
       "\\.(css|less)$": "<rootDir>/assets/css/__mocks__/styleMock.js"
     },
-    "moduleFileExtensions": ["js", "json", "jsx", "ts", "tsx", "node", "vue"]
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "jsx",
+      "ts",
+      "tsx",
+      "node",
+      "vue"
+    ]
   }
 }
