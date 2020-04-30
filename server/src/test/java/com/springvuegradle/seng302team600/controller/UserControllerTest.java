@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.springvuegradle.seng302team600.exception.MaximumEmailsException;
 import com.springvuegradle.seng302team600.exception.UserNotFoundException;
 import com.springvuegradle.seng302team600.model.Email;
-import com.springvuegradle.seng302team600.model.LoggedUser;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.RegisterRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +14,10 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import com.springvuegradle.seng302team600.advice.ExceptionAdvice;
+import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -27,16 +30,13 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import static org.mockito.Mockito.*;
 import org.mockito.Mock;
 import org.mockito.InjectMocks;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.service.UserValidationService;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.setup.MockMvcBuilders.*;
-
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import static org.mockito.Mockito.*;
 
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -53,7 +53,6 @@ class UserControllerTest {
     private UserValidationService userValidationService;
     @Autowired
     private MockMvc mvc;
-    private MockHttpSession session;
 
     private String createUserJsonPost;
     private String userMissJsonPost;
@@ -178,7 +177,6 @@ class UserControllerTest {
                 "  \"password\": \"bobbyPwd\"\n" +
                 "}";
 
-        session = new MockHttpSession();
         objectMapper = new ObjectMapper();
         MockitoAnnotations.initMocks(this);
         dummyUser = new User();
@@ -276,155 +274,107 @@ class UserControllerTest {
         MvcResult result = mvc.perform(httpReq)
                 .andExpect(status().isCreated())
                 .andReturn();
-        String token = result.getResponse().getContentAsString();
-        // Test session
-        System.out.println(token);
-        verify(userRepository).save(Mockito.any(User.class));
-        assertFalse(token.isEmpty());
+        // Test Token
+        assertNotNull(result.getResponse());
     }
 
     @Test
-    /**Test findUserData, authorized and unauthorized conditions*/
-    public void findUserDataTest() throws Exception {
-        setupMocking(createUserJsonPostFindUser);
-
-        // Get profile (Unauthorized)
+    public void findUserDataUnauthorized() throws Exception {
+        String token = "WrongToken"; // Tokens are 30 chars long.
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/profiles")
-                .session(session);
+                .header("Token", token);
 
         MvcResult result = mvc.perform(request)
                 .andExpect(status().isUnauthorized())
                 .andReturn();
+        assertTrue(result.getResponse().getContentAsString().isEmpty());
+    }
 
-        // Test result (null)
-        assertEquals("", result.getResponse().getContentAsString());
-
-        // Register profile
-//        request = MockMvcRequestBuilders.post("/profiles")
-//                .content(createUserJsonPostFindUser)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .accept(MediaType.APPLICATION_JSON);
-//
-//        MvcResult tokenResult = mvc.perform(request)
-//                .andExpect(status().isCreated())
-//                .andReturn();
-//        String token = tokenResult.getResponse().getContentAsString();
-//        System.out.println(token);
-//        System.out.println(dummyUser);
-//        System.out.println(dummyEmail);
-        // Get profile (Authorized)
-        request = MockMvcRequestBuilders.get("/profiles")
+    @Test
+    public void findUserDataAuthorized() throws Exception {
+        setupMocking(createUserJsonPostFindUser);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/profiles")
                 .header("Token", validToken);
-
-        result = mvc.perform(request)
+        MvcResult result = mvc.perform(request)
                 .andExpect(status().isOk())
                 .andReturn();
-
-        // Get Response as JsonNode
         String jsonResponseStr = result.getResponse().getContentAsString();
         JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
-
-        // Test response
         assertEquals("Tim", jsonNode.get("firstname").asText());
     }
 
     @Test
-    /**Tests login conditions, successful and unsuccessful*/
-    public void logInTest() throws Exception {
+    public void doNotLoginIncorrectPassword() throws Exception {
         setupMocking(createUserJsonPostLogin);
-        MockHttpServletRequestBuilder request;
-
-        // Login profile (Incorrect Password)
-        request = MockMvcRequestBuilders.post("/login")
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/login")
                 .content(jsonLoginDetailsIncorrectPass)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
 
         mvc.perform(request)
                 .andExpect(status().isUnauthorized());
+    }
 
-        // Login profile (User not found)
-        request = MockMvcRequestBuilders.post("/login")
+    @Test
+    public void doNotLoginUserNotFound() throws Exception {
+        setupMocking(createUserJsonPostLogin);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/login")
                 .content(jsonLoginDetailsUserNotFound)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
 
         mvc.perform(request)
                 .andExpect(status().isUnauthorized());
+    }
 
-        // Login profile (Success)
-        request = MockMvcRequestBuilders.post("/login")
+    @Test
+    public void loginAuthorizedUser() throws Exception {
+        setupMocking(createUserJsonPostLogin);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/login")
                 .content(jsonLoginDetails)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
 
-        // Perform POST
         MvcResult result = mvc.perform(request)
                 .andExpect(status().isCreated())
                 .andReturn();
 
-        // Test session
         assertNotNull(result.getResponse().getContentAsString());
     }
 
     @Test
-    /**Tests logout conditions, successful and forbidden*/
-    public void logOutTest() throws Exception {
-        setupMocking(createUserJsonPostLogout);
-        // Logout profile (Already logged out)
+    public void forbiddenLogoutIfTokenNotFound() throws Exception {
+        //System won't care if the token is wrong, as long as it isn't null
+        //String token = "WrongToken"; // Tokens are 30 chars long.
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/logout")
                 .accept(MediaType.APPLICATION_JSON);
-
-        // Perform POST
-        MvcResult result;
+                //.header("Token", token);
         mvc.perform(request)
-                .andExpect(status().isForbidden())
-                .andReturn();
+                .andExpect(status().isForbidden());
+    }
 
-        // Test response
-        //assertEquals("Already logged out", result.getResponse().getContentAsString());
-
-        // Register profile
-//        request = MockMvcRequestBuilders.post("/profiles")
-//                .content(createUserJsonPostLogout)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .accept(MediaType.APPLICATION_JSON)
-//                .session(session);
-//
-//        mvc.perform(request);
-
-        // Logout profile (Logout successful)
-        request = MockMvcRequestBuilders.post("/logout")
-                .contentType(MediaType.APPLICATION_JSON)
+    @Test
+    public void successfulLogout() throws Exception {
+        setupMocking(createUserJsonPostLogout);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/logout")
                 .accept(MediaType.APPLICATION_JSON)
                 .header("Token", validToken);
-
-        // Perform POST
-        //result =
         mvc.perform(request)
-                .andExpect(status().isOk())
-                .andReturn();
-
-        // Test response
-        //assertEquals("Logout successful", result.getResponse().getContentAsString());
+                .andExpect(status().isOk());
     }
 
     @Test
     /**Test if a user can be edited successfully*/
     public void editProfileSuccessfulTest() throws Exception {
         setupMocking(editProfileUserJson);
-        // Register a new user to edit the profile of
-//        MockHttpServletRequestBuilder registerRequest = MockMvcRequestBuilders.post("/profiles")
-//                .content(editProfileUserJson)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .accept(MediaType.APPLICATION_JSON);
-//
-//        MvcResult tokenResult = mvc.perform(registerRequest)
-//                .andExpect(status().isCreated())
-//                .andReturn();
-//        String token = tokenResult.getResponse().getContentAsString();
-//        System.out.println(userValidationService.findByToken(token));
-        long userId = dummyUser.getUserId();
+        MockHttpServletRequestBuilder getRequest = MockMvcRequestBuilders.get("/profiles")
+                .header("Token", validToken);
+        MvcResult result = mvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andReturn();
+        String jsonResponseStr = result.getResponse().getContentAsString();
+        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
+        Long userId = jsonNode.get("id").asLong();
 
         // Setup edit profile PUT request and GET request
         MockHttpServletRequestBuilder editRequest = MockMvcRequestBuilders.put("/profiles/{id}", userId)
@@ -432,21 +382,18 @@ class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .header("Token", validToken);
-        MockHttpServletRequestBuilder getRequest = MockMvcRequestBuilders.get("/profiles")
-                .header("Token", validToken);
-
         // Perform PUT
         mvc.perform(editRequest)
                 .andExpect(status().isOk());
 
-        MvcResult result = mvc.perform(getRequest)
+        getRequest = MockMvcRequestBuilders.get("/profiles")
+                .header("Token", validToken);
+        result = mvc.perform(getRequest)
                               .andExpect(status().isOk())
                               .andReturn();
-
         // Get Response as JsonNode
-        String jsonResponseStr = result.getResponse().getContentAsString();
-        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
-
+        jsonResponseStr = result.getResponse().getContentAsString();
+        jsonNode = objectMapper.readTree(jsonResponseStr);
         // Check that fields have been updated
         assertEquals("A guy", jsonNode.get("bio").asText());
         assertEquals("Doe", jsonNode.get("lastname").asText());
@@ -459,21 +406,8 @@ class UserControllerTest {
     /** Tests that a user cannot edit another user's profile */
     public void editProfileFailureTest() throws Exception {
         setupMocking(editProfileNastyUserJson);
-        // Register a new user to not edit the profile of
-//        MockHttpServletRequestBuilder registerRequest = MockMvcRequestBuilders.post("/profiles")
-//                .content(editProfileNastyUserJson)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .accept(MediaType.APPLICATION_JSON);
-//
-//        MvcResult tokenResult = mvc.perform(registerRequest)
-//                .andExpect(status().isCreated())
-//                .andReturn();
-//        String token = tokenResult.getResponse().getContentAsString();
-
-        long userId = dummyUser.getUserId();
-
-        // Setup bad edit profile PUT request
-        MockHttpServletRequestBuilder editRequest = MockMvcRequestBuilders.put("/profiles/{id}", userId - 1)
+        // Setup bad edit profile PUT request, userId will never be -1
+        MockHttpServletRequestBuilder editRequest = MockMvcRequestBuilders.put("/profiles/{id}", -1)
                 .content(editProfileJsonPut)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -481,8 +415,6 @@ class UserControllerTest {
 
         MockHttpServletRequestBuilder getRequest = MockMvcRequestBuilders.get("/profiles")
                 .header("Token", validToken);
-
-        // Perform PUT
         mvc.perform(editRequest)
                 .andExpect(status().isUnauthorized());
     }
