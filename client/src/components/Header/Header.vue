@@ -1,6 +1,6 @@
 
 <template>
-    <div>
+    <div :key="this.isLoggedIn">
         <nav class="navbar navbar-expand-lg navbar-light bg-light shadow fixed-top">
             <div class="container">
                 <a class="navbar-brand" href="#">Hakinakina</a>
@@ -10,13 +10,14 @@
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item active">
-                            <router-link v-if=isLoggedIn to="/profile" class="nav-link">Home</router-link>
+                            <router-link v-if=this.isLoggedIn to="/profile" class="nav-link">Home</router-link>
                         </li>
                         <li class="nav-item">
                             <router-link to='/register' class="nav-link">Register</router-link>
                         </li>
-                        <li class="nav-item">
-                            <router-link to='/login' class="nav-link" >Login</router-link>
+                        <li :key=this.isLoggedIn class="nav-item">
+                            <router-link to="" v-if="this.isLoggedIn" v-on:click.native="logout" class="nav-link">Logout</router-link>
+                            <router-link  v-else to='/login' class="nav-link">Login</router-link>
                         </li>
                     </ul>
                 </div>
@@ -30,15 +31,47 @@
 
 <script>
     import {tokenStore} from '../../main';
+    import server from "../../Api";
     export default {
         name: 'Header',
+        data: function () {
+            return {
+                isLoggedIn : tokenStore.state.token !== null
+            }
+        },
+        watch: {
+            isLoggedIn: function () {
+
+                this.setIsLoggedIn();
+            }
+        },
         methods: {
-            isLoggedIn() {
-                //checks if the user token hasn't timed out, used in header for home button functionality
-                return tokenStore.state.token !== null;
+            setIsLoggedIn: function() {
+                this.isLoggedIn = (tokenStore.state.token !== null);
+            },
+            async logout() {
+                await server.post('/logout', null,
+                    {
+                        headers: {"Access-Control-Allow-Origin": "*", "content-type": "application/json", 'Token': tokenStore.state.token},
+                        withCredentials: true
+                    }
+                ).then(response => {
+                    console.log(response);
+                    console.log('User Logged Out Successfully!');
+                    tokenStore.setToken(null);
+                    this.isLoggedIn = (tokenStore.state.token !== null);
+                    this.$forceUpdate();
+                    this.$router.push('/'); //Routes to home on logout
+                }).catch(error => {
+                    console.error(error);
+                    this.isLoggedIn = (tokenStore.state.token !== null);
+                    this.$forceUpdate();
+                    this.$router.push('/'); //Routes to home on logout
+                })
             }
         }
     }
+
 </script>
 
 <style scoped>

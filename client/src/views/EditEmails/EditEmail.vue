@@ -140,10 +140,7 @@
                 this.deleteEmail();
                 this.additionalEmails.unshift(oldPrimary);
                 this.primaryEmail = newPrimary;
-
-
                 console.log('newPrimary: ' + newPrimary + ' Old primary: ' + oldPrimary)
-                //}
             },
             addEmail() {
                 //Make sure there are no more than 5 emails already and the email is valid

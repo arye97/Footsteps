@@ -173,7 +173,6 @@
         },
 
         methods: {
-
             async registerUser() {
                 // Save the data as a newUser object
                 const newUser = {

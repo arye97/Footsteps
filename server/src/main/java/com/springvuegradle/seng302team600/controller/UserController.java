@@ -233,11 +233,13 @@ public class UserController {
     @PostMapping("/logout")
     public void logOut(HttpServletRequest request, HttpServletResponse response) {
         String token = request.getHeader("Token");
+        System.out.println(token);
         if (token != null) {
             userService.logout(token);
             response.setStatus(HttpServletResponse.SC_OK); //200
+        } else {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN); //403
         }
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN); //403
     }
 
     /**
