@@ -17,7 +17,7 @@ public class ExceptionAdvice {
 
     @ResponseBody
     @ExceptionHandler(EmailAlreadyRegisteredException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN) //403
+    @ResponseStatus(HttpStatus.CONFLICT) //409. It may be worth consider to a 200 error for security reasons
     public String emailAlreadyRegisteredHandler(EmailAlreadyRegisteredException ex) {
         return ex.getMessage();
     }
@@ -45,26 +45,26 @@ public class ExceptionAdvice {
 
     @ResponseBody
     @ExceptionHandler(InvalidDateOfBirthException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN) //403
+    @ResponseStatus(HttpStatus.BAD_REQUEST) //403
     public String invalidDateOfBirthHandler(InvalidDateOfBirthException ex) { return ex.getMessage(); }
 
     @ResponseBody
     @ExceptionHandler(UserTooYoungException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN) //403
+    @ResponseStatus(HttpStatus.BAD_REQUEST) //403
     public String UserTooYoungExceptionHandler(UserTooYoungException ex) { return ex.getMessage(); }
 
     @ResponseBody
     @ExceptionHandler(InvalidUserNameException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN) //403
+    @ResponseStatus(HttpStatus.BAD_REQUEST) //403
     public String InvalidUserNameExceptionHandler(InvalidUserNameException ex) { return ex.getMessage(); }
 
     @ResponseBody
     @ExceptionHandler(MaximumEmailsException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN) //403
+    @ResponseStatus(HttpStatus.BAD_REQUEST) //403
     public String MaximumEmailsExceptionHandler(MaximumEmailsException ex) { return ex.getMessage(); }
 
     @ResponseBody
     @ExceptionHandler(MustHavePrimaryEmailException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN) //403
+    @ResponseStatus(HttpStatus.BAD_REQUEST) //403
     public String MustHavePrimaryEmailExceptionHandler(MustHavePrimaryEmailException ex) { return ex.getMessage(); }
 }

@@ -14,11 +14,14 @@ import java.util.Date;
 @Service("userService")
 public class UserValidationService {
 
-    @Autowired
-    private EmailRepository emailRepository;
+    public final UserRepository userRepository;
+    public final EmailRepository emailRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    public UserValidationService(UserRepository userRepository, EmailRepository emailRepository) {
+        this.userRepository = userRepository;
+        this.emailRepository = emailRepository;
+    }
 
     private static final String CHAR_LIST =
             "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";

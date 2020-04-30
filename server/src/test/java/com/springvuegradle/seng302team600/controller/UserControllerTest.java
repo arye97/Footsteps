@@ -1,16 +1,27 @@
 package com.springvuegradle.seng302team600.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.springvuegradle.seng302team600.exception.MaximumEmailsException;
+import com.springvuegradle.seng302team600.exception.UserNotFoundException;
+import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.LoggedUser;
+import com.springvuegradle.seng302team600.model.User;
+import com.springvuegradle.seng302team600.payload.RegisterRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -32,18 +43,15 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@SpringBootTest
-//@AutoConfigureMockMvc
+@WebMvcTest(UserController.class)
 class UserControllerTest {
-    @Mock
+    @MockBean
     private UserRepository userRepository;
-    @Mock
+    @MockBean
     private EmailRepository emailRepository;
-    @InjectMocks
+    @MockBean
     private UserValidationService userValidationService;
-    @InjectMocks
-    private UserController userController;
-
+    @Autowired
     private MockMvc mvc;
     private MockHttpSession session;
 
@@ -61,6 +69,11 @@ class UserControllerTest {
     private String createUserJsonPostLogout;
 
     private ObjectMapper objectMapper;
+
+    private User dummyUser;
+    private RegisterRequest regReq;
+    private Email dummyEmail;
+    private String validToken = "valid";
 
     @BeforeEach
     public void setUp() {
@@ -167,14 +180,51 @@ class UserControllerTest {
 
         session = new MockHttpSession();
         objectMapper = new ObjectMapper();
-        userController = new UserController(userRepository, emailRepository, userValidationService);
-        mvc = standaloneSetup(userController).build();
+        MockitoAnnotations.initMocks(this);
+        dummyUser = new User();
+    }
+    private void setupMocking(String json) throws MaximumEmailsException, JsonProcessingException, UserNotFoundException {
+        setupMockingNoEmail(json);
+        when(emailRepository.existsEmailByEmail(Mockito.anyString())).thenAnswer(i -> {
+            return i.getArgument(0).equals(dummyEmail.getEmail());
+        });
+    }
+    private void setupMockingNoEmail(String json) throws MaximumEmailsException, JsonProcessingException, UserNotFoundException {
+        regReq = objectMapper.treeToValue(objectMapper.readTree(json), RegisterRequest.class);
+        dummyUser = dummyUser.builder(regReq);
+        dummyEmail = new Email(dummyUser.getPrimaryEmail(), true, dummyUser);
+        when(userRepository.save(Mockito.any(User.class))).thenReturn(dummyUser);
+        when(emailRepository.save(Mockito.any(Email.class))).thenReturn(dummyEmail);
+        when(emailRepository.findByEmail(Mockito.matches(dummyEmail.getEmail()))).thenReturn(dummyEmail);
+        when(emailRepository.getOne(Mockito.anyLong())).thenReturn(dummyEmail);
+        when(userValidationService.findByToken(Mockito.anyString())).thenAnswer(i -> {
+            if (i.getArgument(0).equals(dummyUser.getToken())) return dummyUser;
+            else return null;
+        });
+        when(userRepository.findByUserId(Mockito.anyLong())).thenReturn(dummyUser);
+        when(emailRepository.existsEmailByEmail(Mockito.anyString())).thenReturn(false);
+        when(userValidationService.findByUserId(Mockito.anyString(), Mockito.anyLong())).thenAnswer(i -> {
+            if (i.getArgument(0).equals(dummyUser.getToken()) && i.getArgument(1).equals(dummyUser.getUserId())) return dummyUser;
+            else return null;
+        });
+        ReflectionTestUtils.setField(dummyUser, "userId", 1L);
+        ReflectionTestUtils.setField(dummyEmail, "id", 1L);
+        when(userValidationService.login(Mockito.anyString(),Mockito.anyString())).thenAnswer(i -> {
+                if (i.getArgument(0).equals(dummyEmail.getEmail()) && dummyUser.checkPassword(i.getArgument(1))) return "ValidToken";
+                else return null;
+        });
+        Mockito.doAnswer(i -> {
+            if (i.getArgument(0).equals(dummyUser.getToken())) dummyUser.setToken(null);
+            return null;
+        }).when(userValidationService).logout(Mockito.anyString());
+        dummyUser.setToken(validToken);
+        dummyUser.setTokenTime();
     }
 
     @Test
     /**Test if newUser catches missing field*/
     public void newUserMissingFieldTest() throws Exception {
-
+        setupMockingNoEmail(userMissJsonPost);
         // Setup POST
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post("/profiles")
                 .content(userMissJsonPost)
@@ -189,6 +239,17 @@ class UserControllerTest {
     @Test
     /**Test if newUser catches EmailAlreadyRegisteredException*/
     public void newUserEmailForbidden() throws Exception {
+        setupMocking(userForbiddenJsonPost);
+        // Setup POST
+//        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post("/profiles")
+//                .content(userForbiddenJsonPost)
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .accept(MediaType.APPLICATION_JSON);
+//
+//        // Perform POST
+//        mvc.perform(httpReq)
+//                .andExpect(status().isCreated());
+
         // Setup POST
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post("/profiles")
                 .content(userForbiddenJsonPost)
@@ -197,52 +258,36 @@ class UserControllerTest {
 
         // Perform POST
         mvc.perform(httpReq)
-                .andExpect(status().isCreated());
-
-        // Setup POST
-        httpReq = MockMvcRequestBuilders.post("/profiles")
-                .content(userForbiddenJsonPost)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON);
-
-        // Perform POST
-        mvc.perform(httpReq)
-                .andExpect(status().isForbidden());
+                .andExpect(status().isConflict());
     }
 
     @Test
     /**Test if a new User can be created*/
     public void newUserTest() throws Exception {
+        setupMockingNoEmail(createUserJsonPost);
 
         // Setup POST
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post("/profiles")
                 .content(createUserJsonPost)
                 .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .session(session);
-
-        // Perform POST
-        mvc.perform(httpReq)
-                .andExpect(status().isCreated());
-
-        // Test session
-        assertNotNull(((LoggedUser) session.getAttribute("loggedUser")).getUserId());
-    }
-
-    @Test
-    /**Will be removed in future development*/
-    public void allTest() throws Exception {
-        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get("/listprofile")
                 .accept(MediaType.APPLICATION_JSON);
 
-        mvc.perform(httpReq)
-                .andExpect(status().isOk());
-
+        // Perform POST
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isCreated())
+                .andReturn();
+        String token = result.getResponse().getContentAsString();
+        // Test session
+        System.out.println(token);
+        verify(userRepository).save(Mockito.any(User.class));
+        assertFalse(token.isEmpty());
     }
 
     @Test
     /**Test findUserData, authorized and unauthorized conditions*/
     public void findUserDataTest() throws Exception {
+        setupMocking(createUserJsonPostFindUser);
+
         // Get profile (Unauthorized)
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/profiles")
                 .session(session);
@@ -255,18 +300,21 @@ class UserControllerTest {
         assertEquals("", result.getResponse().getContentAsString());
 
         // Register profile
-        request = MockMvcRequestBuilders.post("/profiles")
-                .content(createUserJsonPostFindUser)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .session(session);
-
-        mvc.perform(request)
-                .andExpect(status().isCreated());
-
+//        request = MockMvcRequestBuilders.post("/profiles")
+//                .content(createUserJsonPostFindUser)
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .accept(MediaType.APPLICATION_JSON);
+//
+//        MvcResult tokenResult = mvc.perform(request)
+//                .andExpect(status().isCreated())
+//                .andReturn();
+//        String token = tokenResult.getResponse().getContentAsString();
+//        System.out.println(token);
+//        System.out.println(dummyUser);
+//        System.out.println(dummyEmail);
         // Get profile (Authorized)
         request = MockMvcRequestBuilders.get("/profiles")
-                .session(session);
+                .header("Token", validToken);
 
         result = mvc.perform(request)
                 .andExpect(status().isOk())
@@ -283,30 +331,14 @@ class UserControllerTest {
     @Test
     /**Tests login conditions, successful and unsuccessful*/
     public void logInTest() throws Exception {
-        // Register profile
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/profiles")
-                .content(createUserJsonPostLogin)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .session(session);
-
-        mvc.perform(request)
-                .andExpect(status().isCreated());
-
-        // Logout profile
-        request = MockMvcRequestBuilders.post("/logout")
-                .accept(MediaType.APPLICATION_JSON)
-                .session(session);
-
-        mvc.perform(request)
-                .andExpect(status().isOk());
+        setupMocking(createUserJsonPostLogin);
+        MockHttpServletRequestBuilder request;
 
         // Login profile (Incorrect Password)
         request = MockMvcRequestBuilders.post("/login")
                 .content(jsonLoginDetailsIncorrectPass)
                 .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .session(session);
+                .accept(MediaType.APPLICATION_JSON);
 
         mvc.perform(request)
                 .andExpect(status().isUnauthorized());
@@ -315,8 +347,7 @@ class UserControllerTest {
         request = MockMvcRequestBuilders.post("/login")
                 .content(jsonLoginDetailsUserNotFound)
                 .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .session(session);
+                .accept(MediaType.APPLICATION_JSON);
 
         mvc.perform(request)
                 .andExpect(status().isUnauthorized());
@@ -325,80 +356,84 @@ class UserControllerTest {
         request = MockMvcRequestBuilders.post("/login")
                 .content(jsonLoginDetails)
                 .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .session(session);
+                .accept(MediaType.APPLICATION_JSON);
 
         // Perform POST
-        mvc.perform(request)
-                .andExpect(status().isCreated());
+        MvcResult result = mvc.perform(request)
+                .andExpect(status().isCreated())
+                .andReturn();
 
         // Test session
-        assertNotNull(((LoggedUser) session.getAttribute("loggedUser")).getUserId());
+        assertNotNull(result.getResponse().getContentAsString());
     }
 
     @Test
     /**Tests logout conditions, successful and forbidden*/
     public void logOutTest() throws Exception {
+        setupMocking(createUserJsonPostLogout);
         // Logout profile (Already logged out)
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/logout")
-                .session(session)
                 .accept(MediaType.APPLICATION_JSON);
 
         // Perform POST
-        MvcResult result = mvc.perform(request)
+        MvcResult result;
+        mvc.perform(request)
                 .andExpect(status().isForbidden())
                 .andReturn();
 
         // Test response
-        assertEquals("Already logged out", result.getResponse().getContentAsString());
+        //assertEquals("Already logged out", result.getResponse().getContentAsString());
 
         // Register profile
-        request = MockMvcRequestBuilders.post("/profiles")
-                .content(createUserJsonPostLogout)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .session(session);
-
-        mvc.perform(request);
+//        request = MockMvcRequestBuilders.post("/profiles")
+//                .content(createUserJsonPostLogout)
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .accept(MediaType.APPLICATION_JSON)
+//                .session(session);
+//
+//        mvc.perform(request);
 
         // Logout profile (Logout successful)
         request = MockMvcRequestBuilders.post("/logout")
-                .session(session)
-                .accept(MediaType.APPLICATION_JSON);
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("Token", validToken);
 
         // Perform POST
-        result = mvc.perform(request)
+        //result =
+        mvc.perform(request)
                 .andExpect(status().isOk())
                 .andReturn();
 
         // Test response
-        assertEquals("Logout successful", result.getResponse().getContentAsString());
+        //assertEquals("Logout successful", result.getResponse().getContentAsString());
     }
 
     @Test
     /**Test if a user can be edited successfully*/
     public void editProfileSuccessfulTest() throws Exception {
+        setupMocking(editProfileUserJson);
         // Register a new user to edit the profile of
-        MockHttpServletRequestBuilder registerRequest = MockMvcRequestBuilders.post("/profiles")
-                .content(editProfileUserJson)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .session(session);
-
-        mvc.perform(registerRequest)
-                .andExpect(status().isCreated());
-
-        long userId = ((LoggedUser)session.getAttribute("loggedUser")).getUserId();
+//        MockHttpServletRequestBuilder registerRequest = MockMvcRequestBuilders.post("/profiles")
+//                .content(editProfileUserJson)
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .accept(MediaType.APPLICATION_JSON);
+//
+//        MvcResult tokenResult = mvc.perform(registerRequest)
+//                .andExpect(status().isCreated())
+//                .andReturn();
+//        String token = tokenResult.getResponse().getContentAsString();
+//        System.out.println(userValidationService.findByToken(token));
+        long userId = dummyUser.getUserId();
 
         // Setup edit profile PUT request and GET request
         MockHttpServletRequestBuilder editRequest = MockMvcRequestBuilders.put("/profiles/{id}", userId)
                 .content(editProfileJsonPut)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .session(session);
-
+                .header("Token", validToken);
         MockHttpServletRequestBuilder getRequest = MockMvcRequestBuilders.get("/profiles")
-                .session(session);
+                .header("Token", validToken);
 
         // Perform PUT
         mvc.perform(editRequest)
@@ -423,30 +458,32 @@ class UserControllerTest {
     @Test
     /** Tests that a user cannot edit another user's profile */
     public void editProfileFailureTest() throws Exception {
+        setupMocking(editProfileNastyUserJson);
         // Register a new user to not edit the profile of
-        MockHttpServletRequestBuilder registerRequest = MockMvcRequestBuilders.post("/profiles")
-                .content(editProfileNastyUserJson)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .session(session);
+//        MockHttpServletRequestBuilder registerRequest = MockMvcRequestBuilders.post("/profiles")
+//                .content(editProfileNastyUserJson)
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .accept(MediaType.APPLICATION_JSON);
+//
+//        MvcResult tokenResult = mvc.perform(registerRequest)
+//                .andExpect(status().isCreated())
+//                .andReturn();
+//        String token = tokenResult.getResponse().getContentAsString();
 
-        mvc.perform(registerRequest)
-                .andExpect(status().isCreated());
-
-        long userId = ((LoggedUser)session.getAttribute("loggedUser")).getUserId();
+        long userId = dummyUser.getUserId();
 
         // Setup bad edit profile PUT request
         MockHttpServletRequestBuilder editRequest = MockMvcRequestBuilders.put("/profiles/{id}", userId - 1)
                 .content(editProfileJsonPut)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .session(session);
+                .header("Token", validToken);
 
         MockHttpServletRequestBuilder getRequest = MockMvcRequestBuilders.get("/profiles")
-                .session(session);
+                .header("Token", validToken);
 
         // Perform PUT
         mvc.perform(editRequest)
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 }
