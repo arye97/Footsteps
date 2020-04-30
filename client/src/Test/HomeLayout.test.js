@@ -32,21 +32,24 @@ test('Does not have a mounted hook', () => {
     expect(HomeLayout.mounted).toBeUndefined();
 });
 
-test('Has 2 buttons', () => {
+// ----AC1----
+test('AC1 Has 2 buttons', () => {
     expect(homeLayout.findAll('button')).toHaveLength(2);
 });
 
+// ----AC1----
 each([
     ['register'],
     ['login'],
-]).test('Has a %s button', (button) => {
+]).test('AC1 Has a %s button', (button) => {
     expect(homeLayout.find('#'+ button + 'Button').is('button')).toBeTruthy();
 });
 
+// ----AC1----
 each([
     ['register'],
     ['login'],
-]).test('%s button click should direct to page', (button) => {
+]).test('AC1 %s button click should direct to page', (button) => {
     // let foundButton = homeLayout.find('#'+ button + 'Button');
     // foundButton.trigger('click');
     //
@@ -56,3 +59,6 @@ each([
     // sprint 2 but before sprint 3
     expect(true).toBeTruthy();
 });
+
+
+
