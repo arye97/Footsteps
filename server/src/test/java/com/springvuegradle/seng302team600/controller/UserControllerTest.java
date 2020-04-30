@@ -1,31 +1,23 @@
 package com.springvuegradle.seng302team600.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.springvuegradle.seng302team600.model.LoggedUser;
+import com.springvuegradle.seng302team600.advice.ExceptionAdvice;
+import org.junit.BeforeClass;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import static org.mockito.Mockito.*;
 import org.mockito.Mock;
 import org.mockito.InjectMocks;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.service.UserValidationService;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.setup.MockMvcBuilders.*;
-
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -45,7 +37,6 @@ class UserControllerTest {
     private UserController userController;
 
     private MockMvc mvc;
-    private MockHttpSession session;
 
     private String createUserJsonPost;
     private String userMissJsonPost;
@@ -62,7 +53,7 @@ class UserControllerTest {
 
     private ObjectMapper objectMapper;
 
-    @BeforeEach
+    @BeforeClass
     public void setUp() {
         userMissJsonPost = "{\n" +
                 "  \"lastname\": \"Benson\",\n" +
@@ -164,11 +155,14 @@ class UserControllerTest {
                 "  \"email\": \"wrong@gmail.com\",\n" +
                 "  \"password\": \"bobbyPwd\"\n" +
                 "}";
+    }
 
-        session = new MockHttpSession();
+    @BeforeEach
+    public void setup() {
         objectMapper = new ObjectMapper();
-        userController = new UserController(userRepository, emailRepository, userValidationService);
-        mvc = standaloneSetup(userController).build();
+        mvc = MockMvcBuilders.standaloneSetup(userController)
+                .setControllerAdvice(new ExceptionAdvice())
+                .build();
     }
 
     @Test
@@ -218,200 +212,174 @@ class UserControllerTest {
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post("/profiles")
                 .content(createUserJsonPost)
                 .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .session(session);
-
-        // Perform POST
-        mvc.perform(httpReq)
-                .andExpect(status().isCreated());
-
-        // Test session
-        assertNotNull(((LoggedUser) session.getAttribute("loggedUser")).getUserId());
-    }
-
-    @Test
-    /**Will be removed in future development*/
-    public void allTest() throws Exception {
-        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get("/listprofile")
                 .accept(MediaType.APPLICATION_JSON);
 
-        mvc.perform(httpReq)
-                .andExpect(status().isOk());
+        // Perform POST
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isCreated())
+                .andReturn();
 
+        // Test Token
+        assertNotNull(result.getResponse());
     }
 
     @Test
-    /**Test findUserData, authorized and unauthorized conditions*/
-    public void findUserDataTest() throws Exception {
-        // Get profile (Unauthorized)
+    public void findUserDataUnauthorized() throws Exception {
+        String token = "WrongToken"; // Tokens are 30 chars long.
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/profiles")
-                .session(session);
+                .header("Token", token);
 
         MvcResult result = mvc.perform(request)
                 .andExpect(status().isUnauthorized())
                 .andReturn();
 
-        // Test result (null)
-        assertEquals("", result.getResponse().getContentAsString());
+        assertEquals(null, result.getResponse());
+    }
 
-        // Register profile
-        request = MockMvcRequestBuilders.post("/profiles")
+    @Test
+    public void findUserDataAuthorized() throws Exception {
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/profiles")
                 .content(createUserJsonPostFindUser)
                 .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .session(session);
+                .accept(MediaType.APPLICATION_JSON);
+        MvcResult result = mvc.perform(request)
+                .andExpect(status().isCreated())
+                .andReturn();
+        String token = result.getResponse().getContentAsString();
 
-        mvc.perform(request)
-                .andExpect(status().isCreated());
-
-        // Get profile (Authorized)
         request = MockMvcRequestBuilders.get("/profiles")
-                .session(session);
-
+                .header("Token", token);
         result = mvc.perform(request)
                 .andExpect(status().isOk())
                 .andReturn();
-
-        // Get Response as JsonNode
         String jsonResponseStr = result.getResponse().getContentAsString();
         JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
-
-        // Test response
         assertEquals("Tim", jsonNode.get("firstname").asText());
     }
 
-    @Test
-    /**Tests login conditions, successful and unsuccessful*/
-    public void logInTest() throws Exception {
-        // Register profile
+    /**
+     * Helper function which registers a person to the mock database
+     * @param personData string to be processed and registered as user
+     * @return the token gained from registering
+     */
+    public String registerPersonHelper(String personData) throws Exception {
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/profiles")
-                .content(createUserJsonPostLogin)
+                .content(personData)
                 .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+        MvcResult result = mvc.perform(request)
+                .andReturn();
+        return result.getResponse().getContentAsString();
+    }
+
+    /**
+     * Helper function which will logout person from mock database
+     * @param token from person to be logged out
+     */
+    public void logoutPersonHelper(String token) throws Exception {
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/logout")
                 .accept(MediaType.APPLICATION_JSON)
-                .session(session);
+                .header("Token", token);
 
-        mvc.perform(request)
-                .andExpect(status().isCreated());
-
-        // Logout profile
-        request = MockMvcRequestBuilders.post("/logout")
-                .accept(MediaType.APPLICATION_JSON)
-                .session(session);
-
-        mvc.perform(request)
-                .andExpect(status().isOk());
-
-        // Login profile (Incorrect Password)
-        request = MockMvcRequestBuilders.post("/login")
-                .content(jsonLoginDetailsIncorrectPass)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .session(session);
-
-        mvc.perform(request)
-                .andExpect(status().isUnauthorized());
-
-        // Login profile (User not found)
-        request = MockMvcRequestBuilders.post("/login")
-                .content(jsonLoginDetailsUserNotFound)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .session(session);
-
-        mvc.perform(request)
-                .andExpect(status().isUnauthorized());
-
-        // Login profile (Success)
-        request = MockMvcRequestBuilders.post("/login")
-                .content(jsonLoginDetails)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .session(session);
-
-        // Perform POST
-        mvc.perform(request)
-                .andExpect(status().isCreated());
-
-        // Test session
-        assertNotNull(((LoggedUser) session.getAttribute("loggedUser")).getUserId());
+        mvc.perform(request);
     }
 
     @Test
-    /**Tests logout conditions, successful and forbidden*/
-    public void logOutTest() throws Exception {
-        // Logout profile (Already logged out)
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/logout")
-                .session(session)
-                .accept(MediaType.APPLICATION_JSON);
+    public void doNotLoginIncorrectPassword() throws Exception {
+        String token = registerPersonHelper(createUserJsonPostLogin);
+        logoutPersonHelper(token);
 
-        // Perform POST
-        MvcResult result = mvc.perform(request)
-                .andExpect(status().isForbidden())
-                .andReturn();
-
-        // Test response
-        assertEquals("Already logged out", result.getResponse().getContentAsString());
-
-        // Register profile
-        request = MockMvcRequestBuilders.post("/profiles")
-                .content(createUserJsonPostLogout)
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/login")
+                .content(jsonLoginDetailsIncorrectPass)
                 .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .session(session);
-
-        mvc.perform(request);
-
-        // Logout profile (Logout successful)
-        request = MockMvcRequestBuilders.post("/logout")
-                .session(session)
                 .accept(MediaType.APPLICATION_JSON);
 
-        // Perform POST
-        result = mvc.perform(request)
-                .andExpect(status().isOk())
+        mvc.perform(request)
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void doNotLoginUserNotFound() throws Exception {
+        String token = registerPersonHelper(createUserJsonPostLogin);
+        logoutPersonHelper(token);
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/login")
+                .content(jsonLoginDetailsUserNotFound)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mvc.perform(request)
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void loginAuthorizedUser() throws Exception {
+        String token = registerPersonHelper(createUserJsonPostLogin);
+        logoutPersonHelper(token);
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/login")
+                .content(jsonLoginDetails)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mvc.perform(request)
+                .andExpect(status().isCreated())
                 .andReturn();
 
-        // Test response
-        assertEquals("Logout successful", result.getResponse().getContentAsString());
+        assertNotNull(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    public void forbiddenLogoutIfTokenNotFound() throws Exception {
+        String token = "WrongToken"; // Tokens are 30 chars long.
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/logout")
+                .accept(MediaType.APPLICATION_JSON)
+                .header("Token", token);
+        mvc.perform(request)
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void successfulLogout() throws Exception {
+        String token = registerPersonHelper(createUserJsonPostLogout);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/logout")
+                .accept(MediaType.APPLICATION_JSON)
+                .header("Token", token);
+        mvc.perform(request)
+                .andExpect(status().isOk());
     }
 
     @Test
     /**Test if a user can be edited successfully*/
     public void editProfileSuccessfulTest() throws Exception {
-        // Register a new user to edit the profile of
-        MockHttpServletRequestBuilder registerRequest = MockMvcRequestBuilders.post("/profiles")
-                .content(editProfileUserJson)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .session(session);
-
-        mvc.perform(registerRequest)
-                .andExpect(status().isCreated());
-
-        long userId = ((LoggedUser)session.getAttribute("loggedUser")).getUserId();
+        String token = registerPersonHelper(editProfileUserJson);
+        MockHttpServletRequestBuilder getRequest = MockMvcRequestBuilders.get("/profiles")
+                .header("Token", token);
+        MvcResult result = mvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andReturn();
+        String jsonResponseStr = result.getResponse().getContentAsString();
+        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
+        Long userId = jsonNode.get("id").asLong();
 
         // Setup edit profile PUT request and GET request
         MockHttpServletRequestBuilder editRequest = MockMvcRequestBuilders.put("/profiles/{id}", userId)
                 .content(editProfileJsonPut)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .session(session);
-
-        MockHttpServletRequestBuilder getRequest = MockMvcRequestBuilders.get("/profiles")
-                .session(session);
-
+                .header("Token", token);
         // Perform PUT
         mvc.perform(editRequest)
                 .andExpect(status().isOk());
 
-        MvcResult result = mvc.perform(getRequest)
+        getRequest = MockMvcRequestBuilders.get("/profiles")
+                .header("Token", token);
+        result = mvc.perform(getRequest)
                               .andExpect(status().isOk())
                               .andReturn();
-
         // Get Response as JsonNode
-        String jsonResponseStr = result.getResponse().getContentAsString();
-        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
-
+        jsonResponseStr = result.getResponse().getContentAsString();
+        jsonNode = objectMapper.readTree(jsonResponseStr);
         // Check that fields have been updated
         assertEquals("A guy", jsonNode.get("bio").asText());
         assertEquals("Doe", jsonNode.get("lastname").asText());
@@ -423,29 +391,16 @@ class UserControllerTest {
     @Test
     /** Tests that a user cannot edit another user's profile */
     public void editProfileFailureTest() throws Exception {
-        // Register a new user to not edit the profile of
-        MockHttpServletRequestBuilder registerRequest = MockMvcRequestBuilders.post("/profiles")
-                .content(editProfileNastyUserJson)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .session(session);
-
-        mvc.perform(registerRequest)
-                .andExpect(status().isCreated());
-
-        long userId = ((LoggedUser)session.getAttribute("loggedUser")).getUserId();
-
-        // Setup bad edit profile PUT request
-        MockHttpServletRequestBuilder editRequest = MockMvcRequestBuilders.put("/profiles/{id}", userId - 1)
+        String token = registerPersonHelper(editProfileNastyUserJson);
+        // Setup bad edit profile PUT request, userId will never be -1
+        MockHttpServletRequestBuilder editRequest = MockMvcRequestBuilders.put("/profiles/{id}", -1)
                 .content(editProfileJsonPut)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .session(session);
+                .header("Token", token);
 
         MockHttpServletRequestBuilder getRequest = MockMvcRequestBuilders.get("/profiles")
-                .session(session);
-
-        // Perform PUT
+                .header("Token", token);
         mvc.perform(editRequest)
                 .andExpect(status().isForbidden());
     }

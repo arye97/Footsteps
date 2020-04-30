@@ -17,35 +17,7 @@ public class Application {
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
-//
-//    @Bean
-//    CommandLineRunner init(UserRepository repository) {
-//        return args -> {
-//            repository.save(new User(User.userBuilder()
-//                    .withFirstName("Jerry")
-//                    .withLastName("Ryan")
-//                    .withPrimaryEmail("dsadsda")
-//                    .withPassword("DWDA")
-//                    .withDateOfBirth("12/02/2000")
-//                    .withGender(User.Gender.FEMALE)));
-//            repository.save(new User(User.userBuilder()
-//                    .withFirstName("Maurice")
-//                    .withLastName("Benson")
-//                    .withPrimaryEmail("jack@google.com")
-//                    .withPassword("jacky'sSecuredPwd")
-//                    .withBio("Jacky loves to ride his bike on crazy mountains.")
-//                    .withDateOfBirth("20/12/1985")
-//                    .withGender(User.Gender.MALE)));
-//
-//            //Should print 4 lines of dsadsda and 1 line of jack@google.com
-//            User user = repository.findByPrimaryEmail("dsadsda");
-//            System.out.println(user.toString());
-//            user = repository.findByFirstName("Jerry");
-//            System.out.println(user);
-//            System.out.println(repository.findById("dsadsda").get());
-//            repository.findAll().forEach(System.out::println);
-//        };
-//    }
+
 //  --------- Need to understand what this is doing and if we need it ----------
     // Fix the CORS errors
     @Bean
