@@ -8,7 +8,7 @@
     "build-prod": "vue-cli-service build --mode prod",
     "kill-all": "fuser -k 9500/tcp 9499/tcp",
     "lint": "vue-cli-service lint",
-    "test": "jest"
+    "test": "jest --runInBand --detectOpenHandles"
   },
   "dependencies": {
     "axios": "^0.19.2",
@@ -16,7 +16,6 @@
     "bootstrap-select": "^1.13.12",
     "bootstrap-vue": "^2.5.0",
     "core-js": "^3.6.4",
-    "jest-each": "latest",
     "jquery": "^3.4.1",
     "serve": "^11.3.0",
     "vue": "^2.6.11",

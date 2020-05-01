@@ -1,6 +1,5 @@
 import {shallowMount} from '@vue/test-utils'
 import HomeLayout from '../components/layout/HomeLayout.vue'
-import each from 'jest-each'
 
 let homeLayout;
 let push;
@@ -38,18 +37,18 @@ test('AC1 Has 2 buttons', () => {
 });
 
 // ----AC1----
-each([
+test.each([
     ['register'],
     ['login'],
-]).test('AC1 Has a %s button', (button) => {
+])('AC1 Has a %s button', (button) => {
     expect(homeLayout.find('#'+ button + 'Button').is('button')).toBeTruthy();
 });
 
 // ----AC1----
-each([
+test.each([
     ['register'],
     ['login'],
-]).test('AC1 %s button click should direct to page', (button) => {
+])('AC1 %s button click should direct to page', (button) => {
     // let foundButton = homeLayout.find('#'+ button + 'Button');
     // foundButton.trigger('click');
     //

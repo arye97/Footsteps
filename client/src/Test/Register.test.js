@@ -1,6 +1,5 @@
 import {shallowMount} from '@vue/test-utils'
 import Register from '../views/Register/Register.vue'
-import each from 'jest-each'
 
 
 let registerWrapper;
@@ -14,6 +13,7 @@ test('Is a vue instance', () => {
     expect(registerWrapper.isVueInstance).toBeTruthy();
 });
 
+
 // ----AC4----
 const mandatoryFieldIds = [
     ['first-name-label'],  // A list of all mandatory attributes
@@ -25,7 +25,7 @@ const mandatoryFieldIds = [
     ['date_of_birth-label']
 ];
 // Iterate though all mandatory field names (using their id attribute) and check that they contain an asterisk
-each(mandatoryFieldIds).test('AC4 %s is marked as a mandatory attribute (with an asterisk)', (field_name) => {
+test.each(mandatoryFieldIds)('AC4 %s is marked as a mandatory attribute (with an asterisk)', (field_name) => {
     // Checks that each <label> tag above all mandatory fields ends in an asterisk.
     expect(registerWrapper.get('#' + field_name).text()).toContain("*");
 });
