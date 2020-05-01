@@ -1,5 +1,6 @@
 package com.springvuegradle.seng302team600.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.springvuegradle.seng302team600.model.User;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -17,10 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 public class UserController {
@@ -133,20 +131,20 @@ public class UserController {
 
         //TODO do all this in Service I guess?
         //TODO Need to check in DB if email provided has already been used or not
+        // TODO WRITE AN EMAIL IS VALID VALIDATOR
         ObjectNode node = new ObjectMapper().readValue(jsonString, ObjectNode.class);
         if (node.has("additionalEmails")) {
-            String additionalEmailToBeAdded = node.get("additionalEmails").asText();
             List<String> additionalEmails = new ArrayList<>();
-            additionalEmails.add(additionalEmailToBeAdded);
-
-            for (String email: additionalEmails) {
-                if (emailRepository.existsEmailByEmail(email)) {
-                    // EMAIL IN DB ALREADY DO SOMETHING LIKE MAYBE RETURN TO FRONT END SAYING
-                    // OY! THIS EMAIL IS ALREADY REGISTERED STEP THE Floop UP!!!!!
+//            System.out.println(node.get("additionalEmails"));
+            for (JsonNode email: node.get("additionalEmails")) {
+                if (emailRepository.existsEmailByEmail(email.asText())) {
+//                    // EMAIL IN DB ALREADY DO SOMETHING LIKE MAYBE RETURN TO FRONT END SAYING
+//                    // OY! THIS EMAIL IS ALREADY REGISTERED STEP THE Floop UP!!!!!
                     return;
+                } else {
+                    additionalEmails.add(email.asText());
                 }
             }
-
             updatedUser.setAdditionalEmails(additionalEmails);
             response.setStatus(HttpServletResponse.SC_OK);
             userRepository.save(updatedUser);

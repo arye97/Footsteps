@@ -62,20 +62,20 @@
                                     </p>
                                 </td>
                                 <td>
-                                    <button type="submit" class="btn btn-primary" v-on:click="setPrimary">
+                                    <button type="submit" class="btn btn-primary float-right" v-on:click="setPrimary">
                                         Make Primary
                                     </button>
                                 </td>
                                 <td>
-                                    <button type="submit" class="btn btn-danger" v-on:click="deleteEmail">
+                                    <button type="submit" class="btn btn-danger float-right" v-on:click="deleteEmail">
                                         Delete
                                     </button>
                                 </td>
                             </tr>
                         </table>
 
-<!--                    <form v-on:submit.prevent="addEmail" id="addEmail">-->
-                        <form id="addEmail">
+                        <form v-on:submit.prevent="addEmail" id="addEmail">
+<!--                        <form id="addEmail">-->
                             <table>
                                 <tr>
                                     <th>
@@ -85,14 +85,14 @@
                                 <tr>
                                     <td>
                                         <input
-                                                v-model="addedEmail"
+                                                v-model="insertedEmail"
                                                 class="form-control"
                                                 id="newEmailInserted"
                                                 placeholder="Email address"
                                         >
                                     </td>
                                     <td>
-                                        <button v-on:click="addEmail" type="submit" class="btn btn-secondary">Add</button>
+                                        <button type="submit" class="btn btn-secondary">Add</button>
                                     </td>
                                 </tr>
 
@@ -100,7 +100,7 @@
                         </form>
 
                         <div id="confirmationButtons">
-                            <router-link to="/" class="btn btn-outline-danger btn-lg float-right">Cancel</router-link>
+                            <router-link to="/" class="btn btn-outline-success btn-lg float-left">Back</router-link>
                             <button type="submit" class="btn btn-success btn-lg float-right" v-on:click="submitEmail">Submit</button>
                         </div>
                     </section>
@@ -168,23 +168,23 @@
     import {tokenStore} from "../../main";
     import Sidebar from '../../components/layout/ProfileEditSidebar';
     // eslint-disable-next-line no-unused-vars
-    import Multiselect from "vue-multiselect";
+    // import Multiselect from "vue-multiselect";
 
     export default {
         name: "EditEmail",
         components: {Sidebar}, //Multiselect},
         data () {
             return {
-                loading: true,
+                loading: true, //y
                 post: null,
                 error: false,
-                userId: null,
-                primaryEmail: null,
-                additionalEmails: null,
+                userId: null, //y
+                primaryEmail: null, //y
                 newPrimaryEmail: null,
-                newAdditionalEmails: null,
+                additionalEmails: [], //y
+                additionalEmailsToBeAdded: [], //y
                 selectedEmail: null,
-                addedEmail: null,
+                insertedEmail: null, //y
             }
         },
         mounted() {
@@ -209,80 +209,107 @@
             })
         },
         methods: {
+            addEmail() {
+                if (this.additionalEmails.length >= 4) {
+                    // Can't exceed length of 5 emails
+                    console.log('Error: maximum number of emails reached. Please remove an email before adding any more (Limit 5)')
+                } else if (this.additionalEmails.includes(this.insertedEmail) || (this.primaryEmail === this.insertedEmail)) {
+                    //Can't have duplicate emails
+                    console.log("Error: Can't add duplicate email");
+                } else if (!(/(.+)@(.+){2,}\.(.+){2,}/).test(this.insertedEmail)) {
+                    //Email's not valid
+                    console.log('Error: Invalid email. Please change to proper email format and try again')
+                } else {
+                    //Email is valid
+                    this.additionalEmails.push(this.insertedEmail);
+                    this.additionalEmailsToBeAdded.push(this.insertedEmail);
+                }
+            },
+
+
+            setPrimary() {
+                let table = document.getElementsByTagName("table")[1];
+                console.log(table);
+
+                // let newPrimary = this.selectedEmail;
+                // let oldPrimary = this.primaryEmail;
+                //
+                // this.deleteEmail();
+                // this.additionalEmails.unshift(oldPrimary);
+                // this.primaryEmail = newPrimary;
+                //
+                // console.log('newPrimary: ' + newPrimary + ' Old primary: ' + oldPrimary)
+                // //}
+            },
+
+
+            submitEmail() {
+                const submittedEmail = {
+                    additionalEmails: this.additionalEmailsToBeAdded
+                };
+
+                server.post(`/profiles/${this.userId}/emails`,
+                    submittedEmail,
+                    {
+                        headers: {"Access-Control-Allow-Origin": "*",
+                            "content-type": "application/json",
+                            "Token": tokenStore.state.token},
+                        withCredentials: true
+                    }
+                ).then(() => {
+                    console.log('Additional Emails updated Successfully!');
+                    this.resetAdditionalEmailsToBeAdded();
+                });
+
+
+
+
+                // const updateEmail = {
+                //     primaryEmail: this.primaryEmail,
+                //     additionalEmails: this.insertedEmail
+                // };
+                // server.put(`/profiles/${this.userId}/emails`,
+                //     updateEmail,
+                //     {
+                //         headers: {"Access-Control-Allow-Origin": "*",
+                //             "content-type": "application/json",
+                //             "Token": tokenStore.state.token},
+                //         withCredentials: true
+                //     }
+                // ).then(function() {
+                //     console.log('User Emails updated Successfully!');
+                // }).catch(error => {
+                //     console.log(error);
+                //     //Get alert bar element
+                //     let errorAlert = document.getElementById("alert");
+                //     if (error.message === "Network Error") {
+                //         this.message = error.message;
+                //     } else if (error.response.status === 403) { //Error 401: Email already exists or invalid date of birth
+                //         this.message = error.response.data.toString(); //Set alert bar message to error message from server
+                //     } else if (error.response.status === 400) { //Error 400: Bad request (missing fields)
+                //         this.message = "An invalid update request has been received please try again"
+                //     } else {    //Catch for any errors that are not specifically caught
+                //         this.message = "An unknown error has occurred during update"
+                //     }
+                //     errorAlert.hidden = false;          //Show alert bar
+                //     setTimeout(function () {    //Hide alert bar after ~5000ms
+                //         errorAlert.hidden = true;
+                //     }, 5000);
+                // });
+            },
+
+            resetAdditionalEmailsToBeAdded() {
+                this.additionalEmailsToBeAdded = [];
+            },
+
+
+
             deleteEmail() {
                 //Remove an email
                 let selectedIndex = this.additionalEmails.indexOf(this.selectedEmail);
                 if (selectedIndex > -1) {
                     this.additionalEmails.splice(selectedIndex, 1);
                 }
-            },
-            setPrimary() {
-                let newPrimary = this.selectedEmail;
-                let oldPrimary = this.primaryEmail;
-
-
-
-
-
-
-
-                this.deleteEmail();
-                this.additionalEmails.unshift(oldPrimary);
-                this.primaryEmail = newPrimary;
-
-
-                console.log('newPrimary: ' + newPrimary + ' Old primary: ' + oldPrimary)
-                //}
-            },
-            addEmail() {
-                //Make sure there are no more than 5 emails already and the email is valid
-                if (this.additionalEmails.length >= 4) {
-                    console.log('Error: maximum number of emails reached. Please remove an email before adding any more (Limit 5)')
-                } else if (this.additionalEmails.includes(this.selectedEmail) || (this.primaryEmail == this.selectedEmail)) {
-                    //Can't have duplicate emails
-                    console.log("Error: Can't add duplicate email");
-                } else if (/(.+)@(.+){2,}\.(.+){2,}/.test(this.addedEmail)) {
-                    //Email is valid
-                    this.additionalEmails.unshift(this.addedEmail);
-                } else {
-                    //Email's not valid
-                    console.log('Error: Invalid email. Please change to proper email format and try again')
-                }
-            },
-
-            submitEmail() {
-                const updateEmail = {
-                    primaryEmail: this.primaryEmail,
-                    additionalEmails: this.addedEmail
-                };
-                server.put(`/profiles/${this.userId}/emails`,
-                    updateEmail,
-                    {
-                        headers: {"Access-Control-Allow-Origin": "*",
-                                                 "content-type": "application/json",
-                                                        "Token": tokenStore.state.token},
-                        withCredentials: true
-                    }
-                ).then(function() {
-                    console.log('User Emails updated Successfully!');
-                }).catch(error => {
-                    console.log(error);
-                    //Get alert bar element
-                    let errorAlert = document.getElementById("alert");
-                    if (error.message === "Network Error") {
-                        this.message = error.message;
-                    } else if (error.response.status === 403) { //Error 401: Email already exists or invalid date of birth
-                        this.message = error.response.data.toString(); //Set alert bar message to error message from server
-                    } else if (error.response.status === 400) { //Error 400: Bad request (missing fields)
-                        this.message = "An invalid update request has been received please try again"
-                    } else {    //Catch for any errors that are not specifically caught
-                        this.message = "An unknown error has occurred during update"
-                    }
-                    errorAlert.hidden = false;          //Show alert bar
-                    setTimeout(function () {    //Hide alert bar after ~5000ms
-                        errorAlert.hidden = true;
-                    }, 5000);
-                });
             }
         }
     }
