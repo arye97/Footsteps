@@ -52,6 +52,7 @@ class UserValidationServiceTest {
         dummyUser = new User();
         dummyUser.builder(userData);
         dummyEmail = new Email(dummyUser.getPrimaryEmail(), true, dummyUser);
+        //This is a valid use of reflection, designed for scenarios like this
         ReflectionTestUtils.setField(dummyUser, "userId", 1L);
         ReflectionTestUtils.setField(dummyEmail, "id", 1L);
         when(userRepository.save(Mockito.any(User.class))).then(i -> {

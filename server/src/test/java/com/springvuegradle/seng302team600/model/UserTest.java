@@ -7,7 +7,9 @@ import com.springvuegradle.seng302team600.exception.MaximumEmailsException;
 import com.springvuegradle.seng302team600.exception.MustHavePrimaryEmailException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.util.ReflectionUtils;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Calendar;
@@ -291,5 +293,16 @@ public class UserTest {
         userTest.setTransientEmailStrings();
         assertEquals(primaryEmail, userTest.getPrimaryEmail());
         assertEquals(additionalEmails, userTest.getAdditionalEmails());
+    }
+
+    @Test
+    void setPassword_ensurePasswordNotPlaintext() {
+        String password = "ThisIsAPassword";
+        Field passwordField = ReflectionUtils.findField(User.class, "password");
+        passwordField.setAccessible(true);
+        userTest.setPassword(password);
+        //Use reflection to access the stored password and compare it to the actual password
+        //This is admittedly kind of dirty, but the passwords are intentionally hard to access
+        assertNotEquals(password, ReflectionUtils.getField(passwordField, userTest));
     }
 }
