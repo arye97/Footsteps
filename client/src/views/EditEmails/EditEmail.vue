@@ -16,6 +16,7 @@
             </div>
         </header>
 
+
         <section v-if="error">
             <p>Sorry, looks like we can't get your info! Please try again soon.</p>
             <p>{{ error }}</p>
@@ -31,15 +32,14 @@
 
             <section v-else>
 
-
-
-
                 <article class="emails">
                     <section class="primaryEmailDisplay">
                         <table id="primaryEmailTable" class="table table-borderless">
                             <tr>
                                 <td>
-                                    <p id="primaryEmailLabel">Primary Email:</p>
+                                    <p id="primaryEmailLabel">
+                                        Primary Email:
+                                    </p>
                                 </td>
                                 <td>
                                     <p id="primaryEmail">
@@ -56,135 +56,108 @@
                         <table id="additionalEmailsTable" class="table table-borderless">
                             <tr v-for="additionalEmail in this.additionalEmails"
                                 v-bind:key="additionalEmail">
-                                <td> {{ additionalEmail }}
-                                    <button type="submit" class="btn btn-primary" v-on:click="setPrimary">Set as Primary</button>
-                                    <button type="submit" class="btn btn-danger" v-on:click="deleteEmail">Delete</button>
+                                <td>
+                                    <p id="additionalEmail">
+                                        {{ additionalEmail }}
+                                    </p>
+                                </td>
+                                <td>
+                                    <button type="submit" class="btn btn-primary" v-on:click="setPrimary">
+                                        Make Primary
+                                    </button>
+                                </td>
+                                <td>
+                                    <button type="submit" class="btn btn-danger" v-on:click="deleteEmail">
+                                        Delete
+                                    </button>
                                 </td>
                             </tr>
                         </table>
 
-                        <form v-on:submit.prevent="addEmail">
-                            <label for="newEmail">Add New Email:</label>
-                            <input
-                                    v-model="inesrtedEmail"
-                                    id="newEmail"
-                                    placeholder="blah@blah.com"
-                            >
-                            <button>Add</button>
+<!--                    <form v-on:submit.prevent="addEmail" id="addEmail">-->
+                        <form id="addEmail">
+                            <table>
+                                <tr>
+                                    <th>
+                                        <label for="newEmailInserted">Add New Email:</label>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <input
+                                                v-model="addedEmail"
+                                                class="form-control"
+                                                id="newEmailInserted"
+                                                placeholder="Email address"
+                                        >
+                                    </td>
+                                    <td>
+                                        <button v-on:click="addEmail" type="submit" class="btn btn-secondary">Add</button>
+                                    </td>
+                                </tr>
+
+                            </table>
                         </form>
 
+                        <div id="confirmationButtons">
+                            <router-link to="/" class="btn btn-outline-danger btn-lg float-right">Cancel</router-link>
+                            <button type="submit" class="btn btn-success btn-lg float-right" v-on:click="submitEmail">Submit</button>
+                        </div>
                     </section>
-
-
 
                 </article>
 
-
-
-<!--                <div id="primaryEmail">-->
-<!--                    <dl>-->
-<!--                        <label for="a">Favorite Animal</label><br>-->
-<!--                        <dt name="primaryEmail" id="a">-->
-<!--                            {{ this.primaryEmail }}-->
-<!--                        </dt>-->
-<!--                    </dl>-->
+<!--                <div style="width: 300px; background-color: orange">-->
+<!--                    <div class="t">-->
+<!--                        <input type="text" />-->
+<!--                    </div>-->
+<!--                    <button v-on:click="addEmail" type="submit" class="btn btn-secondary">Add</button>-->
 <!--                </div>-->
 
 
-
-
-                <div id="addemails-list-example">
-                    <form v-on:submit.prevent="addNewTodo">
-                        <label for="new-todo">Add a todo</label>
-                        <input
-                                v-model="newTodoText"
-                                id="new-todo"
-                                placeholder="E.g. Feed the cat"
-                        >
-                        <button>Add</button>
-                    </form>
-                    <ul>
-                        <li
-                                is="todo-item"
-                                v-for="(todo, index) in todos"
-                                v-bind:key="todo.id"
-                                v-bind:title="todo.title"
-                                v-on:remove="todos.splice(index, 1)"
-                        ></li>
-                    </ul>
-                </div>
-
-                <div id="additionalEmails" class="table table-borderless">
-                    <form v-on:submit.prevent="addNewTodo">
-                        <label for="new-todo">Add a todo</label>
-                        <input
-                                v-model="newTodoText"
-                                id="new-todo"
-                                placeholder="E.g. Feed the cat"
-                        >
-                        <button>Add</button>
-                    </form>
-                </div>
-
-                <form method="put" v-on:submit.prevent="submitEmail">
-                    <dl class="form-group">
-                        <span>Primary email address:</span><br/>
-                        <dt>
-                            <span>{{ this.primaryEmail }}</span>
-                            <p class="mt-2"></p>
-                        </dt>
-                        <dd>
+<!--                <form method="put" v-on:submit.prevent="submitEmail">-->
+<!--                    <dl class="form-group">-->
+<!--                        <span>Primary email address:</span><br/>-->
+<!--                        <dt>-->
+<!--                            <span>{{ this.primaryEmail }}</span>-->
+<!--                            <p class="mt-2"></p>-->
+<!--                        </dt>-->
+<!--                        <dd>-->
                         <!-- Multiselect for choosing new primary email -->
-                        <div class="form-group">
-                            <label for="primary_email_select">Edit Additional Emails:</label>
-                            <!-- to change "gender" to something else-->
-                            <multiselect v-model="selectedEmail" id="primary_email_select" :searchable="false"
-                                         :close-on-select="true" :options="additionalEmails" :show-labels="false"
-                                         :preselectFirst="true" :allow-empty="false"
-                                         placeholder="No Additional Emails">
-                            </multiselect>
-                        </div>
-                        <button type="submit" class="btn btn-secondary" v-on:click="setPrimary">Set as Primary</button>
-                        <button type="submit" class="btn btn-secondary" v-on:click="deleteEmail">Delete</button>
-                        <br/>
-                        <br/>
-                        <br/>
+<!--                        <div class="form-group">-->
+<!--                            <label for="primary_email_select">Edit Additional Emails:</label>-->
+<!--                            &lt;!&ndash; to change "gender" to something else&ndash;&gt;-->
+<!--                            <multiselect v-model="selectedEmail" id="primary_email_select" :searchable="false"-->
+<!--                                         :close-on-select="true" :options="additionalEmails" :show-labels="false"-->
+<!--                                         :preselectFirst="true" :allow-empty="false"-->
+<!--                                         placeholder="No Additional Emails">-->
+<!--                            </multiselect>-->
+<!--                        </div>-->
+<!--                        <button type="submit" class="btn btn-secondary" v-on:click="setPrimary">Set as Primary</button>-->
+<!--                        <button type="submit" class="btn btn-secondary" v-on:click="deleteEmail">Delete</button>-->
+<!--                        <br/>-->
+<!--                        <br/>-->
+<!--                        <br/>-->
 
-                        <table id="additionalEmailsOOOOOOO" class="table table-borderless">
-                            <tr>
-                                <td scope="row">{{ this.additionalEmails }}</td>
-                                <button type="submit" class="btn btn-primary" v-on:click="setPrimary">Make Primary</button>
-                                <button type="submit" class="btn btn-secondary" v-on:click="deleteEmail">Delete</button>
-                            </tr>
-                            <tr>
-                                <td scope="row">email1</td>
-                                <button type="submit" class="btn btn-primary" v-on:click="setPrimary">Make Primary</button>
-                                <button type="submit" class="btn btn-secondary" v-on:click="deleteEmail">Delete</button>
-                            </tr>
-                            <tr>
-                                <td scope="row">email1</td>
-                                <button type="submit" class="btn btn-primary" v-on:click="setPrimary">Make Primary</button>
-                                <button type="submit" class="btn btn-secondary" v-on:click="deleteEmail">Delete</button>
-                            </tr>
-                        </table>
+<!--                        -->
 
 
-                        <div class="form-group">
-                            <!-- full-name field-->
-                            <label for="add-email">Add email address</label>
-                            <input type="email" class="form-control" v-model="addedEmail" id="add-email" name="add-email" placeholder="Email address">
-                        </div>
+<!--                        <div class="form-group">-->
+<!--                            &lt;!&ndash; full-name field&ndash;&gt;-->
+<!--                            <label for="add-email">Add email address</label>-->
+<!--                            <input type="email" class="form-control" v-model="addedEmail" id="add-email" name="add-email" placeholder="Email address">-->
+<!--                        </div>-->
 
 
-                        <button type="submit" class="btn btn-secondary" v-on:click="addEmail">Add</button>
-                        </dd>
-                    </dl>
-                </form>
-                <div class="form-group">
-                    <!-- SignIn Button-->
-                    <button type="submit" class="btn btn-primary" v-on:click="submitEmail">Submit</button>
-                    <router-link to="/" class="btn btn-link">Go Back</router-link>
-                </div>
+<!--                        <button type="submit" class="btn btn-secondary" v-on:click="addEmail">Add</button>-->
+<!--                        </dd>-->
+<!--                    </dl>-->
+<!--                </form>-->
+<!--                <div class="form-group">-->
+<!--                    &lt;!&ndash; SignIn Button&ndash;&gt;-->
+<!--                    <button type="submit" class="btn btn-primary" v-on:click="submitEmail">Submit</button>-->
+<!--                    <router-link to="/" class="btn btn-link">Go Back</router-link>-->
+<!--                </div>-->
             </section>
         </section>
     </div>
@@ -194,11 +167,12 @@
     import server from '../../Api';
     import {tokenStore} from "../../main";
     import Sidebar from '../../components/layout/ProfileEditSidebar';
+    // eslint-disable-next-line no-unused-vars
     import Multiselect from "vue-multiselect";
 
     export default {
         name: "EditEmail",
-        components: {Sidebar, Multiselect},
+        components: {Sidebar}, //Multiselect},
         data () {
             return {
                 loading: true,
@@ -319,10 +293,6 @@
         margin-right: 1%;
     }
 
-    .primaryEmailDisplay {
-
-    }
-
     #primaryEmailTable {
         padding-bottom: 0px;
         margin-bottom: 0px;
@@ -346,8 +316,49 @@
         margin-bottom: 0;
     }
 
+    #additionalEmailsTable {
+        font-size: 17px;
+    }
 
+    #additionalEmailsTable td {
+        padding-bottom: 0;
+        padding-left: 5px;
+        padding-right: 5px;
+    }
 
+    #additionalEmailsTable button {
+        text-align: center;
+        padding: 0;
+        margin-left: 0;
+        margin-right: 0;
+        font-size: 17px;
+        width:130px;
+        height:40px;
+    }
 
+    #additionalEmail {
+        padding-bottom: 0;
+        margin-bottom: 0;
+        height:40px;
+        vertical-align: middle;
+        line-height: 39px;
+    }
 
+    #addEmail {
+        margin: 4px;
+        padding-bottom: 15px;
+    }
+
+    #addEmail td {
+        width: 100%;
+    }
+
+    #addEmail input {
+        margin-left: -5px;
+    }
+
+    #addEmail button {
+        margin-left: -2px;
+    }
 </style>
+
