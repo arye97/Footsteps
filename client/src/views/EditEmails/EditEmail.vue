@@ -54,15 +54,15 @@
 
                     <section class="additionalEmailsDisplay">
                         <table id="additionalEmailsTable" class="table table-borderless">
-                            <tr v-for="additionalEmail in this.additionalEmails"
+                            <tr v-for="(additionalEmail, index) in this.additionalEmails"
                                 v-bind:key="additionalEmail">
                                 <td>
-                                    <p id="additionalEmail">
+                                    <p :id="'additionalEmail' + index">
                                         {{ additionalEmail }}
                                     </p>
                                 </td>
                                 <td>
-                                    <button type="submit" class="btn btn-primary float-right" v-on:click="setPrimary">
+                                    <button type="submit" class="btn btn-primary float-right" v-on:click="setPrimary(index)">
                                         Make Primary
                                     </button>
                                 </td>
@@ -106,13 +106,6 @@
                     </section>
 
                 </article>
-
-<!--                <div style="width: 300px; background-color: orange">-->
-<!--                    <div class="t">-->
-<!--                        <input type="text" />-->
-<!--                    </div>-->
-<!--                    <button v-on:click="addEmail" type="submit" class="btn btn-secondary">Add</button>-->
-<!--                </div>-->
 
 
 <!--                <form method="put" v-on:submit.prevent="submitEmail">-->
@@ -180,8 +173,8 @@
                 error: false,
                 userId: null, //y
                 primaryEmail: null, //y
-                newPrimaryEmail: null,
                 additionalEmails: [], //y
+                originalPrimaryEmail: null, //y
                 additionalEmailsToBeAdded: [], //y
                 selectedEmail: null,
                 insertedEmail: null, //y
@@ -200,6 +193,7 @@
                 if (response.status === 200) {
                     this.userId = response.data["userId"];
                     this.primaryEmail = response.data["primaryEmail"];
+                    this.originalPrimaryEmail = response.data["primaryEmail"];
                     this.additionalEmails = response.data["additionalEmails"];
                     this.loading = false;
                 }
@@ -221,45 +215,79 @@
                     console.log('Error: Invalid email. Please change to proper email format and try again')
                 } else {
                     //Email is valid
-                    this.additionalEmails.push(this.insertedEmail);
-                    this.additionalEmailsToBeAdded.push(this.insertedEmail);
+                    this.additionalEmails.unshift(this.insertedEmail);
+                    this.additionalEmailsToBeAdded.unshift(this.insertedEmail);
                 }
             },
 
-
-            setPrimary() {
-                let table = document.getElementsByTagName("table")[1];
-                console.log(table);
-
-                // let newPrimary = this.selectedEmail;
-                // let oldPrimary = this.primaryEmail;
-                //
-                // this.deleteEmail();
-                // this.additionalEmails.unshift(oldPrimary);
-                // this.primaryEmail = newPrimary;
-                //
-                // console.log('newPrimary: ' + newPrimary + ' Old primary: ' + oldPrimary)
-                // //}
+            setPrimary(emailIndex) {
+                let additionalEmailId = "additionalEmail" + emailIndex;
+                // Obtain Primary Email Candidate from list of Additional Emails
+                let candidatePrimaryEmail = document.getElementById(additionalEmailId).innerText;
+                // Replace Primary Email Candidate from list of Additional Emails with Old Primary Email
+                this.additionalEmails.splice(emailIndex, 1, this.primaryEmail);
+                // Set Primary Email Candidate
+                this.primaryEmail = candidatePrimaryEmail;
             },
 
-
             submitEmail() {
-                const submittedEmail = {
-                    additionalEmails: this.additionalEmailsToBeAdded
-                };
+                let submittedEmail;
+                // Primary Email has not been replaced
+                if (this.primaryEmail === this.originalPrimaryEmail) {
+                    submittedEmail = {
+                        additionalEmails: this.additionalEmails
+                    };
+                    console.log(submittedEmail)
+                    server.post(`/profiles/${this.userId}/emails`,
+                        submittedEmail,
+                        {
+                            headers: {
+                                "Access-Control-Allow-Origin": "*",
+                                               "content-type": "application/json",
+                                                      "Token": tokenStore.state.token
+                            },
+                            withCredentials: true
+                        }
+                    ).then(() => {
+                        console.log('Additional Emails updated successfully!');
+                        this.resetAdditionalEmailsToBeAdded();
+                    });
+                }
+                
+                // Primary Email has been replaced
+                if (this.primaryEmail !== this.originalPrimaryEmail) {
+                    submittedEmail = {
+                        candidatePrimaryEmail: this.primaryEmail,
+                        additionalEmails: this.additionalEmails,
+                        originalPrimaryEmail: this.originalPrimaryEmail
+                    };
 
-                server.post(`/profiles/${this.userId}/emails`,
-                    submittedEmail,
-                    {
-                        headers: {"Access-Control-Allow-Origin": "*",
-                            "content-type": "application/json",
-                            "Token": tokenStore.state.token},
-                        withCredentials: true
-                    }
-                ).then(() => {
-                    console.log('Additional Emails updated Successfully!');
-                    this.resetAdditionalEmailsToBeAdded();
-                });
+                    // TEST Don't mind me!!!
+                    console.log("Current Primary:" + submittedEmail.primaryEmail);
+                    console.log("og Primary:" + submittedEmail.originalPrimaryEmail);
+                    console.log(submittedEmail.additionalEmails);
+                    // TEST Leave me be!!!
+
+                    server.put(`/profiles/${this.userId}/emails`,
+                        submittedEmail,
+                        {
+                            headers: {
+                                "Access-Control-Allow-Origin": "*",
+                                               "content-type": "application/json",
+                                                      "Token": tokenStore.state.token
+                            },
+                            withCredentials: true
+                        }
+                    ).then(() => {
+                        console.log('Primary Email and Additional Emails updated successfully!');
+                        // this.resetAdditionalEmailsToBeAdded();
+                    });
+                }
+
+
+
+
+
 
 
 
@@ -363,7 +391,7 @@
         height:40px;
     }
 
-    #additionalEmail {
+    .additionalEmail {
         padding-bottom: 0;
         margin-bottom: 0;
         height:40px;
