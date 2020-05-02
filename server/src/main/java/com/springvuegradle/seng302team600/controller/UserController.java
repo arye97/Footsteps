@@ -121,37 +121,35 @@ public class UserController {
      */
     @PostMapping("/profiles/{profileId}/emails")
     public void addEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response)
-            throws JsonProcessingException, UserNotFoundException, MaximumEmailsException, MustHavePrimaryEmailException {
+            throws IOException, UserNotFoundException, MaximumEmailsException, MustHavePrimaryEmailException {
         String token = request.getHeader("Token");
-        User updatedUser = userService.findByUserId(token, profileId);
-        if (updatedUser == null) {
-            // EITHER UNAUTHORISED OR FORBIDDEN
+        User user = userService.findByUserId(token, profileId);
+        if (user == null) {
+            // A User is signed in but does not match token provided
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "User Id does not match token");
             return;
         }
 
-        //TODO do all this in Service I guess?
-        //TODO Need to check in DB if email provided has already been used or not
-        // TODO WRITE AN EMAIL IS VALID VALIDATOR
+        // TODO do all this in Service I guess?: like WRITE AN EMAIL IS VALID VALIDATOR
         ObjectNode node = new ObjectMapper().readValue(jsonString, ObjectNode.class);
         if (node.has("additionalEmails")) {
             List<String> additionalEmails = new ArrayList<>();
-//            System.out.println(node.get("additionalEmails"));
             for (JsonNode email: node.get("additionalEmails")) {
                 if (emailRepository.existsEmailByEmail(email.asText())) {
-//                    // EMAIL IN DB ALREADY DO SOMETHING LIKE MAYBE RETURN TO FRONT END SAYING
-//                    // OY! THIS EMAIL IS ALREADY REGISTERED STEP THE Floop UP!!!!!
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Bad Request: email already in use");
                     return;
                 } else {
                     additionalEmails.add(email.asText());
                 }
             }
-            updatedUser.setAdditionalEmails(additionalEmails);
-            response.setStatus(HttpServletResponse.SC_OK);
-            userRepository.save(updatedUser);
+            user.setAdditionalEmails(additionalEmails);
+            response.setStatus(HttpServletResponse.SC_CREATED);
+            userRepository.save(user);
         }
     }
 
-    //TODO: Tests for this method. Tested in postman but will update the current user thats logged in with the primary email due to unimplementation of adding a list of secondary emails in the database.
+
+        //TODO: Tests for this method. Tested in postman but will update the current user thats logged in with the primary email due to unimplementation of adding a list of secondary emails in the database.
     //check if session is null, check if the profile id is the logged in id, check if user exists after
 
     /**
