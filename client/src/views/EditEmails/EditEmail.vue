@@ -175,7 +175,6 @@
                 primaryEmail: null, //y
                 additionalEmails: [], //y
                 originalPrimaryEmail: null, //y
-                additionalEmailsToBeAdded: [], //y
                 selectedEmail: null,
                 insertedEmail: null, //y
             }
@@ -216,7 +215,6 @@
                 } else {
                     //Email is valid
                     this.additionalEmails.unshift(this.insertedEmail);
-                    this.additionalEmailsToBeAdded.unshift(this.insertedEmail);
                 }
             },
 
@@ -237,7 +235,6 @@
                     submittedEmail = {
                         additionalEmails: this.additionalEmails
                     };
-                    console.log(submittedEmail)
                     server.post(`/profiles/${this.userId}/emails`,
                         submittedEmail,
                         {
@@ -250,8 +247,8 @@
                         }
                     ).then(() => {
                         console.log('Additional Emails updated successfully!');
-                        this.resetAdditionalEmailsToBeAdded();
                     });
+                    // else reset page with error code?
                 }
 
                 // Primary Email has been replaced
@@ -261,13 +258,6 @@
                         originalPrimaryEmail: this.originalPrimaryEmail,
                         additionalEmails: this.additionalEmails
                     };
-
-                    // TEST Don't mind me!!!
-                    console.log("New Primary:" + submittedEmail.candidatePrimaryEmail);
-                    console.log("og Primary:" + submittedEmail.originalPrimaryEmail);
-                    console.log(submittedEmail.additionalEmails);
-                    // TEST Leave me be!!!
-
                     server.put(`/profiles/${this.userId}/emails`,
                         submittedEmail,
                         {
@@ -280,7 +270,24 @@
                         }
                     ).then(() => {
                         console.log('Primary Email and Additional Emails updated successfully!');
-                        // this.resetAdditionalEmailsToBeAdded();
+                        this.updateOriginalPrimaryEmail();
+                    //}).catch(error => {
+                        // console.log(error);
+                        // //Get alert bar element
+                        // let errorAlert = document.getElementById("alert");
+                        // if (error.message === "Network Error") {
+                        //     this.message = error.message;
+                        // } else if (error.response.status === 403) { //Error 401: Email already exists or invalid date of birth
+                        //     this.message = error.response.data.toString(); //Set alert bar message to error message from server
+                        // } else if (error.response.status === 400) { //Error 400: Bad request (missing fields)
+                        //     this.message = "An invalid update request has been received please try again"
+                        // } else {    //Catch for any errors that are not specifically caught
+                        //     this.message = "An unknown error has occurred during update"
+                        // }
+                        // errorAlert.hidden = false;          //Show alert bar
+                        // setTimeout(function () {    //Hide alert bar after ~5000ms
+                        //     errorAlert.hidden = true;
+                        // }, 5000);
                     });
                 }
 
@@ -326,8 +333,8 @@
                 // });
             },
 
-            resetAdditionalEmailsToBeAdded() {
-                this.additionalEmailsToBeAdded = [];
+            updateOriginalPrimaryEmail() {
+                this.originalPrimaryEmail = this.primaryEmail;
             },
 
 

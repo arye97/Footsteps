@@ -109,15 +109,15 @@ public class UserController {
     }
 
     /**
-     * Adds a list of additional emails to a user
-     * @param jsonString
-     * @param profileId
-     * @param request
-     * @param response
-     * @throws JsonProcessingException
-     * @throws UserNotFoundException
-     * @throws MaximumEmailsException
-     * @throws MustHavePrimaryEmailException
+     * Adds a list of additional emails to a User
+     * @param jsonString payload from the front-end
+     * @param profileId id of User
+     * @param request HttpServletRequest received from the front-end
+     * @param response HttpServletResponse to be sent to the front-end
+     * @throws IOException exception for error codes
+     * @throws UserNotFoundException exception for when User is not found in the database
+     * @throws MaximumEmailsException exception for maximum emails reached
+     * @throws MustHavePrimaryEmailException exception for when primary email of a User is Null
      */
     @PostMapping("/profiles/{profileId}/emails")
     public void addEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response)
@@ -137,9 +137,9 @@ public class UserController {
         if (node.has("additionalEmails")) {
             List<String> additionalEmails = new ArrayList<>();
             for (JsonNode email: node.get("additionalEmails")) {
-                // If email has not been associated with user BUT exists in repo
+                // If additional email has not been associated with user BUT exists in repo
                 if (!user.getAdditionalEmails().contains(email.asText()) && emailRepository.existsEmailByEmail(email.asText())) {
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Bad Request: email already in use");
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Bad Request: additional email " + email.asText() + " is already in use");
                     return;
                 } else {
                     additionalEmails.add(email.asText());
@@ -153,15 +153,19 @@ public class UserController {
         }
     }
 
-
     //TODO: Tests for this method. Tested in postman but will update the current user thats logged in with the primary email due to unimplementation of adding a list of secondary emails in the database.
 
     /**
-     * Updates primary and secondary emails from a given profileID
-     *
-     * @param jsonString
-     * @param profileId
-     * @throws JsonProcessingException
+     * Updates the primary email of a User with a candidate primary email
+     * and replaces the additional emails with candidate additional emails
+     * @param jsonString payload from the front-end
+     * @param profileId id of User
+     * @param request HttpServletRequest received from the front-end
+     * @param response HttpServletResponse to be sent to the front-end
+     * @throws IOException exception for error codes
+     * @throws UserNotFoundException exception for when User is not found in the database
+     * @throws MaximumEmailsException exception for maximum emails reached
+     * @throws MustHavePrimaryEmailException exception for when primary email of a User is Null
      */
     @PutMapping("/profiles/{profileId}/emails")
     public void updateEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response)
@@ -177,24 +181,17 @@ public class UserController {
 
         // TODO do all this in Service I guess?: like WRITE AN EMAIL IS VALID VALIDATOR
         ObjectNode node = new ObjectMapper().readValue(jsonString, ObjectNode.class);
-//        if (node.has("primaryEmail") && node.has("additionalEmails")) {
         String originalPrimaryEmail = node.get("originalPrimaryEmail").asText();
         String candidatePrimaryEmail = node.get("candidatePrimaryEmail").asText();
 
-        // If email is not in additional emails yet BUT exists in repo
-//        System.out.println(candidatePrimaryEmail);
-//        System.out.println(user.getAdditionalEmails());
-//        System.out.println(!user.getAdditionalEmails().contains(candidatePrimaryEmail));
+        // If candidatePrimaryEmail is not in additional emails yet BUT exists in repo
         if (!user.getAdditionalEmails().contains(candidatePrimaryEmail) && emailRepository.existsEmailByEmail(candidatePrimaryEmail)) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Bad Request: email already in use");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Bad Request: candidate primary email " + candidatePrimaryEmail + " is already in use");
             return;
         }
 
         List<String> candidateAdditionalEmails = new ArrayList<>();
         for (JsonNode email: node.get("additionalEmails")) {
-//            System.out.println(email.asText());
-//            System.out.println(user.getAdditionalEmails());
-//            System.out.println(!user.getAdditionalEmails().contains(email.asText()));
             // If User.AdditionalEmails doesn't contain Email.asText()
             // And User.PrimaryEmail isn't Email.asText()
             // But that Email is found in the DB
@@ -208,7 +205,6 @@ public class UserController {
             }
         }
 
-
         // RESET Additional Emails
         user.setAdditionalEmails(new ArrayList<>());
         // ADD NEW PRIMARY TO USER ADDITIONAL EMAILS (Which is now empty)
@@ -221,66 +217,10 @@ public class UserController {
         user.deleteAdditionalEmail(originalPrimaryEmail);
         // SET CANDIDATE ADDITIONAL EMAILS
         user.setAdditionalEmails(candidateAdditionalEmails);
+
+        response.setStatus(HttpServletResponse.SC_OK);
         userRepository.save(user);
-
-
-//        userRepository.save(user);
-
-        // DELETE EVERYTHING IN USER ADDITIONAL EMAILS INCL. IN DB
-        // ADD NEW PRIMARY TO USER ADDITIONAL EMAILS (Which is now empty)
-        // INCL. ADD TO DB
-        // SET NEW PRIMARY TO ACTUAL PRIMARY
-        // MANUALLY REMOVE PREV PRIMARY
-        // SET ADDITIONAL EMAILS
-
-
-
-
-            // originalPrimaryEmail
-            //
-
-            // 1 3 4 6 --> Add 6 and Removed 2
-            // 1 2 3 4
-            // New additionalEmails
-//            List<String> additionEmailsToBeAdded = new ArrayList<>();
-//            for (String aE: candidateAdditionalEmails) {
-//                if (!user.getAdditionalEmails().contains(aE)) {
-//                    additionEmailsToBeAdded.add(aE);
-//                }
-//            }
-//
-//            List<String> additionEmailsToBeDeleted = new ArrayList<>();
-//            for (String aE: user.getAdditionalEmails()) {
-//                if (!candidateAdditionalEmails.contains(aE)) {
-//                    additionEmailsToBeDeleted.add(aE);
-//                }
-//            }
-
-            // Add Candidate Primary Email to Additional Emails to be added UHHHH MAYBE NOT
-
-
-            // COULD DO:
-            // - Delete additionEmailsToBeDeleted from User List when only primary switched
-            //   then new primary (the one in additional emails)will be deleted from additional emails list
-            // - Convert Candidate Primary to List
-            // - Add Candidate Primary Email to Additional Emails in User
-            // - If there is any, Add additional emails to be added additionEmailsToBeAdded
-//            additionEmailsToBeAdded.add(candidatePrimaryEmail);
-//
-//
-//            user.setAdditionalEmails(additionalEmails);
-//            response.setStatus(HttpServletResponse.SC_CREATED);
-//            userRepository.save(user);
-//
-//            user.setPrimaryEmail(primaryEmail);
-//            user.setAdditionalEmails(additionalEmails);
-//
-//            response.setStatus(HttpServletResponse.SC_OK);
-//            userRepository.save(user);
-//        }
     }
-
-
 
     /**
      * Logs in a valid user with a registered email and password
