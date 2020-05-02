@@ -166,7 +166,7 @@ public class User {
         ///time calculated in milliseconds
         Date now = new Date();
         long diff = now.getTime() - tokenTime.getTime();
-        return diff >= tokenDecayTime;
+        return diff >= tokenDecayTime || diff < 0;
     }
 
     public void setTokenTime() {

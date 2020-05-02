@@ -1,26 +1,25 @@
 package com.springvuegradle.seng302team600.service;
 
+import com.springvuegradle.seng302team600.exception.UserNotFoundException;
 import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.RegisterRequest;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import static org.mockito.Mockito.*;
-import org.mockito.Mock;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Calendar;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@WebMvcTest(UserValidationService.class)
 class UserValidationServiceTest {
 
     @MockBean
@@ -60,7 +59,6 @@ class UserValidationServiceTest {
             return dummyUser;
         });
         when(userRepository.findByUserId(Mockito.anyLong())).thenAnswer(i -> {
-            System.out.printf("%d %d", i.getArgument(0), dummyUser.getUserId());
             if (i.getArgument(0).equals(dummyUser.getUserId())) return dummyUser;
             else return null;
         });
@@ -87,11 +85,6 @@ class UserValidationServiceTest {
         userId = dummyUser.getUserId();
     }
 
-    @AfterEach
-    public void tear() {
-        userRepository.deleteById(userId);
-    }
-
     @Test
     public void doNotLoginUnauthorizedUsers() throws Exception {
         String token = userService.login(userData.getPrimaryEmail(), "wrongPassword");
@@ -102,20 +95,50 @@ class UserValidationServiceTest {
     public void loginAuthorizedUsers() throws Exception {
         String token = userService.login(userData.getPrimaryEmail(), userData.getPassword());
         assertNotNull(token);
-        User user = userRepository.findByToken(token);
-        assertEquals(token, user.getToken());
+        assertEquals(token, dummyUser.getToken());
     }
 
     @Test
     public void tokenIsRemovedFromUser() {
         String token = "testToken";
-        System.out.println(userId);
-        User user = userRepository.findByUserId(userId);
-        System.out.println(user);
-        user.setToken(token);
-        userRepository.save(user);
+        dummyUser.setToken(token);
         userService.logout(token);
-        user = userRepository.findByUserId(userId);
-        assertNull(user.getToken());
+        assertNull(dummyUser.getToken());
+    }
+
+    @Test
+    public void userFoundByTokenAuthorized() {
+        String token = "testToken";
+        dummyUser.setToken(token);
+        dummyUser.setTokenTime();
+        User user = userService.findByToken(token);
+        assertEquals(dummyUser, user);
+    }
+
+    @Test
+    public void userNotFoundByTokenUnauthorized() {
+        String token = "testToken";
+        dummyUser.setToken(token);
+        dummyUser.setTokenTime();
+        User user = userService.findByToken("wrongToken");
+        assertNull(user);
+    }
+
+    @Test
+    public void userFoundByIdAuthorized() throws UserNotFoundException {
+        String token = "testToken";
+        dummyUser.setToken(token);
+        dummyUser.setTokenTime();
+        User user = userService.findByUserId(token, dummyUser.getUserId());
+        assertEquals(dummyUser, user);
+    }
+
+    @Test
+    public void userNotFoundByIdUnauthorized() throws UserNotFoundException {
+        String token = "testToken";
+        dummyUser.setToken(token);
+        dummyUser.setTokenTime();
+        User user = userService.findByUserId("wrongToken", -1l);
+        assertNull(user);
     }
 }
