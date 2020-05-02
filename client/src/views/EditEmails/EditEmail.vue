@@ -31,7 +31,6 @@
             </section>
 
             <section v-else>
-
                 <article class="emails">
                     <section class="primaryEmailDisplay">
                         <table id="primaryEmailTable" class="table table-borderless">
@@ -49,9 +48,7 @@
                             </tr>
                         </table>
                     </section>
-
                     <hr>
-
                     <section class="additionalEmailsDisplay">
                         <table id="additionalEmailsTable" class="table table-borderless">
                             <tr v-for="(additionalEmail, index) in this.additionalEmails"
@@ -61,19 +58,18 @@
                                         {{ additionalEmail }}
                                     </p>
                                 </td>
-                                <td>
-                                    <button type="submit" class="btn btn-primary float-right" v-on:click="setPrimary(index)">
-                                        Make Primary
+                                <td class="additionalEmailsButtons">
+                                    <button type="submit" class="btn btn-danger" id="deleteButton" v-on:click="deleteEmail(index)">
+                                        Delete
                                     </button>
                                 </td>
-                                <td>
-                                    <button type="submit" class="btn btn-danger float-right" v-on:click="deleteEmail">
-                                        Delete
+                                <td class="additionalEmailsButtons">
+                                    <button type="submit" class="btn btn-primary" id="primaryButton" v-on:click="setPrimary(index)">
+                                        Make Primary
                                     </button>
                                 </td>
                             </tr>
                         </table>
-
                         <form v-on:submit.prevent="addEmail" id="addEmail">
 <!--                        <form id="addEmail">-->
                             <table>
@@ -84,11 +80,10 @@
                                 </tr>
                                 <tr>
                                     <td>
-                                        <input
-                                                v-model="insertedEmail"
-                                                class="form-control"
-                                                id="newEmailInserted"
-                                                placeholder="Email address"
+                                        <input v-model="insertedEmail"
+                                               class="form-control"
+                                               id="newEmailInserted"
+                                               placeholder="Email address"
                                         >
                                     </td>
                                     <td>
@@ -98,59 +93,12 @@
 
                             </table>
                         </form>
-
                         <div id="confirmationButtons">
                             <router-link to="/" class="btn btn-outline-success btn-lg float-left">Back</router-link>
                             <button type="submit" class="btn btn-success btn-lg float-right" v-on:click="submitEmail">Submit</button>
                         </div>
                     </section>
-
                 </article>
-
-
-<!--                <form method="put" v-on:submit.prevent="submitEmail">-->
-<!--                    <dl class="form-group">-->
-<!--                        <span>Primary email address:</span><br/>-->
-<!--                        <dt>-->
-<!--                            <span>{{ this.primaryEmail }}</span>-->
-<!--                            <p class="mt-2"></p>-->
-<!--                        </dt>-->
-<!--                        <dd>-->
-                        <!-- Multiselect for choosing new primary email -->
-<!--                        <div class="form-group">-->
-<!--                            <label for="primary_email_select">Edit Additional Emails:</label>-->
-<!--                            &lt;!&ndash; to change "gender" to something else&ndash;&gt;-->
-<!--                            <multiselect v-model="selectedEmail" id="primary_email_select" :searchable="false"-->
-<!--                                         :close-on-select="true" :options="additionalEmails" :show-labels="false"-->
-<!--                                         :preselectFirst="true" :allow-empty="false"-->
-<!--                                         placeholder="No Additional Emails">-->
-<!--                            </multiselect>-->
-<!--                        </div>-->
-<!--                        <button type="submit" class="btn btn-secondary" v-on:click="setPrimary">Set as Primary</button>-->
-<!--                        <button type="submit" class="btn btn-secondary" v-on:click="deleteEmail">Delete</button>-->
-<!--                        <br/>-->
-<!--                        <br/>-->
-<!--                        <br/>-->
-
-<!--                        -->
-
-
-<!--                        <div class="form-group">-->
-<!--                            &lt;!&ndash; full-name field&ndash;&gt;-->
-<!--                            <label for="add-email">Add email address</label>-->
-<!--                            <input type="email" class="form-control" v-model="addedEmail" id="add-email" name="add-email" placeholder="Email address">-->
-<!--                        </div>-->
-
-
-<!--                        <button type="submit" class="btn btn-secondary" v-on:click="addEmail">Add</button>-->
-<!--                        </dd>-->
-<!--                    </dl>-->
-<!--                </form>-->
-<!--                <div class="form-group">-->
-<!--                    &lt;!&ndash; SignIn Button&ndash;&gt;-->
-<!--                    <button type="submit" class="btn btn-primary" v-on:click="submitEmail">Submit</button>-->
-<!--                    <router-link to="/" class="btn btn-link">Go Back</router-link>-->
-<!--                </div>-->
             </section>
         </section>
     </div>
@@ -160,22 +108,17 @@
     import server from '../../Api';
     import {tokenStore} from "../../main";
     import Sidebar from '../../components/layout/ProfileEditSidebar';
-    // eslint-disable-next-line no-unused-vars
-    // import Multiselect from "vue-multiselect";
-
     export default {
         name: "EditEmail",
-        components: {Sidebar}, //Multiselect},
+        components: {Sidebar},
         data () {
             return {
-                loading: true, //y
-                post: null,
+                loading: true,
                 error: false,
                 userId: null, //y
                 primaryEmail: null, //y
                 additionalEmails: [], //y
                 originalPrimaryEmail: null, //y
-                selectedEmail: null,
                 insertedEmail: null, //y
             }
         },
@@ -226,6 +169,16 @@
                 this.additionalEmails.splice(emailIndex, 1, this.primaryEmail);
                 // Set Primary Email Candidate
                 this.primaryEmail = candidatePrimaryEmail;
+            },
+
+            deleteEmail(emailIndex) {
+                let additionalEmailId = "additionalEmail" + emailIndex;
+                let emailToBeRemoved = document.getElementById(additionalEmailId).innerText;
+                // Remove emailToBeRemoved from this.additionalEmails
+                this.additionalEmails = this.additionalEmails.filter(
+                    function(email) {
+                        return email !== emailToBeRemoved
+                    })
             },
 
             submitEmail() {
@@ -290,71 +243,16 @@
                         // }, 5000);
                     });
                 }
-
-
-
-
-
-
-
-
-
-                // const updateEmail = {
-                //     primaryEmail: this.primaryEmail,
-                //     additionalEmails: this.insertedEmail
-                // };
-                // server.put(`/profiles/${this.userId}/emails`,
-                //     updateEmail,
-                //     {
-                //         headers: {"Access-Control-Allow-Origin": "*",
-                //             "content-type": "application/json",
-                //             "Token": tokenStore.state.token},
-                //         withCredentials: true
-                //     }
-                // ).then(function() {
-                //     console.log('User Emails updated Successfully!');
-                // }).catch(error => {
-                //     console.log(error);
-                //     //Get alert bar element
-                //     let errorAlert = document.getElementById("alert");
-                //     if (error.message === "Network Error") {
-                //         this.message = error.message;
-                //     } else if (error.response.status === 403) { //Error 401: Email already exists or invalid date of birth
-                //         this.message = error.response.data.toString(); //Set alert bar message to error message from server
-                //     } else if (error.response.status === 400) { //Error 400: Bad request (missing fields)
-                //         this.message = "An invalid update request has been received please try again"
-                //     } else {    //Catch for any errors that are not specifically caught
-                //         this.message = "An unknown error has occurred during update"
-                //     }
-                //     errorAlert.hidden = false;          //Show alert bar
-                //     setTimeout(function () {    //Hide alert bar after ~5000ms
-                //         errorAlert.hidden = true;
-                //     }, 5000);
-                // });
             },
 
             updateOriginalPrimaryEmail() {
                 this.originalPrimaryEmail = this.primaryEmail;
-            },
-
-
-
-            deleteEmail() {
-                //Remove an email
-                let selectedIndex = this.additionalEmails.indexOf(this.selectedEmail);
-                if (selectedIndex > -1) {
-                    this.additionalEmails.splice(selectedIndex, 1);
-                }
             }
         }
     }
 </script>
 
 <style scoped>
-    .btn {
-        margin-right: 1%;
-    }
-
     #primaryEmailTable {
         padding-bottom: 0px;
         margin-bottom: 0px;
@@ -388,17 +286,29 @@
         padding-right: 5px;
     }
 
+    .additionalEmailsButtons {
+        float: right;
+    }
+
     #additionalEmailsTable button {
         text-align: center;
         padding: 0;
         margin-left: 0;
         margin-right: 0;
         font-size: 17px;
-        width:130px;
+    }
+
+    #deleteButton {
+        width:100px;
         height:40px;
     }
 
-    .additionalEmail {
+    #primaryButton {
+        width:135px;
+        height:40px;
+    }
+
+    .additionalEmailsTable p {
         padding-bottom: 0;
         margin-bottom: 0;
         height:40px;
