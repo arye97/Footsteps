@@ -253,17 +253,17 @@
                         this.resetAdditionalEmailsToBeAdded();
                     });
                 }
-                
+
                 // Primary Email has been replaced
                 if (this.primaryEmail !== this.originalPrimaryEmail) {
                     submittedEmail = {
                         candidatePrimaryEmail: this.primaryEmail,
-                        additionalEmails: this.additionalEmails,
-                        originalPrimaryEmail: this.originalPrimaryEmail
+                        originalPrimaryEmail: this.originalPrimaryEmail,
+                        additionalEmails: this.additionalEmails
                     };
 
                     // TEST Don't mind me!!!
-                    console.log("Current Primary:" + submittedEmail.primaryEmail);
+                    console.log("New Primary:" + submittedEmail.candidatePrimaryEmail);
                     console.log("og Primary:" + submittedEmail.originalPrimaryEmail);
                     console.log(submittedEmail.additionalEmails);
                     // TEST Leave me be!!!
