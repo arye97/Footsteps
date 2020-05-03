@@ -3,17 +3,13 @@ package com.springvuegradle.seng302team600.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import com.springvuegradle.seng302team600.exception.InvalidDateOfBirthException;
-import com.springvuegradle.seng302team600.exception.InvalidUserNameException;
-import com.springvuegradle.seng302team600.exception.UserTooYoungException;
-import com.springvuegradle.seng302team600.exception.MaximumEmailsException;
-import com.springvuegradle.seng302team600.exception.MustHavePrimaryEmailException;
 import com.springvuegradle.seng302team600.payload.RegisterRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -139,7 +135,7 @@ public class User {
      * @param userData payload for registering.
      * @return the built user.
      */
-    public User builder(RegisterRequest userData) throws MaximumEmailsException {
+    public User builder(RegisterRequest userData) {
         this.setFirstName(userData.getFirstName());
         this.setMiddleName(userData.getMiddleName());
         this.setLastName(userData.getLastName());
@@ -218,10 +214,6 @@ public class User {
         this.bio = bio;
     }
 
-    /**
-     * Gets the primary email from Emails
-     * @return primaryEmail or null
-     */
     public String getPrimaryEmail() {
         return primaryEmail;
     }
@@ -230,7 +222,7 @@ public class User {
      * Sets primary email of User
      * @param newPrimaryEmail an email to be set primary
      */
-    public void setPrimaryEmail(String newPrimaryEmail) throws MaximumEmailsException {
+    public void setPrimaryEmail(String newPrimaryEmail) {
         // Call this function to set up primaryEmail and additional Emails string from existing Email objects
         setTransientEmailStrings();
 
@@ -241,7 +233,7 @@ public class User {
             }
             // If at max email count and newPrimaryEmail doesn't already exist
             if (emails.size() >= MAX_EMAILS && !additionalEmails.contains(newPrimaryEmail)) {
-                throw new MaximumEmailsException();
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum email limit reached");
             }
 
             // Change old primary to additional
@@ -270,10 +262,6 @@ public class User {
         emails.add(email);
     }
 
-    /**
-     * Gets a String list of additional emails
-     * @return a list of additional email Strings
-     */
     public List<String> getAdditionalEmails() {
         return additionalEmails;
     }
@@ -282,18 +270,18 @@ public class User {
      * Iterates over a list of additional email strings,
      * adds each string to the list of additional emails,
      * before appending them to a list of Email objects.
-     * If primary email has not been set in User throw MustHavePrimaryEmailException
+     * If primary email has not been set in User throw ResponseStatusException
      * @param newAdditionalEmails a String list of additional emails
-     * @throws MustHavePrimaryEmailException if primary email has not been set
-     * @throws MaximumEmailsException if maximum emails limit reached
+     * @throws ResponseStatusException if primary email has not been set
+     * if maximum emails limit reached
      */
-    public void setAdditionalEmails(List<String> newAdditionalEmails) throws MustHavePrimaryEmailException, MaximumEmailsException {
+    public void setAdditionalEmails(List<String> newAdditionalEmails) {
         // Call this function to set up primaryEmail and additional Emails string from existing Email objects
         setTransientEmailStrings();
 
         if (primaryEmail == null) {
             // primaryEmail can never be null
-            throw new MustHavePrimaryEmailException();
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Primary email must be created before additional emails are added");
         }
 
         List<String> removals = new ArrayList<>();
@@ -318,7 +306,7 @@ public class User {
                 Email additionalEmail = new Email(email, false, this);
                 emails.add(additionalEmail);
             } else {
-                throw new MaximumEmailsException();
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum email limit reached");
             }
         }
     }
@@ -452,20 +440,21 @@ public class User {
 
     /**
      * Runs a sanity check on the user and throws errors if the are invalid fields
-     * @throws InvalidUserNameException thrown if the users first, middle or last names are invalid
-     * @throws UserTooYoungException thrown if the user is younger than 13
-     * @throws InvalidDateOfBirthException thrown if the user if older than 150yr
+     * @throws ResponseStatusException thrown if the users first, middle or last names are invalid
+     * thrown if the user is younger than 13
+     * thrown if the user is older than 150yr
      * @return returns true if valid user
      */
-    public boolean isValid() throws InvalidUserNameException, UserTooYoungException, InvalidDateOfBirthException {
-        if (firstName == null || lastName == null) { throw new InvalidUserNameException(); }
-        if (! firstName.matches("[a-zA-Z]+") ) { throw new InvalidUserNameException(); }
-        if (! lastName.matches("[a-zA-Z]+") ) { throw new InvalidUserNameException(); }
+    public boolean isValid() {
+        String nameError = "Name must contain at least one letter and no non-letter characters";
+        if (firstName == null || lastName == null) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid name. " + nameError); }
+        if (! firstName.matches("[a-zA-Z]+") ) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid first name. " + nameError); }
+        if (! lastName.matches("[a-zA-Z]+") ) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid last name. " + nameError); }
         if (middleName != null) {
-            if (! middleName.matches("[a-zA-Z]*") && ! middleName.trim().isEmpty() ) { throw new InvalidUserNameException(); }
+            if (! middleName.matches("[a-zA-Z]*") && ! middleName.trim().isEmpty() ) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid middle name. " + nameError); }
         }
-        if (ageCheck(dateOfBirth, MIN_AGE, true)) { throw new UserTooYoungException(); }
-        if (ageCheck(dateOfBirth, MAX_AGE, false)) { throw new InvalidDateOfBirthException(); }
+        if (ageCheck(dateOfBirth, MIN_AGE, true)) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must be at least 13 years old to register for this app"); }
+        if (ageCheck(dateOfBirth, MAX_AGE, false)) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date of birth"); }
         return true;
     }
 

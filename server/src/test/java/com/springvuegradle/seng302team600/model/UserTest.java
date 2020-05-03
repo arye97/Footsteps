@@ -1,19 +1,15 @@
 package com.springvuegradle.seng302team600.model;
 
-import com.springvuegradle.seng302team600.exception.InvalidDateOfBirthException;
-import com.springvuegradle.seng302team600.exception.InvalidUserNameException;
-import com.springvuegradle.seng302team600.exception.UserTooYoungException;
-import com.springvuegradle.seng302team600.exception.MaximumEmailsException;
-import com.springvuegradle.seng302team600.exception.MustHavePrimaryEmailException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -40,12 +36,12 @@ public class UserTest {
     /** Check lower bound of age (age<=13)
      * Checks ages 12, 13 and today (0)
      */
-    void ageTooYoung() throws UserTooYoungException, InvalidUserNameException, InvalidDateOfBirthException {
+    void ageTooYoung() {
         assertTrue(userTest.isValid());
         userTest.setDateOfBirth(getAgeDate(12));
-        assertThrows(UserTooYoungException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
         userTest.setDateOfBirth(Calendar.getInstance().getTime());
-        assertThrows(UserTooYoungException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
         userTest.setDateOfBirth(getAgeDate(13));
         assertTrue(userTest.isValid());
         userTest.setDateOfBirth(getAgeDate(14));
@@ -56,72 +52,72 @@ public class UserTest {
     /** Check upper bound of age (age<150)
      * Checks ages 151, 150 and 149
      */
-    void ageTooOld() throws UserTooYoungException, InvalidUserNameException, InvalidDateOfBirthException {
+    void ageTooOld() {
         assertTrue(userTest.isValid());
         userTest.setDateOfBirth(getAgeDate(151));
-        assertThrows(InvalidDateOfBirthException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
         userTest.setDateOfBirth(getAgeDate(150));
-        assertThrows(InvalidDateOfBirthException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
         userTest.setDateOfBirth(getAgeDate(149));
         assertTrue(userTest.isValid());
     }
 
     @Test
-    void invalidFirstNameEmpty() throws UserTooYoungException, InvalidUserNameException, InvalidDateOfBirthException {
+    void invalidFirstNameEmpty() {
         assertTrue(userTest.isValid());
         userTest.setFirstName("");
-        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
         userTest.setFirstName("    ");
-        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
     }
 
     @Test
-    void invalidFirstNameNull() throws UserTooYoungException, InvalidUserNameException, InvalidDateOfBirthException {
+    void invalidFirstNameNull() {
         assertTrue(userTest.isValid());
         userTest.setFirstName(null);
-        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
     }
 
     @Test
-    void invalidFirstNameNonAlphaChar() throws UserTooYoungException, InvalidUserNameException, InvalidDateOfBirthException {
+    void invalidFirstNameNonAlphaChar() {
         assertTrue(userTest.isValid());
         userTest.setFirstName("Jimmy7");
-        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
         userTest.setFirstName("Jimmy@");
-        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
         userTest.setFirstName("!");
-        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
     }
 
     @Test
-    void invalidLastNameEmpty() throws UserTooYoungException, InvalidUserNameException, InvalidDateOfBirthException {
+    void invalidLastNameEmpty() {
         assertTrue(userTest.isValid());
         userTest.setLastName("");
-        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
         userTest.setLastName("     ");
-        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
     }
 
     @Test
-    void invalidLastNameNull() throws UserTooYoungException, InvalidUserNameException, InvalidDateOfBirthException {
+    void invalidLastNameNull() {
         assertTrue(userTest.isValid());
         userTest.setLastName(null);
-        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
     }
 
     @Test
-    void invalidLastNameNonAlphaChar() throws UserTooYoungException, InvalidUserNameException, InvalidDateOfBirthException {
+    void invalidLastNameNonAlphaChar() {
         assertTrue(userTest.isValid());
         userTest.setLastName("Jones7");
-        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
         userTest.setLastName("Jones^");
-        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
         userTest.setLastName("%");
-        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
     }
 
     @Test
-    void validMiddleNameEmpty() throws UserTooYoungException, InvalidUserNameException, InvalidDateOfBirthException {
+    void validMiddleNameEmpty() {
         assertTrue(userTest.isValid());
         userTest.setMiddleName("");
         assertTrue(userTest.isValid());
@@ -130,25 +126,25 @@ public class UserTest {
     }
 
     @Test
-    void validMiddleNameNull() throws UserTooYoungException, InvalidUserNameException, InvalidDateOfBirthException {
+    void validMiddleNameNull() {
         assertTrue(userTest.isValid());
         userTest.setMiddleName(null);
         assertTrue(userTest.isValid());
     }
 
     @Test
-    void invalidMiddleNameNonAlphaChar() throws UserTooYoungException, InvalidUserNameException, InvalidDateOfBirthException {
+    void invalidMiddleNameNonAlphaChar() {
         assertTrue(userTest.isValid());
         userTest.setMiddleName("Johnny7");
-        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
         userTest.setMiddleName("Johnny*");
-        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
         userTest.setMiddleName("+");
-        assertThrows(InvalidUserNameException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
     }
 
     @Test
-    void setOnePrimaryEmail_Success_WhenCreatingUser() throws MustHavePrimaryEmailException, MaximumEmailsException {
+    void setOnePrimaryEmail_Success_WhenCreatingUser() {
         String email = "terry_tester@yahoo.com";
         userTest.setPrimaryEmail(email);
 
@@ -161,7 +157,7 @@ public class UserTest {
 
 
     @Test
-    void setAdditionalEmails_Success_WhenAddingAdditionalEmails() throws MustHavePrimaryEmailException, MaximumEmailsException {
+    void setAdditionalEmails_Success_WhenAddingAdditionalEmails() {
         String primaryEmail = "maria_dianna_bart@database.com";
         userTest.setPrimaryEmail(primaryEmail);
 
@@ -192,12 +188,12 @@ public class UserTest {
     }
 
     @Test
-    void setAdditionalEmails_ExceptionThrown_WhenPrimaryEmailDoesNotExist() throws MustHavePrimaryEmailException, MaximumEmailsException {
+    void setAdditionalEmails_ExceptionThrown_WhenPrimaryEmailDoesNotExist() {
         List<String> additionalEmails = new ArrayList<>();
         additionalEmails.add("guavaperson@cucumber.com");
         additionalEmails.add("pam@pam.pam");
 
-        Exception exception = assertThrows(MustHavePrimaryEmailException.class, () -> {
+        Exception exception = assertThrows(ResponseStatusException.class, () -> {
             userTest.setAdditionalEmails(additionalEmails);
         });
 
@@ -210,7 +206,7 @@ public class UserTest {
     }
 
     @Test
-    void setAdditionalEmails_ExceptionThrown_WhenEmailLimitReached() throws MustHavePrimaryEmailException, MaximumEmailsException {
+    void setAdditionalEmails_ExceptionThrown_WhenEmailLimitReached() {
         String primaryEmail = "maria_dianna_bart@database.com";
         userTest.setPrimaryEmail(primaryEmail);
 
@@ -220,7 +216,7 @@ public class UserTest {
         additionalEmails.add("magicalcat@cats.com");
         additionalEmails.add("lizardman@cow.com");
 
-        Exception exception = assertThrows(MaximumEmailsException.class, () -> {
+        Exception exception = assertThrows(ResponseStatusException.class, () -> {
             additionalEmails.add("davidthebacker@parking.org");
             userTest.setAdditionalEmails(additionalEmails);
         });
@@ -235,7 +231,7 @@ public class UserTest {
 
 
     @Test
-    void setNewPrimaryEmail_Success_WhenReplacedWithExistingEmail() throws MustHavePrimaryEmailException, MaximumEmailsException {
+    void setNewPrimaryEmail_Success_WhenReplacedWithExistingEmail() {
         String oldPrimaryEmail = "terry_tester@yahoo.com";
         userTest.setPrimaryEmail(oldPrimaryEmail);
 
@@ -260,7 +256,7 @@ public class UserTest {
 
 
     @Test
-    void deleteAdditionalEmail_Success_WhenRemovingEmailFromUser() throws MustHavePrimaryEmailException, MaximumEmailsException {
+    void deleteAdditionalEmail_Success_WhenRemovingEmailFromUser() {
         String primaryEmail = "terry_tester@yahoo.com";
         userTest.setPrimaryEmail(primaryEmail);
 
@@ -277,7 +273,7 @@ public class UserTest {
 
 
     @Test
-    void setTransientEmailStrings_DoesNotDuplicatePrimaryAndAdditionalEmails() throws MaximumEmailsException, MustHavePrimaryEmailException {
+    void setTransientEmailStrings_DoesNotDuplicatePrimaryAndAdditionalEmails() {
         String primaryEmail = "lorenzo_haschestpain@yahoo.com";
         userTest.setPrimaryEmail(primaryEmail);
 
