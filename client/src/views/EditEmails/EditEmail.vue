@@ -218,24 +218,28 @@
                 // Check if Email is formatted correctly
                 this.duplicateEmailError = null;
                 if ((/(.+)@(.+){2,}\.(.+){2,}/).test(emailTextBox)) {
-                    server.get(`/email`,
-                        {
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Token': tokenStore.state.token,
-                                'email': emailTextBox
-                            },
-                            withCredentials: true
-                        }
-                    ).catch(error => {
-                        if (error.response.status === 400) {
-                            console.log(error.response.data.message);
-                            let message = "Bad Request: email " + emailTextBox + " is already in use";
-                            if (error.response.data.message === message) {
-                                this.duplicateEmailError = "We're sorry, that email is taken."
+                    if (emailTextBox === this.primaryEmail || this.additionalEmails.includes(emailTextBox)) {
+                        this.duplicateEmailError = "You are already assigned to this email!";
+                    } else {
+                        server.get(`/email`,
+                            {
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Token': tokenStore.state.token,
+                                    'email': emailTextBox
+                                },
+                                withCredentials: true
                             }
-                        }
-                    })
+                        ).catch(error => {
+                            if (error.response.status === 400) {
+                                console.log(error.response.data.message);
+                                let message = "Bad Request: email " + emailTextBox + " is already in use";
+                                if (error.response.data.message === message) {
+                                    this.duplicateEmailError = "We're sorry, that email is taken."
+                                }
+                            }
+                        })
+                    }
                 }
             },
 
