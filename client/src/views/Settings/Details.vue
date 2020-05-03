@@ -172,8 +172,10 @@
                 mutateButton.setAttribute('disabled', "true");
                 if (event.target.type === "submit") {
                     if (mutateTarget.className !== "multiselect--above multiselect-box") {
-                      if (mutateTarget.hasAttribute("required") && mutateTarget.value === "" || mutateTarget.value === undefined) {
+                      if (mutateTarget.hasAttribute("required") && mutateTarget.value === "" || mutateTarget.value === undefined || mutateTarget.value === null) {
+                          this.putUpdate(null, alertDiv);
                           this.message = "This is a required field. Please enter some valid data";
+                          this.code="";
                       } else {
                           const update = {};
                           update[mutateTarget.id] = mutateTarget.value;
@@ -186,22 +188,19 @@
                       //Need to fix issues with
                       const updateField = document.getElementById(mutateTarget.id.replace("Div", ""));
                       const update = {};
-                      switch (updateField.id) {
-                        case "gender":
-                          update['gender'] = this.gender;
-                          break;
-                        case "passports":
-                          update['passports'] = this.passports;
-                          break;
-                        case "fitness":
-                          if (this.fitness === null) {
-                            update['fitness'] = null;
-                          } else {
-                            update['fitness'] = this.fitness.value;
-                          }
-                          break;
+                      if (updateField.id == "gender") {
+                        update['gender'] = this.gender;
+                      } else if (updateField.id == "Passports") {
+                        update['passports'] = this.passports;
+                      } else if (updateField.id == "fitness") {
+                        if (this.fitness === null) {
+                          update['fitness'] = null;
+                        } else {
+                          update['fitness'] = this.fitness.value;
+                        }
                       }
                       this.putUpdate(update, alertDiv);
+                      this.message = "This is a required field. Please enter some valid data";
                       mutateTarget.className = "multiselect--disabled multiselect-box";
                       mutateButton.innerText = "+";
                       mutateButton.type = "button";
@@ -229,7 +228,7 @@
                 }).catch(error => {
                     alertDiv.classList.remove("alert-success");
                     alertDiv.classList.add("alert-danger");
-                    this.message = error.statusText;
+                    this.message = error.message();
                     this.code = error.code;
                 });
                 alertDiv.removeAttribute("hidden");
