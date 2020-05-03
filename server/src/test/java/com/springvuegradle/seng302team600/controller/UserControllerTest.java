@@ -3,7 +3,6 @@ package com.springvuegradle.seng302team600.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.springvuegradle.seng302team600.exception.MaximumEmailsException;
 import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.RegisterRequest;
@@ -167,13 +166,13 @@ class UserControllerTest {
         MockitoAnnotations.initMocks(this);
         dummyUser = new User();
     }
-    private void setupMocking(String json) throws MaximumEmailsException, JsonProcessingException {
+    private void setupMocking(String json) throws JsonProcessingException {
         setupMockingNoEmail(json);
         when(emailRepository.existsEmailByEmail(Mockito.anyString())).thenAnswer(i -> {
             return i.getArgument(0).equals(dummyEmail.getEmail());
         });
     }
-    private void setupMockingNoEmail(String json) throws MaximumEmailsException, JsonProcessingException {
+    private void setupMockingNoEmail(String json) throws JsonProcessingException {
         regReq = objectMapper.treeToValue(objectMapper.readTree(json), RegisterRequest.class);
         dummyUser = dummyUser.builder(regReq);
         dummyEmail = new Email(dummyUser.getPrimaryEmail(), true, dummyUser);
@@ -206,61 +205,43 @@ class UserControllerTest {
     }
 
     @Test
-    /**Test if newUser catches missing field*/
     public void newUserMissingFieldTest() throws Exception {
         setupMockingNoEmail(userMissJsonPost);
-        // Setup POST
+
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post("/profiles")
                 .content(userMissJsonPost)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
 
-        // Perform POST
          mvc.perform(httpReq)
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    /**Test if newUser catches EmailAlreadyRegisteredException*/
     public void newUserEmailForbidden() throws Exception {
         setupMocking(userForbiddenJsonPost);
-        // Setup POST
-//        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post("/profiles")
-//                .content(userForbiddenJsonPost)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .accept(MediaType.APPLICATION_JSON);
-//
-//        // Perform POST
-//        mvc.perform(httpReq)
-//                .andExpect(status().isCreated());
 
-        // Setup POST
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post("/profiles")
                 .content(userForbiddenJsonPost)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
 
-        // Perform POST
         mvc.perform(httpReq)
                 .andExpect(status().isConflict());
     }
 
     @Test
-    /**Test if a new User can be created*/
     public void newUserTest() throws Exception {
         setupMockingNoEmail(createUserJsonPost);
 
-        // Setup POST
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post("/profiles")
                 .content(createUserJsonPost)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
 
-        // Perform POST
         MvcResult result = mvc.perform(httpReq)
                 .andExpect(status().isCreated())
                 .andReturn();
-        // Test Token
         assertNotNull(result.getResponse());
     }
 
@@ -324,7 +305,6 @@ class UserControllerTest {
         MvcResult result = mvc.perform(request)
                 .andExpect(status().isCreated())
                 .andReturn();
-
         assertNotNull(result.getResponse().getContentAsString());
     }
 
@@ -334,7 +314,6 @@ class UserControllerTest {
         //String token = "WrongToken"; // Tokens are 30 chars long.
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/logout")
                 .accept(MediaType.APPLICATION_JSON);
-                //.header("Token", token);
         mvc.perform(request)
                 .andExpect(status().isForbidden());
     }

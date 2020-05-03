@@ -31,11 +31,16 @@
         -->
 
         <form method="post" v-on:submit.prevent="registerUser">
-
             <div class="form-group">
                 <!-- full-name field-->
                 <label id="first-name-label" for="first-name">First Name: *</label>
-                <input type="text" class="form-control" v-model="firstname" id="first-name" name="first-name" placeholder="Your First Name..." required>
+                <input type="text" class="form-control" v-model="firstname" id="first-name" name="first-name" placeholder="Your First Name...">
+            </div>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_first_name">
+                {{  "Field is mandatory and must not be blank"  }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="form-group">
                 <!-- full-name field-->
@@ -45,21 +50,51 @@
             <div class="form-group">
                 <!-- full-name field-->
                 <label id="last-name-label" for="last-name">Last Name: *</label>
-                <input type="text" class="form-control" v-model="lastname" id="last-name" name="last-name" placeholder="Your Last Name..." required>
+                <input type="text" class="form-control" v-model="lastname" id="last-name" name="last-name" placeholder="Your Last Name...">
+            </div>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_last_name">
+                {{  "Field is mandatory and must not be blank"  }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="form-group">
                 <!-- email field -->
                 <label id="email-label" for="email">Email Address: *</label>
-                <input type="email" class="form-control" v-model="email" id="email" name="email" placeholder="Your Email Address..." required>
+                <input type="email" class="form-control" v-model="email" id="email" name="email" placeholder="Your Email Address...">
+            </div>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_email">
+                {{  "Field is mandatory and must not be blank"  }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="form-group">
                 <!-- password field-->
                 <label id="password-label" for="password">Password: *</label>
-                <input type="password" class="form-control" v-model="password" id="password" name="password" placeholder="Your Password..." required>
+                <input type="password" class="form-control" v-model="password" id="password" name="password" placeholder="Your Password...">
+            </div>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_password">
+                {{  "Field is mandatory and must not be blank"  }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="form-group">
                 <label id="passwordCheck-label" for="passwordCheck">Retype your Password: *</label>
-                <input type="password" class="form-control" v-model="passwordCheck" id="passwordCheck" name="passwordCheck" placeholder="Retype Password..." required>
+                <input type="password" class="form-control" v-model="passwordCheck" id="passwordCheck" name="passwordCheck" placeholder="Retype Password...">
+            </div>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_password_check">
+                {{  "Field is mandatory and must not be blank"  }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_password_match">
+                {{  'Passwords do not match, please type again'  }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="form-group">
                 <!-- fitness level field -->
@@ -78,14 +113,26 @@
                 <!-- gender field -->
                 <label id="gender-label" for="gender">Gender: *</label>
                 <multiselect v-model="gender" id="gender"
-                             :options="genders" placeholder="Your gender" required>
+                             :options="genders" placeholder="Your gender">
                     <template slot="noResult">Invalid gender</template>
                 </multiselect>
+            </div>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_gender">
+                {{  "Field is mandatory and must not be blank"  }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="form-group">
                 <!-- date of birth field-->
                 <label id="date_of_birth-label" for="date_of_birth">Date of Birth: *</label>
-                <input type="date" class="form-control" v-model="date_of_birth" id="date_of_birth" name="date_of_birth" required>
+                <input type="date" class="form-control" v-model="date_of_birth" id="date_of_birth" name="date_of_birth">
+            </div>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_dob">
+                {{  "Field is mandatory and must not be blank"  }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="form-group">
                 <!-- passport country -->
@@ -101,12 +148,19 @@
                 <label id="bio-label" for="bio">Tell us about yourself, your Bio: </label>
                 <textarea name="bio" class="form-control" id="bio" v-model="bio" cols="30" rows="1" placeholder="Who are you?"></textarea>
             </div>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_form">
+                {{  message_form  }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
             <div class="form-group">
                 <!-- SignIn Button-->
                 <button type="submit" class="btn btn-primary">Register</button>
                 <router-link to="/login" class="btn btn-link">Login</router-link>
             </div>
         </form>
+<<<<<<< HEAD
         <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" hidden="true" id="alert">
             {{  message  }}
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -114,6 +168,9 @@
             </button>
         </div>
         <footer class="col-12 text-center">
+=======
+        <footer>
+>>>>>>> Story1
             Entries marked with * are required
         </footer>
     </div>
@@ -125,6 +182,47 @@
     import Header from '../../components/Header/Header.vue'
     import {getCountryNames} from '../../constants';
     import {tokenStore} from '../../main';
+
+    function showError(alert_name) {
+        let errorAlert = document.getElementById(alert_name);
+        errorAlert.hidden = false;          //Show alert bar
+        setTimeout(function () {    //Hide alert bar after ~5000ms
+            errorAlert.hidden = true;
+        }, 10000);
+    }
+
+    async function vaildUser(newUser, passwordCheck) {
+        if (newUser.password !== passwordCheck) {
+            showError('alert_password_match');
+            return 'password';
+        }
+        let count = 0; //count of blank fields
+        if(newUser.password === '') {
+            showError('alert_password');
+            count += 1;
+        }
+        if(passwordCheck === '') {
+            showError('alert_password_check');
+            count += 1;
+        }
+        if(newUser.firstname === '') {
+            showError('alert_first_name');
+            count += 1;
+        }
+        if(newUser.lastname === '') {
+            showError('alert_last_name');
+            count += 1;
+        }
+        if(newUser.date_of_birth === '') {
+            showError('alert_dob');
+            count += 1;
+        }
+        if(newUser.gender === '') {
+            showError('alert_gender');
+            count += 1;
+        }
+        return count;
+    }
 
     export default {
         components: { Multiselect, Header },
@@ -148,7 +246,8 @@
                                  {value: 5, desc: "Very fit, competitive athlete, extremely active"}
                 ],
                 bio: '',
-                message: "",
+                message_form: "",
+                message_password_check: '',
                 countries: [],
                 genders: ['Male', 'Female', 'Non-Binary'],
                 passports: []
@@ -156,7 +255,7 @@
         },
 
         mounted () {
-            let select = []
+            let select = [];
             // Create a request variable and assign a new XMLHttpRequest object to it.
             let request = new XMLHttpRequest();
             //build url
@@ -173,9 +272,9 @@
                         select.push(elmt)
                     } )
                 } else {
-                    select = 'List is empty'
-                    let errorAlert = document.getElementById("alert");
-                    this.message = 'Error fetching countries';
+                    select = 'List is empty';
+                    let errorAlert = document.getElementById("alert_form");
+                    this.message_form = 'Error fetching countries';
                     errorAlert.hidden = false;          //Show alert bar
                 }
             };
@@ -188,18 +287,30 @@
             async registerUser() {
                 // Save the data as a newUser object
                 const newUser = {
-                    lastname: this.lastname,
-                    firstname: this.firstname,
-                    middlename: this.middlename,
-                    nickname: this.nickname,
-                    primary_email: this.email,
-                    password: this.password,
+                    lastname: this.lastname.trim(),
+                    firstname: this.firstname.trim(),
+                    middlename: this.middlename.trim(),
+                    nickname: this.nickname.trim(),
+                    primary_email: this.email.trim(),
+                    password: this.password.trim(),
                     date_of_birth: this.date_of_birth,
                     gender: this.gender,
-                    bio: this.bio,
+                    bio: this.bio.trim(),
                     fitness: this.fitness.value,
                     passports: this.passports
                 };
+                let validCount = await vaildUser(newUser, this.passwordCheck);
+                console.log(validCount);
+                if (validCount === 'password') {
+                    //todo: passwords not matching alert box
+                    this.message_form = "Password and re-typed password do not match. Please try again"
+                    showError('alert_form');
+                    return;
+                } else if (validCount !== 0) {
+                    this.message_form = validCount.toString() + " blank or empty mandatory fields have been found. Please fill them in to register";
+                    showError('alert_form');
+                    return;
+                }
                 // The HTTP Post Request
                 await server.post('/profiles',
                     newUser,
@@ -216,20 +327,16 @@
                 }).catch(error => {
                     console.log(error);
                     //Get alert bar element
-                    let errorAlert = document.getElementById("alert");
                     if (error.message === "Network Error" || error.message.includes("timeout")) {
-                        this.message = error.message;
-                    } else if (error.response.status === 409 || error.response.status === 403) { //Error 409: Email already exists, Error 403: Invalid date of birth or invalid name field
-                        this.message = error.response.data.message.toString(); //Set alert bar message to error message from server
+                        this.message_form = error.message;
+                    } else if (error.response.data.status === 409 || error.response.data.status === 403) { //Error 409: Email already exists, Error 403: Invalid date of birth or invalid name field
+                        this.message_form = error.response.data.message.toString(); //Set alert bar message to error message from server
                     } else if (error.response.status === 400) { //Error 400: Bad request (missing fields)
-                        this.message = "An invalid register request has been received please try again"
+                        this.message_form = "An invalid register request has been received please try again"
                     } else {    //Catch for any errors that are not specifically caught
-                        this.message = "An unknown error has occurred during register"
+                        this.message_form = "An unknown error has occurred during register"
                     }
-                    errorAlert.hidden = false;          //Show alert bar
-                    setTimeout(function () {    //Hide alert bar after ~5000ms
-                        errorAlert.hidden = true;
-                    }, 5000);
+                    showError('alert_form');
                 });
             }
         },

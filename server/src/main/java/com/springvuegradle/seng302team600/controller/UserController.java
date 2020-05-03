@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.springvuegradle.seng302team600.exception.*;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.RegisterRequest;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
@@ -90,13 +89,9 @@ public class UserController {
      * Creates and returns a new User from the requested body
      * @param newUserData payload of request, data to be registered
      * @param response the http response
-     * @throws InvalidDateOfBirthException thrown if provided DateOfBirth is invalid
-     * @throws UserTooYoungException thrown if provided DateOfBirth is to recent, young
-     * @throws InvalidUserNameException thrown if user's name is invalid
      */
     @PostMapping("/profiles")
-    public String newUser(@Validated @RequestBody RegisterRequest newUserData, HttpServletResponse response)
-            throws InvalidDateOfBirthException, UserTooYoungException, InvalidUserNameException, MaximumEmailsException {
+    public String newUser(@Validated @RequestBody RegisterRequest newUserData, HttpServletResponse response) {
         if (emailRepository.existsEmailByEmail(newUserData.getPrimaryEmail())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email: " + newUserData.getPrimaryEmail() + " is already registered"); //409. It may be worth consider to a 200 error for security reasons
         }
@@ -118,7 +113,7 @@ public class UserController {
         
     @PostMapping("/profiles/{profileId}/emails")
     public void addEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response)
-            throws JsonProcessingException, EmailAlreadyRegisteredException, MaximumEmailsException, MustHavePrimaryEmailException {
+            throws JsonProcessingException {
         //ToDo Fix later after merging
         //        ObjectNode node = new ObjectMapper().readValue(jsonString, ObjectNode.class);
 //        HttpSession session = request.getSession(false);
@@ -154,7 +149,7 @@ public class UserController {
      * @throws JsonProcessingException
      */
     @PutMapping("/profiles/{profileId}/emails")
-    public void updateEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, MaximumEmailsException, MustHavePrimaryEmailException {
+    public void updateEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException {
         //ToDo Fix later after merging
         //        ObjectNode node = new ObjectMapper().readValue(jsonString, ObjectNode.class);
 //        HttpSession session = request.getSession(false);

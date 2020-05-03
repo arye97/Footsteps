@@ -190,7 +190,7 @@
                           update[mutateTarget.id] = mutateTarget.value;
                           this.putUpdate(update, alertDiv);
                           mutateTarget.setAttribute('disabled', "true");
-                          mutateButton.innerText = "+";
+                          mutateButton.innerText = "Edit";
                           mutateButton.type = "button";
                       }
                     } else {
