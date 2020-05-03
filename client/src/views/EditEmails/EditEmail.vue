@@ -148,7 +148,7 @@
                 insertedEmail: null, //y
                 emailCount: 0, //y
                 emailMessage: null, //y
-                duplicateEmailError: null //y
+                duplicateEmailError: "" //y
             }
         },
         mounted() {
@@ -220,17 +220,17 @@
             checkEmail() {
                 let emailTextBox = document.getElementById("newEmailInserted").value;
                 // Check if Email is formatted correctly
-                this.duplicateEmailError = null;
                 if ((/(.+)@(.+){2,}\.(.+){2,}/).test(emailTextBox)) {
                     if (emailTextBox === this.primaryEmail || this.additionalEmails.includes(emailTextBox)) {
                         this.duplicateEmailError = "You are already assigned to this email!";
                     } else {
+                        this.duplicateEmailError = null;
                         server.get(`/email`,
                             {
                                 headers: {
                                     'Content-Type': 'application/json',
-                                    'Token': tokenStore.state.token,
-                                    'email': emailTextBox
+                                           'Token': tokenStore.state.token,
+                                           'email': emailTextBox
                                 },
                                 withCredentials: true
                             }
@@ -244,25 +244,16 @@
                             }
                         })
                     }
+                } else {
+                    this.duplicateEmailError = "null bitch";
                 }
             },
 
             backAlert() {
-                let hasChanged = false;
-                if (this.primaryEmail !== this.additionalEmails) {
-                    hasChanged = true
-                } else if (this.additionalEmails.length === this.originalAdditionalEmails.length) {
-                    for (let index in this.originalAdditionalEmails) {
-                        if (!this.additionalEmails.includes(this.originalAdditionalEmails[index])) {
-                            hasChanged = true;
-                        }
-                    }
-                }
-
+                let hasChanged = this.checkIfChangesMade();
                 if (hasChanged) {
                     if (confirm("Press a button!")) {
                         this.$router.push("/profile")
-
                     } else {
                         console.log(document.getElementById("confirmationButtons"))
                         console.log(document.getElementById("back").classList)
@@ -272,6 +263,11 @@
             },
 
             saveChanges() {
+                // let hasChanged = this.checkIfChangesMade();
+                // if (!hasChanged) {
+                //
+                // }
+
                 let savedEmails;
                 // Primary Email has not been replaced
                 if (this.primaryEmail === this.originalPrimaryEmail) {
@@ -333,6 +329,20 @@
                         // }, 5000);
                     });
                 }
+            },
+
+            checkIfChangesMade() {
+                let hasChanged = false;
+                if (this.primaryEmail !== this.additionalEmails) {
+                    hasChanged = true
+                } else if (this.additionalEmails.length === this.originalAdditionalEmails.length) {
+                    for (let index in this.originalAdditionalEmails) {
+                        if (!this.additionalEmails.includes(this.originalAdditionalEmails[index])) {
+                            hasChanged = true;
+                        }
+                    }
+                }
+                return hasChanged
             },
 
             updateOriginalPrimaryEmail() {
