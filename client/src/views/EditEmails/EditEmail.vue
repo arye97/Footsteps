@@ -189,9 +189,10 @@
                     console.log('Error: Invalid email. Please change to proper email format and try again')
                 } else {
                     //Email is valid
-                    this.additionalEmails.unshift(this.insertedEmail);
+                    this.additionalEmails.push(this.insertedEmail);
                     this.emailCount++;
                     this.setEmailCountMessage();
+                    // document.getElementById("newEmailInserted").value = "";
                 }
             },
 
@@ -221,10 +222,13 @@
                 let emailTextBox = document.getElementById("newEmailInserted").value;
                 // Check if Email is formatted correctly
                 if ((/(.+)@(.+){2,}\.(.+){2,}/).test(emailTextBox)) {
-                    if (emailTextBox === this.primaryEmail || this.additionalEmails.includes(emailTextBox)) {
+                    if (this.emailMessage === "Email limit reached!") {
+                        // Disable add button if email limit reached
+                        this.duplicateEmailError = "";
+                    } else if (emailTextBox === this.primaryEmail || this.additionalEmails.includes(emailTextBox)) {
+                        // Disable add button if user already assigned to email
                         this.duplicateEmailError = "You are already assigned to this email!";
                     } else {
-                        this.duplicateEmailError = null;
                         server.get(`/email`,
                             {
                                 headers: {
@@ -234,10 +238,13 @@
                                 },
                                 withCredentials: true
                             }
-                        ).catch(error => {
+                        ).then(() => {
+                            this.duplicateEmailError = null;
+                        }).catch(error => {
                             if (error.response.status === 400) {
                                 console.log(error.response.data.message);
                                 let message = "Bad Request: email " + emailTextBox + " is already in use";
+                                // Disable add button if email is in use
                                 if (error.response.data.message === message) {
                                     this.duplicateEmailError = "We're sorry, that email is taken."
                                 }
@@ -245,7 +252,7 @@
                         })
                     }
                 } else {
-                    this.duplicateEmailError = "null bitch";
+                    this.duplicateEmailError = "";
                 }
             },
 
@@ -269,7 +276,7 @@
                 // }
 
                 let savedEmails;
-                // Primary Email has not been replaced
+                // Primary Email has not been replaced (POST)
                 if (this.primaryEmail === this.originalPrimaryEmail) {
                     savedEmails = {
                         additionalEmails: this.additionalEmails
@@ -290,7 +297,7 @@
                     // else reset page with error code?
                 }
 
-                // Primary Email has been replaced
+                // Primary Email has been replaced (PUT)
                 if (this.primaryEmail !== this.originalPrimaryEmail) {
                     savedEmails = {
                         candidatePrimaryEmail: this.primaryEmail,
