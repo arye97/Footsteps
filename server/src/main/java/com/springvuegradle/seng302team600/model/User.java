@@ -33,6 +33,11 @@ public class User {
 
     final static public int MAX_EMAILS = 5;
 
+    final static public int MIN_AGE = 13;
+    final static public int MAX_AGE = 150;
+
+    final static private int FIELD_LEN = 15;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", nullable = false)
@@ -45,21 +50,21 @@ public class User {
     private Date tokenTime;
 
     @NotNull(message = "Please provide a first name")
-    @Column(name = "first_name", length = 15, nullable = false)
+    @Column(name = "first_name", length = FIELD_LEN, nullable = false)
     @JsonProperty("firstname")
     private String firstName;
 
     @JsonProperty("middlename")
-    @Column(name = "middle_name", length = 15)
+    @Column(name = "middle_name", length = FIELD_LEN)
     private String middleName;
 
     @NotNull(message = "Please provide a last name")
-    @Column(name = "last_name", length = 15, nullable = false)
+    @Column(name = "last_name", length = FIELD_LEN, nullable = false)
     @JsonProperty("lastname")
     private String lastName;
 
     @JsonProperty("nickname")
-    @Column(name = "nickname", length = 15)
+    @Column(name = "nickname", length = FIELD_LEN)
     private String nickName;
 
     @JsonProperty("bio")
@@ -91,7 +96,7 @@ public class User {
     private Date dateOfBirth;
 
     @NotNull(message = "Please provide a gender from the following: male, female, non_binary")
-    @Column(name = "gender", length = 15, nullable = false)
+    @Column(name = "gender", length = FIELD_LEN, nullable = false)
     @Enumerated(EnumType.STRING)
     @JsonProperty("gender")
     private Gender gender;
@@ -459,8 +464,8 @@ public class User {
         if (middleName != null) {
             if (! middleName.matches("[a-zA-Z]*") && ! middleName.trim().isEmpty() ) { throw new InvalidUserNameException(); }
         }
-        if (ageCheck(dateOfBirth, 13, true)) { throw new UserTooYoungException(); }
-        if (ageCheck(dateOfBirth, 150, false)) { throw new InvalidDateOfBirthException(); }
+        if (ageCheck(dateOfBirth, MIN_AGE, true)) { throw new UserTooYoungException(); }
+        if (ageCheck(dateOfBirth, MAX_AGE, false)) { throw new InvalidDateOfBirthException(); }
         return true;
     }
 
