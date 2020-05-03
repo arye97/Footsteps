@@ -96,8 +96,7 @@
                                         >
                                     </td>
                                     <td>
-                                        <button
-                                                type="submit"
+                                        <button type="submit"
                                                 class="btn btn-secondary"
                                                 v-bind:disabled="duplicateEmailError!==null"
                                         >
@@ -117,8 +116,9 @@
                             </table>
                         </form>
                         <div id="confirmationButtons">
-                            <router-link to="/profile" class="btn btn-outline-success btn-lg float-left" @click.native.prevent="backAlert">Back</router-link>
-                            <button type="submit" class="btn btn-success btn-lg float-right" v-on:click="submitEmail">Submit</button>
+<!--?                           <router-link to="/profile" class="btn btn-outline-success btn-lg float-left" @click.native.prevent="backAlert">Back</router-link>-->
+                            <button type="submit" class="btn btn-success btn-lg float-left" id="back" :key=this.toReload v-on:click="backAlert">Back</button>
+                            <button type="submit" class="btn btn-success btn-lg float-right" v-on:click="saveChanges">Save</button>
                         </div>
                     </section>
                 </article>
@@ -136,6 +136,8 @@
         components: {Sidebar},
         data () {
             return {
+                //each time toReload increases then the html el will reload
+                toReload: 0,
                 loading: true,
                 error: false,
                 userId: null, //y
@@ -262,20 +264,22 @@
                         this.$router.push("/profile")
 
                     } else {
-                        // Cancel
+                        console.log(document.getElementById("confirmationButtons"))
+                        console.log(document.getElementById("back").classList)
+                        this.toReload += 1;
                     }
                 }
             },
 
-            submitEmail() {
-                let submittedEmail;
+            saveChanges() {
+                let savedEmails;
                 // Primary Email has not been replaced
                 if (this.primaryEmail === this.originalPrimaryEmail) {
-                    submittedEmail = {
+                    savedEmails = {
                         additionalEmails: this.additionalEmails
                     };
                     server.post(`/profiles/${this.userId}/emails`,
-                        submittedEmail,
+                        savedEmails,
                         {
                             headers: {
                                 "Access-Control-Allow-Origin": "*",
@@ -292,13 +296,13 @@
 
                 // Primary Email has been replaced
                 if (this.primaryEmail !== this.originalPrimaryEmail) {
-                    submittedEmail = {
+                    savedEmails = {
                         candidatePrimaryEmail: this.primaryEmail,
                         originalPrimaryEmail: this.originalPrimaryEmail,
                         additionalEmails: this.additionalEmails
                     };
                     server.put(`/profiles/${this.userId}/emails`,
-                        submittedEmail,
+                        savedEmails,
                         {
                             headers: {
                                 "Access-Control-Allow-Origin": "*",
@@ -451,5 +455,11 @@
         margin-top: 5px;
         color: chocolate;
     }
+
+    /*#confirmationButtons:focus {*/
+    /*    outline: none;*/
+    /*    box-shadow: none;*/
+    /*}*/
+
 </style>
 
