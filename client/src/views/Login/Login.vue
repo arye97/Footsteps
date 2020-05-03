@@ -100,9 +100,9 @@
                     let errorAlert = document.getElementById("alert");
                     if (error.message === "Network Error") {
                         this.message = error.message;
-                    } else if (error.status === 401) { //Error 401: User not found or incorrect password
+                    } else if (error.response.data.status === 401) { //Error 401: User not found or incorrect password
                         this.message = error.response.data.message.toString(); //Set alert bar message to error message from server
-                    } else if (error.status === 400) { //Error 400: Bad request (email and/or password fields not given)
+                    } else if (error.response.data.status === 400) { //Error 400: Bad request (email and/or password fields not given)
                         this.message = "An invalid login request has been received please try again"
                     } else {    //Catch for any errors that are not specifically caught
                         this.message = "An unknown error has occurred during login"

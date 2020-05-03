@@ -220,7 +220,7 @@
                     let errorAlert = document.getElementById("alert");
                     if (error.message === "Network Error" || error.message.includes("timeout")) {
                         this.message = error.message;
-                    } else if (error.response.status === 409 || error.response.status === 403) { //Error 409: Email already exists, Error 403: Invalid date of birth or invalid name field
+                    } else if (error.response.data.status === 409 || error.response.data.status === 403) { //Error 409: Email already exists, Error 403: Invalid date of birth or invalid name field
                         this.message = error.response.data.message.toString(); //Set alert bar message to error message from server
                     } else if (error.response.status === 400) { //Error 400: Bad request (missing fields)
                         this.message = "An invalid register request has been received please try again"
