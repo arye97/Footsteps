@@ -80,9 +80,31 @@ public class UserController {
     }
 
     /**
+     * Checks if an email exists in the database
+     * @param request HttpServletRequest received from the front-end
+     * @param response HttpServletResponse received from the front-end
+     * @throws IOException
+     */
+    @GetMapping("/email")
+    public void checkEmail(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String token = request.getHeader("Token");
+        User user = userService.findByToken(token);
+        if (user == null) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "User Id does not match token");
+        }
+        String email = request.getHeader("email");
+        boolean emailExists = emailRepository.existsEmailByEmail(email);
+        if (emailExists) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Bad Request: email " + email + " is already in use");
+        } else {
+            response.setStatus(HttpServletResponse.SC_OK);
+        }
+    }
+
+    /**
      * Creates and returns a new User from the requested body
      * @param newUserData payload of request, data to be registered
-     * @param response the http response
+     * @param response HttpServletResponse received from the front-end
      * @throws EmailAlreadyRegisteredException thrown if provided email already used
      * @throws InvalidDateOfBirthException thrown if provided DateOfBirth is invalid
      * @throws UserTooYoungException thrown if provided DateOfBirth is to recent, young

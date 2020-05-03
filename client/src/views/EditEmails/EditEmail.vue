@@ -92,18 +92,24 @@
                                                class="form-control"
                                                id="newEmailInserted"
                                                placeholder="Email address"
-                                               @keyup="getEmail()"
+                                               @keyup="checkEmail()"
                                         >
                                     </td>
                                     <td>
-                                        <button type="submit" class="btn btn-secondary">Add</button>
+                                        <button
+                                                type="submit"
+                                                class="btn btn-secondary"
+                                                v-bind:disabled="duplicateEmailError!==null"
+                                        >
+                                            Add
+                                        </button>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
 <!--                                        <label v-if="alreadyInDB" for="newEmailInserted" class="has-error" id="errorMessage">-->
                                         <label for="newEmailInserted" class="has-error" id="errorMessage">
-                                            We're sorry, that email is taken.
+                                            {{ duplicateEmailError }}
                                         </label>
                                     </td>
                                 </tr>
@@ -138,7 +144,8 @@
                 originalPrimaryEmail: null, //y
                 insertedEmail: null, //y
                 emailCount: 0, //y
-                emailMessage: null //y
+                emailMessage: null, //y
+                duplicateEmailError: null //y
             }
         },
         mounted() {
@@ -206,25 +213,29 @@
                 this.setEmailCountMessage();
             },
 
-            getEmail() {
-                let textBox = document.getElementById("newEmailInserted").value;
-                if ((/(.+)@(.+){2,}\.(.+){2,}/).test(textBox)) {
-                    let emailToCheck = {
-                        email: textBox
-                    };
-                    server.get(`/profiles/${this.userId}/emails`,
-                        emailToCheck,
+            checkEmail() {
+                let emailTextBox = document.getElementById("newEmailInserted").value;
+                // Check if Email is formatted correctly
+                this.duplicateEmailError = null;
+                if ((/(.+)@(.+){2,}\.(.+){2,}/).test(emailTextBox)) {
+                    server.get(`/email`,
                         {
                             headers: {
-                                "Access-Control-Allow-Origin": "*",
-                                "content-type": "application/json",
-                                "Token": tokenStore.state.token
+                                'Content-Type': 'application/json',
+                                'Token': tokenStore.state.token,
+                                'email': emailTextBox
                             },
                             withCredentials: true
                         }
-                    ).then(() => {
-                        console.log('Additional Emails updated successfully!');
-                    });
+                    ).catch(error => {
+                        if (error.response.status === 400) {
+                            console.log(error.response.data.message);
+                            let message = "Bad Request: email " + emailTextBox + " is already in use";
+                            if (error.response.data.message === message) {
+                                this.duplicateEmailError = "We're sorry, that email is taken."
+                            }
+                        }
+                    })
                 }
             },
 
