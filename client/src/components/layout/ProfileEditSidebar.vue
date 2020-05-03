@@ -22,13 +22,12 @@
                     <span class="sidebar-item-name">Details</span>
                 </router-link>
             </li>
-            <!-- Email and Password are yet to be implemented -->
-            <!--<li class>
+            <li class>
                 <router-link to="/profile/emails"  class="sidebar-item">
                     <span class="sidebar-item-name">Email</span>
                 </router-link>
-            </li>-->
-
+            </li>
+            <!-- Password is yet to be implemented -->
             <!--<li class>
                 <router-link to="/profile/password" class="sidebar-item">
                     <span class="sidebar-item-name">Password</span>
