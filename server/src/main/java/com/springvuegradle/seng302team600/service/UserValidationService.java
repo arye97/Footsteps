@@ -1,15 +1,15 @@
 package com.springvuegradle.seng302team600.service;
 
-import com.springvuegradle.seng302team600.exception.UserNotFoundException;
 import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.SecureRandom;
-import java.util.Date;
 
 @Service("userService")
 public class UserValidationService {
@@ -101,9 +101,8 @@ public class UserValidationService {
      * @param token belongs to session user
      * @param id of user requested
      * @return user requested or null (if unauthorized or timed out token)
-     * @throws UserNotFoundException thrown if requested user is not in database
      */
-    public User findByUserId(String token, Long id) throws UserNotFoundException {
+    public User findByUserId(String token, Long id) {
         if (token == null) {
             return null;
         }
@@ -126,7 +125,7 @@ public class UserValidationService {
             if (user != null) {
                 return user;
             } else {
-                throw new UserNotFoundException(id);
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Could not find user with id " + id);
             }
         }
         return null;

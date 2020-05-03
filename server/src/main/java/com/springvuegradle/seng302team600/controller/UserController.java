@@ -1,26 +1,23 @@
 package com.springvuegradle.seng302team600.controller;
 
-import com.springvuegradle.seng302team600.model.User;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.springvuegradle.seng302team600.exception.*;
+import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.RegisterRequest;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
-import com.springvuegradle.seng302team600.exception.*;
 import com.springvuegradle.seng302team600.service.UserValidationService;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
 
 @RestController
 public class UserController {
@@ -93,16 +90,15 @@ public class UserController {
      * Creates and returns a new User from the requested body
      * @param newUserData payload of request, data to be registered
      * @param response the http response
-     * @throws EmailAlreadyRegisteredException thrown if provided email already used
      * @throws InvalidDateOfBirthException thrown if provided DateOfBirth is invalid
      * @throws UserTooYoungException thrown if provided DateOfBirth is to recent, young
      * @throws InvalidUserNameException thrown if user's name is invalid
      */
     @PostMapping("/profiles")
     public String newUser(@Validated @RequestBody RegisterRequest newUserData, HttpServletResponse response)
-            throws MaximumEmailsException, EmailAlreadyRegisteredException, InvalidDateOfBirthException, UserTooYoungException, InvalidUserNameException {
+            throws InvalidDateOfBirthException, UserTooYoungException, InvalidUserNameException, MaximumEmailsException {
         if (emailRepository.existsEmailByEmail(newUserData.getPrimaryEmail())) {
-            throw new EmailAlreadyRegisteredException(newUserData.getPrimaryEmail());
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email: " + newUserData.getPrimaryEmail() + " is already registered"); //409. It may be worth consider to a 200 error for security reasons
         }
 
         User newUser = new User();
@@ -122,7 +118,7 @@ public class UserController {
         
     @PostMapping("/profiles/{profileId}/emails")
     public void addEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response)
-            throws JsonProcessingException, UserNotFoundException, EmailAlreadyRegisteredException, MaximumEmailsException, MustHavePrimaryEmailException {
+            throws JsonProcessingException, EmailAlreadyRegisteredException, MaximumEmailsException, MustHavePrimaryEmailException {
         //ToDo Fix later after merging
         //        ObjectNode node = new ObjectMapper().readValue(jsonString, ObjectNode.class);
 //        HttpSession session = request.getSession(false);
@@ -158,7 +154,7 @@ public class UserController {
      * @throws JsonProcessingException
      */
     @PutMapping("/profiles/{profileId}/emails")
-    public void updateEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, UserNotFoundException, MaximumEmailsException, MustHavePrimaryEmailException {
+    public void updateEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, MaximumEmailsException, MustHavePrimaryEmailException {
         //ToDo Fix later after merging
         //        ObjectNode node = new ObjectMapper().readValue(jsonString, ObjectNode.class);
 //        HttpSession session = request.getSession(false);
@@ -195,12 +191,10 @@ public class UserController {
      * @param jsonLogInString the json body of the request as a string
      * @param response the http response
      * @throws JsonProcessingException thrown if there is an issue when converting the body to an object node
-     * @throws UserNotFoundException thrown if user email not found in repository
-     * @throws IncorrectPasswordException thrown if password was incorrect for given user
      * @return token to be stored by the client.
      */
     @PostMapping("/login")
-    public String logIn(@RequestBody String jsonLogInString, HttpServletResponse response) throws JsonProcessingException, UserNotFoundException, IncorrectPasswordException {
+    public String logIn(@RequestBody String jsonLogInString, HttpServletResponse response) throws JsonProcessingException {
         ObjectNode node = new ObjectMapper().readValue(jsonLogInString, ObjectNode.class);
 
         if (node.has("email") && node.has("password")) {
@@ -212,9 +206,9 @@ public class UserController {
             if (token == null) {
                 //Token was null, either email not found or password incorrect
                 if (emailRepository.existsEmailByEmail(email)) {
-                    throw new IncorrectPasswordException(email);
+                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login unsuccessful, please enter a valid password");
                 } else {
-                    throw new UserNotFoundException(email);
+                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Could not find user with email " + email);
                 }
             }
             response.setStatus(HttpServletResponse.SC_CREATED); //201
@@ -248,11 +242,10 @@ public class UserController {
      * @param response the http response
      * @param profileId user id obtained from the request url
      * @throws JsonProcessingException thrown if there is an issue when converting the body to an object node
-     * @throws UserNotFoundException throws if requested user not found.
      */
     @PutMapping("/profiles/{profileId}")
     public void editProfile(@RequestBody String jsonEditProfileString, HttpServletRequest request,
-                            HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) throws UserNotFoundException, IOException {
+                            HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) throws IOException {
         String token = request.getHeader("Token");
         ObjectMapper nodeMapper = new ObjectMapper();
         User user = userService.findByUserId(token, profileId);

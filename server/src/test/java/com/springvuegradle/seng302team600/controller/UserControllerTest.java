@@ -2,11 +2,14 @@ package com.springvuegradle.seng302team600.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springvuegradle.seng302team600.exception.MaximumEmailsException;
-import com.springvuegradle.seng302team600.exception.UserNotFoundException;
 import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.RegisterRequest;
+import com.springvuegradle.seng302team600.repository.EmailRepository;
+import com.springvuegradle.seng302team600.repository.UserRepository;
+import com.springvuegradle.seng302team600.service.UserValidationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -20,14 +23,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.springvuegradle.seng302team600.repository.UserRepository;
-import com.springvuegradle.seng302team600.repository.EmailRepository;
-import com.springvuegradle.seng302team600.service.UserValidationService;
-import static org.mockito.Mockito.*;
-
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -169,13 +167,13 @@ class UserControllerTest {
         MockitoAnnotations.initMocks(this);
         dummyUser = new User();
     }
-    private void setupMocking(String json) throws MaximumEmailsException, JsonProcessingException, UserNotFoundException {
+    private void setupMocking(String json) throws MaximumEmailsException, JsonProcessingException {
         setupMockingNoEmail(json);
         when(emailRepository.existsEmailByEmail(Mockito.anyString())).thenAnswer(i -> {
             return i.getArgument(0).equals(dummyEmail.getEmail());
         });
     }
-    private void setupMockingNoEmail(String json) throws MaximumEmailsException, JsonProcessingException, UserNotFoundException {
+    private void setupMockingNoEmail(String json) throws MaximumEmailsException, JsonProcessingException {
         regReq = objectMapper.treeToValue(objectMapper.readTree(json), RegisterRequest.class);
         dummyUser = dummyUser.builder(regReq);
         dummyEmail = new Email(dummyUser.getPrimaryEmail(), true, dummyUser);

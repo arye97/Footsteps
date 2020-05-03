@@ -30,20 +30,6 @@ public class ExceptionAdvice {
     }
 
     @ResponseBody
-    @ExceptionHandler(UserNotFoundException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED) //401
-    public String userNotFoundHandler(UserNotFoundException ex) {
-        return ex.getMessage();
-    }
-
-    @ResponseBody
-    @ExceptionHandler(IncorrectPasswordException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED) //401
-    public String incorrectPasswordHandler(IncorrectPasswordException ex) {
-        return ex.getMessage();
-    }
-
-    @ResponseBody
     @ExceptionHandler(InvalidDateOfBirthException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST) //403
     public String invalidDateOfBirthHandler(InvalidDateOfBirthException ex) { return ex.getMessage(); }

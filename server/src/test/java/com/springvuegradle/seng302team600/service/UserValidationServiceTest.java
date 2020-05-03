@@ -1,6 +1,5 @@
 package com.springvuegradle.seng302team600.service;
 
-import com.springvuegradle.seng302team600.exception.UserNotFoundException;
 import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.RegisterRequest;
@@ -32,7 +31,6 @@ class UserValidationServiceTest {
 
     private RegisterRequest userData;
 
-    private Long userId;
     private User dummyUser;
     private Email dummyEmail;
 
@@ -82,17 +80,16 @@ class UserValidationServiceTest {
             if (i.getArgument(0).equals(dummyEmail.getEmail())) return dummyEmail;
             else return null;
         });
-        userId = dummyUser.getUserId();
     }
 
     @Test
-    public void doNotLoginUnauthorizedUsers() throws Exception {
+    public void doNotLoginUnauthorizedUsers() {
         String token = userService.login(userData.getPrimaryEmail(), "wrongPassword");
         assertNull(token);
     }
 
     @Test
-    public void loginAuthorizedUsers() throws Exception {
+    public void loginAuthorizedUsers() {
         String token = userService.login(userData.getPrimaryEmail(), userData.getPassword());
         assertNotNull(token);
         assertEquals(token, dummyUser.getToken());
@@ -125,7 +122,7 @@ class UserValidationServiceTest {
     }
 
     @Test
-    public void userFoundByIdAuthorized() throws UserNotFoundException {
+    public void userFoundByIdAuthorized() {
         String token = "testToken";
         dummyUser.setToken(token);
         dummyUser.setTokenTime();
@@ -134,7 +131,7 @@ class UserValidationServiceTest {
     }
 
     @Test
-    public void userNotFoundByIdUnauthorized() throws UserNotFoundException {
+    public void userNotFoundByIdUnauthorized() {
         String token = "testToken";
         dummyUser.setToken(token);
         dummyUser.setTokenTime();
