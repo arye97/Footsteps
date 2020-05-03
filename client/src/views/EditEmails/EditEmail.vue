@@ -92,6 +92,7 @@
                                                class="form-control"
                                                id="newEmailInserted"
                                                placeholder="Email address"
+                                               @keyup="getEmail()"
                                         >
                                     </td>
                                     <td>
@@ -100,9 +101,9 @@
                                 </tr>
                                 <tr>
                                     <td>
+<!--                                        <label v-if="alreadyInDB" for="newEmailInserted" class="has-error" id="errorMessage">-->
                                         <label for="newEmailInserted" class="has-error" id="errorMessage">
-                                            {{ this.emailMessage }}
-<!--                                            We're sorry, that email is taken.-->
+                                            We're sorry, that email is taken.
                                         </label>
                                     </td>
                                 </tr>
@@ -203,6 +204,28 @@
                     });
                 this.emailCount--;
                 this.setEmailCountMessage();
+            },
+
+            getEmail() {
+                let textBox = document.getElementById("newEmailInserted").value;
+                if ((/(.+)@(.+){2,}\.(.+){2,}/).test(textBox)) {
+                    let emailToCheck = {
+                        email: textBox
+                    };
+                    server.get(`/profiles/${this.userId}/emails`,
+                        emailToCheck,
+                        {
+                            headers: {
+                                "Access-Control-Allow-Origin": "*",
+                                "content-type": "application/json",
+                                "Token": tokenStore.state.token
+                            },
+                            withCredentials: true
+                        }
+                    ).then(() => {
+                        console.log('Additional Emails updated successfully!');
+                    });
+                }
             },
 
             submitEmail() {
