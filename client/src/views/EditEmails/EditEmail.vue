@@ -117,7 +117,7 @@
                             </table>
                         </form>
                         <div id="confirmationButtons">
-                            <router-link to="/" class="btn btn-outline-success btn-lg float-left">Back</router-link>
+                            <router-link to="/profile" class="btn btn-outline-success btn-lg float-left" @click.native.prevent="backAlert">Back</router-link>
                             <button type="submit" class="btn btn-success btn-lg float-right" v-on:click="submitEmail">Submit</button>
                         </div>
                     </section>
@@ -142,6 +142,7 @@
                 primaryEmail: null, //y
                 additionalEmails: [], //y
                 originalPrimaryEmail: null, //y
+                originalAdditionalEmails: [], //y
                 insertedEmail: null, //y
                 emailCount: 0, //y
                 emailMessage: null, //y
@@ -164,6 +165,7 @@
                     this.primaryEmail = response.data["primaryEmail"];
                     this.additionalEmails = response.data["additionalEmails"];
                     this.originalPrimaryEmail = response.data["primaryEmail"];
+                    this.originalAdditionalEmails = Array.from(response.data["additionalEmails"]);
                     this.emailCount = this.additionalEmails.length + 1;
                     this.setEmailCountMessage();
                 }
@@ -239,6 +241,28 @@
                                 }
                             }
                         })
+                    }
+                }
+            },
+
+            backAlert() {
+                let hasChanged = false;
+                if (this.primaryEmail !== this.additionalEmails) {
+                    hasChanged = true
+                } else if (this.additionalEmails.length === this.originalAdditionalEmails.length) {
+                    for (let index in this.originalAdditionalEmails) {
+                        if (!this.additionalEmails.includes(this.originalAdditionalEmails[index])) {
+                            hasChanged = true;
+                        }
+                    }
+                }
+
+                if (hasChanged) {
+                    if (confirm("Press a button!")) {
+                        this.$router.push("/profile")
+
+                    } else {
+                        // Cancel
                     }
                 }
             },
