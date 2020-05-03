@@ -1,5 +1,17 @@
 <template>
   <div class="settings-page">
+    <div>
+      <div class="jumbotron">
+        <div class="container">
+          <div class="row">
+            <div class="col-sm-6 offset-sm-3">
+              <Header />
+              <router-view></router-view>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="alert alert-success alert-dismissible fade show sticky-top" role="alert" id="alert" hidden>
       <p id="alert-message"><strong>{{ code }}</strong>{{ message }}</p>
       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -100,6 +112,7 @@
 <script>
     import Sidebar from "../../components/layout/ProfileEditSidebar.vue"
     import Multiselect from 'vue-multiselect'
+    import Header from '../../components/Header/Header.vue'
     import server from "../../Api";
     import {getCountryNames} from '../../constants';
     import router from '../../index';
@@ -108,7 +121,7 @@
     export default {
         name: "Details.vue",
         components: {
-            Sidebar, Multiselect
+            Sidebar, Multiselect, Header
         },
         data() {
           return {

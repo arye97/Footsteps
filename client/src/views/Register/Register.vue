@@ -1,5 +1,17 @@
 <template>
     <div id="app">
+        <div>
+            <div class="jumbotron">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-6 offset-sm-3">
+                            <Header />
+                            <router-view></router-view>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
         <h1><br/></h1>
         <header class="masthead">
@@ -111,11 +123,12 @@
 <script>
     import server from '../../Api';
     import Multiselect from 'vue-multiselect'
+    import Header from '../../components/Header/Header.vue'
     import {getCountryNames} from '../../constants';
     import {tokenStore} from '../../main';
 
     export default {
-        components: { Multiselect },
+        components: { Multiselect, Header },
         name: "NewUser",
         data() {
             return {

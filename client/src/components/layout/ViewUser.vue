@@ -1,8 +1,15 @@
 <template>
     <div id="app">
-        <h1><br/></h1>
+        <div class="jumbotron">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-6 offset-sm-3">
+                        <Header />
+                    </div>
+                </div>
+            </div>
+        </div>
         <h1>Welcome to Hakinakina!</h1>
-
         <section v-if="errored">
             <p>Sorry, looks like we can't get your info! Please try again soon.</p>
         </section>
@@ -35,9 +42,13 @@
 <script>
     import server from "../../Api";
     import {tokenStore} from '../../main';
+    import Header from '../Header/Header.vue';
 
     export default {
         name: "ViewUser",
+        components: {
+            Header
+        },
         data() {
             return {
                 user: null,

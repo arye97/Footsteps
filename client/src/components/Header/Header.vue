@@ -1,7 +1,7 @@
 
 <template>
-    <div :key="this.isLoggedIn">
-        <nav class="navbar navbar-expand-lg navbar-light bg-light shadow fixed-top">
+
+        <nav :key=this.isLoggedIn class="navbar navbar-expand-lg navbar-light bg-light shadow fixed-top">
             <div class="container">
                 <a class="navbar-brand" href="#">Hakinakina</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
@@ -15,7 +15,7 @@
                         <li class="nav-item">
                             <router-link to='/register' class="nav-link">Register</router-link>
                         </li>
-                        <li :key=this.isLoggedIn class="nav-item">
+                        <li class="nav-item">
                             <router-link to="" v-if="this.isLoggedIn" v-on:click.native="logout" class="nav-link">Logout</router-link>
                             <router-link  v-else to='/login' class="nav-link">Login</router-link>
                         </li>
@@ -23,9 +23,6 @@
                 </div>
             </div>
         </nav>
-
-
-    </div>
 </template>
 
 
