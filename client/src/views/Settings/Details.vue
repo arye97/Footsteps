@@ -26,7 +26,7 @@
         <div class="edit-area">
           <input type="text" class="form-control" v-model="firstname" id="firstname" name="firstname"
                  placeholder="Your First Name..." required disabled>
-          <button class="btn btn-primary" id="firstname-btn" v-on:click="mutate" type="button">edit</button>
+          <button class="btn btn-primary" id="firstname-btn" v-on:click="mutate" type="button">Edit</button>
         </div>
       </div>
       <div class="form-group">
@@ -35,7 +35,7 @@
         <div class="edit-area">
           <input type="text" class="form-control" v-model="middlename" id="middlename" name="middlename"
                  placeholder="Your Middle Name..." disabled>
-          <button class="btn btn-primary" id="middlename-btn" v-on:click="mutate" type="button">edit</button>
+          <button class="btn btn-primary" id="middlename-btn" v-on:click="mutate" type="button">Edit</button>
         </div>
       </div>
       <div class="form-group">
@@ -44,7 +44,7 @@
         <div class="edit-area">
           <input type="text" class="form-control" v-model="lastname" id="lastname" name="lastname"
                  placeholder="Your Last Name..." required disabled>
-          <button class="btn btn-primary" id="lastname-btn" v-on:click="mutate" type="button">edit</button>
+          <button class="btn btn-primary" id="lastname-btn" v-on:click="mutate" type="button">Edit</button>
         </div>
       </div>
       <div class="form-group">
@@ -57,7 +57,7 @@
             <template slot="singleLabel" slot-scope="{ option }"><footer> {{ option.desc }}</footer></template>
           </multiselect>
           </div>
-          <button class="btn btn-primary" id="fitnessDiv-btn" v-on:click="mutate" type="button">edit</button>
+          <button class="btn btn-primary" id="fitnessDiv-btn" v-on:click="mutate" type="button">Edit</button>
         </div>
       </div>
       <div class="form-group">
@@ -66,7 +66,7 @@
         <div class="edit-area">
           <input type="text" class="form-control" v-model="nickname" id="nickname" name="nickname"
                  placeholder="Your Nickname..." disabled>
-          <button class="btn btn-primary" id="nickname-btn" v-on:click="mutate" type="button">edit</button>
+          <button class="btn btn-primary" id="nickname-btn" v-on:click="mutate" type="button">Edit</button>
         </div>
       </div>
       <div class="form-group">
@@ -79,7 +79,7 @@
               <template slot="noResult">Invalid gender</template>
             </multiselect>
           </div>
-          <button class="btn btn-primary" id="genderDiv-btn" v-on:click="mutate" type="button">edit</button>
+          <button class="btn btn-primary" id="genderDiv-btn" v-on:click="mutate" type="button">Edit</button>
         </div>
       </div>
       <div class="form-group">
@@ -93,7 +93,7 @@
             <template slot="noResult">Country not found</template>
           </multiselect>
           </div>
-          <button class="btn btn-primary" id="passportsDiv-btn" v-on:click="mutate" type="button">edit</button>
+          <button class="btn btn-primary" id="passportsDiv-btn" v-on:click="mutate" type="button">Edit</button>
         </div>
       </div>
     <div class="form-group">
@@ -102,7 +102,7 @@
       <div class="edit-area">
         <textarea name="bio" class="form-control" id="bio" v-model="bio" cols="30" rows="2" placeholder="Who are you?"
                   disabled></textarea>
-        <button class="btn btn-primary" id="bio-btn" v-on:click="mutate" type="button">edit</button>
+        <button class="btn btn-primary" id="bio-btn" v-on:click="mutate" type="button">Edit</button>
       </div>
     </div>
   </div>
@@ -192,7 +192,7 @@
                           update[mutateTarget.id] = mutateTarget.value;
                           this.putUpdate(update, alertDiv);
                           mutateTarget.setAttribute('disabled', "true");
-                          mutateButton.innerText = "+";
+                          mutateButton.innerText = "Edit";
                           mutateButton.type = "button";
                       }
                     } else {
