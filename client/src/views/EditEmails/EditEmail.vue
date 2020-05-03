@@ -18,7 +18,7 @@
 
 
         <section v-if="error">
-            <p>Sorry, looks like we can't get your info! Please try again soon.</p>
+            <p>Sorry, looks like we can't get your info! Please try again.</p>
             <p>{{ error }}</p>
         </section>
 
@@ -37,7 +37,7 @@
                             <tr>
                                 <td>
                                     <p id="primaryEmailLabel">
-                                        Primary Email:
+                                        <b>Primary Email:</b>
                                     </p>
                                 </td>
                                 <td>
@@ -71,13 +71,21 @@
                             </tr>
                         </table>
                         <form v-on:submit.prevent="addEmail" id="addEmail">
-<!--                        <form id="addEmail">-->
                             <table>
                                 <tr>
-                                    <th>
-                                        <label for="newEmailInserted">Add New Email:</label>
+                                    <th id="addNewEmailTh">
+                                        <label for="newEmailInserted">
+                                            Add New Email:
+                                        </label>
+                                    </th>
+                                    <th id="emailMessageTh">
+                                        <label for="newEmailInserted" class="has-error">
+                                            {{ this.emailMessage }}
+                                        </label>
                                     </th>
                                 </tr>
+                            </table>
+                            <table>
                                 <tr>
                                     <td>
                                         <input v-model="insertedEmail"
@@ -88,6 +96,14 @@
                                     </td>
                                     <td>
                                         <button type="submit" class="btn btn-secondary">Add</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <label for="newEmailInserted" class="has-error" id="errorMessage">
+                                            {{ this.emailMessage }}
+<!--                                            We're sorry, that email is taken.-->
+                                        </label>
                                     </td>
                                 </tr>
 
@@ -120,6 +136,8 @@
                 additionalEmails: [], //y
                 originalPrimaryEmail: null, //y
                 insertedEmail: null, //y
+                emailCount: 0, //y
+                emailMessage: null //y
             }
         },
         mounted() {
@@ -133,11 +151,13 @@
                 }
             ).then(response => {
                 if (response.status === 200) {
+                    this.loading = false;
                     this.userId = response.data["userId"];
                     this.primaryEmail = response.data["primaryEmail"];
-                    this.originalPrimaryEmail = response.data["primaryEmail"];
                     this.additionalEmails = response.data["additionalEmails"];
-                    this.loading = false;
+                    this.originalPrimaryEmail = response.data["primaryEmail"];
+                    this.emailCount = this.additionalEmails.length + 1;
+                    this.setEmailCountMessage();
                 }
             }).catch(function(error) {
                 console.error(error);
@@ -158,6 +178,8 @@
                 } else {
                     //Email is valid
                     this.additionalEmails.unshift(this.insertedEmail);
+                    this.emailCount++;
+                    this.setEmailCountMessage();
                 }
             },
 
@@ -178,7 +200,9 @@
                 this.additionalEmails = this.additionalEmails.filter(
                     function(email) {
                         return email !== emailToBeRemoved
-                    })
+                    });
+                this.emailCount--;
+                this.setEmailCountMessage();
             },
 
             submitEmail() {
@@ -247,12 +271,27 @@
 
             updateOriginalPrimaryEmail() {
                 this.originalPrimaryEmail = this.primaryEmail;
+            },
+
+            setEmailCountMessage() {
+                let remaining = 5 - this.emailCount;
+                if (this.emailCount >= 5) {
+                    this.emailMessage = "Email limit reached!";
+                } else if (this.emailCount == 4) {
+                    this.emailMessage = remaining + " spot left for additional emails!";
+                } else {
+                    this.emailMessage = remaining + " spots left for additional emails!";
+                }
             }
         }
     }
 </script>
 
 <style scoped>
+    table {
+        width: 100%;
+    }
+
     #primaryEmailTable {
         padding-bottom: 0px;
         margin-bottom: 0px;
@@ -268,6 +307,7 @@
         text-align: left;
         padding-bottom: 0;
         margin-bottom: 0;
+
     }
 
     #primaryEmail {
@@ -331,6 +371,23 @@
 
     #addEmail button {
         margin-left: -2px;
+    }
+
+    #addNewEmailTh {
+        width: 25%;
+    }
+
+    #emailMessageTh {
+        width: 100%;
+        margin-bottom:0;
+        padding-bottom:0;
+        text-align: right;
+        color: #707070;
+    }
+
+    #errorMessage {
+        margin-top: 5px;
+        color: chocolate;
     }
 </style>
 
