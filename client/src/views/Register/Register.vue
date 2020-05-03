@@ -188,19 +188,19 @@
             return 'password';
         }
         let count = 0; //count of blank fields
-        if(newUser.password.trim() === '') {
+        if(newUser.password === '') {
             showError('alert_password');
             count += 1;
         }
-        if(passwordCheck.trim() === '') {
+        if(passwordCheck === '') {
             showError('alert_password_check');
             count += 1;
         }
-        if(newUser.firstname.trim() === '') {
+        if(newUser.firstname === '') {
             showError('alert_first_name');
             count += 1;
         }
-        if(newUser.lastname.trim() === '') {
+        if(newUser.lastname === '') {
             showError('alert_last_name');
             count += 1;
         }
@@ -278,15 +278,15 @@
             async registerUser() {
                 // Save the data as a newUser object
                 const newUser = {
-                    lastname: this.lastname,
-                    firstname: this.firstname,
-                    middlename: this.middlename,
-                    nickname: this.nickname,
-                    primary_email: this.email,
-                    password: this.password,
+                    lastname: this.lastname.trim(),
+                    firstname: this.firstname.trim(),
+                    middlename: this.middlename.trim(),
+                    nickname: this.nickname.trim(),
+                    primary_email: this.email.trim(),
+                    password: this.password.trim(),
                     date_of_birth: this.date_of_birth,
                     gender: this.gender,
-                    bio: this.bio,
+                    bio: this.bio.trim(),
                     fitness: this.fitness.value,
                     passports: this.passports
                 };
