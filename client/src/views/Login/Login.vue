@@ -1,17 +1,14 @@
 <template>
     <div id="app">
-        <div>
-            <div class="jumbotron">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-sm-6 offset-sm-3">
-                            <Header />
-                            <router-view></router-view>
-                        </div>
+        <h1><br/><br/></h1>
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-6 offset-sm-3">
+                        <Header />
+                        <router-view></router-view>
                     </div>
                 </div>
             </div>
-        </div>
         <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" hidden="true" id="alert">
             {{  message  }}
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -20,41 +17,39 @@
         </div>
         <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
         <!-- Full Page Image Header with Vertically Centered Content -->
-        <h1><br/></h1>
         <header class="masthead">
             <div class="container h-100">
                 <div class="row h-100 align-items-center">
-                    <div class="col-12 text-center">
+                    <div class="col-sm-12 text-center">
                         <h1 class="font-weight-light">Welcome to Hakinakina</h1>
                         <p class="lead">Plan your route with the best</p>
+                        <h1 class="font-weight-light">Login</h1>
+                        <form @submit.prevent="login">
+                            <div class="form-group">
+                            <label for="email">Email Address: </label>
+                            <input type="email" class="form-control" v-model="email" id="email" placeholder="Email Address" required><br/>
+                            <div class="form-group ">
+                                <label for="password">Password: </label>
+                                <input type="password" class="form-control" v-model="password" id="password" placeholder="Password" required> <br/>
+                            </div>
+                            <div class="form-group">
+                                <input v-on:submit="login" class="btn btn-primary" type="submit" value="Sign In">
+                                <router-link to="/register" class="btn btn-link">Register</router-link>
+                            </div>
+                        </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </header>
-
-
-        <div>
-            <h1>Login</h1>
-        </div>
-        <form @submit.prevent="login">
-            <div class="form-group">
-                <label for="email">Email Address: </label>
-                <input type="email" class="form-control" v-model="email" id="email" placeholder="Email Address" required><br/>
-                <div class="form-group">
-                    <label for="password">Password: </label>
-                    <input type="password" class="form-control" v-model="password" id="password" placeholder="Password" required> <br/>
-                </div>
-                <div class="form-group">
-                    <input v-on:submit="login" class="btn btn-primary" type="submit" value="Sign In">
-                    <router-link to="/register" class="btn btn-link">Register</router-link>
-
-                </div>
-            </div>
-        </form>
     </div>
 </template>
 
 <style>
+    form {
+        width: 75%;
+        padding-left: 25%;
+    }
 </style>
 
 <script>

@@ -1,25 +1,26 @@
 <template>
     <div id="app">
         <div>
-            <div class="jumbotron">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-sm-6 offset-sm-3">
-                            <Header />
-                            <router-view></router-view>
-                        </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-6 offset-sm-3">
+                        <Header />
+                        <router-view></router-view>
                     </div>
                 </div>
             </div>
         </div>
         <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
-        <h1><br/></h1>
+        <h1><br/><br/></h1>
         <header class="masthead">
             <div class="container h-100">
                 <div class="row h-100 align-items-center">
                     <div class="col-12 text-center">
                         <h1 class="font-weight-light">Welcome to Hakinakina</h1>
                         <p class="lead">Plan your route with the best</p><br/>
+                        <h1>
+                            Register with us<br/>
+                        </h1>
                     </div>
                 </div>
             </div>
@@ -28,9 +29,7 @@
             v-on:submit.prevent means when you click login then the emit wont only stay for a second
             keeps it in the vue extension logs, wont know until later if we need this to go away
         -->
-        <h1>
-            Register with us<br/>
-        </h1>
+
         <form method="post" v-on:submit.prevent="registerUser">
 
             <div class="form-group">
@@ -114,7 +113,7 @@
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
-        <footer>
+        <footer class="col-12 text-center">
             Entries marked with * are required
         </footer>
     </div>

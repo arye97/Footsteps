@@ -1,16 +1,12 @@
 <template>
     <div>
-        <div>
-            <div class="jumbotron">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-sm-6 offset-sm-3">
-                            <Header />
-                        </div>
-                    </div>
-                </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-6 offset-sm-3">
+                <Header />
             </div>
         </div>
+    </div>
     <div class="sidebar">
         <div class="sidebar-header">
             <h2>Edit Profile</h2>
