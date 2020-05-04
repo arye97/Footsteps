@@ -187,7 +187,7 @@
         }, 10000);
     }
 
-    async function vaildUser(newUser, passwordCheck) {
+    async function validUser(newUser, passwordCheck) {
         if (newUser.password !== passwordCheck) {
             showError('alert_password_match');
             return 'password';
@@ -295,7 +295,7 @@
                     fitness: this.fitness.value,
                     passports: this.passports
                 };
-                let validCount = await vaildUser(newUser, this.passwordCheck);
+                let validCount = await validUser(newUser, this.passwordCheck);
                 console.log(validCount);
                 if (validCount === 'password') {
                     //todo: passwords not matching alert box
