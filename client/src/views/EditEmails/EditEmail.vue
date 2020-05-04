@@ -119,7 +119,10 @@
                         <div id="confirmationButtons">
 <!--?                           <router-link to="/profile" class="btn btn-outline-success btn-lg float-left" @click.native.prevent="backAlert">Back</router-link>-->
                             <button type="submit" class="btn btn-success btn-lg float-left" id="back" :key=this.toReload v-on:click="backAlert">Back</button>
-                            <button type="submit" class="btn btn-success btn-lg float-right" v-on:click="saveChanges">Save Changes</button>
+                            <button type="submit"
+                                    class="btn btn-success btn-lg float-right"
+                                    v-on:click="saveChanges"
+                                    v-bind:disabled="changesHaveBeenMade===false">Save Changes</button>
                         </div>
                     </section>
                 </article>
@@ -149,7 +152,8 @@
                 insertedEmail: null, //y
                 emailCount: 0, //y
                 emailMessage: null, //y
-                duplicateEmailError: "" //y
+                duplicateEmailError: "", //y
+                changesHaveBeenMade: false
             }
         },
         mounted() {
@@ -193,6 +197,7 @@
                     this.additionalEmails.push(this.insertedEmail);
                     this.emailCount++;
                     this.setEmailCountMessage();
+                    this.checkIfChangesMade();
                     // document.getElementById("newEmailInserted").value = "";
                 }
             },
@@ -205,6 +210,7 @@
                 this.additionalEmails.splice(emailIndex, 1, this.primaryEmail);
                 // Set Primary Email Candidate
                 this.primaryEmail = candidatePrimaryEmail;
+                this.checkIfChangesMade();
             },
 
             deleteEmail(emailIndex) {
@@ -216,6 +222,12 @@
                         return email !== emailToBeRemoved
                     });
                 this.emailCount--;
+
+                if (this.additionalEmails === this.originalAdditionalEmails) {
+                    this.changesHaveBeenMade = false;
+                } else {
+                    this.changesHaveBeenMade = true;
+                }
 
                 let emailTextBox = document.getElementById("newEmailInserted").value;
                 if (emailTextBox === this.primaryEmail || this.additionalEmails.includes(emailTextBox)) {
@@ -272,8 +284,8 @@
             },
 
             backAlert() {
-                let hasChanged = this.checkIfChangesMade();
-                if (hasChanged) {
+                this.checkIfChangesMade()
+                if (this.changesHaveBeenMade) {
                     if (confirm("Abort changes?")) {
                         this.$router.push("/profile")
                     } else {
@@ -287,10 +299,10 @@
             },
 
             saveChanges() {
-                // let hasChanged = this.checkIfChangesMade();
-                // if (!hasChanged) {
-                //
-                // }
+                this.checkIfChangesMade()
+                if (!this.changesHaveBeenMade) {
+                    return
+                }
 
                 let savedEmails;
                 // Primary Email has not been replaced (POST)
@@ -309,7 +321,10 @@
                             withCredentials: true
                         }
                     ).then(() => {
-                        console.log('Additional Emails updated successfully!');
+                        console.log("Additional Emails updated successfully!");
+                        window.alert("Successfully saved changes!");
+                        this.updateOriginalAdditionalEmail();
+                        this.checkIfChangesMade()
                     });
                     // else reset page with error code?
                 }
@@ -333,8 +348,10 @@
                         }
                     ).then(() => {
                         console.log('Primary Email and Additional Emails updated successfully!');
+                        window.alert("Successfully saved changes!");
                         this.updateOriginalPrimaryEmail();
-                    //}).catch(error => {
+                        this.checkIfChangesMade()
+                        //}).catch(error => {
                         // console.log(error);
                         // //Get alert bar element
                         // let errorAlert = document.getElementById("alert");
@@ -356,17 +373,23 @@
             },
 
             checkIfChangesMade() {
-                let hasChanged = false;
+                this.changesHaveBeenMade = false;
                 if (this.primaryEmail !== this.originalPrimaryEmail) {
-                    hasChanged = true
+                    this.changesHaveBeenMade = true
+                } else if (this.additionalEmails.length !== this.originalAdditionalEmails.length) {
+                    this.changesHaveBeenMade = true;
                 } else if (this.additionalEmails.length === this.originalAdditionalEmails.length) {
                     for (let index in this.originalAdditionalEmails) {
                         if (!this.additionalEmails.includes(this.originalAdditionalEmails[index])) {
-                            hasChanged = true;
+                            this.changesHaveBeenMade = true;
+                            // break;
                         }
                     }
                 }
-                return hasChanged
+            },
+
+            updateOriginalAdditionalEmail() {
+                this.originalAdditionalEmails = Array.from(this.additionalEmails)
             },
 
             updateOriginalPrimaryEmail() {
