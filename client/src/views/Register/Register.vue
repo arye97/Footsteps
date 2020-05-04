@@ -160,7 +160,6 @@
                 <router-link to="/login" class="btn btn-link">Login</router-link>
             </div>
         </form>
-<<<<<<< HEAD
         <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" hidden="true" id="alert">
             {{  message  }}
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -168,9 +167,6 @@
             </button>
         </div>
         <footer class="col-12 text-center">
-=======
-        <footer>
->>>>>>> Story1
             Entries marked with * are required
         </footer>
     </div>
