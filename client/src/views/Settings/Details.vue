@@ -1,5 +1,6 @@
 <template>
   <div class="settings-page">
+    <h1><br/><br/></h1>
     <div>
         <div class="container">
           <div class="row">
