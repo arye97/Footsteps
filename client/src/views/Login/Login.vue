@@ -9,12 +9,6 @@
                     </div>
                 </div>
             </div>
-        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" hidden="true" id="alert">
-            {{  message  }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
         <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
         <!-- Full Page Image Header with Vertically Centered Content -->
         <header class="masthead">
@@ -27,11 +21,17 @@
                         <form @submit.prevent="login">
                             <div class="form-group">
                             <label for="email">Email Address: </label>
-                            <input type="email" class="form-control" v-model="email" id="email" placeholder="Email Address" required><br/>
+                            <input type="email" class="form-control" v-model="email" id="email" placeholder="Email Address"><br/>
                             <div class="form-group ">
                                 <label for="password">Password: </label>
-                                <input type="password" class="form-control" v-model="password" id="password" placeholder="Password" required> <br/>
+                                <input type="password" class="form-control" v-model="password" id="password" placeholder="Password"> <br/>
                             </div>
+                                <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" hidden="true" id="alert">
+                                    {{  message  }}
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
                             <div class="form-group">
                                 <input v-on:submit="login" class="btn btn-primary" type="submit" value="Sign In">
                                 <router-link to="/register" class="btn btn-link">Register</router-link>
@@ -57,6 +57,18 @@
     import {tokenStore} from "../../main";
     import Header from '../../components/Header/Header.vue'
 
+    async function validUser(userLogin) {
+        return (userLogin.email !== '' && userLogin.password !== '')
+    }
+
+    function showError(alert_name) {
+        let errorAlert = document.getElementById(alert_name);
+        errorAlert.hidden = false;          //Show alert bar
+        setTimeout(function () {    //Hide alert bar after ~5000ms
+            errorAlert.hidden = true;
+        }, 10000);
+    }
+
     export default {
         name: "Login",
         components : {
@@ -71,11 +83,17 @@
         },
         methods: {
 
-            login() {
+            async login() {
                 const userLogin = {
-                    email: this.email,
-                    password: this.password
+                    email: this.email.trim(),
+                    password: this.password.trim()
                 };
+                let valid = await validUser(userLogin);
+                if (!valid) {
+                    this.message = 'Email and password must be input to login';
+                    showError('alert');
+                    return;
+                }
                 // Send login post to serve
                 server.post('/login',
                     userLogin,
@@ -92,7 +110,6 @@
                 }).catch(error => { //If an error occurs during login (includes server side errors)
                     console.log(error);
                     //Get alert bar element
-                    let errorAlert = document.getElementById("alert");
                     if (error.message === "Network Error") {
                         this.message = error.message;
                     } else if (error.response.data.status === 401) { //Error 401: User not found or incorrect password
@@ -102,10 +119,7 @@
                     } else {    //Catch for any errors that are not specifically caught
                         this.message = "An unknown error has occurred during login"
                     }
-                    errorAlert.hidden = false;          //Show alert bar
-                    setTimeout(function () {    //Hide alert bar after ~5000ms
-                        errorAlert.hidden = true;
-                    }, 5000);
+                    showError('alert')
                 });
             }
         }
