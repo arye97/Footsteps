@@ -119,7 +119,7 @@
                         <div id="confirmationButtons">
 <!--?                           <router-link to="/profile" class="btn btn-outline-success btn-lg float-left" @click.native.prevent="backAlert">Back</router-link>-->
                             <button type="submit" class="btn btn-success btn-lg float-left" id="back" :key=this.toReload v-on:click="backAlert">Back</button>
-                            <button type="submit" class="btn btn-success btn-lg float-right" v-on:click="saveChanges">Save</button>
+                            <button type="submit" class="btn btn-success btn-lg float-right" v-on:click="saveChanges">Save Changes</button>
                         </div>
                     </section>
                 </article>
@@ -274,13 +274,15 @@
             backAlert() {
                 let hasChanged = this.checkIfChangesMade();
                 if (hasChanged) {
-                    if (confirm("Press a button!")) {
+                    if (confirm("Abort changes?")) {
                         this.$router.push("/profile")
                     } else {
                         console.log(document.getElementById("confirmationButtons"))
                         console.log(document.getElementById("back").classList)
                         this.toReload += 1;
                     }
+                } else {
+                    this.$router.push("/profile")
                 }
             },
 
@@ -355,7 +357,7 @@
 
             checkIfChangesMade() {
                 let hasChanged = false;
-                if (this.primaryEmail !== this.additionalEmails) {
+                if (this.primaryEmail !== this.originalPrimaryEmail) {
                     hasChanged = true
                 } else if (this.additionalEmails.length === this.originalAdditionalEmails.length) {
                     for (let index in this.originalAdditionalEmails) {
