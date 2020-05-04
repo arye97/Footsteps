@@ -96,6 +96,7 @@
                                         >
                                     </td>
                                     <td>
+                                    <!--Disable button if duplicateEmailError is not null-->
                                         <button type="submit"
                                                 class="btn btn-secondary"
                                                 v-bind:disabled="duplicateEmailError!==null"
@@ -215,6 +216,18 @@
                         return email !== emailToBeRemoved
                     });
                 this.emailCount--;
+
+                let emailTextBox = document.getElementById("newEmailInserted").value;
+                if (emailTextBox === this.primaryEmail || this.additionalEmails.includes(emailTextBox)) {
+                    // Disable add button if user already assigned to email
+                    this.duplicateEmailError = "You are already assigned to this email!";
+                } else if (emailTextBox === this.originalPrimaryEmail
+                        || emailTextBox === emailToBeRemoved
+                        || this.originalAdditionalEmails.includes(emailTextBox)) {
+                    this.duplicateEmailError = null;
+                } else {
+                    this.duplicateEmailError = "";
+                }
                 this.setEmailCountMessage();
             },
 
@@ -228,6 +241,8 @@
                     } else if (emailTextBox === this.primaryEmail || this.additionalEmails.includes(emailTextBox)) {
                         // Disable add button if user already assigned to email
                         this.duplicateEmailError = "You are already assigned to this email!";
+                    } else if (emailTextBox === this.originalPrimaryEmail || this.originalAdditionalEmails.includes(emailTextBox)) {
+                        this.duplicateEmailError = null;
                     } else {
                         server.get(`/email`,
                             {
@@ -360,6 +375,7 @@
                 let remaining = 5 - this.emailCount;
                 if (this.emailCount >= 5) {
                     this.emailMessage = "Email limit reached!";
+                    this.duplicateEmailError = "";
                 } else if (this.emailCount == 4) {
                     this.emailMessage = remaining + " spot left for additional emails!";
                 } else {
