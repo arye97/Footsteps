@@ -198,7 +198,11 @@
                     this.emailCount++;
                     this.setEmailCountMessage();
                     this.checkIfChangesMade();
-                    // document.getElementById("newEmailInserted").value = "";
+                    let emailTextBox = document.getElementById("newEmailInserted").value;
+                    if (emailTextBox === this.primaryEmail || this.additionalEmails.includes(emailTextBox)) {
+                        // Disable add button if user already assigned to email
+                        this.duplicateEmailError = "";
+                    }
                 }
             },
 
@@ -286,7 +290,7 @@
             backAlert() {
                 this.checkIfChangesMade()
                 if (this.changesHaveBeenMade) {
-                    if (confirm("Abort changes?")) {
+                    if (confirm("Cancel changes?")) {
                         this.$router.push("/profile")
                     } else {
                         console.log(document.getElementById("confirmationButtons"))
