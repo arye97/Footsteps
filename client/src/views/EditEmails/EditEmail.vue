@@ -102,7 +102,7 @@
                                                 class="btn btn-secondary"
                                                 v-bind:disabled="duplicateEmailError!==null"
                                         >
-                                            Add
+                                            <i class="fas fa-plus"></i>
                                         </button>
                                     </td>
                                 </tr>
@@ -519,11 +519,5 @@
         margin-top: 5px;
         color: chocolate;
     }
-
-    /*#confirmationButtons:focus {*/
-    /*    outline: none;*/
-    /*    box-shadow: none;*/
-    /*}*/
-
 </style>
 
