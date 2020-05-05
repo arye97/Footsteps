@@ -3,7 +3,8 @@
 <template>
     <div>
     <Sidebar/>
-        <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto&display=swap">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.13.0/css/all.css">
         <h1><br/></h1>
         <header class="masthead">
             <div class="container h-100">
@@ -58,12 +59,12 @@
                                         {{ additionalEmail }}
                                     </p>
                                 </td>
-                                <td class="additionalEmailsButtons">
+                                <td class="deleteButtonTd">
                                     <button type="submit" class="btn btn-danger" id="deleteButton" v-on:click="deleteEmail(index)">
-                                        Delete
+                                        <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                     </button>
                                 </td>
-                                <td class="additionalEmailsButtons">
+                                <td class="makePrimaryButtonTd">
                                     <button type="submit" class="btn btn-primary" id="primaryButton" v-on:click="setPrimary(index)">
                                         Make Primary
                                     </button>
@@ -130,7 +131,6 @@
         </section>
     </div>
 </template>
-
 <script>
     import server from '../../Api';
     import {tokenStore} from "../../main";
@@ -411,6 +411,7 @@
     }
 </script>
 
+
 <style scoped>
     table {
         width: 100%;
@@ -450,7 +451,11 @@
         padding-right: 5px;
     }
 
-    .additionalEmailsButtons {
+    .makePrimaryButtonTd {
+        float: right;
+    }
+
+    .deleteButtonTd {
         float: right;
     }
 
@@ -463,7 +468,8 @@
     }
 
     #deleteButton {
-        width:100px;
+        /*width:100px;*/
+        width:40px;
         height:40px;
     }
 
