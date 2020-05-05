@@ -239,9 +239,13 @@
                     this.duplicateEmailError = "You are already assigned to this email!";
                 } else if (emailTextBox === this.originalPrimaryEmail
                         || emailTextBox === emailToBeRemoved
-                        || this.originalAdditionalEmails.includes(emailTextBox)) {
+                        || this.originalAdditionalEmails.includes(emailTextBox)
+                        || (this.duplicateEmailError !== "You are already assigned to this email!"
+                        && this.duplicateEmailError !== "We're sorry, that email is taken.")) {
+                    // Enable add button if email assigned TO ORIGINAL PRIMARY EMAIL AND ADDITIONAL EMAIL AND IS TO BE REMOVED
                     this.duplicateEmailError = null;
                 } else {
+                    // Disable button
                     this.duplicateEmailError = "";
                 }
                 this.setEmailCountMessage();
