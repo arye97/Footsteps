@@ -134,6 +134,13 @@
           }
         },
         mounted() {
+            this.fetchCountries();
+
+            //Populate input fields with profile data
+            this.updateInputs();
+        },
+        methods: {
+          fetchCountries: function () {
             //Fill Passport countries
             let select = [];
             // Create a request variable and assign a new XMLHttpRequest object to it.
@@ -144,25 +151,21 @@
             request.open('GET', url, true);
 
             request.onload = function () {
-                // If the request is successful
-                if (request.status >= 200 && request.status < 400) {
-                    let data = JSON.parse(this.response);
-                    data.forEach(country => {
-                        let elmt = country.name;
-                        select.push(elmt)
-                    })
-                } else {
-                    select = 'List is empty'
-                }
+              // If the request is successful
+              if (request.status >= 200 && request.status < 400) {
+                let data = JSON.parse(this.response);
+                data.forEach(country => {
+                  let elmt = country.name;
+                  select.push(elmt)
+                })
+              } else {
+                select = 'List is empty'
+              }
             };
             // Send request
             this.countries = select;
             request.send();
-
-            //Populate input fields with profile data
-            this.updateInputs();
-        },
-        methods: {
+          },
             mutate: function (event) {
                 const alertDiv = document.getElementById("alert");
                 //This function is used to swap the purpose of the buttons

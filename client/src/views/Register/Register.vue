@@ -139,36 +139,38 @@
         },
 
         mounted () {
-            let select = []
-            // Create a request variable and assign a new XMLHttpRequest object to it.
-            let request = new XMLHttpRequest();
-            //build url
-            let url = new URL(getCountryNames);
-            // Open a new connection, using the GET request on the URL endpoint;
-            request.open('GET', url, true);
-
-            request.onload = function() {
-                // If the request is successful
-                if(request.status >= 200 && request.status < 400) {
-                    let data = JSON.parse(this.response);
-                    data.forEach(country => {
-                        let elmt = country.name;
-                        select.push(elmt)
-                    } )
-                } else {
-                    select = 'List is empty'
-                    let errorAlert = document.getElementById("alert");
-                    this.message = 'Error fetching countries';
-                    errorAlert.hidden = false;          //Show alert bar
-                }
-            };
-            // Send request
-            this.countries = select;
-            request.send()
+            this.fetchCountries();
         },
 
         methods: {
+            async fetchCountries() {
+                let select = [];
+                // Create a request variable and assign a new XMLHttpRequest object to it.
+                let request = new window.XMLHttpRequest();
+                //build url
+                let url = new URL(getCountryNames);
+                // Open a new connection, using the GET request on the URL endpoint;
+                request.open('GET', url, true);
 
+                request.onload = function() {
+                    // If the request is successful
+                    if(request.status >= 200 && request.status < 400) {
+                        let data = JSON.parse(this.response);
+                        data.forEach(country => {
+                            let elmt = country.name;
+                            select.push(elmt)
+                        } )
+                    } else {
+                        select = 'List is empty';
+                        let errorAlert = document.getElementById("alert_form");
+                        this.message_form = 'Error fetching countries';
+                        errorAlert.hidden = false;          //Show alert bar
+                    }
+                };
+                // Send request
+                this.countries = select;
+                request.send()
+            },
             async registerUser() {
                 // Save the data as a newUser object
                 const newUser = {
