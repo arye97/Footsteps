@@ -1,5 +1,6 @@
 package com.springvuegradle.seng302team600.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -46,35 +47,26 @@ public class EmailController {
     public Object findUserEmails(HttpServletRequest request, HttpServletResponse response) {
         String token = request.getHeader("Token");
         User user = userService.findByToken(token);
-        if (user == null) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User Id does not match token");
-        } else {
-            user.setTransientEmailStrings();
-            Map<String, Object> userIdAndEmails = new HashMap<>();
-            userIdAndEmails.put("userId", user.getUserId());
-            userIdAndEmails.put("primaryEmail", user.getPrimaryEmail());
-            userIdAndEmails.put("additionalEmails", user.getAdditionalEmails());
-            response.setStatus(HttpServletResponse.SC_OK);
-            return userIdAndEmails;
-        }
+        user.setTransientEmailStrings();
+        Map<String, Object> userIdAndEmails = new HashMap<>();
+        userIdAndEmails.put("userId", user.getUserId());
+        userIdAndEmails.put("primaryEmail", user.getPrimaryEmail());
+        userIdAndEmails.put("additionalEmails", user.getAdditionalEmails());
+        response.setStatus(HttpServletResponse.SC_OK);
+        return userIdAndEmails;
     }
 
     /**
      * Checks if an email exists in the database
      * @param request HttpServletRequest received from the front-end
      * @param response HttpServletResponse received from the front-end
-     * @throws IOException
      */
     @GetMapping("/email")
-    public void checkEmail(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void checkEmail(HttpServletRequest request, HttpServletResponse response) {
         String token = request.getHeader("Token");
-        User user = userService.findByToken(token);
-        if (user == null) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User Id does not match token");
-        }
+        userService.findByToken(token);
         String email = request.getHeader("email");
-        boolean emailExists = emailRepository.existsEmailByEmail(email);
-        if (emailExists) {
+        if (emailRepository.existsEmailByEmail(email)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request: email " + email + " is already in use");
         } else {
             response.setStatus(HttpServletResponse.SC_OK);
@@ -87,23 +79,16 @@ public class EmailController {
      * @param profileId id of User
      * @param request HttpServletRequest received from the front-end
      * @param response HttpServletResponse to be sent to the front-end
-     * @throws IOException exception for error codes
-     * @throws UserNotFoundException exception for when User is not found in the database
      * @throws MaximumEmailsException exception for maximum emails reached
      * @throws MustHavePrimaryEmailException exception for when primary email of a User is Null
      */
     @PostMapping("/profiles/{profileId}/emails")
     public void addEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response)
-            throws IOException, UserNotFoundException, MaximumEmailsException, MustHavePrimaryEmailException {
+            throws JsonProcessingException, MustHavePrimaryEmailException, MaximumEmailsException {
         String token = request.getHeader("Token");
         User user = userService.findByUserId(token, profileId);
-        if (user == null) {
-            // A User is signed in but does not match token provided
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User Id does not match token");
-        }
         user.setTransientEmailStrings();
 
-        // TODO do all this in Service I guess?: like WRITE AN EMAIL IS VALID VALIDATOR
         ObjectNode node = new ObjectMapper().readValue(jsonString, ObjectNode.class);
         // Maybe get rid of this if statement as it doesn't seem to have a purpose
         if (node.has("additionalEmails")) {
@@ -131,22 +116,16 @@ public class EmailController {
      * @param request HttpServletRequest received from the front-end
      * @param response HttpServletResponse to be sent to the front-end
      * @throws IOException exception for error codes
-     * @throws UserNotFoundException exception for when User is not found in the database
      * @throws MaximumEmailsException exception for maximum emails reached
      * @throws MustHavePrimaryEmailException exception for when primary email of a User is Null
      */
     @PutMapping("/profiles/{profileId}/emails")
     public void updateEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response)
-            throws IOException, UserNotFoundException, MaximumEmailsException, MustHavePrimaryEmailException {
+            throws IOException, MaximumEmailsException, MustHavePrimaryEmailException {
         String token = request.getHeader("Token");
         User user = userService.findByUserId(token, profileId);
-        if (user == null) {
-            // A User is signed in but does not match token provided
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User Id does not match token");
-        }
         user.setTransientEmailStrings();
 
-        // TODO do all this in Service I guess?: like WRITE AN EMAIL IS VALID VALIDATOR
         ObjectNode node = new ObjectMapper().readValue(jsonString, ObjectNode.class);
         String originalPrimaryEmail = node.get("originalPrimaryEmail").asText();
         String candidatePrimaryEmail = node.get("candidatePrimaryEmail").asText();

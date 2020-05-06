@@ -177,6 +177,7 @@
                     this.setEmailCountMessage();
                 }
             }).catch(function(error) {
+                //TODO possible status codes that need handled (401 UNAUTHORIZED) (500 Internal Server Error, this is always possible)
                 console.error(error);
                 console.error(error.response);
             })
@@ -276,6 +277,7 @@
                         ).then(() => {
                             this.duplicateEmailError = null;
                         }).catch(error => {
+                            //TODO add if statement for 401 UNAUTHORIZED (user has timed out or is not logged in)
                             if (error.response.status === 400) {
                                 console.log(error.response.data.message);
                                 let message = "Bad Request: email " + emailTextBox + " is already in use";
@@ -333,8 +335,11 @@
                         window.alert("Successfully saved changes!");
                         this.updateOriginalAdditionalEmail();
                         this.checkIfChangesMade()
-                    });
-                    // else reset page with error code?
+                    }).catch(error => {
+                        //TODO handle status codes for 400 BAD_REQUEST, 401 UNAUTHORIZED, 403 FORBIDDEN, 404 NOT_FOUND
+                        console.error(error);
+                        console.error(error.response);
+                    })
                 }
 
                 // Primary Email has been replaced (PUT)
@@ -359,6 +364,7 @@
                         window.alert("Successfully saved changes!");
                         this.updateOriginalPrimaryEmail();
                         this.checkIfChangesMade()
+                        //TODO if this put endpoint is to be used get catch to work
                         //}).catch(error => {
                         // console.log(error);
                         // //Get alert bar element

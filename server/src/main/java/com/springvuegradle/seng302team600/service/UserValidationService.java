@@ -6,7 +6,9 @@ import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.SecureRandom;
 import java.util.Date;
@@ -27,7 +29,7 @@ public class UserValidationService {
      * Login helper function. Generates a random String value for token, to be stored in the database.
      * @return Random String for Token.
      */
-    public String generateNewToken() {
+    private String generateNewToken() {
         int length = 30;
         StringBuffer strBuffer = new StringBuffer(length);
         SecureRandom secureRandom = new SecureRandom();
@@ -77,16 +79,16 @@ public class UserValidationService {
      */
     public User findByToken(String token) {
         if (token == null) {
-            return null;
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not logged in");
         }
         User user = userRepository.findByToken(token);
         if (user == null) {
-            return null;
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found, invalid credentials");
         }
         if (user.isTimedOut()) {
             user.setToken(null);
             userRepository.save(user);
-            return null;
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User credentials timed out");
         }
         user.setTokenTime();
         userRepository.save(user);
@@ -98,23 +100,9 @@ public class UserValidationService {
      * @param token belongs to session user
      * @param id of user requested
      * @return user requested or null (if unauthorized or timed out token)
-     * @throws UserNotFoundException thrown if requested user is not in database
      */
-    public User findByUserId(String token, Long id) throws UserNotFoundException {
-        if (token == null) {
-            return null;
-        }
-        User thisUser = userRepository.findByToken(token);
-        if (thisUser == null) {
-            return null;
-        }
-        if (thisUser.isTimedOut()) {
-            thisUser.setToken(null);
-            userRepository.save(thisUser);
-            return null;
-        }
-        thisUser.isTimedOut();
-        userRepository.save(thisUser);
+    public User findByUserId(String token, Long id) {
+        User thisUser = findByToken(token);
         if (thisUser.getUserId().equals(id)) {
             return thisUser;
         }
@@ -123,10 +111,10 @@ public class UserValidationService {
             if (user != null) {
                 return user;
             } else {
-                throw new UserNotFoundException(id);
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with ID: " + id);
             }
         }
-        return null;
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User forbidden from accessing user with ID: " + id);
     }
 
     /**
