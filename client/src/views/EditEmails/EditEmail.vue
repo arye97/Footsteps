@@ -1,10 +1,16 @@
-<!--TODO: Make dropdown be able to change the primary email, Make a list of email below that which we can edit/change Have an empty text box we can add new secondary emails into, Have default option in dropdown menu as the primary email-->
-
 <template>
     <div>
     <Sidebar/>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto&display=swap">
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.13.0/css/all.css">
+        <link
+                type="text/css"
+                rel="stylesheet"
+                href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css"
+        />
+        <link
+                type="text/css"
+                rel="stylesheet"
+                href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css"
+        />
         <h1><br/></h1>
         <header class="masthead">
             <div class="container h-100">
@@ -61,7 +67,7 @@
                                 </td>
                                 <td class="deleteButtonTd">
                                     <button type="submit" class="btn btn-danger" id="deleteButton" v-on:click="deleteEmail(index)">
-                                        <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                        <b-icon-trash-fill></b-icon-trash-fill>
                                     </button>
                                 </td>
                                 <td class="makePrimaryButtonTd">
@@ -102,7 +108,9 @@
                                                 class="btn btn-secondary"
                                                 v-bind:disabled="duplicateEmailError!==null"
                                         >
-                                            <i class="fas fa-plus"></i>
+                                            <p class="h5 mb-0">
+                                                <b-icon-plus></b-icon-plus>
+                                            </p>
                                         </button>
                                     </td>
                                 </tr>
@@ -137,7 +145,7 @@
     import Sidebar from '../../components/layout/ProfileEditSidebar';
     export default {
         name: "EditEmail",
-        components: {Sidebar},
+        components: { Sidebar },
         data () {
             return {
                 //each time toReload increases then the html el will reload
