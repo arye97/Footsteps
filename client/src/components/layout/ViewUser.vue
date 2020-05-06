@@ -10,7 +10,8 @@
                         <div class="col-sm-12 text-center">
                             <h1 class="font-weight-light">Welcome to Hakinakina!</h1>
                             <section v-if="errored">
-                                <p class="font-weight-light">Sorry, looks like we can't get your info! Please try again soon.</p>
+                                <p class="font-weight-light">{{this.error}}</p>
+                                <p class="font-weight-light">Sorry, please log in to access your profile, or try again later.</p>
                             </section>
 
                             <section v-else>
@@ -57,7 +58,8 @@
             return {
                 user: null,
                 loading: true,
-                errored: false
+                errored: false,
+                error: null
             }
         },
         async mounted() {
@@ -79,6 +81,7 @@
             }).catch(error => {
                 this.errored = true;
                 console.error(error);
+                this.error = error;
                 console.error(error.response);
 
             })
