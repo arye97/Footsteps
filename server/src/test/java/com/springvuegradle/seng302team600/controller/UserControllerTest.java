@@ -16,12 +16,14 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -182,19 +184,19 @@ class UserControllerTest {
         when(emailRepository.getOne(Mockito.anyLong())).thenReturn(dummyEmail);
         when(userValidationService.findByToken(Mockito.anyString())).thenAnswer(i -> {
             if (i.getArgument(0).equals(dummyUser.getToken())) return dummyUser;
-            else return null;
+            else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         });
         when(userRepository.findByUserId(Mockito.anyLong())).thenReturn(dummyUser);
         when(emailRepository.existsEmailByEmail(Mockito.anyString())).thenReturn(false);
         when(userValidationService.findByUserId(Mockito.anyString(), Mockito.anyLong())).thenAnswer(i -> {
             if (i.getArgument(0).equals(dummyUser.getToken()) && i.getArgument(1).equals(dummyUser.getUserId())) return dummyUser;
-            else return null;
+            else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         });
         ReflectionTestUtils.setField(dummyUser, "userId", 1L);
         ReflectionTestUtils.setField(dummyEmail, "id", 1L);
         when(userValidationService.login(Mockito.anyString(),Mockito.anyString())).thenAnswer(i -> {
                 if (i.getArgument(0).equals(dummyEmail.getEmail()) && dummyUser.checkPassword(i.getArgument(1))) return "ValidToken";
-                else return null;
+                else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         });
         Mockito.doAnswer(i -> {
             if (i.getArgument(0).equals(dummyUser.getToken())) dummyUser.setToken(null);
@@ -247,6 +249,7 @@ class UserControllerTest {
 
     @Test
     public void findUserDataUnauthorized() throws Exception {
+        setupMocking(createUserJsonPostFindUser);
         String token = "WrongToken"; // Tokens are 30 chars long.
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/profiles")
                 .header("Token", token);

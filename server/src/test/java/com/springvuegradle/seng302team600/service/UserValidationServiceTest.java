@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Calendar;
 
@@ -35,7 +36,7 @@ class UserValidationServiceTest {
     private Email dummyEmail;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         userData = new RegisterRequest();
         userData.setFirstName("Bill");
         userData.setLastName("Ford");
@@ -84,8 +85,7 @@ class UserValidationServiceTest {
 
     @Test
     public void doNotLoginUnauthorizedUsers() {
-        String token = userService.login(userData.getPrimaryEmail(), "wrongPassword");
-        assertNull(token);
+        assertThrows(ResponseStatusException.class, () -> userService.login(userData.getPrimaryEmail(), "wrongPassword"));
     }
 
     @Test
@@ -117,8 +117,7 @@ class UserValidationServiceTest {
         String token = "testToken";
         dummyUser.setToken(token);
         dummyUser.setTokenTime();
-        User user = userService.findByToken("wrongToken");
-        assertNull(user);
+        assertThrows(ResponseStatusException.class, () -> userService.findByToken("wrongToken"));
     }
 
     @Test
@@ -135,7 +134,14 @@ class UserValidationServiceTest {
         String token = "testToken";
         dummyUser.setToken(token);
         dummyUser.setTokenTime();
-        User user = userService.findByUserId("wrongToken", -1l);
-        assertNull(user);
+        assertThrows(ResponseStatusException.class, () -> userService.findByUserId("wrongToken", dummyUser.getUserId()));
+    }
+
+    @Test
+    public void userNotFoundByIdForbidden() {
+        String token = "testToken";
+        dummyUser.setToken(token);
+        dummyUser.setTokenTime();
+        assertThrows(ResponseStatusException.class, () -> userService.findByUserId(token, -1L));
     }
 }
