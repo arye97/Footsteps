@@ -42,48 +42,12 @@ public class UserController {
     public User findUserData(HttpServletRequest request, HttpServletResponse response) {
         String token = request.getHeader("Token");
         User user = userService.findByToken(token);
-
-        if (user != null) {
-            user.setTransientEmailStrings();
-            //Security breach if password sent to client
-            user.setPassword(null);
-            response.setStatus(HttpServletResponse.SC_OK); //200
-        } else {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); //401
-        }
+        user.setTransientEmailStrings();
+        //Security breach if password sent to client
+        user.setPassword(null);
+        response.setStatus(HttpServletResponse.SC_OK); //200
         return user;
     }
-
-    //ToDo Fix later after merging
-//    /**
-//     * Return a users emails
-//     * @param request
-//     * @param response
-//     * @return JSON object with primaryEmails and additionalEmails field
-//     */
-//    @GetMapping("/emails")
-//    public Object findUserEmails(HttpServletRequest request, HttpServletResponse response) {
-//        //getSession(false) ensures that a session is not created
-//        HttpSession session = request.getSession(false);
-//        if (session != null && session.getAttribute("loggedUser") != null) {
-//            //Gets userId from client session
-//            Long userId = ((LoggedUser) session.getAttribute("loggedUser")).getUserId();
-//            response.setStatus(HttpServletResponse.SC_OK);
-//
-//            User user = userRepository.findByUserId(userId);
-//            user.setTransientEmailStrings();
-//
-//            Map<String, Object> userIdAndEmails = new HashMap<String, Object>();
-//            userIdAndEmails.put("userId", user.getUserId());
-//            userIdAndEmails.put("primaryEmail", user.getPrimaryEmail());
-//            userIdAndEmails.put("additionalEmails", user.getAdditionalEmails());
-//            return userIdAndEmails;
-//        } else {
-//            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-//            return null;
-//        }
-//    }
-
 
     /**
      * Creates and returns a new User from the requested body
@@ -109,77 +73,6 @@ public class UserController {
         response.setStatus(HttpServletResponse.SC_CREATED); //201
         return token;
     }
-        
-        
-    @PostMapping("/profiles/{profileId}/emails")
-    public void addEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response)
-            throws JsonProcessingException {
-        //ToDo Fix later after merging
-        //        ObjectNode node = new ObjectMapper().readValue(jsonString, ObjectNode.class);
-//        HttpSession session = request.getSession(false);
-//
-//        if (session != null && session.getAttribute("loggedUser") != null) {
-//            if (profileId == userRepository.findByUserId(profileId).getUserId()) {
-//                //Gets userId from client session
-//                Long userId = ((LoggedUser) session.getAttribute("loggedUser")).getUserId();
-//                if (node.has("additional_email")) {
-//                    List<String> additionalEmails = node.findValuesAsText("additional_email");
-//                    System.out.println(additionalEmails.toString());
-//                    if (userId == profileId) {
-//                        User updateUser = userRepository.findByUserId(profileId);
-//                        updateUser.setAdditionalEmails(additionalEmails);
-//                        response.setStatus(HttpServletResponse.SC_OK);
-//                        userRepository.save(updateUser);
-//                    }
-//                }
-//            } else {
-//                throw new UserNotFoundException(profileId);
-//            }
-//        }
-    }
-
-    //TODO: Tests for this method. Tested in postman but will update the current user thats logged in with the primary email due to unimplementation of adding a list of secondary emails in the database.
-    //check if session is null, check if the profile id is the logged in id, check if user exists after
-
-    /**
-     * Updates primary and secondary emails from a given profileID
-     *
-     * @param jsonString
-     * @param profileId
-     * @throws JsonProcessingException
-     */
-    @PutMapping("/profiles/{profileId}/emails")
-    public void updateEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException {
-        //ToDo Fix later after merging
-        //        ObjectNode node = new ObjectMapper().readValue(jsonString, ObjectNode.class);
-//        HttpSession session = request.getSession(false);
-//
-//        if (session != null && session.getAttribute("loggedUser") != null) {
-//            //Gets userId from client session
-//            Long userId = ((LoggedUser) session.getAttribute("loggedUser")).getUserId();
-//            //              why we need sessionid?
-//            if (validUser(userId, session.getId(), profileId)) {
-//                User updatedUser = userRepository.findByUserId(profileId);
-//                if (updatedUser != null) {
-//                    if (node.has("primaryEmail") && node.has("additionalEmails")) {
-//                        String primaryEmail = node.get("primaryEmail").asText();
-//                        String additionalEmailToBeAdded = node.get("additionalEmails").asText();
-//                        List<String> additionalEmails = new ArrayList<>();
-//                        additionalEmails.add(additionalEmailToBeAdded);
-//
-//                        updatedUser.setPrimaryEmail(primaryEmail);
-//                        updatedUser.setAdditionalEmails(additionalEmails);
-//                        response.setStatus(HttpServletResponse.SC_OK);
-//                        userRepository.save(updatedUser);
-//                    }
-//                }
-//            } else {
-//                throw new UserNotFoundException(profileId);
-//            }
-//        }
-    }
-
-
 
     /**
      * Logs in a valid user with a registered email and password
@@ -195,17 +88,8 @@ public class UserController {
         if (node.has("email") && node.has("password")) {
             String email = node.get("email").toString().replace("\"", "");
             String password = node.get("password").toString().replace("\"", "");
-
+            //ResponseStatusException thrown if email or password incorrect
             String token = userService.login(email, password);
-
-            if (token == null) {
-                //Token was null, either email not found or password incorrect
-                if (emailRepository.existsEmailByEmail(email)) {
-                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login unsuccessful, please enter a valid password");
-                } else {
-                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Could not find user with email " + email);
-                }
-            }
             response.setStatus(HttpServletResponse.SC_CREATED); //201
             return token;
         }
@@ -243,11 +127,8 @@ public class UserController {
                             HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) throws IOException {
         String token = request.getHeader("Token");
         ObjectMapper nodeMapper = new ObjectMapper();
+        //ResponseStatusException thrown if user unauthorized or forbidden from accessing requested user
         User user = userService.findByUserId(token, profileId);
-        if (user == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); //401
-            return;
-        }
         //Remove fields that should not be modified here
         ObjectNode modData = nodeMapper.readValue(jsonEditProfileString, ObjectNode.class);
         modData.remove("date_of_birth");
