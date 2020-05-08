@@ -4,8 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.springvuegradle.seng302team600.exception.MaximumEmailsException;
-import com.springvuegradle.seng302team600.exception.MustHavePrimaryEmailException;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
@@ -78,12 +76,10 @@ public class EmailController {
      * @param profileId id of User
      * @param request HttpServletRequest received from the front-end
      * @param response HttpServletResponse to be sent to the front-end
-     * @throws MaximumEmailsException exception for maximum emails reached
-     * @throws MustHavePrimaryEmailException exception for when primary email of a User is Null
      */
     @PostMapping("/profiles/{profileId}/emails")
     public void addEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response)
-            throws JsonProcessingException, MustHavePrimaryEmailException, MaximumEmailsException {
+            throws JsonProcessingException {
         String token = request.getHeader("Token");
         User user = userService.findByUserId(token, profileId);
         user.setTransientEmailStrings();
@@ -115,12 +111,10 @@ public class EmailController {
      * @param request HttpServletRequest received from the front-end
      * @param response HttpServletResponse to be sent to the front-end
      * @throws IOException exception for error codes
-     * @throws MaximumEmailsException exception for maximum emails reached
-     * @throws MustHavePrimaryEmailException exception for when primary email of a User is Null
      */
     @PutMapping("/profiles/{profileId}/emails")
     public void updateEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response)
-            throws IOException, MaximumEmailsException, MustHavePrimaryEmailException {
+            throws IOException {
         String token = request.getHeader("Token");
         User user = userService.findByUserId(token, profileId);
         user.setTransientEmailStrings();
