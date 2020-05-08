@@ -415,21 +415,25 @@ public class User {
 
     @PreRemove
     public void logUserRemovalAttempt() {
+        this.setTransientEmailStrings();
         log.info("Attempting to delete user: " + primaryEmail);
     }
 
     @PostRemove
     public void logUserRemoval() {
+        this.setTransientEmailStrings();
         log.info("Deleted user: " + primaryEmail);
     }
 
     @PreUpdate
     public void logUserUpdateAttempt() {
+        this.setTransientEmailStrings();
         log.info("Attempting to update user: " + primaryEmail);
     }
 
     @PostUpdate
     public void logUserUpdate() {
+        this.setTransientEmailStrings();
         log.info("Updated user: " + primaryEmail);
     }
 
