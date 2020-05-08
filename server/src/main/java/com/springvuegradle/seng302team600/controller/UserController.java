@@ -138,6 +138,8 @@ public class UserController {
 
         ObjectReader userReader = nodeMapper.readerForUpdating(user);
         User modUser = userReader.readValue(modData);
+        //Throws errors if user is erroneous
+        modUser.isValid();
         userRepository.save(modUser);
         response.setStatus(HttpServletResponse.SC_OK); //200
     }
