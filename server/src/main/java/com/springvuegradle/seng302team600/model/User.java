@@ -292,11 +292,13 @@ public class User {
                 remove = true;
             }
         }
+
         if (remove) {
             for (String email: removals) {
-                additionalEmails.remove(email);
+                deleteAdditionalEmail(email);
             }
         }
+
         for (String email: newAdditionalEmails) {
             // If email in newAdditionalEmails is a duplicate from additionalEmails
             if (additionalEmails.contains(email) || primaryEmail.equals(email)) {

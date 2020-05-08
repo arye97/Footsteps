@@ -36,7 +36,7 @@ class UserValidationServiceTest {
     private Email dummyEmail;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws MaximumEmailsException {
         userData = new RegisterRequest();
         userData.setFirstName("Bill");
         userData.setLastName("Ford");
