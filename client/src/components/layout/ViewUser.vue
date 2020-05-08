@@ -1,33 +1,44 @@
 <template>
     <div id="app">
-        <h1><br/></h1>
-        <h1>Welcome to Hakinakina!</h1>
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12 ">
+                        <Header />
+                        <h1>
+                            <br/><br/>
+                        </h1>
+                        <div class="col-sm-12 text-center">
+                            <h1 class="font-weight-light">Welcome to Hakinakina!</h1>
+                            <section v-if="errored">
+                                <p class="font-weight-light">Sorry, looks like we can't get your info! Please try again soon.</p>
+                            </section>
 
-        <section v-if="errored">
-            <p>Sorry, looks like we can't get your info! Please try again soon.</p>
-        </section>
+                            <section v-else>
+                                <div v-if="loading"> Loading...</div>
+                                <div v-else class="form-group font-weight-light">
+                                    <h1 class="font-weight-light">Hi {{this.user.firstname}}!</h1>
+                                    <p>You're logged in to your Hakinakina Account</p>
+                                    <h3 class="font-weight-light">All about you: </h3>
+                                    <span class="accordion">
+                                        <span v-if="this.user.nickname">Nickname: {{ this.user.nickname }}</span><br/>
+                                        <span >Gender: {{ this.user.gender }}</span><br/>
+                                        <span>Date Of Birth: {{ this.user.date_of_birth }}</span><br/>
+                                        <span>Email: {{ this.user.primary_email }}</span><br/>
+                                        <span>Additional Emails: {{ this.user.additional_email.join(", ") }}</span><br/>
+                                        <button type="button" class="btn btn-link" v-on:click="editEmail">Edit Emails</button><br/>
+                                        <span v-if="this.user.passports">Passports: {{this.user.passports.join(", ")}}</span><br/>
+                                        <span v-if="this.user.fitness">Fitness Level: {{this.user.fitness}}</span><br/>
+                                        <span v-if="this.user.bio">Bio: {{ this.user.bio }}</span><br/>
+                                    </span>
+                                    <button type="submit" class="btn btn-link" v-on:click="logout" >Logout</button>
+                                    <button type="submit" class="btn btn-link" v-on:click="editProfile" >Edit Profile</button>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+        </div>
 
-        <section v-else>
-            <div v-if="loading"> Loading...</div>
-            <div v-else class="form-group">
-                <h1>Hi {{this.user.firstname}}!</h1>
-                <p>You're logged in to your Hakinakina Account</p>
-                <h3>All about you</h3>
-                <span class="accordion">
-                    <span v-if="this.user.nickname">Nickname: {{ this.user.nickname }}</span><br/>
-                    <span >Gender: {{ this.user.gender }}</span><br/>
-                    <span>Date Of Birth: {{ this.user.date_of_birth }}</span><br/>
-                    <span>Email: {{ this.user.primary_email }}</span><br/>
-                    <span>Additional Emails: {{ this.user.additional_email.join(", ") }}</span><br/>
-                    <button type="button" class="btn btn-link" v-on:click="editEmail">Edit Emails</button><br/>
-                    <span v-if="this.user.passports">Passports: {{this.user.passports.join(", ")}}</span><br/>
-                    <span v-if="this.user.fitness">Fitness Level: {{this.user.fitness}}</span><br/>
-                    <span v-if="this.user.bio">Bio: {{ this.user.bio }}</span><br/>
-                </span>
-                <button type="submit" class="btn btn-link" v-on:click="logout" >Logout</button>
-                <button type="submit" class="btn btn-link" v-on:click="editProfile" >Edit Profile</button>
-            </div>
-        </section>
 
     </div>
 </template>
@@ -35,9 +46,13 @@
 <script>
     import server from "../../Api";
     import {tokenStore} from '../../main';
+    import Header from '../Header/Header.vue';
 
     export default {
         name: "ViewUser",
+        components: {
+            Header
+        },
         data() {
             return {
                 user: null,

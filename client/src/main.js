@@ -8,15 +8,6 @@ import router from './index'
 Vue.config.productionTip = false;
 
 Vue.use(VueLogger);
-
-/* eslint-disable no-new */
-new Vue({
-  el: '#app',
-  template: '<App/>',
-  router,
-  components: { App }
-});
-
 /* Token for authentication */
 export const tokenStore = {
   state: {
@@ -26,3 +17,13 @@ export const tokenStore = {
     tokenStore.state.token = newToken
   }
 };
+
+
+/* eslint-disable no-new */
+new Vue({
+  el: '#app',
+  template: '<App/>',
+  router,
+  components: { App }
+});
+

@@ -1,4 +1,4 @@
-package com.springvuegradle.seng302team600;
+package com.springvuegradle.seng302team600.advice;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;

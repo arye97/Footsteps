@@ -1,4 +1,12 @@
 <template>
+    <div>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-6 offset-sm-3">
+                <Header />
+            </div>
+        </div>
+    </div>
     <div class="sidebar">
         <div class="sidebar-header">
             <h2>Edit Profile</h2>
@@ -10,13 +18,12 @@
                     <span class="sidebar-item-name">Details</span>
                 </router-link>
             </li>
-            <!-- Email and Password are yet to be implemented -->
-            <!--<li class>
+            <li class>
                 <router-link to="/profile/emails"  class="sidebar-item">
                     <span class="sidebar-item-name">Email</span>
                 </router-link>
-            </li>-->
-
+            </li>
+            <!-- Password is yet to be implemented -->
             <!--<li class>
                 <router-link to="/profile/password" class="sidebar-item">
                     <span class="sidebar-item-name">Password</span>
@@ -24,12 +31,17 @@
             </li>-->
 
         </ul>
+        </div>
     </div>
 </template>
 
 <script>
+    import Header from '../Header/Header';
     export default {
         name: "Sidebar",
+        components: {
+            Header
+        }
     }
 </script>
 

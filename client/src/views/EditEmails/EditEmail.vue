@@ -2,6 +2,17 @@
 
 <template>
     <div>
+        <h1><br/></h1>
+        <div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-6 offset-sm-3">
+                        <Header />
+                        <router-view></router-view>
+                    </div>
+                </div>
+            </div>
+        </div>
     <Sidebar/>
         <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
         <h1><br/></h1>
@@ -73,12 +84,13 @@
 
 <script>
     import server from '../../Api';
+    import Header from '../../components/Header/Header.vue'
     import Sidebar from '../../components/layout/ProfileEditSidebar'
     import Multiselect from "vue-multiselect";
 
     export default {
         name: "EditEmail",
-        components: {Sidebar, Multiselect},
+        components: {Sidebar, Multiselect, Header},
         data () {
             return {
                 loading: true,
@@ -140,10 +152,7 @@
                 this.deleteEmail();
                 this.additionalEmails.unshift(oldPrimary);
                 this.primaryEmail = newPrimary;
-
-
                 console.log('newPrimary: ' + newPrimary + ' Old primary: ' + oldPrimary)
-                //}
             },
             addEmail() {
                 //Make sure there are no more than 5 emails already and the email is valid
