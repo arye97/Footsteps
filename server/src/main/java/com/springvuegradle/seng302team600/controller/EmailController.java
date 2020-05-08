@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.exception.MaximumEmailsException;
 import com.springvuegradle.seng302team600.exception.MustHavePrimaryEmailException;
-import com.springvuegradle.seng302team600.exception.UserNotFoundException;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
@@ -39,8 +38,8 @@ public class EmailController {
 
     /**
      * Return a users emails
-     * @param request
-     * @param response
+     * @param request HttpServletRequest received from the front-end
+     * @param response HttpServletResponse received from the front-end
      * @return JSON object with primaryEmails and additionalEmails field
      */
     @GetMapping("/emails")

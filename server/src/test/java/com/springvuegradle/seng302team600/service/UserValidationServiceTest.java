@@ -1,5 +1,6 @@
 package com.springvuegradle.seng302team600.service;
 
+import com.springvuegradle.seng302team600.exception.MaximumEmailsException;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.RegisterRequest;
 import com.springvuegradle.seng302team600.repository.UserRepository;
@@ -27,7 +28,7 @@ class UserValidationServiceTest {
     private Long userId;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws MaximumEmailsException {
         userData = new RegisterRequest();
         userData.setFirstName("Bill");
         userData.setLastName("Ford");
