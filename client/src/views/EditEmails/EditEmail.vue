@@ -337,7 +337,7 @@
                 // Primary Email has not been replaced (POST)
                 if (this.primaryEmail === this.originalPrimaryEmail) {
                     savedEmails = {
-                        additionalEmails: this.additionalEmails
+                        additional_email: this.additionalEmails
                     };
                     server.post(`/profiles/${this.userId}/emails`,
                         savedEmails,
@@ -364,9 +364,8 @@
                 // Primary Email has been replaced (PUT)
                 if (this.primaryEmail !== this.originalPrimaryEmail) {
                     savedEmails = {
-                        candidatePrimaryEmail: this.primaryEmail,
-                        originalPrimaryEmail: this.originalPrimaryEmail,
-                        additionalEmails: this.additionalEmails
+                        primary_email: this.primaryEmail,
+                        additional_email: this.additionalEmails
                     };
                     server.put(`/profiles/${this.userId}/emails`,
                         savedEmails,
