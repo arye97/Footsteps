@@ -41,15 +41,16 @@ public class EmailController {
      * @return JSON object with primaryEmails and additionalEmails field
      */
     @GetMapping("/emails")
-    public Object findUserEmails(HttpServletRequest request, HttpServletResponse response) {
+    public Map<String, Object> findUserEmails(HttpServletRequest request, HttpServletResponse response) {
         String token = request.getHeader("Token");
+        // Errors are thrown in userService
         User user = userService.findByToken(token);
         user.setTransientEmailStrings();
         Map<String, Object> userIdAndEmails = new HashMap<>();
         userIdAndEmails.put("userId", user.getUserId());
         userIdAndEmails.put("primaryEmail", user.getPrimaryEmail());
         userIdAndEmails.put("additionalEmails", user.getAdditionalEmails());
-        response.setStatus(HttpServletResponse.SC_OK);
+        response.setStatus(HttpServletResponse.SC_OK); //200
         return userIdAndEmails;
     }
 
@@ -59,7 +60,7 @@ public class EmailController {
      * @param response HttpServletResponse received from the front-end
      */
     @GetMapping("/email")
-    public void checkEmail(HttpServletRequest request, HttpServletResponse response) {
+    public void checkIfEmailIsInUse(HttpServletRequest request, HttpServletResponse response) {
         String token = request.getHeader("Token");
         userService.findByToken(token);
         String email = request.getHeader("email");
@@ -78,17 +79,19 @@ public class EmailController {
      * @param response HttpServletResponse to be sent to the front-end
      */
     @PostMapping("/profiles/{profileId}/emails")
-    public void addEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response)
-            throws JsonProcessingException {
+    public void addEmails(@RequestBody String jsonString,
+                          @PathVariable Long profileId,
+                          HttpServletRequest request,
+                          HttpServletResponse response) throws JsonProcessingException {
         String token = request.getHeader("Token");
         User user = userService.findByUserId(token, profileId);
         user.setTransientEmailStrings();
 
         ObjectNode node = new ObjectMapper().readValue(jsonString, ObjectNode.class);
         // Maybe get rid of this if statement as it doesn't seem to have a purpose
-        if (node.has("additionalEmails")) {
+        if (node.has("additional_email")) {
             List<String> additionalEmails = new ArrayList<>();
-            for (JsonNode email: node.get("additionalEmails")) {
+            for (JsonNode email: node.get("additional_email")) {
                 // If additional email has not been associated with user BUT exists in repo
                 if (!user.getAdditionalEmails().contains(email.asText()) && emailRepository.existsEmailByEmail(email.asText())) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request: additional email " + email.asText() + " is already in use");
@@ -113,15 +116,17 @@ public class EmailController {
      * @throws IOException exception for error codes
      */
     @PutMapping("/profiles/{profileId}/emails")
-    public void updateEmail(@RequestBody String jsonString, @PathVariable Long profileId, HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
+    public void updateEmails(@RequestBody String jsonString,
+                             @PathVariable Long profileId,
+                             HttpServletRequest request,
+                             HttpServletResponse response) throws IOException {
         String token = request.getHeader("Token");
         User user = userService.findByUserId(token, profileId);
         user.setTransientEmailStrings();
 
         ObjectNode node = new ObjectMapper().readValue(jsonString, ObjectNode.class);
-        String originalPrimaryEmail = node.get("originalPrimaryEmail").asText();
-        String candidatePrimaryEmail = node.get("candidatePrimaryEmail").asText();
+        String originalPrimaryEmail = user.getPrimaryEmail();
+        String candidatePrimaryEmail = node.get("primary_email").asText();
 
         // If candidatePrimaryEmail is not in additional emails yet BUT exists in repo
         if (!user.getAdditionalEmails().contains(candidatePrimaryEmail) && emailRepository.existsEmailByEmail(candidatePrimaryEmail)) {
@@ -129,7 +134,7 @@ public class EmailController {
         }
 
         List<String> candidateAdditionalEmails = new ArrayList<>();
-        for (JsonNode email: node.get("additionalEmails")) {
+        for (JsonNode email: node.get("additional_email")) {
             // If User.AdditionalEmails doesn't contain Email.asText()
             // And User.PrimaryEmail isn't Email.asText()
             // But that Email is found in the DB
@@ -154,8 +159,7 @@ public class EmailController {
         user.deleteAdditionalEmail(originalPrimaryEmail);
         // SET CANDIDATE ADDITIONAL EMAILS
         user.setAdditionalEmails(candidateAdditionalEmails);
-
-        response.setStatus(HttpServletResponse.SC_OK);
+        response.setStatus(HttpServletResponse.SC_CREATED);
         userRepository.save(user);
     }
 }

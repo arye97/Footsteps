@@ -344,7 +344,7 @@
                 // Primary Email has not been replaced (POST)
                 if (this.primaryEmail === this.originalPrimaryEmail) {
                     savedEmails = {
-                        additionalEmails: this.additionalEmails
+                        additional_email: this.additionalEmails
                     };
                     server.post(`/profiles/${this.userId}/emails`,
                         savedEmails,
@@ -360,7 +360,7 @@
                         console.log("Additional Emails updated successfully!");
                         window.alert("Successfully saved changes!");
                         this.updateOriginalAdditionalEmail();
-                        this.checkIfChangesMade()
+                        this.checkIfChangesMade();
                     }).catch(error => {
                         if (error.response.status === 400) {
                             console.log(error.response.data.message);
@@ -383,9 +383,8 @@
                 // Primary Email has been replaced (PUT)
                 if (this.primaryEmail !== this.originalPrimaryEmail) {
                     savedEmails = {
-                        candidatePrimaryEmail: this.primaryEmail,
-                        originalPrimaryEmail: this.originalPrimaryEmail,
-                        additionalEmails: this.additionalEmails
+                        primary_email: this.primaryEmail,
+                        additional_email: this.additionalEmails
                     };
                     server.put(`/profiles/${this.userId}/emails`,
                         savedEmails,
@@ -401,7 +400,8 @@
                         console.log('Primary Email and Additional Emails updated successfully!');
                         window.alert("Successfully saved changes!");
                         this.updateOriginalPrimaryEmail();
-                        this.checkIfChangesMade()
+                        this.updateOriginalAdditionalEmail();
+                        this.checkIfChangesMade();
                     }).catch(error => {
                         if (error.response.status === 400) {
                             console.log(error.response.data.message);
