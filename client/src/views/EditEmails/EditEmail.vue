@@ -196,9 +196,12 @@
                     this.setEmailCountMessage();
                 }
             }).catch(function(error) {
-                //TODO possible status codes that need handled (401 UNAUTHORIZED) (500 Internal Server Error, this is always possible)
-                console.error(error);
-                console.error(error.response);
+                if (error.response.status === 401) {
+                    console.log(error.response.data.message);
+                }
+                else if (error.response.status === 500) {
+                    console.log(error.response.data.message);
+                }
             })
         },
         methods: {
@@ -296,7 +299,6 @@
                         ).then(() => {
                             this.duplicateEmailError = null;
                         }).catch(error => {
-                            //TODO add if statement for 401 UNAUTHORIZED (user has timed out or is not logged in)
                             if (error.response.status === 400) {
                                 console.log(error.response.data.message);
                                 let message = "Bad Request: email " + emailTextBox + " is already in use";
@@ -305,6 +307,11 @@
                                     this.duplicateEmailError = "We're sorry, that email is taken."
                                 }
                             }
+                            if (error.response.status === 401) {
+                                console.log(error.response.data.message);
+                            }
+
+
                         })
                     }
                 } else {
@@ -355,9 +362,21 @@
                         this.updateOriginalAdditionalEmail();
                         this.checkIfChangesMade()
                     }).catch(error => {
-                        //TODO handle status codes for 400 BAD_REQUEST, 401 UNAUTHORIZED, 403 FORBIDDEN, 404 NOT_FOUND
-                        console.error(error);
-                        console.error(error.response);
+                        if (error.response.status === 400) {
+                            console.log(error.response.data.message);
+                        }
+                        else if (error.response.status === 401) {
+                            console.log(error.response.data.message);
+                        }
+                        else if (error.response.status === 403) {
+                            console.log(error.response.data.message);
+                        }
+                        else if (error.response.status === 404) {
+                            console.log(error.response.data.message);
+                        }
+                        this.primaryEmail = this.originalPrimaryEmail;
+                        this.additionalEmails = Array.from(this.originalAdditionalEmails);
+                        window.alert("Could not save changes! :(");
                     })
                 }
 
@@ -383,24 +402,22 @@
                         window.alert("Successfully saved changes!");
                         this.updateOriginalPrimaryEmail();
                         this.checkIfChangesMade()
-                        //TODO if this put endpoint is to be used get catch to work
-                        //}).catch(error => {
-                        // console.log(error);
-                        // //Get alert bar element
-                        // let errorAlert = document.getElementById("alert");
-                        // if (error.message === "Network Error") {
-                        //     this.message = error.message;
-                        // } else if (error.response.status === 403) { //Error 401: Email already exists or invalid date of birth
-                        //     this.message = error.response.data.toString(); //Set alert bar message to error message from server
-                        // } else if (error.response.status === 400) { //Error 400: Bad request (missing fields)
-                        //     this.message = "An invalid update request has been received please try again"
-                        // } else {    //Catch for any errors that are not specifically caught
-                        //     this.message = "An unknown error has occurred during update"
-                        // }
-                        // errorAlert.hidden = false;          //Show alert bar
-                        // setTimeout(function () {    //Hide alert bar after ~5000ms
-                        //     errorAlert.hidden = true;
-                        // }, 5000);
+                    }).catch(error => {
+                        if (error.response.status === 400) {
+                            console.log(error.response.data.message);
+                        }
+                        else if (error.response.status === 401) {
+                            console.log(error.response.data.message);
+                        }
+                        else if (error.response.status === 403) {
+                            console.log(error.response.data.message);
+                        }
+                        else if (error.response.status === 404) {
+                            console.log(error.response.data.message);
+                        }
+                        this.primaryEmail = this.originalPrimaryEmail;
+                        this.additionalEmails = Array.from(this.originalAdditionalEmails);
+                        window.alert("Could not save changes! :(");
                     });
                 }
             },
