@@ -353,7 +353,7 @@
                         console.log("Additional Emails updated successfully!");
                         window.alert("Successfully saved changes!");
                         this.updateOriginalAdditionalEmail();
-                        this.checkIfChangesMade()
+                        this.checkIfChangesMade();
                     }).catch(error => {
                         //TODO handle status codes for 400 BAD_REQUEST, 401 UNAUTHORIZED, 403 FORBIDDEN, 404 NOT_FOUND
                         console.error(error);
@@ -381,7 +381,8 @@
                         console.log('Primary Email and Additional Emails updated successfully!');
                         window.alert("Successfully saved changes!");
                         this.updateOriginalPrimaryEmail();
-                        this.checkIfChangesMade()
+                        this.updateOriginalAdditionalEmail();
+                        this.checkIfChangesMade();
                         //TODO if this put endpoint is to be used get catch to work
                         //}).catch(error => {
                         // console.log(error);
