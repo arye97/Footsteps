@@ -64,15 +64,12 @@
         },
         async mounted() {
             this.loading = true;
-            console.log(tokenStore.state.token);
             await server.get(  '/profiles',
                 {headers:
                         {"Access-Control-Allow-Origin": "*", 'Content-Type': 'application/json', 'Token': tokenStore.state.token}, withCredentials: true
                 }, )
                 .then(response => {
                     if (response.status === 200) {
-                        console.log('Status = OK. response.data:');
-                        console.log(response.data);
                         //user is set to the user data retrieved
                         this.user = response.data;
                         //no longer loading, so show data
@@ -98,11 +95,12 @@
                     }
                 ).then(response => {
                     console.log(response);
-                    console.log('User Logged Out Successfully!');
+                    console.log('User logged out successfully!');
                     tokenStore.setToken(null);
                     this.$router.push('/'); //Routes to home on logout
                 }).catch(error => {
                     console.error(error);
+                    console.log('User was already logged out!');
                     this.$router.push('/'); //Routes to home on logout
                 })
             },
