@@ -1,2 +1,0 @@
-This is an arbitrary file and folder to get intellij to display correctly while we only have one subfolder from featureFiles.
-Once we have another subFolder for featureFiles this MUST BE deleted
