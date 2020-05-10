@@ -67,14 +67,14 @@
                                     </p>
                                 </td>
                                 <td class="deleteButtonTd">
-                                    <button type="submit" class="btn btn-danger" id="deleteButton" v-on:click="deleteEmail(index)">
+                                    <b-button type="submit" variant="danger" id="deleteButton" v-on:click="deleteEmail(index)">
                                         <b-icon-trash-fill></b-icon-trash-fill>
-                                    </button>
+                                    </b-button>
                                 </td>
                                 <td class="makePrimaryButtonTd">
-                                    <button type="submit" class="btn btn-primary" id="primaryButton" v-on:click="setPrimary(index)">
+                                    <b-button type="submit" variant="primary" id="primaryButton" v-on:click="setPrimary(index)">
                                         Make Primary
-                                    </button>
+                                    </b-button>
                                 </td>
                             </tr>
                         </table>
@@ -105,14 +105,14 @@
                                     </td>
                                     <td>
                                     <!--Disable button if duplicateEmailError is not null-->
-                                        <button type="submit"
-                                                class="btn btn-secondary"
+                                        <b-button type="submit"
+                                                variant="secondary"
                                                 v-bind:disabled="duplicateEmailError!==null"
                                         >
                                             <p class="h5 mb-0">
                                                 <b-icon-plus></b-icon-plus>
                                             </p>
-                                        </button>
+                                        </b-button>
                                     </td>
                                 </tr>
                                 <tr>
@@ -128,15 +128,12 @@
                         </form>
                         <div id="confirmationButtons">
 <!--?                           <router-link to="/profile" class="btn btn-outline-success btn-lg float-left" @click.native.prevent="backAlert">Back</router-link>-->
-                            <b-button type="submit"
-                                    class="btn btn-success btn-lg float-left"
-                                    id="back"
-                                    :key=this.toReload
-                                    v-on:click="backAlert">Back</b-button>
-                            <button type="submit"
-                                    class="btn btn-success btn-lg float-right"
-                                    v-on:click="saveChanges"
-                                    v-bind:disabled="changesHaveBeenMade===false">Save Changes</button>
+                            <b-button type="submit" variant="success float-left"
+                                      size="lg" id="back" :key=this.toReload
+                                      v-on:click="backAlert">Back</b-button>
+                            <b-button type="submit" variant="success float-right"
+                                      size="lg" v-on:click="saveChanges"
+                                      v-bind:disabled="changesHaveBeenMade===false">Save Changes</b-button>
                         </div>
                     </section>
                 </article>
