@@ -123,6 +123,7 @@ test('AC3 List of countries from an external api', () => {
         readyState      : 4,
         response        : JSON.stringify([{"name": "New Zealand"}, {"name": "Australia"}])
     });
+    let  fakeJestXhr = jest.fn().mockImplementation(fakeXhr);
     window.XMLHttpRequest = fakeJestXhr;
     let testWrapper = shallowMount(Register, {mocks: {global: {XMLHttpRequest: fakeJestXhr}}});
     testWrapper.vm.fetchCountries();
