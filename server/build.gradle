@@ -12,6 +12,9 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+	cucumberRuntime {
+		extendsFrom testImplementation
+	}
 }
 
 repositories {
@@ -23,17 +26,37 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-data-rest'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-websocket'
-
+	implementation group: 'org.mockito', name: 'mockito-core', version: '3.2.0'
 	implementation 'org.mariadb.jdbc:mariadb-java-client:2.1.2'
 	
 	runtimeOnly 'com.h2database:h2'
-	testImplementation 'junit:junit:4.12'
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}
+	testImplementation 'io.cucumber:cucumber-java:5.6.0'
+	testImplementation 'io.cucumber:cucumber-junit:5.6.0'
 }
 
 test {
 	useJUnitPlatform()
+}
+
+// Task used for just running cucumber tests, and can specify tags with -Ptags="@sometags"
+task cucumber() {
+	dependsOn assemble, compileTestJava
+	String selectedTags = findProperty("tags") ?: ""
+
+	doLast {
+		javaexec {
+			main = "io.cucumber.core.cli.Main"
+			classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+			args = [
+					'--plugin', 'pretty', // How to format test report, "pretty" is good for human eyes
+					'--glue', 'library_app.steps', // Where to look for your tests' steps
+					'src/test/resources/library_app/features/', // Where to look for your features
+					'--strict', // Causes cucumber to fail if any step definitions are still undefined
+					'--tags', selectedTags // Only runs certain tagged scenarios of tags arg is given
+			]
+		}
+	}
 }

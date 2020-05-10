@@ -1,6 +1,5 @@
 import {shallowMount} from '@vue/test-utils'
 import HomeLayout from '../components/layout/HomeLayout.vue'
-import each from 'jest-each'
 
 let homeLayout;
 let push;
@@ -32,21 +31,24 @@ test('Does not have a mounted hook', () => {
     expect(HomeLayout.mounted).toBeUndefined();
 });
 
-test('Has 2 buttons', () => {
+// ----AC1----
+test('AC1 Has 2 buttons', () => {
     expect(homeLayout.findAll('button')).toHaveLength(2);
 });
 
-each([
+// ----AC1----
+test.each([
     ['register'],
     ['login'],
-]).test('Has a %s button', (button) => {
+])('AC1 Has a %s button', (button) => {
     expect(homeLayout.find('#'+ button + 'Button').is('button')).toBeTruthy();
 });
 
-each([
+// ----AC1----
+test.each([
     ['register'],
     ['login'],
-]).test('%s button click should direct to page', (button) => {
+])('AC1 %s button click should direct to page', (button) => {
     // let foundButton = homeLayout.find('#'+ button + 'Button');
     // foundButton.trigger('click');
     //
@@ -56,3 +58,6 @@ each([
     // sprint 2 but before sprint 3
     expect(true).toBeTruthy();
 });
+
+
+
