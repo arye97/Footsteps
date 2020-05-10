@@ -1,16 +1,21 @@
 import {shallowMount} from '@vue/test-utils'
 import Login from '../views/Login/Login.vue'
+import "jest"
+import '../Api'
+import server from "../Api";
+import router from '../index'
+jest.mock("../Api");
 
 
-let registerWrapper;
+let loginWrapper;
 
 beforeEach(() => {
-    registerWrapper = shallowMount(Login);
+    loginWrapper = shallowMount(Login);
 });
 
 // ----AC1----
 test('Is a vue instance', () => {
-    expect(registerWrapper.isVueInstance).toBeTruthy();
+    expect(loginWrapper.isVueInstance).toBeTruthy();
 });
 
 
@@ -35,3 +40,15 @@ test('Is a vue instance', () => {
 //     ];
 //     expect(Login.data().password).toEqual(expect.arrayContaining(expected));
 // });
+
+test('AC9 User is taken to homepage on login', ()=> {
+    const userdata = {email: "tester@tester.com", password: "testPass"};
+    server.post.mockImplementation(() => Promise.resolve({ data: 'ValidToken', status: 201 }));
+    let spy = jest.spyOn(router, 'push');
+    loginWrapper = shallowMount(Login, {router, mocks: {server}});
+    loginWrapper.setData({...userdata, ...{message:""}});
+    return loginWrapper.vm.login().then(() => {
+        expect(loginWrapper.vm.server.post).toHaveBeenCalledWith("/login", userdata, {"headers": {"Access-Control-Allow-Origin": "*", "content-type": "application/json"}, "withCredentials": true});
+        expect(spy).toHaveBeenCalledWith("/profile");
+    });
+});
