@@ -1,7 +1,9 @@
-# Seng302 Example Project
+# SENG302 Team 600 Hakinakina Application
 -----
-Basic project template using Gradle, NPM, Spring Boot, Vue and Gitlab CI. Remember to set up y
-our Gitlab Ci server (refer to the student guide for instructions).
+This is the README file for the SENG302 Team 600 Hakinakina Application.
+
+Hakinakina is a fitness and leisure tracking web application.
+It has been built using javascript - utilising Vue - and java - using Spring.
 
 ### Basic Project Structure
 - client/src Frontend source code (JS - Vue)
@@ -12,16 +14,12 @@ our Gitlab Ci server (refer to the student guide for instructions).
 - server/out Backend production build
 
 ### How to run
-##### Client (Frotnend/GUI)
-`cd client`
-`npm install`
-`npm run serve`
-
-Running on: http://localhost:9500/
-
+To run the full application, first run the server and then run the client
 ##### Server (Backend/API)
-`cd server`
-`./gradlew bootRun`
+1. Navigate to the server folder: 
+Example command: `cd server`
+2. Run the server
+Command: `./gradlew bootRun`
 
 Running on: http://localhost:9499/
 
@@ -55,14 +53,32 @@ Interfacing with the backend uses Postman with HTTP requests:
   "password": "I am a nice bio"
 }
 ```
-- Listing users with a GET and the path: '/listprofile' (a switch for testing purposes)
 
-### Todo
-- Add team name into `build.gradle` and `package.json`
-- Set up Gitlab CI server (refer to the student guide on learn)
+##### Client (Frotnend/GUI)
+1. Navigate to the client folder
+Example command: `cd client`
+2. Install the dependencies
+Command: `npm install`
+3. Run the client:
+Command: `npm run serve`
 
-### Reference
-- [Spring Boot Docs](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)
-- [Spring JPA docs](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#preface)
-- [Vue docs](https://vuejs.org/v2/guide/)
+Running on: http://localhost:9500/
 
+### Third Party Dependencies
+The Hakinakina program does use some external libraries. These are listed below.
+
+**Given dependencies**:  
+These were approved by the teaching staff before the project commenced
+
+**Further approved dependencies**:
+
+Backend:
+- Spring Security
+- MariaDB
+
+Frontend:
+- Bootstrap-Vue
+- Vue-router
+- Vue-multiselect
+- Vue-jest
+- @vue/test-utils
