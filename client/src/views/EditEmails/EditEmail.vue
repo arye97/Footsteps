@@ -117,7 +117,6 @@
                                 </tr>
                                 <tr>
                                     <td>
-<!--                                        <label v-if="alreadyInDB" for="newEmailInserted" class="has-error" id="errorMessage">-->
                                         <label for="newEmailInserted" class="has-error" id="errorMessage">
                                             {{ duplicateEmailError }}
                                         </label>
@@ -127,7 +126,6 @@
                             </table>
                         </form>
                         <div id="confirmationButtons">
-<!--?                           <router-link to="/profile" class="btn btn-outline-success btn-lg float-left" @click.native.prevent="backAlert">Back</router-link>-->
                             <b-button type="submit" variant="success float-left"
                                       size="lg" id="back" :key=this.toReload
                                       v-on:click="backAlert">Back</b-button>
@@ -198,6 +196,12 @@
             })
         },
         methods: {
+
+            /**
+             * Adds an email to the list of displayed additional emails.
+             * Additionally sets up mechanisms associated with the disabling/enabling
+             * of the SAVE button and the ADD (+) button.
+             */
             addEmail() {
                 if (this.additionalEmails.length >= 4) {
                     // Can't exceed length of 5 emails
@@ -222,6 +226,12 @@
                 }
             },
 
+            /**
+             * Demotes the currently displayed primary email to the list of displayed additional emails and
+             * promotes an additional email from the list to a displayed primary email.
+             * Additionally sets up mechanisms associated with the disabling/enabling of the SAVE button.
+             * @param emailIndex index of additional email to be set to primary
+             */
             setPrimary(emailIndex) {
                 let additionalEmailId = "additionalEmail" + emailIndex;
                 // Obtain Primary Email Candidate from list of Additional Emails
@@ -230,9 +240,16 @@
                 this.additionalEmails.splice(emailIndex, 1, this.primaryEmail);
                 // Set Primary Email Candidate
                 this.primaryEmail = candidatePrimaryEmail;
+                // Disables/Enables the SAVE button
                 this.checkIfChangesMade();
             },
 
+            /**
+             * Removes an email from the displayed list of additional emails.
+             * Additionally sets up mechanisms associated with the disabling/enabling
+             * of the SAVE button and the ADD (+) button.
+             * @param emailIndex index of additional email to be removed
+             */
             deleteEmail(emailIndex) {
                 let additionalEmailId = "additionalEmail" + emailIndex;
                 let emailToBeRemoved = document.getElementById(additionalEmailId).innerText;
@@ -243,12 +260,14 @@
                     });
                 this.emailCount--;
 
+                // Disables/Enables the SAVE button
                 if (this.additionalEmails === this.originalAdditionalEmails) {
                     this.changesHaveBeenMade = false;
                 } else {
                     this.changesHaveBeenMade = true;
                 }
 
+                // Disables/Enables the ADD (+) button
                 let emailTextBox = document.getElementById("newEmailInserted").value;
                 if (emailTextBox === this.primaryEmail || this.additionalEmails.includes(emailTextBox)) {
                     // Disable add button if user already assigned to email
@@ -267,6 +286,12 @@
                 this.setEmailCountMessage();
             },
 
+            /**
+             * Checks the validity of an email that a user has provided in the text box.
+             * In particular, it performs a GET request to the back-end to check
+             * if an email has been associated with another user (if its a duplicate).
+             * This function is called to set the disabling/enabling of the ADD (+) button.
+             */
             checkEmail() {
                 let emailTextBox = document.getElementById("newEmailInserted").value;
                 // Check if Email is formatted correctly
@@ -312,6 +337,11 @@
                 }
             },
 
+            /**
+             * Called when the BACK button is pressed
+             * and conjures a pop-up if changes have been made in the email editing form.
+             * Otherwise redirects the user back to the profile screen.
+             */
             backAlert() {
                 this.checkIfChangesMade();
                 if (this.changesHaveBeenMade) {
@@ -325,6 +355,14 @@
                 }
             },
 
+            /**
+             * Saves changes associated with email editing by a user.
+             * Depending on the changes made, it either performs
+             * a POST request to save additional emails or
+             * a PUT request to save primary and additional emails.
+             * Additionally sets up mechanisms associated with the disabling/enabling
+             * of the SAVE button.
+             */
             saveChanges() {
                 this.checkIfChangesMade();
                 if (!this.changesHaveBeenMade) {
@@ -350,7 +388,7 @@
                     ).then(() => {
                         console.log("Additional Emails updated successfully!");
                         window.alert("Successfully saved changes!");
-                        this.updateOriginalAdditionalEmail();
+                        this.updateOriginalAdditionalEmails();
                         this.checkIfChangesMade();
                     }).catch(error => {
                         if (error.response.status === 400) {
@@ -391,7 +429,7 @@
                         console.log('Primary Email and Additional Emails updated successfully!');
                         window.alert("Successfully saved changes!");
                         this.updateOriginalPrimaryEmail();
-                        this.updateOriginalAdditionalEmail();
+                        this.updateOriginalAdditionalEmails();
                         this.checkIfChangesMade();
                     }).catch(error => {
                         if (error.response.status === 400) {
@@ -413,6 +451,11 @@
                 }
             },
 
+            /**
+             * Checks if changes have been made by a user, in particular,
+             * to set up mechanisms associated with the disabling/enabling
+             * of the SAVE button.
+             */
             checkIfChangesMade() {
                 this.changesHaveBeenMade = false;
                 if (this.primaryEmail !== this.originalPrimaryEmail) {
@@ -423,20 +466,30 @@
                     for (let index in this.originalAdditionalEmails) {
                         if (!this.additionalEmails.includes(this.originalAdditionalEmails[index])) {
                             this.changesHaveBeenMade = true;
-                            // break;
                         }
                     }
                 }
             },
 
-            updateOriginalAdditionalEmail() {
+            /**
+             * Simple function to set the originalAdditionalEmails with the updated additionalEmails list.
+             */
+            updateOriginalAdditionalEmails() {
                 this.originalAdditionalEmails = Array.from(this.additionalEmails)
             },
 
+            /**
+             * Simple function to set the originalPrimaryEmail with the updated primaryEmail.
+             */
             updateOriginalPrimaryEmail() {
                 this.originalPrimaryEmail = this.primaryEmail;
             },
 
+            /**
+             * Function called to set messages associated with emails.
+             * Additionally sets up mechanisms associated with the disabling/enabling
+             * of the ADD button.
+             */
             setEmailCountMessage() {
                 let remaining = 5 - this.emailCount;
                 if (this.emailCount >= 5) {
