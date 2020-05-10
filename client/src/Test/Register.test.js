@@ -1,3 +1,4 @@
+
 import {shallowMount} from '@vue/test-utils'
 import Register from '../views/Register/Register.vue'
 import { _isValidDOB } from '../views/Register/Register.vue'
@@ -111,7 +112,19 @@ test('AC9 User is taken to homepage on register', ()=> {
     });
 });
 
-
-
-
-
+// ----S2 AC3----
+test('AC3 List of countries from an external api', () => {
+    //Tests that xhr is used to make a call to an external api by mocking the xhr class
+    const fakeXhr = () => ({
+        onload          : () => {throw DOMException},
+        open            : jest.fn(),
+        send            : function () {this.onload()},
+        status          : 200,
+        readyState      : 4,
+        response        : JSON.stringify([{"name": "New Zealand"}, {"name": "Australia"}])
+    });
+    window.XMLHttpRequest = fakeJestXhr;
+    let testWrapper = shallowMount(Register, {mocks: {global: {XMLHttpRequest: fakeJestXhr}}});
+    testWrapper.vm.fetchCountries();
+    expect(testWrapper.vm.$data.countries.sort()).toEqual(["New Zealand",  "Australia"].sort());
+});

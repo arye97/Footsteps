@@ -47,7 +47,7 @@
 <script>
     import server from "../../Api";
     import {tokenStore} from '../../main';
-    import Header from '../Header/Header.vue';
+    import {fitnessLevels} from '../../constants'
 
     export default {
         name: "ViewUser",
@@ -59,7 +59,7 @@
                 user: null,
                 loading: true,
                 errored: false,
-                error: null
+                fitness: null
             }
         },
         async mounted() {
@@ -68,18 +68,24 @@
                 {headers:
                         {"Access-Control-Allow-Origin": "*", 'Content-Type': 'application/json', 'Token': tokenStore.state.token}, withCredentials: true
                 }, )
-                .then(response => {
-                    if (response.status === 200) {
-                        //user is set to the user data retrieved
-                        this.user = response.data;
-                        //no longer loading, so show data
-                        this.loading = false;
+            .then(response => {
+                if (response.status === 200) {
+                    console.log('Status = OK. response.data:');
+                    console.log(response.data);
+                    //user is set to the user data retrieved
+                    this.user = response.data;
+                    for (var i = 0; i < fitnessLevels.length; i++) {
+                        if (fitnessLevels[i].value == this.user.fitness) {
+                            this.fitness = fitnessLevels[i].desc;
+                        }
                     }
-                }).catch(error => {
-                    this.errored = true;
-                    console.error(error);
-                    this.error = error;
-                    console.error(error.response);
+                    //no longer loading, so show data
+                    this.loading = false;
+                }
+            }).catch(error => {
+                this.errored = true;
+                console.error(error);
+                console.error(error.response);
 
                 })
         },

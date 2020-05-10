@@ -182,7 +182,7 @@
     import server from '../../Api';
     import Multiselect from 'vue-multiselect'
     import Header from '../../components/Header/Header.vue'
-    import {getCountryNames} from '../../constants';
+    import {getCountryNames, fitnessLevels} from '../../constants';
     import {tokenStore} from '../../main';
 
     function showError(alert_name) {
@@ -270,12 +270,7 @@
                 gender: '',
                 date_of_birth: '',
                 fitness: '',
-                fitnessOptions: [{value: 1, desc: "Unfit, no regular exercise, being active is very rare"},
-                                 {value: 2, desc: "Not overly fit, occasional recreational fitness activity, active a few times a month"},
-                                 {value: 3, desc: "Moderately fit, enjoys fitness activities for recreation, active once or twice a week"},
-                                 {value: 4, desc: "Fit, may compete occasionally in small scale events, active most days"},
-                                 {value: 5, desc: "Very fit, competitive athlete, extremely active"}
-                ],
+                fitnessOptions: fitnessLevels,
                 bio: '',
                 message_form: "",
                 message_password_check: '',
@@ -286,35 +281,38 @@
         },
 
         mounted () {
-            let select = [];
-            // Create a request variable and assign a new XMLHttpRequest object to it.
-            let request = new XMLHttpRequest();
-            //build url
-            let url = new URL(getCountryNames);
-            // Open a new connection, using the GET request on the URL endpoint;
-            request.open('GET', url, true);
-
-            request.onload = function() {
-                // If the request is successful
-                if(request.status >= 200 && request.status < 400) {
-                    let data = JSON.parse(this.response);
-                    data.forEach(country => {
-                        let elmt = country.name;
-                        select.push(elmt)
-                    } )
-                } else {
-                    select = 'List is empty';
-                    let errorAlert = document.getElementById("alert_form");
-                    this.message_form = 'Error fetching countries';
-                    errorAlert.hidden = false;          //Show alert bar
-                }
-            };
-            // Send request
-            this.countries = select;
-            request.send()
+            this.fetchCountries();
         },
 
         methods: {
+            async fetchCountries() {
+                let select = [];
+                // Create a request variable and assign a new XMLHttpRequest object to it.
+                let request = new window.XMLHttpRequest();
+                //build url
+                let url = new URL(getCountryNames);
+                // Open a new connection, using the GET request on the URL endpoint;
+                request.open('GET', url, true);
+
+                request.onload = function() {
+                    // If the request is successful
+                    if(request.status >= 200 && request.status < 400) {
+                        let data = JSON.parse(this.response);
+                        data.forEach(country => {
+                            let elmt = country.name;
+                            select.push(elmt)
+                        } )
+                    } else {
+                        select = 'List is empty';
+                        let errorAlert = document.getElementById("alert_form");
+                        this.message_form = 'Error fetching countries';
+                        errorAlert.hidden = false;          //Show alert bar
+                    }
+                };
+                // Send request
+                this.countries = select;
+                request.send()
+            },
             async registerUser() {
                 // Save the data as a newUser object
                 const newUser = {
