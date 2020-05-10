@@ -1,5 +1,6 @@
 import {shallowMount} from '@vue/test-utils'
 import Register from '../views/Register/Register.vue'
+import { _isValidDOB } from '../views/Register/Register.vue'
 
 
 let registerWrapper;
@@ -45,6 +46,32 @@ test('AC7 Gender dropdown menu contains “male”, “female”, and “non-bin
     expect(Register.data().genders).toHaveLength(3);
 });
 
+
+// Test isValidDOB() function
+describe("isValidDOB checks that a date of birth is older than number of years", () => {
+    const current = new Date(Date.now())
+    console.log("Current " + current)
+    let date;
+    let dateStr;
+    const minAge = 13;
+
+    // NOTE: it() performs exactly the same as test() but the former reads better
+    // Too young
+    it("should be false if age is *less* than " + minAge, () => {
+        date = new Date(current)
+        date.setFullYear(date.getFullYear() - (minAge - 1));
+        dateStr = date.toISOString().split('T')[0];
+        expect(_isValidDOB(dateStr, minAge)).toBeFalsy();
+    });
+
+    // Old enough
+    it("should be true if age is *greater* than " + minAge, () => {
+        date = new Date(current)
+        date.setFullYear(date.getFullYear() - (minAge + 1));
+        dateStr = date.toISOString().split('T')[0];
+        expect(_isValidDOB(dateStr, minAge)).toBeTruthy();
+    });
+});
 
 
 

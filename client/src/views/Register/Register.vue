@@ -134,6 +134,12 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_too_young">
+                {{  "You are too young to register."  }}   <!--Cuttoff Age is 13-->
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
             <div class="form-group">
                 <!-- passport country -->
                 <label id="passportCountries-label" for="passportCountries">Passport Country:</label>
@@ -187,7 +193,31 @@
         }, 10000);
     }
 
+    /**
+     * Takes a date of birth string and returns true if that date is older than age int variable
+     * @param dateStr a string of the form year-month-day  i.e. 1997-02-16
+     * @param age integer age
+     */
+    export function _isValidDOB(dateStr, minAge) {
+        let dob = Date.parse(dateStr);
+        // Due to differences in implementation of Date.parse() a 'Z' may or may not be required at the end of the date.
+        if (Number.isNaN(dob)) {  // If dateStr can't be parsed
+            dateStr.endsWith('Z') ? dateStr = dateStr.slice(0, -1) : dateStr += 'Z'  // Remove Z if it exists, add Z if it doesn't exist
+            dob = Date.parse(dateStr);    // Parse again
+            if (Number.isNaN(dob)) {
+                // If still can't parse, fall back to returning true so user can still register.  Backend will still check the date
+                return true
+            }
+        }
+
+        let age = new Date(Date.now() - dob);
+        let ageYear = Math.abs(age.getUTCFullYear() - 1970);
+        return ageYear >= minAge;
+    }
+
     async function validUser(newUser, passwordCheck) {
+        const minAge = 13;
+
         if (newUser.password !== passwordCheck) {
             showError('alert_password_match');
             return 'password';
@@ -211,6 +241,11 @@
         }
         if(newUser.date_of_birth === '') {
             showError('alert_dob');
+            count += 1;
+        }
+        console.log("MinAge=" + minAge + " DOB=" + newUser.date_of_birth + " and result " + _isValidDOB(newUser.date_of_birth, minAge))
+        if(!_isValidDOB(newUser.date_of_birth, minAge)) {
+            showError('alert_too_young');
             count += 1;
         }
         if(newUser.gender === '') {
@@ -303,7 +338,7 @@
                     showError('alert_form');
                     return;
                 } else if (validCount !== 0) {
-                    this.message_form = validCount.toString() + " blank or empty mandatory fields have been found. Please fill them in to register";
+                    this.message_form = validCount.toString() + " empty or invalid mandatory fields have been found. Please fill them in to register";
                     showError('alert_form');
                     return;
                 }
