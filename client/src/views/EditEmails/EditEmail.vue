@@ -12,16 +12,7 @@
             </div>
         </div>
     <Sidebar/>
-        <link
-                type="text/css"
-                rel="stylesheet"
-                href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css"
-        />
-        <link
-                type="text/css"
-                rel="stylesheet"
-                href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css"
-        />
+
         <h1><br/></h1>
         <header class="masthead">
             <div class="container h-100">
@@ -33,7 +24,6 @@
                 </div>
             </div>
         </header>
-
 
         <section v-if="error">
             <p>Sorry, looks like we can't get your info! Please try again.</p>
@@ -138,7 +128,11 @@
                         </form>
                         <div id="confirmationButtons">
 <!--?                           <router-link to="/profile" class="btn btn-outline-success btn-lg float-left" @click.native.prevent="backAlert">Back</router-link>-->
-                            <button type="submit" class="btn btn-success btn-lg float-left" id="back" :key=this.toReload v-on:click="backAlert">Back</button>
+                            <b-button type="submit"
+                                    class="btn btn-success btn-lg float-left"
+                                    id="back"
+                                    :key=this.toReload
+                                    v-on:click="backAlert">Back</b-button>
                             <button type="submit"
                                     class="btn btn-success btn-lg float-right"
                                     v-on:click="saveChanges"
@@ -201,6 +195,8 @@
                 }
                 else if (error.response.status === 500) {
                     console.log(error.response.data.message);
+                    // Return to root home screen when timeout.
+                    this.$router.push('/');
                 }
             })
         },
@@ -320,13 +316,11 @@
             },
 
             backAlert() {
-                this.checkIfChangesMade()
+                this.checkIfChangesMade();
                 if (this.changesHaveBeenMade) {
                     if (confirm("Cancel changes?")) {
                         this.$router.push("/profile")
                     } else {
-                        console.log(document.getElementById("confirmationButtons"))
-                        console.log(document.getElementById("back").classList)
                         this.toReload += 1;
                     }
                 } else {
@@ -335,7 +329,7 @@
             },
 
             saveChanges() {
-                this.checkIfChangesMade()
+                this.checkIfChangesMade();
                 if (!this.changesHaveBeenMade) {
                     return
                 }
@@ -451,7 +445,7 @@
                 if (this.emailCount >= 5) {
                     this.emailMessage = "Email limit reached!";
                     this.duplicateEmailError = "";
-                } else if (this.emailCount == 4) {
+                } else if (this.emailCount === 4) {
                     this.emailMessage = remaining + " spot left for additional emails!";
                 } else {
                     this.emailMessage = remaining + " spots left for additional emails!";
@@ -468,8 +462,8 @@
     }
 
     #primaryEmailTable {
-        padding-bottom: 0px;
-        margin-bottom: 0px;
+        padding-bottom: 0;
+        margin-bottom: 0;
         border-collapse: collapse;
         font-size: 20px;
     }

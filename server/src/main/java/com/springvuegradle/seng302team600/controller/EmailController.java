@@ -105,7 +105,6 @@ public class EmailController {
         }
     }
 
-    //TODO: Tests for this method. Tested in postman but will update the current user thats logged in with the primary email due to unimplementation of adding a list of secondary emails in the database.
     /**
      * Updates the primary email of a User with a candidate primary email
      * and replaces the additional emails with candidate additional emails
