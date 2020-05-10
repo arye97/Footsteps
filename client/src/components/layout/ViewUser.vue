@@ -21,15 +21,14 @@
                                 <p>You're logged in to your Hakinakina Account</p>
                                 <h3 class="font-weight-light">All about you: </h3>
                                 <span class="accordion">
-                                        <span v-if="this.user.nickname">Nickname: {{ this.user.nickname }}</span><br/>
+                                        <span v-if="this.user.nickname">Nickname: {{ this.user.nickname }}<br/></span>
                                         <span >Gender: {{ this.user.gender }}</span><br/>
                                         <span>Date Of Birth: {{ this.user.date_of_birth }}</span><br/>
                                         <span>Email: {{ this.user.primary_email }}</span><br/>
-                                        <span v-if="this.user.additional_email.length >= 1"> Additional Emails: {{ this.user.additional_email.join(", ") }}</span><br/>
-                                        <button type="button" class="btn btn-link" v-on:click="editEmail">Edit Emails</button><br/>
-                                        <span v-if="this.user.passports">Passports: {{this.user.passports.join(", ")}}</span><br/>
-                                        <span v-if="this.user.fitness">Fitness Level: {{this.fitness}}</span><br/>
-                                        <span v-if="this.user.bio">Bio: {{ this.user.bio }}</span><br/>
+                                        <span v-if="this.user.additional_email.length >= 1"> Additional Emails: {{ this.user.additional_email.join(", ") }}<br/></span>
+                                        <span v-if="this.user.passports.length >= 1">Passports: {{this.user.passports.join(", ")}}<br/></span>
+                                        <span v-if="this.user.fitness">Fitness Level: {{this.fitness}}<br/></span>
+                                        <span v-if="this.user.bio">Bio: {{ this.user.bio }}<br/></span>
                                     </span>
                                 <button type="submit" class="btn btn-link" v-on:click="logout" >Logout</button>
                                 <button type="submit" class="btn btn-link" v-on:click="editProfile" >Edit Profile</button>
@@ -90,9 +89,6 @@
                 })
         },
         methods: {
-            editEmail () {
-                this.$router.push('/profile/emails');
-            },
             logout () {
                 server.post('/logout', null,
                     {

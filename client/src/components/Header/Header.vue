@@ -11,10 +11,13 @@
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item active">
-                            <router-link v-if=this.isLoggedIn to="/profile" class="nav-link">Profile</router-link>
+                            <router-link v-if=this.isLoggedIn to="/profile" class="nav-link">Home</router-link>
                         </li>
-                        <li class="nav-item">
+                        <li v-if=!this.isLoggedIn class="nav-item">
                             <router-link to='/register' class="nav-link">Register</router-link>
+                        </li>
+                        <li v-if=this.isLoggedIn class="nav-item">
+                            <router-link to='/profile/details' class="nav-link">Edit Profile</router-link>
                         </li>
                         <li class="nav-item">
                             <router-link to="" v-if="this.isLoggedIn" v-on:click.native="logout" class="nav-link">Logout</router-link>
