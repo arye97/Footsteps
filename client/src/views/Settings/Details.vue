@@ -71,6 +71,14 @@
         </div>
       </div>
       <div class="form-group">
+        <!-- date-of-birth field-->
+        <label for="date_of_birth">Date of Birth: *</label>
+        <div class="edit-area">
+          <input type="date" class="form-control" v-model="date_of_birth" id="date_of_birth" name="date_of_birth" disabled>
+          <button class="btn btn-primary" id="date_of_birth-btn" v-on:click="mutate" type="button">Edit</button>
+        </div>
+      </div>
+      <div class="form-group">
         <!-- passport country -->
         <label for="passports">Passport Country:</label>
         <div class="edit-area">
@@ -105,6 +113,28 @@
     import router from '../../index';
     import {tokenStore} from "../../main";
 
+    /**
+     * Takes a date of birth string and returns true if that date is older than age int variable
+     * @param dateStr a string of the form year-month-day  i.e. 1997-02-16
+     * @param age integer age
+     */
+    export function _isValidDOB(dateStr, minAge) {
+      let dob = Date.parse(dateStr);
+      // Due to differences in implementation of Date.parse() a 'Z' may or may not be required at the end of the date.
+      if (Number.isNaN(dob)) {  // If dateStr can't be parsed
+        dateStr.endsWith('Z') ? dateStr = dateStr.slice(0, -1) : dateStr += 'Z'  // Remove Z if it exists, add Z if it doesn't exist
+        dob = Date.parse(dateStr);    // Parse again
+        if (Number.isNaN(dob)) {
+          // If still can't parse, fall back to returning true so user can still register.  Backend will still check the date
+          return true
+        }
+      }
+
+      let age = new Date(Date.now() - dob);
+      let ageYear = Math.abs(age.getUTCFullYear() - 1970);
+      return ageYear >= minAge;
+    }
+
     export default {
         name: "Details.vue",
         components: {
@@ -123,6 +153,7 @@
             bio: '',
             message: '',
             code: '',
+            date_of_birth: '',
             countries: [],
             genders: ['Male', 'Female', 'Non-Binary'],
             loggedIn: false,
@@ -251,6 +282,7 @@
                 this.gender = response.data.gender;
                 this.passports = response.data.passports;
                 this.bio = response.data.bio;
+                this.date_of_birth = response.data.date_of_birth;
                 for (const option in this.fitnessOptions) {
                   if (this.fitnessOptions[option].value === response.data.fitness) {
                     this.fitness = this.fitnessOptions[option];
