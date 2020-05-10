@@ -12,16 +12,7 @@
             </div>
         </div>
     <Sidebar/>
-        <link
-                type="text/css"
-                rel="stylesheet"
-                href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css"
-        />
-        <link
-                type="text/css"
-                rel="stylesheet"
-                href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css"
-        />
+
         <h1><br/></h1>
         <header class="masthead">
             <div class="container h-100">
@@ -33,7 +24,6 @@
                 </div>
             </div>
         </header>
-
 
         <section v-if="error">
             <p>Sorry, looks like we can't get your info! Please try again.</p>
@@ -77,14 +67,14 @@
                                     </p>
                                 </td>
                                 <td class="deleteButtonTd">
-                                    <button type="submit" class="btn btn-danger" id="deleteButton" v-on:click="deleteEmail(index)">
+                                    <b-button type="submit" variant="danger" id="deleteButton" v-on:click="deleteEmail(index)">
                                         <b-icon-trash-fill></b-icon-trash-fill>
-                                    </button>
+                                    </b-button>
                                 </td>
                                 <td class="makePrimaryButtonTd">
-                                    <button type="submit" class="btn btn-primary" id="primaryButton" v-on:click="setPrimary(index)">
+                                    <b-button type="submit" variant="primary" id="primaryButton" v-on:click="setPrimary(index)">
                                         Make Primary
-                                    </button>
+                                    </b-button>
                                 </td>
                             </tr>
                         </table>
@@ -115,14 +105,14 @@
                                     </td>
                                     <td>
                                     <!--Disable button if duplicateEmailError is not null-->
-                                        <button type="submit"
-                                                class="btn btn-secondary"
+                                        <b-button type="submit"
+                                                variant="secondary"
                                                 v-bind:disabled="duplicateEmailError!==null"
                                         >
                                             <p class="h5 mb-0">
                                                 <b-icon-plus></b-icon-plus>
                                             </p>
-                                        </button>
+                                        </b-button>
                                     </td>
                                 </tr>
                                 <tr>
@@ -138,11 +128,12 @@
                         </form>
                         <div id="confirmationButtons">
 <!--?                           <router-link to="/profile" class="btn btn-outline-success btn-lg float-left" @click.native.prevent="backAlert">Back</router-link>-->
-                            <button type="submit" class="btn btn-success btn-lg float-left" id="back" :key=this.toReload v-on:click="backAlert">Back</button>
-                            <button type="submit"
-                                    class="btn btn-success btn-lg float-right"
-                                    v-on:click="saveChanges"
-                                    v-bind:disabled="changesHaveBeenMade===false">Save Changes</button>
+                            <b-button type="submit" variant="success float-left"
+                                      size="lg" id="back" :key=this.toReload
+                                      v-on:click="backAlert">Back</b-button>
+                            <b-button type="submit" variant="success float-right"
+                                      size="lg" v-on:click="saveChanges"
+                                      v-bind:disabled="changesHaveBeenMade===false">Save Changes</b-button>
                         </div>
                     </section>
                 </article>
@@ -196,9 +187,14 @@
                     this.setEmailCountMessage();
                 }
             }).catch(function(error) {
-                //TODO possible status codes that need handled (401 UNAUTHORIZED) (500 Internal Server Error, this is always possible)
-                console.error(error);
-                console.error(error.response);
+                if (error.response.status === 401) {
+                    console.log(error.response.data.message);
+                }
+                else if (error.response.status === 500) {
+                    console.log(error.response.data.message);
+                    // Return to root home screen when timeout.
+                    this.$router.push('/');
+                }
             })
         },
         methods: {
@@ -296,7 +292,6 @@
                         ).then(() => {
                             this.duplicateEmailError = null;
                         }).catch(error => {
-                            //TODO add if statement for 401 UNAUTHORIZED (user has timed out or is not logged in)
                             if (error.response.status === 400) {
                                 console.log(error.response.data.message);
                                 let message = "Bad Request: email " + emailTextBox + " is already in use";
@@ -305,6 +300,11 @@
                                     this.duplicateEmailError = "We're sorry, that email is taken."
                                 }
                             }
+                            if (error.response.status === 401) {
+                                console.log(error.response.data.message);
+                            }
+
+
                         })
                     }
                 } else {
@@ -313,13 +313,11 @@
             },
 
             backAlert() {
-                this.checkIfChangesMade()
+                this.checkIfChangesMade();
                 if (this.changesHaveBeenMade) {
                     if (confirm("Cancel changes?")) {
                         this.$router.push("/profile")
                     } else {
-                        console.log(document.getElementById("confirmationButtons"))
-                        console.log(document.getElementById("back").classList)
                         this.toReload += 1;
                     }
                 } else {
@@ -328,7 +326,7 @@
             },
 
             saveChanges() {
-                this.checkIfChangesMade()
+                this.checkIfChangesMade();
                 if (!this.changesHaveBeenMade) {
                     return
                 }
@@ -337,7 +335,7 @@
                 // Primary Email has not been replaced (POST)
                 if (this.primaryEmail === this.originalPrimaryEmail) {
                     savedEmails = {
-                        additionalEmails: this.additionalEmails
+                        additional_email: this.additionalEmails
                     };
                     server.post(`/profiles/${this.userId}/emails`,
                         savedEmails,
@@ -353,20 +351,31 @@
                         console.log("Additional Emails updated successfully!");
                         window.alert("Successfully saved changes!");
                         this.updateOriginalAdditionalEmail();
-                        this.checkIfChangesMade()
+                        this.checkIfChangesMade();
                     }).catch(error => {
-                        //TODO handle status codes for 400 BAD_REQUEST, 401 UNAUTHORIZED, 403 FORBIDDEN, 404 NOT_FOUND
-                        console.error(error);
-                        console.error(error.response);
+                        if (error.response.status === 400) {
+                            console.log(error.response.data.message);
+                        }
+                        else if (error.response.status === 401) {
+                            console.log(error.response.data.message);
+                        }
+                        else if (error.response.status === 403) {
+                            console.log(error.response.data.message);
+                        }
+                        else if (error.response.status === 404) {
+                            console.log(error.response.data.message);
+                        }
+                        this.primaryEmail = this.originalPrimaryEmail;
+                        this.additionalEmails = Array.from(this.originalAdditionalEmails);
+                        window.alert("Could not save changes! :(");
                     })
                 }
 
                 // Primary Email has been replaced (PUT)
                 if (this.primaryEmail !== this.originalPrimaryEmail) {
                     savedEmails = {
-                        candidatePrimaryEmail: this.primaryEmail,
-                        originalPrimaryEmail: this.originalPrimaryEmail,
-                        additionalEmails: this.additionalEmails
+                        primary_email: this.primaryEmail,
+                        additional_email: this.additionalEmails
                     };
                     server.put(`/profiles/${this.userId}/emails`,
                         savedEmails,
@@ -382,25 +391,24 @@
                         console.log('Primary Email and Additional Emails updated successfully!');
                         window.alert("Successfully saved changes!");
                         this.updateOriginalPrimaryEmail();
-                        this.checkIfChangesMade()
-                        //TODO if this put endpoint is to be used get catch to work
-                        //}).catch(error => {
-                        // console.log(error);
-                        // //Get alert bar element
-                        // let errorAlert = document.getElementById("alert");
-                        // if (error.message === "Network Error") {
-                        //     this.message = error.message;
-                        // } else if (error.response.status === 403) { //Error 401: Email already exists or invalid date of birth
-                        //     this.message = error.response.data.toString(); //Set alert bar message to error message from server
-                        // } else if (error.response.status === 400) { //Error 400: Bad request (missing fields)
-                        //     this.message = "An invalid update request has been received please try again"
-                        // } else {    //Catch for any errors that are not specifically caught
-                        //     this.message = "An unknown error has occurred during update"
-                        // }
-                        // errorAlert.hidden = false;          //Show alert bar
-                        // setTimeout(function () {    //Hide alert bar after ~5000ms
-                        //     errorAlert.hidden = true;
-                        // }, 5000);
+                        this.updateOriginalAdditionalEmail();
+                        this.checkIfChangesMade();
+                    }).catch(error => {
+                        if (error.response.status === 400) {
+                            console.log(error.response.data.message);
+                        }
+                        else if (error.response.status === 401) {
+                            console.log(error.response.data.message);
+                        }
+                        else if (error.response.status === 403) {
+                            console.log(error.response.data.message);
+                        }
+                        else if (error.response.status === 404) {
+                            console.log(error.response.data.message);
+                        }
+                        this.primaryEmail = this.originalPrimaryEmail;
+                        this.additionalEmails = Array.from(this.originalAdditionalEmails);
+                        window.alert("Could not save changes! :(");
                     });
                 }
             },
@@ -434,7 +442,7 @@
                 if (this.emailCount >= 5) {
                     this.emailMessage = "Email limit reached!";
                     this.duplicateEmailError = "";
-                } else if (this.emailCount == 4) {
+                } else if (this.emailCount === 4) {
                     this.emailMessage = remaining + " spot left for additional emails!";
                 } else {
                     this.emailMessage = remaining + " spots left for additional emails!";
@@ -451,8 +459,8 @@
     }
 
     #primaryEmailTable {
-        padding-bottom: 0px;
-        margin-bottom: 0px;
+        padding-bottom: 0;
+        margin-bottom: 0;
         border-collapse: collapse;
         font-size: 20px;
     }
