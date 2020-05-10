@@ -405,45 +405,6 @@ public class User {
         return passports.remove(passport);
     }
 
-    @PrePersist
-    public void logNewUserAttempt() {
-        log.info("Attempting to add new user with email: " + primaryEmail);
-    }
-
-    @PostPersist
-    public void logNewUserAdded() {
-        log.info("Added user with primary email: " + primaryEmail);
-    }
-
-    @PreRemove
-    public void logUserRemovalAttempt() {
-        this.setTransientEmailStrings();
-        log.info("Attempting to delete user: " + primaryEmail);
-    }
-
-    @PostRemove
-    public void logUserRemoval() {
-        this.setTransientEmailStrings();
-        log.info("Deleted user: " + primaryEmail);
-    }
-
-    @PreUpdate
-    public void logUserUpdateAttempt() {
-        this.setTransientEmailStrings();
-        log.info("Attempting to update user: " + primaryEmail);
-    }
-
-    @PostUpdate
-    public void logUserUpdate() {
-        this.setTransientEmailStrings();
-        log.info("Updated user: " + primaryEmail);
-    }
-
-    @Override
-    public String toString() {
-        return String.format("%s %s, ID: %d, %s", getFirstName(), getLastName(), getUserId(), super.toString());
-    }
-
     /**
      * Runs a sanity check on the user and throws errors if the are invalid fields
      * @throws ResponseStatusException thrown if the users first, middle or last names are invalid
