@@ -439,10 +439,10 @@ public class User {
         log.info("Updated user: " + primaryEmail);
     }
 
-//    @Override
-//    public String toString() {
-//        return String.format("%s %s, ID: %d, %s", getFirstName(), getLastName(), getUserId(), super.toString());
-//    }
+    @Override
+    public String toString() {
+        return String.format("%s %s, ID: %d, %s", getFirstName(), getLastName(), getUserId(), super.toString());
+    }
 
     /**
      * Runs a sanity check on the user and throws errors if the are invalid fields

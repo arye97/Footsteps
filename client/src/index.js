@@ -22,6 +22,6 @@ export default new Router({
   {path: "/profile/details", component: Details},
 
   // otherwise redirect to home
-  { path: '*', redirect: '/login' }
+  { path: '/*', redirect: '/login' }
   ]
 });

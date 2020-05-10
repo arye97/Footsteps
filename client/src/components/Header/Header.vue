@@ -3,14 +3,15 @@
 
         <nav :key=this.isLoggedIn class="navbar navbar-expand-lg navbar-light bg-light shadow fixed-top">
             <div class="container">
-                <a class="navbar-brand" href="/">Hakinakina</a>
+                <!--The below v-on:click does: If your logged in, go to your profile.  Else go to the main page.-->
+                <a class="navbar-brand" v-on:click="isLoggedIn ? $router.push('/profile') : $router.push('/');" >Hakinakina</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item active">
-                            <router-link v-if=this.isLoggedIn to="/profile" class="nav-link">Home</router-link>
+                            <router-link v-if=this.isLoggedIn to="/profile" class="nav-link">Profile</router-link>
                         </li>
                         <li class="nav-item">
                             <router-link to='/register' class="nav-link">Register</router-link>
