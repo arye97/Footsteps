@@ -1,6 +1,10 @@
 import {shallowMount} from '@vue/test-utils'
 import Register from '../views/Register/Register.vue'
-
+import "jest"
+import '../Api'
+import server from "../Api";
+import router from '../index'
+jest.mock("../Api");
 
 let registerWrapper;
 
@@ -45,6 +49,35 @@ test('AC7 Gender dropdown menu contains “male”, “female”, and “non-bin
     expect(Register.data().genders).toHaveLength(3);
 });
 
+
+test('AC9 User is taken to homepage on register', ()=> {
+    const userdata = {
+        firstname: 'Test',
+        middlename: '',
+        lastname: 'Testers',
+        password: 'ITestForALiving',
+        gender: 'Male',
+        date_of_birth: '10-10-1999',
+        fitness: 1,
+        nickname: '',
+        bio: '',
+        passports: []
+    };
+    const extraData = {
+        passwordCheck: userdata.password,
+        primary_email: "tester@test.com",
+        fitness: {value: 1, desc: "Unfit, no regular exercise, being active is very rare"},
+    };
+    server.post.mockImplementation(() => Promise.resolve({ data: 'ValidToken', status: 201 }));
+    let spy = jest.spyOn(router, 'push');
+    registerWrapper = shallowMount(Register, {router, mocks: {server}});
+    registerWrapper.setData({...userdata, ...{passwordCheck: extraData.passwordCheck, email: extraData.primary_email, fitness: extraData.fitness}});
+    return registerWrapper.vm.registerUser().then(() => {
+        expect(registerWrapper.vm.server.post).toHaveBeenCalledWith("/profiles", {...userdata, ...{primary_email: extraData.primary_email}},
+            {"headers": {"Access-Control-Allow-Origin": "*", "content-type": "application/json"}, "withCredentials": true});
+        expect(spy).toHaveBeenCalledWith("/profile");
+    });
+});
 
 
 
