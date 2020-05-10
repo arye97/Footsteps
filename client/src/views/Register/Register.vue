@@ -331,7 +331,6 @@
                 let validCount = await validUser(newUser, this.passwordCheck);
                 console.log(validCount);
                 if (validCount === 'password') {
-                    //todo: passwords not matching alert box
                     this.message_form = "Password and re-typed password do not match. Please try again"
                     showError('alert_form');
                     return;
