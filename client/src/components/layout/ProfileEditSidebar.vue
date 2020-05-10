@@ -74,6 +74,10 @@
     padding-left: 20px;
 }
 
+.router-link-active {
+    background-color: #f0f0f0;
+}
+
 .sidebar-items li a {
     color: #707070;
     display: flex;
