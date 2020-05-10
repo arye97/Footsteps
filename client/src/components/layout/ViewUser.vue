@@ -48,7 +48,7 @@
     import server from "../../Api";
     import {tokenStore} from '../../main';
     import {fitnessLevels} from '../../constants'
-
+    import Header from '../../components/Header/Header';
     export default {
         name: "ViewUser",
         components: {
