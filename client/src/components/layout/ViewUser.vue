@@ -83,6 +83,9 @@
                 }
             }).catch(error => {
                 this.errored = true;
+                if (error.response.status === 401) {
+                    this.$router.push("/login");
+                }
                 console.error(error);
                 console.error(error.response);
 

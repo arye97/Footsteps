@@ -186,7 +186,7 @@
                 }
             }).catch(function(error) {
                 if (error.response.status === 401) {
-                    console.log(error.response.data.message);
+                    this.$router.push("/login");
                 }
                 else if (error.response.status === 500) {
                     console.log(error.response.data.message);

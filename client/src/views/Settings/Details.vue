@@ -114,7 +114,6 @@
     import Header from '../../components/Header/Header.vue'
     import server from "../../Api";
     import {getCountryNames, fitnessLevels} from '../../constants';
-    import router from '../../index';
     import {tokenStore} from "../../main";
 
     export default {
@@ -252,14 +251,7 @@
                         this.message = error.response.data.message.toString();
                         this.code = error.response.data.status;
                     } else if (error.response.data.status === 401) {
-                        this.message = error.response.data.message.toString() + ". You will be redirected to the home page shortly";
-                        this.code = error.response.data.status;
-                        alertDiv.classList.remove("alert-success");
-                        alertDiv.classList.add("alert-danger");
-                        alertDiv.removeAttribute("hidden");
-                        setTimeout(function () {
-                            router.push("/");
-                            }, 5000);
+                        this.$router.push("/login");
                     } else {
                         this.message = error.message();
                         this.code = error.code;
@@ -292,15 +284,9 @@
                 }
                 this.loggedIn = true;
               }).catch(error => {
-                const alertDiv = document.getElementById("alert");
-                this.message = error + ". You will be redirected to the home page shortly";
-                this.code = error.statusCode;
-                alertDiv.classList.remove("alert-success");
-                alertDiv.classList.add("alert-danger");
-                alertDiv.removeAttribute("hidden");
-                setTimeout(function () {
-                  router.push("/");
-                }, 5000);
+                if (error.response.data.status === 401) {
+                  this.$router.push("/login");
+                }
               });
             }
         }
