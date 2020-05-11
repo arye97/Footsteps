@@ -131,7 +131,6 @@ public class UserController {
         User user = userService.findByUserId(token, profileId);
         //Remove fields that should not be modified here
         ObjectNode modData = nodeMapper.readValue(jsonEditProfileString, ObjectNode.class);
-        modData.remove("date_of_birth");
         modData.remove("primary_email");
         modData.remove("additional_email");
         modData.remove("password");

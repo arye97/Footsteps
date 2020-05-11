@@ -82,6 +82,14 @@
         </div>
       </div>
       <div class="form-group">
+        <!-- date-of-birth field-->
+        <label for="date_of_birth">Date of Birth: *</label>
+        <div class="edit-area">
+          <input type="date" class="form-control" v-model="date_of_birth" id="date_of_birth" name="date_of_birth" disabled required>
+          <button class="btn btn-primary" id="date_of_birth-btn" v-on:click="mutate" type="button">Edit</button>
+        </div>
+      </div>
+      <div class="form-group">
         <!-- passport country -->
         <label for="passports">Passport Country:</label>
         <div class="edit-area">
@@ -115,6 +123,7 @@
     import server from "../../Api";
     import {getCountryNames, fitnessLevels} from '../../constants';
     import {tokenStore} from "../../main";
+    import {validateUser} from "../../util"
 
     export default {
         name: "Details.vue",
@@ -134,6 +143,7 @@
             bio: '',
             message: '',
             code: '',
+            date_of_birth: '',
             countries: [],
             genders: ['Male', 'Female', 'Non-Binary'],
             loggedIn: false,
@@ -190,37 +200,46 @@
                           setTimeout(function () {
                               alertDiv.hidden = true;
                           }, 5000);
+
                       } else {
                           const update = {};
                           update[mutateTarget.id] = mutateTarget.value;
-                          this.putUpdate(update, alertDiv);
+                          const validator = validateUser(mutateTarget.value, mutateTarget.id);
+                          if (!validator.valid) {
+                            this.message = validator.message;
+                            alertDiv.classList.remove("alert-success");
+                            alertDiv.classList.add("alert-danger");
+                            alertDiv.removeAttribute("hidden");
+                            setTimeout(function () {
+                              alertDiv.hidden = true;
+                            }, 5000);
+                          } else if (this.putUpdate(update, alertDiv)) {
+                            mutateTarget.setAttribute('disabled', "true");
+                            mutateButton.innerText = "Edit";
+                            mutateButton.type = "button";
+                          }
                       }
-                      mutateTarget.setAttribute('disabled', "true");
-                      mutateButton.innerText = "Edit";
-                      mutateButton.type = "button";
                     } else {
                       //Need to fix issues with
                       const updateField = document.getElementById(mutateTarget.id.replace("Div", ""));
                       const update = {};
-                      switch (updateField.id) {
-                        case "gender":
-                          update['gender'] = this.gender;
-                          break;
-                        case "passports":
-                          update['passports'] = this.passports;
-                          break;
-                        case "fitness":
-                          if (this.fitness === null) {
-                            update['fitness'] = null;
-                          } else {
-                            update['fitness'] = this.fitness.value;
-                          }
-                          break;
+                      if (updateField.id == "gender") {
+                        update['gender'] = this.gender;
+                      } else if (updateField.id == "Passports") {
+                        update['passports'] = this.passports;
+                      } else if (updateField.id == "fitness") {
+                        if (this.fitness === null) {
+                          update['fitness'] = null;
+                        } else {
+                          update['fitness'] = this.fitness.value;
+                        }
                       }
-                      this.putUpdate(update, alertDiv);
-                      mutateTarget.className = "multiselect--disabled multiselect-box";
-                      mutateButton.innerText = "Edit";
-                      mutateButton.type = "button";
+                      if (this.putUpdate(update, alertDiv)) {
+                        mutateTarget.className = "multiselect--disabled multiselect-box";
+                        mutateButton.innerText = "Edit";
+                        mutateButton.type = "button";
+                      }
+                      this.message = "This is a required field. Please enter some valid data";
                 }
                 } else {
                     if (mutateTarget.className === "multiselect--disabled multiselect-box") {
@@ -233,8 +252,11 @@
                 }
                 mutateButton.removeAttribute('disabled');
             },
+
+
             putUpdate: async function (update, alertDiv) {
               //Sends the put request to the server to update the user profile
+              let result = true;
                 await server.put('profiles/'.concat(this.profileId), update,
                   {headers: {'Content-Type': 'application/json', 'Token': tokenStore.state.token},
                     withCredentials: true
@@ -247,20 +269,27 @@
                 }).catch(error => {
                     alertDiv.classList.remove("alert-success");
                     alertDiv.classList.add("alert-danger");
+
                     if (error.response.data.status === 400 || error.response.data.status === 403) {
                         this.message = error.response.data.message.toString();
                         this.code = error.response.data.status;
+                        if (error.response.data.status === 400) {
+                          result = false;
+                        }
+
                     } else if (error.response.data.status === 401) {
                         this.$router.push("/login");
                     } else {
                         this.message = error.message();
                         this.code = error.code;
                     }
+
                 });
                 alertDiv.removeAttribute("hidden");
                 setTimeout(function () {
                     alertDiv.hidden = true;
                 }, 3000);
+                return result;
             },
 
             updateInputs: function () {
@@ -277,6 +306,7 @@
                 this.gender = response.data.gender;
                 this.passports = response.data.passports;
                 this.bio = response.data.bio;
+                this.date_of_birth = response.data.date_of_birth;
                 for (const option in this.fitnessOptions) {
                   if (this.fitnessOptions[option].value === response.data.fitness) {
                     this.fitness = this.fitnessOptions[option];

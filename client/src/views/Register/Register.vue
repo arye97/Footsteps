@@ -38,18 +38,15 @@
                 <input type="text" class="form-control" v-model="firstname" id="first-name" name="first-name" placeholder="Your First Name...">
             </div>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_first_name">
-                {{  "Field is mandatory and must not be blank"  }}
-            </div>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_first_name_chars">
-                {{  "Names can only contain letters and spaces"  }}
+                {{  "Field is mandatory and can only contain letters and spaces"  }}
             </div>
             <div class="form-group">
                 <!-- full-name field-->
                 <label id="middle-name-label" for="middle-name">Middle Name: </label>
                 <input type="text" class="form-control" v-model="middlename" id="middle-name" name="middle-name" placeholder="Your Middle Name...">
             </div>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_middle_name_chars">
-                {{  "Names can only contain letters and spaces"  }}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_middle_name">
+                {{  "Field can only contain letters and spaces"  }}
             </div>
             <div class="form-group">
                 <!-- full-name field-->
@@ -57,10 +54,7 @@
                 <input type="text" class="form-control" v-model="lastname" id="last-name" name="last-name" placeholder="Your Last Name...">
             </div>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_last_name">
-                {{  "Field is mandatory and must not be blank"  }}
-            </div>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_last_name_chars">
-                {{  "Names can only contain letters and spaces"  }}
+                {{  "Field is mandatory and can only contain letters and spaces"  }}
             </div>
             <div class="form-group">
                 <!-- email field -->
@@ -68,7 +62,7 @@
                 <input type="email" class="form-control" v-model="email" id="email" name="email" placeholder="Your Email Address...">
             </div>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_email">
-                {{  "Field is mandatory and must not be blank"  }}
+                {{  "Field is mandatory, can not be blank and must be a valid email"  }}
             </div>
             <div class="form-group">
                 <!-- password field-->
@@ -118,13 +112,7 @@
                 <input type="date" class="form-control" v-model="date_of_birth" id="date_of_birth" name="date_of_birth">
             </div>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_dob">
-                {{  "Field is mandatory and must not be blank"  }}
-            </div>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_too_young">
-                {{  "You are too young to register."  }}   <!--Cuttoff Age is 13-->
-            </div>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_too_old">
-                {{  "Please enter a valid date of birth"  }}   <!--Cuttoff Age is 150-->
+                {{  "Field is mandatory, can not be blank and user must be within 13 - 150 years"  }}
             </div>
             <div class="form-group">
                 <!-- passport country -->
@@ -161,6 +149,7 @@
     import Header from '../../components/Header/Header.vue'
     import {getCountryNames, fitnessLevels} from '../../constants';
     import {tokenStore} from '../../main';
+    import {validateUser} from "../../util";
 
     function showError(alert_name) {
         let errorAlert = document.getElementById(alert_name);
@@ -170,84 +159,33 @@
         }, 9000);
     }
 
-    /**
-     * Takes a date of birth string and returns 'old' if the date is invalid (includes if the user is older than 150yrs)
-     * or returns 'young' if the user would be younger than 13yrs
-     * @param dateStr a string of the form year-month-day  i.e. 1997-02-16
-     * @param age integer age
-     */
-    export function _isValidDOB(dateStr, minAge, maxAge) {
-        let dob = Date.parse(dateStr);
-        // Due to differences in implementation of Date.parse() a 'Z' may or may not be required at the end of the date.
-        if (Number.isNaN(dob)) {  // If dateStr can't be parsed
-            dateStr.endsWith('Z') ? dateStr = dateStr.slice(0, -1) : dateStr += 'Z'  // Remove Z if it exists, add Z if it doesn't exist
-            dob = Date.parse(dateStr);    // Parse again
-            if (Number.isNaN(dob)) {
-                // If still can't parse, fall back to returning true so user can still register.  Backend will still check the date
-                return 'old';
-            }
-        }
-
-        let age = new Date(Date.now() - dob);
-        let ageYear = (age.getUTCFullYear() - 1970);
-        if (ageYear <= minAge) { return 'young'; }
-        if (ageYear >= maxAge) { return 'old'; }
-    }
-
     async function validUser(newUser, passwordCheck) {
-        const minAge = 13;
-        const maxAge = 150;
         let count = 0; //count of blank fields
-
+        if(!validateUser(newUser.password, "password").valid) {
+            showError('alert_password');
+            count += 1;
+        }
         if (newUser.password !== passwordCheck) {
             showError('alert_password_match');
             return 'password';
         }
-        if (newUser.password === '') {
-            showError('alert_password');
-            count += 1;
-        }
-        if (passwordCheck === '') {
-            showError('alert_password_check');
-            count += 1;
-        }
-        if (newUser.primary_email === '') {
-            showError('alert_email');
-            count += 1;
-        }
-        if (newUser.firstname === '') {
+        if(!validateUser(newUser.firstname, "firstname").valid) {
             showError('alert_first_name');
             count += 1;
-        } else if (!newUser.firstname.match(/^[a-zA-Z ]+$/)) {
-            showError('alert_first_name_chars');
+        }
+        if(!validateUser(newUser.middlename, "middlename").valid) {
+            showError('alert_middle_name');
             count += 1;
         }
-        if (newUser.lastname === '') {
+        if(!validateUser(newUser.lastname, "lastname").valid) {
             showError('alert_last_name');
             count += 1;
-        } else if (!newUser.lastname.match(/^[a-zA-Z ]+$/)) {
-            showError('alert_last_name_chars');
-            count += 1;
         }
-        if (!newUser.middlename.match(/^[a-zA-Z ]+$/) && newUser.middlename !== '') {
-            showError('alert_middle_name_chars');
-            count += 1;
-        }
-        if (newUser.date_of_birth === '') {
+        if(!validateUser(newUser.date_of_birth, "date_of_birth").valid) {
             showError('alert_dob');
             count += 1;
-        } else {
-            // console.log("MinAge=" + minAge + " DOB=" + newUser.date_of_birth + " and result " + _isValidDOB(newUser.date_of_birth, minAge, maxAge))
-            let ageCheck = _isValidDOB(newUser.date_of_birth, minAge, maxAge);
-            if (ageCheck === 'young') {
-                showError('alert_too_young');
-                count += 1;
-            } else if (ageCheck === 'old') {
-                showError('alert_too_old');
-                count += 1;
-            }
         }
-        if(newUser.gender === '') {
+        if(!validateUser(newUser.gender, "gender").valid) {
             showError('alert_gender');
             count += 1;
         }
