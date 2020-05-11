@@ -223,11 +223,11 @@
                       //Need to fix issues with
                       const updateField = document.getElementById(mutateTarget.id.replace("Div", ""));
                       const update = {};
-                      if (updateField.id == "gender") {
+                      if (updateField.id === "gender") {
                         update['gender'] = this.gender;
-                      } else if (updateField.id == "Passports") {
+                      } else if (updateField.id === "Passports") {
                         update['passports'] = this.passports;
-                      } else if (updateField.id == "fitness") {
+                      } else if (updateField.id === "fitness") {
                         if (this.fitness === null) {
                           update['fitness'] = null;
                         } else {

@@ -41,3 +41,18 @@ export function _isValidDOB(dateStr) {
     if (dob < maxDate) return {valid: false, message: "Given age is considered too old to be registered "};
     return {valid: true}
 }
+
+
+/**
+ * Takes a date of birth string and returns a formatted date of birth string
+ * @param dateOfBirth a string of the form day-month-year  i.e. 15-01-1998
+ * @returns {string} formatted date of birth
+ */
+export function getDateString(dateOfBirth) {
+    let date = new Date(dateOfBirth);
+    let offset = date.getTimezoneOffset();
+    date.setMinutes(date.getMinutes() - offset);
+    // return date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear();
+    return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
+
+}

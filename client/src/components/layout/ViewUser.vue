@@ -23,7 +23,7 @@
                                 <span class="accordion">
                                         <span v-if="this.user.nickname">Nickname: {{ this.user.nickname }}<br/></span>
                                         <span >Gender: {{ this.user.gender }}</span><br/>
-                                        <span>Date Of Birth: {{ getDateString() }}</span><br/>
+                                        <span>Date Of Birth: {{ this.formattedDate }} </span><br/>
                                         <span>Email: {{ this.user.primary_email }}</span><br/>
                                         <span v-if="this.user.additional_email.length >= 1"> Additional Emails: {{ this.user.additional_email.join(", ") }}<br/></span>
                                         <span v-if="this.user.passports.length >= 1">Passports: {{this.user.passports.join(", ")}}<br/></span>
@@ -47,6 +47,7 @@
     import server from "../../Api";
     import {tokenStore} from '../../main';
     import {fitnessLevels} from '../../constants'
+    import {getDateString} from '../../util'
     import Header from '../../components/Header/Header';
     export default {
         name: "ViewUser",
@@ -58,7 +59,8 @@
                 user: null,
                 loading: true,
                 errored: false,
-                fitness: null
+                fitness: null,
+                formattedDate: ""
             }
         },
         async mounted() {
@@ -73,8 +75,9 @@
                     console.log(response.data);
                     //user is set to the user data retrieved
                     this.user = response.data;
-                    for (var i = 0; i < fitnessLevels.length; i++) {
-                        if (fitnessLevels[i].value == this.user.fitness) {
+                    this.formattedDate = getDateString(this.user.date_of_birth);
+                    for (let i = 0; i < fitnessLevels.length; i++) {
+                        if (fitnessLevels[i].value === this.user.fitness) {
                             this.fitness = fitnessLevels[i].desc;
                         }
                     }
@@ -92,13 +95,6 @@
                 })
         },
         methods: {
-            getDateString() {
-                let date = new Date(this.user.date_of_birth);
-                let offset = date.getTimezoneOffset();
-                date.setMinutes(date.getMinutes() - offset);
-                let birthday = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear();
-                return birthday
-            },
             logout () {
                 server.post('/logout', null,
                     {
