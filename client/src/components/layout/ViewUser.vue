@@ -96,7 +96,8 @@
                 let date = new Date(this.user.date_of_birth);
                 let offset = date.getTimezoneOffset();
                 date.setMinutes(date.getMinutes() - offset);
-                return date.getDay() + '/' + date.getMonth() + '/' + date.getFullYear();
+                let birthday = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear();
+                return birthday
             },
             logout () {
                 server.post('/logout', null,
