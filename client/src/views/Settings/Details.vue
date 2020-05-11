@@ -85,7 +85,7 @@
         <!-- date-of-birth field-->
         <label for="date_of_birth">Date of Birth: *</label>
         <div class="edit-area">
-          <input type="date" class="form-control" v-model="date_of_birth" id="date_of_birth" name="date_of_birth" disabled>
+          <input type="date" class="form-control" v-model="date_of_birth" id="date_of_birth" name="date_of_birth" disabled required>
           <button class="btn btn-primary" id="date_of_birth-btn" v-on:click="mutate" type="button">Edit</button>
         </div>
       </div>
@@ -125,12 +125,24 @@
     import router from '../../index';
     import {tokenStore} from "../../main";
 
+
+    function validateUser(fieldData, fieldType) {
+
+      switch (fieldType) {
+        case "date_of_birth":
+          return _isValidDOB(fieldData);
+        default: return {valid: true};
+      }
+    }
+
     /**
      * Takes a date of birth string and returns true if that date is older than age int variable
      * @param dateStr a string of the form year-month-day  i.e. 1997-02-16
      * @param age integer age
      */
-    export function _isValidDOB(dateStr, minAge) {
+    export function _isValidDOB(dateStr) {
+      const minAge = 13;
+      const maxAge = 150;
       let dob = Date.parse(dateStr);
       // Due to differences in implementation of Date.parse() a 'Z' may or may not be required at the end of the date.
       if (Number.isNaN(dob)) {  // If dateStr can't be parsed
@@ -138,13 +150,14 @@
         dob = Date.parse(dateStr);    // Parse again
         if (Number.isNaN(dob)) {
           // If still can't parse, fall back to returning true so user can still register.  Backend will still check the date
-          return true
+          return {valid: true}
         }
       }
-
       let age = new Date(Date.now() - dob);
       let ageYear = Math.abs(age.getUTCFullYear() - 1970);
-      return ageYear >= minAge;
+      if (ageYear >= minAge) return {valid: false, message: "Given age is considered too young to be registered "};
+      if (ageYear >= maxAge) return {valid: false, message: "Given age is considered too old to be registered "};
+      return {valid: true}
     }
 
     export default {
@@ -214,7 +227,6 @@
                 mutateButton.setAttribute('disabled', "true");
                 if (event.target.type === "submit") {
                     if (mutateTarget.className !== "multiselect--above multiselect-box") {
-
                       if (mutateTarget.hasAttribute("required") && mutateTarget.value.trim() === "") {
                           this.message = "This is a required field. Please enter some valid data";
                           alertDiv.classList.remove("alert-success");
@@ -227,7 +239,16 @@
                       } else {
                           const update = {};
                           update[mutateTarget.id] = mutateTarget.value;
-                          if (this.putUpdate(update, alertDiv)) {
+                          const validator = validateUser(mutateTarget.value, mutateTarget.id);
+                          if (!validator.valid) {
+                            this.message = validator.message;
+                            alertDiv.classList.remove("alert-success");
+                            alertDiv.classList.add("alert-danger");
+                            alertDiv.removeAttribute("hidden");
+                            setTimeout(function () {
+                              alertDiv.hidden = true;
+                            }, 5000);
+                          } else if (this.putUpdate(update, alertDiv)) {
                             mutateTarget.setAttribute('disabled', "true");
                             mutateButton.innerText = "Edit";
                             mutateButton.type = "button";
