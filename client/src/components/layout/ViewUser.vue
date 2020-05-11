@@ -17,7 +17,7 @@
                         <section v-else>
                             <div v-if="loading"> Loading...</div>
                             <div v-else class="form-group font-weight-light">
-                                <h1 class="font-weight-light">Hi {{this.user.firstname}}!</h1>
+                                <h1 class="font-weight-light">Hi {{this.user.firstname}} {{this.user.middlename}} {{this.user.lastname}}!</h1>
                                 <p>You're logged in to your Hakinakina Account</p>
                                 <h3 class="font-weight-light">All about you: </h3>
                                 <span class="accordion">
