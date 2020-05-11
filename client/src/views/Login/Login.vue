@@ -28,9 +28,6 @@
                             </div>
                                 <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" hidden="true" id="alert">
                                     {{  message  }}
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
                                 </div>
                             <div class="form-group">
                                 <input v-on:submit="login" class="btn btn-primary" type="submit" value="Sign In">

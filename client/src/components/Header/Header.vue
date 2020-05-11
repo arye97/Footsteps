@@ -35,6 +35,7 @@
     import server from "../../Api";
     export default {
         name: 'Header',
+        isLoggedIn: false,
         data: function () {
             return {
                 isLoggedIn : tokenStore.state.token !== null

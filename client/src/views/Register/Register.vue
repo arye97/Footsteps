@@ -21,6 +21,7 @@
                         <h1>
                             Register with us<br/>
                         </h1>
+                        Entries marked with * are required
                     </div>
                 </div>
             </div>
@@ -38,14 +39,17 @@
             </div>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_first_name">
                 {{  "Field is mandatory and must not be blank"  }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+            </div>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_first_name_chars">
+                {{  "Names can only contain letters and spaces"  }}
             </div>
             <div class="form-group">
                 <!-- full-name field-->
                 <label id="middle-name-label" for="middle-name">Middle Name: </label>
                 <input type="text" class="form-control" v-model="middlename" id="middle-name" name="middle-name" placeholder="Your Middle Name...">
+            </div>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_middle_name_chars">
+                {{  "Names can only contain letters and spaces"  }}
             </div>
             <div class="form-group">
                 <!-- full-name field-->
@@ -54,9 +58,9 @@
             </div>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_last_name">
                 {{  "Field is mandatory and must not be blank"  }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+            </div>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_last_name_chars">
+                {{  "Names can only contain letters and spaces"  }}
             </div>
             <div class="form-group">
                 <!-- email field -->
@@ -65,9 +69,6 @@
             </div>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_email">
                 {{  "Field is mandatory and must not be blank"  }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
             </div>
             <div class="form-group">
                 <!-- password field-->
@@ -76,9 +77,6 @@
             </div>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_password">
                 {{  "Field is mandatory and must not be blank"  }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
             </div>
             <div class="form-group">
                 <label id="passwordCheck-label" for="passwordCheck">Retype your Password: *</label>
@@ -86,15 +84,9 @@
             </div>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_password_check">
                 {{  "Field is mandatory and must not be blank"  }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
             </div>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_password_match">
                 {{  'Passwords do not match, please type again'  }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
             </div>
             <div class="form-group">
                 <!-- fitness level field -->
@@ -119,9 +111,6 @@
             </div>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_gender">
                 {{  "Field is mandatory and must not be blank"  }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
             </div>
             <div class="form-group">
                 <!-- date of birth field-->
@@ -130,15 +119,12 @@
             </div>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_dob">
                 {{  "Field is mandatory and must not be blank"  }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
             </div>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_too_young">
                 {{  "You are too young to register."  }}   <!--Cuttoff Age is 13-->
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+            </div>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_too_old">
+                {{  "Please enter a valid date of birth"  }}   <!--Cuttoff Age is 150-->
             </div>
             <div class="form-group">
                 <!-- passport country -->
@@ -156,9 +142,6 @@
             </div>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_form">
                 {{  message_form  }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
             </div>
             <div class="form-group">
                 <!-- SignIn Button-->
@@ -166,15 +149,9 @@
                 <router-link to="/login" class="btn btn-link">Login</router-link>
             </div>
         </form>
-        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" hidden="true" id="alert">
-            {{  message  }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
         <footer class="col-12 text-center">
             Entries marked with * are required
-        </footer>
+        </footer><br/><br/>
     </div>
 </template>
 
@@ -190,15 +167,16 @@
         errorAlert.hidden = false;          //Show alert bar
         setTimeout(function () {    //Hide alert bar after ~5000ms
             errorAlert.hidden = true;
-        }, 10000);
+        }, 9000);
     }
 
     /**
-     * Takes a date of birth string and returns true if that date is older than age int variable
+     * Takes a date of birth string and returns 'old' if the date is invalid (includes if the user is older than 150yrs)
+     * or returns 'young' if the user would be younger than 13yrs
      * @param dateStr a string of the form year-month-day  i.e. 1997-02-16
      * @param age integer age
      */
-    export function _isValidDOB(dateStr, minAge) {
+    export function _isValidDOB(dateStr, minAge, maxAge) {
         let dob = Date.parse(dateStr);
         // Due to differences in implementation of Date.parse() a 'Z' may or may not be required at the end of the date.
         if (Number.isNaN(dob)) {  // If dateStr can't be parsed
@@ -206,47 +184,68 @@
             dob = Date.parse(dateStr);    // Parse again
             if (Number.isNaN(dob)) {
                 // If still can't parse, fall back to returning true so user can still register.  Backend will still check the date
-                return true
+                return 'old';
             }
         }
 
         let age = new Date(Date.now() - dob);
-        let ageYear = Math.abs(age.getUTCFullYear() - 1970);
-        return ageYear >= minAge;
+        let ageYear = (age.getUTCFullYear() - 1970);
+        if (ageYear <= minAge) { return 'young'; }
+        if (ageYear >= maxAge) { return 'old'; }
     }
 
     async function validUser(newUser, passwordCheck) {
         const minAge = 13;
+        const maxAge = 150;
+        let count = 0; //count of blank fields
 
         if (newUser.password !== passwordCheck) {
             showError('alert_password_match');
             return 'password';
         }
-        let count = 0; //count of blank fields
-        if(newUser.password === '') {
+        if (newUser.password === '') {
             showError('alert_password');
             count += 1;
         }
-        if(passwordCheck === '') {
+        if (passwordCheck === '') {
             showError('alert_password_check');
             count += 1;
         }
-        if(newUser.firstname === '') {
+        if (newUser.primary_email === '') {
+            showError('alert_email');
+            count += 1;
+        }
+        if (newUser.firstname === '') {
             showError('alert_first_name');
             count += 1;
+        } else if (!newUser.firstname.match(/^[a-zA-Z ]+$/)) {
+            showError('alert_first_name_chars');
+            count += 1;
         }
-        if(newUser.lastname === '') {
+        if (newUser.lastname === '') {
             showError('alert_last_name');
             count += 1;
+        } else if (!newUser.lastname.match(/^[a-zA-Z ]+$/)) {
+            showError('alert_last_name_chars');
+            count += 1;
         }
-        if(newUser.date_of_birth === '') {
+        if (!newUser.middlename.match(/^[a-zA-Z ]+$/) && newUser.middlename !== '') {
+            showError('alert_middle_name_chars');
+            count += 1;
+        }
+        if (newUser.date_of_birth === '') {
             showError('alert_dob');
             count += 1;
-        }
-        console.log("MinAge=" + minAge + " DOB=" + newUser.date_of_birth + " and result " + _isValidDOB(newUser.date_of_birth, minAge))
-        if(!_isValidDOB(newUser.date_of_birth, minAge)) {
-            showError('alert_too_young');
-            count += 1;
+        } else {
+            // console.log("MinAge=" + minAge + " DOB=" + newUser.date_of_birth + " and result " + _isValidDOB(newUser.date_of_birth, minAge, maxAge))
+            let ageCheck = _isValidDOB(newUser.date_of_birth, minAge, maxAge);
+            if (ageCheck === 'young') {
+                showError('alert_too_young');
+                count += 1;
+            } else if (ageCheck === 'old') {
+                showError('alert_too_old');
+                count += 1;
+            }
         }
         if(newUser.gender === '') {
             showError('alert_gender');
@@ -329,7 +328,6 @@
                     passports: this.passports
                 };
                 let validCount = await validUser(newUser, this.passwordCheck);
-                console.log(validCount);
                 if (validCount === 'password') {
                     this.message_form = "Password and re-typed password do not match. Please try again"
                     showError('alert_form');
