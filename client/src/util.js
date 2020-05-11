@@ -3,6 +3,10 @@ export function validateUser(fieldData, fieldType) {
     switch (fieldType) {
         case "date_of_birth":
             return _isValidDOB(fieldData);
+        case "firstname":
+        case "middlename":
+        case "lastname":
+            return {valid: !(/\d/.test(fieldData)), message: "Name contains numbers"};
         default: return {valid: true};
     }
 }
