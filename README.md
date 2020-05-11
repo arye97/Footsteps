@@ -29,6 +29,9 @@ This project has been completed by Team600 from the SENG302 2020 class.
 
 ### How to run
 To run the full application, first run the server and then run the client
+##### Add Environment Variables
+Set up the environment variables according to the information stored in eng-git
+
 ##### Server (Backend/API)
 1. Navigate to the server folder: 
 Example command: `cd server`
@@ -79,11 +82,11 @@ Command: `npm run serve`
 Running on: http://localhost:9500/
 
 ### Example User
-An example user has been created.  
+An example user has been created, so you can view the application.  
 This can be accessed by logging in using the following credentials:
 
-**Username**:  
-**Password**:
+**Email**:  sarahjones@yahoo.com  
+**Password**:  123456
 
 ### Third Party Dependencies
 The Hakinakina program does use some external libraries. These are listed below.
