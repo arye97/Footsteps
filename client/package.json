@@ -7,36 +7,38 @@
     "build": "vue-cli-service build --mode staging",
     "build-prod": "vue-cli-service build --mode prod",
     "kill-all": "fuser -k 9500/tcp 9499/tcp",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "test": "jest --runInBand --detectOpenHandles"
   },
   "dependencies": {
     "axios": "^0.19.2",
-    "bootstrap": "^4.4.1",
-    "bootstrap-select": "^1.13.12",
-    "bootstrap-vue": "^2.5.0",
+    "bootstrap-vue": "^2.13.1",
     "core-js": "^3.6.4",
     "jquery": "^3.4.1",
     "serve": "^11.3.0",
     "vue": "^2.6.11",
     "vue-multiselect": "^2.1.6",
     "vue-router": "^3.1.5",
-    "vuejs-logger": "^1.5.4",
-    "vuex": "^3.1.2"
+    "vuejs-logger": "^1.5.4"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.2.0",
     "@vue/cli-plugin-eslint": "~4.2.0",
-    "@vue/cli-plugin-router": "^4.2.2",
     "@vue/cli-service": "~4.2.0",
+    "@vue/test-utils": "^1.0.0-beta.32",
+    "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.0.3",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^6.1.2",
+    "jest": "^25.1.0",
+    "vue-jest": "^3.0.5",
     "vue-template-compiler": "^2.6.11"
   },
   "eslintConfig": {
     "root": true,
     "env": {
-      "node": true
+      "node": true,
+      "jest": true
     },
     "extends": [
       "plugin:vue/essential",
@@ -50,5 +52,23 @@
   "browserslist": [
     "> 1%",
     "last 2 versions"
-  ]
+  ],
+  "jest": {
+    "transform": {
+      "^.+\\.vue$": "vue-jest",
+      "^.+\\.js$": "babel-jest"
+    },
+    "moduleNameMapper": {
+      "\\.(css|less)$": "<rootDir>/assets/css/__mocks__/styleMock.js"
+    },
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "jsx",
+      "ts",
+      "tsx",
+      "node",
+      "vue"
+    ]
+  }
 }

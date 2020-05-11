@@ -24,8 +24,6 @@ class EmailTest {
         userTest.setPrimaryEmail(primaryEmail);
         emailTest = userTest.getEmails().get(0);
 
-//        System.out.println(emailTest.getUser());
         assertEquals(emailTest.getEmail(), primaryEmail);
-//        assertEquals(emailTest.getUser(), userTest);
     }
 }
