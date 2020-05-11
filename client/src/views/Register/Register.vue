@@ -37,7 +37,7 @@
                 <input type="text" class="form-control" v-model="firstname" id="first-name" name="first-name" placeholder="Your First Name...">
             </div>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_first_name">
-                {{  "Field is mandatory and must not be blank"  }}
+                {{  "Field is mandatory and can only contain letters and spaces"  }}
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -47,13 +47,19 @@
                 <label id="middle-name-label" for="middle-name">Middle Name: </label>
                 <input type="text" class="form-control" v-model="middlename" id="middle-name" name="middle-name" placeholder="Your Middle Name...">
             </div>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_middle_name">
+                {{  "Field can only contain letters and spaces"  }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
             <div class="form-group">
                 <!-- full-name field-->
                 <label id="last-name-label" for="last-name">Last Name: *</label>
                 <input type="text" class="form-control" v-model="lastname" id="last-name" name="last-name" placeholder="Your Last Name...">
             </div>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_last_name">
-                {{  "Field is mandatory and must not be blank"  }}
+                {{  "Field is mandatory and can only contain letters and spaces"  }}
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -64,7 +70,7 @@
                 <input type="email" class="form-control" v-model="email" id="email" name="email" placeholder="Your Email Address...">
             </div>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_email">
-                {{  "Field is mandatory and must not be blank"  }}
+                {{  "Field is mandatory, can not be blank and must be a valid email"  }}
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -129,13 +135,7 @@
                 <input type="date" class="form-control" v-model="date_of_birth" id="date_of_birth" name="date_of_birth">
             </div>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_dob">
-                {{  "Field is mandatory and must not be blank"  }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_too_young">
-                {{  "You are too young to register."  }}   <!--Cuttoff Age is 13-->
+                {{  "Field is mandatory, can not be blank and user must be within 13 - 150 years"  }}
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -184,6 +184,7 @@
     import Header from '../../components/Header/Header.vue'
     import {getCountryNames, fitnessLevels} from '../../constants';
     import {tokenStore} from '../../main';
+    import {validateUser} from "../../util";
 
     function showError(alert_name) {
         let errorAlert = document.getElementById(alert_name);
@@ -193,62 +194,33 @@
         }, 10000);
     }
 
-    /**
-     * Takes a date of birth string and returns true if that date is older than age int variable
-     * @param dateStr a string of the form year-month-day  i.e. 1997-02-16
-     * @param age integer age
-     */
-    export function _isValidDOB(dateStr, minAge) {
-        let dob = Date.parse(dateStr);
-        // Due to differences in implementation of Date.parse() a 'Z' may or may not be required at the end of the date.
-        if (Number.isNaN(dob)) {  // If dateStr can't be parsed
-            dateStr.endsWith('Z') ? dateStr = dateStr.slice(0, -1) : dateStr += 'Z'  // Remove Z if it exists, add Z if it doesn't exist
-            dob = Date.parse(dateStr);    // Parse again
-            if (Number.isNaN(dob)) {
-                // If still can't parse, fall back to returning true so user can still register.  Backend will still check the date
-                return true
-            }
-        }
-
-        let age = new Date(Date.now() - dob);
-        let ageYear = Math.abs(age.getUTCFullYear() - 1970);
-        return ageYear >= minAge;
-    }
-
     async function validUser(newUser, passwordCheck) {
-        const minAge = 13;
-
+        let count = 0; //count of blank fields
+        if(!validateUser(newUser.password, "password").valid) {
+            showError('alert_password');
+            count += 1;
+        }
         if (newUser.password !== passwordCheck) {
             showError('alert_password_match');
             return 'password';
         }
-        let count = 0; //count of blank fields
-        if(newUser.password === '') {
-            showError('alert_password');
-            count += 1;
-        }
-        if(passwordCheck === '') {
-            showError('alert_password_check');
-            count += 1;
-        }
-        if(newUser.firstname === '') {
+        if(!validateUser(newUser.firstname, "firstname").valid) {
             showError('alert_first_name');
             count += 1;
         }
-        if(newUser.lastname === '') {
+        if(!validateUser(newUser.middlename, "middlename").valid) {
+            showError('alert_middle_name');
+            count += 1;
+        }
+        if(!validateUser(newUser.lastname, "lastname").valid) {
             showError('alert_last_name');
             count += 1;
         }
-        if(newUser.date_of_birth === '') {
+        if(!validateUser(newUser.date_of_birth, "date_of_birth").valid) {
             showError('alert_dob');
             count += 1;
         }
-        console.log("MinAge=" + minAge + " DOB=" + newUser.date_of_birth + " and result " + _isValidDOB(newUser.date_of_birth, minAge))
-        if(!_isValidDOB(newUser.date_of_birth, minAge)) {
-            showError('alert_too_young');
-            count += 1;
-        }
-        if(newUser.gender === '') {
+        if(!validateUser(newUser.gender, "gender").valid) {
             showError('alert_gender');
             count += 1;
         }
