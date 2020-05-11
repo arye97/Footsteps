@@ -123,7 +123,7 @@
     import server from "../../Api";
     import {getCountryNames, fitnessLevels} from '../../constants';
     import {tokenStore} from "../../main";
-    import {validateUser} from "../../util"
+    import {validateUser, getDateString} from "../../util"
 
     export default {
         name: "Details.vue",
@@ -306,7 +306,7 @@
                 this.gender = response.data.gender;
                 this.passports = response.data.passports;
                 this.bio = response.data.bio;
-                this.date_of_birth = response.data.date_of_birth;
+                this.date_of_birth = getDateString(response.data.date_of_birth);
                 for (const option in this.fitnessOptions) {
                   if (this.fitnessOptions[option].value === response.data.fitness) {
                     this.fitness = this.fitnessOptions[option];
