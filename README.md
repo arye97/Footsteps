@@ -5,6 +5,20 @@ This is the README file for the SENG302 Team 600 Hakinakina Application.
 Hakinakina is a fitness and leisure tracking web application.
 It has been built using javascript - utilising Vue - and java - using Spring.
 
+### Team Details
+This project has been completed by Team600 from the SENG302 2020 class.
+
+**Team members are**:
+- Ryan Akers - rak80
+- Saman Ighani - sig16
+- Benjamin Thurber - bgt26
+- Euan Widjaja - ewi45
+- Taran Jennison - tmj49
+- Rebekah McKinnon - rmc209
+- Ryan Franks - ref48
+- Hamish O'Keeffe - hoo42
+- Ethan Burnett - ebb35
+
 ### Basic Project Structure
 - client/src Frontend source code (JS - Vue)
 - client/public publicly accesable web assets
@@ -64,21 +78,55 @@ Command: `npm run serve`
 
 Running on: http://localhost:9500/
 
+### Example User
+An example user has been created.  
+This can be accessed by logging in using the following credentials:
+
+**Username**:  
+**Password**:
+
 ### Third Party Dependencies
 The Hakinakina program does use some external libraries. These are listed below.
 
 **Given dependencies**:  
 These were approved by the teaching staff before the project commenced
 
-**Further approved dependencies**:
+Backend:
+- Spring Boot Data JPA Starter
+- Spring Boot Data REST Starter
+- Spring Boot Web Starter
+- Project Lombok
+- Spring Boot Test Starter
+- Mockito
+- H2 Database Engine
+- Cucumber
+
+Frontend:
+- Axios
+- Core-js
+- Serve
+- Vue
+- Vuejs-logger
+- @vue/cli-plugin-babel
+- @vue/cli-plugin-eslint
+- @vue/cli-service
+- babel-eslint
+- eslint
+- eslint-plugin-vue
+- vue-template-compiler
+- jest
+- @vue/test/utils
+
+**Further approved dependencies**:  
+These dependencies have been approved for use in the Hakinakina application
 
 Backend:
 - Spring Security
 - MariaDB
 
 Frontend:
-- Bootstrap-Vue
+- Bootstrap-Vue (and jQuery by association)
 - Vue-router
 - Vue-multiselect
-- Vue-jest
+- Vue-jest (and babel-core by association)
 - @vue/test-utils
