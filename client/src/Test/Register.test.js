@@ -1,7 +1,7 @@
 
 import {shallowMount} from '@vue/test-utils'
 import Register from '../views/Register/Register.vue'
-import { _isValidDOB } from '../views/Register/Register.vue'
+import { _isValidDOB } from '../util'
 import '../Api'
 import 'vue-jest'
 import server from "../Api";
@@ -69,7 +69,7 @@ describe("isValidDOB checks that a date of birth is older than number of years",
         date = new Date(current)
         date.setFullYear(date.getFullYear() - (minAge - 1));
         dateStr = date.toISOString().split('T')[0];
-        expect(_isValidDOB(dateStr, minAge)).toBeFalsy();
+        expect(_isValidDOB(dateStr).vaild).toBeFalsy();
     });
 
     // Old enough
@@ -77,7 +77,7 @@ describe("isValidDOB checks that a date of birth is older than number of years",
         date = new Date(current)
         date.setFullYear(date.getFullYear() - (minAge + 1));
         dateStr = date.toISOString().split('T')[0];
-        expect(_isValidDOB(dateStr, minAge)).toBeTruthy();
+        expect(_isValidDOB(dateStr).valid).toBeTruthy();
     });
 });
 
