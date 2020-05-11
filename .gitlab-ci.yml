@@ -33,7 +33,7 @@ dev-build:
 release-build:
  stage: deploy
  script:
-    - fuser -k 8999/tcp 9000/tcp
+    - fuser -k 8999/tcp 9000/tcp || true
     - cd client
     - npm install
     - npm run build-prod
