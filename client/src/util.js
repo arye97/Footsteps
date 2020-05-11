@@ -48,11 +48,14 @@ export function _isValidDOB(dateStr) {
  * @param dateOfBirth a string of the form day-month-year  i.e. 15-01-1998
  * @returns {string} formatted date of birth
  */
-export function getDateString(dateOfBirth) {
-    let date = new Date(dateOfBirth);
+export function getDateString(date_of_birth) {
+    let date = new Date(date_of_birth);
     let offset = date.getTimezoneOffset();
     date.setMinutes(date.getMinutes() - offset);
-    // return date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear();
-    return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
-
+    console.log(date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate());
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    return date.getFullYear() + '-'
+        + ( month < 10 ? '0' : "" ) + month.toString() + '-'
+        + ( day < 10 ?'0' : "" ) + day.toString();
 }
