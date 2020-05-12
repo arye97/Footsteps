@@ -3,6 +3,8 @@ export function validateUser(fieldData, fieldType) {
     switch (fieldType) {
         case "gender":
             return {valid: fieldData === "Male" || fieldData === "Female" || fieldData === "Non-Binary"};
+        case "email":
+            return {valid: fieldData !== ''};
         case "password":
             return {valid: fieldData !== ''};
         case "middlename":

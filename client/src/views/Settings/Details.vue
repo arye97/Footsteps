@@ -225,7 +225,7 @@
                       const update = {};
                       if (updateField.id === "gender") {
                         update['gender'] = this.gender;
-                      } else if (updateField.id === "Passports") {
+                      } else if (updateField.id === "passports") {
                         update['passports'] = this.passports;
                       } else if (updateField.id === "fitness") {
                         if (this.fitness === null) {

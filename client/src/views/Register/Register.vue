@@ -189,6 +189,10 @@
             showError('alert_gender');
             count += 1;
         }
+        if(!validateUser(newUser.primary_email, "email").valid) {
+            showError('alert_email');
+            count += 1;
+        }
         return count;
     }
 
