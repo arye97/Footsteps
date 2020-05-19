@@ -10,10 +10,10 @@ Vue.config.productionTip = false;
 
 Vue.use(VueLogger);
 // Install BootstrapVue
-Vue.use(BootstrapVue)
-Vue.use(BootstrapVueIcons)
+Vue.use(BootstrapVue);
+Vue.use(BootstrapVueIcons);
 // Optionally install the BootstrapVue icon components plugin
-Vue.use(IconsPlugin)
+Vue.use(IconsPlugin);
 
 /* eslint-disable no-new */
 new Vue({
