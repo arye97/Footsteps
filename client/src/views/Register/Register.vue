@@ -260,7 +260,7 @@
                     lastname: this.lastname.trim(),
                     firstname: this.firstname.trim(),
                     middlename: this.middlename.trim(),
-                    nickname: this.nickname.trim(),
+                    nickname: this.nickname,
                     primary_email: this.email.trim(),
                     password: this.password.trim(),
                     date_of_birth: this.date_of_birth,
@@ -280,6 +280,7 @@
                     return;
                 }
                 // The HTTP Post Request
+                console.log(newUser);
                 await server.post('/profiles',
                     newUser,
                     {
