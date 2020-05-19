@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+nohup java -jar ../server-dev/libs/server-0.0.1-SNAPSHOT.jar --server.port=9499 & # convert to be run with service
+nohup serve -s ../client-dev/dist -l 9500 & # convert to be run with service
+exit 1
