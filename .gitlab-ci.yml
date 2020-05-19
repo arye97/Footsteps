@@ -25,8 +25,8 @@ dev-build:
     - mkdir -p ../server-dev/
     - cp -r ./client/dist/ ../client-dev/
     - cp -r ./server/build/libs ../server-dev
-    - java -jar ../server-dev/libs/server-0.0.1-SNAPSHOT.jar --server.port=9499 # convert to be run with service
-    - serve -s ../client-dev/dist -l 9500 # convert to be run with service
+#    - java -jar ../server-dev/libs/server-0.0.1-SNAPSHOT.jar --server.port=9499 # convert to be run with service
+#    - serve -s ../client-dev/dist -l 9500 # convert to be run with service
   except:
     - tags
 
