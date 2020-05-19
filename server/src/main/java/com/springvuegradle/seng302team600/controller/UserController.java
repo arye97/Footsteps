@@ -61,6 +61,7 @@ public class UserController {
 
 
         User newUser = new User();
+        //TODO remove println below
         System.out.println(newUserData.getFirstName());
         newUser.builder(newUserData);
         //Throws errors if user is erroneous

@@ -269,6 +269,7 @@
                     fitness: this.fitness.value,
                     passports: this.passports
                 };
+                if (newUser.fitness === undefined) newUser.fitness = -1;
                 let validCount = await validUser(newUser, this.passwordCheck);
                 if (validCount === 'password') {
                     this.message_form = "Password and re-typed password do not match. Please try again"
@@ -279,6 +280,8 @@
                     showError('alert_form');
                     return;
                 }
+                console.log("The New User\\/");
+                console.log(newUser);
                 // The HTTP Post Request
                 console.log(newUser);
                 await server.post('/profiles',
