@@ -25,7 +25,7 @@ dev-build:
     - mkdir -p ../server-dev/
     - cp -r ./client/dist/ ../client-dev/
     - cp -r ./server/build/libs ../server-dev
-    - ./startTestApplication
+#    - ./startTestApplication
   except:
     - tags
 
