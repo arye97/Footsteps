@@ -1,5 +1,5 @@
 export function validateUser(fieldData, fieldType) {
-    const emailRegex = new RegExp(/^[a-zA-Z-'.]+$/);
+    const emailRegex = new RegExp(/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/);
     const nameRegex = new RegExp(/^[a-zA-Z_]+( [a-zA-Z_]+)*$/);
     const middleNameRegex = new RegExp(/^[a-zA-Z_]*$/);
     switch (fieldType) {
