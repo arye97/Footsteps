@@ -6,15 +6,15 @@ export function validateUser(fieldData, fieldType) {
         case "gender":
             return {valid: fieldData === "Male" || fieldData === "Female" || fieldData === "Non-Binary"};
         case "email":
-            return {valid: fieldData !== emailRegex};
+            return {valid: emailRegex.test(fieldData)};
         case "password":
             return {valid: fieldData !== ''};
         case "middlename":
-            return {valid: fieldData !== middleNameRegex};
+            return {valid: middleNameRegex.test(fieldData), message: "Middle Name contains numbers or unexpected characters"};
         case "firstname":
-            return {valid: fieldData !== nameRegex};
+            return {valid: nameRegex.test(fieldData), message: "First Name contains numbers or unexpected characters"};
         case "lastname":
-            return {valid: fieldData !== nameRegex};
+            return {valid: nameRegex.test(fieldData), message: "Last Name contains numbers or unexpected characters"};
         case "date_of_birth":
             return _isValidDOB(fieldData);
         default: return {valid: true};
