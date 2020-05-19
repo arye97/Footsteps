@@ -53,6 +53,8 @@ class UserControllerTest {
     private String jsonLoginDetailsIncorrectPass;
     private String jsonLoginDetailsUserNotFound;
     private String createUserJsonPostLogout;
+    private String createUserJsonViewUser1;
+    private String createUserJsonViewUser2;
 
     private ObjectMapper objectMapper;
 
@@ -122,6 +124,24 @@ class UserControllerTest {
                 "  \"primary_email\": \"kite@gmail.com\",\n" +
                 "  \"password\": \"kitPwd\",\n" +
                 "  \"date_of_birth\": \"2002-1-2\",\n" +
+                "  \"gender\": \"Female\"\n" +
+                "}";
+
+        createUserJsonViewUser1 = "{\n" +
+                "  \"lastname\": \"Tomato\",\n" +
+                "  \"firstname\": \"Bob\",\n" +
+                "  \"primary_email\": \"bob@gmail.com\",\n" +
+                "  \"password\": \"bobsPassword\",\n" +
+                "  \"date_of_birth\": \"2002-1-2\",\n" +
+                "  \"gender\": \"Male\"\n" +
+                "}";
+
+        createUserJsonViewUser2 = "{\n" +
+                "  \"lastname\": \"Cucumber\",\n" +
+                "  \"firstname\": \"Larry\",\n" +
+                "  \"primary_email\": \"larry@gmail.com\",\n" +
+                "  \"password\": \"larrysPassword\",\n" +
+                "  \"date_of_birth\": \"2002-01-20\",\n" +
                 "  \"gender\": \"Female\"\n" +
                 "}";
 
@@ -386,4 +406,29 @@ class UserControllerTest {
         mvc.perform(editRequest)
                 .andExpect(status().isUnauthorized());
     }
+/*
+    @Test
+    *//** Tests that a user can view another users profile *//*
+    public void viewProfileSuccess() throws Exception {
+        // Set up two users
+        setupMocking(createUserJsonViewUser1);
+        User fakeUser = new User();
+        regReq = objectMapper.treeToValue(objectMapper.readTree(createUserJsonViewUser2), RegisterRequest.class);
+        fakeUser = fakeUser.builder(regReq);
+        ReflectionTestUtils.setField(fakeUser, "userId", 10L);
+        // Get the id of the second user
+        long userId = fakeUser.getUserId();
+        // Request the second user
+        MockHttpServletRequestBuilder getRequest = MockMvcRequestBuilders.get("/profiles/" + userId);
+        MvcResult result = mvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andReturn();
+        // Get Response as JsonNode
+        String jsonResponseStr = result.getResponse().getContentAsString();
+        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
+        // Check that the right user has been retrieved
+        // assertNotNull(jsonNode); TODO: Currently this line passes uncommented - ie somewhere it's returning null!
+        assertEquals("Larry", jsonNode.get("firstname").asText());
+        assertEquals("Cucumber", jsonNode.get("lastname").asText());
+    }*/
 }

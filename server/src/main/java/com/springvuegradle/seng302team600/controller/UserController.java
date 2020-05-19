@@ -49,6 +49,24 @@ public class UserController {
     }
 
     /**
+     * Return a User saved in the repository based on the user id
+     * @param response the http response
+     * @return User requested or null
+     */
+    @GetMapping("/profiles/{profileId}")
+    public User findSpecificUserData(HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) {
+        User user = userService.viewUserById(profileId);
+        if (user == null) {
+            return null;
+        }
+        user.setTransientEmailStrings();
+        // Security breach if password is sent to the client
+        user.setPassword(null);
+        response.setStatus(HttpServletResponse.SC_OK); //200
+        return user;
+    }
+
+    /**
      * Creates and returns a new User from the requested body
      * @param newUserData payload of request, data to be registered
      * @param response the http response

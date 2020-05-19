@@ -116,6 +116,19 @@ public class UserValidationService {
     }
 
     /**
+     * Finds a user by the id
+     * @param id the user id of the requested user
+     * @return the user requested or ResponseStatusException is the user is not found
+     */
+    public User viewUserById(Long id) {
+        User user = userRepository.findByUserId(id);
+        if (user != null) {
+            return user;
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with ID: " + id);
+    }
+
+    /**
      * Will need to be changed later when the database is fully implemented
      * Checks that the session gives the request access to modify the user with a given id
      * This will allow for checking both admins and users
