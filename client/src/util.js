@@ -1,17 +1,20 @@
 export function validateUser(fieldData, fieldType) {
-
+    const emailRegex = new RegExp(/^[a-zA-Z-'.]+$/);
+    const nameRegex = new RegExp(/^[a-zA-Z_]+( [a-zA-Z_]+)*$/);
+    const middleNameRegex = new RegExp(/^[a-zA-Z_]*$/);
     switch (fieldType) {
         case "gender":
             return {valid: fieldData === "Male" || fieldData === "Female" || fieldData === "Non-Binary"};
         case "email":
-            return {valid: fieldData !== ''};
+            return {valid: emailRegex.test(fieldData)};
         case "password":
             return {valid: fieldData !== ''};
         case "middlename":
-            return {valid: !(/\d/.test(fieldData)), message: "Name contains numbers"}
+            return {valid: middleNameRegex.test(fieldData), message: "Middle Name contains numbers or unexpected characters"};
         case "firstname":
+            return {valid: nameRegex.test(fieldData), message: "First Name contains numbers or unexpected characters"};
         case "lastname":
-            return {valid: fieldData !== '' && !(/\d/.test(fieldData)), message: "Name contains numbers"};
+            return {valid: nameRegex.test(fieldData), message: "Last Name contains numbers or unexpected characters"};
         case "date_of_birth":
             return _isValidDOB(fieldData);
         default: return {valid: true};
