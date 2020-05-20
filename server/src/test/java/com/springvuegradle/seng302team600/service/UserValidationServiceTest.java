@@ -33,10 +33,34 @@ class UserValidationServiceTest {
     private RegisterRequest userData;
 
     private User dummyUser;
+    private User dummyUser1;
     private Email dummyEmail;
+    private Email dummyEmail1;
+
+    /**
+     * A function which can be used to set up dummyUser1, the second test user
+     * There are minimal test cases where this is required so it is only sometimes needed
+     */
+    public void additionalUser() {
+        userData = new RegisterRequest();
+        userData.setFirstName("Bob");
+        userData.setLastName("Builder");
+        userData.setPrimaryEmail("bobby@email.com");
+        userData.setPassword("myPassword");
+        userData.setDateOfBirth(new Calendar.Builder()
+                .setDate(1996, 12, 26)
+                .setTimeOfDay(14, 0, 0)
+                .build().getTime());
+        userData.setGender(User.Gender.MALE);
+        dummyUser1.builder(userData);
+        dummyEmail1 = new Email(dummyUser1.getPrimaryEmail(), true, dummyUser1);
+        //This is a valid use of reflection, designed for scenarios like this
+        ReflectionTestUtils.setField(dummyEmail1, "id", 2L);
+    }
 
     @BeforeEach
     public void setUp() {
+        dummyUser1 = new User();
         userData = new RegisterRequest();
         userData.setFirstName("Bill");
         userData.setLastName("Ford");
@@ -52,6 +76,7 @@ class UserValidationServiceTest {
         dummyEmail = new Email(dummyUser.getPrimaryEmail(), true, dummyUser);
         //This is a valid use of reflection, designed for scenarios like this
         ReflectionTestUtils.setField(dummyUser, "userId", 1L);
+        ReflectionTestUtils.setField(dummyUser1, "userId", 2L);
         ReflectionTestUtils.setField(dummyEmail, "id", 1L);
         when(userRepository.save(Mockito.any(User.class))).then(i -> {
             dummyUser = i.getArgument(0);
@@ -59,6 +84,7 @@ class UserValidationServiceTest {
         });
         when(userRepository.findByUserId(Mockito.anyLong())).thenAnswer(i -> {
             if (i.getArgument(0).equals(dummyUser.getUserId())) return dummyUser;
+            if (i.getArgument(0).equals(dummyUser1.getUserId())) return dummyUser1;
             else return null;
         });
         when(userRepository.findByToken(Mockito.anyString())).thenAnswer(i -> {
@@ -143,5 +169,39 @@ class UserValidationServiceTest {
         dummyUser.setToken(token);
         dummyUser.setTokenTime();
         assertThrows(ResponseStatusException.class, () -> userService.findByUserId(token, -1L));
+    }
+
+    @Test
+    /**Tests that if a user has an invalid code they cannot see anything and an error is thrown*/
+    public void viewUserByIdInvalidToken() {
+        String token = "myToken";
+        dummyUser.setToken(token);
+        dummyUser.setTokenTime();
+        assertThrows(ResponseStatusException.class, () -> userService.viewUserById(dummyUser.getUserId(), "InvalidToken"));
+    }
+
+    @Test
+    /**Tests that if a user looks for a user that doesn't exist an error is thrown*/
+    public void viewUserByIdInvalidId() {
+        String token = "myToken";
+        dummyUser.setToken(token);
+        dummyUser.setTokenTime();
+        assertThrows(ResponseStatusException.class, () -> userService.viewUserById(3L, token));
+    }
+
+    @Test
+    /**Tests that if a user tries to view a user that does exist and is logged in then the user is returned*/
+    public void viewUserByIdSuccess() {
+        String token = "myToken";
+        dummyUser.setToken(token);
+        dummyUser.setTokenTime();
+        // Set up second user
+        additionalUser();
+        // Check viewing the user
+        User result = userService.viewUserById(2L, token);
+        assertEquals("Bob", result.getFirstName());
+        assertEquals("Builder", result.getLastName());
+        assertEquals("bobby@email.com", result.getPrimaryEmail());
+        assertEquals(User.Gender.MALE, result.getGender());
     }
 }
