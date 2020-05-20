@@ -44,6 +44,7 @@ public class UserController {
         user.setTransientEmailStrings();
         //Security breach if password sent to client
         user.setPassword(null);
+        user.setToken(null);
         response.setStatus(HttpServletResponse.SC_OK); //200
         return user;
     }
@@ -61,6 +62,7 @@ public class UserController {
         user.setTransientEmailStrings();
         // Security breach if password is sent to the client
         user.setPassword(null);
+        user.setToken(null);
         response.setStatus(HttpServletResponse.SC_OK); //200
         return user;
     }
