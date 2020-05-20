@@ -13,7 +13,7 @@ variables:
   GIT_DEPTH: 0
 sonarqube-check:
   stage: test
-  script: gradlew sonarqube -Dsonar.qualitygate.wait=true
+  script: ./gradlew sonarqube -Dsonar.qualitygate.wait=true
   allow_failure: true
   only:
     - development
