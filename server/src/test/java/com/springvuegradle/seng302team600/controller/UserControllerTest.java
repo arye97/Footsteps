@@ -440,5 +440,8 @@ class UserControllerTest {
         // Check that the right user has been retrieved
         assertEquals("Larry", jsonNode.get("firstname").asText());
         assertEquals("Cucumber", jsonNode.get("lastname").asText());
+        assertEquals("larry@gmail.com", jsonNode.get("primary_email").asText());
+        assertEquals("Female", jsonNode.get("gender").asText());
+        assertEquals("2002-01-20", jsonNode.get("date_of_birth").asText());
     }
 }
