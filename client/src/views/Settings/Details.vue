@@ -1,7 +1,8 @@
 <template>
-  <div class="settings-page">
-    <h1><br/><br/></h1>
-    <div>
+  <div>
+    <div class="header-sidebar">
+      <h1><br/><br/></h1>
+      <div>
         <div class="container">
           <div class="row">
             <div class="col-sm-6 offset-sm-3">
@@ -10,109 +11,120 @@
             </div>
           </div>
         </div>
-    </div>
-    <div class="alert alert-success alert-dismissible fade show sticky-top" role="alert" id="alert" hidden>
-      <p id="alert-message"><strong>{{ code }}</strong>{{ message }}</p>
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-    <Sidebar/>
-    <div class="container-fluid" v-if="loggedIn">
-      <div class="form-group">
-        <!-- first-name field-->
-        <label for="firstname">First Name: *</label>
-        <div class="edit-area">
-          <input type="text" class="form-control" v-model="firstname" id="firstname" name="firstname"
-                 placeholder="Your First Name..." required disabled>
-          <button class="btn btn-primary" id="firstname-btn" v-on:click="mutate" type="button">Edit</button>
-        </div>
       </div>
-      <div class="form-group">
-        <!-- middle-name field-->
-        <label for="middlename">Middle Name: </label>
-        <div class="edit-area">
-          <input type="text" class="form-control" v-model="middlename" id="middlename" name="middlename"
-                 placeholder="Your Middle Name..." disabled>
-          <button class="btn btn-primary" id="middlename-btn" v-on:click="mutate" type="button">Edit</button>
-        </div>
-      </div>
-      <div class="form-group">
-        <!-- last-name field-->
-        <label for="lastname">Last Name: *</label>
-        <div class="edit-area">
-          <input type="text" class="form-control" v-model="lastname" id="lastname" name="lastname"
-                 placeholder="Your Last Name..." required disabled>
-          <button class="btn btn-primary" id="lastname-btn" v-on:click="mutate" type="button">Edit</button>
-        </div>
-      </div>
-      <div class="form-group">
-        <!-- fitness level field -->
-        <label for="fitness">Fitness Level:</label>
-        <div class="edit-area">
-          <div id="fitnessDiv" class="multiselect--disabled multiselect-box">
-          <multiselect v-model="fitness" id="fitness" :options="fitnessOptions" :multiple="false" label="desc" :return="fitnessOptions.desc"
-                       placeholder="Please select a fitness level" track-by="value">
-            <template slot="singleLabel" slot-scope="{ option }"><footer> {{ option.desc }}</footer></template>
-          </multiselect>
-          </div>
-          <button class="btn btn-primary" id="fitnessDiv-btn" v-on:click="mutate" type="button">Edit</button>
-        </div>
-      </div>
-      <div class="form-group">
-        <!-- nickname field-->
-        <label for="nickname">Nickname: </label>
-        <div class="edit-area">
-          <input type="text" class="form-control" v-model="nickname" id="nickname" name="nickname"
-                 placeholder="Your Nickname..." disabled>
-          <button class="btn btn-primary" id="nickname-btn" v-on:click="mutate" type="button">Edit</button>
-        </div>
-      </div>
-      <div class="form-group">
-        <!-- gender field -->
-        <label for="gender">Gender: *</label>
-        <div class="edit-area">
-          <div id="genderDiv" class="multiselect--disabled multiselect-box">
-            <multiselect v-model="gender" id="gender"
-                         :options="genders" placeholder="Your gender" required>
-              <template slot="noResult">Invalid gender</template>
-            </multiselect>
-          </div>
-          <button class="btn btn-primary" id="genderDiv-btn" v-on:click="mutate" type="button">Edit</button>
-        </div>
-      </div>
-      <div class="form-group">
-        <!-- date-of-birth field-->
-        <label for="date_of_birth">Date of Birth: *</label>
-        <div class="edit-area">
-          <input type="date" class="form-control" v-model="date_of_birth" id="date_of_birth" name="date_of_birth" disabled required>
-          <button class="btn btn-primary" id="date_of_birth-btn" v-on:click="mutate" type="button">Edit</button>
-        </div>
-      </div>
-      <div class="form-group">
-        <!-- passport country -->
-        <label for="passports">Passport Country:</label>
-        <div class="edit-area">
-          <div id="passportsDiv" class="multiselect--disabled multiselect-box">
-          <multiselect v-model="passports" id="passports"
-                       :options="countries" :multiple="true" :searchable="true" :close-on-select="false"
-                       placeholder="Select your passport countries">
-            <template slot="noResult">Country not found</template>
-          </multiselect>
-          </div>
-          <button class="btn btn-primary" id="passportsDiv-btn" v-on:click="mutate" type="button">Edit</button>
-        </div>
-      </div>
-    <div class="form-group">
-      <!-- user bio -->
-      <label for="bio">Tell us about yourself, your Bio: </label>
-      <div class="edit-area">
-        <textarea name="bio" class="form-control" id="bio" v-model="bio" cols="30" rows="2" placeholder="Who are you?"
-                  disabled></textarea>
-        <button class="btn btn-primary" id="bio-btn" v-on:click="mutate" type="button">Edit</button>
+      <div class="alert alert-success alert-dismissible fade show sticky-top" role="alert" id="alert" hidden>
+        <p id="alert-message"><strong>{{ code }}</strong>{{ message }}</p>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
     </div>
-  </div>
+    <div v-if="loggedIn">
+      <Sidebar/>
+      <div class="settings-page" v-if="this.isMyProfile">
+        <div class="container-fluid" v-if="loggedIn">
+          <div class="form-group">
+            <!-- first-name field-->
+            <label for="firstname">First Name: *</label>
+            <div class="edit-area">
+              <input type="text" class="form-control" v-model="firstname" id="firstname" name="firstname"
+                     placeholder="Your First Name..." required disabled>
+              <button class="btn btn-primary" id="firstname-btn" v-on:click="mutate" type="button">Edit</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <!-- middle-name field-->
+            <label for="middlename">Middle Name: </label>
+            <div class="edit-area">
+              <input type="text" class="form-control" v-model="middlename" id="middlename" name="middlename"
+                     placeholder="Your Middle Name..." disabled>
+              <button class="btn btn-primary" id="middlename-btn" v-on:click="mutate" type="button">Edit</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <!-- last-name field-->
+            <label for="lastname">Last Name: *</label>
+            <div class="edit-area">
+              <input type="text" class="form-control" v-model="lastname" id="lastname" name="lastname"
+                     placeholder="Your Last Name..." required disabled>
+              <button class="btn btn-primary" id="lastname-btn" v-on:click="mutate" type="button">Edit</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <!-- fitness level field -->
+            <label for="fitness">Fitness Level:</label>
+            <div class="edit-area">
+              <div id="fitnessDiv" class="multiselect--disabled multiselect-box">
+                <multiselect v-model="fitness" id="fitness" :options="fitnessOptions" :multiple="false" label="desc" :return="fitnessOptions.desc"
+                             placeholder="Please select a fitness level" track-by="value">
+                  <template slot="singleLabel" slot-scope="{ option }"><footer> {{ option.desc }}</footer></template>
+                </multiselect>
+              </div>
+              <button class="btn btn-primary" id="fitnessDiv-btn" v-on:click="mutate" type="button">Edit</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <!-- nickname field-->
+            <label for="nickname">Nickname: </label>
+            <div class="edit-area">
+              <input type="text" class="form-control" v-model="nickname" id="nickname" name="nickname"
+                     placeholder="Your Nickname..." disabled>
+              <button class="btn btn-primary" id="nickname-btn" v-on:click="mutate" type="button">Edit</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <!-- gender field -->
+            <label for="gender">Gender: *</label>
+            <div class="edit-area">
+              <div id="genderDiv" class="multiselect--disabled multiselect-box">
+                <multiselect v-model="gender" id="gender"
+                             :options="genders" placeholder="Your gender" required>
+                  <template slot="noResult">Invalid gender</template>
+                </multiselect>
+              </div>
+              <button class="btn btn-primary" id="genderDiv-btn" v-on:click="mutate" type="button">Edit</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <!-- date-of-birth field-->
+            <label for="date_of_birth">Date of Birth: *</label>
+            <div class="edit-area">
+              <input type="date" class="form-control" v-model="date_of_birth" id="date_of_birth" name="date_of_birth" disabled required>
+              <button class="btn btn-primary" id="date_of_birth-btn" v-on:click="mutate" type="button">Edit</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <!-- passport country -->
+            <label for="passports">Passport Country:</label>
+            <div class="edit-area">
+              <div id="passportsDiv" class="multiselect--disabled multiselect-box">
+                <multiselect v-model="passports" id="passports"
+                             :options="countries" :multiple="true" :searchable="true" :close-on-select="false"
+                             placeholder="Select your passport countries">
+                  <template slot="noResult">Country not found</template>
+                </multiselect>
+              </div>
+              <button class="btn btn-primary" id="passportsDiv-btn" v-on:click="mutate" type="button">Edit</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <!-- user bio -->
+            <label for="bio">Tell us about yourself, your Bio: </label>
+            <div class="edit-area">
+            <textarea name="bio" class="form-control" id="bio" v-model="bio" cols="30" rows="2" placeholder="Who are you?"
+                      disabled></textarea>
+              <button class="btn btn-primary" id="bio-btn" v-on:click="mutate" type="button">Edit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div v-if="this.isMyProfile === false">
+        Redirecting!!!
+      </div>
+    </div>
+
+
+
   </div>
 </template>
 
@@ -147,14 +159,16 @@
             countries: [],
             genders: ['Male', 'Female', 'Non-Binary'],
             loggedIn: false,
-            fitnessOptions: fitnessLevels
+            fitnessOptions: fitnessLevels,
+            isMyProfile: null
           }
         },
         mounted() {
-            this.fetchCountries();
+          this.checkUser();
+          this.fetchCountries();
+          //Populate input fields with profile data
+          this.updateInputs();
 
-            //Populate input fields with profile data
-            this.updateInputs();
         },
         methods: {
           fetchCountries: function () {
@@ -318,6 +332,28 @@
                   this.$router.push("/login");
                 }
               });
+            },
+
+            checkUser() {
+              server.get(`/check-profile/${this.$route.params.userId}`,
+                {
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Token': sessionStorage.getItem("token"),
+                  },
+                }
+              ).then(() => {
+                // 200
+                this.isMyProfile = true;
+              }).catch(() => {
+                // 403
+                this.isMyProfile = false;
+                setTimeout(() => {this.$router.push(`/profile/13/details`)}, 3);
+                // this.checkUser();
+                // this.fetchCountries();
+                // //Populate input fields with profile data
+                // this.updateInputs();
+              })
             }
         }
     }

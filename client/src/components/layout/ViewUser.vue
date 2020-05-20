@@ -114,7 +114,7 @@
                 })
             },
             editProfile () {
-                this.$router.push('/profile/details');
+                this.$router.push(`/profile/${this.user.id}/details`);
             }
         }
     }

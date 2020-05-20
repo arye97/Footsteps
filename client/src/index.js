@@ -19,7 +19,7 @@ export default new Router({
   {path: '/register', component: Register},
   {path: '/profile', component: ViewUser},
   {path: '/profile/emails', component: EditEmail},
-  {path: "/profile/details", component: Details},
+  {path: '/profile/:userId/details', component: Details},
 
   // otherwise redirect to home
   { path: '/*', redirect: '/login' }
