@@ -141,7 +141,7 @@
 </template>
 <script>
     import server from '../../Api';
-    import {tokenStore} from "../../main";
+    // import {tokenStore} from "../../main";
     import Sidebar from '../../components/layout/ProfileEditSidebar';
     export default {
         name: "EditEmail",
@@ -169,7 +169,7 @@
                 {
                     headers: {
                         'Content-Type': 'application/json',
-                               'Token': tokenStore.state.token
+                               'Token': sessionStorage.getItem("token")
                     },
                     withCredentials: true
                 }
@@ -309,7 +309,7 @@
                             {
                                 headers: {
                                     'Content-Type': 'application/json',
-                                           'Token': tokenStore.state.token,
+                                           'Token': sessionStorage.getItem("token"),
                                            'email': emailTextBox
                                 },
                                 withCredentials: true
@@ -381,7 +381,7 @@
                             headers: {
                                 "Access-Control-Allow-Origin": "*",
                                                "content-type": "application/json",
-                                                      "Token": tokenStore.state.token
+                                                      "Token": sessionStorage.getItem("token")
                             },
                             withCredentials: true
                         }
@@ -421,7 +421,7 @@
                             headers: {
                                 "Access-Control-Allow-Origin": "*",
                                                "content-type": "application/json",
-                                                      "Token": tokenStore.state.token
+                                                      "Token": sessionStorage.getItem("token")
                             },
                             withCredentials: true
                         }

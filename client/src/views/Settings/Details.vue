@@ -122,7 +122,7 @@
     import Header from '../../components/Header/Header.vue'
     import server from "../../Api";
     import {getCountryNames, fitnessLevels} from '../../constants';
-    import {tokenStore} from "../../main";
+    // import {tokenStore} from "../../main";
     import {validateUser, getDateString} from "../../util"
 
     export default {
@@ -258,7 +258,7 @@
               //Sends the put request to the server to update the user profile
               let result = true;
                 await server.put('profiles/'.concat(this.profileId), update,
-                  {headers: {'Content-Type': 'application/json', 'Token': tokenStore.state.token},
+                  {headers: {'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")},
                     withCredentials: true
                   }
                 ).then(() => {
@@ -295,7 +295,7 @@
             updateInputs: function () {
               //Updates the input fields to contain the info stored in the database
               server.get('/profiles',
-                      {headers: {'Content-Type': 'application/json', 'Token': tokenStore.state.token},
+                      {headers: {'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")},
                         withCredentials: true
               }, ).then(response => {
                 this.profileId = response.data.id;
