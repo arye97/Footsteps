@@ -421,15 +421,15 @@ class UserControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
-/*    @Test
-    *//** Tests that a user can view another users profile *//*
+    @Test
+    /** Tests that a user can view another users profile */
     public void viewProfileSuccess() throws Exception {
         // Set up two users
         setupMocking(createUserJsonViewUser1);
         // Get the id of the second user
         long userId = fakeUser.getUserId();
         // Request the second user
-        MockHttpServletRequestBuilder getRequest = MockMvcRequestBuilders.get("/profiles/" + userId)
+        MockHttpServletRequestBuilder getRequest = MockMvcRequestBuilders.get("/profiles/{id}", userId)
                 .header("Token", validToken);
         MvcResult result = mvc.perform(getRequest)
                 .andExpect(status().isOk())
@@ -440,5 +440,5 @@ class UserControllerTest {
         // Check that the right user has been retrieved
         assertEquals("Larry", jsonNode.get("firstname").asText());
         assertEquals("Cucumber", jsonNode.get("lastname").asText());
-    }*/
+    }
 }

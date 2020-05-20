@@ -165,9 +165,11 @@ public class User {
 
     public boolean isTimedOut() {
         ///time calculated in milliseconds
-        Date now = new Date();
-        long diff = now.getTime() - tokenTime.getTime();
-        return diff >= tokenDecayTime || diff < 0;
+        if (this.tokenTime != null) {
+            Date now = new Date();
+            long diff = now.getTime() - tokenTime.getTime();
+            return diff >= tokenDecayTime || diff < 0;
+        } else return true; //Default to the user being timed out
     }
 
     public void setTokenTime() {
