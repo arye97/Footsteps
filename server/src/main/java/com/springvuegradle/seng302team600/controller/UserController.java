@@ -162,4 +162,20 @@ public class UserController {
         response.setStatus(HttpServletResponse.SC_OK); //200
     }
 
+    /**
+     * Takes a token and a user id and queries the repository
+     * to check if a user is logged in with a provided token.
+     * @param request the http request to the endpoint
+     * @param response the http response
+     * @param profileId user id obtained from the request url
+     */
+    @GetMapping("/check-profile/{profileId}")
+    public void checkIfProfileMatchesToken(HttpServletRequest request,
+                                           HttpServletResponse response,
+                                           @PathVariable(value = "profileId") Long profileId) {
+        System.out.println("hey");
+        String token = request.getHeader("Token");
+        User user = userService.findByUserId(token, profileId);
+        System.out.println(user);
+    }
 }
