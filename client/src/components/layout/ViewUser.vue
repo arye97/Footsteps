@@ -45,7 +45,7 @@
 
 <script>
     import server from "../../Api";
-    import {tokenStore} from '../../main';
+    // import {tokenStore} from '../../main';
     import {fitnessLevels} from '../../constants'
     import {getDateString} from '../../util'
     import Header from '../../components/Header/Header';
@@ -67,7 +67,7 @@
             this.loading = true;
             await server.get(  '/profiles',
                 {headers:
-                        {"Access-Control-Allow-Origin": "*", 'Content-Type': 'application/json', 'Token': tokenStore.state.token}, withCredentials: true
+                        {"Access-Control-Allow-Origin": "*", 'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")}, withCredentials: true
                 }, )
             .then(response => {
                 if (response.status === 200) {
@@ -98,13 +98,14 @@
             logout () {
                 server.post('/logout', null,
                     {
-                        headers: {"Access-Control-Allow-Origin": "*", "content-type": "application/json", 'Token': tokenStore.state.token},
+                        headers: {"Access-Control-Allow-Origin": "*", "content-type": "application/json", 'Token': sessionStorage.getItem("token")},
                         withCredentials: true
                     }
                 ).then(response => {
                     console.log(response);
                     console.log('User logged out successfully!');
-                    tokenStore.setToken(null);
+                    sessionStorage.clear();
+                    // tokenStore.setToken(null);
                     this.$router.push('/'); //Routes to home on logout
                 }).catch(error => {
                     console.error(error);
