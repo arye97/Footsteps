@@ -17,11 +17,11 @@
                 <div class="row h-100 align-items-center">
                     <div class="col-12 text-center">
                         <h1 class="font-weight-light">Welcome to Hakinakina</h1>
-                        <p class="lead">Plan your route with the best</p><br/>
-                        <h1>
+                        <p class="lead">Plan your route with the best</p>
+                        <h1 class="font-weight-light">
                             Register with us<br/>
                         </h1>
-                        Entries marked with * are required
+                        Entries marked with * are required<br/><br/>
                     </div>
                 </div>
             </div>
