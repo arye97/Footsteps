@@ -5,6 +5,19 @@ tag_checker:
   only:
     - tags
 
+
+image: gradle:alpine
+variables:
+  SONAR_TOKEN: "0a1467036e853397c101cf62ed6658536721f7e4"
+  SONAR_HOST_URL: "https://csse-s302g6.canterbury.ac.nz/sonarqube/"
+  GIT_DEPTH: 0
+sonarqube-check:
+  stage: test
+  script: gradle sonarqube -Dsonar.qualitygate.wait=true
+  allow_failure: true
+  only:
+    - development
+
 junit:
   stage: test
   script:
