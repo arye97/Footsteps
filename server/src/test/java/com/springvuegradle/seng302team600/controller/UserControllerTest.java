@@ -53,6 +53,10 @@ class UserControllerTest {
     private String jsonLoginDetailsIncorrectPass;
     private String jsonLoginDetailsUserNotFound;
     private String createUserJsonPostLogout;
+    private String editPasswordUserJson;
+    private String jsonPasswordChangeSuccess;
+    private String jsonPasswordChangeFail;
+    private String jsonPasswordSame;
 
     private ObjectMapper objectMapper;
 
@@ -164,10 +168,38 @@ class UserControllerTest {
                 "  \"password\": \"bobbyPwd\"\n" +
                 "}";
 
+        editPasswordUserJson = "{\n" +
+                "  \"lastname\": \"Doe\",\n" +
+                "  \"firstname\": \"Jane\",\n" +
+                "  \"primary_email\": \"janedoe@gmail.com\",\n" +
+                "  \"password\": \"password1\",\n" +
+                "  \"date_of_birth\": \"1980-6-5\",\n" +
+                "  \"gender\": \"Female\"\n" +
+                "}";
+
+        jsonPasswordChangeSuccess = "{\n" +
+                "  \"old_password\": \"password1\",\n" +
+                "  \"new_password\": \"password2\",\n" +
+                "  \"repeat_password\": \"password2\"\n" +
+                "}";
+
+        jsonPasswordChangeFail = "{\n" +
+                "  \"old_password\": \"password1\",\n" +
+                "  \"new_password\": \"password2\",\n" +
+                "  \"repeat_password\": \"password3\"\n" +
+                "}";
+
+        jsonPasswordSame = "{\n" +
+                "  \"old_password\": \"password1\",\n" +
+                "  \"new_password\": \"password1\",\n" +
+                "  \"repeat_password\": \"password1\"\n" +
+                "}";
+
         objectMapper = new ObjectMapper();
         MockitoAnnotations.initMocks(this);
         dummyUser = new User();
     }
+
     private void setupMocking(String json) throws JsonProcessingException {
         setupMockingNoEmail(json);
         when(emailRepository.existsEmailByEmail(Mockito.anyString())).thenAnswer(i -> {
@@ -386,4 +418,86 @@ class UserControllerTest {
         mvc.perform(editRequest)
                 .andExpect(status().isUnauthorized());
     }
+
+//    /**
+//     * Helper method to build a request to change the password of a user.  Gets the UserID from the current user
+//     * (might need to be changed when we get users by ID)
+//     * and change the user's password by their ID.
+//     * @param jsonPasswordChange a json put request to change the password
+//     * @return the request that is built.
+//     * @throws Exception
+//     */
+//    private MockHttpServletRequestBuilder createUserChangePassword(String jsonPasswordChange) throws Exception{
+//        // Get current User
+//        MockHttpServletRequestBuilder getRequest = MockMvcRequestBuilders.get("/profiles")
+//                .header("Token", validToken);
+//        MvcResult result = mvc.perform(getRequest)
+//                .andExpect(status().isOk())
+//                .andReturn();
+//        String jsonResponseStr = result.getResponse().getContentAsString();
+//        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
+//        Long userId = jsonNode.get("id").asLong();
+////        String passHash = jsonNode.get("password").asText();
+//        System.out.println("UserID of User: " + userId);
+////        System.out.println("Pass Hash Password Usr: " + passHash);
+//
+//
+//        // Edit their password
+//        MockHttpServletRequestBuilder editPassReq = MockMvcRequestBuilders.put("/profiles/{id}/password", userId)
+//                .content(jsonPasswordChangeSuccess)
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .accept(MediaType.APPLICATION_JSON)
+//                .header("Token", validToken);
+//        return editPassReq;
+//    }
+//
+//    @Test
+//    /**
+//     * Test creating a user and editing they're password when the password and repeated password match.
+//     * NOTE: as of now there is no simple way to tell if a password has been updated because password
+//     * hashes are not returned when retrieving a user.  Though they could be tested by logging in,
+//     * logging out, changing password, and trying to log in again.
+//     */
+//    public void changePasswordSuccessTest() throws Exception {
+//
+//        // Create user
+//        setupMockingNoEmail(editPasswordUserJson);
+//
+//        MockHttpServletRequestBuilder editPassReq = createUserChangePassword(jsonPasswordChangeSuccess);
+//
+//        // Perform PUT and check if successful
+//        mvc.perform(editPassReq)
+//                .andExpect(status().isOk());
+//    }
+//
+//    @Test
+//    /**
+//     * Test creating a user and editing they're password when the password and repeated password NO NOT match.
+//     */
+//    public void changePasswordFailTest() throws Exception {
+//        // Create user
+//        setupMocking(editPasswordUserJson);
+//
+//        MockHttpServletRequestBuilder editPassReq = createUserChangePassword(jsonPasswordChangeFail);
+//
+//        // Perform PUT and check if successful
+//        mvc.perform(editPassReq)
+//                .andExpect(status().isBadRequest());
+//    }
+//
+//    @Test
+//    /**
+//     * Test creating a user and editing they're password when the new password is the same as the old password
+//     * (new passwords can't match old passwords).
+//     */
+//    public void changePasswordNewEqualsOldTest() throws Exception {
+//        // Create user
+//        setupMocking(editPasswordUserJson);
+//
+//        MockHttpServletRequestBuilder editPassReq = createUserChangePassword(jsonPasswordSame);
+//
+//        // Perform PUT and check if successful
+//        mvc.perform(editPassReq)
+//                .andExpect(status().isBadRequest());
+//    }
 }
