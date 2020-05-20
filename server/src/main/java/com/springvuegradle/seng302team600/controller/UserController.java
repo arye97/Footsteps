@@ -50,15 +50,14 @@ public class UserController {
 
     /**
      * Return a User saved in the repository based on the user id
+     * @param request the http request
      * @param response the http response
      * @return User requested or null
      */
     @GetMapping("/profiles/{profileId}")
-    public User findSpecificUserData(HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) {
-        User user = userService.viewUserById(profileId);
-        if (user == null) {
-            return null;
-        }
+    public User findSpecificUserData(HttpServletRequest request, HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) {
+        String token = request.getHeader("Token");
+        User user = userService.viewUserById(profileId, token);
         user.setTransientEmailStrings();
         // Security breach if password is sent to the client
         user.setPassword(null);

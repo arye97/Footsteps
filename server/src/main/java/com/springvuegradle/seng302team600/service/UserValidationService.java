@@ -118,9 +118,11 @@ public class UserValidationService {
     /**
      * Finds a user by the id
      * @param id the user id of the requested user
+     * @param token the user login token
      * @return the user requested or ResponseStatusException is the user is not found
      */
-    public User viewUserById(Long id) {
+    public User viewUserById(Long id, String token) {
+        findByToken(token); // Checks that a user is logged in
         User user = userRepository.findByUserId(id);
         if (user != null) {
             return user;

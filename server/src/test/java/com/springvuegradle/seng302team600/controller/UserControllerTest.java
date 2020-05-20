@@ -59,8 +59,10 @@ class UserControllerTest {
     private ObjectMapper objectMapper;
 
     private User dummyUser;
+    private User fakeUser; // Used when a second user is required
     private RegisterRequest regReq;
     private Email dummyEmail;
+    private Email fakeEmail; // Used for the second (fake) user
     private String validToken = "valid";
 
     @BeforeEach
@@ -141,7 +143,7 @@ class UserControllerTest {
                 "  \"firstname\": \"Larry\",\n" +
                 "  \"primary_email\": \"larry@gmail.com\",\n" +
                 "  \"password\": \"larrysPassword\",\n" +
-                "  \"date_of_birth\": \"2002-01-20\",\n" +
+                "  \"date_of_birth\": \"2002-1-20\",\n" +
                 "  \"gender\": \"Female\"\n" +
                 "}";
 
@@ -224,6 +226,18 @@ class UserControllerTest {
         }).when(userValidationService).logout(Mockito.anyString());
         dummyUser.setToken(validToken);
         dummyUser.setTokenTime();
+
+        // Second user
+        fakeUser = new User();
+        regReq = objectMapper.treeToValue(objectMapper.readTree(createUserJsonViewUser2), RegisterRequest.class);
+        fakeUser = fakeUser.builder(regReq);
+        fakeEmail = new Email(fakeUser.getPrimaryEmail(), true, fakeUser);
+        ReflectionTestUtils.setField(fakeUser, "userId", 10L);
+        ReflectionTestUtils.setField(fakeEmail, "id", 10L);
+        when(userValidationService.viewUserById(Mockito.anyLong(), Mockito.anyString())).thenAnswer(i -> {
+            if ((long) i.getArgument(0) == 10L && i.getArgument(1) == validToken) return fakeUser;
+            else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        });
     }
 
     @Test
@@ -406,20 +420,17 @@ class UserControllerTest {
         mvc.perform(editRequest)
                 .andExpect(status().isUnauthorized());
     }
-/*
-    @Test
+
+/*    @Test
     *//** Tests that a user can view another users profile *//*
     public void viewProfileSuccess() throws Exception {
         // Set up two users
         setupMocking(createUserJsonViewUser1);
-        User fakeUser = new User();
-        regReq = objectMapper.treeToValue(objectMapper.readTree(createUserJsonViewUser2), RegisterRequest.class);
-        fakeUser = fakeUser.builder(regReq);
-        ReflectionTestUtils.setField(fakeUser, "userId", 10L);
         // Get the id of the second user
         long userId = fakeUser.getUserId();
         // Request the second user
-        MockHttpServletRequestBuilder getRequest = MockMvcRequestBuilders.get("/profiles/" + userId);
+        MockHttpServletRequestBuilder getRequest = MockMvcRequestBuilders.get("/profiles/" + userId)
+                .header("Token", validToken);
         MvcResult result = mvc.perform(getRequest)
                 .andExpect(status().isOk())
                 .andReturn();
@@ -427,7 +438,6 @@ class UserControllerTest {
         String jsonResponseStr = result.getResponse().getContentAsString();
         JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
         // Check that the right user has been retrieved
-        // assertNotNull(jsonNode); TODO: Currently this line passes uncommented - ie somewhere it's returning null!
         assertEquals("Larry", jsonNode.get("firstname").asText());
         assertEquals("Cucumber", jsonNode.get("lastname").asText());
     }*/
