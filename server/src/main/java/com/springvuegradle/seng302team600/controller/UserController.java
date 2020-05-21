@@ -32,7 +32,7 @@ public class UserController {
     private static final String OLD_PASSWORD_FIELD = "old_password";
     private static final String NEW_PASSWORD_FIELD = "new_password";
     private static final String REPEAT_PASSWORD_FIELD = "repeat_password";
-    private static int MIN_PASS_LEN = 8;
+    private static final String PASSWORD_RULES_REGEX = "(?=.*[0-9])(?=.*[a-z])(?=\\S+$).{8,}";
 
 
     public UserController(UserRepository userRepository, EmailRepository emailRepository, UserValidationService userService) {
@@ -211,7 +211,7 @@ public class UserController {
      * @return true if it passes the rules
      */
     private Boolean passwordPassesRules(String password) {
-        return password.length() > MIN_PASS_LEN;  // Could add more rules later.  Update javadoc with rules
+        return password.matches(PASSWORD_RULES_REGEX);
     }
 
 }
