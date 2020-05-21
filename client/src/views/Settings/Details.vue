@@ -166,7 +166,7 @@
           }
         },
         mounted() {
-          this.checkUser();
+          this.validateUserIdWithToken();
           this.fetchCountries();
           //Populate input fields with profile data
           this.updateInputs();
@@ -336,7 +336,11 @@
               });
             },
 
-            checkUser() {
+          /**
+           * Checks if a user id from query parameter is logged in with token provided.
+           * Called to prevent a user from editing another user's profile
+           */
+          validateUserIdWithToken() {
               server.get(`/check-profile/${this.$route.params.userId}`,
                 {
                   headers: {
@@ -350,11 +354,7 @@
               }).catch(() => {
                 // 403
                 this.isMyProfile = false;
-                setTimeout(() => {this.$router.push(`/profile/13/details`)}, 3);
-                // this.checkUser();
-                // this.fetchCountries();
-                // //Populate input fields with profile data
-                // this.updateInputs();
+                // redirect to edit profile
               })
             }
         }

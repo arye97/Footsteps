@@ -3,7 +3,9 @@
         <div class="container">
             <div class="row">
                 <div class="col-sm-12 ">
-                    <Header />
+                    <template v-if="this.loading === false">
+                        <Header :userId="this.user.id"/>
+                    </template>
                     <h1>
                         <br/><br/>
                     </h1>
@@ -115,7 +117,6 @@
             },
             editProfile () {
                 this.$router.push({name: 'details', params:  { userId: this.user.id }});
-
             }
         }
     }
