@@ -305,13 +305,23 @@ class UserControllerTest {
         assertEquals("Tim", jsonNode.get("firstname").asText());
     }
 
+    /**
+     * Helper function that creates a mock request to login a user
+     * @param jsonLoginDetails a json string of login details with keys email: password:
+     * @return the created request
+     */
+    private MockHttpServletRequestBuilder buildLoginRequest(String jsonLoginDetails) {
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/login")
+                .content(jsonLoginDetails)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+        return request;
+    }
+
     @Test
     public void doNotLoginIncorrectPassword() throws Exception {
         setupMocking(createUserJsonPostLogin);
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/login")
-                .content(jsonLoginDetailsIncorrectPass)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON);
+        MockHttpServletRequestBuilder request = buildLoginRequest(jsonLoginDetailsIncorrectPass);
 
         mvc.perform(request)
                 .andExpect(status().isUnauthorized());
@@ -320,10 +330,7 @@ class UserControllerTest {
     @Test
     public void doNotLoginUserNotFound() throws Exception {
         setupMocking(createUserJsonPostLogin);
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/login")
-                .content(jsonLoginDetailsUserNotFound)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON);
+        MockHttpServletRequestBuilder request = buildLoginRequest(jsonLoginDetailsUserNotFound);
 
         mvc.perform(request)
                 .andExpect(status().isUnauthorized());
@@ -332,10 +339,7 @@ class UserControllerTest {
     @Test
     public void loginAuthorizedUser() throws Exception {
         setupMocking(createUserJsonPostLogin);
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/login")
-                .content(jsonLoginDetails)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON);
+        MockHttpServletRequestBuilder request = buildLoginRequest(jsonLoginDetails);
 
         MvcResult result = mvc.perform(request)
                 .andExpect(status().isCreated())
