@@ -2,7 +2,7 @@ export function validateUser(fieldData, fieldType) {
     const emailRegex = new RegExp(/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/);
     const nameRegex = new RegExp(/^[a-zA-Z\s]+([a-zA-Z\s]+)*$/);
     const middleNameRegex = new RegExp(/^[a-zA-Z_]*$/);
-    const passwordRegex = new RegExp(/(?=.*[0-9])(?=.*[a-z])(?=\S+$).{8,}/);
+    const passwordRegex = new RegExp(/(?=.*[0-9])(?=.*[a-zA-Z])(?=\S+$).{8,}/);
     switch (fieldType) {
         case "gender":
             return {valid: fieldData === "Male" || fieldData === "Female" || fieldData === "Non-Binary"};
