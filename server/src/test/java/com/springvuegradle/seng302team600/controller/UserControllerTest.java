@@ -464,7 +464,10 @@ class UserControllerTest {
     }
 
     @Test
-    public void checkIfProfileMatchesTokenSuccess() throws Exception {
+    /**
+     * Successful test to check if a token is logged in with given user id
+     */
+    public void checkIfUserIdMatchesTokenSuccess() throws Exception {
         setupMockingNoEmail(createUserJsonPost);
 
         //Log in
@@ -481,16 +484,13 @@ class UserControllerTest {
     }
 
     @Test
-    public void checkIfProfileMatchesTokenFailure() throws Exception {
+    /**
+     * Unsuccessful test to check if a token is logged in with given user id
+     * that that throws a 403 Forbidden
+     */
+    public void checkIfUserIdMatchesTokenForbidden() throws Exception {
         setupMockingNoEmail(createUserJsonPost);
         long userId = fakeUser.getUserId();
-        System.out.println(fakeUser);
-        System.out.println(fakeUser.getUserId());
-        System.out.println(fakeUser.getToken());
-
-        System.out.println(dummyUser);
-        System.out.println(dummyUser.getUserId());
-        System.out.println(dummyUser.getToken());
 
         //Log in
         MockHttpServletRequestBuilder getRequestToLogin = MockMvcRequestBuilders.get("/profiles")
@@ -504,10 +504,5 @@ class UserControllerTest {
                 .header("Token", validToken);
         mvc.perform(getRequestCheckToken)
                 .andExpect(status().isForbidden());
-
-
-
-        // Function to check if user and token logged in as same
-        // If not match we get 403 forbidden
     }
 }

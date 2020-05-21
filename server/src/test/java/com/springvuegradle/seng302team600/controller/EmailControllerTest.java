@@ -474,19 +474,3 @@ class EmailControllerTest {
                 .andExpect(status().isBadRequest());
     }
 }
-
-
-
-
-// find a user email
-// adding email (POST)
-//    - success when no exist
-//    - fail when email provided is user's primary email (like email is already used by user)
-//    - pass when email provided is already the user's additional email (like email is already used by user)
-// updating email (PUT)
-// - pass when no additional emails
-// - pass when existing additional emails
-//          - WHEN ANOTHER USER HAS IT!!!!!
-// check if email exists
-
-

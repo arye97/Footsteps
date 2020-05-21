@@ -170,7 +170,7 @@ public class UserController {
      * @param profileId user id obtained from the request url
      */
     @GetMapping("/check-profile/{profileId}")
-    public void checkIfProfileMatchesToken(HttpServletRequest request,
+    public void checkIfUserIdMatchesToken(HttpServletRequest request,
                                            HttpServletResponse response,
                                            @PathVariable(value = "profileId") Long profileId) {
         String token = request.getHeader("Token");
