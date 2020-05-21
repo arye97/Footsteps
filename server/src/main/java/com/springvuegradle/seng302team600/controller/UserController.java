@@ -174,6 +174,6 @@ public class UserController {
                                            HttpServletResponse response,
                                            @PathVariable(value = "profileId") Long profileId) {
         String token = request.getHeader("Token");
-        User user = userService.findByUserId(token, profileId);
+        userService.findByUserId(token, profileId);
     }
 }

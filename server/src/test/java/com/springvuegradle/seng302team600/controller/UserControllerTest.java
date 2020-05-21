@@ -25,6 +25,8 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Arrays;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -211,8 +213,14 @@ class UserControllerTest {
         when(userRepository.findByUserId(Mockito.anyLong())).thenReturn(dummyUser);
         when(emailRepository.existsEmailByEmail(Mockito.anyString())).thenReturn(false);
         when(userValidationService.findByUserId(Mockito.anyString(), Mockito.anyLong())).thenAnswer(i -> {
-            if (i.getArgument(0).equals(dummyUser.getToken()) && i.getArgument(1).equals(dummyUser.getUserId())) return dummyUser;
-            else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            System.out.println(Arrays.toString(i.getArguments()));
+            if (i.getArgument(0).equals(dummyUser.getToken()) && i.getArgument(1).equals(dummyUser.getUserId()))
+                return dummyUser;
+            else if ((i.getArgument(0).equals(dummyUser.getToken())) && !(i.getArgument(1).equals(dummyUser.getUserId())))
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            else
+                System.out.println("HASSSSSSS");
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         });
         ReflectionTestUtils.setField(dummyUser, "userId", 1L);
         ReflectionTestUtils.setField(dummyEmail, "id", 1L);
@@ -238,6 +246,18 @@ class UserControllerTest {
             if ((long) i.getArgument(0) == 10L && i.getArgument(1) == validToken) return fakeUser;
             else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         });
+
+
+//        when(userRepository.findByUserId(Mockito.anyLong())).thenReturn(fakeUser);
+//        when(userValidationService.findByUserId(Mockito.anyString(), Mockito.anyLong())).thenAnswer(i -> {
+//            if (i.getArgument(0).equals(fakeUser.getToken()) && i.getArgument(1).equals(fakeUser.getUserId()))
+//                return fakeUser;
+//            else if ((i.getArgument(0).equals(fakeUser.getToken())) && !(i.getArgument(1).equals(fakeUser.getUserId())))
+//                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+//            else
+//                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+//        });
+
     }
 
     @Test
@@ -415,10 +435,8 @@ class UserControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .header("Token", validToken);
 
-        MockHttpServletRequestBuilder getRequest = MockMvcRequestBuilders.get("/profiles")
-                .header("Token", validToken);
         mvc.perform(editRequest)
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -443,5 +461,53 @@ class UserControllerTest {
         assertEquals("larry@gmail.com", jsonNode.get("primary_email").asText());
         assertEquals("Female", jsonNode.get("gender").asText());
         assertEquals("2002-01-20", jsonNode.get("date_of_birth").asText());
+    }
+
+    @Test
+    public void checkIfProfileMatchesTokenSuccess() throws Exception {
+        setupMockingNoEmail(createUserJsonPost);
+
+        //Log in
+        MockHttpServletRequestBuilder getRequestToLogin = MockMvcRequestBuilders.get("/profiles")
+                .header("Token", validToken);
+        mvc.perform(getRequestToLogin)
+                .andExpect(status().isOk());
+
+        //Check if user id matches the token logged in
+        MockHttpServletRequestBuilder getRequestCheckToken = MockMvcRequestBuilders.get("/check-profile/{id}", dummyUser.getUserId())
+                .header("Token", validToken);
+        mvc.perform(getRequestCheckToken)
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void checkIfProfileMatchesTokenFailure() throws Exception {
+        setupMockingNoEmail(createUserJsonPost);
+        long userId = fakeUser.getUserId();
+        System.out.println(fakeUser);
+        System.out.println(fakeUser.getUserId());
+        System.out.println(fakeUser.getToken());
+
+        System.out.println(dummyUser);
+        System.out.println(dummyUser.getUserId());
+        System.out.println(dummyUser.getToken());
+
+        //Log in
+        MockHttpServletRequestBuilder getRequestToLogin = MockMvcRequestBuilders.get("/profiles")
+                .header("Token", validToken);
+        mvc.perform(getRequestToLogin)
+                .andExpect(status().isOk());
+
+        //Check token
+        System.out.println(userId);
+        MockHttpServletRequestBuilder getRequestCheckToken = MockMvcRequestBuilders.get("/check-profile/{id}", userId)
+                .header("Token", validToken);
+        mvc.perform(getRequestCheckToken)
+                .andExpect(status().isForbidden());
+
+
+
+        // Function to check if user and token logged in as same
+        // If not match we get 403 forbidden
     }
 }
