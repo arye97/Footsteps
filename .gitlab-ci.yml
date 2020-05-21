@@ -37,7 +37,7 @@ dev-build:
     - npm install
     - npm run build
     - cd ../server
-    - ./gradlew bootJar
+    - ./gradlew bootJar -PspringProfile=dev
     - cd ..
     - mkdir -p ../client-dev/
     - mkdir -p ../server-dev/
@@ -57,13 +57,13 @@ release-build:
     - npm install
     - npm run build-prod
     - cd ../server
-    - ./gradlew bootJar
+    - ./gradlew bootJar -PspringProfile=prod
     - cd ..
     - mkdir -p ../client-prod/
     - mkdir -p ../server-prod/
     - cp -r ./client/dist/ ../client-prod/
     - cp -r ./server/build/libs ../server-prod/
-#    - bash startProdApplication /tmp 2>> /dev/null >>/dev/null
+    - bash startProdApplication /tmp 2>> /dev/null >>/dev/null
  artifacts:
     paths:
     - client/dist
