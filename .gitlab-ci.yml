@@ -13,7 +13,12 @@ variables:
   GIT_DEPTH: 0
 sonarqube-check:
   stage: test
-  script: ./gradlew sonarqube -Dsonar.qualitygate.wait=true
+  script:
+    - cd server
+    - ./gradlew sonarqube -Dsonar.qualitygate.wait=true
+    - cd ../client
+    - npm install
+    - npm run sonarqube
   allow_failure: true
   only:
     - development
