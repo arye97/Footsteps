@@ -59,6 +59,7 @@ class UserControllerTest {
     private String jsonPasswordChangeSuccess;
     private String jsonPasswordChangeFail;
     private String jsonPasswordSame;
+    private String jsonPasswordFailsRules;
 
     private ObjectMapper objectMapper;
 
@@ -205,6 +206,12 @@ class UserControllerTest {
                 "  \"old_password\": \"password1\",\n" +
                 "  \"new_password\": \"password1\",\n" +
                 "  \"repeat_password\": \"password1\"\n" +
+                "}";
+
+        jsonPasswordFailsRules = "{\n" +
+                "  \"old_password\": \"password1\",\n" +
+                "  \"new_password\": \"pass\",\n" +
+                "  \"repeat_password\": \"pass\"\n" +
                 "}";
 
         objectMapper = new ObjectMapper();
@@ -514,10 +521,25 @@ class UserControllerTest {
         // Create user
         setupMocking(jsonEditPasswordUser);
 
-        MockHttpServletRequestBuilder editPassReq = buildUserChangePassword(jsonPasswordSame);
 
-        // Perform PUT and check if successful
+        // Change password
+        MockHttpServletRequestBuilder editPassReq = buildUserChangePassword(jsonPasswordSame);
         mvc.perform(editPassReq)
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest());   // Don't think there is any other way to test this than bad request
+    }
+
+    @Test
+    /**
+     * Test creating a user and changing their password to a password that violates the password rules
+     */
+    public void changePasswordFailsRules() throws Exception {
+        // Create user
+        setupMocking(jsonEditPasswordUser);
+
+
+        // Change password
+        MockHttpServletRequestBuilder editPassReq = buildUserChangePassword(jsonPasswordFailsRules);
+        mvc.perform(editPassReq)
+                .andExpect(status().isBadRequest());   // Don't think there is any other way to test this than bad request
     }
 }

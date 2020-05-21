@@ -191,6 +191,10 @@ public class UserController {
         } else if (!newPassword.equals(repeatPassword)) {
             System.out.println("Don't match");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
+        // New Password matches old password
+        } else if (newPassword.equals(oldPassword)) {
+            System.out.println("You need to choose a different new password");
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
         // Password violates password rules
         } else if (!passwordPassesRules(newPassword)) {
             System.out.println("Wrong rules");
