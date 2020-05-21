@@ -100,6 +100,7 @@
         },
         mounted() {
             //TODO when get profile/id is available it should be used, instead of one below. Also must find universal way of getting and storing the subject userId, can be and may not be the client's user.
+            //Get the user's id from server
             server.get('profiles/',
                 {headers:
                         {'Content-Type': 'application/json',
@@ -151,17 +152,19 @@
             checkPasswords() {
                 let isError = false;
                 if (this.repeatPass !== this.newPass) {
-                    this.message = 'New and repeated passwords must match';
+                    this.message = "Your New and Repeated passwords don't match.";
                     isError = true;
                 }
                 if (!validateUser(this.newPass, 'password').valid) {
-                    this.message = 'New password is invalid';
+                    this.message = 'New password is invalid, please try again.';
                     isError = true;
                 }
                 // old password is checked on server side
                 if (isError) {
                     this.showMessage('form_message', isError);
                     return false;
+                } else {
+                    document.getElementById('form_message').hidden = true;
                 }
                 return true;
             },
@@ -170,6 +173,11 @@
              */
             editPassword() {
                 if (!this.checkPasswords()) {
+                    return;
+                }
+                if (this.oldPass === this.newPass) {
+                    this.message = 'Your New password equals your current password. Click the Back button or try again.';
+                    this.showMessage('form_message', true);
                     return;
                 }
                 server.put('profiles/'.concat(this.userId).concat('/password'),
@@ -181,14 +189,14 @@
                                     'Token': tokenStore.state.token}
                     }).then(response => {
                         if (response.status === 200) {
-                            this.message = 'New password was saved successfully';
+                            this.message = 'Your New password was saved successfully';
                             this.showMessage('form_message', false);
                         }
                     }).catch(error => {
                         if (error.response.data.status === 401) {
                             this.$router.push("/login");
                         } else if (error.response.status === 400) {
-                            this.message = 'Incorrect Old password, please try again';
+                            this.message = 'The given Old password was incorrect, please try again.';
                         } else if (error.response.data.status === 403) {
                             this.message = 'You are not authorized to edit this user';
                         } else if (error.response.data.status === 404) {
