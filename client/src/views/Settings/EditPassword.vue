@@ -32,6 +32,16 @@
         </section>
 
         <section v-else>
+            <footer class="text-center">
+                <hr/>Password rules:<br/>
+            </footer>
+            <footer>
+                <ul>
+                    <li>Must contain 8 characters</li>
+                    <li>Must contain at least one letter</li>
+                    <li>Must contain at least one number</li>
+                </ul>
+            </footer><br/>
             <form v-on:submit.prevent="editPassword">
                 <div class="form-group text-center">
                     <input type="password"
@@ -218,5 +228,8 @@
 </script>
 
 <style scoped>
-
+    ul {
+        display: table;
+        margin: 0 auto;
+    }
 </style>
