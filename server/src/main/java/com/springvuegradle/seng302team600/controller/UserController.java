@@ -69,8 +69,6 @@ public class UserController {
 
 
         User newUser = new User();
-        //TODO remove println below
-        System.out.println(newUserData.getFirstName());
         newUser.builder(newUserData);
         //Throws errors if user is erroneous
         newUser.isValid();
@@ -155,7 +153,11 @@ public class UserController {
 
     /**
      * If the current user has authorization edit the users password.  Only edits the password
-     * if the old password given in the request body matches the current password.
+     * if the following conditions hold:
+     *     old_password doesn't equal the user's password
+     *     new_password != repeat_password
+     *     new_password == old_password    (New pass can't be the same as old)
+     *     new_password passes regular expression rules
      * @param jsonEditPasswordString the json body of the request as a string of the form
      *                              old_password, new_password, repeat_password
      * @param request the http request to the endpoint
@@ -166,37 +168,35 @@ public class UserController {
     @PutMapping("/profiles/{profileId}/password")
     public void editPassword(@RequestBody String jsonEditPasswordString, HttpServletRequest request,
                             HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) throws IOException {
-        System.out.println("Got request to edit password");
+
         String token = request.getHeader("Token");
-        ObjectMapper nodeMapper = new ObjectMapper();
         //ResponseStatusException thrown if user unauthorized or forbidden from accessing requested user
         User user = userService.findByUserId(token, profileId);   // Get the user to modify
-        System.out.println("User " + user.toString() + " " + user.getUserId() + ' ');
-        System.out.println("JSON: " + jsonEditPasswordString);
+        ObjectMapper nodeMapper = new ObjectMapper();
         ObjectNode modData = nodeMapper.readValue(jsonEditPasswordString, ObjectNode.class);
-        System.out.println(modData);
 
         String oldPassword = modData.get(OLD_PASSWORD_FIELD).asText();
         String newPassword = modData.get(NEW_PASSWORD_FIELD).asText();
         String repeatPassword = modData.get(REPEAT_PASSWORD_FIELD).asText();
 
+
         // Old Password doesn't match current password (invalid password)
-        System.out.println("Old password:" + oldPassword);
         if (!user.checkPassword(oldPassword)) {
-            System.out.println("Wrong pass");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
+
         // New Password and Repeated Password don't match
         } else if (!newPassword.equals(repeatPassword)) {
-            System.out.println("Don't match");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
+
         // New Password matches old password
         } else if (newPassword.equals(oldPassword)) {
-            System.out.println("You need to choose a different new password");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
+
         // Password violates password rules
         } else if (!passwordPassesRules(newPassword)) {
-            System.out.println("Wrong rules");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
+
+        // Success!
         } else {
             user.setPassword(newPassword);
             user.isValid();   // If this user has authorization
@@ -208,7 +208,7 @@ public class UserController {
 
     /**
      * Checks is a password complies with the password rules.
-     * i.e. has to be a certain length or have certain characters.
+     * Password has to be longer than 8 characters and have at least one digit.
      * @param password plaintext password
      * @return true if it passes the rules
      */
