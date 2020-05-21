@@ -37,7 +37,7 @@
             </footer>
             <footer>
                 <ul>
-                    <li>Must contain 8 characters</li>
+                    <li>Must contain at least 8 characters</li>
                     <li>Must contain at least one letter</li>
                     <li>Must contain at least one number</li>
                 </ul>
