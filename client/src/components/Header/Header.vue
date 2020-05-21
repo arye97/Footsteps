@@ -1,6 +1,5 @@
 
 <template>
-
         <nav :key=this.isLoggedIn class="navbar navbar-expand-lg navbar-light bg-light shadow fixed-top">
             <div class="container">
                 <!--The below v-on:click does: If your logged in, go to your profile.  Else go to the main page.-->
@@ -17,7 +16,10 @@
                             <router-link to='/register' class="nav-link">Register</router-link>
                         </li>
                         <li v-if=this.isLoggedIn class="nav-item">
-                            <router-link to='/profile/details' class="nav-link">Edit Profile</router-link>
+                            <router-link
+                                         :to="{ name: 'details',
+                                                params: { userId: this.userId } }"
+                                         class="nav-link">Edit Profile</router-link>
                         </li>
                         <li class="nav-item">
                             <router-link to="" v-if="this.isLoggedIn" v-on:click.native="logout" class="nav-link">Logout</router-link>
@@ -38,12 +40,12 @@
         isLoggedIn: false,
         data: function () {
             return {
-                isLoggedIn : sessionStorage.getItem("token") !== null
+                isLoggedIn : sessionStorage.getItem("token") !== null,
             }
         },
+        props: ['userId'],
         watch: {
             isLoggedIn: function () {
-
                 this.setIsLoggedIn();
             }
         },

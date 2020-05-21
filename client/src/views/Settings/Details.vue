@@ -6,7 +6,9 @@
         <div class="container">
           <div class="row">
             <div class="col-sm-6 offset-sm-3">
-              <Header />
+              <template v-if="loggedIn">
+                <Header :userId="profileId"/>
+              </template>
               <router-view></router-view>
             </div>
           </div>
@@ -20,7 +22,7 @@
       </div>
     </div>
     <div v-if="loggedIn">
-      <Sidebar/>
+      <Sidebar :userId="profileId"/>
       <div class="settings-page" v-if="this.isMyProfile">
         <div class="container-fluid" v-if="loggedIn">
           <div class="form-group">

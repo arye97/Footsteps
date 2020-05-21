@@ -44,7 +44,7 @@ public class UserController {
         user.setTransientEmailStrings();
         //Security breach if password sent to client
         user.setPassword(null);
-        user.setToken(null);
+//        user.setToken(null);
         response.setStatus(HttpServletResponse.SC_OK); //200
         return user;
     }
@@ -62,7 +62,7 @@ public class UserController {
         user.setTransientEmailStrings();
         // Security breach if password is sent to the client
         user.setPassword(null);
-        user.setToken(null);
+//        user.setToken(null);
         response.setStatus(HttpServletResponse.SC_OK); //200
         return user;
     }
@@ -173,9 +173,7 @@ public class UserController {
     public void checkIfProfileMatchesToken(HttpServletRequest request,
                                            HttpServletResponse response,
                                            @PathVariable(value = "profileId") Long profileId) {
-        System.out.println("hey");
         String token = request.getHeader("Token");
         User user = userService.findByUserId(token, profileId);
-        System.out.println(user);
     }
 }

@@ -3,7 +3,7 @@
     <div class="container">
         <div class="row">
             <div class="col-sm-6 offset-sm-3">
-                <Header />
+<!--                <Header />-->
             </div>
         </div>
     </div>
@@ -14,7 +14,10 @@
 
         <ul class="sidebar-items">
             <li class>
-                <router-link to="/profile/details" class="sidebar-item">
+                <router-link
+                        :to="{ name: 'details',
+                               params: { userId: this.userId } }"
+                        class="nav-link">
                     <span class="sidebar-item-name">Details</span>
                 </router-link>
             </li>
@@ -36,12 +39,13 @@
 </template>
 
 <script>
-    import Header from '../Header/Header';
+    // import Header from '../Header/Header';
     export default {
         name: "Sidebar",
-        components: {
-            Header
-        }
+        // components: {
+        //     Header
+        // },
+        props: ['userId'],
     }
 </script>
 

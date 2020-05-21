@@ -1,17 +1,20 @@
 <template>
     <div>
         <h1><br/></h1>
-        <div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm-6 offset-sm-3">
-                        <Header />
-                        <router-view></router-view>
+        <template v-if="userId">
+            <div>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-6 offset-sm-3">
+                            <Header :userId="userId"/>
+                            <router-view></router-view>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    <Sidebar/>
+            <Sidebar :userId="userId"/>
+        </template>
+
 
         <h1><br/></h1>
         <header class="masthead">

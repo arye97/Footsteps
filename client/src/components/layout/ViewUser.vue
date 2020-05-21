@@ -114,7 +114,8 @@
                 })
             },
             editProfile () {
-                this.$router.push(`/profile/${this.user.id}/details`);
+                this.$router.push({name: 'details', params:  { userId: this.user.id }});
+
             }
         }
     }

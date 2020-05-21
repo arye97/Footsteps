@@ -57,7 +57,6 @@ export function getDateString(date_of_birth) {
     let date = new Date(date_of_birth);
     let offset = date.getTimezoneOffset();
     date.setMinutes(date.getMinutes() - offset);
-    console.log(date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate());
     const month = date.getMonth() + 1;
     const day = date.getDate();
     return date.getFullYear() + '-'
