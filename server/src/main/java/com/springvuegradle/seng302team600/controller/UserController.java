@@ -25,14 +25,12 @@ public class UserController {
     private final UserRepository userRepository;
     private final EmailRepository emailRepository;
 
-    // json Field names for creating/editing a User
-    private static final String PASSWORD_FIELD = "password";
 
     // json Field names for Editing a password U5
     private static final String OLD_PASSWORD_FIELD = "old_password";
     private static final String NEW_PASSWORD_FIELD = "new_password";
     private static final String REPEAT_PASSWORD_FIELD = "repeat_password";
-    private static final String PASSWORD_RULES_REGEX = "(?=.*[0-9])(?=.*[a-z])(?=\\S+$).{8,}";
+    private static final String PASSWORD_RULES_REGEX = "(?=.*[0-9])(?=.*[a-zA-Z])(?=\\S+$).{8,}";
 
 
     public UserController(UserRepository userRepository, EmailRepository emailRepository, UserValidationService userService) {

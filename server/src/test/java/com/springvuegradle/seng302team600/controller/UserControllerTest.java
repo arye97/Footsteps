@@ -67,6 +67,8 @@ class UserControllerTest {
     private RegisterRequest regReq;
     private Email dummyEmail;
     private String validToken = "valid";
+    private static final Long DEFAULT_USER_ID = 1L;
+    private static final Long DEFAULT_EMAIL_ID = 1L;
 
     @BeforeEach
     public void setUp() {
@@ -187,13 +189,13 @@ class UserControllerTest {
 
         jsonEditPasswordLoginDetails2 = "{\n" +
                 "  \"email\": \"janedoe@gmail.com\",\n" +
-                "  \"password\": \"password2\"\n" +
+                "  \"password\": \"PASSword2\"\n" +
                 "}";
 
         jsonPasswordChangeSuccess = "{\n" +
                 "  \"old_password\": \"password1\",\n" +
-                "  \"new_password\": \"password2\",\n" +
-                "  \"repeat_password\": \"password2\"\n" +
+                "  \"new_password\": \"PASSword2\",\n" +
+                "  \"repeat_password\": \"PASSword2\"\n" +
                 "}";
 
         jsonPasswordChangeFail = "{\n" +
@@ -243,8 +245,8 @@ class UserControllerTest {
             if (i.getArgument(0).equals(dummyUser.getToken()) && i.getArgument(1).equals(dummyUser.getUserId())) return dummyUser;
             else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         });
-        ReflectionTestUtils.setField(dummyUser, "userId", 1L);
-        ReflectionTestUtils.setField(dummyEmail, "id", 1L);
+        ReflectionTestUtils.setField(dummyUser, "userId", DEFAULT_USER_ID);
+        ReflectionTestUtils.setField(dummyEmail, "id", DEFAULT_EMAIL_ID);
         when(userValidationService.login(Mockito.anyString(),Mockito.anyString())).thenAnswer(i -> {
                 if (i.getArgument(0).equals(dummyEmail.getEmail()) && dummyUser.checkPassword(i.getArgument(1))) return "ValidToken";
                 else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
@@ -454,7 +456,7 @@ class UserControllerTest {
 
         // Getting the user Id by using /profiles sets the password in the User to null, which breaks the tests.
         // So for now its set explicitly
-        Long userId = 1L;
+        Long userId = DEFAULT_USER_ID;
 
         // Edit their password
         MockHttpServletRequestBuilder editPassReq = MockMvcRequestBuilders.put("/profiles/{id}/password", userId)
