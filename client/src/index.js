@@ -12,6 +12,7 @@ Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
 
 export default new Router({
+  base: process.env.VUE_APP_BASE_URL,
   mode: 'history',
   routes: [
   {path: '/', component: Home},
