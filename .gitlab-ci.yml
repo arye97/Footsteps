@@ -56,8 +56,7 @@ release-build:
     - mkdir -p ../server-prod/
     - cp -r ./client/dist/ ../client-prod/
     - cp -r ./server/build/libs ../server-prod/
-    # - java -jar ../server-prod/libs/server-0.0.1-SNAPSHOT.jar --server.port=8999 # convert to be run with service
-    # - serve -s ../client-prod/dist -l 9000 # convert to be run with service
+#    - bash startProdApplication /tmp 2>> /dev/null >>/dev/null
  artifacts:
     paths:
     - client/dist

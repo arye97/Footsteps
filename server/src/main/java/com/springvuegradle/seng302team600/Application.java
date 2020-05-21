@@ -25,7 +25,14 @@ public class Application {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         // *** URL below needs to match the Vue client URL and port ***
-        config.setAllowedOrigins(new ArrayList(Arrays.asList("https://localhost:9000", "https://localhost:9500", "http://localhost:9000", "http://localhost:9500", "https://csse-s302g6.canterbury.ac.nz/test", "https://csse-s302g6.canterbury.ac.nz/prod")));
+        config.setAllowedOrigins(new ArrayList(Arrays.asList(
+                "http://localhost:9000",
+                "http://localhost:9500",
+                "https://csse-s302g6.canterbury.ac.nz", //Added to look into issues with invalid CORS requests
+                "https://csse-s302g6.canterbury.ac.nz/prod",
+                "https://csse-s302g6.canterbury.ac.nz/test",
+                "https://localhost:9000",
+                "https://localhost:9500")));
         config.setAllowedMethods(Collections.singletonList("*"));
         config.setAllowedHeaders(Collections.singletonList("*"));
         source.registerCorsConfiguration("/**", config);
@@ -33,5 +40,4 @@ public class Application {
         bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
         return bean;
     }
-
 }
