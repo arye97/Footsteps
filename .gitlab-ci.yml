@@ -41,6 +41,8 @@ dev-build:
     - bash startTestApplication /tmp 2>> /dev/null >>/dev/null
   except:
     - tags
+  only:
+    - development
 
 release-build:
  stage: deploy
