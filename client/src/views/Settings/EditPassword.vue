@@ -162,6 +162,8 @@
                 if (isError) {
                     this.showMessage('form_message', isError);
                     return false;
+                } else {
+                    document.getElementById('form_message').hidden = true;
                 }
                 return true;
             },
