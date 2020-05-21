@@ -121,7 +121,8 @@
         </div>
       </div>
       <div v-if="this.isMyProfile === false">
-        Redirecting!!!
+        Sorry, you are not allowed to edit another user's profile,<br/>
+        Redirecting to your edit profile page.
       </div>
     </div>
 
@@ -165,12 +166,11 @@
             isMyProfile: null
           }
         },
-        mounted() {
-          this.validateUserIdWithToken();
+        async mounted() {
           this.fetchCountries();
           //Populate input fields with profile data
-          this.updateInputs();
-
+          await this.updateInputs();
+          this.validateUserIdWithToken();
         },
         methods: {
           fetchCountries: function () {
@@ -256,7 +256,7 @@
                         mutateButton.type = "button";
                       }
                       this.message = "This is a required field. Please enter some valid data";
-                }
+                    }
                 } else {
                     if (mutateTarget.className === "multiselect--disabled multiselect-box") {
                         mutateTarget.className = "multiselect--above multiselect-box";
@@ -308,9 +308,9 @@
                 return result;
             },
 
-            updateInputs: function () {
+            async updateInputs() {
               //Updates the input fields to contain the info stored in the database
-              server.get('/profiles',
+              await server.get('/profiles',
                       {headers: {'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")},
                         withCredentials: true
               }, ).then(response => {
@@ -354,7 +354,10 @@
               }).catch(() => {
                 // 403
                 this.isMyProfile = false;
-                // redirect to edit profile
+                setTimeout(() => {
+                  this.$router.push({ name: 'details', params: { userId: this.profileId } });
+                  this.isMyProfile = true;
+                }, 4000)
               })
             }
         }
