@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-nohup java -jar ../server-prod/libs/server-0.0.1-SNAPSHOT.jar --server.port=8999 & # convert to be run with service
+nohup java -Dspring.profiles.active=prod -jar ../server-prod/libs/server-0.0.1-SNAPSHOT.jar --server.port=8999 & # convert to be run with service
 nohup serve -s ../client-prod/dist -l 9000 & # convert to be run with service

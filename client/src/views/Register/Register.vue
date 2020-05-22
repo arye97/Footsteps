@@ -162,8 +162,9 @@
 
     function showError(alert_name) {
         let errorAlert = document.getElementById(alert_name);
+        
         errorAlert.hidden = false;          //Show alert bar
-        setTimeout(function () {    //Hide alert bar after ~5000ms
+        setTimeout(function () {    //Hide alert bar after ~9000ms
             errorAlert.hidden = true;
         }, 9000);
     }
