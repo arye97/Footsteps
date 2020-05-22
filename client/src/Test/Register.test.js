@@ -1,4 +1,3 @@
-
 import {shallowMount} from '@vue/test-utils'
 import Register from '../views/Register/Register.vue'
 import { _isValidDOB } from '../util'
@@ -107,7 +106,7 @@ test('AC9 User is taken to homepage on register', ()=> {
     registerWrapper.setData({...userdata, ...{passwordCheck: extraData.passwordCheck, email: extraData.primary_email, fitness: extraData.fitness}});
     return registerWrapper.vm.registerUser().then(() => {
         expect(registerWrapper.vm.server.post).toHaveBeenCalledWith("/profiles", {...userdata, ...{primary_email: extraData.primary_email}},
-            {"headers": {"Access-Control-Allow-Origin": "*", "content-type": "application/json"}, "withCredentials": true});
+            {"headers": {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json"}, "withCredentials": true});
         expect(spy).toHaveBeenCalledWith("/profile");
     });
 });

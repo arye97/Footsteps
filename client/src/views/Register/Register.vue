@@ -283,7 +283,7 @@
                 await server.post('/profiles',
                     newUser,
                     {
-                        headers: {"Access-Control-Allow-Origin": "*", "content-type": "application/json"},
+                        headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
                         withCredentials: true
                     }
                 ).then(response => { //If successfully registered the response will have a status of 201

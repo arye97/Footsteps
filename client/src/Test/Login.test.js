@@ -48,7 +48,7 @@ test('AC9 User is taken to homepage on login', ()=> {
     loginWrapper = shallowMount(Login, {router, mocks: {server}});
     loginWrapper.setData({...userdata, ...{message:""}});
     return loginWrapper.vm.login().then(() => {
-        expect(loginWrapper.vm.server.post).toHaveBeenCalledWith("/login", userdata, {"headers": {"Access-Control-Allow-Origin": "*", "content-type": "application/json"}, "withCredentials": true});
+        expect(loginWrapper.vm.server.post).toHaveBeenCalledWith("/login", userdata, {"headers": {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json"}, "withCredentials": true});
         expect(spy).toHaveBeenCalledWith("/profile");
     });
 });

@@ -100,7 +100,7 @@
             logout () {
                 server.post('/logout', null,
                     {
-                        headers: {"Access-Control-Allow-Origin": "*", "content-type": "application/json", 'Token': sessionStorage.getItem("token")},
+                        headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json", 'Token': sessionStorage.getItem("token")},
                         withCredentials: true
                     }
                 ).then(response => {
