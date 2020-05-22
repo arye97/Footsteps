@@ -88,7 +88,7 @@ test('AC9 User is taken to homepage on register', ()=> {
         firstname: 'Test',
         middlename: '',
         lastname: 'Testers',
-        password: 'ITestForALiving',
+        password: 'ITestForALiving1',
         gender: 'Male',
         date_of_birth: '10-10-1999',
         fitness: 1,
