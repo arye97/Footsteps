@@ -12,20 +12,20 @@ Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
 
 export default new Router({
-  mode: 'history',
-  routes: [
-  {path: '/', component: Home},
-  {path: '/login', component: Login},
-  {path: '/register', component: Register},
-  {path: '/profile', component: ViewUser},
-  {path: '/profile/emails', component: EditEmail},
-  {
-    path: '/profile/:userId/details',
-    name: 'details',
-    component: Details
-  },
+    mode: 'history',
+    routes: [
+        {path: '/', component: Home},
+        {path: '/login', component: Login},
+        {path: '/register', component: Register},
+        {path: '/profile/:userId', name: "profile", component: ViewUser},
+        {path: '/profiles/emails', component: EditEmail},
+        {
+            path: '/profile/:userId/details',
+            name: 'details',
+            component: Details
+        },
 
-  // otherwise redirect to home
-  { path: '/*', redirect: '/login' }
-  ]
+        // otherwise redirect to home
+        { path: '/*', redirect: '/login' }
+    ]
 });

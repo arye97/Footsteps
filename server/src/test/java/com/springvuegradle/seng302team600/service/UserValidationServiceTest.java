@@ -3,6 +3,7 @@ package com.springvuegradle.seng302team600.service;
 import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.RegisterRequest;
+import com.springvuegradle.seng302team600.payload.UserResponse;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -116,9 +117,9 @@ class UserValidationServiceTest {
 
     @Test
     public void loginAuthorizedUsers() {
-        String token = userService.login(userData.getPrimaryEmail(), userData.getPassword());
-        assertNotNull(token);
-        assertEquals(token, dummyUser.getToken());
+        UserResponse userResponse = userService.login(userData.getPrimaryEmail(), userData.getPassword());
+        assertNotNull(userResponse);
+        assertEquals(userResponse, dummyUser.getToken());
     }
 
     @Test

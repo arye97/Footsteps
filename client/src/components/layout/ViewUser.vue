@@ -62,12 +62,16 @@
                 loading: true,
                 errored: false,
                 fitness: null,
-                formattedDate: ""
+                formattedDate: "",
+                userId: null
             }
         },
         async mounted() {
             this.loading = true;
-            await server.get(  '/profiles',
+            let url = window.location.pathname;
+            this.userId = url.substring(url.lastIndexOf('/') + 1);
+            console.log(this.userId);
+            await server.get(  `/profiles/${this.userId}`,
                 {headers:
                         {"Access-Control-Allow-Origin": "*", 'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")}, withCredentials: true
                 }, )

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.RegisterRequest;
+import com.springvuegradle.seng302team600.payload.UserResponse;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.service.UserValidationService;
@@ -73,11 +74,10 @@ public class UserController {
      * @param response the http response
      */
     @PostMapping("/profiles")
-    public String newUser(@Validated @RequestBody RegisterRequest newUserData, HttpServletResponse response) {
+    public UserResponse newUser(@Validated @RequestBody RegisterRequest newUserData, HttpServletResponse response) {
         if (emailRepository.existsEmailByEmail(newUserData.getPrimaryEmail())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email: " + newUserData.getPrimaryEmail() + " is already registered"); //409. It may be worth consider to a 200 error for security reasons
         }
-
 
         User newUser = new User();
         newUser.builder(newUserData);
@@ -88,9 +88,9 @@ public class UserController {
         //If mandatory fields not given, exception in UserRepository.save ends function execution and makes response body
         //Gives request status:400 and specifies needed field if null in required field
         userRepository.save(newUser);
-        String token = userService.login(newUserData.getPrimaryEmail(), newUserData.getPassword());
+        UserResponse userResponse = userService.login(newUserData.getPrimaryEmail(), newUserData.getPassword());
         response.setStatus(HttpServletResponse.SC_CREATED); //201
-        return token;
+        return userResponse;
     }
 
     /**
@@ -101,16 +101,16 @@ public class UserController {
      * @return token to be stored by the client.
      */
     @PostMapping("/login")
-    public String logIn(@RequestBody String jsonLogInString, HttpServletResponse response) throws JsonProcessingException {
+    public UserResponse logIn(@RequestBody String jsonLogInString, HttpServletResponse response) throws JsonProcessingException {
         ObjectNode node = new ObjectMapper().readValue(jsonLogInString, ObjectNode.class);
 
         if (node.has("email") && node.has("password")) {
             String email = node.get("email").toString().replace("\"", "");
             String password = node.get("password").toString().replace("\"", "");
             //ResponseStatusException thrown if email or password incorrect
-            String token = userService.login(email, password);
+            UserResponse userResponse = userService.login(email, password);
             response.setStatus(HttpServletResponse.SC_CREATED); //201
-            return token;
+            return userResponse;
         }
         //email and/or password fields not given
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400

@@ -10,7 +10,9 @@
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item active">
-                            <router-link v-if=this.isLoggedIn to="/profile" class="nav-link">Home</router-link>
+                            <router-link v-if=this.isLoggedIn
+                                         :to="{name: 'profile', params: {userId: this.userId} }"
+                                         class="nav-link">Home</router-link>
                         </li>
                         <li v-if=!this.isLoggedIn class="nav-item">
                             <router-link to='/register' class="nav-link">Register</router-link>
