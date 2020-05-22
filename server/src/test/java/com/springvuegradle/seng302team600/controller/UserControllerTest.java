@@ -54,8 +54,7 @@ class UserControllerTest {
     private String jsonLoginDetailsUserNotFound;
     private String createUserJsonPostLogout;
     private String jsonEditPasswordUser;
-    private String jsonEditPasswordLoginDetails1;
-    private String jsonEditPasswordLoginDetails2;
+    private String jsonEditPasswordLoginDetails;
     private String jsonPasswordChangeSuccess;
     private String jsonPasswordChangeFail;
     private String jsonPasswordSame;
@@ -182,12 +181,7 @@ class UserControllerTest {
                 "  \"gender\": \"Female\"\n" +
                 "}";
 
-        jsonEditPasswordLoginDetails1 = "{\n" +
-                "  \"email\": \"janedoe@gmail.com\",\n" +
-                "  \"password\": \"password1\"\n" +
-                "}";
-
-        jsonEditPasswordLoginDetails2 = "{\n" +
+        jsonEditPasswordLoginDetails = "{\n" +
                 "  \"email\": \"janedoe@gmail.com\",\n" +
                 "  \"password\": \"PASSword2\"\n" +
                 "}";
@@ -493,7 +487,7 @@ class UserControllerTest {
                 .andExpect(status().isOk());
 
         // Login with new password
-        MockHttpServletRequestBuilder loginRequest2 = buildLoginRequest(jsonEditPasswordLoginDetails2);
+        MockHttpServletRequestBuilder loginRequest2 = buildLoginRequest(jsonEditPasswordLoginDetails);
         mvc.perform(loginRequest2)
                 .andExpect(status().isCreated());
     }
