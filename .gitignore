@@ -36,3 +36,8 @@ out/
 ### Mac Specific ###
 .DS_Store
 **/.DS_Store
+
+### SonarQube ###
+client/.scannerwork/
+client/coverage/
+client/test-report.xml
