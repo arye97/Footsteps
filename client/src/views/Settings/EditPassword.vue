@@ -93,6 +93,8 @@
     import {tokenStore} from "../../main";
     import {validateUser} from "../../util";
 
+    const TIMEOUT_DURRATON = 5000;   // Time for error/success messages to disappear
+
     export default {
         name: "EditPassword",
         components: { Sidebar },
@@ -152,7 +154,7 @@
                         msgAlert.hidden = true;
                     }
                     self.timeoutFlag -= 1;
-                }, 5000)
+                }, TIMEOUT_DURRATON)
             },
             /**
              * Checks if newPass is valid and if repeatPass is equal to newPass.
