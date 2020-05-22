@@ -19,6 +19,7 @@ sonarqube-check:
     - ./gradlew sonarqube
     - cd ../client
     - npm install
+    - npm run test
     - npm run sonarqube
   allow_failure: true
   only:
