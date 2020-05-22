@@ -37,7 +37,7 @@ dev-build:
     - npm install
     - npm run build
     - cd ../server
-    - ./gradlew bootJar -PspringProfile=dev
+    - ./gradlew bootJar
     - cd ..
     - mkdir -p ../client-dev/
     - mkdir -p ../server-dev/
@@ -57,7 +57,7 @@ release-build:
     - npm install
     - npm run build-prod
     - cd ../server
-    - ./gradlew bootJar -PspringProfile=prod
+    - ./gradlew bootJar
     - cd ..
     - mkdir -p ../client-prod/
     - mkdir -p ../server-prod/
