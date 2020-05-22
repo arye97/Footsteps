@@ -109,6 +109,7 @@ public class User {
     @JsonProperty("passports")
     private List<String> passports;
 
+    private int role;
 
     public enum Gender {
         @JsonProperty("Male")
@@ -403,6 +404,14 @@ public class User {
 
     public boolean removePassport(String passport) {
         return passports.remove(passport);
+    }
+
+    public int getRole() {
+        return role;
+    }
+
+    public void setRole(int role) {
+        this.role = role;
     }
 
     /**
