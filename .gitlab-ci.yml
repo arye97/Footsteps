@@ -15,9 +15,8 @@ sonarqube-check:
   stage: test
   script:
     - cd server
-    - ./gradlew clean
     - ./gradlew build
-    - ./gradlew sonarqube -Dsonar.qualitygate.wait=true
+    - ./gradlew sonarqube
     - cd ../client
     - npm install
     - npm run sonarqube
