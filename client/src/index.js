@@ -7,6 +7,8 @@ import EditEmail from "./views/EditEmails/EditEmail";
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import Details from "./views/Settings/Details.vue";
 import ViewUser from "./components/layout/ViewUser.vue";
+import EditPassword from "./views/Settings/EditPassword";
+
 Vue.use(Router);
 Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
@@ -21,6 +23,7 @@ export default new Router({
   {path: '/profile', component: ViewUser},
   {path: '/profile/emails', component: EditEmail},
   {path: "/profile/details", component: Details},
+  {path: "/profile/password", component: EditPassword},
 
   // otherwise redirect to home
   { path: '/*', redirect: '/login' }

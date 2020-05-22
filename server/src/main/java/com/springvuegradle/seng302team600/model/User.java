@@ -449,4 +449,9 @@ public class User {
             return ageDate.after(DoB);
         }
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s %s at %s", firstName, lastName, primaryEmail);
+    }
 }
