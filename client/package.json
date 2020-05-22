@@ -57,7 +57,7 @@
     "last 2 versions"
   ],
   "jest": {
-    "testEnvironment": "node",
+    "testEnvironment": "jsdom",
     "coveragePathIgnorePatterns": [
       "/node_modules/"
     ],
