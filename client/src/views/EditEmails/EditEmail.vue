@@ -399,7 +399,7 @@
                         {
                             headers: {
                                 "Access-Control-Allow-Origin": "*",
-                                               "content-type": "application/json",
+                                               "Content-Type": "application/json",
                                                       "Token": sessionStorage.getItem("token")
                             },
                             withCredentials: true
@@ -440,7 +440,7 @@
                         {
                             headers: {
                                 "Access-Control-Allow-Origin": "*",
-                                               "content-type": "application/json",
+                                               "Content-Type": "application/json",
                                                       "Token": sessionStorage.getItem("token")
                             },
                             withCredentials: true

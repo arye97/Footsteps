@@ -95,7 +95,7 @@
                 server.post('/login',
                     userLogin,
                     {
-                        headers: {"Access-Control-Allow-Origin": "*", "content-type": "application/json"},
+                        headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
                         withCredentials: true
                     }
                 ).then(response => { //If successfully logged the response will have a status of 201

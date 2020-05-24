@@ -1,5 +1,6 @@
 import {shallowMount} from '@vue/test-utils'
 import HomeLayout from '../components/layout/HomeLayout.vue'
+import "jest"
 
 let homeLayout;
 let push;
