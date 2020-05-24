@@ -3,7 +3,7 @@ import Router from 'vue-router'
 import Login from './views/Login/Login.vue'
 import Register from './views/Register/Register.vue'
 import Home from './views/Home/Home.vue'
-import EditEmail from "./views/EditEmails/EditEmail";
+import EditEmail from "./views/Settings/EditEmail";
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import Details from "./views/Settings/Details.vue";
 import ViewUser from "./components/layout/ViewUser.vue";
