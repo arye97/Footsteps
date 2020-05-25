@@ -72,3 +72,8 @@ release-build:
     - server/out
  only:
     - tags
+
+cache:
+  paths:  # the list of directories to cache
+    - client/node_modules
+  key: node-modules  # the cache key
