@@ -329,7 +329,6 @@
             async updateInputs() {
                 if (!this.isRedirecting) {
                     // If this point is reached user is authorized to edit the profile, and profileId has been set
-                    console.log(this.profileId);
                     await server.get('profiles/'.concat(this.profileId.toString()),
                         {headers: {'Content-Type': 'application/json',
                                                  'Token': sessionStorage.getItem("token")}}
@@ -363,7 +362,6 @@
                     this.redirectionMessage = "Sorry, you are not allowed to edit another user's profile,\n" +
                         "Redirecting to your edit profile page.";
                     setTimeout(() => {
-                        //TODO redirect to your detail page
                         this.$router.push({ name: 'detailsNoID' });
                         this.init();
                     }, 4000);
