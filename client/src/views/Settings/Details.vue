@@ -175,12 +175,15 @@
              * @see processGetError
              */
             async init() {
+                this.profileId = '';
                 this.loggedIn = false;
                 this.isRedirecting = false;
                 this.redirectionMessage = '';
                 this.fetchCountries();
-                //Populate input fields with profile data if allowed to edit
-                await this.updateInputs();
+                if (this.$route.params.userId) {
+                    await this.validateUserIdWithToken(); // If allowed to edit profileId is set
+                }
+                await this.updateInputs();//Populate input fields with profile data if allowed to edit
             },
 
             fetchCountries: function () {
@@ -324,10 +327,10 @@
              * if invalid profileId is given redirect to this user's detail page.
              */
             async updateInputs() {
-                this.validateUserIdWithToken(); // If allowed to edit profileId is set
                 if (!this.isRedirecting) {
                     // If this point is reached user is authorized to edit the profile, and profileId has been set
-                    await server.get('profiles/'.concat(this.profileId),
+                    console.log(this.profileId);
+                    await server.get('profiles/'.concat(this.profileId.toString()),
                         {headers: {'Content-Type': 'application/json',
                                                  'Token': sessionStorage.getItem("token")}}
                     ).then(response => {
@@ -360,7 +363,8 @@
                     this.redirectionMessage = "Sorry, you are not allowed to edit another user's profile,\n" +
                         "Redirecting to your edit profile page.";
                     setTimeout(() => {
-                        this.$router.push({ name: 'details', params: { userId: this.profileId } });
+                        //TODO redirect to your detail page
+                        this.$router.push({ name: 'detailsNoID' });
                         this.init();
                     }, 4000);
                 } else {
@@ -397,8 +401,8 @@
              * Called to prevent a user from editing another user's profile.
              * Checks if user can edit this given ID.
              */
-            validateUserIdWithToken() {
-                server.get(`/check-profile/${this.$route.params.userId}`,
+            async validateUserIdWithToken() {
+                await server.get(`/check-profile/`.concat(this.$route.params.userId.toString()),
                     {
                         headers: {
                             'Content-Type': 'application/json',
@@ -412,7 +416,7 @@
                 }).catch(error => {
                     this.profileId = '';
                     this.processGetError(error);
-                })
+                });
             }
         }
     }
