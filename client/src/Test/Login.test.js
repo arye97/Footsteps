@@ -43,12 +43,12 @@ test('Is a vue instance', () => {
 
 test('AC9 User is taken to homepage on login', ()=> {
     const userdata = {email: "tester@tester.com", password: "testPass"};
-    server.post.mockImplementation(() => Promise.resolve({ data: 'ValidToken', status: 201 }));
+    server.post.mockImplementation(() => Promise.resolve({ data: {'Token': 'ValidToken', 'userId': 1}, status: 201 }));
     let spy = jest.spyOn(router, 'push');
     loginWrapper = shallowMount(Login, {router, mocks: {server}});
     loginWrapper.setData({...userdata, ...{message:""}});
     return loginWrapper.vm.login().then(() => {
         expect(loginWrapper.vm.server.post).toHaveBeenCalledWith("/login", userdata, {"headers": {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json"}, "withCredentials": true});
-        expect(spy).toHaveBeenCalledWith("/profile");
+        expect(spy).toHaveBeenCalledWith({"name": "profile", "params": {"userId": 1}});
     });
 });
