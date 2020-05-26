@@ -40,6 +40,11 @@ public class User {
     @JsonProperty("id")
     private Long userId;
 
+    @NotNull(message = "This user needs a role")
+    @Column(name = "role", nullable = false)
+    @JsonProperty("role")
+    private int role;
+
     private String token;
 
     @Column(name = "token_time")
@@ -109,8 +114,6 @@ public class User {
     @JsonProperty("passports")
     private List<String> passports;
 
-    private int role;
-
     public enum Gender {
         @JsonProperty("Male")
         MALE,
@@ -124,6 +127,9 @@ public class User {
     public enum FitnessLevel {
         SEDENTARY, LOW, MEDIUM, HIGH, VERY_HIGH
     }
+
+//    public enum UserRole {USER, ADMIN, DEFAULT_ADMIN}
+
 
     /**
      * Default constructor for User.
@@ -457,5 +463,11 @@ public class User {
         } else {
             return ageDate.after(DoB);
         }
+    }
+
+
+    @Override
+    public String toString() {
+        return String.format("%s %s at %s", firstName, lastName, primaryEmail);
     }
 }

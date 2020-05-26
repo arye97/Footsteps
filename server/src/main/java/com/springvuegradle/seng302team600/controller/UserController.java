@@ -4,11 +4,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.springvuegradle.seng302team600.model.DefaultAdminUser;
 import com.springvuegradle.seng302team600.model.User;
+import com.springvuegradle.seng302team600.model.UserRole;
 import com.springvuegradle.seng302team600.payload.RegisterRequest;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.service.UserValidationService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -25,10 +29,25 @@ public class UserController {
     private final UserRepository userRepository;
     private final EmailRepository emailRepository;
 
+    private static Log log = LogFactory.getLog(UserController.class);
+
     public UserController(UserRepository userRepository, EmailRepository emailRepository, UserValidationService userService) {
         this.userRepository = userRepository;
         this.emailRepository = emailRepository;
         this.userService = userService;
+        createDefaultAdmin();
+    }
+
+    /**
+     * Checks if there is a default admin in the Database.  If there isn't, one is created and added.
+     * The email and password of the default admin are specified as environment variables in application.properties
+     */
+    private void createDefaultAdmin() {
+        if (!userRepository.existsUserByRole(UserRole.DEFAULT_ADMIN)) {
+            User defaultAdminUser = new DefaultAdminUser();
+            log.info("No Default Admin in database.  Creating: " + defaultAdminUser);
+            userRepository.save(defaultAdminUser);
+        }
     }
 
     /**
@@ -66,7 +85,7 @@ public class UserController {
         newUser.builder(newUserData);
         //Throws errors if user is erroneous
         newUser.isValid();
-        newUser.setRole(1);
+        newUser.setRole(UserRole.USER);  // Set role to a regular user
         //Saving generates user id
         //If mandatory fields not given, exception in UserRepository.save ends function execution and makes response body
         //Gives request status:400 and specifies needed field if null in required field
