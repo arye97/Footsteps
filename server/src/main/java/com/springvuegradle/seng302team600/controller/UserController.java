@@ -142,6 +142,60 @@ public class UserController {
     }
 
     /**
+     * If the current user has authorization edit the users password.  Only edits the password
+     * if the following conditions hold:
+     *     old_password doesn't equal the user's password
+     *     new_password != repeat_password
+     *     new_password == old_password    (New pass can't be the same as old)
+     *     new_password passes regular expression rules
+     * @param jsonEditPasswordString the json body of the request as a string of the form
+     *                              old_password, new_password, repeat_password
+     * @param request the http request to the endpoint
+     * @param response the http response
+     * @param profileId user id obtained from the request url
+     * @throws JsonProcessingException thrown if there is an issue when converting the body to an object node
+     */
+    @PutMapping("/profiles/{profileId}/password")
+    public void editPassword(@RequestBody String jsonEditPasswordString, HttpServletRequest request,
+                             HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) throws IOException {
+
+        String token = request.getHeader("Token");
+        //ResponseStatusException thrown if user unauthorized or forbidden from accessing requested user
+        User user = userService.findByUserId(token, profileId);   // Get the user to modify
+        ObjectMapper nodeMapper = new ObjectMapper();
+        ObjectNode modData = nodeMapper.readValue(jsonEditPasswordString, ObjectNode.class);
+
+        String oldPassword = modData.get(OLD_PASSWORD_FIELD).asText();
+        String newPassword = modData.get(NEW_PASSWORD_FIELD).asText();
+        String repeatPassword = modData.get(REPEAT_PASSWORD_FIELD).asText();
+
+
+        // Old Password doesn't match current password (invalid password)
+        if (!user.checkPassword(oldPassword)) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
+
+            // New Password and Repeated Password don't match
+        } else if (!newPassword.equals(repeatPassword)) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
+
+            // New Password matches old password
+        } else if (newPassword.equals(oldPassword)) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
+
+            // Password violates password rules
+        } else if (!passwordPassesRules(newPassword)) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
+
+            // Success!
+        } else {
+            user.setPassword(newPassword);
+            user.isValid();   // If this user has authorization
+            userRepository.save(user);
+            response.setStatus(HttpServletResponse.SC_OK); //200
+        }
+    }
+
+    /**
      * If the current user has authorization edit user with given id.
      * @param jsonEditProfileString the json body of the request as a string
      * @param request the http request to the endpoint
@@ -169,61 +223,6 @@ public class UserController {
         userRepository.save(modUser);
         response.setStatus(HttpServletResponse.SC_OK); //200
     }
-
-    /**
-     * If the current user has authorization edit the users password.  Only edits the password
-     * if the following conditions hold:
-     *     old_password doesn't equal the user's password
-     *     new_password != repeat_password
-     *     new_password == old_password    (New pass can't be the same as old)
-     *     new_password passes regular expression rules
-     * @param jsonEditPasswordString the json body of the request as a string of the form
-     *                              old_password, new_password, repeat_password
-     * @param request the http request to the endpoint
-     * @param response the http response
-     * @param profileId user id obtained from the request url
-     * @throws JsonProcessingException thrown if there is an issue when converting the body to an object node
-     */
-    @PutMapping("/profiles/{profileId}/password")
-    public void editPassword(@RequestBody String jsonEditPasswordString, HttpServletRequest request,
-                            HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) throws IOException {
-
-        String token = request.getHeader("Token");
-        //ResponseStatusException thrown if user unauthorized or forbidden from accessing requested user
-        User user = userService.findByUserId(token, profileId);   // Get the user to modify
-        ObjectMapper nodeMapper = new ObjectMapper();
-        ObjectNode modData = nodeMapper.readValue(jsonEditPasswordString, ObjectNode.class);
-
-        String oldPassword = modData.get(OLD_PASSWORD_FIELD).asText();
-        String newPassword = modData.get(NEW_PASSWORD_FIELD).asText();
-        String repeatPassword = modData.get(REPEAT_PASSWORD_FIELD).asText();
-
-
-        // Old Password doesn't match current password (invalid password)
-        if (!user.checkPassword(oldPassword)) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
-
-        // New Password and Repeated Password don't match
-        } else if (!newPassword.equals(repeatPassword)) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
-
-        // New Password matches old password
-        } else if (newPassword.equals(oldPassword)) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
-
-        // Password violates password rules
-        } else if (!passwordPassesRules(newPassword)) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
-
-        // Success!
-        } else {
-            user.setPassword(newPassword);
-            user.isValid();   // If this user has authorization
-            userRepository.save(user);
-            response.setStatus(HttpServletResponse.SC_OK); //200
-        }
-    }
-
 
     /**
      * Checks is a password complies with the password rules.

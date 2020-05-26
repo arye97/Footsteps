@@ -1,17 +1,19 @@
 <template>
     <div>
         <h1><br/></h1>
-        <div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm-6 offset-sm-3">
-                        <Header />
-                        <router-view></router-view>
+        <template v-if="userId">
+            <div>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-6 offset-sm-3">
+                            <Header :userId="this.userId"/>
+                            <router-view></router-view>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <Sidebar/>
+            <Sidebar :userId="this.userId"/>
+        </template>
 
         <h1><br/></h1>
         <header class="masthead">
@@ -90,13 +92,14 @@
 <script>
     import server from '../../Api';
     import Sidebar from '../../components/layout/ProfileEditSidebar';
+    import Header from '../../components/Header/Header.vue'
     import {validateUser} from "../../util";
 
-    const TIMEOUT_DURRATON = 5000;   // Time for error/success messages to disappear
+    const TIMEOUT_DURATION = 5000;   // Time for error/success messages to disappear
 
     export default {
         name: "EditPassword",
-        components: { Sidebar },
+        components: { Sidebar, Header},
         data () {
             return {
                 loading: true,
@@ -106,31 +109,55 @@
                 timeoutFlag: 0, //Number of timeout calls currently working
                 oldPass: '',
                 newPass: '',
-                repeatPass: ''
+                repeatPass: '',
+                isEditable: false
             }
         },
-        mounted() {
-            //TODO when get profile/id is available it should be used, instead of one below. Also must find universal way of getting and storing the subject userId, can be and may not be the client's user.
-            //Get the user's id from server
-            server.get('profiles/',
-                {headers:
-                        {'Content-Type': 'application/json',
-                                'Token': sessionStorage.getItem('token')}
-                }
-            ).then(response => {
-                this.loading = false;
-                this.user = response.data;
-                this.userId = this.user.id;
-            }).catch(error => {
-                if (error.response.data.status === 401) {
-                    this.$router.push("/login");
-                } else {
-                    this.message = 'Unknown error : ' + error.message;
-                }
-                this.showMessage('form_message', true);
-            });
+        async mounted() {
+            await this.init();
         },
         methods: {
+            /**
+             * Initializes the page.
+             */
+            async init() {
+                //Check if userId is valid on this page, with the given session token.
+                this.isEditable = false;
+                this.loading = true;
+                this.oldPass = '';
+                this.newPass = '';
+                this.repeatPass = '';
+                this.userId = this.$route.params.userId;
+                if (this.userId === undefined || isNaN(this.userId)) {
+                    this.isEditable = true;
+                    this.userId = '';
+                } else {
+                    await this.editable(); // If allowed to edit, userId is set
+                }
+                if (this.isEditable) {
+                    server.get(`profiles/${this.userId}`,
+                        {
+                            headers:
+                                {
+                                    'Content-Type': 'application/json',
+                                    'Token': sessionStorage.getItem('token')
+                                }
+                        }
+                    ).then(response => {
+                        this.loading = false;
+                        this.user = response.data;
+                        this.userId = this.user.id;
+                    }).catch(error => {
+                        if (error.response.data.status === 401) {
+                            this.logout();
+                        } else {
+                            this.message = 'Unknown error : ' + error.message;
+                            this.showMessage('form_message', true);
+                        }
+                    });
+                }
+            },
+
             /**
              * Shows the alert message via the given alert_name id, but only for 5000ms
              * @param alert_name the id for the alert
@@ -153,7 +180,7 @@
                         msgAlert.hidden = true;
                     }
                     self.timeoutFlag -= 1;
-                }, TIMEOUT_DURRATON)
+                }, TIMEOUT_DURATION)
             },
             /**
              * Checks if newPass is valid and if repeatPass is equal to newPass.
@@ -191,7 +218,7 @@
                     this.showMessage('form_message', true);
                     return;
                 }
-                server.put(`profiles/${this.userId}/password')`,
+                server.put(`/profiles/${this.userId}/password`,
                     {'old_password': this.oldPass,
                         'new_password': this.newPass,
                         'repeat_password': this.repeatPass},
@@ -218,6 +245,36 @@
                         this.showMessage('form_message', true);
                 });
             },
+
+            /**
+             * Check if the current userId is allowed to be edited by this user session
+             */
+            async editable() {
+                if (this.userId === '') {
+                    this.isEditable = true;
+                    return;
+                }
+                await server.get(`/check-profile/${this.userId}`,
+                    {headers: {
+                            'Content-Type': 'application/json',
+                            'Token': sessionStorage.getItem("token")}}
+                ).then(() => {
+                    //Status code 200
+                    //User can edit this profile
+                    this.isEditable = true;
+                }).catch(error => {
+                    this.isEditable = false;
+                    if (error.response.data.status === 401) {
+                        this.logout();
+                    } else {
+                        this.$router.push({ name: 'passwordNoID' });
+                    }
+                });
+            },
+
+            /**
+             * Logs the user out and clears session token
+             */
             logout () {
                 server.post('/logout', null,
                     {
@@ -235,7 +292,7 @@
              * Redirect to view user screen
              */
             backToProfile() {
-                this.$router.push("/profile");
+                this.$router.push({ name: 'profile', params: {userId: this.userId} });
             }
         }
     }

@@ -27,7 +27,8 @@
                 </router-link>
             </li>
             <li class>
-                <router-link to="/profile/password" class="sidebar-item">
+                <router-link :to="{ name: 'password',
+                               params: { 'userId': this.userId } }" class="sidebar-item">
                     <span class="sidebar-item-name">Password</span>
                 </router-link>
             </li>
