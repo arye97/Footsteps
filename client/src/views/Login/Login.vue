@@ -114,6 +114,7 @@
                     } else {    //Catch for any errors that are not specifically caught
                         this.message = "An unknown error has occurred during login"
                     }
+                    sessionStorage.clear();
                     showError('alert')
                 });
             }

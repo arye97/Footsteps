@@ -59,19 +59,17 @@
                         headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json", 'Token': sessionStorage.getItem("token")},
                         withCredentials: true
                     }
-                ).then(response => {
-                    console.log(response);
-                    console.log('User Logged Out Successfully!');
+                ).then(() => {
                     sessionStorage.clear();
                     // tokenStore.setToken(null);
                     this.isLoggedIn = (sessionStorage.getItem("token") !== null);
                     this.$forceUpdate();
-                    this.$router.push('/'); //Routes to home on logout
-                }).catch(error => {
-                    console.error(error);
+                    this.$router.push('/login'); //Routes to home on logout
+                }).catch(() => {
+                    sessionStorage.clear();
                     this.isLoggedIn = (sessionStorage.getItem("token") !== null);
                     this.$forceUpdate();
-                    this.$router.push('/'); //Routes to home on logout
+                    this.$router.push('/login'); //Routes to home on logout
                 })
             }
         }

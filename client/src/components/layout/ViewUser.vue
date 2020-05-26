@@ -112,18 +112,24 @@
                     }
                 });
             },
-            logout () {
+            logout() {
                 server.post('/logout', null,
                     {
                         headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json", 'Token': sessionStorage.getItem("token")},
                         withCredentials: true
                     }
                 ).then(() => {
-                    this.$router.push('/'); //Routes to home on logout
+                    sessionStorage.clear();
+                    // tokenStore.setToken(null);
+                    this.isLoggedIn = (sessionStorage.getItem("token") !== null);
+                    this.$forceUpdate();
+                    this.$router.push('/login'); //Routes to home on logout
                 }).catch(() => {
-                    this.$router.push('/'); //Routes to home on logout
+                    sessionStorage.clear();
+                    this.isLoggedIn = (sessionStorage.getItem("token") !== null);
+                    this.$forceUpdate();
+                    this.$router.push('/login'); //Routes to home on logout
                 })
-                sessionStorage.clear();
             },
             editProfile () {
                 this.$router.push({name: 'details', params:  { userId: this.userId }});

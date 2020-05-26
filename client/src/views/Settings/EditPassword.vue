@@ -123,7 +123,7 @@
                 this.userId = this.user.id;
             }).catch(error => {
                 if (error.response.data.status === 401) {
-                    this.$router.push("/login");
+                    this.logout();
                 } else {
                     this.message = 'Unknown error : ' + error.message;
                 }
@@ -218,24 +218,30 @@
                         this.showMessage('form_message', true);
                 });
             },
-            logout () {
+            logout() {
                 server.post('/logout', null,
                     {
                         headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json", 'Token': sessionStorage.getItem("token")},
                         withCredentials: true
                     }
                 ).then(() => {
-                    this.$router.push('/'); //Routes to home on logout
+                    sessionStorage.clear();
+                    // tokenStore.setToken(null);
+                    this.isLoggedIn = (sessionStorage.getItem("token") !== null);
+                    this.$forceUpdate();
+                    this.$router.push('/login'); //Routes to home on logout
                 }).catch(() => {
-                    this.$router.push('/'); //Routes to home on logout
+                    sessionStorage.clear();
+                    this.isLoggedIn = (sessionStorage.getItem("token") !== null);
+                    this.$forceUpdate();
+                    this.$router.push('/login'); //Routes to home on logout
                 })
-                sessionStorage.clear();
             },
             /**
              * Redirect to view user screen
              */
             backToProfile() {
-                this.$router.push("/profile");
+                this.$router.push({name: 'myProfile'});
             }
         }
     }

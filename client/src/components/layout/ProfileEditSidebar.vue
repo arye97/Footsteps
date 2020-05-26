@@ -22,7 +22,10 @@
                 </router-link>
             </li>
             <li class>
-                <router-link to="/profile/emails"  class="sidebar-item">
+                <router-link
+                        :to="{ name: 'emails',
+                               params: { userId: this.userId } }"
+                        class="nav-link">
                     <span class="sidebar-item-name">Email</span>
                 </router-link>
             </li>
