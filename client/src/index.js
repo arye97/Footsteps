@@ -19,7 +19,25 @@ export default new Router({
         {path: '/', component: Home},
         {path: '/login', component: Login},
         {path: '/register', component: Register},
-        {path: '/profile/emails', component: EditEmail},
+        {
+          path: '/profile/:userId/emails',
+          name: 'emails',
+          component: EditEmail
+        },
+        {
+            path: '/profile/emails',
+            name: 'emailsNoId',
+            component: EditEmail
+        },
+        {
+            path: '/profile/:userId/password',
+            name: 'password',
+            component: EditPassword
+        },
+        {
+            path: '/profile/password',
+            name: 'passwordNoID',
+            component: EditPassword},
         {
             path: '/profile/:userId/details',
             name: 'details',

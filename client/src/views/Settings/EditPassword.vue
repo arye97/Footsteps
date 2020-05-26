@@ -90,7 +90,6 @@
 <script>
     import server from '../../Api';
     import Sidebar from '../../components/layout/ProfileEditSidebar';
-    import {tokenStore} from "../../main";
     import {validateUser} from "../../util";
 
     const TIMEOUT_DURRATON = 5000;   // Time for error/success messages to disappear
@@ -116,7 +115,7 @@
             server.get('profiles/',
                 {headers:
                         {'Content-Type': 'application/json',
-                                'Token': tokenStore.state.token}
+                                'Token': sessionStorage.getItem('token')}
                 }
             ).then(response => {
                 this.loading = false;
@@ -192,13 +191,13 @@
                     this.showMessage('form_message', true);
                     return;
                 }
-                server.put('profiles/'.concat(this.userId).concat('/password'),
+                server.put(`profiles/${this.userId}/password')`,
                     {'old_password': this.oldPass,
                         'new_password': this.newPass,
                         'repeat_password': this.repeatPass},
                     {headers:
                             {'Content-Type': 'application/json',
-                                    'Token': tokenStore.state.token}
+                                    'Token': sessionStorage.getItem('token')}
                     }).then(response => {
                         if (response.status === 200) {
                             this.message = 'Your New password was saved successfully';
@@ -206,7 +205,7 @@
                         }
                     }).catch(error => {
                         if (error.response.data.status === 401) {
-                            this.$router.push("/login");
+                            this.logout();
                         } else if (error.response.status === 400) {
                             this.message = 'The given Old password was incorrect, please try again.';
                         } else if (error.response.data.status === 403) {
@@ -218,6 +217,19 @@
                         }
                         this.showMessage('form_message', true);
                 });
+            },
+            logout () {
+                server.post('/logout', null,
+                    {
+                        headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json", 'Token': sessionStorage.getItem("token")},
+                        withCredentials: true
+                    }
+                ).then(() => {
+                    this.$router.push('/'); //Routes to home on logout
+                }).catch(() => {
+                    this.$router.push('/'); //Routes to home on logout
+                })
+                sessionStorage.clear();
             },
             /**
              * Redirect to view user screen
