@@ -35,10 +35,6 @@
                 // this.$emit('register');
             }
         },
-        mounted() {
-            console.log("hello")
-            console.log(sessionStorage.getItem("token"))
-        }
     }
 </script>
 

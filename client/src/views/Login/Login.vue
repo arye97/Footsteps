@@ -79,7 +79,6 @@
             }
         },
         methods: {
-
             async login() {
                 const userLogin = {
                     email: this.email.trim(),

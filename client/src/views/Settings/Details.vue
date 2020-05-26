@@ -23,7 +23,7 @@
         </div>
         <div v-if="loggedIn">
             <Sidebar :userId="profileId"/>
-            <div class="settings-page" v-if="this.isMyProfile">
+            <div class="settings-page" v-if="!this.isRedirecting">
                 <div class="container-fluid" v-if="loggedIn">
                     <div class="form-group">
                         <!-- first-name field-->
@@ -113,17 +113,16 @@
                         <!-- user bio -->
                         <label for="bio">Tell us about yourself, your Bio: </label>
                         <div class="edit-area">
-            <textarea name="bio" class="form-control" id="bio" v-model="bio" cols="30" rows="2" placeholder="Who are you?"
-                      disabled></textarea>
+                            <textarea name="bio" class="form-control" id="bio" v-model="bio" cols="30" rows="2" placeholder="Who are you?"
+                                      disabled></textarea>
                             <button class="btn btn-primary" id="bio-btn" v-on:click="mutate" type="button">Edit</button>
                         </div>
                     </div>
                 </div>
             </div>
-            <div v-if="this.isMyProfile === false">
-                Sorry, you are not allowed to edit another user's profile,<br/>
-                Redirecting to your edit profile page.
-            </div>
+        </div>
+        <div v-if="this.isRedirecting">
+            {{ redirectionMessage }}
         </div>
 
 
@@ -137,7 +136,6 @@
     import Header from '../../components/Header/Header.vue'
     import server from "../../Api";
     import {getCountryNames, fitnessLevels} from '../../constants';
-    // import {tokenStore} from "../../main";
     import {validateUser, getDateString} from "../../util"
 
     export default {
@@ -163,16 +161,31 @@
                 genders: ['Male', 'Female', 'Non-Binary'],
                 loggedIn: false,
                 fitnessOptions: fitnessLevels,
-                isMyProfile: null
+                isRedirecting: false,
+                redirectionMessage: ''
             }
         },
         async mounted() {
-            this.fetchCountries();
-            //Populate input fields with profile data
-            await this.updateInputs();
-            this.validateUserIdWithToken();
+            await this.init();
         },
         methods: {
+            /**
+             * Initializes the page.
+             * Called by mounted and when redirecting to this user's edit profile page.
+             * @see processGetError
+             */
+            async init() {
+                this.profileId = '';
+                this.loggedIn = false;
+                this.isRedirecting = false;
+                this.redirectionMessage = '';
+                this.fetchCountries();
+                if (this.$route.params.userId) {
+                    await this.validateUserIdWithToken(); // If allowed to edit profileId is set
+                }
+                await this.updateInputs();//Populate input fields with profile data if allowed to edit
+            },
+
             fetchCountries: function () {
                 //Fill Passport countries
                 let select = [];
@@ -199,6 +212,7 @@
                 this.countries = select;
                 request.send();
             },
+
             mutate: function (event) {
                 const alertDiv = document.getElementById("alert");
                 //This function is used to swap the purpose of the buttons
@@ -269,7 +283,6 @@
                 mutateButton.removeAttribute('disabled');
             },
 
-
             putUpdate: async function (update, alertDiv) {
                 //Sends the put request to the server to update the user profile
                 let result = true;
@@ -308,41 +321,86 @@
                 return result;
             },
 
+            /**
+             * Updates the input fields to contain the info stored in the database,
+             * if allowed to edit the given profileId. If no profileId given edit this user,
+             * if invalid profileId is given redirect to this user's detail page.
+             */
             async updateInputs() {
-                //Updates the input fields to contain the info stored in the database
-                console.log(`/profiles/${this.profileId}`);
-                await server.get(`/profiles/${this.profileId}`,
-                    {headers: {'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")},
-                        withCredentials: true
-                    }, ).then(response => {
-                    this.profileId = response.data.id;
-                    this.firstname = response.data.firstname;
-                    this.middlename = response.data.middlename;
-                    this.lastname = response.data.lastname;
-                    this.nickname = response.data.nickname;
-                    this.gender = response.data.gender;
-                    this.passports = response.data.passports;
-                    this.bio = response.data.bio;
-                    this.date_of_birth = getDateString(response.data.date_of_birth);
-                    for (const option in this.fitnessOptions) {
-                        if (this.fitnessOptions[option].value === response.data.fitness) {
-                            this.fitness = this.fitnessOptions[option];
-                        }
+                if (!this.isRedirecting) {
+                    // If this point is reached user is authorized to edit the profile, and profileId has been set
+                    await server.get('profiles/'.concat(this.profileId.toString()),
+                        {headers: {'Content-Type': 'application/json',
+                                                 'Token': sessionStorage.getItem("token")}}
+                    ).then(response => {
+                        this.loggedIn = true;
+                        this.setUserFields(response.data);
+                    }).catch(error => {
+                        this.processGetError(error);
+                    });
+                }
+            },
+
+            /**
+             * This helper function is called when an error is caught when performing a Get request to the server.
+             * Conditions handled are:
+             * 401 (UNAUTHORIZED) redirect to login page,
+             * 403 (FORBIDDEN) and 404 (NOT_FOUND) redirect to this user's edit profile page,
+             * Otherwise unknown error so redirect to user's home page
+             */
+            processGetError(error) {
+                this.loggedIn = true;
+                this.isRedirecting = true;
+                if (error.response.data.status === 401) {
+                    this.loggedIn = false;
+                    this.redirectionMessage = "Sorry, you are no longer logged in,\n" +
+                        "Redirecting to the login page.";
+                    setTimeout(() => {
+                        this.$router.push('/login');
+                    }, 4000);
+                } else if (error.response.data.status === 403 || error.response.data.status === 404) {
+                    this.redirectionMessage = "Sorry, you are not allowed to edit another user's profile,\n" +
+                        "Redirecting to your edit profile page.";
+                    setTimeout(() => {
+                        this.$router.push({ name: 'detailsNoID' });
+                        this.init();
+                    }, 4000);
+                } else {
+                    this.redirectionMessage = "Sorry, an unknown error occurred when retrieving profile info,\n" +
+                        "Redirecting to your home page.";
+                    setTimeout(() => {
+                        this.$router.push('/profile');
+                    }, 4000);
+                }
+            },
+
+            /**
+             * Sets the input variables to the given users attributes.
+             */
+            setUserFields(user) {
+                this.profileId = user.id;
+                this.firstname = user.firstname;
+                this.middlename = user.middlename;
+                this.lastname = user.lastname;
+                this.nickname = user.nickname;
+                this.gender = user.gender;
+                this.passports = user.passports;
+                this.bio = user.bio;
+                this.date_of_birth = getDateString(user.date_of_birth);
+                for (const option in this.fitnessOptions) {
+                    if (this.fitnessOptions[option].value === user.fitness) {
+                        this.fitness = this.fitnessOptions[option];
                     }
-                    this.loggedIn = true;
-                }).catch(error => {
-                    if (error.response.data.status === 401) {
-                        this.$router.push("/login");
-                    }
-                });
+                }
             },
 
             /**
              * Checks if a user id from query parameter is logged in with token provided.
-             * Called to prevent a user from editing another user's profile
+             * Called to prevent a user from editing another user's profile.
+             * Checks if user can edit this given ID.
              */
-            validateUserIdWithToken() {
-                server.get(`/check-profile/${this.$route.params.userId}`,
+            async validateUserIdWithToken() {
+                await server.get(`/check-profile/`.concat(this.$route.params.userId.toString()),
                     {
                         headers: {
                             'Content-Type': 'application/json',
@@ -351,15 +409,12 @@
                     }
                 ).then(() => {
                     // 200
-                    this.isMyProfile = true;
-                }).catch(() => {
-                    // 403
-                    this.isMyProfile = false;
-                    setTimeout(() => {
-                        this.$router.push({ name: 'details', params: { userId: this.profileId } });
-                        this.isMyProfile = true;
-                    }, 4000)
-                })
+                    this.loggedIn = true;
+                    this.profileId = this.$route.params.userId;
+                }).catch(error => {
+                    this.profileId = '';
+                    this.processGetError(error);
+                });
             }
         }
     }

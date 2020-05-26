@@ -3,7 +3,7 @@ import Router from 'vue-router'
 import Login from './views/Login/Login.vue'
 import Register from './views/Register/Register.vue'
 import Home from './views/Home/Home.vue'
-import EditEmail from "./views/EditEmails/EditEmail";
+import EditEmail from "./views/Settings/EditEmail";
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import Details from "./views/Settings/Details.vue";
 import ViewUser from "./components/layout/ViewUser.vue";
@@ -17,14 +17,18 @@ export default new Router({
         {path: '/', component: Home},
         {path: '/login', component: Login},
         {path: '/register', component: Register},
-        {path: '/profile/:userId', name: "profile", component: ViewUser},
-        {path: '/profiles/emails', component: EditEmail},
+        {path: '/profile', component: ViewUser},
+        {path: '/profile/emails', component: EditEmail},
         {
             path: '/profile/:userId/details',
             name: 'details',
             component: Details
         },
-
+        {
+            path: '/profile/details',
+            name: 'detailsNoID',
+            component: Details
+        },
         // otherwise redirect to home
         { path: '/*', redirect: '/login' }
     ]
