@@ -1,14 +1,15 @@
 export function validateUser(fieldData, fieldType) {
     const emailRegex = new RegExp(/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/);
-    const nameRegex = new RegExp(/^[a-zA-Z_]+( [a-zA-Z_]+)*$/);
+    const nameRegex = new RegExp(/^[a-zA-Z\s]+([a-zA-Z\s]+)*$/);
     const middleNameRegex = new RegExp(/^[a-zA-Z_]*$/);
+    const passwordRegex = new RegExp(/(?=.*[0-9])(?=.*[a-zA-Z])(?=\S+$).{8,}/);
     switch (fieldType) {
         case "gender":
             return {valid: fieldData === "Male" || fieldData === "Female" || fieldData === "Non-Binary"};
         case "email":
             return {valid: emailRegex.test(fieldData)};
         case "password":
-            return {valid: fieldData !== ''};
+            return {valid: passwordRegex.test(fieldData)};
         case "middlename":
             return {valid: middleNameRegex.test(fieldData), message: "Middle Name contains numbers or unexpected characters"};
         case "firstname":
@@ -33,7 +34,7 @@ export function _isValidDOB(dateStr) {
     let dob = Date.parse(dateStr);
     // Due to differences in implementation of Date.parse() a 'Z' may or may not be required at the end of the date.
     if (Number.isNaN(dob)) {  // If dateStr can't be parsed
-        dateStr.endsWith('Z') ? dateStr = dateStr.slice(0, -1) : dateStr += 'Z'  // Remove Z if it exists, add Z if it doesn't exist
+        dateStr.endsWith('Z') ? dateStr = dateStr.slice(0, -1) : dateStr += 'Z';  // Remove Z if it exists, add Z if it doesn't exist
         dob = Date.parse(dateStr);    // Parse again
         if (Number.isNaN(dob)) {
             return {valid: false}

@@ -7,6 +7,8 @@ import EditEmail from "./views/Settings/EditEmail";
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import Details from "./views/Settings/Details.vue";
 import ViewUser from "./components/layout/ViewUser.vue";
+import EditPassword from "./views/Settings/EditPassword";
+
 Vue.use(Router);
 Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);

@@ -415,13 +415,14 @@ public class User {
      * @return returns true if valid user
      */
     public boolean isValid() {
-        final String nameRegex = "^[a-zA-Z'-]+$";
+        final String nameRegex = "^[a-zA-Z_]+([a-zA-Z_]+)*$";
+        final String middleNameRegex = "^[a-zA-Z_]*$";
         String nameError = "Name must contain at least one letter and no non-letter characters";
         if (firstName == null || lastName == null) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid name. " + nameError); }
         if (! firstName.matches(nameRegex) ) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid first name. " + nameError); }
         if (! lastName.matches(nameRegex) ) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid last name. " + nameError); }
         if (middleName != null) {
-            if (! middleName.matches(nameRegex) && ! middleName.trim().isEmpty() ) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid middle name. " + nameError); }
+            if (! middleName.matches(middleNameRegex) && ! middleName.trim().isEmpty() ) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid middle name. " + nameError); }
         }
         if (ageCheck(dateOfBirth, MIN_AGE, true)) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must be at least 13 years old to register for this app"); }
         if (ageCheck(dateOfBirth, MAX_AGE, false)) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date of birth"); }
@@ -449,5 +450,10 @@ public class User {
         } else {
             return ageDate.after(DoB);
         }
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s %s at %s", firstName, lastName, primaryEmail);
     }
 }

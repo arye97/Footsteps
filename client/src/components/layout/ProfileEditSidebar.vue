@@ -26,12 +26,11 @@
                     <span class="sidebar-item-name">Email</span>
                 </router-link>
             </li>
-            <!-- Password is yet to be implemented -->
-            <!--<li class>
+            <li class>
                 <router-link to="/profile/password" class="sidebar-item">
                     <span class="sidebar-item-name">Password</span>
                 </router-link>
-            </li>-->
+            </li>
 
         </ul>
         </div>

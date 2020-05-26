@@ -8,7 +8,8 @@
     "build-prod": "vue-cli-service build --mode prod",
     "kill-all": "fuser -k 9500/tcp 9499/tcp",
     "lint": "vue-cli-service lint",
-    "test": "jest --runInBand --detectOpenHandles"
+    "test": "jest --coverage --runInBand --detectOpenHandles",
+    "sonarqube": "node sonarqube-analysis.js"
   },
   "dependencies": {
     "axios": "^0.19.2",
@@ -32,6 +33,8 @@
     "eslint-plugin-vue": "^6.1.2",
     "jest": "^25.1.0",
     "vue-jest": "^3.0.5",
+    "jest-sonar-reporter": "^2.0.0",
+    "sonarqube-scanner": "^2.6.0",
     "vue-template-compiler": "^2.6.11"
   },
   "eslintConfig": {
@@ -54,9 +57,19 @@
     "last 2 versions"
   ],
   "jest": {
+    "testEnvironment": "jsdom",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "testResultsProcessor": "jest-sonar-reporter",
     "transform": {
       "^.+\\.vue$": "vue-jest",
       "^.+\\.js$": "babel-jest"
+    },
+    "jestSonar": {
+      "reportPath": "coverage",
+      "reportFile": "test-reporter.xml",
+      "indent": 4
     },
     "moduleNameMapper": {
       "\\.(css|less)$": "<rootDir>/assets/css/__mocks__/styleMock.js"

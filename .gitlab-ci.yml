@@ -5,6 +5,26 @@ tag_checker:
   only:
     - tags
 
+
+image: gradle:alpine
+variables:
+  SONAR_TOKEN: "0a1467036e853397c101cf62ed6658536721f7e4"
+  SONAR_HOST_URL: "https://csse-s302g6.canterbury.ac.nz/sonarqube/"
+  GIT_DEPTH: 0
+sonarqube-check:
+  stage: test
+  script:
+    - cd server
+    - ./gradlew build
+    - ./gradlew sonarqube
+    - cd ../client
+    - npm install
+    - npm run test
+    - npm run sonarqube
+  allow_failure: true
+  only:
+    - development
+
 junit:
   stage: test
   script:
@@ -24,10 +44,12 @@ dev-build:
     - mkdir -p ../client-dev/
     - mkdir -p ../server-dev/
     - cp -r ./client/dist/ ../client-dev/
-    - cp -r ./server/build/libs ../server-dev
+    - cp -r ./server/build/libs ../server-dev/
     - bash startTestApplication /tmp 2>> /dev/null >>/dev/null
   except:
     - tags
+  only:
+    - development
 
 release-build:
  stage: deploy
@@ -43,11 +65,15 @@ release-build:
     - mkdir -p ../server-prod/
     - cp -r ./client/dist/ ../client-prod/
     - cp -r ./server/build/libs ../server-prod/
-    # - java -jar ../server-prod/libs/server-0.0.1-SNAPSHOT.jar --server.port=8999 # convert to be run with service
-    # - serve -s ../client-prod/dist -l 9000 # convert to be run with service
+    - bash startProdApplication /tmp 2>> /dev/null >>/dev/null
  artifacts:
     paths:
     - client/dist
     - server/out
  only:
     - tags
+
+cache:
+  paths:  # the list of directories to cache
+    - client/node_modules
+  key: node-modules  # the cache key
