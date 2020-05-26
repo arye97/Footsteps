@@ -43,7 +43,7 @@ public class User {
     @NotNull(message = "This user needs a role")
     @Column(name = "role", nullable = false)
     @JsonProperty("role")
-    private int role;
+    protected int role;
 
     private String token;
 
@@ -135,7 +135,9 @@ public class User {
      * Default constructor for User.
      * Mandatory for repository actions.
      */
-    public User() {}
+    public User() {
+        this.role = UserRole.USER;
+    }
 
     /**
      * Builds user from the payload, using getters and setters.
@@ -270,6 +272,8 @@ public class User {
     }
 
     public List<String> getAdditionalEmails() {
+        // Makes a copy instead of returning private object
+        List<String> additionalEmails = new ArrayList<>(this.additionalEmails);
         return additionalEmails;
     }
 
@@ -414,10 +418,6 @@ public class User {
 
     public int getRole() {
         return role;
-    }
-
-    public void setRole(int role) {
-        this.role = role;
     }
 
     /**

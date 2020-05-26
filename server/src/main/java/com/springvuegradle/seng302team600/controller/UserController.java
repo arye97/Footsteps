@@ -85,7 +85,6 @@ public class UserController {
         newUser.builder(newUserData);
         //Throws errors if user is erroneous
         newUser.isValid();
-        newUser.setRole(UserRole.USER);  // Set role to a regular user
         //Saving generates user id
         //If mandatory fields not given, exception in UserRepository.save ends function execution and makes response body
         //Gives request status:400 and specifies needed field if null in required field

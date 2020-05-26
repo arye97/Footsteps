@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
+import com.springvuegradle.seng302team600.model.UserRole;
 import com.springvuegradle.seng302team600.payload.RegisterRequest;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
@@ -60,9 +61,11 @@ class UserControllerTest {
     private RegisterRequest regReq;
     private Email dummyEmail;
     private String validToken = "valid";
+    private boolean defaultAdminIsRegistered;
 
     @BeforeEach
     public void setUp() {
+        defaultAdminIsRegistered = false;
         userMissJsonPost = "{\n" +
                 "  \"lastname\": \"Benson\",\n" +
                 "  \"middlename\": \"Jack\",\n" +
@@ -178,7 +181,13 @@ class UserControllerTest {
         regReq = objectMapper.treeToValue(objectMapper.readTree(json), RegisterRequest.class);
         dummyUser = dummyUser.builder(regReq);
         dummyEmail = new Email(dummyUser.getPrimaryEmail(), true, dummyUser);
-        when(userRepository.save(Mockito.any(User.class))).thenReturn(dummyUser);
+        when(userRepository.save(Mockito.any(User.class))).thenAnswer(i -> {
+            User user = i.getArgument(0);
+            if (user.getRole() == UserRole.DEFAULT_ADMIN) {
+                defaultAdminIsRegistered = true;
+            }
+            return dummyUser;
+        });
         when(emailRepository.save(Mockito.any(Email.class))).thenReturn(dummyEmail);
         when(emailRepository.findByEmail(Mockito.matches(dummyEmail.getEmail()))).thenReturn(dummyEmail);
         when(emailRepository.getOne(Mockito.anyLong())).thenReturn(dummyEmail);
@@ -187,6 +196,12 @@ class UserControllerTest {
             else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         });
         when(userRepository.findByUserId(Mockito.anyLong())).thenReturn(dummyUser);
+        when(userRepository.existsUserByRole(Mockito.anyInt())).thenAnswer(i -> {
+            if (((int)i.getArgument(0) == UserRole.DEFAULT_ADMIN) && !defaultAdminIsRegistered) {
+                return false;
+            }
+            return true;
+                });
         when(emailRepository.existsEmailByEmail(Mockito.anyString())).thenReturn(false);
         when(userValidationService.findByUserId(Mockito.anyString(), Mockito.anyLong())).thenAnswer(i -> {
             if (i.getArgument(0).equals(dummyUser.getToken()) && i.getArgument(1).equals(dummyUser.getUserId())) return dummyUser;
@@ -385,5 +400,13 @@ class UserControllerTest {
                 .header("Token", validToken);
         mvc.perform(editRequest)
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    /** Tests that a DefaultAdminUser is created in the when a UserController is created */
+    public void defaultAdminIsCreated() throws Exception {
+        setupMockingNoEmail(createUserJsonPost);
+        UserController controller = new UserController(userRepository, emailRepository, userValidationService);
+        assertTrue(userRepository.existsUserByRole(UserRole.DEFAULT_ADMIN));
     }
 }

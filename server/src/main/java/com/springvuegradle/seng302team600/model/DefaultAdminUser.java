@@ -30,7 +30,7 @@ public class DefaultAdminUser extends User {
         super.setFirstName("Default");
         super.setLastName("Admin");
         super.setGender(Gender.NON_BINARY);
-        super.setRole(UserRole.DEFAULT_ADMIN);
+        this.role = UserRole.DEFAULT_ADMIN;
         LocalDate now = LocalDate.now();
         super.setDateOfBirth(java.sql.Date.valueOf(now.minusYears(18)));   // Set date of birth to 18 years ago
     }
@@ -54,11 +54,6 @@ public class DefaultAdminUser extends User {
     @Override
     public void setAdditionalEmails(List<String> newAdditionalEmails) {
         log.error(UnavailableMethodErrorStr("setAdditionalEmails"));
-    }
-
-    @Override
-    public void setRole(int role) {
-        log.error(UnavailableMethodErrorStr("setRole"));
     }
 
 
