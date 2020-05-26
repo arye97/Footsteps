@@ -40,8 +40,8 @@ public class EmailController {
      * @param response HttpServletResponse received from the front-end
      * @return JSON object with primaryEmails and additionalEmails field
      */
-    @GetMapping("/emails")
-    public Map<String, Object> findUserEmails(HttpServletRequest request, HttpServletResponse response) {
+    @GetMapping("/profiles/{profileId}/emails")
+    public Map<String, Object> findUserEmails(HttpServletRequest request, HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) {
         String token = request.getHeader("Token");
         // Errors are thrown in userService
         User user = userService.findByToken(token);

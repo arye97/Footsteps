@@ -183,7 +183,7 @@
 
             console.log(this.userId);
 
-            await server.get(  `/emails`,
+            await server.get(  `/profiles/${this.userId}/emails`,
                 {
                     headers: {
                         'Content-Type': 'application/json',
