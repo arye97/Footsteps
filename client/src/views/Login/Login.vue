@@ -99,13 +99,11 @@
                     }
                 ).then(response => { //If successfully logged the response will have a status of 201
                     if (response.status === 201) {
-                        console.log('User Logged In Successfully!');
                         sessionStorage.setItem("token", response.data.Token);
                         let userId = response.data.userId;
-                        this.$router.push(`/profile/${userId}`); //Route to profile screen on successful login
+                        this.$router.push({ name: 'profile', params: {userId: userId} }); //Route to profile screen on successful login
                     }
                 }).catch(error => { //If an error occurs during login (includes server side errors)
-                    console.log(error);
                     //Get alert bar element
                     if (error.message === "Network Error") {
                         this.message = error.message;

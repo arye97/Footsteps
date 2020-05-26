@@ -17,7 +17,6 @@ export default new Router({
         {path: '/', component: Home},
         {path: '/login', component: Login},
         {path: '/register', component: Register},
-        {path: '/profile', component: ViewUser},
         {path: '/profile/emails', component: EditEmail},
         {
             path: '/profile/:userId/details',
@@ -28,6 +27,15 @@ export default new Router({
             path: '/profile/details',
             name: 'detailsNoID',
             component: Details
+        },
+        {
+            path: '/profile', component: ViewUser,
+            name: 'myProfile'
+        },
+        {
+            path: '/profile/:userId',
+            name: 'profile',
+            component: ViewUser
         },
         // otherwise redirect to home
         { path: '/*', redirect: '/login' }

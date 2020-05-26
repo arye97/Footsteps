@@ -7,7 +7,7 @@
                     <div class="row">
                         <div class="col-sm-6 offset-sm-3">
                             <template v-if="loggedIn">
-                                <Header :userId="profileId"/>
+                                <Header/>
                             </template>
                             <router-view></router-view>
                         </div>
@@ -180,7 +180,7 @@
                 this.isRedirecting = false;
                 this.redirectionMessage = '';
                 this.fetchCountries();
-                if (this.$route.params.userId) {
+                if (this.$route.params.userId !== undefined) {
                     await this.validateUserIdWithToken(); // If allowed to edit profileId is set
                 }
                 await this.updateInputs();//Populate input fields with profile data if allowed to edit
@@ -329,7 +329,7 @@
             async updateInputs() {
                 if (!this.isRedirecting) {
                     // If this point is reached user is authorized to edit the profile, and profileId has been set
-                    await server.get('profiles/'.concat(this.profileId.toString()),
+                    await server.get('profiles/'.concat(this.profileId),
                         {headers: {'Content-Type': 'application/json',
                                                  'Token': sessionStorage.getItem("token")}}
                     ).then(response => {
@@ -369,7 +369,7 @@
                     this.redirectionMessage = "Sorry, an unknown error occurred when retrieving profile info,\n" +
                         "Redirecting to your home page.";
                     setTimeout(() => {
-                        this.$router.push('/profile');
+                        this.$router.push({ name: 'myProfile' });
                     }, 4000);
                 }
             },
@@ -400,7 +400,7 @@
              * Checks if user can edit this given ID.
              */
             async validateUserIdWithToken() {
-                await server.get(`/check-profile/`.concat(this.$route.params.userId.toString()),
+                await server.get(`/check-profile/`.concat(this.$route.params.userId),
                     {
                         headers: {
                             'Content-Type': 'application/json',

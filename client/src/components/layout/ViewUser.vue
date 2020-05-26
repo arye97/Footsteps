@@ -4,7 +4,7 @@
             <div class="row">
                 <div class="col-sm-12 ">
                     <template v-if="this.loading === false">
-                        <Header :userId="this.user.id"/>
+                        <Header :userId="this.userId"/>
                     </template>
                     <h1>
                         <br/><br/>
@@ -32,8 +32,7 @@
                                         <span v-if="this.user.fitness">Fitness Level: {{this.fitness}}<br/></span>
                                         <span v-if="this.user.bio">Bio: {{ this.user.bio }}<br/></span>
                                     </span>
-                                <button type="submit" class="btn btn-link" v-on:click="logout" >Logout</button>
-                                <button type="submit" class="btn btn-link" v-on:click="editProfile" >Edit Profile</button>
+                                <button type="submit" class="btn btn-link" v-if="this.isEditable" v-on:click="editProfile" >Edit Profile</button>
                             </div>
                         </section>
                     </div>
@@ -47,7 +46,6 @@
 
 <script>
     import server from "../../Api";
-    // import {tokenStore} from '../../main';
     import {fitnessLevels} from '../../constants'
     import {getDateString} from '../../util'
     import Header from '../../components/Header/Header';
@@ -61,66 +59,98 @@
                 user: null,
                 loading: true,
                 errored: false,
+                error: null,
                 fitness: null,
                 formattedDate: "",
-                userId: null
+                userId: '',
+                isEditable: true
             }
         },
         async mounted() {
-            this.loading = true;
-            let url = window.location.pathname;
-            this.userId = url.substring(url.lastIndexOf('/') + 1);
-            console.log(this.userId);
-            await server.get(  `/profiles/${this.userId}`,
-                {headers:
-                        {"Access-Control-Allow-Origin": "*", 'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")}, withCredentials: true
-                }, )
-            .then(response => {
-                if (response.status === 200) {
-                    console.log('Status = OK. response.data:');
-                    console.log(response.data);
-                    //user is set to the user data retrieved
-                    this.user = response.data;
-                    this.formattedDate = getDateString(this.user.date_of_birth);
-                    for (let i = 0; i < fitnessLevels.length; i++) {
-                        if (fitnessLevels[i].value === this.user.fitness) {
-                            this.fitness = fitnessLevels[i].desc;
-                        }
-                    }
-                    //no longer loading, so show data
-                    this.loading = false;
-                }
-            }).catch(error => {
-                this.errored = true;
-                if (error.response.status === 401) {
-                    this.$router.push("/login");
-                }
-                console.error(error);
-                console.error(error.response);
-
-                })
+            await this.init();
         },
         methods: {
+            async init() {
+                this.user = null;
+                this.errored = false;
+                this.error = null;
+                this.fitness = null;
+                this.formattedDate = "";
+                this.userId = this.$route.params.userId;
+                this.loading = true;
+                if (this.userId === undefined || isNaN(this.userId)) {
+                    this.userId = '';
+                }
+                await this.editable();
+                await server.get(  `/profiles/${this.userId}`,
+                    {headers:
+                            {"Access-Control-Allow-Origin": "*", 'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")}, withCredentials: true
+                    },
+                ).then(response => {
+                    if (response.status === 200) {
+                        //user is set to the user data retrieved
+                        this.user = response.data;
+                        this.userId = this.user.id;
+                        this.formattedDate = getDateString(this.user.date_of_birth);
+                        for (let i = 0; i < fitnessLevels.length; i++) {
+                            if (fitnessLevels[i].value === this.user.fitness) {
+                                this.fitness = fitnessLevels[i].desc;
+                            }
+                        }
+                        //no longer loading, so show data
+                        this.loading = false;
+                    }
+                }).catch(error => {
+                    this.loading = false;
+                    this.errored = true;
+                    this.error = error.response.data.message;
+                    if (error.response.data.status === 404 && sessionStorage.getItem('token') !== null) {
+                        this.$router.push({ name: 'myProfile' });
+                        this.init();
+                    } else {
+                        this.logout();
+                    }
+                });
+            },
             logout () {
                 server.post('/logout', null,
                     {
                         headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json", 'Token': sessionStorage.getItem("token")},
                         withCredentials: true
                     }
-                ).then(response => {
-                    console.log(response);
-                    console.log('User logged out successfully!');
-                    sessionStorage.clear();
-                    // tokenStore.setToken(null);
+                ).then(() => {
                     this.$router.push('/'); //Routes to home on logout
-                }).catch(error => {
-                    console.error(error);
-                    console.log('User was already logged out!');
+                }).catch(() => {
                     this.$router.push('/'); //Routes to home on logout
                 })
+                sessionStorage.clear();
             },
             editProfile () {
-                this.$router.push({name: 'details', params:  { userId: this.user.id }});
+                this.$router.push({name: 'details', params:  { userId: this.userId }});
+            },
+
+            /**
+             * Checks if the user ID currently held, is editable by this user/client
+             */
+            async editable() {
+                if (this.userId === '') {
+                    this.isEditable = true;
+                    return;
+                }
+                await server.get(`/check-profile/`.concat(this.userId),
+                    {headers: {
+                            'Content-Type': 'application/json',
+                            'Token': sessionStorage.getItem("token")}}
+                ).then(() => {
+                    //Status code 200
+                    //User can edit this profile
+                    this.isEditable = true;
+                }).catch(error => {
+                    this.isEditable = false;
+                    if (error.response.data.status === 401) {
+                        this.logout();
+                    }
+                });
             }
         }
     }
