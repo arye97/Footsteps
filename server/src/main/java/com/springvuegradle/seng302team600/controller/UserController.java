@@ -264,6 +264,9 @@ public class UserController {
                                            HttpServletResponse response,
                                            @PathVariable(value = "profileId") Long profileId) {
         String token = request.getHeader("Token");
+        if (userService.hasAdminPrivileges(token)) {
+            return;
+        }
         userService.findByUserId(token, profileId);
     }
 }

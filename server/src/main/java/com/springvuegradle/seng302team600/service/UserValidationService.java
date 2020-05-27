@@ -116,6 +116,11 @@ public class UserValidationService {
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User forbidden from accessing user with ID: " + id);
     }
 
+    public boolean hasAdminPrivileges(String token) {
+        User thisUser = findByToken(token);
+        return thisUser.getRole() >= 10;
+    }
+
     /**
      * Finds a user by the id
      * @param id the user id of the requested user
