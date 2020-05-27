@@ -298,7 +298,6 @@
                 }).catch(error => {
                     alertDiv.classList.remove("alert-success");
                     alertDiv.classList.add("alert-danger");
-
                     if (error.response.data.status === 400 || error.response.data.status === 403) {
                         this.message = error.response.data.message.toString();
                         this.code = error.response.data.status;

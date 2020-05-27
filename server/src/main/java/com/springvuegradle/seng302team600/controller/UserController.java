@@ -242,7 +242,16 @@ public class UserController {
         String token = request.getHeader("Token");
         ObjectMapper nodeMapper = new ObjectMapper();
         //ResponseStatusException thrown if user unauthorized or forbidden from accessing requested user
-        User user = userService.findByUserId(token, profileId);   // Get the user to modify
+
+        // Check if it has admin privileges
+        // if it doesn't then check if its me or other person
+        boolean isAdmin = userService.hasAdminPrivileges(token);
+        User user;
+        if (isAdmin) {
+            user = userService.viewUserById(profileId, token);
+        } else {
+            user = userService.findByUserId(token, profileId);   // Get the user to modify
+        }
         //Remove fields that should not be modified here
         ObjectNode modData = nodeMapper.readValue(jsonEditProfileString, ObjectNode.class);
         modData.remove("primary_email");
