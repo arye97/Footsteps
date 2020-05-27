@@ -8,8 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import java.time.LocalDate;
 import java.util.List;
 
-//public class DefaultAdminUser extends User implements InitializingBean {
-public class DefaultAdminUser extends User {   // uses InitializingBean for afterPropertiesSet()
+public class DefaultAdminUser extends User {
 
     private static Log log = LogFactory.getLog(DefaultAdminUser.class);
 
@@ -32,7 +31,7 @@ public class DefaultAdminUser extends User {   // uses InitializingBean for afte
      * variable as the argument
      * @param email the default email set from env-var
      */
-    @Value("${SPRING_DEFAULT_ADMIN_EMAIL}")
+    @Value("${spring.security.default.email}")
     private void setDefaultEmail(String email) {
         super.setPrimaryEmail(email);
     }
@@ -43,7 +42,7 @@ public class DefaultAdminUser extends User {   // uses InitializingBean for afte
      * variable as the argument
      * @param password the default password set from env-var
      */
-    @Value("${SPRING_DEFAULT_ADMIN_PASSWORD}")
+    @Value("${spring.security.default.password}")
     private void setDefaultPassword(String password) {
         super.setPassword(password);
     }
@@ -80,15 +79,4 @@ public class DefaultAdminUser extends User {   // uses InitializingBean for afte
     private String UnavailableMethodErrorStr(String methodName) {
         return String.format("%s can't be called on Default Admins.", methodName);
     }
-
-
-//    /**
-//     * Used to debug.  Logs if the environment variables were retrieved successfully.
-//     */
-//    @Override
-//    public void afterPropertiesSet() {
-//        if (this.getPrimaryEmail() != null && !this.checkPassword(null)) {
-//            log.info("Retrieved Default Admin credentials from env");
-//        }
-//    }
 }
