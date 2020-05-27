@@ -49,6 +49,7 @@ public class UserController {
      */
     @Autowired
     private DefaultAdminUser defaultAdmin;
+    private boolean _DAexists = false;
 
 
     public UserController(UserRepository userRepository, EmailRepository emailRepository, UserValidationService userService) {
@@ -65,11 +66,12 @@ public class UserController {
      */
     @PostConstruct
     private void createDefaultAdmin() {
-        System.out.println("Calling createDefaultAdmin " + defaultAdmin);
         if (!userRepository.existsUserByRole(UserRole.DEFAULT_ADMIN)) {
             log.info("No Default Admin in database.  Creating: " + defaultAdmin);
             userRepository.save(defaultAdmin);
         }
+        // Flag used for testing that a default admin exists or was created
+        _DAexists = true;
     }
 
     /**

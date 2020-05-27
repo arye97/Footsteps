@@ -34,7 +34,6 @@ public class DefaultAdminUser extends User {
      */
     @Value("${spring.security.default.email}")
     private void setDefaultEmail(String email) {
-        System.out.println("Setting Email: " + email);
         super.setPrimaryEmail(email);
     }
 
@@ -46,7 +45,6 @@ public class DefaultAdminUser extends User {
      */
     @Value("${spring.security.default.password}")
     private void setDefaultPassword(String password) {
-        System.out.println("Setting Pass: " + password);
         super.setPassword(password);
     }
 

@@ -684,20 +684,28 @@ class UserControllerTest {
     }
 
     @Test
-    /** Tests that a DefaultAdminUser is created in the when a UserController is created */
+    /** Tests that a DefaultAdminUser is created when a UserController is created.
+     * Checks that the Default Admin was added to the database in a roundabout way
+     * (not the greatest).
+     */
     public void defaultAdminIsCreated() throws Exception {
-        setupMockingNoEmail(createUserJsonPost);
+        // Get the UserController bean instance
         UserController controller = context.getBean(UserController.class);
 
+        // Get the defaultAdmin (private field) from UserController
         DefaultAdminUser defaultAdmin = (DefaultAdminUser)ReflectionTestUtils.getField(controller, "defaultAdmin");
-        System.out.println(defaultAdmin);
 
+        // Check that the default admin is not null
         assertNotNull(defaultAdmin);
 
         // Check that email is set
         assertNotNull(defaultAdmin.getPrimaryEmail());
         assertNotEquals(defaultAdmin.getPrimaryEmail(), "");
-        
+
+        // Use a private boolean flag to determine whether the default admin was added to the database
+        // Can't find any other way to do it :(
+        boolean defaultAdminWasAddedToDatabase = (boolean)ReflectionTestUtils.getField(controller, "_DAexists");
+        assertTrue(defaultAdminWasAddedToDatabase);
     }
 
 }
