@@ -671,4 +671,13 @@ class UserControllerTest {
         mvc.perform(editPassReq)
                 .andExpect(status().isBadRequest());   // Don't think there is any other way to test this than bad request
     }
+
+    @Test
+    /** Tests that a DefaultAdminUser is created in the when a UserController is created */
+    public void defaultAdminIsCreated() throws Exception {
+        setupMockingNoEmail(createUserJsonPost);
+        UserController controller = new UserController(userRepository, emailRepository, userValidationService);
+        assertTrue(userRepository.existsUserByRole(UserRole.DEFAULT_ADMIN));
+    }
+
 }
