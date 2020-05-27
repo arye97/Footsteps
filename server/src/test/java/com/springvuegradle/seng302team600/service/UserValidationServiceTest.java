@@ -119,7 +119,8 @@ class UserValidationServiceTest {
     public void loginAuthorizedUsers() {
         UserResponse userResponse = userService.login(userData.getPrimaryEmail(), userData.getPassword());
         assertNotNull(userResponse);
-        assertEquals(userResponse, dummyUser.getToken());
+        assertEquals(dummyUser.getUserId(), userResponse.getUserId());
+        assertEquals(dummyUser.getToken(), userResponse.getToken());
     }
 
     @Test

@@ -44,7 +44,7 @@ public class EmailController {
     public Map<String, Object> findUserEmails(HttpServletRequest request, HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) {
         String token = request.getHeader("Token");
         // Errors are thrown in userService
-        User user = userService.findByToken(token);
+        User user = userService.findByUserId(token, profileId);
         user.setTransientEmailStrings();
         Map<String, Object> userIdAndEmails = new HashMap<>();
         userIdAndEmails.put("userId", user.getUserId());

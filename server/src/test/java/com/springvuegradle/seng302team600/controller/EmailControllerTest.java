@@ -161,7 +161,8 @@ class EmailControllerTest {
     public void findEmailDataWhenUserIsUnauthorized_Failure() throws Exception {
         setupMocking(createUser1JsonPost);
         String token = "WrongToken"; // Tokens are 30 chars long.
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/emails")
+        Long userId = 2L; //this is the wrong userId for this user
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/profiles/{profileId}/emails", userId)
                 .header("Token", token);
         MvcResult result = mvc.perform(request)
                 .andExpect(status().isUnauthorized())
@@ -172,7 +173,8 @@ class EmailControllerTest {
     @Test
     public void findEmailData_WhenUserIsAuthorized_Success() throws Exception {
         setupMocking(createUser1JsonPost);
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/emails")
+        Long userId = dummyUser.getUserId();
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/profiles/{profileId}/emails", userId)
                 .header("Token", validToken);
         MvcResult result = mvc.perform(request)
                 .andExpect(status().isOk())
@@ -188,14 +190,15 @@ class EmailControllerTest {
     @Test
     public void addAdditionalEmails_Success() throws Exception {
         setupMocking(createUser1JsonPost);
-        MockHttpServletRequestBuilder getEmailsRequest = MockMvcRequestBuilders.get("/emails")
+        Long userId = dummyUser.getUserId();
+        MockHttpServletRequestBuilder getEmailsRequest = MockMvcRequestBuilders.get("/profiles/{profileId}/emails", userId)
                 .header("Token", validToken);
         MvcResult result = mvc.perform(getEmailsRequest)
                 .andExpect(status().isOk())
                 .andReturn();
         String jsonResponseStr = result.getResponse().getContentAsString();
         JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
-        Long userId = jsonNode.get("userId").asLong();
+        userId = jsonNode.get("userId").asLong();
 
         // Setup add emails POST request
         MockHttpServletRequestBuilder addEmailsRequest = MockMvcRequestBuilders.post("/profiles/{profileId}/emails", userId)
@@ -208,7 +211,7 @@ class EmailControllerTest {
                 .andExpect(status().isCreated());
 
         // Setup GET request to find updated emails
-        getEmailsRequest = MockMvcRequestBuilders.get("/emails")
+        getEmailsRequest = MockMvcRequestBuilders.get("/profiles/{profileId}/emails", userId)
                 .header("Token", validToken);
         // Perform GET
         result = mvc.perform(getEmailsRequest)
@@ -236,14 +239,15 @@ class EmailControllerTest {
     @Test
     public void addAdditionalEmails_Failure_WhenUserIsAlreadyUsingEmailAsPrimaryEmail() throws Exception {
         setupMocking(createUser1JsonPost);
-        MockHttpServletRequestBuilder getEmailsRequest = MockMvcRequestBuilders.get("/emails")
+        Long userId = dummyUser.getUserId();
+        MockHttpServletRequestBuilder getEmailsRequest = MockMvcRequestBuilders.get("/profiles/{profileId}/emails", userId)
                 .header("Token", validToken);
         MvcResult result = mvc.perform(getEmailsRequest)
                 .andExpect(status().isOk())
                 .andReturn();
         String jsonResponseStr = result.getResponse().getContentAsString();
         JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
-        Long userId = jsonNode.get("userId").asLong();
+        userId = jsonNode.get("userId").asLong();
 
         // Setup add emails POST request
         MockHttpServletRequestBuilder addEmailsRequest = MockMvcRequestBuilders.post("/profiles/{profileId}/emails", userId)
@@ -256,7 +260,7 @@ class EmailControllerTest {
                 .andExpect(status().isBadRequest());
 
         // Setup GET request to affirm that emails have not been updated
-        getEmailsRequest = MockMvcRequestBuilders.get("/emails")
+        getEmailsRequest = MockMvcRequestBuilders.get("/profiles/{profileId}/emails", userId)
                 .header("Token", validToken);
         // Perform GET
         result = mvc.perform(getEmailsRequest)
@@ -281,14 +285,15 @@ class EmailControllerTest {
     @Test
     public void addAdditionalEmails_Success_WhenUserSubmitsAnUpdatedAdditionalEmailsList() throws Exception {
         setupMocking(createUser1JsonPost);
-        MockHttpServletRequestBuilder getEmailsRequest = MockMvcRequestBuilders.get("/emails")
+        Long userId = dummyUser.getUserId();
+        MockHttpServletRequestBuilder getEmailsRequest = MockMvcRequestBuilders.get("/profiles/{profileId}/emails", userId)
                 .header("Token", validToken);
         MvcResult result = mvc.perform(getEmailsRequest)
                 .andExpect(status().isOk())
                 .andReturn();
         String jsonResponseStr = result.getResponse().getContentAsString();
         JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
-        Long userId = jsonNode.get("userId").asLong();
+        userId = jsonNode.get("userId").asLong();
 
         // Setup add emails POST request
         MockHttpServletRequestBuilder addEmailsRequest = MockMvcRequestBuilders.post("/profiles/{profileId}/emails", userId)
@@ -312,7 +317,7 @@ class EmailControllerTest {
 
 
         // Setup GET request to affirm that emails have not been updated
-        getEmailsRequest = MockMvcRequestBuilders.get("/emails")
+        getEmailsRequest = MockMvcRequestBuilders.get("/profiles/{profileId}/emails", userId)
                 .header("Token", validToken);
         // Perform GET
         result = mvc.perform(getEmailsRequest)
@@ -343,14 +348,15 @@ class EmailControllerTest {
     @Test
     public void updatePrimaryAndAdditionalEmails_Success_WithNoExistingAdditionalEmails() throws Exception {
         setupMocking(createUser1JsonPost);
-        MockHttpServletRequestBuilder getEmailsRequest = MockMvcRequestBuilders.get("/emails")
+        Long userId = dummyUser.getUserId();
+        MockHttpServletRequestBuilder getEmailsRequest = MockMvcRequestBuilders.get("/profiles/{profileId}/emails", userId)
                 .header("Token", validToken);
         MvcResult result = mvc.perform(getEmailsRequest)
                 .andExpect(status().isOk())
                 .andReturn();
         String jsonResponseStr = result.getResponse().getContentAsString();
         JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
-        Long userId = jsonNode.get("userId").asLong();
+        userId = jsonNode.get("userId").asLong();
 
         // Setup update emails PUT request
         MockHttpServletRequestBuilder updateEmailsRequest = MockMvcRequestBuilders.put("/profiles/{profileId}/emails", userId)
@@ -363,7 +369,7 @@ class EmailControllerTest {
                 .andExpect(status().isCreated());
 
         // Setup GET request to test results
-        getEmailsRequest = MockMvcRequestBuilders.get("/emails")
+        getEmailsRequest = MockMvcRequestBuilders.get("/profiles/{profileId}/emails", userId)
                 .header("Token", validToken);
         // Perform GET
         result = mvc.perform(getEmailsRequest)
@@ -392,14 +398,15 @@ class EmailControllerTest {
     @Test
     public void updatePrimaryAndAdditionalEmails_Success_WithExistingAdditionalEmails() throws Exception {
         setupMocking(createUser1JsonPost);
-        MockHttpServletRequestBuilder getEmailsRequest = MockMvcRequestBuilders.get("/emails")
+        Long userId = dummyUser.getUserId();
+        MockHttpServletRequestBuilder getEmailsRequest = MockMvcRequestBuilders.get("/profiles/{profileId}/emails", userId)
                 .header("Token", validToken);
         MvcResult result = mvc.perform(getEmailsRequest)
                 .andExpect(status().isOk())
                 .andReturn();
         String jsonResponseStr = result.getResponse().getContentAsString();
         JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
-        Long userId = jsonNode.get("userId").asLong();
+        userId = jsonNode.get("userId").asLong();
 
         // Setup add emails POST request
         MockHttpServletRequestBuilder addEmailsRequest = MockMvcRequestBuilders.post("/profiles/{profileId}/emails", userId)
@@ -422,7 +429,7 @@ class EmailControllerTest {
                 .andExpect(status().isCreated());
 
         // Setup GET request to test results
-        getEmailsRequest = MockMvcRequestBuilders.get("/emails")
+        getEmailsRequest = MockMvcRequestBuilders.get("/profiles/{profileId}/emails", userId)
                 .header("Token", validToken);
         // Perform GET
         result = mvc.perform(getEmailsRequest)
@@ -447,7 +454,8 @@ class EmailControllerTest {
     @Test
     public void checkIfEmailIsInUse_Success_WhenEmailIsNotInUse() throws Exception {
         setupMocking(createUser1JsonPost);
-        MockHttpServletRequestBuilder findEmailsRequest = MockMvcRequestBuilders.get("/emails")
+        Long userId = dummyUser.getUserId();
+        MockHttpServletRequestBuilder findEmailsRequest = MockMvcRequestBuilders.get("/profiles/{profileId}/emails", userId)
                 .header("Token", validToken);
         mvc.perform(findEmailsRequest)
                 .andExpect(status().isOk());
@@ -462,7 +470,8 @@ class EmailControllerTest {
     @Test
     public void checkIfEmailIsInUse_Failure_WhenEmailIsInUse() throws Exception {
         setupMocking(createUser1JsonPost);
-        MockHttpServletRequestBuilder findEmailsRequest = MockMvcRequestBuilders.get("/emails")
+        Long userId = dummyUser.getUserId();
+        MockHttpServletRequestBuilder findEmailsRequest = MockMvcRequestBuilders.get("/profiles/{profileId}/emails", userId)
                 .header("Token", validToken);
         mvc.perform(findEmailsRequest)
                 .andExpect(status().isOk());
