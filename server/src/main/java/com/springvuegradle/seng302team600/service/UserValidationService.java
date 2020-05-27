@@ -116,6 +116,12 @@ public class UserValidationService {
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User forbidden from accessing user with ID: " + id);
     }
 
+    /**
+     * Checks a user's admin privileges.
+     * Returns true if a user is an admin.
+     * @param token belongs to session user
+     * @return boolean that indicates if user is an admin
+     */
     public boolean hasAdminPrivileges(String token) {
         User thisUser = findByToken(token);
         return thisUser.getRole() >= 10;
