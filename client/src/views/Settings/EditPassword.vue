@@ -282,11 +282,17 @@
                         withCredentials: true
                     }
                 ).then(() => {
-                    this.$router.push('/'); //Routes to home on logout
+                    sessionStorage.clear();
+                    // tokenStore.setToken(null);
+                    this.isLoggedIn = (sessionStorage.getItem("token") !== null);
+                    this.$forceUpdate();
+                    this.$router.push('/login'); //Routes to home on logout
                 }).catch(() => {
-                    this.$router.push('/'); //Routes to home on logout
+                    sessionStorage.clear();
+                    this.isLoggedIn = (sessionStorage.getItem("token") !== null);
+                    this.$forceUpdate();
+                    this.$router.push('/login'); //Routes to home on logout
                 })
-                sessionStorage.clear();
             },
             /**
              * Redirect to view user screen
