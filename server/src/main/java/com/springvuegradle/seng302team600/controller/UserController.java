@@ -279,6 +279,10 @@ public class UserController {
                                            HttpServletResponse response,
                                            @PathVariable(value = "profileId") Long profileId) {
         String token = request.getHeader("Token");
+        // Checks if a user is an admin/default admin
+        if (userService.hasAdminPrivileges(token)) {
+            return;
+        }
         userService.findByUserId(token, profileId);
     }
 }

@@ -117,6 +117,17 @@ public class UserValidationService {
     }
 
     /**
+     * Checks a user's admin privileges.
+     * Returns true if a user is an admin.
+     * @param token belongs to session user
+     * @return boolean that indicates if user is an admin
+     */
+    public boolean hasAdminPrivileges(String token) {
+        User thisUser = findByToken(token);
+        return thisUser.getRole() >= 10;
+    }
+
+    /**
      * Finds a user by the id
      * @param id the user id of the requested user
      * @param token the user login token
