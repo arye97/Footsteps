@@ -19,6 +19,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -53,14 +55,17 @@ public class UserController {
         this.userRepository = userRepository;
         this.emailRepository = emailRepository;
         this.userService = userService;
-        createDefaultAdmin();
     }
 
     /**
      * Checks if there is a default admin in the Database.  If there isn't, one is created and added.
      * The email and password of the default admin are specified as environment variables in application.properties
+     * The annotation @PostConstruct causes the method to be called during construction, but after all beans have
+     * been initialized.  (Calling it in UserController() constructor won't work.)
      */
+    @PostConstruct
     private void createDefaultAdmin() {
+        System.out.println("Calling createDefaultAdmin " + defaultAdmin);
         if (!userRepository.existsUserByRole(UserRole.DEFAULT_ADMIN)) {
             log.info("No Default Admin in database.  Creating: " + defaultAdmin);
             userRepository.save(defaultAdmin);

@@ -2,12 +2,13 @@ package com.springvuegradle.seng302team600.model;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 
+import javax.persistence.Entity;
 import java.time.LocalDate;
 import java.util.List;
 
+@Entity
 public class DefaultAdminUser extends User {
 
     private static Log log = LogFactory.getLog(DefaultAdminUser.class);
@@ -33,6 +34,7 @@ public class DefaultAdminUser extends User {
      */
     @Value("${spring.security.default.email}")
     private void setDefaultEmail(String email) {
+        System.out.println("Setting Email: " + email);
         super.setPrimaryEmail(email);
     }
 
@@ -44,6 +46,7 @@ public class DefaultAdminUser extends User {
      */
     @Value("${spring.security.default.password}")
     private void setDefaultPassword(String password) {
+        System.out.println("Setting Pass: " + password);
         super.setPassword(password);
     }
 
