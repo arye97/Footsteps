@@ -14,10 +14,13 @@ import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.service.UserValidationService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -39,24 +42,36 @@ public class UserController {
     private static final String REPEAT_PASSWORD_FIELD = "repeat_password";
     private static final String PASSWORD_RULES_REGEX = "(?=.*[0-9])(?=.*[a-zA-Z])(?=\\S+$).{8,}";
 
+    /**
+     * The DefaultAdminUser that is added to the Database if one doesn't
+     * already exist. This is @Autowired so Spring can set it's
+     * primaryEmail and password through environment variables
+     */
+    @Autowired
+    private DefaultAdminUser defaultAdmin;
+    private boolean _DAexists = false;
+
 
     public UserController(UserRepository userRepository, EmailRepository emailRepository, UserValidationService userService) {
         this.userRepository = userRepository;
         this.emailRepository = emailRepository;
         this.userService = userService;
-        createDefaultAdmin();
     }
 
     /**
      * Checks if there is a default admin in the Database.  If there isn't, one is created and added.
      * The email and password of the default admin are specified as environment variables in application.properties
+     * The annotation @PostConstruct causes the method to be called during construction, but after all beans have
+     * been initialized.  (Calling it in UserController() constructor won't work.)
      */
+    @PostConstruct
     private void createDefaultAdmin() {
         if (!userRepository.existsUserByRole(UserRole.DEFAULT_ADMIN)) {
-            User defaultAdminUser = new DefaultAdminUser();
-            log.info("No Default Admin in database.  Creating: " + defaultAdminUser);
-            userRepository.save(defaultAdminUser);
+            log.info("No Default Admin in database.  Creating: " + defaultAdmin);
+            userRepository.save(defaultAdmin);
         }
+        // Flag used for testing that a default admin exists or was created
+        _DAexists = true;
     }
 
     /**

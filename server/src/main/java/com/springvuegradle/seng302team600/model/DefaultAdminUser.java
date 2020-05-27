@@ -2,9 +2,9 @@ package com.springvuegradle.seng302team600.model;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.persistence.Entity;
-import javax.persistence.Transient;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -13,18 +13,8 @@ public class DefaultAdminUser extends User {
 
     private static Log log = LogFactory.getLog(DefaultAdminUser.class);
 
-    @Transient
-//    @Value("${spring.security.user.name}")    // This is not working
-    private String defaultAdminUsername = "default@default.com";   // This and password need to be retrieved from application.properties
-
-    @Transient
-//    @Value("${spring.security.user.password}")
-    private String defaultAdminPassword = "dummypass1";       // Double secret private
-
     public DefaultAdminUser() {
         super();
-        super.setPrimaryEmail(defaultAdminUsername);
-        super.setPassword(defaultAdminPassword);
 
         // Set some dummy values for other required fields
         super.setFirstName("Default");
@@ -35,6 +25,31 @@ public class DefaultAdminUser extends User {
         super.setDateOfBirth(java.sql.Date.valueOf(now.minusYears(18)));   // Set date of birth to 18 years ago
     }
 
+
+    /**
+     * Calls this method when DefaultAdminUser is created as
+     * a Bean (See Application class) and uses and environment
+     * variable as the argument
+     * @param email the default email set from env-var
+     */
+    @Value("${spring.security.default.email}")
+    private void setDefaultEmail(String email) {
+        super.setPrimaryEmail(email);
+    }
+
+    /**
+     * Calls this method when DefaultAdminUser is created as
+     * a Bean (See Application class) and uses and environment
+     * variable as the argument
+     * @param password the default password set from env-var
+     */
+    @Value("${spring.security.default.password}")
+    private void setDefaultPassword(String password) {
+        super.setPassword(password);
+    }
+
+
+    // Override methods of User that shouldn't be used by a DefaultAdmin
 
     @Override
     public void setPrimaryEmail(String newPrimaryEmail) {

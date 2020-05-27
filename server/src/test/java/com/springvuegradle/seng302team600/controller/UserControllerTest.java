@@ -3,6 +3,7 @@ package com.springvuegradle.seng302team600.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.springvuegradle.seng302team600.model.DefaultAdminUser;
 import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.model.UserRole;
@@ -16,8 +17,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -25,6 +30,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Arrays;
@@ -44,6 +50,11 @@ class UserControllerTest {
     private UserValidationService userValidationService;
     @Autowired
     private MockMvc mvc;
+
+    @Autowired
+    private ApplicationContext context;
+    @Autowired
+    public void context(ApplicationContext context) { this.context = context; }
 
     private String createUserJsonPost;
     private String userMissJsonPost;
@@ -673,11 +684,28 @@ class UserControllerTest {
     }
 
     @Test
-    /** Tests that a DefaultAdminUser is created in the when a UserController is created */
+    /** Tests that a DefaultAdminUser is created when a UserController is created.
+     * Checks that the Default Admin was added to the database in a roundabout way
+     * (not the greatest).
+     */
     public void defaultAdminIsCreated() throws Exception {
-        setupMockingNoEmail(createUserJsonPost);
-        UserController controller = new UserController(userRepository, emailRepository, userValidationService);
-        assertTrue(userRepository.existsUserByRole(UserRole.DEFAULT_ADMIN));
+        // Get the UserController bean instance
+        UserController controller = context.getBean(UserController.class);
+
+        // Get the defaultAdmin (private field) from UserController
+        DefaultAdminUser defaultAdmin = (DefaultAdminUser)ReflectionTestUtils.getField(controller, "defaultAdmin");
+
+        // Check that the default admin is not null
+        assertNotNull(defaultAdmin);
+
+        // Check that email is set
+        assertNotNull(defaultAdmin.getPrimaryEmail());
+        assertNotEquals(defaultAdmin.getPrimaryEmail(), "");
+
+        // Use a private boolean flag to determine whether the default admin was added to the database
+        // Can't find any other way to do it :(
+        boolean defaultAdminWasAddedToDatabase = (boolean)ReflectionTestUtils.getField(controller, "_DAexists");
+        assertTrue(defaultAdminWasAddedToDatabase);
     }
 
 }

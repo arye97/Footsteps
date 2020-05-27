@@ -1,5 +1,6 @@
 package com.springvuegradle.seng302team600;
 
+import com.springvuegradle.seng302team600.model.DefaultAdminUser;
 import org.springframework.context.annotation.Bean;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -39,5 +40,14 @@ public class Application {
         FilterRegistrationBean bean = new FilterRegistrationBean<>(new CorsFilter(source));
         bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
         return bean;
+    }
+
+    /**
+     * Adds a DefaultAdminUser for UserController. This needs to be @Autowired so Spring can set it's
+     * primaryEmail and password through environment variables
+     */
+    @Bean
+    public DefaultAdminUser getDefaultAdmin() {
+        return new DefaultAdminUser();
     }
 }
