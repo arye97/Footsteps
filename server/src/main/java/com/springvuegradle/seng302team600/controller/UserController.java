@@ -14,6 +14,7 @@ import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.service.UserValidationService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -39,6 +40,14 @@ public class UserController {
     private static final String REPEAT_PASSWORD_FIELD = "repeat_password";
     private static final String PASSWORD_RULES_REGEX = "(?=.*[0-9])(?=.*[a-zA-Z])(?=\\S+$).{8,}";
 
+    /**
+     * The DefaultAdminUser that is added to the Database if one doesn't
+     * already exist. This is @Autowired so Spring can set it's
+     * primaryEmail and password through environment variables
+     */
+    @Autowired
+    private DefaultAdminUser defaultAdmin;
+
 
     public UserController(UserRepository userRepository, EmailRepository emailRepository, UserValidationService userService) {
         this.userRepository = userRepository;
@@ -53,9 +62,8 @@ public class UserController {
      */
     private void createDefaultAdmin() {
         if (!userRepository.existsUserByRole(UserRole.DEFAULT_ADMIN)) {
-            User defaultAdminUser = new DefaultAdminUser();
-            log.info("No Default Admin in database.  Creating: " + defaultAdminUser);
-            userRepository.save(defaultAdminUser);
+            log.info("No Default Admin in database.  Creating: " + defaultAdmin);
+            userRepository.save(defaultAdmin);
         }
     }
 
