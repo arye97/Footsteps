@@ -13,7 +13,14 @@ variables:
   GIT_DEPTH: 0
 sonarqube-check:
   stage: test
-  script: ./gradlew sonarqube -Dsonar.qualitygate.wait=true
+  script:
+    - cd server
+    - ./gradlew build
+    - ./gradlew sonarqube
+    - cd ../client
+    - npm install
+    - npm run test
+    - npm run sonarqube
   allow_failure: true
   only:
     - development
@@ -58,10 +65,15 @@ release-build:
     - mkdir -p ../server-prod/
     - cp -r ./client/dist/ ../client-prod/
     - cp -r ./server/build/libs ../server-prod/
-#    - bash startProdApplication /tmp 2>> /dev/null >>/dev/null
+    - bash startProdApplication /tmp 2>> /dev/null >>/dev/null
  artifacts:
     paths:
     - client/dist
     - server/out
  only:
     - tags
+
+cache:
+  paths:  # the list of directories to cache
+    - client/node_modules
+  key: node-modules  # the cache key

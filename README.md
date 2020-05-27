@@ -33,7 +33,8 @@ To run the full application, first run the server and then run the client
 1. Navigate to the server folder: 
 Example command: `cd server`
 2. Run the server
-Command: `./gradlew bootRun`
+Command: `./gradlew bootRun`  
+If you do not have access to the test database, you can use an in memory database by using the command `./gradlew bootRun -PspringProfile=local` instead
 
 Running on: http://localhost:9499/
 

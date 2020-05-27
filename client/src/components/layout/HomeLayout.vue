@@ -34,7 +34,7 @@
                 this.$router.push('/register');
                 // this.$emit('register');
             }
-        }
+        },
     }
 </script>
 

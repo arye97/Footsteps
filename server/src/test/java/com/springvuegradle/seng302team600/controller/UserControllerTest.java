@@ -7,6 +7,7 @@ import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.model.UserRole;
 import com.springvuegradle.seng302team600.payload.RegisterRequest;
+import com.springvuegradle.seng302team600.payload.UserResponse;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.service.UserValidationService;
@@ -25,6 +26,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -54,13 +57,25 @@ class UserControllerTest {
     private String jsonLoginDetailsIncorrectPass;
     private String jsonLoginDetailsUserNotFound;
     private String createUserJsonPostLogout;
+    private String createUserJsonViewUser1;
+    private String createUserJsonViewUser2;
+    private String jsonEditPasswordUser;
+    private String jsonEditPasswordLoginDetails;
+    private String jsonPasswordChangeSuccess;
+    private String jsonPasswordChangeFail;
+    private String jsonPasswordSame;
+    private String jsonPasswordFailsRules;
 
     private ObjectMapper objectMapper;
 
     private User dummyUser;
+    private User fakeUser; // Used when a second user is required
     private RegisterRequest regReq;
     private Email dummyEmail;
+    private Email fakeEmail; // Used for the second (fake) user
     private String validToken = "valid";
+    private static final Long DEFAULT_USER_ID = 1L;
+    private static final Long DEFAULT_EMAIL_ID = 1L;
     private boolean defaultAdminIsRegistered;
 
     @BeforeEach
@@ -128,6 +143,24 @@ class UserControllerTest {
                 "  \"gender\": \"Female\"\n" +
                 "}";
 
+        createUserJsonViewUser1 = "{\n" +
+                "  \"lastname\": \"Tomato\",\n" +
+                "  \"firstname\": \"Bob\",\n" +
+                "  \"primary_email\": \"bob@gmail.com\",\n" +
+                "  \"password\": \"bobsPassword\",\n" +
+                "  \"date_of_birth\": \"2002-1-2\",\n" +
+                "  \"gender\": \"Male\"\n" +
+                "}";
+
+        createUserJsonViewUser2 = "{\n" +
+                "  \"lastname\": \"Cucumber\",\n" +
+                "  \"firstname\": \"Larry\",\n" +
+                "  \"primary_email\": \"larry@gmail.com\",\n" +
+                "  \"password\": \"larrysPassword\",\n" +
+                "  \"date_of_birth\": \"2002-1-20\",\n" +
+                "  \"gender\": \"Female\"\n" +
+                "}";
+
         editProfileJsonPut = "{\n" +
                 "  \"bio\": \"A guy\",\n" +
                 "  \"date_of_birth\": \"1953-6-4\",\n" +
@@ -167,10 +200,49 @@ class UserControllerTest {
                 "  \"password\": \"bobbyPwd\"\n" +
                 "}";
 
+        jsonEditPasswordUser = "{\n" +
+                "  \"lastname\": \"Doe\",\n" +
+                "  \"firstname\": \"Jane\",\n" +
+                "  \"primary_email\": \"janedoe@gmail.com\",\n" +
+                "  \"password\": \"password1\",\n" +
+                "  \"date_of_birth\": \"1980-6-5\",\n" +
+                "  \"gender\": \"Female\"\n" +
+                "}";
+
+        jsonEditPasswordLoginDetails = "{\n" +
+                "  \"email\": \"janedoe@gmail.com\",\n" +
+                "  \"password\": \"PASSword2\"\n" +
+                "}";
+
+        jsonPasswordChangeSuccess = "{\n" +
+                "  \"old_password\": \"password1\",\n" +
+                "  \"new_password\": \"PASSword2\",\n" +
+                "  \"repeat_password\": \"PASSword2\"\n" +
+                "}";
+
+        jsonPasswordChangeFail = "{\n" +
+                "  \"old_password\": \"password1\",\n" +
+                "  \"new_password\": \"password2\",\n" +
+                "  \"repeat_password\": \"password3\"\n" +
+                "}";
+
+        jsonPasswordSame = "{\n" +
+                "  \"old_password\": \"password1\",\n" +
+                "  \"new_password\": \"password1\",\n" +
+                "  \"repeat_password\": \"password1\"\n" +
+                "}";
+
+        jsonPasswordFailsRules = "{\n" +
+                "  \"old_password\": \"password1\",\n" +
+                "  \"new_password\": \"pass\",\n" +
+                "  \"repeat_password\": \"pass\"\n" +
+                "}";
+
         objectMapper = new ObjectMapper();
         MockitoAnnotations.initMocks(this);
         dummyUser = new User();
     }
+
     private void setupMocking(String json) throws JsonProcessingException {
         setupMockingNoEmail(json);
         when(emailRepository.existsEmailByEmail(Mockito.anyString())).thenAnswer(i -> {
@@ -204,13 +276,17 @@ class UserControllerTest {
                 });
         when(emailRepository.existsEmailByEmail(Mockito.anyString())).thenReturn(false);
         when(userValidationService.findByUserId(Mockito.anyString(), Mockito.anyLong())).thenAnswer(i -> {
-            if (i.getArgument(0).equals(dummyUser.getToken()) && i.getArgument(1).equals(dummyUser.getUserId())) return dummyUser;
-            else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            if (i.getArgument(0).equals(dummyUser.getToken()) && i.getArgument(1).equals(dummyUser.getUserId()))
+                return dummyUser;
+            else if ((i.getArgument(0).equals(dummyUser.getToken())) && !(i.getArgument(1).equals(dummyUser.getUserId())))
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            else
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         });
-        ReflectionTestUtils.setField(dummyUser, "userId", 1L);
-        ReflectionTestUtils.setField(dummyEmail, "id", 1L);
+        ReflectionTestUtils.setField(dummyUser, "userId", DEFAULT_USER_ID);
+        ReflectionTestUtils.setField(dummyEmail, "id", DEFAULT_EMAIL_ID);
         when(userValidationService.login(Mockito.anyString(),Mockito.anyString())).thenAnswer(i -> {
-                if (i.getArgument(0).equals(dummyEmail.getEmail()) && dummyUser.checkPassword(i.getArgument(1))) return "ValidToken";
+                if (i.getArgument(0).equals(dummyEmail.getEmail()) && dummyUser.checkPassword(i.getArgument(1))) return new UserResponse("ValidToken", dummyUser.getUserId());
                 else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         });
         Mockito.doAnswer(i -> {
@@ -219,6 +295,30 @@ class UserControllerTest {
         }).when(userValidationService).logout(Mockito.anyString());
         dummyUser.setToken(validToken);
         dummyUser.setTokenTime();
+
+        // Second user
+        fakeUser = new User();
+        regReq = objectMapper.treeToValue(objectMapper.readTree(createUserJsonViewUser2), RegisterRequest.class);
+        fakeUser = fakeUser.builder(regReq);
+        fakeEmail = new Email(fakeUser.getPrimaryEmail(), true, fakeUser);
+        ReflectionTestUtils.setField(fakeUser, "userId", 10L);
+        ReflectionTestUtils.setField(fakeEmail, "id", 10L);
+        when(userValidationService.viewUserById(Mockito.anyLong(), Mockito.anyString())).thenAnswer(i -> {
+            if ((long) i.getArgument(0) == 10L && i.getArgument(1) == validToken) return fakeUser;
+            else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        });
+
+
+//        when(userRepository.findByUserId(Mockito.anyLong())).thenReturn(fakeUser);
+//        when(userValidationService.findByUserId(Mockito.anyString(), Mockito.anyLong())).thenAnswer(i -> {
+//            if (i.getArgument(0).equals(fakeUser.getToken()) && i.getArgument(1).equals(fakeUser.getUserId()))
+//                return fakeUser;
+//            else if ((i.getArgument(0).equals(fakeUser.getToken())) && !(i.getArgument(1).equals(fakeUser.getUserId())))
+//                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+//            else
+//                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+//        });
+
     }
 
     @Test
@@ -288,13 +388,23 @@ class UserControllerTest {
         assertEquals("Tim", jsonNode.get("firstname").asText());
     }
 
+    /**
+     * Helper function that creates a mock request to login a user
+     * @param jsonLoginDetails a json string of login details with keys email: password:
+     * @return the created request
+     */
+    private MockHttpServletRequestBuilder buildLoginRequest(String jsonLoginDetails) {
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/login")
+                .content(jsonLoginDetails)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+        return request;
+    }
+
     @Test
     public void doNotLoginIncorrectPassword() throws Exception {
         setupMocking(createUserJsonPostLogin);
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/login")
-                .content(jsonLoginDetailsIncorrectPass)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON);
+        MockHttpServletRequestBuilder request = buildLoginRequest(jsonLoginDetailsIncorrectPass);
 
         mvc.perform(request)
                 .andExpect(status().isUnauthorized());
@@ -303,10 +413,7 @@ class UserControllerTest {
     @Test
     public void doNotLoginUserNotFound() throws Exception {
         setupMocking(createUserJsonPostLogin);
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/login")
-                .content(jsonLoginDetailsUserNotFound)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON);
+        MockHttpServletRequestBuilder request = buildLoginRequest(jsonLoginDetailsUserNotFound);
 
         mvc.perform(request)
                 .andExpect(status().isUnauthorized());
@@ -315,10 +422,7 @@ class UserControllerTest {
     @Test
     public void loginAuthorizedUser() throws Exception {
         setupMocking(createUserJsonPostLogin);
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/login")
-                .content(jsonLoginDetails)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON);
+        MockHttpServletRequestBuilder request = buildLoginRequest(jsonLoginDetails);
 
         MvcResult result = mvc.perform(request)
                 .andExpect(status().isCreated())
@@ -396,17 +500,175 @@ class UserControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .header("Token", validToken);
 
-        MockHttpServletRequestBuilder getRequest = MockMvcRequestBuilders.get("/profiles")
-                .header("Token", validToken);
         mvc.perform(editRequest)
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test
-    /** Tests that a DefaultAdminUser is created in the when a UserController is created */
-    public void defaultAdminIsCreated() throws Exception {
+    /** Tests that a user can view another users profile */
+    public void viewProfileSuccess() throws Exception {
+        // Set up two users
+        setupMocking(createUserJsonViewUser1);
+        // Get the id of the second user
+        long userId = fakeUser.getUserId();
+        // Request the second user
+        MockHttpServletRequestBuilder getRequest = MockMvcRequestBuilders.get("/profiles/{id}", userId)
+                .header("Token", validToken);
+        MvcResult result = mvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andReturn();
+        // Get Response as JsonNode
+        String jsonResponseStr = result.getResponse().getContentAsString();
+        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
+        // Check that the right user has been retrieved
+        assertEquals("Larry", jsonNode.get("firstname").asText());
+        assertEquals("Cucumber", jsonNode.get("lastname").asText());
+        assertEquals("larry@gmail.com", jsonNode.get("primary_email").asText());
+        assertEquals("Female", jsonNode.get("gender").asText());
+        assertEquals("2002-01-20", jsonNode.get("date_of_birth").asText());
+    }
+
+    @Test
+    /**
+     * Successful test to check if a token is logged in with given user id
+     */
+    public void checkIfUserIdMatchesTokenSuccess() throws Exception {
         setupMockingNoEmail(createUserJsonPost);
-        UserController controller = new UserController(userRepository, emailRepository, userValidationService);
-        assertTrue(userRepository.existsUserByRole(UserRole.DEFAULT_ADMIN));
+
+        //Log in
+        MockHttpServletRequestBuilder getRequestToLogin = MockMvcRequestBuilders.get("/profiles")
+                .header("Token", validToken);
+        mvc.perform(getRequestToLogin)
+                .andExpect(status().isOk());
+
+        //Check if user id matches the token logged in
+        MockHttpServletRequestBuilder getRequestCheckToken = MockMvcRequestBuilders.get("/check-profile/{id}", dummyUser.getUserId())
+                .header("Token", validToken);
+        mvc.perform(getRequestCheckToken)
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    /**
+     * Unsuccessful test to check if a token is logged in with given user id
+     * that that throws a 403 Forbidden
+     */
+    public void checkIfUserIdMatchesTokenForbidden() throws Exception {
+        setupMockingNoEmail(createUserJsonPost);
+        long userId = fakeUser.getUserId();
+
+        //Log in
+        MockHttpServletRequestBuilder getRequestToLogin = MockMvcRequestBuilders.get("/profiles")
+                .header("Token", validToken);
+        mvc.perform(getRequestToLogin)
+                .andExpect(status().isOk());
+
+        //Check token
+        System.out.println(userId);
+        MockHttpServletRequestBuilder getRequestCheckToken = MockMvcRequestBuilders.get("/check-profile/{id}", userId)
+                .header("Token", validToken);
+        mvc.perform(getRequestCheckToken)
+                .andExpect(status().isForbidden());
+    }
+
+    /**
+     * Helper method to build a request to change the password of a user.  Gets the UserID from the current user
+     * (might need to be changed when we get users by ID)
+     * and change the user's password by their ID.
+     * @param jsonPasswordChange a json put request to change the password
+     * @return the request that is built.
+     * @throws Exception
+     */
+    private MockHttpServletRequestBuilder buildUserChangePassword(String jsonPasswordChange) throws Exception{
+
+        // Getting the user Id by using /profiles sets the password in the User to null, which breaks the tests.
+        // So for now its set explicitly
+        Long userId = DEFAULT_USER_ID;
+
+        // Edit their password
+        MockHttpServletRequestBuilder editPassReq = MockMvcRequestBuilders.put("/profiles/{id}/password", userId)
+                .content(jsonPasswordChange)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("Token", validToken);
+        return editPassReq;
+    }
+
+    @Test
+    /**
+     * Test creating a user and editing they're password when the password and repeated password match.
+     * NOTE: as of now there is no simple way to tell if a password has been updated because password
+     * hashes are not returned when retrieving a user.  Though they could be tested by logging in,
+     * logging out, changing password, and trying to log in again.
+     */
+    public void changePasswordSuccessTest() throws Exception {
+
+        // Create user
+        setupMockingNoEmail(jsonEditPasswordUser);
+
+
+        // Change password
+        MockHttpServletRequestBuilder editPassReq = buildUserChangePassword(jsonPasswordChangeSuccess);
+        mvc.perform(editPassReq)
+                .andExpect(status().isOk());
+
+        // Logout
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/logout")
+                .accept(MediaType.APPLICATION_JSON)
+                .header("Token", validToken);
+        mvc.perform(request)
+                .andExpect(status().isOk());
+
+        // Login with new password
+        MockHttpServletRequestBuilder loginRequest2 = buildLoginRequest(jsonEditPasswordLoginDetails);
+        mvc.perform(loginRequest2)
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    /**
+     * Test creating a user and editing they're password when the password and repeated password NO NOT match.
+     */
+    public void changePasswordFailTest() throws Exception {
+        // Create user
+        setupMocking(jsonEditPasswordUser);
+
+
+        // Change password
+        MockHttpServletRequestBuilder editPassReq = buildUserChangePassword(jsonPasswordChangeFail);
+        mvc.perform(editPassReq)
+                .andExpect(status().isBadRequest());   // Don't think there is any other way to test this than bad request
+
+    }
+
+    @Test
+    /**
+     * Test creating a user and editing they're password when the new password is the same as the old password
+     * (new passwords can't match old passwords).
+     */
+    public void changePasswordNewEqualsOldTest() throws Exception {
+        // Create user
+        setupMocking(jsonEditPasswordUser);
+
+
+        // Change password
+        MockHttpServletRequestBuilder editPassReq = buildUserChangePassword(jsonPasswordSame);
+        mvc.perform(editPassReq)
+                .andExpect(status().isBadRequest());   // Don't think there is any other way to test this than bad request
+    }
+
+    @Test
+    /**
+     * Test creating a user and changing their password to a password that violates the password rules
+     */
+    public void changePasswordFailsRules() throws Exception {
+        // Create user
+        setupMocking(jsonEditPasswordUser);
+
+
+        // Change password
+        MockHttpServletRequestBuilder editPassReq = buildUserChangePassword(jsonPasswordFailsRules);
+        mvc.perform(editPassReq)
+                .andExpect(status().isBadRequest());   // Don't think there is any other way to test this than bad request
     }
 }

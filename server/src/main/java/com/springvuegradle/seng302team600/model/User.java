@@ -128,9 +128,6 @@ public class User {
         SEDENTARY, LOW, MEDIUM, HIGH, VERY_HIGH
     }
 
-//    public enum UserRole {USER, ADMIN, DEFAULT_ADMIN}
-
-
     /**
      * Default constructor for User.
      * Mandatory for repository actions.
@@ -174,9 +171,11 @@ public class User {
 
     public boolean isTimedOut() {
         ///time calculated in milliseconds
-        Date now = new Date();
-        long diff = now.getTime() - tokenTime.getTime();
-        return diff >= tokenDecayTime || diff < 0;
+        if (this.tokenTime != null) {
+            Date now = new Date();
+            long diff = now.getTime() - tokenTime.getTime();
+            return diff >= tokenDecayTime || diff < 0;
+        } else return true; //Default to the user being timed out
     }
 
     public void setTokenTime() {
