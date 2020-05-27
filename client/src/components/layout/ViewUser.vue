@@ -148,8 +148,9 @@
                             'Content-Type': 'application/json',
                             'Token': sessionStorage.getItem("token")}}
                 ).then(() => {
-                    //Status code 200
-                    //User can edit this profile
+                    // Status code 200
+                    // User can edit this profile
+                    // If admin will return 200
                     this.isEditable = true;
                 }).catch(error => {
                     this.isEditable = false;

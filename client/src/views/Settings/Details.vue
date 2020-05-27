@@ -409,6 +409,7 @@
                     }
                 ).then(() => {
                     // 200
+                    // If admin will return 200
                     this.loggedIn = true;
                     this.profileId = this.$route.params.userId;
                 }).catch(error => {
