@@ -2,6 +2,7 @@ package com.springvuegradle.seng302team600.service;
 
 import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
+import com.springvuegradle.seng302team600.payload.UserResponse;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +43,7 @@ public class UserValidationService {
      * @param password user's password to login
      * @return the token generated or ResponseStatusException is thrown
      */
-    public String login(String email, String password) {
+    public UserResponse login(String email, String password) {
         Email userEmail = emailRepository.findByEmail(email);
         if (userEmail == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Could not find user with email " + email);
@@ -53,7 +54,7 @@ public class UserValidationService {
             user.setToken(token);
             user.setTokenTime();
             userRepository.save(user);
-            return token;
+            return new UserResponse(token, user.getUserId());
         }
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login unsuccessful, please enter a valid password");
     }
@@ -113,6 +114,21 @@ public class UserValidationService {
             }
         }
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User forbidden from accessing user with ID: " + id);
+    }
+
+    /**
+     * Finds a user by the id
+     * @param id the user id of the requested user
+     * @param token the user login token
+     * @return the user requested or ResponseStatusException is the user is not found
+     */
+    public User viewUserById(Long id, String token) {
+        findByToken(token); // Checks that a user is logged in
+        User user = userRepository.findByUserId(id);
+        if (user != null) {
+            return user;
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with ID: " + id);
     }
 
     /**

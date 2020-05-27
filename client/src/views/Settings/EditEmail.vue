@@ -1,17 +1,20 @@
 <template>
     <div>
         <h1><br/></h1>
-        <div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm-6 offset-sm-3">
-                        <Header />
-                        <router-view></router-view>
+        <template v-if="userId">
+            <div>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-6 offset-sm-3">
+                            <Header :userId="this.userId"/>
+                            <router-view></router-view>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    <Sidebar/>
+            <Sidebar :userId="this.userId"/>
+        </template>
+
 
         <h1><br/></h1>
         <header class="masthead">
@@ -141,18 +144,19 @@
 </template>
 <script>
     import server from '../../Api';
-    import {tokenStore} from "../../main";
+    // import {tokenStore} from "../../main";
     import Sidebar from '../../components/layout/ProfileEditSidebar';
+    import Header from '../../components/Header/Header.vue'
     export default {
         name: "EditEmail",
-        components: { Sidebar },
+        components: { Sidebar, Header },
         data () {
             return {
                 //each time toReload increases then the html el will reload
                 toReload: 0,
                 loading: true,
                 error: false,
-                userId: null, //y
+                userId: '', //y
                 primaryEmail: null, //y
                 additionalEmails: [], //y
                 originalPrimaryEmail: null, //y
@@ -164,15 +168,30 @@
                 changesHaveBeenMade: false
             }
         },
-        mounted() {
-            server.get(  `/emails`,
+        async beforeMount() {
+
+            await server.get(`/profiles/${this.userId}`,
+                {headers: {'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")},
+                    withCredentials: true
+                }, ).then(response => {
+                this.userId = response.data.id;
+            }).catch(error => {
+                if (error.response.data.status === 401) {
+                    this.$router.push("/login");
+                }
+            });
+
+            console.log(this.userId);
+
+            await server.get(  `/profiles/${this.userId}/emails`,
                 {
                     headers: {
                         'Content-Type': 'application/json',
-                               'Token': tokenStore.state.token
+                               'Token': sessionStorage.getItem("token")
                     },
                     withCredentials: true
                 }
+
             ).then(response => {
                 if (response.status === 200) {
                     this.loading = false;
@@ -309,7 +328,7 @@
                             {
                                 headers: {
                                     'Content-Type': 'application/json',
-                                           'Token': tokenStore.state.token,
+                                           'Token': sessionStorage.getItem("token"),
                                            'email': emailTextBox
                                 },
                                 withCredentials: true
@@ -368,20 +387,20 @@
                 if (!this.changesHaveBeenMade) {
                     return
                 }
-
                 let savedEmails;
                 // Primary Email has not been replaced (POST)
                 if (this.primaryEmail === this.originalPrimaryEmail) {
                     savedEmails = {
                         additional_email: this.additionalEmails
                     };
+
                     server.post(`/profiles/${this.userId}/emails`,
                         savedEmails,
                         {
                             headers: {
                                 "Access-Control-Allow-Origin": "*",
-                                               "content-type": "application/json",
-                                                      "Token": tokenStore.state.token
+                                               "Content-Type": "application/json",
+                                                      "Token": sessionStorage.getItem("token")
                             },
                             withCredentials: true
                         }
@@ -415,13 +434,14 @@
                         primary_email: this.primaryEmail,
                         additional_email: this.additionalEmails
                     };
+                    console.log(`/profiles/${this.userId}/emails`);
                     server.put(`/profiles/${this.userId}/emails`,
                         savedEmails,
                         {
                             headers: {
                                 "Access-Control-Allow-Origin": "*",
-                                               "content-type": "application/json",
-                                                      "Token": tokenStore.state.token
+                                               "Content-Type": "application/json",
+                                                      "Token": sessionStorage.getItem("token")
                             },
                             withCredentials: true
                         }

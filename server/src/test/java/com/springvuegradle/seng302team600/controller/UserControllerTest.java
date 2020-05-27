@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.RegisterRequest;
+import com.springvuegradle.seng302team600.payload.UserResponse;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.service.UserValidationService;
@@ -24,6 +25,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -53,6 +56,8 @@ class UserControllerTest {
     private String jsonLoginDetailsIncorrectPass;
     private String jsonLoginDetailsUserNotFound;
     private String createUserJsonPostLogout;
+    private String createUserJsonViewUser1;
+    private String createUserJsonViewUser2;
     private String jsonEditPasswordUser;
     private String jsonEditPasswordLoginDetails;
     private String jsonPasswordChangeSuccess;
@@ -63,8 +68,10 @@ class UserControllerTest {
     private ObjectMapper objectMapper;
 
     private User dummyUser;
+    private User fakeUser; // Used when a second user is required
     private RegisterRequest regReq;
     private Email dummyEmail;
+    private Email fakeEmail; // Used for the second (fake) user
     private String validToken = "valid";
     private static final Long DEFAULT_USER_ID = 1L;
     private static final Long DEFAULT_EMAIL_ID = 1L;
@@ -130,6 +137,24 @@ class UserControllerTest {
                 "  \"primary_email\": \"kite@gmail.com\",\n" +
                 "  \"password\": \"kitPwd\",\n" +
                 "  \"date_of_birth\": \"2002-1-2\",\n" +
+                "  \"gender\": \"Female\"\n" +
+                "}";
+
+        createUserJsonViewUser1 = "{\n" +
+                "  \"lastname\": \"Tomato\",\n" +
+                "  \"firstname\": \"Bob\",\n" +
+                "  \"primary_email\": \"bob@gmail.com\",\n" +
+                "  \"password\": \"bobsPassword\",\n" +
+                "  \"date_of_birth\": \"2002-1-2\",\n" +
+                "  \"gender\": \"Male\"\n" +
+                "}";
+
+        createUserJsonViewUser2 = "{\n" +
+                "  \"lastname\": \"Cucumber\",\n" +
+                "  \"firstname\": \"Larry\",\n" +
+                "  \"primary_email\": \"larry@gmail.com\",\n" +
+                "  \"password\": \"larrysPassword\",\n" +
+                "  \"date_of_birth\": \"2002-1-20\",\n" +
                 "  \"gender\": \"Female\"\n" +
                 "}";
 
@@ -236,13 +261,19 @@ class UserControllerTest {
         when(userRepository.findByUserId(Mockito.anyLong())).thenReturn(dummyUser);
         when(emailRepository.existsEmailByEmail(Mockito.anyString())).thenReturn(false);
         when(userValidationService.findByUserId(Mockito.anyString(), Mockito.anyLong())).thenAnswer(i -> {
-            if (i.getArgument(0).equals(dummyUser.getToken()) && i.getArgument(1).equals(dummyUser.getUserId())) return dummyUser;
-            else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            System.out.println(Arrays.toString(i.getArguments()));
+            if (i.getArgument(0).equals(dummyUser.getToken()) && i.getArgument(1).equals(dummyUser.getUserId()))
+                return dummyUser;
+            else if ((i.getArgument(0).equals(dummyUser.getToken())) && !(i.getArgument(1).equals(dummyUser.getUserId())))
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            else
+                System.out.println("HASSSSSSS");
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         });
         ReflectionTestUtils.setField(dummyUser, "userId", DEFAULT_USER_ID);
         ReflectionTestUtils.setField(dummyEmail, "id", DEFAULT_EMAIL_ID);
         when(userValidationService.login(Mockito.anyString(),Mockito.anyString())).thenAnswer(i -> {
-                if (i.getArgument(0).equals(dummyEmail.getEmail()) && dummyUser.checkPassword(i.getArgument(1))) return "ValidToken";
+                if (i.getArgument(0).equals(dummyEmail.getEmail()) && dummyUser.checkPassword(i.getArgument(1))) return new UserResponse("ValidToken", dummyUser.getUserId());
                 else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         });
         Mockito.doAnswer(i -> {
@@ -251,6 +282,30 @@ class UserControllerTest {
         }).when(userValidationService).logout(Mockito.anyString());
         dummyUser.setToken(validToken);
         dummyUser.setTokenTime();
+
+        // Second user
+        fakeUser = new User();
+        regReq = objectMapper.treeToValue(objectMapper.readTree(createUserJsonViewUser2), RegisterRequest.class);
+        fakeUser = fakeUser.builder(regReq);
+        fakeEmail = new Email(fakeUser.getPrimaryEmail(), true, fakeUser);
+        ReflectionTestUtils.setField(fakeUser, "userId", 10L);
+        ReflectionTestUtils.setField(fakeEmail, "id", 10L);
+        when(userValidationService.viewUserById(Mockito.anyLong(), Mockito.anyString())).thenAnswer(i -> {
+            if ((long) i.getArgument(0) == 10L && i.getArgument(1) == validToken) return fakeUser;
+            else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        });
+
+
+//        when(userRepository.findByUserId(Mockito.anyLong())).thenReturn(fakeUser);
+//        when(userValidationService.findByUserId(Mockito.anyString(), Mockito.anyLong())).thenAnswer(i -> {
+//            if (i.getArgument(0).equals(fakeUser.getToken()) && i.getArgument(1).equals(fakeUser.getUserId()))
+//                return fakeUser;
+//            else if ((i.getArgument(0).equals(fakeUser.getToken())) && !(i.getArgument(1).equals(fakeUser.getUserId())))
+//                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+//            else
+//                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+//        });
+
     }
 
     @Test
@@ -432,10 +487,75 @@ class UserControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .header("Token", validToken);
 
-        MockHttpServletRequestBuilder getRequest = MockMvcRequestBuilders.get("/profiles")
-                .header("Token", validToken);
         mvc.perform(editRequest)
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    /** Tests that a user can view another users profile */
+    public void viewProfileSuccess() throws Exception {
+        // Set up two users
+        setupMocking(createUserJsonViewUser1);
+        // Get the id of the second user
+        long userId = fakeUser.getUserId();
+        // Request the second user
+        MockHttpServletRequestBuilder getRequest = MockMvcRequestBuilders.get("/profiles/{id}", userId)
+                .header("Token", validToken);
+        MvcResult result = mvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andReturn();
+        // Get Response as JsonNode
+        String jsonResponseStr = result.getResponse().getContentAsString();
+        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
+        // Check that the right user has been retrieved
+        assertEquals("Larry", jsonNode.get("firstname").asText());
+        assertEquals("Cucumber", jsonNode.get("lastname").asText());
+        assertEquals("larry@gmail.com", jsonNode.get("primary_email").asText());
+        assertEquals("Female", jsonNode.get("gender").asText());
+        assertEquals("2002-01-20", jsonNode.get("date_of_birth").asText());
+    }
+
+    @Test
+    /**
+     * Successful test to check if a token is logged in with given user id
+     */
+    public void checkIfUserIdMatchesTokenSuccess() throws Exception {
+        setupMockingNoEmail(createUserJsonPost);
+
+        //Log in
+        MockHttpServletRequestBuilder getRequestToLogin = MockMvcRequestBuilders.get("/profiles")
+                .header("Token", validToken);
+        mvc.perform(getRequestToLogin)
+                .andExpect(status().isOk());
+
+        //Check if user id matches the token logged in
+        MockHttpServletRequestBuilder getRequestCheckToken = MockMvcRequestBuilders.get("/check-profile/{id}", dummyUser.getUserId())
+                .header("Token", validToken);
+        mvc.perform(getRequestCheckToken)
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    /**
+     * Unsuccessful test to check if a token is logged in with given user id
+     * that that throws a 403 Forbidden
+     */
+    public void checkIfUserIdMatchesTokenForbidden() throws Exception {
+        setupMockingNoEmail(createUserJsonPost);
+        long userId = fakeUser.getUserId();
+
+        //Log in
+        MockHttpServletRequestBuilder getRequestToLogin = MockMvcRequestBuilders.get("/profiles")
+                .header("Token", validToken);
+        mvc.perform(getRequestToLogin)
+                .andExpect(status().isOk());
+
+        //Check token
+        System.out.println(userId);
+        MockHttpServletRequestBuilder getRequestCheckToken = MockMvcRequestBuilders.get("/check-profile/{id}", userId)
+                .header("Token", validToken);
+        mvc.perform(getRequestCheckToken)
+                .andExpect(status().isForbidden());
     }
 
     /**

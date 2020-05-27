@@ -51,7 +51,7 @@
 
 <script>
     import server from '../../Api';
-    import {tokenStore} from "../../main";
+    // import {tokenStore} from "../../main";
     import Header from '../../components/Header/Header.vue'
 
     async function validUser(userLogin) {
@@ -79,7 +79,6 @@
             }
         },
         methods: {
-
             async login() {
                 const userLogin = {
                     email: this.email.trim(),
@@ -95,17 +94,16 @@
                 server.post('/login',
                     userLogin,
                     {
-                        headers: {"Access-Control-Allow-Origin": "*", "content-type": "application/json"},
+                        headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
                         withCredentials: true
                     }
                 ).then(response => { //If successfully logged the response will have a status of 201
                     if (response.status === 201) {
-                        console.log('User Logged In Successfully!');
-                        tokenStore.setToken(response.data);
-                        this.$router.push("/profile"); //Route to profile screen on successful login
+                        sessionStorage.setItem("token", response.data.Token);
+                        let userId = response.data.userId;
+                        this.$router.push({ name: 'profile', params: {userId: userId} }); //Route to profile screen on successful login
                     }
                 }).catch(error => { //If an error occurs during login (includes server side errors)
-                    console.log(error);
                     //Get alert bar element
                     if (error.message === "Network Error") {
                         this.message = error.message;
@@ -116,6 +114,7 @@
                     } else {    //Catch for any errors that are not specifically caught
                         this.message = "An unknown error has occurred during login"
                     }
+                    sessionStorage.clear();
                     showError('alert')
                 });
             }

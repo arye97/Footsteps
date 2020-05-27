@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.RegisterRequest;
+import com.springvuegradle.seng302team600.payload.UserResponse;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.service.UserValidationService;
@@ -52,6 +53,25 @@ public class UserController {
         user.setTransientEmailStrings();
         //Security breach if password sent to client
         user.setPassword(null);
+//        user.setToken(null);
+        response.setStatus(HttpServletResponse.SC_OK); //200
+        return user;
+    }
+
+    /**
+     * Return a User saved in the repository based on the user id
+     * @param request the http request
+     * @param response the http response
+     * @return User requested or null
+     */
+    @GetMapping("/profiles/{profileId}")
+    public User findSpecificUserData(HttpServletRequest request, HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) {
+        String token = request.getHeader("Token");
+        User user = userService.viewUserById(profileId, token);
+        user.setTransientEmailStrings();
+        // Security breach if password is sent to the client
+        user.setPassword(null);
+//        user.setToken(null);
         response.setStatus(HttpServletResponse.SC_OK); //200
         return user;
     }
@@ -62,11 +82,10 @@ public class UserController {
      * @param response the http response
      */
     @PostMapping("/profiles")
-    public String newUser(@Validated @RequestBody RegisterRequest newUserData, HttpServletResponse response) {
+    public UserResponse newUser(@Validated @RequestBody RegisterRequest newUserData, HttpServletResponse response) {
         if (emailRepository.existsEmailByEmail(newUserData.getPrimaryEmail())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email: " + newUserData.getPrimaryEmail() + " is already registered"); //409. It may be worth consider to a 200 error for security reasons
         }
-
 
         User newUser = new User();
         newUser.builder(newUserData);
@@ -77,9 +96,9 @@ public class UserController {
         //If mandatory fields not given, exception in UserRepository.save ends function execution and makes response body
         //Gives request status:400 and specifies needed field if null in required field
         userRepository.save(newUser);
-        String token = userService.login(newUserData.getPrimaryEmail(), newUserData.getPassword());
+        UserResponse userResponse = userService.login(newUserData.getPrimaryEmail(), newUserData.getPassword());
         response.setStatus(HttpServletResponse.SC_CREATED); //201
-        return token;
+        return userResponse;
     }
 
     /**
@@ -90,16 +109,16 @@ public class UserController {
      * @return token to be stored by the client.
      */
     @PostMapping("/login")
-    public String logIn(@RequestBody String jsonLogInString, HttpServletResponse response) throws JsonProcessingException {
+    public UserResponse logIn(@RequestBody String jsonLogInString, HttpServletResponse response) throws JsonProcessingException {
         ObjectNode node = new ObjectMapper().readValue(jsonLogInString, ObjectNode.class);
 
         if (node.has("email") && node.has("password")) {
             String email = node.get("email").toString().replace("\"", "");
             String password = node.get("password").toString().replace("\"", "");
             //ResponseStatusException thrown if email or password incorrect
-            String token = userService.login(email, password);
+            UserResponse userResponse = userService.login(email, password);
             response.setStatus(HttpServletResponse.SC_CREATED); //201
-            return token;
+            return userResponse;
         }
         //email and/or password fields not given
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
@@ -119,6 +138,60 @@ public class UserController {
             response.setStatus(HttpServletResponse.SC_OK); //200
         } else {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN); //403
+        }
+    }
+
+    /**
+     * If the current user has authorization edit the users password.  Only edits the password
+     * if the following conditions hold:
+     *     old_password doesn't equal the user's password
+     *     new_password != repeat_password
+     *     new_password == old_password    (New pass can't be the same as old)
+     *     new_password passes regular expression rules
+     * @param jsonEditPasswordString the json body of the request as a string of the form
+     *                              old_password, new_password, repeat_password
+     * @param request the http request to the endpoint
+     * @param response the http response
+     * @param profileId user id obtained from the request url
+     * @throws JsonProcessingException thrown if there is an issue when converting the body to an object node
+     */
+    @PutMapping("/profiles/{profileId}/password")
+    public void editPassword(@RequestBody String jsonEditPasswordString, HttpServletRequest request,
+                             HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) throws IOException {
+
+        String token = request.getHeader("Token");
+        //ResponseStatusException thrown if user unauthorized or forbidden from accessing requested user
+        User user = userService.findByUserId(token, profileId);   // Get the user to modify
+        ObjectMapper nodeMapper = new ObjectMapper();
+        ObjectNode modData = nodeMapper.readValue(jsonEditPasswordString, ObjectNode.class);
+
+        String oldPassword = modData.get(OLD_PASSWORD_FIELD).asText();
+        String newPassword = modData.get(NEW_PASSWORD_FIELD).asText();
+        String repeatPassword = modData.get(REPEAT_PASSWORD_FIELD).asText();
+
+
+        // Old Password doesn't match current password (invalid password)
+        if (!user.checkPassword(oldPassword)) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
+
+            // New Password and Repeated Password don't match
+        } else if (!newPassword.equals(repeatPassword)) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
+
+            // New Password matches old password
+        } else if (newPassword.equals(oldPassword)) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
+
+            // Password violates password rules
+        } else if (!passwordPassesRules(newPassword)) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
+
+            // Success!
+        } else {
+            user.setPassword(newPassword);
+            user.isValid();   // If this user has authorization
+            userRepository.save(user);
+            response.setStatus(HttpServletResponse.SC_OK); //200
         }
     }
 
@@ -152,61 +225,6 @@ public class UserController {
     }
 
     /**
-     * If the current user has authorization edit the users password.  Only edits the password
-     * if the following conditions hold:
-     *     old_password doesn't equal the user's password
-     *     new_password != repeat_password
-     *     new_password == old_password    (New pass can't be the same as old)
-     *     new_password passes regular expression rules
-     * @param jsonEditPasswordString the json body of the request as a string of the form
-     *                              old_password, new_password, repeat_password
-     * @param request the http request to the endpoint
-     * @param response the http response
-     * @param profileId user id obtained from the request url
-     * @throws JsonProcessingException thrown if there is an issue when converting the body to an object node
-     */
-    @PutMapping("/profiles/{profileId}/password")
-    public void editPassword(@RequestBody String jsonEditPasswordString, HttpServletRequest request,
-                            HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) throws IOException {
-
-        String token = request.getHeader("Token");
-        //ResponseStatusException thrown if user unauthorized or forbidden from accessing requested user
-        User user = userService.findByUserId(token, profileId);   // Get the user to modify
-        ObjectMapper nodeMapper = new ObjectMapper();
-        ObjectNode modData = nodeMapper.readValue(jsonEditPasswordString, ObjectNode.class);
-
-        String oldPassword = modData.get(OLD_PASSWORD_FIELD).asText();
-        String newPassword = modData.get(NEW_PASSWORD_FIELD).asText();
-        String repeatPassword = modData.get(REPEAT_PASSWORD_FIELD).asText();
-
-
-        // Old Password doesn't match current password (invalid password)
-        if (!user.checkPassword(oldPassword)) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
-
-        // New Password and Repeated Password don't match
-        } else if (!newPassword.equals(repeatPassword)) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
-
-        // New Password matches old password
-        } else if (newPassword.equals(oldPassword)) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
-
-        // Password violates password rules
-        } else if (!passwordPassesRules(newPassword)) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
-
-        // Success!
-        } else {
-            user.setPassword(newPassword);
-            user.isValid();   // If this user has authorization
-            userRepository.save(user);
-            response.setStatus(HttpServletResponse.SC_OK); //200
-        }
-    }
-
-
-    /**
      * Checks is a password complies with the password rules.
      * Password has to be longer than 8 characters and have at least one digit.
      * @param password plaintext password
@@ -216,4 +234,18 @@ public class UserController {
         return password.matches(PASSWORD_RULES_REGEX);
     }
 
+    /**
+     * Takes a token and a user id and queries the repository
+     * to check if a user is logged in with a provided token.
+     * @param request the http request to the endpoint
+     * @param response the http response
+     * @param profileId user id obtained from the request url
+     */
+    @GetMapping("/check-profile/{profileId}")
+    public void checkIfUserIdMatchesToken(HttpServletRequest request,
+                                           HttpServletResponse response,
+                                           @PathVariable(value = "profileId") Long profileId) {
+        String token = request.getHeader("Token");
+        userService.findByUserId(token, profileId);
+    }
 }

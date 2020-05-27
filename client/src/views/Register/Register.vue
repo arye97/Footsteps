@@ -157,7 +157,7 @@
     import Multiselect from 'vue-multiselect'
     import Header from '../../components/Header/Header.vue'
     import {getCountryNames, fitnessLevels} from '../../constants';
-    import {tokenStore} from '../../main';
+    // import {tokenStore} from '../../main';
     import {validateUser} from "../../util";
 
     function showError(alert_name) {
@@ -304,13 +304,14 @@
                 await server.post('/profiles',
                     newUser,
                     {
-                        headers: {"Access-Control-Allow-Origin": "*", "content-type": "application/json"},
+                        headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
                         withCredentials: true
                     }
                 ).then(response => { //If successfully registered the response will have a status of 201
                     if (response.status === 201) {
                         console.log('User Registered Successfully!');
-                        tokenStore.setToken(response.data);
+                        sessionStorage.setItem("token", response.data);
+                        // tokenStore.setToken(response.data);
                         this.$router.push('/profile'); //Routes to profile on successful register
                     }
                 }).catch(error => {
