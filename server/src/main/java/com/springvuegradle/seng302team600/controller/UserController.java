@@ -243,8 +243,7 @@ public class UserController {
         ObjectMapper nodeMapper = new ObjectMapper();
         //ResponseStatusException thrown if user unauthorized or forbidden from accessing requested user
 
-        // Check if it has admin privileges
-        // if it doesn't then check if its me or other person
+        // Check if user has admin privileges
         boolean isAdmin = userService.hasAdminPrivileges(token);
         User user;
         if (isAdmin) {
