@@ -21,7 +21,7 @@ This project has been completed by Team600 from the SENG302 2020 class.
 
 ### Basic Project Structure
 - client/src Frontend source code (JS - Vue)
-- client/public publicly accesable web assets
+- client/public publicly accessible web assets
 - client/dist Frontend production build
 
 - server/src Backend source code (Java - Spring)
@@ -34,7 +34,7 @@ To run the full application, first run the server and then run the client
 Example command: `cd server`
 2. Run the server
 Command: `./gradlew bootRun`  
-If you do not have access to the test database, you can use an in memory database by using the command `./gradlew bootRun -PspringProfile=local` instead
+By default this will run the localDev profile. You may use a specific server profile using the command `./gradlew bootRun -PspringProfile=profileName` instead
 
 Running on: http://localhost:9499/
 
@@ -60,7 +60,7 @@ Interfacing with the backend uses Postman with HTTP requests:
   "password": "jack"
 }
 ```
-- Editing users with a POST by sending the id of the user to edit, and all atributes that are edited
+- Editing users with a POST by sending the id of the user to edit, and all attributes that are edited
 ```
 {
   "id": "1",
@@ -68,6 +68,14 @@ Interfacing with the backend uses Postman with HTTP requests:
   "password": "I am a nice bio"
 }
 ```
+##### Server Profiles
+The server has several profiles that can be used, allowing for the use of different databases.  
+In order to use most profiles, you must have credentials set in your environment variables:  
+- **local**: Uses an in memory database. For use when testing. Does not require credentials.  
+- **localDev**: Uses the test database. For use when testing with persistent data, and using SSH to access the database.  
+- **localProd**: Uses the prod database. This profile is not intended for future use outside of debugging the prod database.   
+- **dev**: Uses the test database. For use when deploying the development server on the virtual machine.   
+- **prod**: Uses the prod database. For use when deploying the production server on the virtual machine.  
 
 ##### Client (Frotnend/GUI)
 1. Navigate to the client folder
