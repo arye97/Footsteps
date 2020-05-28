@@ -164,7 +164,7 @@ class UserValidationServiceTest {
     public void adminFindsUserById() {
         String token = "testToken";
         additionalUser();
-        dummyUser1.setRole(10);
+        ReflectionTestUtils.setField(dummyUser1, "role", 10);
         dummyUser1.setToken(token);
         dummyUser1.setTokenTime();
         User user = userService.findByUserId(token, dummyUser.getUserId());
