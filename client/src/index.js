@@ -50,8 +50,9 @@ export default new Router({
             component: Details
         },
         {
-            path: '/profile', component: ViewUser,
-            name: 'myProfile'
+            path: '/profile',
+            name: 'myProfile',
+            component: ViewUser
         },
         {
             path: '/profile/:userId',
