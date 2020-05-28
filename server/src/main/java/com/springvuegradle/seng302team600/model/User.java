@@ -419,6 +419,10 @@ public class User {
         return role;
     }
 
+    public void setRole(int role) {
+        this.role = role;
+    }
+
     /**
      * Runs a sanity check on the user and throws errors if the are invalid fields
      * @throws ResponseStatusException thrown if the users first, middle or last names are invalid
