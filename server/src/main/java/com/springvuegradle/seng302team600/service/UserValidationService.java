@@ -105,7 +105,8 @@ public class UserValidationService {
         if (thisUser.getUserId().equals(id)) {
             return thisUser;
         }
-        if (validUser(thisUser.getUserId(), id)) { // Check if authorized to access the user with given id
+        // Checks admin privileges
+        if (hasAdminPrivileges(thisUser)) {
             User user = userRepository.findByUserId(id);
             if (user != null) {
                 return user;
@@ -119,11 +120,10 @@ public class UserValidationService {
     /**
      * Checks a user's admin privileges.
      * Returns true if a user is an admin.
-     * @param token belongs to session user
+     * @param thisUser the user of the session
      * @return boolean that indicates if user is an admin
      */
-    public boolean hasAdminPrivileges(String token) {
-        User thisUser = findByToken(token);
+    public boolean hasAdminPrivileges(User thisUser) {
         return thisUser.getRole() >= 10;
     }
 

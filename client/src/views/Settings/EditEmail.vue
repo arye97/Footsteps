@@ -165,57 +165,76 @@
                 emailCount: 0, //y
                 emailMessage: null, //y
                 duplicateEmailError: "", //y
-                changesHaveBeenMade: false
+                changesHaveBeenMade: false,
+                isEditable: false
             }
         },
         async beforeMount() {
-
-            await server.get(`/profiles/${this.userId}`,
-                {headers: {'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")},
-                    withCredentials: true
-                }, ).then(response => {
-                this.userId = response.data.id;
-            }).catch(error => {
-                if (error.response.data.status === 401) {
-                    this.$router.push("/login");
-                }
-            });
-
-            console.log(this.userId);
-
-            await server.get(  `/profiles/${this.userId}/emails`,
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                               'Token': sessionStorage.getItem("token")
-                    },
-                    withCredentials: true
-                }
-
-            ).then(response => {
-                if (response.status === 200) {
-                    this.loading = false;
-                    this.userId = response.data["userId"];
-                    this.primaryEmail = response.data["primaryEmail"];
-                    this.additionalEmails = response.data["additionalEmails"];
-                    this.originalPrimaryEmail = response.data["primaryEmail"];
-                    this.originalAdditionalEmails = Array.from(response.data["additionalEmails"]);
-                    this.emailCount = this.additionalEmails.length + 1;
-                    this.setEmailCountMessage();
-                }
-            }).catch(function(error) {
-                if (error.response.status === 401) {
-                    this.$router.push("/login");
-                }
-                else if (error.response.status === 500) {
-                    console.log(error.response.data.message);
-                    // Return to root home screen when timeout.
-                    this.$router.push('/');
-                }
-            })
+            await this.init();
         },
         methods: {
+            async init() {
+                this.toReload = 0;
+                this.loading = true;
+                this.error = false;
+                this.isEditable = false;
+                this.emailMessage = null;
+                this.duplicateEmailError = "";
+                this.changesHaveBeenMade = false;
 
+                this.userId = this.$route.params.userId;
+                if (this.userId === undefined || isNaN(this.userId)) {
+                    this.isEditable = true;
+                    this.userId = '';
+                } else {
+                    await this.editable(); // If allowed to edit, userId is set
+                }
+
+                if (this.isEditable) {
+                    await server.get(`/profiles/${this.userId}`,
+                        {
+                            headers: {'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")},
+                            withCredentials: true
+                        },).then(response => {
+                        this.userId = response.data.id;
+                    }).catch(error => {
+                        if (error.response.data.status === 401) {
+                            this.logout();
+                        }
+                    });
+
+                    await server.get(  `/profiles/${this.userId}/emails`,
+                        {
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Token': sessionStorage.getItem("token")
+                            },
+                            withCredentials: true
+                        }
+
+                    ).then(response => {
+                        if (response.status === 200) {
+                            this.loading = false;
+                            this.userId = response.data["userId"];
+                            this.primaryEmail = response.data["primaryEmail"];
+                            this.additionalEmails = response.data["additionalEmails"];
+                            this.originalPrimaryEmail = response.data["primaryEmail"];
+                            this.originalAdditionalEmails = Array.from(response.data["additionalEmails"]);
+                            this.emailCount = this.additionalEmails.length + 1;
+                            this.setEmailCountMessage();
+                        }
+                    }).catch(function(error) {
+                        if (error.response.status === 401) {
+                            this.$router.push("/login");
+                        }
+                        else if (error.response.status === 500) {
+                            console.log(error.response.data.message);
+                            // Return to root home screen when timeout.
+                            this.$router.push('/');
+                        }
+                    })
+                }
+            },
             /**
              * Adds an email to the list of displayed additional emails.
              * Additionally sets up mechanisms associated with the disabling/enabling
@@ -365,12 +384,12 @@
                 this.checkIfChangesMade();
                 if (this.changesHaveBeenMade) {
                     if (confirm("Cancel changes?")) {
-                        this.$router.push("/profile")
+                        this.backToProfile();
                     } else {
                         this.toReload += 1;
                     }
                 } else {
-                    this.$router.push("/profile")
+                    this.backToProfile();
                 }
             },
 
@@ -520,6 +539,62 @@
                 } else {
                     this.emailMessage = remaining + " spots left for additional emails!";
                 }
+            },
+
+            /**
+             * Check if the current userId is allowed to be edited by this user session
+             */
+            async editable() {
+                if (this.userId === '') {
+                    this.isEditable = true;
+                    return;
+                }
+                await server.get(`/check-profile/${this.userId}`,
+                    {headers: {
+                            'Content-Type': 'application/json',
+                            'Token': sessionStorage.getItem("token")}}
+                ).then(() => {
+                    //Status code 200
+                    //User can edit this profile
+                    this.isEditable = true;
+                }).catch(error => {
+                    this.isEditable = false;
+                    if (error.response.data.status === 401) {
+                        this.logout();
+                    } else {
+                        this.$router.push({ name: 'emailsNoId' });
+                        this.init();
+                    }
+                });
+            },
+
+            /**
+             * Logs the user out and clears session token
+             */
+            logout () {
+                server.post('/logout', null,
+                    {
+                        headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json", 'Token': sessionStorage.getItem("token")},
+                        withCredentials: true
+                    }
+                ).then(() => {
+                    sessionStorage.clear();
+                    // tokenStore.setToken(null);
+                    this.isLoggedIn = (sessionStorage.getItem("token") !== null);
+                    this.$forceUpdate();
+                    this.$router.push('/login'); //Routes to home on logout
+                }).catch(() => {
+                    sessionStorage.clear();
+                    this.isLoggedIn = (sessionStorage.getItem("token") !== null);
+                    this.$forceUpdate();
+                    this.$router.push('/login'); //Routes to home on logout
+                })
+            },
+            /**
+             * Redirect to view user screen
+             */
+            backToProfile() {
+                this.$router.push({ name: 'profile', params: {userId: this.userId} });
             }
         }
     }

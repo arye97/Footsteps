@@ -357,8 +357,15 @@
                     setTimeout(() => {
                         this.$router.push('/login');
                     }, 4000);
-                } else if (error.response.data.status === 403 || error.response.data.status === 404) {
+                } else if (error.response.data.status === 403) {
                     this.redirectionMessage = "Sorry, you are not allowed to edit another user's profile,\n" +
+                        "Redirecting to your edit profile page.";
+                    setTimeout(() => {
+                        this.$router.push({ name: 'detailsNoID' });
+                        this.init();
+                    }, 4000);
+                } else if (error.response.data.status === 404) {
+                    this.redirectionMessage = "Sorry, the user does not exist,\n" +
                         "Redirecting to your edit profile page.";
                     setTimeout(() => {
                         this.$router.push({ name: 'detailsNoID' });

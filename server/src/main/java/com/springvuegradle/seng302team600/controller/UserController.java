@@ -244,13 +244,7 @@ public class UserController {
         //ResponseStatusException thrown if user unauthorized or forbidden from accessing requested user
 
         // Check if user has admin privileges
-        boolean isAdmin = userService.hasAdminPrivileges(token);
-        User user;
-        if (isAdmin) {
-            user = userService.viewUserById(profileId, token);
-        } else {
-            user = userService.findByUserId(token, profileId);   // Get the user to modify
-        }
+        User user = userService.findByUserId(token, profileId);   // Get the user to modify
         //Remove fields that should not be modified here
         ObjectNode modData = nodeMapper.readValue(jsonEditProfileString, ObjectNode.class);
         modData.remove("primary_email");
@@ -288,9 +282,6 @@ public class UserController {
                                            @PathVariable(value = "profileId") Long profileId) {
         String token = request.getHeader("Token");
         // Checks if a user is an admin/default admin
-        if (userService.hasAdminPrivileges(token)) {
-            return;
-        }
         userService.findByUserId(token, profileId);
     }
 }
