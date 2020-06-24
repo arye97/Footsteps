@@ -4,6 +4,7 @@ import Login from './views/Login/Login.vue'
 import Register from './views/Register/Register.vue'
 import Home from './views/Home/Home.vue'
 import EditEmail from "./views/Settings/EditEmail";
+import AdminDashboard from './views/AdminDashboard';
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import Details from "./views/Settings/Details.vue";
 import ViewUser from "./components/layout/ViewUser.vue";
@@ -50,14 +51,16 @@ export default new Router({
             component: Details
         },
         {
-            path: '/profile', component: ViewUser,
-            name: 'myProfile'
+            path: '/profile',
+            name: 'myProfile',
+            component: ViewUser
         },
         {
             path: '/profile/:userId',
             name: 'profile',
             component: ViewUser
         },
+        {path: '/admin', component: AdminDashboard},
         // otherwise redirect to home
         { path: '/*', redirect: '/login' }
     ]

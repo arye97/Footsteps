@@ -40,6 +40,11 @@ public class User {
     @JsonProperty("id")
     private Long userId;
 
+    @NotNull(message = "This user needs a role")
+    @Column(name = "role", nullable = false)
+    @JsonProperty("role")
+    protected int role;
+
     private String token;
 
     @Column(name = "token_time")
@@ -109,7 +114,6 @@ public class User {
     @JsonProperty("passports")
     private List<String> passports;
 
-
     public enum Gender {
         @JsonProperty("Male")
         MALE,
@@ -128,7 +132,9 @@ public class User {
      * Default constructor for User.
      * Mandatory for repository actions.
      */
-    public User() {}
+    public User() {
+        this.role = UserRole.USER;
+    }
 
     /**
      * Builds user from the payload, using getters and setters.
@@ -265,6 +271,8 @@ public class User {
     }
 
     public List<String> getAdditionalEmails() {
+        // Makes a copy instead of returning private object
+        List<String> additionalEmails = new ArrayList<>(this.additionalEmails);
         return additionalEmails;
     }
 
@@ -407,6 +415,10 @@ public class User {
         return passports.remove(passport);
     }
 
+    public int getRole() {
+        return role;
+    }
+
     /**
      * Runs a sanity check on the user and throws errors if the are invalid fields
      * @throws ResponseStatusException thrown if the users first, middle or last names are invalid
@@ -451,6 +463,7 @@ public class User {
             return ageDate.after(DoB);
         }
     }
+
 
     @Override
     public String toString() {

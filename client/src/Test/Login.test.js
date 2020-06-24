@@ -3,7 +3,7 @@ import Login from '../views/Login/Login.vue'
 import "jest"
 import '../Api'
 import server from "../Api";
-import router from '../index'
+import router from '../index';
 jest.mock("../Api");
 
 

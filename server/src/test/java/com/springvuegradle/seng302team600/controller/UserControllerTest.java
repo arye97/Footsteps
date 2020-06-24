@@ -3,8 +3,10 @@ package com.springvuegradle.seng302team600.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.springvuegradle.seng302team600.model.DefaultAdminUser;
 import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
+import com.springvuegradle.seng302team600.model.UserRole;
 import com.springvuegradle.seng302team600.payload.RegisterRequest;
 import com.springvuegradle.seng302team600.payload.UserResponse;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
@@ -15,8 +17,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -24,6 +30,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Arrays;
@@ -43,6 +50,11 @@ class UserControllerTest {
     private UserValidationService userValidationService;
     @Autowired
     private MockMvc mvc;
+
+    @Autowired
+    private ApplicationContext context;
+    @Autowired
+    public void context(ApplicationContext context) { this.context = context; }
 
     private String createUserJsonPost;
     private String userMissJsonPost;
@@ -75,9 +87,11 @@ class UserControllerTest {
     private String validToken = "valid";
     private static final Long DEFAULT_USER_ID = 1L;
     private static final Long DEFAULT_EMAIL_ID = 1L;
+    private boolean defaultAdminIsRegistered;
 
     @BeforeEach
     public void setUp() {
+        defaultAdminIsRegistered = false;
         userMissJsonPost = "{\n" +
                 "  \"lastname\": \"Benson\",\n" +
                 "  \"middlename\": \"Jack\",\n" +
@@ -250,7 +264,13 @@ class UserControllerTest {
         regReq = objectMapper.treeToValue(objectMapper.readTree(json), RegisterRequest.class);
         dummyUser = dummyUser.builder(regReq);
         dummyEmail = new Email(dummyUser.getPrimaryEmail(), true, dummyUser);
-        when(userRepository.save(Mockito.any(User.class))).thenReturn(dummyUser);
+        when(userRepository.save(Mockito.any(User.class))).thenAnswer(i -> {
+            User user = i.getArgument(0);
+            if (user.getRole() == UserRole.DEFAULT_ADMIN) {
+                defaultAdminIsRegistered = true;
+            }
+            return dummyUser;
+        });
         when(emailRepository.save(Mockito.any(Email.class))).thenReturn(dummyEmail);
         when(emailRepository.findByEmail(Mockito.matches(dummyEmail.getEmail()))).thenReturn(dummyEmail);
         when(emailRepository.getOne(Mockito.anyLong())).thenReturn(dummyEmail);
@@ -259,15 +279,19 @@ class UserControllerTest {
             else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         });
         when(userRepository.findByUserId(Mockito.anyLong())).thenReturn(dummyUser);
+        when(userRepository.existsUserByRole(Mockito.anyInt())).thenAnswer(i -> {
+            if (((int)i.getArgument(0) == UserRole.DEFAULT_ADMIN) && !defaultAdminIsRegistered) {
+                return false;
+            }
+            return true;
+                });
         when(emailRepository.existsEmailByEmail(Mockito.anyString())).thenReturn(false);
         when(userValidationService.findByUserId(Mockito.anyString(), Mockito.anyLong())).thenAnswer(i -> {
-            System.out.println(Arrays.toString(i.getArguments()));
             if (i.getArgument(0).equals(dummyUser.getToken()) && i.getArgument(1).equals(dummyUser.getUserId()))
                 return dummyUser;
             else if ((i.getArgument(0).equals(dummyUser.getToken())) && !(i.getArgument(1).equals(dummyUser.getUserId())))
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN);
             else
-                System.out.println("HASSSSSSS");
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         });
         ReflectionTestUtils.setField(dummyUser, "userId", DEFAULT_USER_ID);
@@ -658,4 +682,30 @@ class UserControllerTest {
         mvc.perform(editPassReq)
                 .andExpect(status().isBadRequest());   // Don't think there is any other way to test this than bad request
     }
+
+    @Test
+    /** Tests that a DefaultAdminUser is created when a UserController is created.
+     * Checks that the Default Admin was added to the database in a roundabout way
+     * (not the greatest).
+     */
+    public void defaultAdminIsCreated() throws Exception {
+        // Get the UserController bean instance
+        UserController controller = context.getBean(UserController.class);
+
+        // Get the defaultAdmin (private field) from UserController
+        DefaultAdminUser defaultAdmin = (DefaultAdminUser)ReflectionTestUtils.getField(controller, "defaultAdmin");
+
+        // Check that the default admin is not null
+        assertNotNull(defaultAdmin);
+
+        // Check that email is set
+        assertNotNull(defaultAdmin.getPrimaryEmail());
+        assertNotEquals(defaultAdmin.getPrimaryEmail(), "");
+
+        // Use a private boolean flag to determine whether the default admin was added to the database
+        // Can't find any other way to do it :(
+        boolean defaultAdminWasAddedToDatabase = (boolean)ReflectionTestUtils.getField(controller, "_DAexists");
+        assertTrue(defaultAdminWasAddedToDatabase);
+    }
+
 }

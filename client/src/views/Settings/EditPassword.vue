@@ -268,6 +268,7 @@
                         this.logout();
                     } else {
                         this.$router.push({ name: 'passwordNoID' });
+                        this.init();
                     }
                 });
             },

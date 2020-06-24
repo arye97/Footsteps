@@ -79,10 +79,7 @@ class UserValidationServiceTest {
         ReflectionTestUtils.setField(dummyUser, "userId", 1L);
         ReflectionTestUtils.setField(dummyUser1, "userId", 2L);
         ReflectionTestUtils.setField(dummyEmail, "id", 1L);
-        when(userRepository.save(Mockito.any(User.class))).then(i -> {
-            dummyUser = i.getArgument(0);
-            return dummyUser;
-        });
+        when(userRepository.save(Mockito.any(User.class))).then(i -> i.getArgument(0));
         when(userRepository.findByUserId(Mockito.anyLong())).thenAnswer(i -> {
             if (i.getArgument(0).equals(dummyUser.getUserId())) return dummyUser;
             if (i.getArgument(0).equals(dummyUser1.getUserId())) return dummyUser1;
@@ -90,12 +87,10 @@ class UserValidationServiceTest {
         });
         when(userRepository.findByToken(Mockito.anyString())).thenAnswer(i -> {
             if (i.getArgument(0).equals(dummyUser.getToken())) return dummyUser;
+            if (i.getArgument(0).equals(dummyUser1.getToken())) return dummyUser1;
             else return null;
         });
-        when(emailRepository.save(Mockito.any(Email.class))).then(i -> {
-            dummyEmail = i.getArgument(0);
-            return dummyEmail;
-        });
+        when(emailRepository.save(Mockito.any(Email.class))).then(i -> i.getArgument(0));
         when(emailRepository.findByEmail(Mockito.anyString())).thenAnswer(i -> {
             if (i.getArgument(0).equals(dummyEmail.getEmail())) return dummyEmail;
             else return null;
@@ -166,11 +161,33 @@ class UserValidationServiceTest {
     }
 
     @Test
+    public void adminFindsUserById() {
+        String token = "testToken";
+        additionalUser();
+        ReflectionTestUtils.setField(dummyUser1, "role", 10);
+        dummyUser1.setToken(token);
+        dummyUser1.setTokenTime();
+        User user = userService.findByUserId(token, dummyUser.getUserId());
+        assertEquals(dummyUser, user);
+    }
+
+    @Test
+    public void adminDoesntFindUserById() {
+        String token = "testToken";
+        additionalUser();
+        dummyUser1.setToken(token);
+        dummyUser1.setTokenTime();
+        assertThrows(ResponseStatusException.class, () -> userService.findByUserId(token, dummyUser.getUserId()));
+    }
+
+    @Test
     public void userNotFoundByIdForbidden() {
         String token = "testToken";
-        dummyUser.setToken(token);
-        dummyUser.setTokenTime();
-        assertThrows(ResponseStatusException.class, () -> userService.findByUserId(token, -1L));
+        additionalUser();
+        dummyUser1.setToken(token);
+        dummyUser1.setTokenTime();
+        // Try to find another user when this user is not an admin
+        assertThrows(ResponseStatusException.class, () -> userService.findByUserId(token, dummyUser.getUserId()));
     }
 
     @Test

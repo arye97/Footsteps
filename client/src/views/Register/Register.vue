@@ -310,7 +310,7 @@
                 ).then(response => { //If successfully registered the response will have a status of 201
                     if (response.status === 201) {
                         console.log('User Registered Successfully!');
-                        sessionStorage.setItem("token", response.data);
+                        sessionStorage.setItem("token", response.data.Token);
                         // tokenStore.setToken(response.data);
                         this.$router.push('/profile'); //Routes to profile on successful register
                     }

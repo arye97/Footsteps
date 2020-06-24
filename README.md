@@ -2,7 +2,7 @@
 -----
 This is the README file for the SENG302 Team 600 Hakinakina Application.
 
-Hakinakina is a fitness and leisure tracking web application.
+Hakinakina is a fitness and leisure tracking web application.  
 It has been built using javascript - utilising Vue - and java - using Spring.
 
 ### Team Details
@@ -30,11 +30,16 @@ This project has been completed by Team600 from the SENG302 2020 class.
 ### How to run
 To run the full application, first run the server and then run the client
 ##### Server (Backend/API)
-1. Navigate to the server folder: 
-Example command: `cd server`
-2. Run the server
-Command: `./gradlew bootRun`  
-By default this will run the localDev profile. You may use a specific server profile using the command `./gradlew bootRun -PspringProfile=profileName` instead
+1. Set up the following environment variables:
+    - SPRING_DATASOURCE_USERNAME
+    - SPRING_DATASOURCE_PASSWORD
+    - SPRING_DEFAULT_ADMIN_EMAIL
+    - SPRING_DEFAULT_ADMIN_PASSWORD  
+    With the credentials for the database and default admin.  If you don't have access to these values, you can still run the application locally (see step 3).  
+2. Navigate to the server folder: Example command: `cd server`  
+3. Run the server Command: `./gradlew bootRun`  
+    - By default this will run the localDev profile. You may use a specific server profile using the command `./gradlew bootRun -PspringProfile=profileName` instead  
+    - If you do not have access to the test database or default admin credentials, you can use an in memory database by using the command `./gradlew bootRun -PspringProfile=local` instead  
 
 Running on: http://localhost:9499/
 
