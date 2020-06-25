@@ -114,6 +114,15 @@ public class User {
     @JsonProperty("passports")
     private List<String> passports;
 
+    @ElementCollection
+    @CollectionTable(
+            name="activity_types",
+            joinColumns=@JoinColumn(name="user_id")
+    )
+    @Column(name="activity_types")
+    @JsonProperty("activityTypes")
+    private List<String> activityTypes;
+
     public enum Gender {
         @JsonProperty("Male")
         MALE,
@@ -153,6 +162,7 @@ public class User {
         this.setGender(userData.getGender());
         this.setFitnessLevel(userData.getFitnessLevel());
         this.setPassports(userData.getPassports());
+        this.setActivityTypes(userData.getActivityTypes());
         return this;
     }
 
@@ -225,6 +235,10 @@ public class User {
     public String getPrimaryEmail() {
         return primaryEmail;
     }
+
+    public List<String> getActivityTypes() { return activityTypes; }
+
+    public void setActivityTypes(List<String> activityTypes) { this.activityTypes = activityTypes; }
 
     /**
      * Sets primary email of User

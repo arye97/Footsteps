@@ -47,6 +47,9 @@ public class RegisterRequest {
     @JsonProperty("passports")
     private List<String> passports;
 
+    @JsonProperty("activity_types")
+    private List<String> activityTypes;
+
     public RegisterRequest() {}
 
     public String getFirstName() {
@@ -136,4 +139,8 @@ public class RegisterRequest {
     public void setPassports(List<String> passports) {
         this.passports = passports;
     }
+
+    public List<String> getActivityTypes() { return activityTypes; }
+
+    public void setActivityTypes(List<String> activityTypes) { this.activityTypes = activityTypes; }
 }
