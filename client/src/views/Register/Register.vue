@@ -137,6 +137,15 @@
                 <label id="bio-label" for="bio">Tell us about yourself, your Bio: </label>
                 <textarea name="bio" class="form-control" id="bio" v-on:click="unDisplayRules" v-model="bio" cols="30" rows="1" placeholder="Who are you?"></textarea>
             </div>
+            <div class="form-group">
+                <!-- activity types -->
+                <label id="activityTypes-label" for="activityTypes">Activity Types:</label>
+                <multiselect v-model="selectedActivityTypes" id="activityTypes" v-on:select="unDisplayRules"
+                             :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
+                             placeholder="Select your activity types">
+                    <template slot="noResult">Invalid activity type</template>
+                </multiselect>
+            </div>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_form">
                 {{  message_form  }}
             </div>
@@ -156,7 +165,7 @@
     import server from '../../Api';
     import Multiselect from 'vue-multiselect'
     import Header from '../../components/Header/Header.vue'
-    import {getCountryNames, fitnessLevels} from '../../constants';
+    import {getCountryNames, getActivityTypes, fitnessLevels} from '../../constants';
     // import {tokenStore} from '../../main';
     import {validateUser} from "../../util";
 
@@ -226,14 +235,17 @@
                 message_form: "",
                 message_password_check: '',
                 countries: [],
+                activityTypes: ["Swimming with Elephants"],
                 genders: ['Male', 'Female', 'Non-Binary'],
                 passports: [],
+                selectedActivityTypes: [],
                 isDisplayingRules: false
             }
         },
 
         mounted () {
             this.fetchCountries();
+            this.fetchActivityTypes();
         },
 
         methods: {
@@ -242,6 +254,9 @@
             },
             unDisplayRules() {
                 this.isDisplayingRules = false;
+            },
+            fetchActivityTypes() {
+                this.activityTypes = getActivityTypes.sort();
             },
             async fetchCountries() {
                 let select = [];
@@ -284,7 +299,8 @@
                     gender: this.gender,
                     bio: this.bio.trim(),
                     fitness: this.fitness.value,
-                    passports: this.passports
+                    passports: this.passports,
+                    activity_type: this.selectedActivityTypes
                 };
                 if (newUser.fitness === undefined) newUser.fitness = -1;
                 let validCount = await validUser(newUser, this.passwordCheck);
