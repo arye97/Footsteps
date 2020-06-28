@@ -71,7 +71,14 @@ Interfacing with the backend uses Postman with HTTP requests:
 }
 ```
 
-##### Client (Frotnend/GUI)
+### Sonarqube Analysis (Backend)
+The Hakinakina program has a backend code analyser that is executed by
+Sonarqube and is then published to a server for analysis. It is 
+normally run on every build automatically but for manual code analysis do the 
+following: To run sonarqube for the backend refer to the "Server (Backend/API)" heading
+above and follow step 1, then followed by the command: './gradlew sonarqube'
+
+##### Client (Frontend/GUI)
 1. Navigate to the client folder
 Example command: `cd client`
 2. Install the dependencies
@@ -87,6 +94,14 @@ This can be accessed by logging in using the following credentials:
 
 **Email**:  sarahjones@yahoo.com  
 **Password**:  123456
+
+### Sonarqube Analysis (Frontend)
+The Hakinakina program has a frontend code analyser that is executed by
+Sonarqube and is then published to a server for analysis. It is 
+normally run on every build automatically but for manual code analysis do the 
+following: To run sonarqube for the front end refer to the "Client (Frontend/GUI)" heading
+above and follow steps 1-2, after step 2 is complete type the
+Command: 'npm run sonarqube'
 
 ### Third Party Dependencies
 The Hakinakina program does use some external libraries. These are listed below.
