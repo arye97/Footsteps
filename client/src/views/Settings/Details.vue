@@ -118,6 +118,20 @@
                             <button class="btn btn-primary" id="bio-btn" v-on:click="mutate" type="button">Edit</button>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <!-- activity types -->
+                        <label for="activityTypes">Activity Types:</label>
+                        <div class="edit-area">
+                            <div id="activityTypesDiv" class="multiselect--disabled multiselect-box">
+                                <multiselect v-model="selectedActivityTypes" id="activityTypes"
+                                        :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
+                                        placeholder="Select your activity types">
+                                     <template slot="noResult">Invalid activity type</template>
+                                </multiselect>
+                            </div>
+                            <button class="btn btn-primary" id="activityTypesDiv-btn" v-on:click="mutate" type="button">Edit</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -154,10 +168,12 @@
                 fitness: '',
                 passports: '',
                 bio: '',
+                selectedActivityTypes: '',
                 message: '',
                 code: '',
                 date_of_birth: '',
                 countries: [],
+                activityTypes: [],
                 genders: ['Male', 'Female', 'Non-Binary'],
                 loggedIn: false,
                 fitnessOptions: fitnessLevels,
@@ -180,6 +196,7 @@
                 this.isRedirecting = false;
                 this.redirectionMessage = '';
                 this.fetchCountries();
+                await this.fetchActivityTypes();
                 if (this.$route.params.userId !== undefined) {
                     await this.validateUserIdWithToken(); // If allowed to edit profileId is set
                 }
@@ -211,6 +228,21 @@
                 // Send request
                 this.countries = select;
                 request.send();
+            },
+
+            /**
+             * Fetch all possible activity types from the server
+             */
+            async fetchActivityTypes() {
+                this.activityTypes = null;
+                await server.get('activity-types',
+                    {headers: {'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")}
+                    }
+                ).then(response => {
+                    this.activityTypes = response.data;
+                }).catch(error => {
+                    this.processGetError(error);
+                });
             },
 
             mutate: function (event) {
@@ -263,6 +295,8 @@
                             } else {
                                 update['fitness'] = this.fitness.value;
                             }
+                        } else if (updateField.id === "activityTypes") {
+                            update['activityTypes'] = this.selectedActivityTypes;
                         }
                         if (this.putUpdate(update, alertDiv)) {
                             mutateTarget.className = "multiselect--disabled multiselect-box";
@@ -392,6 +426,7 @@
                 this.gender = user.gender;
                 this.passports = user.passports;
                 this.bio = user.bio;
+                this.selectedActivityTypes = user.activityTypes;
                 this.date_of_birth = getDateString(user.date_of_birth);
                 for (const option in this.fitnessOptions) {
                     if (this.fitnessOptions[option].value === user.fitness) {
