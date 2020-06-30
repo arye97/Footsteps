@@ -165,7 +165,7 @@
     import server from '../../Api';
     import Multiselect from 'vue-multiselect'
     import Header from '../../components/Header/Header.vue'
-    import {getCountryNames, getActivityTypes, fitnessLevels} from '../../constants';
+    import {getCountryNames, fitnessLevels} from '../../constants';
     // import {tokenStore} from '../../main';
     import {validateUser} from "../../util";
 
@@ -255,8 +255,19 @@
             unDisplayRules() {
                 this.isDisplayingRules = false;
             },
-            fetchActivityTypes() {
-                this.activityTypes = getActivityTypes.sort();
+            /**
+             * Fetch all possible activity types from the server
+             */
+            async fetchActivityTypes() {
+                this.activityTypes = null;
+                await server.get('activity-types',
+                    {headers: {'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")}
+                    }
+                ).then(response => {
+                    this.activityTypes = response.data;
+                }).catch(error => {
+                    this.processGetError(error);
+                });
             },
             async fetchCountries() {
                 let select = [];
