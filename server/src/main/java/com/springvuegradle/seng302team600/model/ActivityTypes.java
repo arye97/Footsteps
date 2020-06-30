@@ -3,7 +3,7 @@ package com.springvuegradle.seng302team600.model;
 /**
  * Possible activity types for an activity
  */
-public enum ActivityTypes {
+enum ActivityTypes {
     //
     //Aerial
     //
@@ -69,7 +69,7 @@ public enum ActivityTypes {
     CONCERT("Concerts, Festivals and Gigs"),
     LARPING("Live Action Role Playing Games"),
     OTHER_SPORTS("Other sports"),
-    YOGA("Yoga")
+    YOGA("Yoga");
 
     private final String humanReadable;
 
