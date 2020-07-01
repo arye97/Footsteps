@@ -17,12 +17,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
-import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -30,10 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -56,8 +50,8 @@ class UserControllerTest {
     @Autowired
     public void context(ApplicationContext context) { this.context = context; }
 
-    private String createUserJsonPost;
-    private String userMissJsonPost;
+//    private String newUserJson;
+//    private String newUserMissingFieldJson;
     private String userForbiddenJsonPost;
     private String createUserJsonPostFindUser;
     private String editProfileJsonPut;
@@ -90,18 +84,29 @@ class UserControllerTest {
     private boolean defaultAdminIsRegistered;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws JsonProcessingException {
         defaultAdminIsRegistered = false;
-        userMissJsonPost = "{\n" +
-                "  \"lastname\": \"Benson\",\n" +
-                "  \"middlename\": \"Jack\",\n" +
-                "  \"nickname\": \"Jacky\",\n" +
-                "  \"primary_email\": \"jacky@google.com\",\n" +
-                "  \"password\": \"jacky'sSecuredPwd\",\n" +
-                "  \"bio\": \"Jacky loves to ride his bike on crazy mountains.\",\n" +
-                "  \"date_of_birth\": \"1985-12-20\",\n" +
-                "  \"gender\": \"Male\"\n" +
-                "}";
+
+//        newUserMissingFieldJson = "{\n" +
+//                "  \"lastname\": \"Benson\",\n" +
+//                "  \"middlename\": \"Jack\",\n" +
+//                "  \"nickname\": \"Jacky\",\n" +
+//                "  \"primary_email\": \"jacky@google.com\",\n" +
+//                "  \"password\": \"jacky'sSecuredPwd\",\n" +
+//                "  \"bio\": \"Jacky loves to ride his bike on crazy mountains.\",\n" +
+//                "  \"date_of_birth\": \"1985-12-20\",\n" +
+//                "  \"gender\": \"Male\"\n" +
+//                "}";
+
+//        newUserMissingFieldJson = JsonConverter.toJson(
+//                "lastname", "Benson",
+//                "middlename", "Jack",
+//                "nickname", "Jacky",
+//                "primary_email", "jacky@google.com",
+//                "password", "jacky'sSecuredPwd",
+//                "bio", "Jacky loves to ride his bike on crazy mountains.",
+//                "date_of_birth", "1985-12-20",
+//                "gender", "Male");
 
         userForbiddenJsonPost = "{\n" +
                 "  \"lastname\": \"Smith\",\n" +
@@ -112,19 +117,19 @@ class UserControllerTest {
                 "  \"gender\": \"Male\"\n" +
                 "}";
 
-        createUserJsonPost = "{\n" +
-                "  \"lastname\": \"Pocket\",\n" +
-                "  \"firstname\": \"Poly\",\n" +
-                "  \"middlename\": \"Michelle\",\n" +
-                "  \"nickname\": \"Pino\",\n" +
-                "  \"primary_email\": \"poly@pocket.com\",\n" +
-                "  \"password\": \"somepwd\",\n" +
-                "  \"bio\": \"Poly Pocket is so tiny.\",\n" +
-                "  \"date_of_birth\": \"2000-11-11\",\n" +
-                "  \"gender\": \"Female\",\n" +
-                "  \"fitness\": 3,\n" +
-                "  \"passports\": [\"Australia\", \"Antarctica\"]\n" +
-                "}";
+//        newUserJson = "{\n" +
+//                "  \"lastname\": \"Pocket\",\n" +
+//                "  \"firstname\": \"Poly\",\n" +
+//                "  \"middlename\": \"Michelle\",\n" +
+//                "  \"nickname\": \"Pino\",\n" +
+//                "  \"primary_email\": \"poly@pocket.com\",\n" +
+//                "  \"password\": \"somepwd\",\n" +
+//                "  \"bio\": \"Poly Pocket is so tiny.\",\n" +
+//                "  \"date_of_birth\": \"2000-11-11\",\n" +
+//                "  \"gender\": \"Female\",\n" +
+//                "  \"fitness\": 3,\n" +
+//                "  \"passports\": [\"Australia\", \"Antarctica\"]\n" +
+//                "}";
 
         createUserJsonPostFindUser = "{\n" +
                 "  \"lastname\": \"Kim\",\n" +
@@ -332,12 +337,21 @@ class UserControllerTest {
 
     }
 
+    private final String newUserMissingFieldJson = JsonConverter.toJson(
+            "lastname", "Benson",
+            "middlename", "Jack",
+            "nickname", "Jackie",
+            "primary_email", "jacky@google.com",
+            "password", "jacky'sSecuredPwd",
+            "bio", "Jacky loves to ride his bike on crazy mountains.",
+            "date_of_birth", "1985-12-20",
+            "gender", "Male");
     @Test
     public void newUserMissingFieldTest() throws Exception {
-        setupMockingNoEmail(userMissJsonPost);
+        setupMockingNoEmail(newUserMissingFieldJson);
 
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post("/profiles")
-                .content(userMissJsonPost)
+                .content(newUserMissingFieldJson)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
 
@@ -358,12 +372,37 @@ class UserControllerTest {
                 .andExpect(status().isConflict());
     }
 
+//    private final String newUserJson = "{\n" +
+//            "  \"lastname\": \"Pocket\",\n" +
+//            "  \"firstname\": \"Poly\",\n" +
+//            "  \"middlename\": \"Michelle\",\n" +
+//            "  \"nickname\": \"Pino\",\n" +
+//            "  \"primary_email\": \"poly@pocket.com\",\n" +
+//            "  \"password\": \"somepwd\",\n" +
+//            "  \"bio\": \"Poly Pocket is so tiny.\",\n" +
+//            "  \"date_of_birth\": \"2000-11-11\",\n" +
+//            "  \"gender\": \"Female\",\n" +
+//            "  \"fitness\": 3,\n" +
+//            "  \"passports\": [\"Australia\", \"Antarctica\"]\n" +
+//            "}";
+    private final String newUserJson = JsonConverter.toJson(
+        "lastname", "Pocket",
+        "firstname", "Poly",
+        "middlename", "Michelle",
+        "nickname", "Pino",
+        "primary_email", "poly@pocket.com",
+        "password", "somepwd",
+        "bio", "Poly Pocket is so tiny.",
+        "date_of_birth", "2000-11-11",
+        "gender", "Female",
+        "fitness", 3,
+        "passports", new String[]{"Australia", "Antarctica"});
     @Test
     public void newUserTest() throws Exception {
-        setupMockingNoEmail(createUserJsonPost);
+        setupMockingNoEmail(newUserJson);
 
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post("/profiles")
-                .content(createUserJsonPost)
+                .content(newUserJson)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
 
@@ -544,7 +583,7 @@ class UserControllerTest {
      * Successful test to check if a token is logged in with given user id
      */
     public void checkIfUserIdMatchesTokenSuccess() throws Exception {
-        setupMockingNoEmail(createUserJsonPost);
+        setupMockingNoEmail(newUserJson);
 
         //Log in
         MockHttpServletRequestBuilder getRequestToLogin = MockMvcRequestBuilders.get("/profiles")
@@ -565,7 +604,7 @@ class UserControllerTest {
      * that that throws a 403 Forbidden
      */
     public void checkIfUserIdMatchesTokenForbidden() throws Exception {
-        setupMockingNoEmail(createUserJsonPost);
+        setupMockingNoEmail(newUserJson);
         long userId = fakeUser.getUserId();
 
         //Log in
