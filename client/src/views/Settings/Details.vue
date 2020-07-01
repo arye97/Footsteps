@@ -286,20 +286,26 @@
                         }
                     } else {
                         //Need to fix issues with
+                        //I changed it to a switch case.  Slightly more readable.
                         const updateField = document.getElementById(mutateTarget.id.replace("Div", ""));
                         const update = {};
-                        if (updateField.id === "gender") {
-                            update['gender'] = this.gender;
-                        } else if (updateField.id === "passports") {
-                            update['passports'] = this.passports;
-                        } else if (updateField.id === "fitness") {
-                            if (this.fitness === null) {
-                                update['fitness'] = null;
-                            } else {
-                                update['fitness'] = this.fitness.value;
-                            }
-                        } else if (updateField.id === "activityTypes") {
-                            update['activityTypes'] = this.selectedActivityTypes;
+
+                        switch (updateField.id) {
+                            case "gender":
+                                update['gender'] = this.gender;
+                                break;
+                            case "passports":
+                                update['passports'] = this.passports;
+                                break;
+                            case "fitness":
+                                update['fitness'] = (this.fitness === null) ? null : this.fitness.value;
+                                break;
+                            case "activityTypes":
+                                update['activityTypes'] = this.selectedActivityTypes;
+                                break;
+                            default:
+                                eval("update['{0}'] = this.{0};".format(updateField.id));
+
                         }
                         if (this.putUpdate(update, alertDiv)) {
                             mutateTarget.className = "multiselect--disabled multiselect-box";
