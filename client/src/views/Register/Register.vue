@@ -265,6 +265,9 @@
                     }
                 ).then(response => {
                     this.activityTypes = response.data;
+                    this.activityTypes.sort(function (a, b) {
+                        return a.toLowerCase().localeCompare(b.toLowerCase());
+                    });
                 }).catch(error => {
                     this.processGetError(error);
                 });

@@ -1,9 +1,12 @@
 package com.springvuegradle.seng302team600.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 /**
  * Possible activity types for an activity
  */
-enum ActivityTypes {
+public enum ActivityTypes {
     //
     //Aerial
     //
@@ -73,6 +76,9 @@ enum ActivityTypes {
 
     private final String humanReadable;
 
+    @JsonCreator
     ActivityTypes(String humanReadable) {this.humanReadable = humanReadable;}
-    String getHumanReadable() {return this.humanReadable;}
+
+    @JsonValue
+    public String getHumanReadable() {return this.humanReadable;}
 }
