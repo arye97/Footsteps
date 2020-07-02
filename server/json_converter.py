@@ -44,6 +44,7 @@ def dict_to_code(json_dict):
     
 
 def convert():
+    input_prefix = ""
     global text_box
     json_string = text_box.get("1.0",END)
     
@@ -52,13 +53,15 @@ def convert():
         json_dict = json.loads(json_string)
     # Fallback
     except json.decoder.JSONDecodeError:
+        input_prefix = json_string[0 : json_string.find('=') + 1]
+        if not input_prefix[-1].isspace(): input_prefix += ' '
         json_string = json_string[json_string.find('=') + 1 :]  # Remove variable assignment
-        json_string = re.sub(r'\s+', '', json_string)  # Remove all whitespace
+        json_string = re.sub(r'[^\S ]+', '', json_string)  # Remove all whitespace
         json_string = eval(json_string.strip().rstrip(';'))
         json_dict = json.loads(json_string)
     
     
-    output_string = JSON_METHOD_NAME + "(true, \n"
+    output_string = input_prefix + JSON_METHOD_NAME + "(true, \n"
     output_string += dict_to_code(json_dict).rstrip(",\n")
     output_string += ");"
     
