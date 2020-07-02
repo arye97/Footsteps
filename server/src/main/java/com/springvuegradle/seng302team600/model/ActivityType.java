@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 /**
  * Possible activity types for an activity
  */
-public enum ActivityTypes {
+public enum ActivityType {
     //
     //Aerial
     //
@@ -80,7 +80,7 @@ public enum ActivityTypes {
     private final String humanReadable;
 
     @JsonCreator
-    ActivityTypes(String humanReadable) {this.humanReadable = humanReadable;}
+    ActivityType(String humanReadable) {this.humanReadable = humanReadable;}
 
     @JsonValue
     public String getHumanReadable() {return this.humanReadable;}

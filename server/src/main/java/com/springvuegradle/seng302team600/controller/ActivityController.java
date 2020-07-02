@@ -4,7 +4,7 @@ import com.springvuegradle.seng302team600.service.UserValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.springvuegradle.seng302team600.model.ActivityTypes;
+import com.springvuegradle.seng302team600.model.ActivityType;
 
 import java.util.*;
 
@@ -26,13 +26,13 @@ public class ActivityController {
      * @return list of activity types
      */
     @GetMapping("activity-types")
-    public List<ActivityTypes> getAllActivityTypes() {
-        List<ActivityTypes> activityTypes = Arrays.asList(ActivityTypes.values());
+    public List<ActivityType> getAllActivityTypes() {
+        List<ActivityType> activityTypes = Arrays.asList(ActivityType.values());
 
         // Sorts the list of Enums
-        Collections.sort(activityTypes, new Comparator<ActivityTypes>() {
+        Collections.sort(activityTypes, new Comparator<ActivityType>() {
             @Override
-            public int compare(ActivityTypes o1, ActivityTypes o2) {
+            public int compare(ActivityType o1, ActivityType o2) {
                 return o1.getHumanReadable().toLowerCase().compareTo(o2.getHumanReadable().toLowerCase());
             }
         });
