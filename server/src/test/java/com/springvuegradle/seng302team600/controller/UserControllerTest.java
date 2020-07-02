@@ -372,19 +372,8 @@ class UserControllerTest {
                 .andExpect(status().isConflict());
     }
 
-//    private final String newUserJson = "{\n" +
-//            "  \"lastname\": \"Pocket\",\n" +
-//            "  \"firstname\": \"Poly\",\n" +
-//            "  \"middlename\": \"Michelle\",\n" +
-//            "  \"nickname\": \"Pino\",\n" +
-//            "  \"primary_email\": \"poly@pocket.com\",\n" +
-//            "  \"password\": \"somepwd\",\n" +
-//            "  \"bio\": \"Poly Pocket is so tiny.\",\n" +
-//            "  \"date_of_birth\": \"2000-11-11\",\n" +
-//            "  \"gender\": \"Female\",\n" +
-//            "  \"fitness\": 3,\n" +
-//            "  \"passports\": [\"Australia\", \"Antarctica\"]\n" +
-//            "}";
+
+
     private final String newUserJson = JsonConverter.toJson(
         "lastname", "Pocket",
         "firstname", "Poly",
@@ -396,7 +385,7 @@ class UserControllerTest {
         "date_of_birth", "2000-11-11",
         "gender", "Female",
         "fitness", 3,
-        "passports", new String[]{"Australia", "Antarctica"});
+        "passports", new Object[]{"Australia", "Antarctica"});
     @Test
     public void newUserTest() throws Exception {
         setupMockingNoEmail(newUserJson);
