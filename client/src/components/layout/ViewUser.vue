@@ -31,6 +31,7 @@
                                         <span v-if="this.user.passports.length >= 1">Passports: {{this.user.passports.join(", ")}}<br/></span>
                                         <span v-if="this.user.fitness >= 0">Fitness Level: {{this.fitness}}<br/></span>
                                         <span v-if="this.user.bio">Bio: {{ this.user.bio }}<br/></span>
+                                        <span v-if="this.user.activityTypes">Activities I am interested in: {{ this.user.activityTypes.join(", ") }}<br/></span>
                                     </span>
                                 <button type="submit" class="btn btn-link" v-if="this.isEditable" v-on:click="editProfile" >Edit Profile</button>
                             </div>
@@ -90,6 +91,7 @@
                     if (response.status === 200) {
                         //user is set to the user data retrieved
                         this.user = response.data;
+                        console.log(this.user);
                         this.userId = this.user.id;
                         this.formattedDate = getDateString(this.user.date_of_birth);
                         for (let i = 0; i < fitnessLevels.length; i++) {

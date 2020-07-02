@@ -323,7 +323,7 @@
                     bio: this.bio.trim(),
                     fitness: this.fitness.value,
                     passports: this.passports,
-                    activity_type: this.selectedActivityTypes
+                    activity_types: this.selectedActivityTypes
                 };
                 if (newUser.fitness === undefined) newUser.fitness = -1;
                 let validCount = await validUser(newUser, this.passwordCheck);
