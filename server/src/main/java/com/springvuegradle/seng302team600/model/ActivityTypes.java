@@ -36,7 +36,7 @@ public enum ActivityTypes {
     BASEBALL("Baseball and Softball"),
     BASKETBALL("Basketball"),
     BOULDERING("Bouldering"),
-    ROPE_CLIMBING("Sport, Trad, Top-Rope Climbing"),
+    ROPE_CLIMBING("Sport, Trad, Top-Rope, Rock Climbing"),
     SPEED_CLIMBING("Speed Climbing"),
     MOUNTAINEERING("Mountaineering"),
     BOWLS("Bowls"),

@@ -44,15 +44,6 @@ class EmailControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    private String createUser1JsonPost;
-    private String addEmailsJsonPostAdditionalEmails;
-    private String addEmailsJsonPostCurrentPrimaryEmailInAdditionalEmails;
-    private String addEmailsJsonPostCurrentRemovedOneEmailInAdditionalEmails;
-    private String updateEmailsJsonPutPrimaryAndAdditionalEmails;
-
-
-    private String createUser2JsonPost;
-
     private ObjectMapper objectMapper;
     private User dummyUser;
     private RegisterRequest regReq;
@@ -62,54 +53,6 @@ class EmailControllerTest {
 
     @BeforeEach
     public void setUp() {
-
-        createUser1JsonPost = "{\n" +
-                "  \"lastname\": \"Kim\",\n" +
-                "  \"firstname\": \"Tim\",\n" +
-                "  \"primary_email\": \"tim@gmail.com\",\n" +
-                "  \"password\": \"pinPwd\",\n" +
-                "  \"date_of_birth\": \"2001-7-9\",\n" +
-                "  \"gender\": \"Non-Binary\"\n" +
-                "}";
-
-        addEmailsJsonPostAdditionalEmails = "{\n" +
-                "  \"additional_email\": [\n" +
-                        "  \"sillybilly@yahoo.com\",\n" +
-                        "  \"meanyweasley@yahoo.com\"\n" +
-                "  ] " +
-                "}";
-
-        addEmailsJsonPostCurrentPrimaryEmailInAdditionalEmails = "{\n" +
-                "  \"additional_email\": [\n" +
-                        "  \"sillybilly@yahoo.com\",\n" +
-                        "  \"tim@gmail.com\"\n" +
-                "  ] " +
-                "}";
-
-        addEmailsJsonPostCurrentRemovedOneEmailInAdditionalEmails = "{\n" +
-                "  \"additional_email\": [\n" +
-                        "  \"sillybilly@yahoo.com\"\n" +
-                "  ] " +
-                "}";
-
-        updateEmailsJsonPutPrimaryAndAdditionalEmails = "{\n" +
-                "  \"primary_email\": \"lecousindangereux@gmail.com\",\n" +
-                "  \"additional_email\": [\n" +
-                        "  \"smellyjerry@yahoo.com\"\n" +
-                "  ] " +
-                "}";
-
-
-//        createUser2JsonPost = "{\n" +
-//                "  \"lastname\": \"Billy\",\n" +
-//                "  \"firstname\": \"Silly\",\n" +
-//                "  \"primary_email\": \"sillybilly@yahoo.com\",\n" +
-//                "  \"password\": \"iamASillyLittleBumbum\",\n" +
-//                "  \"date_of_birth\": \"1960-7-9\",\n" +
-//                "  \"gender\": \"Male\"\n" +
-//                "}";
-
-
         objectMapper = new ObjectMapper();
         MockitoAnnotations.initMocks(this);
         dummyUser = new User();
@@ -157,6 +100,17 @@ class EmailControllerTest {
         dummyUser.setTokenTime();
     }
 
+
+
+    // ----------- Tests -----------
+
+    private final String createUser1JsonPost = JsonConverter.toJson(true,
+            "lastname", "Kim",
+            "firstname", "Tim",
+            "primary_email", "tim@gmail.com",
+            "password", "pinPwd",
+            "date_of_birth", "2001-7-9",
+            "gender", "Non-Binary");
     @Test
     public void findEmailDataWhenUserIsUnauthorized_Failure() throws Exception {
         setupMocking(createUser1JsonPost);
@@ -187,6 +141,9 @@ class EmailControllerTest {
     }
 
 
+    private final String addEmailsJsonPostAdditionalEmails = JsonConverter.toJson(true,
+            "additional_email", new Object[]{
+                    "sillybilly@yahoo.com", "meanyweasley@yahoo.com"});
     @Test
     public void addAdditionalEmails_Success() throws Exception {
         setupMocking(createUser1JsonPost);
@@ -232,6 +189,9 @@ class EmailControllerTest {
         assertEquals(expectedEmails, additionalEmailsFromJson);
     }
 
+    private final String addEmailsJsonPostCurrentPrimaryEmailInAdditionalEmails = JsonConverter.toJson(true,
+            "additional_email", new Object[]{
+                    "sillybilly@yahoo.com", "tim@gmail.com"});
     /**
      * Tests addEmails when the User submits a primary email in the list of additional emails.
      * This fails as addEmails does not have the functionality to swap primary email into additional email.
@@ -277,6 +237,9 @@ class EmailControllerTest {
         assertEquals("", jsonNode.get("additionalEmails").asText());
     }
 
+
+    private final String addEmailsJsonPostCurrentRemovedOneEmailInAdditionalEmails = JsonConverter.toJson(true,
+            "additional_email", new Object[]{"sillybilly@yahoo.com"});
     /**
      * Tests addEmails when the User already has 2 existing additional emails A and B
      * and the User decides to remove B.
@@ -341,6 +304,10 @@ class EmailControllerTest {
         assertEquals(expectedEmails, additionalEmailsFromJson);
     }
 
+
+    private final String updateEmailsJsonPutPrimaryAndAdditionalEmails = JsonConverter.toJson(true,
+            "primary_email", "lecousindangereux@gmail.com",
+            "additional_email", new Object[]{"smellyjerry@yahoo.com"});
     /**
      * Tests updateEmails when a User with no additional emails
      * submits a new primary email and a list of additional emails.
