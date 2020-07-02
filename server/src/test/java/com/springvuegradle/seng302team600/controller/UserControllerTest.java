@@ -170,14 +170,13 @@ class UserControllerTest {
     }
 
 
-    private final String newUserEmailForbiddenJson = "{\n" +
-            "  \"lastname\": \"Smith\",\n" +
-            "  \"firstname\": \"Jim\",\n" +
-            "  \"primary_email\": \"jsmith@google.com\",\n" +
-            "  \"password\": \"JimJamPwd\",\n" +
-            "  \"date_of_birth\": \"1995-1-1\",\n" +
-            "  \"gender\": \"Male\"\n" +
-            "}";
+    private final String newUserEmailForbiddenJson = JsonConverter.toJson(true,
+            "lastname", "Smith",
+            "firstname", "Jim",
+            "primary_email", "jsmith@google.com",
+            "password", "JimJamPwd",
+            "date_of_birth", "1995-1-1",
+            "gender", "Male");
     @Test
     public void newUserEmailForbidden() throws Exception {
         setupMocking(newUserEmailForbiddenJson);
@@ -221,15 +220,13 @@ class UserControllerTest {
     }
 
 
-    private final String findUserDataJson = "{\n" +
-            "  \"lastname\": \"Kim\",\n" +
-            "  \"firstname\": \"Tim\",\n" +
-            "  \"primary_email\": \"tim@gmail.com\",\n" +
-            "  \"password\": \"pinPwd\",\n" +
-            "  \"date_of_birth\": \"2001-7-9\",\n" +
-            "  \"gender\": \"Non-Binary\"\n" +
-            "}";
-
+    private final String findUserDataJson = JsonConverter.toJson(true,
+            "lastname", "Kim",
+            "firstname", "Tim",
+            "primary_email", "tim@gmail.com",
+            "password", "pinPwd",
+            "date_of_birth", "2001-7-9",
+            "gender", "Non-Binary");
     /**
      * Test wrong token
      */
@@ -278,19 +275,17 @@ class UserControllerTest {
     }
 
 
-    private final String createUserForLoginJson = "{\n" +
-            "  \"lastname\": \"Dean\",\n" +
-            "  \"firstname\": \"Bob\",\n" +
-            "  \"middlename\": \"Mark\",\n" +
-            "  \"primary_email\": \"bobby@gmail.com\",\n" +
-            "  \"password\": \"bobbyPwd\",\n" +
-            "  \"date_of_birth\": \"1976-9-2\",\n" +
-            "  \"gender\": \"Non-Binary\"\n" +
-            "}";
-    private final String doNotLoginIncorrectPasswordJson = "{\n" +
-            "  \"email\": \"bobby@gmail.com\",\n" +
-            "  \"password\": \"wrongPwd\"\n" +
-            "}";
+    private final String createUserForLoginJson = JsonConverter.toJson(true,
+            "lastname", "Dean",
+            "firstname", "Bob",
+            "middlename", "Mark",
+            "primary_email", "bobby@gmail.com",
+            "password", "bobbyPwd",
+            "date_of_birth", "1976-9-2",
+            "gender", "Non-Binary");
+    private final String doNotLoginIncorrectPasswordJson = JsonConverter.toJson(true,
+            "email", "bobby@gmail.com",
+            "password", "wrongPwd");
     /**
      * Test unauthorized when incorrect password
      */
@@ -304,10 +299,9 @@ class UserControllerTest {
     }
 
 
-    private final String doNotLoginUserNotFoundJson = "{\n" +
-            "  \"email\": \"wrong@gmail.com\",\n" +
-            "  \"password\": \"bobbyPwd\"\n" +
-            "}";
+    private final String doNotLoginUserNotFoundJson = JsonConverter.toJson(true,
+            "email", "wrong@gmail.com",
+            "password", "bobbyPwd");
     /**
      * Test unauthorized when User not found
      */
@@ -321,10 +315,9 @@ class UserControllerTest {
     }
 
 
-    private final String loginAuthorizedUserJson = "{\n" +
-            "  \"email\": \"bobby@gmail.com\",\n" +
-            "  \"password\": \"bobbyPwd\"\n" +
-            "}";
+    private final String loginAuthorizedUserJson = JsonConverter.toJson(true,
+            "email", "bobby@gmail.com",
+            "password", "bobbyPwd");
     /**
      * Test successful login
      */
@@ -353,14 +346,13 @@ class UserControllerTest {
                 .andExpect(status().isForbidden());
     }
 
-    private final String createUserJsonPostLogout = "{\n" +
-            "  \"lastname\": \"kite\",\n" +
-            "  \"firstname\": \"Kate\",\n" +
-            "  \"primary_email\": \"kite@gmail.com\",\n" +
-            "  \"password\": \"kitPwd\",\n" +
-            "  \"date_of_birth\": \"2002-1-2\",\n" +
-            "  \"gender\": \"Female\"\n" +
-            "}";
+    private final String createUserJsonPostLogout = JsonConverter.toJson(true,
+            "lastname", "kite",
+            "firstname", "Kate",
+            "primary_email", "kite@gmail.com",
+            "password", "kitPwd",
+            "date_of_birth", "2002-1-2",
+            "gender", "Female");
     /**
      * Test successful logout
      */
@@ -375,19 +367,17 @@ class UserControllerTest {
     }
 
 
-    private final String editProfileSuccessfulJson = "{\n" +
-            "  \"lastname\": \"Smith\",\n" +
-            "  \"firstname\": \"John\",\n" +
-            "  \"primary_email\": \"jsmith@gmail.com\",\n" +
-            "  \"password\": \"pass\",\n" +
-            "  \"date_of_birth\": \"1980-6-4\",\n" +
-            "  \"gender\": \"Male\"\n" +
-            "}";
-    private final String editProfileJsonPut = "{\n" +
-            "  \"bio\": \"A guy\",\n" +
-            "  \"date_of_birth\": \"1953-6-4\",\n" +
-            "  \"lastname\": \"Doe\"\n" +
-            "}";
+    private final String editProfileSuccessfulJson = JsonConverter.toJson(true,
+            "lastname", "Smith",
+            "firstname", "John",
+            "primary_email", "jsmith@gmail.com",
+            "password", "pass",
+            "date_of_birth", "1980-6-4",
+            "gender", "Male");
+    private final String editProfileJsonPut = JsonConverter.toJson(true,
+            "bio", "A guy",
+            "date_of_birth", "1953-6-4",
+            "lastname", "Doe");
     /**
      * Test if a user can be edited successfully
      */
@@ -430,14 +420,13 @@ class UserControllerTest {
     }
 
 
-    private final String editProfileFailureJson = "{\n" +
-            "  \"lastname\": \"Smith\",\n" +
-            "  \"firstname\": \"Jane\",\n" +
-            "  \"primary_email\": \"janesmith@gmail.com\",\n" +
-            "  \"password\": \"pass\",\n" +
-            "  \"date_of_birth\": \"1980-6-5\",\n" +
-            "  \"gender\": \"Female\"\n" +
-            "}";
+    private final String editProfileFailureJson = JsonConverter.toJson(true,
+            "lastname", "Smith",
+            "firstname", "Jane",
+            "primary_email", "janesmith@gmail.com",
+            "password", "pass",
+            "date_of_birth", "1980-6-5",
+            "gender", "Female");
     /**
      * Tests that a user cannot edit another user's profile
      */
@@ -456,22 +445,20 @@ class UserControllerTest {
     }
 
 
-    private final String createUserJsonViewUser1 = "{\n" +
-            "  \"lastname\": \"Tomato\",\n" +
-            "  \"firstname\": \"Bob\",\n" +
-            "  \"primary_email\": \"bob@gmail.com\",\n" +
-            "  \"password\": \"bobsPassword\",\n" +
-            "  \"date_of_birth\": \"2002-1-2\",\n" +
-            "  \"gender\": \"Male\"\n" +
-            "}";
-    private final String createUserJsonViewUser2 = "{\n" +
-            "  \"lastname\": \"Cucumber\",\n" +
-            "  \"firstname\": \"Larry\",\n" +
-            "  \"primary_email\": \"larry@gmail.com\",\n" +
-            "  \"password\": \"larrysPassword\",\n" +
-            "  \"date_of_birth\": \"2002-1-20\",\n" +
-            "  \"gender\": \"Female\"\n" +
-            "}";
+    private final String createUserJsonViewUser1 = JsonConverter.toJson(true,
+            "lastname", "Tomato",
+            "firstname", "Bob",
+            "primary_email", "bob@gmail.com",
+            "password", "bobsPassword",
+            "date_of_birth", "2002-1-2",
+            "gender", "Male");
+    private final String createUserJsonViewUser2 = JsonConverter.toJson(true,
+            "lastname", "Cucumber",
+            "firstname", "Larry",
+            "primary_email", "larry@gmail.com",
+            "password", "larrysPassword",
+            "date_of_birth", "2002-1-20",
+            "gender", "Female");
     /**
      * Tests that a user can view another users profile
      */
@@ -567,23 +554,20 @@ class UserControllerTest {
     }
 
 
-    private final String changePasswordUserJson = "{\n" +
-            "  \"lastname\": \"Doe\",\n" +
-            "  \"firstname\": \"Jane\",\n" +
-            "  \"primary_email\": \"janedoe@gmail.com\",\n" +
-            "  \"password\": \"password1\",\n" +
-            "  \"date_of_birth\": \"1980-6-5\",\n" +
-            "  \"gender\": \"Female\"\n" +
-            "}";
-    private final String changePasswordUserLoginDetailsJson = "{\n" +
-            "  \"email\": \"janedoe@gmail.com\",\n" +
-            "  \"password\": \"PASSword2\"\n" +
-            "}";
-    private final String changePasswordSuccessJson = "{\n" +
-            "  \"old_password\": \"password1\",\n" +
-            "  \"new_password\": \"PASSword2\",\n" +
-            "  \"repeat_password\": \"PASSword2\"\n" +
-            "}";
+    private final String changePasswordUserJson = JsonConverter.toJson(true,
+            "lastname", "Doe",
+            "firstname", "Jane",
+            "primary_email", "janedoe@gmail.com",
+            "password", "password1",
+            "date_of_birth", "1980-6-5",
+            "gender", "Female");
+    private final String changePasswordUserLoginDetailsJson = JsonConverter.toJson(true,
+            "email", "janedoe@gmail.com",
+            "password", "PASSword2");
+    private final String changePasswordSuccessJson = JsonConverter.toJson(true,
+            "old_password", "password1",
+            "new_password", "PASSword2",
+            "repeat_password", "PASSword2");
     @Test
     /**
      * Test creating a user and editing they're password when the password and repeated password match.
@@ -616,11 +600,10 @@ class UserControllerTest {
     }
 
 
-    private final String changePasswordFailJson = "{\n" +
-            "  \"old_password\": \"password1\",\n" +
-            "  \"new_password\": \"password2\",\n" +
-            "  \"repeat_password\": \"password3\"\n" +
-            "}";
+    private final String changePasswordFailJson = JsonConverter.toJson(true,
+            "old_password", "password1",
+            "new_password", "password2",
+            "repeat_password", "password3");
     @Test
     /**
      * Test creating a user and editing they're password when the password and repeated password NO NOT match.
@@ -638,11 +621,11 @@ class UserControllerTest {
     }
 
 
-    private final String changePasswordNewEqualsOldJson = "{\n" +
-            "  \"old_password\": \"password1\",\n" +
-            "  \"new_password\": \"password1\",\n" +
-            "  \"repeat_password\": \"password1\"\n" +
-            "}";
+    private final String changePasswordNewEqualsOldJson = JsonConverter.toJson(true,
+            "old_password", "password1",
+            "new_password", "password1",
+            "repeat_password", "password1");
+
     @Test
     /**
      * Test creating a user and editing they're password when the new password is the same as the old password
@@ -660,11 +643,10 @@ class UserControllerTest {
     }
 
 
-    private final String changePasswordFailsRulesJson = "{\n" +
-            "  \"old_password\": \"password1\",\n" +
-            "  \"new_password\": \"pass\",\n" +
-            "  \"repeat_password\": \"pass\"\n" +
-            "}";
+    private final String changePasswordFailsRulesJson = JsonConverter.toJson(true,
+            "old_password", "password1",
+            "new_password", "pass",
+            "repeat_password", "pass");
     @Test
     /**
      * Test creating a user and changing their password to a password that violates the password rules
