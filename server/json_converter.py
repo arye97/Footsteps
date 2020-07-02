@@ -58,7 +58,7 @@ def convert():
         json_dict = json.loads(json_string)
     
     
-    output_string = JSON_METHOD_NAME + "(\n"
+    output_string = JSON_METHOD_NAME + "(true, \n"
     output_string += dict_to_code(json_dict).rstrip(",\n")
     output_string += ");"
     

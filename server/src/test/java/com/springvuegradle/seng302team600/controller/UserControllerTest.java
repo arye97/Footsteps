@@ -142,7 +142,7 @@ class UserControllerTest {
 
     // ----------- Tests -----------
 
-    private final String newUserMissingFieldJson = JsonConverter.toJson(
+    private final String newUserMissingFieldJson = JsonConverter.toJson(true,
             "lastname", "Benson",
             "middlename", "Jack",
             "nickname", "Jackie",
@@ -157,6 +157,7 @@ class UserControllerTest {
      */
     @Test
     public void newUserMissingField() throws Exception {
+        System.out.println(newUserMissingFieldJson);
         setupMockingNoEmail(newUserMissingFieldJson);
 
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post("/profiles")
