@@ -86,7 +86,7 @@
                 <input type="password" class="form-control" v-on:click="displayRules" v-model="passwordCheck" id="passwordCheck" name="passwordCheck" placeholder="Retype Password...">
             </div>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_password_check">
-                {{  "Field is mandatory and must not be blank"  }}
+                {{  "Your password doesn't follow the password rules"  }}
             </div>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_password_match">
                 {{  'Passwords do not match, please type again'  }}
@@ -166,7 +166,6 @@
     import Multiselect from 'vue-multiselect'
     import Header from '../../components/Header/Header.vue'
     import {getCountryNames, fitnessLevels} from '../../constants';
-    // import {tokenStore} from '../../main';
     import {validateUser} from "../../util";
 
     function showError(alert_name) {
@@ -181,7 +180,7 @@
     async function validUser(newUser, passwordCheck) {
         let count = 0; //count of blank fields
         if(!validateUser(newUser.password, "password").valid) {
-            showError('alert_password');
+            showError('alert_password_check');
             count += 1;
         }
         if (newUser.password !== passwordCheck) {
@@ -253,7 +252,17 @@
                 this.isDisplayingRules = true;
             },
             unDisplayRules() {
-                this.isDisplayingRules = false;
+                if(!validateUser(this.password, "password").valid && this.password !== '') {
+                    //Password rules not followed
+                    showError('alert_password_check');
+
+                } else if (this.password !== this.passwordCheck && (this.password !== '' || this.passwordCheck !== '')) {
+                    //Passwords don't match
+                    showError('alert_password_match');
+
+                } else {
+                    this.isDisplayingRules = false;
+                }
             },
             /**
              * Fetch all possible activity types from the server
