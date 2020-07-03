@@ -2,7 +2,6 @@ package com.springvuegradle.seng302team600.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.springvuegradle.seng302team600.payload.ActivityCreateRequest;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -68,32 +67,6 @@ public class Activity {
      * Mandatory for repository actions?
      */
     public Activity() {}
-
-    /**
-     * Builds Activity from the payload, using getters and setters.  Use when creating new Activity from data.
-     * @param activityData payload for creating.
-     */
-    public Activity(ActivityCreateRequest activityData, Long creatorUserId) {
-        this();
-        this.builder(activityData, creatorUserId);
-    }
-
-    /**
-     * Builds Activity from the payload, using getters and setters.  Use when preserving Id, etc.
-     * @param activityData payload for creating.
-     * @return the built Activity.
-     */
-    public Activity builder(ActivityCreateRequest activityData, Long creatorUserId) {
-        setName(activityData.getName());
-        setDescription(activityData.getDescription());
-//        setActivityTypes(activityData.getActivityTypes());
-        setContinuous(activityData.isContinuous());
-        setStartTime(activityData.getStartTime());
-        setEndTime(activityData.getEndTime());
-        setLocation(activityData.getLocation());
-        setCreatorUserId(creatorUserId);
-        return this;
-    }
 
 
     public Long getCreatorUserId() {

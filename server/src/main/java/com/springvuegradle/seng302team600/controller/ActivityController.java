@@ -2,7 +2,6 @@ package com.springvuegradle.seng302team600.controller;
 
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.ActivityType;
-import com.springvuegradle.seng302team600.payload.ActivityCreateRequest;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.service.UserValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,12 +28,14 @@ public class ActivityController {
 
 
     @PostMapping("/profiles/{profileId}/activities")
-    public void newActivity(@Validated @RequestBody ActivityCreateRequest newActivityData,
+    public void newActivity(@Validated @RequestBody Activity newActivity,
                             HttpServletResponse response,
                             @PathVariable(value = "profileId") Long profileId) {
 
-        Activity newActivity = new Activity(newActivityData, profileId);
+        newActivity.setCreatorUserId(profileId);
         activityRepository.save(newActivity);
+
+        response.setStatus(HttpServletResponse.SC_CREATED); //201
     }
 
 
