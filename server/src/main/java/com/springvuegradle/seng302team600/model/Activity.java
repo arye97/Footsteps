@@ -32,7 +32,7 @@ public class Activity {
     @JsonProperty("description")
     private String description;
 
-    // These tags may need changing
+    // ToDo fix to the correct mapping
 //    @NotNull(message = "This Activity needs one or more ActivityTypes associated with it")
 //    @ManyToMany(cascade=CascadeType.ALL, mappedBy = "activity", fetch = FetchType.EAGER)
 //    @ElementCollection(targetClass=ActivityType.class)
@@ -44,16 +44,16 @@ public class Activity {
     @JsonProperty("continuous")
     private boolean continuous;
 
-    @Column(name = "start_time", columnDefinition = "DATE")
-    @JsonFormat(pattern="YYYY-MM-DDThh:mm:ssZ")
-    @JsonProperty("start_time")
+    @Column(name = "start_time", columnDefinition = "TIMESTAMP")
+    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ")
     @Temporal(TemporalType.TIMESTAMP)
+    @JsonProperty("start_time")
     private Date startTime = new Date(0);
 
-    @Column(name = "end_time", columnDefinition = "DATE")
-    @JsonFormat(pattern="YYYY-MM-DDThh:mm:ssZ")
-    @JsonProperty("end_time")
+    @Column(name = "end_time", columnDefinition = "TIMESTAMP")
+    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ")
     @Temporal(TemporalType.TIMESTAMP)
+    @JsonProperty("end_time")
     private Date endTime = new Date(0);
 
     // ToDO These tags need to be modified in U9 (see  api-minimal-spec2.1.txt)

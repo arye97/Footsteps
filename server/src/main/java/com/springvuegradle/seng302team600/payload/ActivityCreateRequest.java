@@ -2,12 +2,10 @@ package com.springvuegradle.seng302team600.payload;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.springvuegradle.seng302team600.model.ActivityType;
-import com.springvuegradle.seng302team600.model.User;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import java.util.*;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import java.util.Date;
 
 /**
  * Required to preserve input from client without User class changing values.
@@ -21,17 +19,20 @@ public class ActivityCreateRequest {
     @JsonProperty("description")
     private String description;
 
+    // ToDo fix to the correct mapping
 //    @JsonProperty("activity_type")
 //    private Set<ActivityType> activityTypes = new HashSet<>();
 
     @JsonProperty("continuous")
     private boolean continuous;
 
-    @JsonFormat(pattern="YYYY-MM-DDThh:mm:ssZ")
+    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ")
+    @Temporal(TemporalType.TIMESTAMP)
     @JsonProperty("start_time")
     private Date startTime = new Date(0);
 
-    @JsonFormat(pattern="YYYY-MM-DDThh:mm:ssZ")
+    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ")
+    @Temporal(TemporalType.TIMESTAMP)
     @JsonProperty("end_time")
     private Date endTime = new Date(0);
 
