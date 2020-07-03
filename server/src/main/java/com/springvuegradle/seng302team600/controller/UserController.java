@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.model.DefaultAdminUser;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.model.UserRole;
-import com.springvuegradle.seng302team600.payload.RegisterRequest;
+import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import com.springvuegradle.seng302team600.payload.UserResponse;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
@@ -116,13 +116,12 @@ public class UserController {
      * @param response the http response
      */
     @PostMapping("/profiles")
-    public UserResponse newUser(@Validated @RequestBody RegisterRequest newUserData, HttpServletResponse response) {
+    public UserResponse newUser(@Validated @RequestBody UserRegisterRequest newUserData, HttpServletResponse response) {
         if (emailRepository.existsEmailByEmail(newUserData.getPrimaryEmail())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email: " + newUserData.getPrimaryEmail() + " is already registered"); //409. It may be worth consider to a 200 error for security reasons
         }
 
-        User newUser = new User();
-        newUser.builder(newUserData);
+        User newUser = new User(newUserData);
         //Throws errors if user is erroneous
         newUser.isValid();
         //Saving generates user id

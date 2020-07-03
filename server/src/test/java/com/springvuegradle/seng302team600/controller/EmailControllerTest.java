@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
-import com.springvuegradle.seng302team600.payload.RegisterRequest;
+import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.service.UserValidationService;
@@ -46,7 +46,7 @@ class EmailControllerTest {
 
     private ObjectMapper objectMapper;
     private User dummyUser;
-    private RegisterRequest regReq;
+    private UserRegisterRequest regReq;
     private Email dummyEmail;
     private String validToken = "valid";
 
@@ -66,7 +66,7 @@ class EmailControllerTest {
     }
 
     private void setupMockingNoEmail(String json) throws JsonProcessingException {
-        regReq = objectMapper.treeToValue(objectMapper.readTree(json), RegisterRequest.class);
+        regReq = objectMapper.treeToValue(objectMapper.readTree(json), UserRegisterRequest.class);
         dummyUser = dummyUser.builder(regReq);
         dummyEmail = new Email(dummyUser.getPrimaryEmail(), true, dummyUser);
         when(userRepository.save(Mockito.any(User.class))).thenReturn(dummyUser);

@@ -11,7 +11,7 @@ import java.util.List;
  * Required to preserve input from client without User class changing values.
  * Password doesn't get converted to an encoded password.
  */
-public class RegisterRequest {
+public class UserRegisterRequest {
 
     @JsonProperty("firstname")
     private String firstName;
@@ -50,7 +50,7 @@ public class RegisterRequest {
     @JsonProperty("activity_types")
     private List<String> activityTypes;
 
-    public RegisterRequest() {}
+    public UserRegisterRequest() {}
 
     public String getFirstName() {
         return firstName;

@@ -3,7 +3,7 @@ package com.springvuegradle.seng302team600.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.springvuegradle.seng302team600.payload.RegisterRequest;
+import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
@@ -146,11 +146,20 @@ public class User {
     }
 
     /**
-     * Builds user from the payload, using getters and setters.
+     * Builds user from the payload, using getters and setters.  Use when creating new user from data.
+     * @param userData payload for registering.
+     */
+    public User(UserRegisterRequest userData) {
+        this();
+        this.builder(userData);
+    }
+
+    /**
+     * Builds user from the payload, using getters and setters.  Use when preserving UserId and token, etc.
      * @param userData payload for registering.
      * @return the built user.
      */
-    public User builder(RegisterRequest userData) {
+    public User builder(UserRegisterRequest userData) {
         this.setFirstName(userData.getFirstName());
         this.setMiddleName(userData.getMiddleName());
         this.setLastName(userData.getLastName());

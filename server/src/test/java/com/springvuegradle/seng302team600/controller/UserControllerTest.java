@@ -7,7 +7,7 @@ import com.springvuegradle.seng302team600.model.DefaultAdminUser;
 import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.model.UserRole;
-import com.springvuegradle.seng302team600.payload.RegisterRequest;
+import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import com.springvuegradle.seng302team600.payload.UserResponse;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
@@ -55,7 +55,7 @@ class UserControllerTest {
 
     private User dummyUser;
     private User fakeUser; // Used when a second user is required
-    private RegisterRequest regReq;
+    private UserRegisterRequest regReq;
     private Email dummyEmail;
     private Email fakeEmail; // Used for the second (fake) user
     private String validToken = "valid";
@@ -79,7 +79,7 @@ class UserControllerTest {
         });
     }
     private void setupMockingNoEmail(String json) throws JsonProcessingException {
-        regReq = objectMapper.treeToValue(objectMapper.readTree(json), RegisterRequest.class);
+        regReq = objectMapper.treeToValue(objectMapper.readTree(json), UserRegisterRequest.class);
         dummyUser = dummyUser.builder(regReq);
         dummyEmail = new Email(dummyUser.getPrimaryEmail(), true, dummyUser);
         when(userRepository.save(Mockito.any(User.class))).thenAnswer(i -> {
@@ -126,9 +126,8 @@ class UserControllerTest {
         dummyUser.setTokenTime();
 
         // Second user
-        fakeUser = new User();
-        regReq = objectMapper.treeToValue(objectMapper.readTree(createUserJsonViewUser2), RegisterRequest.class);
-        fakeUser = fakeUser.builder(regReq);
+        regReq = objectMapper.treeToValue(objectMapper.readTree(createUserJsonViewUser2), UserRegisterRequest.class);
+        fakeUser = new User(regReq);
         fakeEmail = new Email(fakeUser.getPrimaryEmail(), true, fakeUser);
         ReflectionTestUtils.setField(fakeUser, "userId", 10L);
         ReflectionTestUtils.setField(fakeEmail, "id", 10L);

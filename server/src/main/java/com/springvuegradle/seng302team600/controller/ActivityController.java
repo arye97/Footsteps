@@ -1,12 +1,19 @@
 package com.springvuegradle.seng302team600.controller;
 
+import com.springvuegradle.seng302team600.model.Activity;
+import com.springvuegradle.seng302team600.model.ActivityType;
+import com.springvuegradle.seng302team600.payload.ActivityCreateRequest;
+import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.service.UserValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-import com.springvuegradle.seng302team600.model.ActivityType;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Controller to manage activities and activity type
@@ -17,9 +24,19 @@ public class ActivityController {
     @Autowired
     private UserValidationService userService;
 
-    //Will be implemented in story 8 - remove this comment when repo created
-//    @Autowired
-//    private ActivityRepository activityRepository;
+    @Autowired
+    private ActivityRepository activityRepository;
+
+
+    @PostMapping("/profiles/{profileId}/activities")
+    public void newActivity(@Validated @RequestBody ActivityCreateRequest newActivityData,
+                            HttpServletResponse response,
+                            @PathVariable(value = "profileId") Long profileId) {
+
+        Activity newActivity = new Activity(newActivityData, profileId);
+        activityRepository.save(newActivity);
+    }
+
 
     /**
      * Gets the list of activity types

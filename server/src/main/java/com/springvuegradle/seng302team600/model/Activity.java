@@ -1,11 +1,10 @@
 package com.springvuegradle.seng302team600.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.springvuegradle.seng302team600.payload.ActivityCreateRequest;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.*;
 
@@ -14,6 +13,12 @@ public class Activity {
 
     final static private int NAME_LEN = 75;
     final static private int DESCRIPTION_LEN = 1500;
+
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonProperty("id")
+    private Long id;
 
     // This could be a way to link to the creator of this activity...
     private Long creatorUserId;
@@ -28,19 +33,25 @@ public class Activity {
     private String description;
 
     // These tags may need changing
-    @NotNull
-    @JsonProperty("activity_type")
-    private Set<ActivityType> activityTypes = new HashSet<>();
+//    @NotNull(message = "This Activity needs one or more ActivityTypes associated with it")
+//    @ManyToMany(cascade=CascadeType.ALL, mappedBy = "activity", fetch = FetchType.EAGER)
+//    @ElementCollection(targetClass=ActivityType.class)
+//    @JsonProperty("activity_type")
+//    private Set<ActivityType> activityTypes = new HashSet<>();
 
-    @Column(name = "isContinuous", columnDefinition = "boolean", nullable = false)
+    @NotNull(message = "This Activity needs to be either continuous or have a durration")
+    @Column(name = "is_continuous", columnDefinition = "boolean", nullable = false)
+    @JsonProperty("continuous")
     private boolean continuous;
 
-    @NotNull
+    @Column(name = "start_time", columnDefinition = "DATE")
+    @JsonFormat(pattern="YYYY-MM-DDThh:mm:ssZ")
     @JsonProperty("start_time")
     @Temporal(TemporalType.TIMESTAMP)
     private Date startTime = new Date(0);
 
-    @NotNull
+    @Column(name = "end_time", columnDefinition = "DATE")
+    @JsonFormat(pattern="YYYY-MM-DDThh:mm:ssZ")
     @JsonProperty("end_time")
     @Temporal(TemporalType.TIMESTAMP)
     private Date endTime = new Date(0);
@@ -53,17 +64,35 @@ public class Activity {
 
 
     /**
-     * Default constructor for Email.
+     * Default constructor for Activity.
      * Mandatory for repository actions?
      */
     public Activity() {}
 
+    /**
+     * Builds Activity from the payload, using getters and setters.  Use when creating new Activity from data.
+     * @param activityData payload for creating.
+     */
+    public Activity(ActivityCreateRequest activityData, Long creatorUserId) {
+        this();
+        this.builder(activityData, creatorUserId);
+    }
 
-    public Activity(String name, String location, Collection<ActivityType> activityTypes, User creatorUser) {
-        this.name = name;
-        this.location = location;
-        this.activityTypes = new HashSet<>(activityTypes);
-        this.creatorUserId = creatorUser.getUserId();
+    /**
+     * Builds Activity from the payload, using getters and setters.  Use when preserving Id, etc.
+     * @param activityData payload for creating.
+     * @return the built Activity.
+     */
+    public Activity builder(ActivityCreateRequest activityData, Long creatorUserId) {
+        setName(activityData.getName());
+        setDescription(activityData.getDescription());
+//        setActivityTypes(activityData.getActivityTypes());
+        setContinuous(activityData.isContinuous());
+        setStartTime(activityData.getStartTime());
+        setEndTime(activityData.getEndTime());
+        setLocation(activityData.getLocation());
+        setCreatorUserId(creatorUserId);
+        return this;
     }
 
 
@@ -91,13 +120,13 @@ public class Activity {
         this.description = description;
     }
 
-    public Set<ActivityType> getActivityTypes() {
-        return activityTypes;
-    }
-
-    public void setActivityTypes(Set<ActivityType> activityTypes) {
-        this.activityTypes = activityTypes;
-    }
+//    public Set<ActivityType> getActivityTypes() {
+//        return activityTypes;
+//    }
+//
+//    public void setActivityTypes(Set<ActivityType> activityTypes) {
+//        this.activityTypes = activityTypes;
+//    }
 
     public boolean isContinuous() {
         return continuous;

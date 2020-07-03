@@ -2,7 +2,7 @@ package com.springvuegradle.seng302team600.service;
 
 import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
-import com.springvuegradle.seng302team600.payload.RegisterRequest;
+import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import com.springvuegradle.seng302team600.payload.UserResponse;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
@@ -31,7 +31,7 @@ class UserValidationServiceTest {
     @Autowired
     private UserValidationService userService;
 
-    private RegisterRequest userData;
+    private UserRegisterRequest userData;
 
     private User dummyUser;
     private User dummyUser1;
@@ -43,7 +43,7 @@ class UserValidationServiceTest {
      * There are minimal test cases where this is required so it is only sometimes needed
      */
     public void additionalUser() {
-        userData = new RegisterRequest();
+        userData = new UserRegisterRequest();
         userData.setFirstName("Bob");
         userData.setLastName("Builder");
         userData.setPrimaryEmail("bobby@email.com");
@@ -62,7 +62,7 @@ class UserValidationServiceTest {
     @BeforeEach
     public void setUp() {
         dummyUser1 = new User();
-        userData = new RegisterRequest();
+        userData = new UserRegisterRequest();
         userData.setFirstName("Bill");
         userData.setLastName("Ford");
         userData.setPrimaryEmail("billford@email.com");
@@ -72,8 +72,7 @@ class UserValidationServiceTest {
                 .setTimeOfDay(14, 0, 0)
                 .build().getTime());
         userData.setGender(User.Gender.MALE);
-        dummyUser = new User();
-        dummyUser.builder(userData);
+        dummyUser = new User(userData);
         dummyEmail = new Email(dummyUser.getPrimaryEmail(), true, dummyUser);
         //This is a valid use of reflection, designed for scenarios like this
         ReflectionTestUtils.setField(dummyUser, "userId", 1L);
