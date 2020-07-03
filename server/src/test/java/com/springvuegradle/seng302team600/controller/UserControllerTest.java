@@ -53,23 +53,22 @@ class UserControllerTest {
 
     private ObjectMapper objectMapper;
 
-    private User dummyUser;
-    private User fakeUser; // Used when a second user is required
-    private UserRegisterRequest regReq;
-    private Email dummyEmail;
-    private Email fakeEmail; // Used for the second (fake) user
-    private String validToken = "valid";
     private static final Long DEFAULT_USER_ID = 1L;
     private static final Long DEFAULT_EMAIL_ID = 1L;
+
+    private User dummyUser1;
+    private User dummyUser2; // Used when a second user is required
+    private Email dummyEmail;
+    private String validToken = "valid";
     private boolean defaultAdminIsRegistered;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         defaultAdminIsRegistered = false;
 
         objectMapper = new ObjectMapper();
         MockitoAnnotations.initMocks(this);
-        dummyUser = new User();
+        dummyUser1 = new User();
     }
 
     private void setupMocking(String json) throws JsonProcessingException {
@@ -79,24 +78,25 @@ class UserControllerTest {
         });
     }
     private void setupMockingNoEmail(String json) throws JsonProcessingException {
+        UserRegisterRequest regReq;
         regReq = objectMapper.treeToValue(objectMapper.readTree(json), UserRegisterRequest.class);
-        dummyUser = dummyUser.builder(regReq);
-        dummyEmail = new Email(dummyUser.getPrimaryEmail(), true, dummyUser);
+        dummyUser1 = dummyUser1.builder(regReq);
+        dummyEmail = new Email(dummyUser1.getPrimaryEmail(), true, dummyUser1);
         when(userRepository.save(Mockito.any(User.class))).thenAnswer(i -> {
             User user = i.getArgument(0);
             if (user.getRole() == UserRole.DEFAULT_ADMIN) {
                 defaultAdminIsRegistered = true;
             }
-            return dummyUser;
+            return dummyUser1;
         });
         when(emailRepository.save(Mockito.any(Email.class))).thenReturn(dummyEmail);
         when(emailRepository.findByEmail(Mockito.matches(dummyEmail.getEmail()))).thenReturn(dummyEmail);
         when(emailRepository.getOne(Mockito.anyLong())).thenReturn(dummyEmail);
         when(userValidationService.findByToken(Mockito.anyString())).thenAnswer(i -> {
-            if (i.getArgument(0).equals(dummyUser.getToken())) return dummyUser;
+            if (i.getArgument(0).equals(dummyUser1.getToken())) return dummyUser1;
             else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         });
-        when(userRepository.findByUserId(Mockito.anyLong())).thenReturn(dummyUser);
+        when(userRepository.findByUserId(Mockito.anyLong())).thenReturn(dummyUser1);
         when(userRepository.existsUserByRole(Mockito.anyInt())).thenAnswer(i -> {
             if (((int)i.getArgument(0) == UserRole.DEFAULT_ADMIN) && !defaultAdminIsRegistered) {
                 return false;
@@ -105,34 +105,34 @@ class UserControllerTest {
                 });
         when(emailRepository.existsEmailByEmail(Mockito.anyString())).thenReturn(false);
         when(userValidationService.findByUserId(Mockito.anyString(), Mockito.anyLong())).thenAnswer(i -> {
-            if (i.getArgument(0).equals(dummyUser.getToken()) && i.getArgument(1).equals(dummyUser.getUserId()))
-                return dummyUser;
-            else if ((i.getArgument(0).equals(dummyUser.getToken())) && !(i.getArgument(1).equals(dummyUser.getUserId())))
+            if (i.getArgument(0).equals(dummyUser1.getToken()) && i.getArgument(1).equals(dummyUser1.getUserId()))
+                return dummyUser1;
+            else if ((i.getArgument(0).equals(dummyUser1.getToken())) && !(i.getArgument(1).equals(dummyUser1.getUserId())))
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN);
             else
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         });
-        ReflectionTestUtils.setField(dummyUser, "userId", DEFAULT_USER_ID);
+        ReflectionTestUtils.setField(dummyUser1, "userId", DEFAULT_USER_ID);
         ReflectionTestUtils.setField(dummyEmail, "id", DEFAULT_EMAIL_ID);
         when(userValidationService.login(Mockito.anyString(),Mockito.anyString())).thenAnswer(i -> {
-                if (i.getArgument(0).equals(dummyEmail.getEmail()) && dummyUser.checkPassword(i.getArgument(1))) return new UserResponse("ValidToken", dummyUser.getUserId());
+                if (i.getArgument(0).equals(dummyEmail.getEmail()) && dummyUser1.checkPassword(i.getArgument(1))) return new UserResponse("ValidToken", dummyUser1.getUserId());
                 else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         });
         Mockito.doAnswer(i -> {
-            if (i.getArgument(0).equals(dummyUser.getToken())) dummyUser.setToken(null);
+            if (i.getArgument(0).equals(dummyUser1.getToken())) dummyUser1.setToken(null);
             return null;
         }).when(userValidationService).logout(Mockito.anyString());
-        dummyUser.setToken(validToken);
-        dummyUser.setTokenTime();
+        dummyUser1.setToken(validToken);
+        dummyUser1.setTokenTime();
 
         // Second user
         regReq = objectMapper.treeToValue(objectMapper.readTree(createUserJsonViewUser2), UserRegisterRequest.class);
-        fakeUser = new User(regReq);
-        fakeEmail = new Email(fakeUser.getPrimaryEmail(), true, fakeUser);
-        ReflectionTestUtils.setField(fakeUser, "userId", 10L);
+        dummyUser2 = new User(regReq);
+        Email fakeEmail = new Email(dummyUser2.getPrimaryEmail(), true, dummyUser2);
+        ReflectionTestUtils.setField(dummyUser2, "userId", 10L);
         ReflectionTestUtils.setField(fakeEmail, "id", 10L);
         when(userValidationService.viewUserById(Mockito.anyLong(), Mockito.anyString())).thenAnswer(i -> {
-            if ((long) i.getArgument(0) == 10L && i.getArgument(1) == validToken) return fakeUser;
+            if ((long) i.getArgument(0) == 10L && i.getArgument(1) == validToken) return dummyUser2;
             else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         });
     }
@@ -466,7 +466,7 @@ class UserControllerTest {
         // Set up two users
         setupMocking(createUserJsonViewUser1);
         // Get the id of the second user
-        long userId = fakeUser.getUserId();
+        long userId = dummyUser2.getUserId();
         // Request the second user
         MockHttpServletRequestBuilder getRequest = MockMvcRequestBuilders.get("/profiles/{id}", userId)
                 .header("Token", validToken);
@@ -499,7 +499,7 @@ class UserControllerTest {
                 .andExpect(status().isOk());
 
         //Check if user id matches the token logged in
-        MockHttpServletRequestBuilder getRequestCheckToken = MockMvcRequestBuilders.get("/check-profile/{id}", dummyUser.getUserId())
+        MockHttpServletRequestBuilder getRequestCheckToken = MockMvcRequestBuilders.get("/check-profile/{id}", dummyUser1.getUserId())
                 .header("Token", validToken);
         mvc.perform(getRequestCheckToken)
                 .andExpect(status().isOk());
@@ -513,7 +513,7 @@ class UserControllerTest {
      */
     public void checkIfUserIdMatchesTokenForbidden() throws Exception {
         setupMockingNoEmail(newUserJson);
-        long userId = fakeUser.getUserId();
+        long userId = dummyUser2.getUserId();
 
         //Log in
         MockHttpServletRequestBuilder getRequestToLogin = MockMvcRequestBuilders.get("/profiles")
