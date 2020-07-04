@@ -239,7 +239,8 @@
                     {headers: {'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")}
                     }
                 ).then(response => {
-                    this.activityTypes = response.data;
+                    console.log(response.data)
+                    this.activityTypes = response.data.map(activity => activity['name']);
                     this.activityTypes.sort(function (a, b) {
                         return a.toLowerCase().localeCompare(b.toLowerCase());
                     });
