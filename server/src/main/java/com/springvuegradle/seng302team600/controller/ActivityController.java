@@ -1,5 +1,6 @@
 package com.springvuegradle.seng302team600.controller;
 
+import com.springvuegradle.seng302team600.model.ActivityTypeProperties;
 import com.springvuegradle.seng302team600.service.UserValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,12 @@ public class ActivityController {
 
     @Autowired
     private UserValidationService userService;
+    @Autowired
+    private final ActivityTypeProperties activityTypeProperties;
+
+    public ActivityController(ActivityTypeProperties activityTypeProperties) {
+        this.activityTypeProperties = activityTypeProperties;
+    }
 
     //Will be implemented in story 8 - remove this comment when repo created
 //    @Autowired
@@ -27,13 +34,13 @@ public class ActivityController {
      */
     @GetMapping("activity-types")
     public List<ActivityType> getAllActivityTypes() {
-        List<ActivityType> activityTypes = Arrays.asList(ActivityType.values());
+        List<ActivityType> activityTypes = activityTypeProperties.getActivityTypes();
 
         // Sorts the list of Enums
         Collections.sort(activityTypes, new Comparator<ActivityType>() {
             @Override
             public int compare(ActivityType o1, ActivityType o2) {
-                return o1.getHumanReadable().toLowerCase().compareTo(o2.getHumanReadable().toLowerCase());
+                return o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase());
             }
         });
         return activityTypes;

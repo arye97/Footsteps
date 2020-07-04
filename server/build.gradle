@@ -93,4 +93,5 @@ sonarqube {
 
 bootRun {
 	bootRun.systemProperty 'spring.profiles.active', "${springProfile}"
+	bootRun.systemProperty 'spring.config.location', "./src/main/resources/,./src/main/resources/activity_types.yml"
 }
