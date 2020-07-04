@@ -120,7 +120,7 @@ public class User {
             joinColumns=@JoinColumn(name="user_id")
     )
     @Column(name="activity_types")
-    @JsonProperty("activityTypes")
+    @JsonProperty("activityTypes")   //ToDo Change this to underscore, not camel case?
     private List<String> activityTypes;
 
     public enum Gender {

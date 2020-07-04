@@ -51,7 +51,7 @@ class UserControllerTest {
     public void context(ApplicationContext context) { this.context = context; }
 
 
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private static final Long DEFAULT_USER_ID = 1L;
     private static final Long DEFAULT_EMAIL_ID = 1L;
@@ -66,7 +66,6 @@ class UserControllerTest {
     void setUp() {
         defaultAdminIsRegistered = false;
 
-        objectMapper = new ObjectMapper();
         MockitoAnnotations.initMocks(this);
         dummyUser1 = new User();
     }
