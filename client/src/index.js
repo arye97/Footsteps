@@ -9,6 +9,7 @@ import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import Details from "./views/Settings/Details.vue";
 import ViewUser from "./components/layout/ViewUser.vue";
 import EditPassword from "./views/Settings/EditPassword";
+import CreateActivity from "./views/CreateActivity";
 
 Vue.use(Router);
 Vue.use(BootstrapVue);
@@ -60,7 +61,14 @@ export default new Router({
             name: 'profile',
             component: ViewUser
         },
-        {path: '/admin', component: AdminDashboard},
+        {   path: '/admin',
+            component: AdminDashboard
+        },
+        {
+            path: '/activities/create',
+            name: 'createActivity',
+            component: CreateActivity
+        },
         // otherwise redirect to home
         { path: '/*', redirect: '/login' }
     ]

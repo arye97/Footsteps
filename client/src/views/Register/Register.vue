@@ -234,7 +234,7 @@
                 message_form: "",
                 message_password_check: '',
                 countries: [],
-                activityTypes: ["Swimming with Elephants"],
+                activityTypes: [],
                 genders: ['Male', 'Female', 'Non-Binary'],
                 passports: [],
                 selectedActivityTypes: [],
