@@ -120,7 +120,7 @@ public class User {
             joinColumns=@JoinColumn(name="user_id")
     )
     @Column(name="activity_types")
-    @JsonProperty("activityTypes")
+    @JsonProperty("activityTypes")   //ToDo Change this to underscore, not camel case?
     private List<String> activityTypes;
 
     public enum Gender {
@@ -146,7 +146,16 @@ public class User {
     }
 
     /**
-     * Builds user from the payload, using getters and setters.
+     * Builds user from the payload, using getters and setters.  Use when creating new user from data.
+     * @param userData payload for registering.
+     */
+    public User(RegisterRequest userData) {
+        this();
+        this.builder(userData);
+    }
+
+    /**
+     * Builds user from the payload, using getters and setters.  Use when preserving UserId and token, etc.
      * @param userData payload for registering.
      * @return the built user.
      */
