@@ -121,6 +121,7 @@ public class User {
     )
     @Column(name="activity_types")
     @JsonProperty("activityTypes")   //ToDo Change this to underscore, not camel case?
+    // yeah this shud be camel case - euAn
     private List<String> activityTypes;
 
     public enum Gender {

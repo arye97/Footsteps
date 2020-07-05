@@ -17,7 +17,7 @@ public class Activity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonProperty("id")
-    private Long id;
+    private Long activityId;
 
     // This could be a way to link to the creator of this activity...
     private Long creatorUserId;
