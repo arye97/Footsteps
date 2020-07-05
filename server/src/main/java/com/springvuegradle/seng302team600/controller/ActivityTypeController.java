@@ -16,11 +16,9 @@ import java.util.*;
 @RestController
 public class ActivityTypeController {
 
-    private final ActivityTypeProperties activityTypeProperties;
     private ActivityTypeRepository activityTypeRepository;
 
-    public ActivityTypeController(ActivityTypeProperties activityTypeProperties, ActivityTypeRepository activityTypeRepository) {
-        this.activityTypeProperties = activityTypeProperties;
+    public ActivityTypeController(ActivityTypeRepository activityTypeRepository) {
         this.activityTypeRepository = activityTypeRepository;
     }
 

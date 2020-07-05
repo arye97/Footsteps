@@ -17,10 +17,14 @@ public class ActivityType {
     @Column(name = "name", nullable = false)
     private String name;
 
+    public ActivityType(String name) {
+        this.name = name;
+    }
+
     /**
      * Default constructor mandatory for repository actions.
      */
-    ActivityType() {}
+    public ActivityType() {}
 
     public void setName(String name) {
         this.name = name;
@@ -42,5 +46,10 @@ public class ActivityType {
     @Override
     public int hashCode() {
         return name.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s@%s", this.getName().replace(' ', '-'), Integer.toHexString(this.hashCode()));
     }
 }
