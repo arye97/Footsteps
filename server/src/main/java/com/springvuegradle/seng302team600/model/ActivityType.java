@@ -1,87 +1,28 @@
 package com.springvuegradle.seng302team600.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
+import org.springframework.boot.context.properties.ConstructorBinding;
 
-/**
- * Possible activity types for an activity
- */
-public enum ActivityType {
-    //
-    //Aerial
-    //
-    AEROBATICS("Aeroplane flying and Aerobatics"),
-    GLIDING("Gliding"),
-    HANG_GLIDING("Hang Gliding"),
-    HELICOPTER_FLIGHTS("Helicopter Flights"),
-    BALLOONING("Hot Air Balloon Rides"),
-    INDOOR_SKYDIVING("Indoor Skydiving"),
-    KITING("Kites and Power Kites"),
-    MODEL_FLYING("Model aircraft flying"),
-    PARAGLIDING("Paragliding and Paramotoring"),
-    SKYDIVING("Skydiving"),
-    //
-    //Marine
-    //
-    SAILING("Sailing"),
-    WATER_SKIING("Water Skiing"),
+import javax.persistence.*;
 
-    //
-    //Land Sports
-    //
-    ARCHERY("Archery"),
-    AIRSOFT("Airsoft"),
-    ATHLETICS("Athletics"),
-    BADMINTON("Badminton"),
-    BASEBALL("Baseball and Softball"),
-    BASKETBALL("Basketball"),
-    BOULDERING("Bouldering"),
-    ROPE_CLIMBING("Sport, Trad, Top-Rope, Rock Climbing"),
-    SPEED_CLIMBING("Speed Climbing"),
-    MOUNTAINEERING("Mountaineering"),
-    BOWLS("Bowls"),
-    CHEERLEADING("Cheerleading"),
-    CRICKET("Cricket"),
-    CYCLING("Cycling"),
-    DANCING("Dance"),
-    EQUESTRIAN("Equestrian Activities"),
-    FOOTBALL("Football and Soccer"),
-    FUTSAL("Futsal"),
-    FREE_RUNNING("Free Running"),
-    GOLF("Golf"),
-    GYMNASTICS("Gymnastics"),
-    HIKING("Hiking"),
-    HOCKEY("Hockey"),
-    MARATHON("Marathon"),
-    MULTISPORT("Multisport Racing"),
-    MARTIALS_ARTS("Martial Arts"),
-    MOTOR_SPORTS("Motor Sports"),
-    MOUNTAIN_BIKING("Mountain Riking"),
-    ORIENTEERING("Orienteering"),
-    RUGBY("Rugby"),
-    SKIING("Skiing and Snowboarding"),
+@Entity
+@Table(name = "activity_type")
+@ConstructorBinding
+public class ActivityType {
 
-    //
-    //Misc
-    //
-    ASTRONOMY("Astronomy"),
-    BASE_JUMPING("BASE Jumping"),
-    BUNGEE_JUMPING("Bungee Jumping"),
-    FOUR_WHEEL_DRIVING("4×4 Driving Experience"),
-    WILDLIFE("Animal Parks, Wildlife Parks and Zoos"),
-    CAMPING("Camping"),
-    CAVING("Caving"),
-    CARNIVAL("Carnivals"),
-    CONCERT("Concerts, Festivals and Gigs"),
-    LARPING("Live Action Role Playing Games"),
-    OTHER_SPORTS("Other sports"),
-    YOGA("Yoga");
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Long id;
 
-    private final String humanReadable;
+    @Column(name = "name", nullable = false)
+    private final String name;
 
-    @JsonCreator
-    ActivityType(String humanReadable) {this.humanReadable = humanReadable;}
 
-    @JsonValue
-    public String getHumanReadable() {return this.humanReadable;}
+    ActivityType(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return this.name;
+    }
 }

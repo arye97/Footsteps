@@ -38,23 +38,4 @@ public class ActivityController {
         response.setStatus(HttpServletResponse.SC_CREATED); //201
     }
 
-
-    /**
-     * Gets the list of activity types
-     * @return list of activity types
-     */
-    @GetMapping("activity-types")
-    public List<ActivityType> getAllActivityTypes() {
-        List<ActivityType> activityTypes = Arrays.asList(ActivityType.values());
-
-        // Sorts the list of Enums
-        Collections.sort(activityTypes, new Comparator<ActivityType>() {
-            @Override
-            public int compare(ActivityType o1, ActivityType o2) {
-                return o1.getHumanReadable().toLowerCase().compareTo(o2.getHumanReadable().toLowerCase());
-            }
-        });
-        return activityTypes;
-    }
-
 }
