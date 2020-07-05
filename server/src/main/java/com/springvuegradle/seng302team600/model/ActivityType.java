@@ -15,14 +15,41 @@ public class ActivityType {
     private Long id;
 
     @Column(name = "name", nullable = false)
-    private final String name;
+    private String name;
 
+    public ActivityType(String name) {
+        this.name = name;
+    }
 
-    ActivityType(String name) {
+    /**
+     * Default constructor mandatory for repository actions.
+     */
+    public ActivityType() {}
+
+    public void setName(String name) {
         this.name = name;
     }
 
     public String getName() {
         return this.name;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj instanceof ActivityType) {
+            final ActivityType other = (ActivityType) obj;
+            return this.getName().equals(other.getName());
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s@%s", this.getName().replace(' ', '-'), Integer.toHexString(this.hashCode()));
     }
 }
