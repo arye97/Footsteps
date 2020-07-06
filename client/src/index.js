@@ -74,7 +74,7 @@ export default new Router({
             path: '/activities/edit/:activityId',
             name: 'editActivity',
             component: EditActivity
-        }
+        },
         // otherwise redirect to home
         { path: '/*', redirect: '/login' }
     ]
