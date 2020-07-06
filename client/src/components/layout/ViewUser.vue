@@ -31,7 +31,7 @@
                                         <span v-if="this.user.passports.length >= 1">Passports: {{this.user.passports.join(", ")}}<br/></span>
                                         <span v-if="this.user.fitness >= 0">Fitness Level: {{this.fitness}}<br/></span>
                                         <span v-if="this.user.bio">Bio: {{ this.user.bio }}<br/></span>
-                                        <span v-if="this.user.activityTypes">Activities I am interested in: {{ this.user.activityTypes.join(", ") }}<br/></span>
+                                        <span v-if="this.user.activityTypes">Activities I am interested in: {{ this.user.activityTypes.map(at => at.name).join(", ") }}<br/></span>
                                     </span>
                                 <button type="submit" class="btn btn-link" v-if="this.isEditable" v-on:click="editProfile" >Edit Profile</button>
                             </div>
