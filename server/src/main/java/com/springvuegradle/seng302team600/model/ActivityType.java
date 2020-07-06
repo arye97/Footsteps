@@ -3,6 +3,7 @@ package com.springvuegradle.seng302team600.model;
 import org.springframework.boot.context.properties.ConstructorBinding;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(name = "activity_type")
@@ -13,6 +14,12 @@ public class ActivityType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
+
+    @ManyToMany(mappedBy = "activityTypes")
+    Set<Activity> referencingActivities;
+
+    @ManyToMany(mappedBy = "activityTypes")
+    Set<Activity> referencingUsers;
 
     @Column(name = "name", nullable = false)
     private String name;
