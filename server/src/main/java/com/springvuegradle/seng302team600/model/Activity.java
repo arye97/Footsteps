@@ -31,12 +31,14 @@ public class Activity {
     @JsonProperty("description")
     private String description;
 
-    // ToDo fix to the correct mapping
-//    @NotNull(message = "This Activity needs one or more ActivityTypes associated with it")
-//    @ManyToMany(cascade=CascadeType.ALL, mappedBy = "activity", fetch = FetchType.EAGER)
-//    @ElementCollection(targetClass=ActivityType.class)
-//    @JsonProperty("activity_type")
-//    private Set<ActivityType> activityTypes = new HashSet<>();
+    @NotNull(message = "This Activity needs one or more ActivityTypes associated with it")
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "activity_activity_type",
+            joinColumns = @JoinColumn(name = "activity_id"),
+            inverseJoinColumns = @JoinColumn(name = "id"))
+    @JsonProperty("activity_type")
+    private Set<ActivityType> activityTypes;
 
     @NotNull(message = "This Activity needs to be either continuous or have a durration")
     @Column(name = "is_continuous", columnDefinition = "boolean", nullable = false)

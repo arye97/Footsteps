@@ -13,10 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity
 public class User {
@@ -114,15 +111,24 @@ public class User {
     @JsonProperty("passports")
     private List<String> passports;
 
-    @ElementCollection
-    @CollectionTable(
-            name="activity_types",
-            joinColumns=@JoinColumn(name="user_id")
-    )
-    @Column(name="activity_types")
-    @JsonProperty("activityTypes")   //ToDo Change this to underscore, not camel case?
-    // yeah this shud be camel case - euAn
-    private List<String> activityTypes;
+//    @ElementCollection
+//    @CollectionTable(
+//            name="activity_types",
+//            joinColumns=@JoinColumn(name="user_id")
+//    )
+//    @Column(name="activity_types")
+//    @JsonProperty("activityTypes")   //ToDo Change this to underscore, not camel case?
+//    // yeah this shud be camel case - euAn
+//    private List<String> activityTypes;
+
+    @NotNull(message = "This Activity needs one or more ActivityTypes associated with it")
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "user_activity_type",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "id"))
+    @JsonProperty("activityTypes")
+    private Set<ActivityType> activityTypes;
 
     public enum Gender {
         @JsonProperty("Male")
@@ -246,9 +252,9 @@ public class User {
         return primaryEmail;
     }
 
-    public List<String> getActivityTypes() { return activityTypes; }
+    public Set<ActivityType> getActivityTypes() { return activityTypes; }
 
-    public void setActivityTypes(List<String> activityTypes) { this.activityTypes = activityTypes; }
+    public void setActivityTypes(Set<ActivityType> activityTypes) { this.activityTypes = activityTypes; }
 
     /**
      * Sets primary email of User

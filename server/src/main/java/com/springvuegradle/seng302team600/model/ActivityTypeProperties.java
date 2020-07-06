@@ -6,8 +6,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * A class to retrieves a List of ActivityTypes from activity_types.yml.
@@ -41,11 +40,17 @@ public class ActivityTypeProperties implements CommandLineRunner {
 
 
     /**
-     * Populates the activity_type table on application start
+     * Populates the activity_type table on application start.  Only adds an ActivityType if it doesn't already exist.
      */
     @Override
     public void run(String...args) {
-        activityTypeRepository.saveAll(activityTypes);
+        // Should find a better way to do this, like making ActivityType.name a primary key?
+        Set<ActivityType> activityTypesInRepo = new HashSet<>(activityTypeRepository.findAll());
+        for (ActivityType activityType: activityTypes) {
+            if (!activityTypesInRepo.contains(activityType)) {
+                activityTypeRepository.save(activityType);
+            }
+        }
     }
 
 }
