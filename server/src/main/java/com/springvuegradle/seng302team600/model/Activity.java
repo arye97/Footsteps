@@ -95,13 +95,13 @@ public class Activity {
         this.description = description;
     }
 
-//    public Set<ActivityType> getActivityTypes() {
-//        return activityTypes;
-//    }
-//
-//    public void setActivityTypes(Set<ActivityType> activityTypes) {
-//        this.activityTypes = activityTypes;
-//    }
+    public Set<ActivityType> getActivityTypes() {
+        return activityTypes;
+    }
+
+    public void setActivityTypes(Set<ActivityType> activityTypes) {
+        this.activityTypes = activityTypes;
+    }
 
     public boolean isContinuous() {
         return continuous;

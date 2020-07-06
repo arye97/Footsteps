@@ -46,7 +46,7 @@ public class ActivityTypeProperties implements CommandLineRunner {
     public void run(String...args) {
         // Should find a better way to do this, like making ActivityType.name a primary key?
         Set<ActivityType> activityTypesInRepo = new HashSet<>(activityTypeRepository.findAll());
-        for (ActivityType activityType: activityTypes) {
+        for (ActivityType activityType: getSortedActivityTypes()) {
             if (!activityTypesInRepo.contains(activityType)) {
                 activityTypeRepository.save(activityType);
             }

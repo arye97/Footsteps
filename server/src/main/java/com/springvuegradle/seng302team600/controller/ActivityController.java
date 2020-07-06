@@ -1,21 +1,14 @@
 package com.springvuegradle.seng302team600.controller;
 
 import com.springvuegradle.seng302team600.model.Activity;
-import com.springvuegradle.seng302team600.model.ActivityType;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
-import com.springvuegradle.seng302team600.service.UserValidationService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.springvuegradle.seng302team600.service.ActivityTypeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 /**
  * Controller to manage activities and activity type
@@ -23,18 +16,23 @@ import java.util.List;
 @RestController
 public class ActivityController {
 
-    @Autowired
-    private UserValidationService userService;
-
-    @Autowired
     private ActivityRepository activityRepository;
+    private ActivityTypeService activityTypeService;
 
+    public ActivityController(ActivityRepository activityRepository, ActivityTypeService activityTypeService) {
+        this.activityRepository = activityRepository;
+        this.activityTypeService = activityTypeService;
+    }
 
     @PostMapping("/profiles/{profileId}/activities")
     public void newActivity(@Validated @RequestBody Activity newActivity,
                             HttpServletResponse response,
                             @PathVariable(value = "profileId") Long profileId) {
 
+        // Use ActivityType entities from the database.  Don't create duplicates.
+        newActivity.setActivityTypes(
+                activityTypeService.getMatchingEntitiesFromRepository(newActivity.getActivityTypes())
+        );
         newActivity.setCreatorUserId(profileId);
         activityRepository.save(newActivity);
 

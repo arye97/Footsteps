@@ -111,16 +111,6 @@ public class User {
     @JsonProperty("passports")
     private List<String> passports;
 
-//    @ElementCollection
-//    @CollectionTable(
-//            name="activity_types",
-//            joinColumns=@JoinColumn(name="user_id")
-//    )
-//    @Column(name="activity_types")
-//    @JsonProperty("activityTypes")   //ToDo Change this to underscore, not camel case?
-//    // yeah this shud be camel case - euAn
-//    private List<String> activityTypes;
-
     @NotNull(message = "This Activity needs one or more ActivityTypes associated with it")
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(

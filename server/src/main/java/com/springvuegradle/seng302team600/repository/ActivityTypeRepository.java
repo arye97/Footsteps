@@ -10,4 +10,6 @@ import java.util.List;
 public interface ActivityTypeRepository extends JpaRepository<ActivityType, Long> {
 
     List<ActivityType> findAll();
+    boolean existsActivityTypeByName(String name);
+    ActivityType findActivityTypeByName(String name);
 }

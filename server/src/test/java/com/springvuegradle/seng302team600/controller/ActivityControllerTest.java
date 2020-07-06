@@ -10,6 +10,7 @@ import com.springvuegradle.seng302team600.payload.UserResponse;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
+import com.springvuegradle.seng302team600.service.ActivityTypeService;
 import com.springvuegradle.seng302team600.service.UserValidationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,6 +43,8 @@ class ActivityControllerTest {
     private ActivityRepository activityRepository;
     @MockBean
     private UserValidationService userValidationService;
+    @MockBean
+    private ActivityTypeService activityTypeService;
     @Autowired
     private MockMvc mvc;
 

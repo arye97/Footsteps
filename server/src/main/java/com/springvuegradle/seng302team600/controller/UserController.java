@@ -9,8 +9,10 @@ import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.model.UserRole;
 import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import com.springvuegradle.seng302team600.payload.UserResponse;
+import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
+import com.springvuegradle.seng302team600.service.ActivityTypeService;
 import com.springvuegradle.seng302team600.service.UserValidationService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,9 +31,11 @@ import java.io.IOException;
 public class UserController {
 
     private UserValidationService userService;
+    private ActivityTypeService activityTypeService;
 
     private final UserRepository userRepository;
     private final EmailRepository emailRepository;
+    private final ActivityTypeRepository activityTypeRepository;
 
     private static Log log = LogFactory.getLog(UserController.class);
 
@@ -52,10 +56,14 @@ public class UserController {
     private boolean _DAexists = false;
 
 
-    public UserController(UserRepository userRepository, EmailRepository emailRepository, UserValidationService userService) {
+    public UserController(UserRepository userRepository, EmailRepository emailRepository,
+                          UserValidationService userService, ActivityTypeService activityTypeService,
+                          ActivityTypeRepository activityTypeRepository) {
         this.userRepository = userRepository;
         this.emailRepository = emailRepository;
         this.userService = userService;
+        this.activityTypeService = activityTypeService;
+        this.activityTypeRepository = activityTypeRepository;
     }
 
     /**
@@ -124,6 +132,12 @@ public class UserController {
         User newUser = new User(newUserData);
         //Throws errors if user is erroneous
         newUser.isValid();
+
+        // Use ActivityType entities from the database.  Don't create duplicates.
+        newUser.setActivityTypes(
+                activityTypeService.getMatchingEntitiesFromRepository(newUser.getActivityTypes())
+        );
+
         //Saving generates user id
         //If mandatory fields not given, exception in UserRepository.save ends function execution and makes response body
         //Gives request status:400 and specifies needed field if null in required field
@@ -254,6 +268,12 @@ public class UserController {
         User modUser = userReader.readValue(modData);   // Create the modified user
         //Throws errors if user is erroneous
         modUser.isValid();   // If this user has authorization
+
+        // Use ActivityType entities from the database.  Don't create duplicates.
+        modUser.setActivityTypes(
+                activityTypeService.getMatchingEntitiesFromRepository(modUser.getActivityTypes())
+        );
+
         userRepository.save(modUser);
         response.setStatus(HttpServletResponse.SC_OK); //200
     }

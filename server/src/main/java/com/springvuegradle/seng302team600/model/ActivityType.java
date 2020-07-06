@@ -21,7 +21,7 @@ public class ActivityType {
     @ManyToMany(mappedBy = "activityTypes")
     Set<Activity> referencingUsers;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
     public ActivityType(String name) {
@@ -39,6 +39,14 @@ public class ActivityType {
 
     public String getName() {
         return this.name;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     @Override
