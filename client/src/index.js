@@ -10,6 +10,7 @@ import Details from "./views/Settings/Details.vue";
 import ViewUser from "./components/layout/ViewUser.vue";
 import EditPassword from "./views/Settings/EditPassword";
 import CreateActivity from "./views/CreateActivity";
+import EditActivity from "./views/EditActivity";
 
 Vue.use(Router);
 Vue.use(BootstrapVue);
@@ -69,6 +70,11 @@ export default new Router({
             name: 'createActivity',
             component: CreateActivity
         },
+        {
+            path: '/activities/edit/:activityId',
+            name: 'editActivity',
+            component: EditActivity
+        }
         // otherwise redirect to home
         { path: '/*', redirect: '/login' }
     ]

@@ -118,7 +118,7 @@
             <div class="form-group">
                 <!-- date of birth field-->
                 <label id="date_of_birth-label" for="date_of_birth">Date of Birth: *</label>
-                <input type="date" class="form-control" v-on:click="unDisplayRules" v-model="date_of_birth" id="date_of_birth" name="date_of_birth">
+                <input type="date" name="date_of_birth" class="form-control" v-model="date_of_birth" id="date_of_birth">
             </div>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_dob">
                 {{  "Field is mandatory, can not be blank and user must be within 13 - 150 years"  }}
