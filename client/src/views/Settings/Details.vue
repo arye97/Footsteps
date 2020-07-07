@@ -436,7 +436,7 @@
                 this.gender = user.gender;
                 this.passports = user.passports;
                 this.bio = user.bio;
-                this.selectedActivityTypes = user.activityTypes;
+                this.selectedActivityTypes = user.activityTypes.map(at => at.name);
                 this.date_of_birth = getDateString(user.date_of_birth);
                 for (const option in this.fitnessOptions) {
                     if (this.fitnessOptions[option].value === user.fitness) {
