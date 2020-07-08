@@ -20,7 +20,7 @@ public class ActivityValidator {
      * @param activity the activity to be validated
      * @return true if valid activity, otherwise throw ResponseStatusException
      */
-    public boolean validate(Activity activity) {
+    public static boolean validate(Activity activity) {
         validateName(activity.getName());
         validateDescription(activity.getDescription());
         validateActivityTypes(activity.getActivityTypes());
@@ -35,7 +35,7 @@ public class ActivityValidator {
      * @param name the name to be checked
      * @throws ResponseStatusException if invalid then bad request (400) should be returned
      */
-    private void validateName(String name) {
+    private static void validateName(String name) {
         if (name.length() > NAME_LEN) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Activity name is too long");
         }
@@ -49,7 +49,7 @@ public class ActivityValidator {
      * @param description the description to be checked
      * @throws ResponseStatusException if invalid then bad request (400) should be returned
      */
-    private void validateDescription(String description) {
+    private static void validateDescription(String description) {
         if (description.length() > DESCRIPTION_LEN) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Activity description is too long");
         }
@@ -63,7 +63,7 @@ public class ActivityValidator {
      * @param activityTypes the activity type set to be checked
      * @throws ResponseStatusException if invalid then bad request (400) should be returned
      */
-    private void validateActivityTypes(Set<ActivityType> activityTypes) {
+    private static void validateActivityTypes(Set<ActivityType> activityTypes) {
         if (activityTypes.size() < MIN_ACTIVITY_TYPE_COUNT) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Must have at least one activity type");
         }
@@ -74,7 +74,7 @@ public class ActivityValidator {
      * @param start the starting date
      * @param end the ending date
      */
-    private void validateDates(Date start, Date end) {
+    private static void validateDates(Date start, Date end) {
         if (start.after(end)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start date must be before end date");
         }

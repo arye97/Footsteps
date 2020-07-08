@@ -1,5 +1,6 @@
 package com.springvuegradle.seng302team600.controller;
 
+import com.springvuegradle.seng302team600.Utilities.ActivityValidator;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
@@ -34,6 +35,10 @@ public class ActivityController {
                 activityTypeService.getMatchingEntitiesFromRepository(newActivity.getActivityTypes())
         );
         newActivity.setCreatorUserId(profileId);
+
+        // Check the user input and throw ResponseStatusException if invalid stopping execution
+        ActivityValidator.validate(newActivity);
+
         activityRepository.save(newActivity);
 
         response.setStatus(HttpServletResponse.SC_CREATED); //201
@@ -45,7 +50,6 @@ public class ActivityController {
         if (activity == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid activity id");
         }
-        System.out.println(activity);
         return activity;
     }
 }

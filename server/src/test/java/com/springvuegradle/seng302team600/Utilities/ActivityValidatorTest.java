@@ -17,7 +17,6 @@ public class ActivityValidatorTest {
     final static private int NAME_LEN = 75;
     final static private int DESCRIPTION_LEN = 1500;
 
-    private final ActivityValidator validator = new ActivityValidator();
     private Activity activity;
 
     @BeforeEach
@@ -40,7 +39,7 @@ public class ActivityValidatorTest {
 
     @Test
     public void validActivityTest() {
-        assertTrue(validator.validate(activity));
+        assertTrue(ActivityValidator.validate(activity));
     }
 
     @Test
@@ -48,10 +47,10 @@ public class ActivityValidatorTest {
         char[] name = new char[NAME_LEN + 1];
         Arrays.fill(name, 'N');
         activity.setName(new String(name));
-        assertThrows(ResponseStatusException.class, () -> validator.validate(activity));
+        assertThrows(ResponseStatusException.class, () -> ActivityValidator.validate(activity));
 
         activity.setName(" ");
-        assertThrows(ResponseStatusException.class, () -> validator.validate(activity));
+        assertThrows(ResponseStatusException.class, () -> ActivityValidator.validate(activity));
     }
 
     @Test
@@ -59,16 +58,16 @@ public class ActivityValidatorTest {
         char[] desc = new char[DESCRIPTION_LEN + 1];
         Arrays.fill(desc, 'D');
         activity.setDescription(new String(desc));
-        assertThrows(ResponseStatusException.class, () -> validator.validate(activity));
+        assertThrows(ResponseStatusException.class, () -> ActivityValidator.validate(activity));
 
         activity.setDescription(" ");
-        assertThrows(ResponseStatusException.class, () -> validator.validate(activity));
+        assertThrows(ResponseStatusException.class, () -> ActivityValidator.validate(activity));
     }
 
     @Test
     public void activityTypeSetInvalidTest() {
         activity.setActivityTypes(new HashSet<>()); // Set empty HashSet
-        assertThrows(ResponseStatusException.class, () -> validator.validate(activity));
+        assertThrows(ResponseStatusException.class, () -> ActivityValidator.validate(activity));
     }
 
     @Test
@@ -76,6 +75,6 @@ public class ActivityValidatorTest {
         Date start = new Date();
         activity.setEndTime(start);
         activity.setStartTime(new Date(start.getTime() + MILLISECONDS_PER_DAY));
-        assertThrows(ResponseStatusException.class, () -> validator.validate(activity));
+        assertThrows(ResponseStatusException.class, () -> ActivityValidator.validate(activity));
     }
 }
