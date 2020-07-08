@@ -219,11 +219,17 @@
             this.fetchActivityTypes();
         },
         methods: {
+            /**
+             * Submits activity input
+             */
             onSubmit(evt) {
                 evt.preventDefault();
                 this.validateActivityInputs();
             },
 
+            /**
+             * Validate activity inputs, called when onSubmit is called
+             */
             validateActivityInputs() {
                 if (!this.activityName || this.nameCharCount > this.maxNameCharCount) {
                     showError('alert_activity_name');
@@ -255,18 +261,30 @@
                 }
             },
 
+            /**
+             * Updates word count for activity name
+             */
             updateNameWordCount() {
                 this.nameCharCount = this.activityName.length;
             },
 
+            /**
+             * Updates word count for description
+             */
             updateDescriptionWordCount() {
                 this.descriptionCharCount = this.description.length;
             },
 
+            /**
+             * Resets start date, called when checkbox is ticked/unticked
+             */
             resetStartDate() {
                 this.startTime = null
             },
 
+            /**
+             * Resets end date, called when checkbox is ticked/unticked
+             */
             resetEndDate() {
                 this.endTime = null
             },
