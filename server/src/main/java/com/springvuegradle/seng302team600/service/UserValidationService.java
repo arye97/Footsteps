@@ -81,6 +81,7 @@ public class UserValidationService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not logged in");
         }
         User user = userRepository.findByToken(token);
+        System.out.print(user.getUserId());
         if (user == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found, invalid credentials");
         }
