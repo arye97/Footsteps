@@ -32,11 +32,11 @@ public class Activity {
     private String description;
 
     @NotNull(message = "This Activity needs one or more ActivityTypes associated with it")
-    @ManyToMany(mappedBy = "referencingActivities")
-//    @JoinTable(
-//            name = "activity_activity_type",
-//            joinColumns = @JoinColumn(name = "activity_id"),
-//            inverseJoinColumns = @JoinColumn(name = "id"))
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})  // ALL except REMOVE
+    @JoinTable(
+            name = "activity_activity_type",
+            joinColumns = @JoinColumn(name = "activity_id"),
+            inverseJoinColumns = @JoinColumn(name = "id"))
     @JsonProperty("activity_type")
     private Set<ActivityType> activityTypes;
 

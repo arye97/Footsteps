@@ -112,7 +112,7 @@ public class User {
     private List<String> passports;
 
     @NotNull(message = "This Activity needs one or more ActivityTypes associated with it")
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})  // ALL except REMOVE
     @JoinTable(
             name = "user_activity_type",
             joinColumns = @JoinColumn(name = "user_id"),
