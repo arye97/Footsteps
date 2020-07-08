@@ -4,24 +4,17 @@ import com.springvuegradle.seng302team600.Utilities.ActivityValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.model.Activity;
-import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
 import com.springvuegradle.seng302team600.service.UserValidationService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.persistence.CascadeType;
-import javax.persistence.OneToOne;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -31,12 +24,12 @@ import java.util.List;
 public class ActivityController {
 
     private ActivityRepository activityRepository;
-    @Autowired private UserValidationService userValidationService;
-
+    private UserValidationService userValidationService;
     private ActivityTypeService activityTypeService;
 
-    public ActivityController(ActivityRepository activityRepository, ActivityTypeService activityTypeService) {
+    public ActivityController(ActivityRepository activityRepository, UserValidationService userValidationService, ActivityTypeService activityTypeService) {
         this.activityRepository = activityRepository;
+        this.userValidationService = userValidationService;
         this.activityTypeService = activityTypeService;
     }
 

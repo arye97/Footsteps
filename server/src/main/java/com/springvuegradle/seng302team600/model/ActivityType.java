@@ -22,8 +22,6 @@ public class ActivityType {
             inverseJoinColumns = @JoinColumn(name = "activity_id"))
     Set<Activity> referencingActivities;
 
-    //@ManyToMany(mappedBy = "activityTypes")
-    //Set<Activity> referencingUsers;
 
     @Column(name = "name", nullable = false, unique = true)
     private String name;
