@@ -27,11 +27,15 @@
                             id="input-1"
                             v-model="activityName"
                             trim
+                            v-on:input="updateNameWordCount"
                             placeholder="Your Activity Name..."
                     ></b-form-input>
+                    <div class="word-count">
+                        {{ nameCharCount }}/{{ maxNameCharCount }} characters remaining
+                    </div>
                 </b-form-group>
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_activity_name">
-                    Field is mandatory
+                    Field is mandatory and can only contain a maximum of {{ maxNameCharCount }} characters
                 </div>
 
                 <b-form-group
@@ -41,18 +45,18 @@
                 >
                     <b-form-textarea
                             id="input-2"
+                            v-model="description"
                             rows="5"
                             trim
-                            v-on:input="updateWordCount"
-                            v-model="description"
+                            v-on:input="updateDescriptionWordCount"
                             placeholder="Description of your activity..."
                     ></b-form-textarea>
-                    <div id="word-count">
-                        {{ charCount }}/{{ maxCharCount }} characters remaining
+                    <div class="word-count">
+                        {{ descriptionCharCount }}/{{ maxDescriptionCharCount }} characters remaining
                     </div>
                 </b-form-group>
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_description">
-                    Field is mandatory and can only contain a maximum of {{ maxCharCount }} characters
+                    Field is mandatory and can only contain a maximum of {{ maxDescriptionCharCount }} characters
                 </div>
 
                 <b-form-group
@@ -88,23 +92,61 @@
 
                 <div v-if="continuous === false">
                     <b-form-group>
-                        <label id="input-start-time=label" for="input-start-time">Start Time: *</label>
-                        <input type="datetime-local" class="form-control" v-model="startTime" id="input-start-time">
+                        <div v-if="has_start_time === false" >
+                            <label id="input-start-label" for="input-start">Start Date: *</label>
+                            <input type="date" class="form-control" v-model="startTime" id="input-start">
+                        </div>
+                        <div v-else>
+                            <label id="input-start-time-label" for="input-start-time">Start Date: *</label>
+                            <input type="datetime-local" class="form-control" v-model="startTime" id="input-start-time">
+                        </div>
+                        <b-form-checkbox
+                                class="checkbox-time"
+                                size="sm"
+                                v-model="has_start_time"
+                                @change="resetStartDate"
+                        >
+                            Include starting time
+                        </b-form-checkbox>
                     </b-form-group>
                     <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_start">
-                        Field is mandatory, a start date must be set with (optionally) a start time.
+                        Field is mandatory, a start date must be set with (optionally) a start time
+                    </div>
+                    <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_start_after_end">
+                        A start date cannot be set after the end date
+                    </div>
+
+                    <b-form-group>
+                        <div v-if="has_end_time === false" >
+                            <label id="input-end-label" for="input-end">End Date: *</label>
+                            <input type="date" class="form-control" v-model="endTime" id="input-end">
+                        </div>
+                        <div v-else>
+                            <label id="input-end-time-label" for="input-end-time">End Date: *</label>
+                            <input type="datetime-local" class="form-control" v-model="endTime" id="input-end-time">
+                        </div>
+                        <b-form-checkbox
+                                class="checkbox-time"
+                                size="sm"
+                                v-model="has_end_time"
+                                @change="resetEndDate"
+                        >
+                            Include ending time
+                        </b-form-checkbox>
+                    </b-form-group>
+
+                    <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_end">
+                        Field is mandatory, an end date must be set with (optionally) an end time
+                    </div>
+                    <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_end_before_start">
+                        An end date cannot be set before the start date
                     </div>
                 </div>
 
-                <div v-if="continuous === false">
-                    <b-form-group>
-                        <label id="input-end-time=label" for="input-end-time">End Time: *</label>
-                        <input type="datetime-local" class="form-control" v-model="endTime" id="input-end-time">
-                    </b-form-group>
-                    <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_end">
-                        Field is mandatory, an end date must be set with (optionally) an end time.
-                    </div>
-                </div>
+
+
+
+
 
                 <b-form-group
                         id="input-group-location"
@@ -161,14 +203,19 @@
                 endTime: null,
                 location: null,
 
-                charCount: 0,
-                maxCharCount: 280
+                nameCharCount: 0,
+                maxNameCharCount: 75,
+                descriptionCharCount: 0,
+                maxDescriptionCharCount: 1500,
+
+                has_start_time: false,
+                has_end_time: false
             }
         },
         mounted() {
-            if (!sessionStorage.getItem("token")) {
-                this.$router.push('/login'); //Routes to home on logout
-            }
+            // if (!sessionStorage.getItem("token")) {
+            //     this.$router.push('/login'); //Routes to home on logout
+            // }
             this.fetchActivityTypes();
         },
         methods: {
@@ -178,11 +225,11 @@
             },
 
             validateActivityInputs() {
-                if (!this.activityName) {
+                if (!this.activityName || this.nameCharCount > this.maxNameCharCount) {
                     showError('alert_activity_name');
                 }
 
-                if (!this.description || this.description.length > this.maxCharCount) {
+                if (!this.description || this.descriptionCharCount > this.maxDescriptionCharCount) {
                     showError('alert_description');
                 }
 
@@ -195,23 +242,33 @@
                         console.log(this.startTime);
                         showError('alert_start');
                     }
-                    // else if (this.startTime > this.endTime) {
-                    //     // showerror start time must be before end time
-                    //     // might give error if endtime is null
-                    // }
+                    else if (this.startTime > this.endTime) {
+                        showError('alert_start_after_end');
+                    }
                     if (!this.endTime) {
                         console.log(this.endTime);
                         showError('alert_end');
                     }
-                    // else if (this.endTime < this.startTime) {
-                    //     // showerror end time must be ahead of start time
-                    // }
+                    else if (this.endTime < this.startTime) {
+                        showError('alert_end_before_start');
+                    }
                 }
             },
 
-            updateWordCount() {
-                console.log(this.description);
-                this.charCount = this.description.length;
+            updateNameWordCount() {
+                this.nameCharCount = this.activityName.length;
+            },
+
+            updateDescriptionWordCount() {
+                this.descriptionCharCount = this.description.length;
+            },
+
+            resetStartDate() {
+                this.startTime = null
+            },
+
+            resetEndDate() {
+                this.endTime = null
             },
 
             /**
@@ -240,9 +297,13 @@
         padding-top: 55px;
     }
 
-    #word-count {
+    .word-count {
         padding-top: 7px;
         color: #707070;
         font-size: 0.8em;
+    }
+
+    .checkbox-time {
+        padding-top: 10px;
     }
 </style>
