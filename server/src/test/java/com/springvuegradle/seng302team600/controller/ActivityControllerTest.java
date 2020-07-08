@@ -65,6 +65,9 @@ class ActivityControllerTest {
 
         MockitoAnnotations.initMocks(this);
         dummyUser1 = new User();
+
+        // Mocking ActivityTypeService
+        when(activityTypeService.getMatchingEntitiesFromRepository(Mockito.any())).thenAnswer(i -> i.getArgument(0));
     }
 
     private final String createUserJsonViewUser2 = JsonConverter.toJson(true,
@@ -149,7 +152,7 @@ class ActivityControllerTest {
             "activity_name", "Kaikoura Coast Track race",
             "description", "A big and nice race on a lovely peninsula",
             "activity_type", new Object[]{
-                    "tramping", "hiking"
+                    "Astronomy", "Hiking"
             },
             "continuous", false,
             "start_time", "2020-02-20T08:00:00+1300",
@@ -157,7 +160,7 @@ class ActivityControllerTest {
             "location", "Kaikoura, NZ");
 
     /**
-     * Test successful createion of new activity.
+     * Test successful creation of new activity.
      */
     @Test
     void newActivity() throws Exception {
@@ -178,7 +181,7 @@ class ActivityControllerTest {
             "activity_name", "Port Hills Rock Climbing",
             "description", "Cattlestop Crag lead climbing",
             "activity_type", new Object[]{
-                    "climbing", "abseiling"
+                    "Rock Climbing", "Mountaineering"
             },
             "continuous", false,
             "start_time", "2020-02-20T08:00:00Z",

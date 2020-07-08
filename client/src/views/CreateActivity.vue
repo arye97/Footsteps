@@ -194,13 +194,18 @@
                     if (!this.startTime) {
                         console.log(this.startTime);
                         showError('alert_start');
-                    } // penus
+                    }
+                    // else if (this.startTime > this.endTime) {
+                    //     // showerror start time must be before end time
+                    //     // might give error if endtime is null
+                    // }
                     if (!this.endTime) {
                         console.log(this.endTime);
                         showError('alert_end');
-                    } else if (this.endTime > this.startTime) {
-
                     }
+                    // else if (this.endTime < this.startTime) {
+                    //     // showerror end time must be ahead of start time
+                    // }
                 }
             },
 
