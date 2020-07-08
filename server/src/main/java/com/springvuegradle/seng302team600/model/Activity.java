@@ -32,15 +32,15 @@ public class Activity {
     private String description;
 
     @NotNull(message = "This Activity needs one or more ActivityTypes associated with it")
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "activity_activity_type",
-            joinColumns = @JoinColumn(name = "activity_id"),
-            inverseJoinColumns = @JoinColumn(name = "id"))
+    @ManyToMany(mappedBy = "referencingActivities")
+//    @JoinTable(
+//            name = "activity_activity_type",
+//            joinColumns = @JoinColumn(name = "activity_id"),
+//            inverseJoinColumns = @JoinColumn(name = "id"))
     @JsonProperty("activity_type")
     private Set<ActivityType> activityTypes;
 
-    @NotNull(message = "This Activity needs to be either continuous or have a durration")
+    @NotNull(message = "This Activity needs to be either continuous or have a duration")
     @Column(name = "is_continuous", columnDefinition = "boolean", nullable = false)
     @JsonProperty("continuous")
     private boolean continuous;

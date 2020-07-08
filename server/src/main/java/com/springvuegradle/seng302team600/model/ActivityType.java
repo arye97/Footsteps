@@ -15,11 +15,15 @@ public class ActivityType {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @ManyToMany(mappedBy = "activityTypes")
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "activity_type_activity",
+            joinColumns = @JoinColumn(name = "id"),
+            inverseJoinColumns = @JoinColumn(name = "activity_id"))
     Set<Activity> referencingActivities;
 
-    @ManyToMany(mappedBy = "activityTypes")
-    Set<Activity> referencingUsers;
+    //@ManyToMany(mappedBy = "activityTypes")
+    //Set<Activity> referencingUsers;
 
     @Column(name = "name", nullable = false, unique = true)
     private String name;
