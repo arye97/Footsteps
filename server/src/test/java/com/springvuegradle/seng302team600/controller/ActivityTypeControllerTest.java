@@ -41,7 +41,8 @@ class ActivityTypeControllerTest {
     /**
      * Mock ActivityType repository actions
      */
-    private void setupActivityTypeRepository() {
+    @BeforeEach
+    void setupActivityTypeRepository() {
         // Save
         when(activityTypeRepository.save(Mockito.any(ActivityType.class))).thenAnswer(i -> {
             if (!activityTypeMockTable.contains(i.getArgument(0))) {
@@ -70,7 +71,6 @@ class ActivityTypeControllerTest {
 
     @BeforeEach
     void mockSetupFromYmlConfig() throws Exception {
-        setupActivityTypeRepository();
         List<ActivityType> activityTypeTestList = new ArrayList<>();
         activityTypeTestList.add(new ActivityType("Skiing"));
         activityTypeTestList.add(new ActivityType("Trail Running"));

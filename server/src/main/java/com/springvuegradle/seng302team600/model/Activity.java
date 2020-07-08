@@ -70,6 +70,9 @@ public class Activity {
      */
     public Activity() {}
 
+    public Long getActivityId() {
+        return activityId;
+    }
 
     public Long getCreatorUserId() {
         return creatorUserId;
@@ -133,5 +136,32 @@ public class Activity {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 43;
+        result = 31 * result + name.hashCode();
+        result = 31 * result + description.hashCode();
+        result = 31 * result + startTime.hashCode();
+        result = 31 * result + endTime.hashCode();
+        result = 31 * result + location.hashCode();
+        result = 31 * result + activityTypes.hashCode();
+        result = 31 * result + (continuous ? 1 : 0);
+
+        return result;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj instanceof Activity) {
+            final Activity other = (Activity) obj;
+            // Check that all attributes are not activityId and creatorUserId
+            return this.getName().equals(other.getName()) && this.getDescription().equals(other.getDescription()) &&
+                    this.getStartTime().equals(other.getStartTime()) && this.getEndTime().equals(other.getEndTime()) &&
+                    this.getLocation().equals(other.getLocation()) && this.getActivityTypes().equals(other.getActivityTypes()) &&
+                    this.isContinuous() == other.isContinuous();
+        }
+        return false;
     }
 }
