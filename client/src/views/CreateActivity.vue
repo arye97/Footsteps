@@ -209,55 +209,115 @@
                 maxDescriptionCharCount: 1500,
 
                 has_start_time: false,
-                has_end_time: false
+                has_end_time: false,
+
+                isValidFormFlag: true,
             }
         },
         mounted() {
-            // if (!sessionStorage.getItem("token")) {
-            //     this.$router.push('/login'); //Routes to home on logout
-            // }
+            if (!sessionStorage.getItem("token")) {
+                this.$router.push('/login'); //Routes to home on logout
+            }
             this.fetchActivityTypes();
         },
         methods: {
             /**
-             * Submits activity input
+             * Called when submit button is pressed
              */
-            onSubmit(evt) {
+            async onSubmit(evt) {
                 evt.preventDefault();
-                this.validateActivityInputs();
+                this.isValidFormFlag = true;
+                await this.validateActivityInputs()
+                if (this.isValidFormFlag) {
+                    await this.submitActivity();
+                }
+            },
+
+            /**
+             * Makes a POST request to the back-end to create an activity
+             */
+            async submitActivity() {
+                const activityForm = {
+                    activity_name: this.activityName,
+                    description: this.description,
+                    activity_type: this.selectedActivityTypes,
+                    continuous: this.continuous,
+                    location: this.location
+                };
+                if (!this.continuous) {
+                    // If no time provided, manually concatenating Thh:mm, which is bad, might use Moment.js instead but will consult team
+                    let formattedStartTime = this.startTime;
+                    let formattedEndTime = this.endTime;
+                    if (this.startTime.length === 10) {
+                        formattedStartTime = formattedStartTime.concat('T23:59')
+                    }
+                    if (this.endTime.length === 10) {
+                        formattedEndTime = formattedEndTime.concat('T23:59')
+                    }
+                    activityForm["start_time"] = formattedStartTime.concat(':00+1300');
+                    activityForm["end_time"] = formattedEndTime.concat(':00+1300');
+                }
+
+                // Hardcoded id since have no way of obtaining it atm
+                // Also does not work if continuous is chosen, because back-end needs tinkering
+                await server.post(`/profiles/56/activities`,
+                    activityForm, {
+                        headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
+                        withCredentials: true
+                    }).then(response => { //If successfully registered the response will have a status of 201
+                        if (response.status === 201) {
+                            console.log('Activity Created Successfully!');
+                            sessionStorage.setItem("token", response.data.Token);
+                            // somehow can't get back to profile
+                            // this.$router.push('/profile');
+                        }
+                    }
+
+                )
             },
 
             /**
              * Validate activity inputs, called when onSubmit is called
              */
-            validateActivityInputs() {
+            async validateActivityInputs() {
                 if (!this.activityName || this.nameCharCount > this.maxNameCharCount) {
                     showError('alert_activity_name');
+                    this.isValidFormFlag = false;
                 }
 
                 if (!this.description || this.descriptionCharCount > this.maxDescriptionCharCount) {
                     showError('alert_description');
+                    this.isValidFormFlag = false;
                 }
 
                 if (this.selectedActivityTypes.length < 1) {
                     showError('alert_activity_types');
+                    this.isValidFormFlag = false;
                 }
 
+                // If duration is chosen
                 if (!this.continuous) {
                     if (!this.startTime) {
-                        console.log(this.startTime);
                         showError('alert_start');
+                        this.isValidFormFlag = false;
                     }
                     else if (this.startTime > this.endTime) {
                         showError('alert_start_after_end');
+                        this.isValidFormFlag = false;
                     }
                     if (!this.endTime) {
-                        console.log(this.endTime);
                         showError('alert_end');
+                        this.isValidFormFlag = false;
                     }
                     else if (this.endTime < this.startTime) {
                         showError('alert_end_before_start');
+                        this.isValidFormFlag = false;
                     }
+                }
+
+                if (!this.location) {
+                    showError('alert_location');
+                    this.isValidFormFlag = false;
                 }
             },
 
