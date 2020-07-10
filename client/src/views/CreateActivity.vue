@@ -246,16 +246,16 @@
                 };
                 if (!this.continuous) {
                     // If no time provided, manually concatenating Thh:mm, which is bad, might use Moment.js instead but will consult team
+                    let formattedStartTime = this.startTime;
+                    let formattedEndTime = this.endTime;
                     if (this.startTime.length === 10) {
-                        this.startTime = this.startTime.concat('T23:59')
+                        formattedStartTime = formattedStartTime.concat('T23:59')
                     }
                     if (this.endTime.length === 10) {
-                        this.endTime = this.endTime.concat('T23:59')
+                        formattedEndTime = formattedEndTime.concat('T23:59')
                     }
-                    console.log(this.startTime)
-                    console.log(this.endTime)
-                    activityForm["start_time"] = this.startTime;
-                    activityForm["end_time"] = this.endTime;
+                    activityForm["start_time"] = formattedStartTime.concat(':00+1300');
+                    activityForm["end_time"] = formattedEndTime.concat(':00+1300');
                 }
 
                 // Hardcoded id since have no way of obtaining it atm

@@ -46,13 +46,13 @@ public class Activity {
     private boolean continuous;
 
     @Column(name = "start_time", columnDefinition = "TIMESTAMP")
-    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm")
+    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ")
     @Temporal(TemporalType.TIMESTAMP)
     @JsonProperty("start_time")
     private Date startTime = new Date(0);
 
     @Column(name = "end_time", columnDefinition = "TIMESTAMP")
-    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm")
+    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ")
     @Temporal(TemporalType.TIMESTAMP)
     @JsonProperty("end_time")
     private Date endTime = new Date(0);
