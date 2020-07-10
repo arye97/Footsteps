@@ -19,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -124,6 +125,43 @@ class ActivityControllerTest {
         assertNotNull(result.getResponse());
     }
 
+    /**
+     * Test successful deletion of an activity.
+     */
+    @Test
+    void deleteActivity() throws Exception {
+        Activity activityInRepo = objectMapper.readValue(newActivity1Json, Activity.class);
+        activityRepository.save(activityInRepo);
+
+        MockHttpServletRequestBuilder httpReqDelete = MockMvcRequestBuilders.delete("/activities/{activityId}", DEFAULT_ACTIVITY_ID)
+                .header("Token", validToken);
+        MvcResult result = mvc.perform(httpReqDelete).andExpect(status().isOk()).andReturn();
+        assertNotNull(result.getResponse());
+    }
+
+    private final String newActivityEditJson = JsonConverter.toJson(true,
+            "activity_name", "Nelson Coast Track race",
+            "activity_type", new Object[]{
+                    "Astronomy", "Hiking"
+            },
+            "location", "Nelson, NZ");
+    /**
+     * Test successful edit/update of an activity details
+     */
+//    @Test
+//    void editActivity() throws Exception {
+//        Activity activityInRepo = objectMapper.readValue(newActivity1Json, Activity.class);
+//        activityRepository.save(activityInRepo);
+//
+//        MockHttpServletRequestBuilder httpReqEdit = MockMvcRequestBuilders.put("/activities/{activityId}", DEFAULT_ACTIVITY_ID)
+//                .header("Token", validToken)
+//                .content(newActivityEditJson)
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .accept(MediaType.APPLICATION_JSON);
+//
+//        MvcResult result = mvc.perform(httpReqEdit).andExpect(status().isOk()).andReturn();
+//        assertNotNull(result.getResponse());
+//    }
 
     private final String newActivityWrongDateFormatJson = JsonConverter.toJson(true,
             "activity_name", "Port Hills Rock Climbing",
@@ -165,6 +203,7 @@ class ActivityControllerTest {
             "end_time", "2020-02-20T08:00:00+1300",
             "location", "Kaikoura, NZ");
 
+
     /**
      * Test successful get request of activity.
      */
@@ -186,4 +225,6 @@ class ActivityControllerTest {
 
         assertEquals(activityRepository.findByActivityId(DEFAULT_ACTIVITY_ID), activityReceived);
     }
+
+
 }

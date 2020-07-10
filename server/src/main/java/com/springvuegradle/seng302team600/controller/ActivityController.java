@@ -7,8 +7,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
+import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
 import com.springvuegradle.seng302team600.service.UserValidationService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +33,8 @@ public class ActivityController {
     private ActivityRepository activityRepository;
     private UserValidationService userValidationService;
     private ActivityTypeService activityTypeService;
+    @Autowired
+    private UserRepository userRepository;
 
     public ActivityController(ActivityRepository activityRepository, UserValidationService userValidationService, ActivityTypeService activityTypeService) {
         this.activityRepository = activityRepository;
@@ -123,12 +127,13 @@ public class ActivityController {
         Activity activity = activityRepository.findByActivityId(activityId);
         Long authorId = activity.getCreatorUserId();
         String token = request.getHeader("Token");
-        User user = userValidationService.findByToken(token); //finds user and validates they exist
-        if (!userValidationService.hasAdminPrivileges(user)) {
+        User user = userRepository.findByToken(token); //finds user and validates they exist
+
+        if ((!userValidationService.hasAdminPrivileges(user)) && (authorId != null)) {
             /* Only run this check if the user is NOT an Admin,
                otherwise admins can delete/edit others activities.
              */
-            if (!authorId.equals(user.getUserId())) {
+            if (authorId != user.getUserId()) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not activity creator");
             }
         }

@@ -283,7 +283,6 @@ public class User {
                 }
             }
         }
-
         // IF EMAIL HAS NOT BEEN ASSOCIATED TO USER
         primaryEmail = newPrimaryEmail;
         Email email = new Email(newPrimaryEmail, true, this);
