@@ -10,7 +10,6 @@ import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
 import com.springvuegradle.seng302team600.service.UserValidationService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +18,6 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.sql.Date;
 import java.util.List;
 import java.util.Set;
@@ -33,13 +31,14 @@ public class ActivityController {
     private ActivityRepository activityRepository;
     private UserValidationService userValidationService;
     private ActivityTypeService activityTypeService;
-    @Autowired
     private UserRepository userRepository;
 
-    public ActivityController(ActivityRepository activityRepository, UserValidationService userValidationService, ActivityTypeService activityTypeService) {
+    public ActivityController(ActivityRepository activityRepository, UserValidationService userValidationService,
+                              ActivityTypeService activityTypeService, UserRepository userRepository) {
         this.activityRepository = activityRepository;
         this.userValidationService = userValidationService;
         this.activityTypeService = activityTypeService;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -50,8 +49,13 @@ public class ActivityController {
      */
     @PostMapping("/profiles/{profileId}/activities")
     public void newActivity(@Validated @RequestBody Activity newActivity,
+                            HttpServletRequest request,
                             HttpServletResponse response,
                             @PathVariable(value = "profileId") Long profileId) {
+
+        String token = request.getHeader("Token");
+        // Throws error if token doesn't match the profileId, i.e. you can't create an activity with a creatorUserId that isn't your own
+        userValidationService.findByUserId(token, profileId);
 
         // Use ActivityType entities from the database.  Don't create duplicates.
         newActivity.setActivityTypes(
@@ -102,6 +106,7 @@ public class ActivityController {
     public void editActivity(@PathVariable Long activityId, HttpServletRequest request, HttpServletResponse response,
                              @RequestBody String jsonActivityEditString) throws IOException {
         String token = request.getHeader("Token"); //this is the users token
+        // NOTE: Who should be able to edit an activity?  Right now anyone can edit.
         Activity activity = activityRepository.findByActivityId(activityId);
         //ResponseStatusException thrown if user unauthorized or forbidden from accessing requested user
         ObjectMapper nodeMapper = new ObjectMapper();
@@ -157,11 +162,10 @@ public class ActivityController {
             /* Only run this check if the user is NOT an Admin,
                otherwise admins can delete/edit others activities.
              */
-            if (authorId != user.getUserId()) {
+            if (!authorId.equals(user.getUserId())) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not activity creator");
             }
         }
-
         //Delete the activity
         activityRepository.delete(activity);
 
