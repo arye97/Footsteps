@@ -42,6 +42,12 @@ public class ActivityController {
         this.activityTypeService = activityTypeService;
     }
 
+    /**
+     * Create a new Activity.
+     * @param newActivity the new Activity
+     * @param response Used to set status of operation
+     * @param profileId the Id of the User who created the activity
+     */
     @PostMapping("/profiles/{profileId}/activities")
     public void newActivity(@Validated @RequestBody Activity newActivity,
                             HttpServletResponse response,
@@ -61,6 +67,11 @@ public class ActivityController {
         response.setStatus(HttpServletResponse.SC_CREATED); //201
     }
 
+    /**
+     * Get an activity by Id
+     * @param activityId the Id of the Activity
+     * @return the found activity
+     */
     @GetMapping("/activities/{activityId}")
     public Activity findUserActivity(@PathVariable Long activityId) {
         Activity activity = activityRepository.findByActivityId(activityId);
@@ -70,10 +81,13 @@ public class ActivityController {
         return activity;
     }
 
+    /**
+     * Get all the Activities in the Database
+     * @return List of all Activities
+     */
     @GetMapping("/activities")
     public List<Activity> findAllActivities() {
-        List<Activity> allActivities = activityRepository.findAll();
-        return allActivities;
+        return activityRepository.findAll();
     }
 
 
@@ -81,6 +95,8 @@ public class ActivityController {
      *  Checks all possible inputs to see if that input is there, and to be updated
      *  takes from the client only the json object of the to-be-updated inputs
      *  and the activity id through put the url mapping.
+     * @param activityId the Id of the Activity to edit
+     * @param jsonActivityEditString an Activity to edit as a json string
      */
     @PutMapping("/activities/{activityId}")
     public void editActivity(@PathVariable Long activityId, HttpServletRequest request, HttpServletResponse response,
@@ -121,10 +137,18 @@ public class ActivityController {
         response.setStatus(HttpServletResponse.SC_OK); //200
     }
 
+    /**
+     * Delete an Activity
+     * @param activityId the Id of the activity to delete
+     * @param request Used to set status of operation
+     */
     @DeleteMapping("/activities/{activityId}")
     public void deleteActivity(@PathVariable Long activityId, HttpServletRequest request) {
         //Check the activity is this specific users activity
         Activity activity = activityRepository.findByActivityId(activityId);
+        if (activity == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid activity id");
+        }
         Long authorId = activity.getCreatorUserId();
         String token = request.getHeader("Token");
         User user = userRepository.findByToken(token); //finds user and validates they exist
@@ -137,9 +161,7 @@ public class ActivityController {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not activity creator");
             }
         }
-        if (activity == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid activity id");
-        }
+
         //Delete the activity
         activityRepository.delete(activity);
 

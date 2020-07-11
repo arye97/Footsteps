@@ -118,7 +118,7 @@ class UserControllerTest {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         });
         ReflectionTestUtils.setField(dummyUser1, "userId", DEFAULT_USER_ID);
-        ReflectionTestUtils.setField(dummyEmail, "id", DEFAULT_EMAIL_ID);
+        ReflectionTestUtils.setField(dummyEmail, "emailId", DEFAULT_EMAIL_ID);
         when(userValidationService.login(Mockito.anyString(),Mockito.anyString())).thenAnswer(i -> {
                 if (i.getArgument(0).equals(dummyEmail.getEmail()) && dummyUser1.checkPassword(i.getArgument(1))) return new UserResponse("ValidToken", dummyUser1.getUserId());
                 else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
@@ -135,7 +135,7 @@ class UserControllerTest {
         dummyUser2 = new User(regReq);
         Email fakeEmail = new Email(dummyUser2.getPrimaryEmail(), true, dummyUser2);
         ReflectionTestUtils.setField(dummyUser2, "userId", 10L);
-        ReflectionTestUtils.setField(fakeEmail, "id", 10L);
+        ReflectionTestUtils.setField(fakeEmail, "emailId", 10L);
         when(userValidationService.viewUserById(Mockito.anyLong(), Mockito.anyString())).thenAnswer(i -> {
             if ((long) i.getArgument(0) == 10L && i.getArgument(1) == validToken) return dummyUser2;
             else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);

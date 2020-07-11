@@ -56,7 +56,7 @@ class UserValidationServiceTest {
         dummyUser1.builder(userData);
         dummyEmail1 = new Email(dummyUser1.getPrimaryEmail(), true, dummyUser1);
         //This is a valid use of reflection, designed for scenarios like this
-        ReflectionTestUtils.setField(dummyEmail1, "id", 2L);
+        ReflectionTestUtils.setField(dummyEmail1, "emailId", 2L);
     }
 
     @BeforeEach
@@ -77,7 +77,7 @@ class UserValidationServiceTest {
         //This is a valid use of reflection, designed for scenarios like this
         ReflectionTestUtils.setField(dummyUser, "userId", 1L);
         ReflectionTestUtils.setField(dummyUser1, "userId", 2L);
-        ReflectionTestUtils.setField(dummyEmail, "id", 1L);
+        ReflectionTestUtils.setField(dummyEmail, "emailId", 1L);
         when(userRepository.save(Mockito.any(User.class))).then(i -> i.getArgument(0));
         when(userRepository.findByUserId(Mockito.anyLong())).thenAnswer(i -> {
             if (i.getArgument(0).equals(dummyUser.getUserId())) return dummyUser;
@@ -95,7 +95,7 @@ class UserValidationServiceTest {
             else return null;
         });
         when(emailRepository.getOne(Mockito.anyLong())).thenAnswer(i -> {
-            if (i.getArgument(0).equals(dummyEmail.getId())) return dummyEmail;
+            if (i.getArgument(0).equals(dummyEmail.getEmailId())) return dummyEmail;
             else return null;
         });
         when(emailRepository.existsEmailByEmail(Mockito.anyString())).thenAnswer(i -> {

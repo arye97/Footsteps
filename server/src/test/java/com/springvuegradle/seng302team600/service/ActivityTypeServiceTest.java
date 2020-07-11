@@ -40,7 +40,7 @@ class ActivityTypeServiceTest {
         when(activityTypeRepository.save(Mockito.any(ActivityType.class))).thenAnswer(i -> {
             ActivityType newActivityType = i.getArgument(0);
             if (!activityTypeMockTable.contains(newActivityType)) {
-                ReflectionTestUtils.setField(newActivityType, "id", DEFAULT_ACTIVITY_TYPE_ID + activityTypeCount++);
+                ReflectionTestUtils.setField(newActivityType, "activityTypeId", DEFAULT_ACTIVITY_TYPE_ID + activityTypeCount++);
                 activityTypeMockTable.add(newActivityType);
                 return activityTypeMockTable.get(activityTypeMockTable.size() - 1);
             }
@@ -95,8 +95,6 @@ class ActivityTypeServiceTest {
         detachedActivityTypes.add(new ActivityType("Skiing"));
         detachedActivityTypes.add(new ActivityType("Trail Running"));
 
-        System.out.println(activityTypeRepository.findAll());
-
         Set<ActivityType> attachedActivityTypes = activityTypeService.getMatchingEntitiesFromRepository(
                 detachedActivityTypes);
 
@@ -112,8 +110,8 @@ class ActivityTypeServiceTest {
         }
         assertNotNull(skiing);
         assertNotNull(trailRunning);
-        assertEquals(1L, skiing.getId());
-        assertEquals(2L, trailRunning.getId());
+        assertEquals(1L, skiing.getActivityTypeId());
+        assertEquals(2L, trailRunning.getActivityTypeId());
     }
 
 

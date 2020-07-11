@@ -12,8 +12,8 @@ public class ActivityType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Long id;
+    @Column(name = "activity_type_id", nullable = false)
+    private Long activityTypeId;
 
     @ManyToMany(mappedBy = "activityTypes")
     Set<Activity> referencingActivities;
@@ -42,12 +42,12 @@ public class ActivityType {
         return this.name;
     }
 
-    public Long getId() {
-        return id;
+    public Long getActivityTypeId() {
+        return activityTypeId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setActivityTypeId(Long activityTypeId) {
+        this.activityTypeId = activityTypeId;
     }
 
     @Override

@@ -52,7 +52,7 @@ class ActivityTypeControllerTest {
 //            ReflectionTestUtils.setField(newActivity, "activityId", DEFAULT_ACTIVITY_TYPE_ID + activityTypeCount++);
             ActivityType newActivityType = i.getArgument(0);
             if (!activityTypeMockTable.contains(newActivityType)) {
-                ReflectionTestUtils.setField(newActivityType, "id", DEFAULT_ACTIVITY_TYPE_ID + activityTypeCount++);
+                ReflectionTestUtils.setField(newActivityType, "activityTypeId", DEFAULT_ACTIVITY_TYPE_ID + activityTypeCount++);
                 activityTypeMockTable.add(newActivityType);
                 return activityTypeMockTable.get(activityTypeMockTable.size() - 1);
             }

@@ -16,6 +16,7 @@ public class Activity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "activity_id", nullable = false)
     @JsonProperty("id")
     private Long activityId;
 
@@ -36,7 +37,7 @@ public class Activity {
     @JoinTable(
             name = "activity_activity_type",
             joinColumns = @JoinColumn(name = "activity_id"),
-            inverseJoinColumns = @JoinColumn(name = "id"))
+            inverseJoinColumns = @JoinColumn(name = "activity_type_id"))
     @JsonProperty("activity_type")
     private Set<ActivityType> activityTypes;
 

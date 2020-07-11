@@ -116,7 +116,7 @@ public class User {
     @JoinTable(
             name = "user_activity_type",
             joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "id"))
+            inverseJoinColumns = @JoinColumn(name = "activity_type_id"))
     @JsonProperty("activityTypes")
     private Set<ActivityType> activityTypes;
 
