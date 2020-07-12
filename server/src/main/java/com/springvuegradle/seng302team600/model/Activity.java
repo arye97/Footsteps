@@ -37,7 +37,7 @@ public class Activity {
     @JoinTable(
             name = "activity_activity_type",
             joinColumns = @JoinColumn(name = "activity_id"),
-            inverseJoinColumns = @JoinColumn(name = "activity_type_id"))
+            inverseJoinColumns = @JoinColumn(name = "id"))
     @JsonProperty("activity_type")
     private Set<ActivityType> activityTypes;
 
