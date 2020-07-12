@@ -111,14 +111,19 @@ public class ActivityController {
         //ResponseStatusException thrown if user unauthorized or forbidden from accessing requested user
         ObjectMapper nodeMapper = new ObjectMapper();
         ObjectNode editedData = nodeMapper.readValue(jsonActivityEditString, ObjectNode.class);
-        //Get the fields to be updated from editedData object
-        String newDescription = editedData.get("description").asText();
-        String newLocation = editedData.get("location").asText();
-        String newName = editedData.get("activity_name").asText();
-        String checkContinuous = editedData.get("continuous").asText();
-        JsonNode nodeActivityTypes = editedData.get("activity_type");
+        String newDescription;
+        try {newDescription = editedData.get("description").asText();} catch(Exception NullPointerException){ newDescription = null;}
+        String newLocation;
+        try {newLocation = editedData.get("location").asText();} catch(Exception NullPointerException) { newLocation = null; }
+        String newName;
+        try {newName = editedData.get("activity_name").asText(); } catch (Exception NullPointerException) { newName = null; }
+        String checkContinuous;
+        try { checkContinuous= editedData.get("continuous").asText(); } catch (Exception NullPointerException) {checkContinuous = null;}
+        JsonNode nodeActivityTypes;
+        try { nodeActivityTypes = editedData.get("activity_type"); } catch (Exception NullPointerException) { nodeActivityTypes = null; }
         //may need to re-write the activity types conversion if breaks
-        Set newActivityTypes = nodeMapper.convertValue(nodeActivityTypes, Set.class);
+        Set newActivityTypes;
+        if (nodeActivityTypes != null) {newActivityTypes = nodeMapper.convertValue(nodeActivityTypes, Set.class);} else { newActivityTypes = null; }
         //Check if any have changed or are null
         if (newDescription != null) { activity.setDescription(newDescription); }
         if (newLocation != null) {activity.setLocation(newLocation);}
