@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.Utilities.PasswordValidator;
 import com.springvuegradle.seng302team600.model.ActivityType;
+import com.springvuegradle.seng302team600.Utilities.UserValidator;
 import com.springvuegradle.seng302team600.model.DefaultAdminUser;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.model.UserRole;
@@ -144,10 +145,10 @@ public class UserController {
 
         // Validate the password
         PasswordValidator.validate(newUserData.getPassword());
-        
+
         User newUser = new User(newUserData);
-        //Throws errors if user is erroneous
-        newUser.isValid();
+        // Check the user input and throw ResponseStatusException if invalid stopping execution
+        UserValidator.validate(newUser);
 
         // Use ActivityType entities from the database.  Don't create duplicates.
         newUser.setActivityTypes(
@@ -264,8 +265,9 @@ public class UserController {
 
         ObjectReader userReader = nodeMapper.readerForUpdating(user);
         User modUser = userReader.readValue(modData);   // Create the modified user
-        //Throws errors if user is erroneous
-        modUser.isValid();   // If this user has authorization
+        // Check the user input and throw ResponseStatusException if invalid stopping execution
+        UserValidator.validate(modUser);
+
 
         // Use ActivityType entities from the database.  Don't create duplicates.
         modUser.setActivityTypes(
