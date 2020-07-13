@@ -141,8 +141,6 @@ public class UserController {
         //Saving generates user id
         //If mandatory fields not given, exception in UserRepository.save ends function execution and makes response body
         //Gives request status:400 and specifies needed field if null in required field
-        System.out.println("Is this where the error is?");
-        System.out.println(newUser.getUserId());
         userRepository.save(newUser);
         UserResponse userResponse = userService.login(newUserData.getPrimaryEmail(), newUserData.getPassword());
         response.setStatus(HttpServletResponse.SC_CREATED); //201

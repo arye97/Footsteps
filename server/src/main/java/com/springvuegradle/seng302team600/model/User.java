@@ -111,7 +111,6 @@ public class User {
     @JsonProperty("passports")
     private List<String> passports;
 
-    @NotNull(message = "This User needs one or more ActivityTypes associated with it")
     @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})  // ALL except REMOVE
     @JoinTable(
             name = "user_activity_type",
