@@ -14,12 +14,6 @@
                     </div>
                 </div>
             </div>
-            <div class="alert alert-success alert-dismissible fade show sticky-top" role="alert" id="alert" hidden>
-                <p id="alert-message"><strong>{{ code }}</strong>{{ message }}</p>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
         </div>
         <div v-if="loggedIn">
             <Sidebar :userId="profileId"/>
@@ -30,8 +24,10 @@
                         <label for="firstname">First Name: *</label>
                         <div class="edit-area">
                             <input type="text" class="form-control" v-model="firstname" id="firstname" name="firstname"
-                                   placeholder="Your First Name..." required disabled>
-                            <button class="btn btn-primary" id="firstname-btn" v-on:click="mutate" type="button">Edit</button>
+                                   placeholder="Your First Name..." required>
+                        </div>
+                        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_first_name" hidden>
+                            <p>First name is a mandatory field. You may have entered an invalid character. 15 characters is the limit</p>
                         </div>
                     </div>
                     <div class="form-group">
@@ -39,8 +35,10 @@
                         <label for="middlename">Middle Name: </label>
                         <div class="edit-area">
                             <input type="text" class="form-control" v-model="middlename" id="middlename" name="middlename"
-                                   placeholder="Your Middle Name..." disabled>
-                            <button class="btn btn-primary" id="middlename-btn" v-on:click="mutate" type="button">Edit</button>
+                                   placeholder="Your Middle Name...">
+                        </div>
+                        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_middle_name" hidden>
+                            <p>Middle name may have an invalid character. 15 characters is the limit</p>
                         </div>
                     </div>
                     <div class="form-group">
@@ -48,21 +46,22 @@
                         <label for="lastname">Last Name: *</label>
                         <div class="edit-area">
                             <input type="text" class="form-control" v-model="lastname" id="lastname" name="lastname"
-                                   placeholder="Your Last Name..." required disabled>
-                            <button class="btn btn-primary" id="lastname-btn" v-on:click="mutate" type="button">Edit</button>
+                                   placeholder="Your Last Name..." required>
+                        </div>
+                        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_last_name" hidden>
+                            <p>Last name is a mandatory field. You may have entered an invalid character. 15 characters is the limit</p>
                         </div>
                     </div>
                     <div class="form-group">
                         <!-- fitness level field -->
                         <label for="fitness">Fitness Level:</label>
                         <div class="edit-area">
-                            <div id="fitnessDiv" class="multiselect--disabled multiselect-box">
+                            <div id="fitnessDiv" class="multiselect-box">
                                 <multiselect v-model="fitness" id="fitness" :options="fitnessOptions" :multiple="false" label="desc" :return="fitnessOptions.desc"
                                              placeholder="Please select a fitness level" track-by="value">
                                     <template slot="singleLabel" slot-scope="{ option }"><footer> {{ option.desc }}</footer></template>
                                 </multiselect>
                             </div>
-                            <button class="btn btn-primary" id="fitnessDiv-btn" v-on:click="mutate" type="button">Edit</button>
                         </div>
                     </div>
                     <div class="form-group">
@@ -70,68 +69,81 @@
                         <label for="nickname">Nickname: </label>
                         <div class="edit-area">
                             <input type="text" class="form-control" v-model="nickname" id="nickname" name="nickname"
-                                   placeholder="Your Nickname..." disabled>
-                            <button class="btn btn-primary" id="nickname-btn" v-on:click="mutate" type="button">Edit</button>
+                                   placeholder="Your Nickname...">
+                        </div>
+                        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_nickname" hidden>
+                            <p>Unfortunately your nickname is to long, 15 characters is the limit</p>
                         </div>
                     </div>
                     <div class="form-group">
                         <!-- gender field -->
                         <label for="gender">Gender: *</label>
                         <div class="edit-area">
-                            <div id="genderDiv" class="multiselect--disabled multiselect-box">
+                            <div id="genderDiv" class="multiselect-box">
                                 <multiselect v-model="gender" id="gender"
                                              :options="genders" placeholder="Your gender" required>
                                     <template slot="noResult">Invalid gender</template>
                                 </multiselect>
                             </div>
-                            <button class="btn btn-primary" id="genderDiv-btn" v-on:click="mutate" type="button">Edit</button>
+                        </div>
+                        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_gender" hidden>
+                            <p>Gender is a mandatory field</p>
                         </div>
                     </div>
                     <div class="form-group">
                         <!-- date-of-birth field-->
                         <label for="date_of_birth">Date of Birth: *</label>
                         <div class="edit-area">
-                            <input type="date" class="form-control" v-model="date_of_birth" id="date_of_birth" name="date_of_birth" disabled required>
-                            <button class="btn btn-primary" id="date_of_birth-btn" v-on:click="mutate" type="button">Edit</button>
+                            <input type="date" class="form-control" v-model="date_of_birth" id="date_of_birth" name="date_of_birth" required>
+                        </div>
+                        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_dob" hidden>
+                            <p>You must be 13 yrs or older. Older than 150 yrs is invalid</p>
                         </div>
                     </div>
                     <div class="form-group">
                         <!-- passport country -->
                         <label for="passports">Passport Country:</label>
                         <div class="edit-area">
-                            <div id="passportsDiv" class="multiselect--disabled multiselect-box">
+                            <div id="passportsDiv" class="multiselect-box">
                                 <multiselect v-model="passports" id="passports"
                                              :options="countries" :multiple="true" :searchable="true" :close-on-select="false"
                                              placeholder="Select your passport countries">
                                     <template slot="noResult">Country not found</template>
                                 </multiselect>
                             </div>
-                            <button class="btn btn-primary" id="passportsDiv-btn" v-on:click="mutate" type="button">Edit</button>
                         </div>
                     </div>
                     <div class="form-group">
                         <!-- user bio -->
                         <label for="bio">Tell us about yourself, your Bio: </label>
                         <div class="edit-area">
-                            <textarea name="bio" class="form-control" id="bio" v-model="bio" cols="30" rows="2" placeholder="Who are you?"
-                                      disabled></textarea>
-                            <button class="btn btn-primary" id="bio-btn" v-on:click="mutate" type="button">Edit</button>
+                            <textarea name="bio" class="form-control" id="bio" v-model="bio" cols="30" rows="2" placeholder="Who are you?"></textarea>
+                        </div>
+                        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_bio" hidden>
+                            <p>Unfortunately your bio is to long, 255 characters is the limit</p>
                         </div>
                     </div>
                     <div class="form-group">
                         <!-- activity types -->
                         <label for="activityTypes">Activity Types:</label>
                         <div class="edit-area">
-                            <div id="activityTypesDiv" class="multiselect--disabled multiselect-box">
+                            <div id="activityTypesDiv" class="multiselect-box">
                                 <multiselect v-model="selectedActivityTypes" id="activityTypes"
                                         :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
                                         placeholder="Select your activity types">
                                      <template slot="noResult">Invalid activity type</template>
                                 </multiselect>
                             </div>
-                            <button class="btn btn-primary" id="activityTypesDiv-btn" v-on:click="mutate" type="button">Edit</button>
                         </div>
                     </div>
+                </div>
+                <div class="alert alert-success alert-dismissible fade show sticky-top" role="alert" id="overall_message" hidden>
+                    <p id="alert-message">{{ message }}</p>
+                </div>
+                <div class="text-center">
+                    <b-button type="submit" id="back-btn" size="lg" variant="primary float-left" v-on:click="backToProfile">Back</b-button>
+                    <b-button type="submit" id="reset-btn" size="lg" variant="primary" v-on:click="updateInputs">Reset</b-button>
+                    <b-button type="submit" id="saveChanges-btn" size="lg" variant="success float-right" v-on:click="saveChanges">Save Changes</b-button>
                 </div>
             </div>
         </div>
@@ -170,14 +182,13 @@
                 passports: '',
                 bio: '',
                 selectedActivityTypes: '',
-                message: '',
-                code: '',
                 date_of_birth: '',
                 countries: [],
                 activityTypes: [],
                 genders: ['Male', 'Female', 'Non-Binary'],
                 loggedIn: false,
                 fitnessOptions: fitnessLevels,
+                message: '',
                 isRedirecting: false,
                 redirectionMessage: ''
             }
@@ -204,6 +215,9 @@
                 await this.updateInputs();//Populate input fields with profile data if allowed to edit
             },
 
+            /**
+             * Fetch the possible passport countries to select from.
+             */
             fetchCountries: function () {
                 //Fill Passport countries
                 let select = [];
@@ -232,7 +246,7 @@
             },
 
             /**
-             * Fetch all possible activity types from the server
+             * Fetch all possible activity types from the server.
              */
             async fetchActivityTypes() {
                 this.activityTypes = null;
@@ -240,7 +254,6 @@
                     {headers: {'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")}
                     }
                 ).then(response => {
-                    console.log(response.data)
                     this.activityTypes = response.data.map(activity => activity['name']);
                     this.activityTypes.sort(function (a, b) {
                         return a.toLowerCase().localeCompare(b.toLowerCase());
@@ -250,88 +263,83 @@
                 });
             },
 
-            mutate: function (event) {
-                const alertDiv = document.getElementById("alert");
-                //This function is used to swap the purpose of the buttons
-                const mutateButton = document.getElementById(event.target.id);
-                const mutateTarget = document.getElementById(event.target.id.replace("-btn", ""));
-                //Disable the buttons to prevent issues with them being rapidly clicked
-                mutateButton.setAttribute('disabled', "true");
-                if (event.target.type === "submit") {
-                    if (mutateTarget.className !== "multiselect--above multiselect-box") {
-                        if (mutateTarget.hasAttribute("required") && mutateTarget.value.trim() === "") {
-                            this.message = "This is a required field. Please enter some valid data";
-                            alertDiv.classList.remove("alert-success");
-                            alertDiv.classList.add("alert-danger");
-                            alertDiv.removeAttribute("hidden");
-                            setTimeout(function () {
-                                alertDiv.hidden = true;
-                            }, 5000);
-
-                        } else {
-                            const update = {};
-                            update[mutateTarget.id] = mutateTarget.value;
-                            const validator = validateUser(mutateTarget.value, mutateTarget.id);
-                            if (!validator.valid) {
-                                this.message = validator.message;
-                                alertDiv.classList.remove("alert-success");
-                                alertDiv.classList.add("alert-danger");
-                                alertDiv.removeAttribute("hidden");
-                                setTimeout(function () {
-                                    alertDiv.hidden = true;
-                                }, 5000);
-                            } else if (this.putUpdate(update, alertDiv)) {
-                                mutateTarget.setAttribute('disabled', "true");
-                                mutateButton.innerText = "Edit";
-                                mutateButton.type = "button";
-                            }
-                        }
-                    } else {
-                        //Need to fix issues with
-                        //I changed it to a switch case.  Slightly more readable.
-                        const updateField = document.getElementById(mutateTarget.id.replace("Div", ""));
-                        const update = {};
-
-                        switch (updateField.id) {
-                            case "gender":
-                                update['gender'] = this.gender;
-                                break;
-                            case "passports":
-                                update['passports'] = this.passports;
-                                break;
-                            case "fitness":
-                                update['fitness'] = (this.fitness === null) ? null : this.fitness.value;
-                                break;
-                            case "activityTypes":
-                                update['activityTypes'] = this.selectedActivityTypes;
-                                break;
-                            default:
-                                eval("update['{0}'] = this.{0};".format(updateField.id));
-
-                        }
-                        if (this.putUpdate(update, alertDiv)) {
-                            mutateTarget.className = "multiselect--disabled multiselect-box";
-                            mutateButton.innerText = "Edit";
-                            mutateButton.type = "button";
-                        }
-                        this.message = "This is a required field. Please enter some valid data";
-                    }
-                } else {
-                    if (mutateTarget.className === "multiselect--disabled multiselect-box") {
-                        mutateTarget.className = "multiselect--above multiselect-box";
-                    } else {
-                        mutateTarget.removeAttribute('disabled');
-                    }
-                    mutateButton.innerText = "Save";
-                    mutateButton.type = "submit";
+            /**
+             * Validates the changes to user before calling putUpdate.
+             * Count of invalid fields is also tracked and presented to the user
+             */
+            saveChanges() {
+                let errorCount = 0; //count of blank fields
+                if (!validateUser(this.firstname, "firstname").valid) {
+                    this.showError('alert_first_name');
+                    errorCount += 1;
                 }
-                mutateButton.removeAttribute('disabled');
+                if (!validateUser(this.middlename, "middlename").valid) {
+                    this.showError('alert_middle_name');
+                    errorCount += 1;
+                }
+                if (!validateUser(this.lastname, "lastname").valid) {
+                    this.showError('alert_last_name');
+                    errorCount += 1;
+                }
+                if (!validateUser(this.date_of_birth, "date_of_birth").valid) {
+                    this.showError('alert_dob');
+                    errorCount += 1;
+                }
+                if (!validateUser(this.gender, "gender").valid) {
+                    this.showError('alert_gender');
+                    errorCount += 1;
+                }
+                //TODO String too long error not implemented. Still needs implemented in validateUser in util.js
+                // if (!validateUser(this.nickname, "nickname").valid) {
+                //     this.showError('alert_nickname');
+                //     errorCount += 1;
+                // }
+                //TODO String too long error not implemented. Still needs implemented in validateUser in util.js
+                // if (!validateUser(this.bio, "bio").valid) {
+                //     this.showError('alert_bio');
+                //     errorCount += 1;
+                // }
+                // A count greater than zero means there are invalid fields.
+                if (errorCount > 0) {
+                    this.message = errorCount + " invalid fields have been entered. You can reset the edited fields with the button below"
+                    this.showError('overall_message');
+                } else {
+                    this.putUpdate();
+                }
             },
 
-            putUpdate: async function (update, alertDiv) {
-                //Sends the put request to the server to update the user profile
-                let result = true;
-                await server.put('profiles/'.concat(this.profileId), update,
+            /**
+             * Shows the error message for the alert name given.
+             * Displayed for 9 seconds
+             */
+            showError(alert_name) {
+                let errorAlert = document.getElementById(alert_name);
+                errorAlert.classList.add("alert-danger");
+                errorAlert.classList.remove("alert-success");
+                errorAlert.removeAttribute("hidden");   //Show alert bar
+                setTimeout(function () {    //Hide alert bar after ~9000ms
+                    errorAlert.hidden = true;
+                }, 9000);
+            },
+
+            /**
+             * Sends the put request to the server to update the user profile
+             */
+            async putUpdate() {
+                let editedUser = {
+                    'firstname' : this.firstname,
+                    'middlename' : this.middlename,
+                    'lastname' : this.lastname,
+                    'nickname' : this.nickname,
+                    'gender' : this.gender,
+                    'fitness' : (this.fitness === null) ? -1 : this.fitness.value,
+                    'passports' : this.passports,
+                    'bio' : this.bio,
+                    'activityTypes' : this.selectedActivityTypes,
+                    'date_of_birth' : this.date_of_birth
+                };
+                let alertDiv = document.getElementById('overall_message');
+                await server.put('profiles/'.concat(this.profileId), editedUser,
                     {headers: {'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")},
                         withCredentials: true
                     }
@@ -339,30 +347,13 @@
                     alertDiv.classList.add("alert-success");
                     alertDiv.classList.remove("alert-danger");
                     this.message = "Successfully updated field";
-                    this.code = '';
+                    alertDiv.removeAttribute("hidden");
+                    setTimeout(function () {
+                        alertDiv.hidden = true;
+                    }, 3000);
                 }).catch(error => {
-                    alertDiv.classList.remove("alert-success");
-                    alertDiv.classList.add("alert-danger");
-                    if (error.response.data.status === 400 || error.response.data.status === 403) {
-                        this.message = error.response.data.message.toString();
-                        this.code = error.response.data.status;
-                        if (error.response.data.status === 400) {
-                            result = false;
-                        }
-
-                    } else if (error.response.data.status === 401) {
-                        this.$router.push("/login");
-                    } else {
-                        this.message = error.message();
-                        this.code = error.code;
-                    }
-
+                    this.processPutError(error);
                 });
-                alertDiv.removeAttribute("hidden");
-                setTimeout(function () {
-                    alertDiv.hidden = true;
-                }, 3000);
-                return result;
             },
 
             /**
@@ -386,10 +377,49 @@
             },
 
             /**
-             * This helper function is called when an error is caught when performing a Get request to the server.
-             * Conditions handled are:
-             * 401 (UNAUTHORIZED) redirect to login page,
-             * 403 (FORBIDDEN) and 404 (NOT_FOUND) redirect to this user's edit profile page,
+             * This helper function is called when an error is caught when performing the put request to the server.<br>
+             * Conditions handled are:<br>
+             * 401 (UNAUTHORIZED) redirect to login page<br>
+             * 403 (FORBIDDEN) redirect to this user's edit profile page<br>
+             * 404 (NOT_FOUND) invalid field missed by frontend and caught by backend, present to user<br>
+             * Otherwise unknown error to present to user
+             */
+            processPutError(error) {
+                if (error.response.data.status === 401) {
+                    this.loggedIn = false;
+                    this.isRedirecting = true;
+                    this.redirectionMessage = "Sorry, you are no longer logged in,\n" +
+                        "Redirecting to the login page.";
+                    setTimeout(() => {
+                        this.$router.push('/login');
+                    }, 4000);
+                } else if (error.response.data.status === 403) {
+                    this.isRedirecting = true;
+                    this.redirectionMessage = "Sorry, you are not allowed to edit another user's profile,\n" +
+                        "Redirecting to your edit profile page.";
+                    setTimeout(() => {
+                        this.$router.push({ name: 'detailsNoID' });
+                        this.init();
+                    }, 4000);
+                } else if (error.response.data.status === 404) {
+                    this.isRedirecting = true;
+                    this.redirectionMessage = "Sorry, the user does not exist,\n" +
+                        "Redirecting to your edit profile page.";
+                    setTimeout(() => {
+                        this.$router.push({ name: 'detailsNoID' });
+                        this.init();
+                    }, 4000);
+                } else {
+                    this.message = error.response.data.message.toString();
+                    this.showError('overall_message')
+                }
+            },
+
+            /**
+             * This helper function is called when an error is caught when performing a Get request to the server.<br>
+             * Conditions handled are:<br>
+             * 401 (UNAUTHORIZED) redirect to login page,<br>
+             * 403 (FORBIDDEN) and 404 (NOT_FOUND) redirect to this user's edit profile page,<br>
              * Otherwise unknown error so redirect to user's home page
              */
             processGetError(error) {
@@ -468,6 +498,13 @@
                     this.profileId = '';
                     this.processGetError(error);
                 });
+            },
+
+            /**
+             * Redirect to view user screen
+             */
+            backToProfile() {
+                this.$router.push({ name: 'profile', params: {userId: this.profileId} });
             }
         }
     }
@@ -475,6 +512,10 @@
 <style scoped>
     .form-group {
         padding-top: 15px;
+    }
+
+    .settings-page {
+        padding-bottom: 15px;
     }
 
     .edit-area {
