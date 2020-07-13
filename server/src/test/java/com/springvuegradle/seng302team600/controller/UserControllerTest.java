@@ -202,7 +202,7 @@ class UserControllerTest {
         "middlename", "Michelle",
         "nickname", "Pino",
         "primary_email", "poly@pocket.com",
-        "password", "somepwd",
+        "password", "somepwd0",
         "bio", "Poly Pocket is so tiny.",
         "date_of_birth", "2000-11-11",
         "gender", "Female",
@@ -228,7 +228,7 @@ class UserControllerTest {
             "lastname", "Kim",
             "firstname", "Tim",
             "primary_email", "tim@gmail.com",
-            "password", "pinPwd",
+            "password", "pinPwd00",
             "date_of_birth", "2001-7-9",
             "gender", "Non-Binary");
     /**
@@ -284,7 +284,7 @@ class UserControllerTest {
             "firstname", "Bob",
             "middlename", "Mark",
             "primary_email", "bobby@gmail.com",
-            "password", "bobbyPwd",
+            "password", "bobbyPwd0",
             "date_of_birth", "1976-9-2",
             "gender", "Non-Binary");
     private final String doNotLoginIncorrectPasswordJson = JsonConverter.toJson(true,
@@ -305,7 +305,7 @@ class UserControllerTest {
 
     private final String doNotLoginUserNotFoundJson = JsonConverter.toJson(true,
             "email", "wrong@gmail.com",
-            "password", "bobbyPwd");
+            "password", "bobbyPwd0");
     /**
      * Test unauthorized when User not found
      */
@@ -321,7 +321,7 @@ class UserControllerTest {
 
     private final String loginAuthorizedUserJson = JsonConverter.toJson(true,
             "email", "bobby@gmail.com",
-            "password", "bobbyPwd");
+            "password", "bobbyPwd0");
     /**
      * Test successful login
      */
@@ -354,7 +354,7 @@ class UserControllerTest {
             "lastname", "kite",
             "firstname", "Kate",
             "primary_email", "kite@gmail.com",
-            "password", "kitPwd",
+            "password", "kitPwd00",
             "date_of_birth", "2002-1-2",
             "gender", "Female");
     /**
@@ -375,7 +375,7 @@ class UserControllerTest {
             "lastname", "Smith",
             "firstname", "John",
             "primary_email", "jsmith@gmail.com",
-            "password", "pass",
+            "password", "passWord0",
             "date_of_birth", "1980-6-4",
             "gender", "Male");
     private final String editProfileJsonPut = JsonConverter.toJson(true,
@@ -428,7 +428,7 @@ class UserControllerTest {
             "lastname", "Smith",
             "firstname", "Jane",
             "primary_email", "janesmith@gmail.com",
-            "password", "pass",
+            "password", "passWord0",
             "date_of_birth", "1980-6-5",
             "gender", "Female");
     /**
@@ -453,14 +453,14 @@ class UserControllerTest {
             "lastname", "Tomato",
             "firstname", "Bob",
             "primary_email", "bob@gmail.com",
-            "password", "bobsPassword",
+            "password", "bobsPassword0",
             "date_of_birth", "2002-1-2",
             "gender", "Male");
     private final String createUserJsonViewUser2 = JsonConverter.toJson(true,
             "lastname", "Cucumber",
             "firstname", "Larry",
             "primary_email", "larry@gmail.com",
-            "password", "larrysPassword",
+            "password", "larrysPassword0",
             "date_of_birth", "2002-1-20",
             "gender", "Female");
     /**
