@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div id="editEmailScreen">
         <h1><br/></h1>
         <template v-if="userId">
             <div>
@@ -107,10 +107,10 @@
                                         >
                                     </td>
                                     <td>
-                                    <!--Disable button if duplicateEmailError is not null-->
+                                        <!--Disable button if duplicateEmailError is not null-->
                                         <b-button type="submit"
-                                                variant="primary"
-                                                v-bind:disabled="duplicateEmailError!==null"
+                                                  variant="primary"
+                                                  v-bind:disabled="duplicateEmailError!==null"
                                         >
                                             <p class="h5 mb-0">
                                                 <b-icon-plus></b-icon-plus>
@@ -255,8 +255,7 @@
                     this.emailCount++;
                     this.setEmailCountMessage();
                     this.checkIfChangesMade();
-                    let emailTextBox = document.getElementById("newEmailInserted").value;
-                    if (emailTextBox === this.primaryEmail || this.additionalEmails.includes(emailTextBox)) {
+                    if (this.insertedEmail === this.primaryEmail || this.additionalEmails.includes(this.insertedEmail)) {
                         // Disable add button if user already assigned to email
                         this.duplicateEmailError = "";
                     }
@@ -299,21 +298,16 @@
                 this.emailCount--;
 
                 // Disables/Enables the SAVE button
-                if (this.additionalEmails === this.originalAdditionalEmails) {
-                    this.changesHaveBeenMade = false;
-                } else {
-                    this.changesHaveBeenMade = true;
-                }
+                this.changesHaveBeenMade = this.additionalEmails !== this.originalAdditionalEmails;
 
                 // Disables/Enables the ADD (+) button
-                let emailTextBox = document.getElementById("newEmailInserted").value;
-                if (emailTextBox === this.primaryEmail || this.additionalEmails.includes(emailTextBox)) {
+                if (this.insertedEmail === this.primaryEmail || this.additionalEmails.includes(this.insertedEmail)) {
                     // Disable add button if user already assigned to email
                     this.duplicateEmailError = "You are already assigned to this email!";
-                } else if (emailTextBox === this.originalPrimaryEmail
-                        || emailTextBox === emailToBeRemoved
-                        || this.originalAdditionalEmails.includes(emailTextBox)
-                        || (this.duplicateEmailError !== "You are already assigned to this email!"
+                } else if (this.insertedEmail === this.originalPrimaryEmail
+                    || this.insertedEmail === emailToBeRemoved
+                    || this.originalAdditionalEmails.includes(this.insertedEmail)
+                    || (this.duplicateEmailError !== "You are already assigned to this email!"
                         && this.duplicateEmailError !== "We're sorry, that email is taken.")) {
                     // Enable add button if email assigned TO ORIGINAL PRIMARY EMAIL AND ADDITIONAL EMAIL AND IS TO BE REMOVED
                     this.duplicateEmailError = null;
@@ -331,24 +325,23 @@
              * This function is called to set the disabling/enabling of the ADD (+) button.
              */
             checkEmail() {
-                let emailTextBox = document.getElementById("newEmailInserted").value;
                 // Check if Email is formatted correctly
-                if ((/(.+)@(.+){2,}\.(.+){2,}/).test(emailTextBox)) {
+                if ((/(.+)@(.+){2,}\.(.+){2,}/).test(this.insertedEmail)) {
                     if (this.emailMessage === "Email limit reached!") {
                         // Disable add button if email limit reached
                         this.duplicateEmailError = "";
-                    } else if (emailTextBox === this.primaryEmail || this.additionalEmails.includes(emailTextBox)) {
+                    } else if (this.insertedEmail === this.primaryEmail || this.additionalEmails.includes(this.insertedEmail)) {
                         // Disable add button if user already assigned to email
                         this.duplicateEmailError = "You are already assigned to this email!";
-                    } else if (emailTextBox === this.originalPrimaryEmail || this.originalAdditionalEmails.includes(emailTextBox)) {
+                    } else if (this.insertedEmail === this.originalPrimaryEmail || this.originalAdditionalEmails.includes(this.insertedEmail)) {
                         this.duplicateEmailError = null;
                     } else {
                         server.get(`/email`,
                             {
                                 headers: {
                                     'Content-Type': 'application/json',
-                                           'Token': sessionStorage.getItem("token"),
-                                           'email': emailTextBox
+                                    'Token': sessionStorage.getItem("token"),
+                                    'email': this.insertedEmail
                                 },
                                 withCredentials: true
                             }
@@ -357,7 +350,7 @@
                         }).catch(error => {
                             if (error.response.status === 400) {
                                 console.log(error.response.data.message);
-                                let message = "Bad Request: email " + emailTextBox + " is already in use";
+                                let message = "Bad Request: email " + this.insertedEmail + " is already in use";
                                 // Disable add button if email is in use
                                 if (error.response.data.message === message) {
                                     this.duplicateEmailError = "We're sorry, that email is taken."
@@ -371,7 +364,11 @@
                         })
                     }
                 } else {
-                    this.duplicateEmailError = "";
+                    if (this.insertedEmail) {
+                        this.duplicateEmailError = "Please enter a valid email!";
+                    } else {
+                        this.duplicateEmailError = "";
+                    }
                 }
             },
 
@@ -418,8 +415,8 @@
                         {
                             headers: {
                                 "Access-Control-Allow-Origin": "*",
-                                               "Content-Type": "application/json",
-                                                      "Token": sessionStorage.getItem("token")
+                                "Content-Type": "application/json",
+                                "Token": sessionStorage.getItem("token")
                             },
                             withCredentials: true
                         }
@@ -459,8 +456,8 @@
                         {
                             headers: {
                                 "Access-Control-Allow-Origin": "*",
-                                               "Content-Type": "application/json",
-                                                      "Token": sessionStorage.getItem("token")
+                                "Content-Type": "application/json",
+                                "Token": sessionStorage.getItem("token")
                             },
                             withCredentials: true
                         }
@@ -706,7 +703,6 @@
 
     #errorMessage {
         margin-top: 5px;
-        color: chocolate;
+        color: red;
     }
 </style>
-
