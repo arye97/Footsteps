@@ -94,7 +94,7 @@ test('AC9 User is taken to homepage on register', ()=> {
         nickname: '',
         bio: '',
         passports: [],
-        activity_type: []
+        activity_types: []
     };
     const extraData = {
         passwordCheck: userdata.password,
