@@ -109,7 +109,7 @@
                                     <td>
                                     <!--Disable button if duplicateEmailError is not null-->
                                         <b-button type="submit"
-                                                variant="secondary"
+                                                variant="primary"
                                                 v-bind:disabled="duplicateEmailError!==null"
                                         >
                                             <p class="h5 mb-0">
@@ -125,7 +125,6 @@
                                         </label>
                                     </td>
                                 </tr>
-
                             </table>
                         </form>
                         <div id="confirmationButtons">
@@ -262,6 +261,7 @@
                         this.duplicateEmailError = "";
                     }
                 }
+                this.insertedEmail = null;
             },
 
             /**
@@ -701,7 +701,7 @@
         margin-bottom:0;
         padding-bottom:0;
         text-align: right;
-        color: #707070;
+        color: orangered;
     }
 
     #errorMessage {
