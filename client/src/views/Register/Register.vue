@@ -38,7 +38,7 @@
                 <input type="text" class="form-control" v-on:click="unDisplayRules" v-model="firstname" id="first-name" name="first-name" placeholder="Your First Name...">
             </div>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_first_name">
-                {{  "Field is mandatory and can only contain letters and spaces"  }}
+                {{  "Field is mandatory and can only contain letters, spaces, hyphens, and apostrophes"  }}
             </div>
             <div class="form-group">
                 <!-- full-name field-->
@@ -46,7 +46,7 @@
                 <input type="text" class="form-control" v-on:click="unDisplayRules" v-model="middlename" id="middle-name" name="middle-name" placeholder="Your Middle Name...">
             </div>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_middle_name">
-                {{  "Field can only contain letters and spaces"  }}
+                {{  "Field can only contain letters, spaces, hyphens, and apostrophes"  }}
             </div>
             <div class="form-group">
                 <!-- full-name field-->
@@ -54,7 +54,7 @@
                 <input type="text" class="form-control" v-on:click="unDisplayRules" v-model="lastname" id="last-name" name="last-name" placeholder="Your Last Name...">
             </div>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_last_name">
-                {{  "Field is mandatory and can only contain letters and spaces"  }}
+                {{  "Field is mandatory and can only contain letters, spaces, hyphens, and apostrophes"  }}
             </div>
             <div class="form-group">
                 <!-- email field -->
