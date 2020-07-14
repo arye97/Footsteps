@@ -21,35 +21,50 @@
                 <div class="container-fluid" v-if="loggedIn">
                     <div class="form-group">
                         <!-- first-name field-->
-                        <label for="firstname">First Name: *</label>
+                        <label>First Name: *</label>
                         <div class="edit-area">
-                            <input type="text" class="form-control" v-model="firstname" id="firstname" name="firstname"
-                                   placeholder="Your First Name..." required>
+                            <b-form-input
+                                    class="form-control"
+                                    id="firstname"
+                                    v-model="firstname"
+                                    placeholder="Your First Name..."
+                                    trim required>
+                            </b-form-input>
                         </div>
                         <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_first_name" hidden>
-                            <p>First name is a mandatory field. You may have entered an invalid character. 15 characters is the limit</p>
+                            <p>First name is a mandatory field. You may have entered an invalid character. 45 characters is the limit</p>
                         </div>
                     </div>
                     <div class="form-group">
                         <!-- middle-name field-->
-                        <label for="middlename">Middle Name: </label>
+                        <label>Middle Name: </label>
                         <div class="edit-area">
-                            <input type="text" class="form-control" v-model="middlename" id="middlename" name="middlename"
-                                   placeholder="Your Middle Name...">
+                            <b-form-input
+                                    class="form-control"
+                                    id="middlename"
+                                    v-model="middlename"
+                                    placeholder="Your Middle Name..."
+                                    trim>
+                            </b-form-input>
                         </div>
                         <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_middle_name" hidden>
-                            <p>Middle name may have an invalid character. 15 characters is the limit</p>
+                            <p>Middle name may have an invalid character. 45 characters is the limit</p>
                         </div>
                     </div>
                     <div class="form-group">
                         <!-- last-name field-->
-                        <label for="lastname">Last Name: *</label>
+                        <label>Last Name: *</label>
                         <div class="edit-area">
-                            <input type="text" class="form-control" v-model="lastname" id="lastname" name="lastname"
-                                   placeholder="Your Last Name..." required>
+                            <b-form-input
+                                    class="form-control"
+                                    id="lastname"
+                                    v-model="lastname"
+                                    placeholder="Your Last Name..."
+                                    trim required>
+                            </b-form-input>
                         </div>
                         <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_last_name" hidden>
-                            <p>Last name is a mandatory field. You may have entered an invalid character. 15 characters is the limit</p>
+                            <p>Last name is a mandatory field. You may have entered an invalid character. 45 characters is the limit</p>
                         </div>
                     </div>
                     <div class="form-group">
@@ -66,13 +81,18 @@
                     </div>
                     <div class="form-group">
                         <!-- nickname field-->
-                        <label for="nickname">Nickname: </label>
+                        <label>Nickname: </label>
                         <div class="edit-area">
-                            <input type="text" class="form-control" v-model="nickname" id="nickname" name="nickname"
-                                   placeholder="Your Nickname...">
+                            <b-form-input
+                                    class="form-control"
+                                    id="nickname"
+                                    v-model="nickname"
+                                    placeholder="Your Nickname..."
+                                    trim>
+                            </b-form-input>
                         </div>
                         <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_nickname" hidden>
-                            <p>Unfortunately your nickname is to long, 15 characters is the limit</p>
+                            <p>Unfortunately your nickname is to long, 45 characters is the limit</p>
                         </div>
                     </div>
                     <div class="form-group">
@@ -115,9 +135,17 @@
                     </div>
                     <div class="form-group">
                         <!-- user bio -->
-                        <label for="bio">Tell us about yourself, your Bio: </label>
+                        <label>Tell us about yourself, your Bio: </label>
                         <div class="edit-area">
-                            <textarea name="bio" class="form-control" id="bio" v-model="bio" cols="30" rows="2" placeholder="Who are you?"></textarea>
+                            <b-form-textarea
+                                    class="form-control"
+                                    id="bio"
+                                    v-model="bio"
+                                    placeholder="Who are you?"
+                                    rows="2"
+                                    max-rows="30"
+                                    trim>
+                            </b-form-textarea>
                         </div>
                         <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_bio" hidden>
                             <p>Unfortunately your bio is to long, 255 characters is the limit</p>
@@ -288,16 +316,14 @@
                     this.showError('alert_gender');
                     errorCount += 1;
                 }
-                //TODO String too long error not implemented. Still needs implemented in validateUser in util.js
-                // if (!validateUser(this.nickname, "nickname").valid) {
-                //     this.showError('alert_nickname');
-                //     errorCount += 1;
-                // }
-                //TODO String too long error not implemented. Still needs implemented in validateUser in util.js
-                // if (!validateUser(this.bio, "bio").valid) {
-                //     this.showError('alert_bio');
-                //     errorCount += 1;
-                // }
+                if (!validateUser(this.nickname, "nickname").valid) {
+                    this.showError('alert_nickname');
+                    errorCount += 1;
+                }
+                if (!validateUser(this.bio, "bio").valid) {
+                    this.showError('alert_bio');
+                    errorCount += 1;
+                }
                 // A count greater than zero means there are invalid fields.
                 if (errorCount > 0) {
                     this.message = errorCount + " invalid fields have been entered. You can reset the edited fields with the button below"
@@ -405,11 +431,14 @@
                     this.redirectionMessage = "Sorry, the user does not exist,\n" +
                         "Redirecting to your edit profile page.";
                     setTimeout(() => {
-                        this.$router.push({ name: 'detailsNoID' });
+                        this.$router.push({name: 'detailsNoID'});
                         this.init();
                     }, 4000);
-                } else {
+                } else if (error.response.data.status === 400) {
                     this.message = error.response.data.message.toString();
+                    this.showError('overall_message')
+                } else {
+                    this.message = "An unknown error has occurred";
                     this.showError('overall_message')
                 }
             },
@@ -522,7 +551,7 @@
     }
 
     .form-control {
-        max-width: 85%;
+        max-width: 100%;
         margin-right: 1%;
         min-width: 85%;
     }
@@ -532,8 +561,24 @@
     }
 
     .multiselect-box {
-        max-width: 85%;
+        max-width: 100%;
         min-width: 85%;
         margin-right: 1%;
+    }
+
+    #fitnessDiv {
+        width: 50em;
+    }
+
+    #genderDiv {
+        width: 50em;
+    }
+
+    #passportsDiv {
+        width: 50em;
+    }
+
+    #activityTypesDiv {
+        width: 50em;
     }
 </style>
