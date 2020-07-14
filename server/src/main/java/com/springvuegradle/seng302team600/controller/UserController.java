@@ -97,6 +97,18 @@ public class UserController {
     }
 
     /**
+     * Return a user id saved in the repository if authorized
+     * @param request the http request to the
+     * @param response the http response
+     * @return User id requested or null
+     */
+    @GetMapping("/profiles/userId")
+    public Long findUserId(HttpServletRequest request, HttpServletResponse response) {
+        User user = findUserData(request, response);
+        return user.getUserId();
+    }
+
+    /**
      * Return a User saved in the repository based on the user id
      * @param request the http request
      * @param response the http response

@@ -52,22 +52,17 @@ public class ActivityController {
                             HttpServletRequest request,
                             HttpServletResponse response,
                             @PathVariable(value = "profileId") Long profileId) {
-
         String token = request.getHeader("Token");
         // Throws error if token doesn't match the profileId, i.e. you can't create an activity with a creatorUserId that isn't your own
         userValidationService.findByUserId(token, profileId);
-
         // Use ActivityType entities from the database.  Don't create duplicates.
         newActivity.setActivityTypes(
                 activityTypeService.getMatchingEntitiesFromRepository(newActivity.getActivityTypes())
         );
         newActivity.setCreatorUserId(profileId);
-
         // Check the user input and throw ResponseStatusException if invalid stopping execution
         ActivityValidator.validate(newActivity);
-
         activityRepository.save(newActivity);
-
         response.setStatus(HttpServletResponse.SC_CREATED); //201
     }
 

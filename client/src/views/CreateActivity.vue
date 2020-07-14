@@ -214,11 +214,12 @@
                 isValidFormFlag: true,
             }
         },
-        mounted() {
+        async mounted() {
             if (!sessionStorage.getItem("token")) {
                 this.$router.push('/login'); //Routes to home on logout
             }
-            this.fetchActivityTypes();
+            await this.fetchActivityTypes();
+            await this.getUserId();
         },
         methods: {
             /**
@@ -257,22 +258,22 @@
                     activityForm["start_time"] = formattedStartTime.concat(':00+1300');
                     activityForm["end_time"] = formattedEndTime.concat(':00+1300');
                 }
-
-                // Hardcoded id since have no way of obtaining it atm
-                // Also does not work if continuous is chosen, because back-end needs tinkering
-                await server.post(`/profiles/56/activities`,
+                console.log(activityForm)
+                await server.post(`/profiles/${this.profileId}/activities`,
                     activityForm, {
-                        headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
-                        withCredentials: true
-                    }).then(response => { //If successfully registered the response will have a status of 201
+                        headers: {
+                            "Access-Control-Allow-Origin": "*",
+                            "Content-Type": "application/json",
+                            "Token": sessionStorage.getItem("token")
+                        },
+                        withCredentials: true,
+                    }).then(response => { // If successfully registered the response will have a status of 201
                         if (response.status === 201) {
                             console.log('Activity Created Successfully!');
-                            sessionStorage.setItem("token", response.data.Token);
                             // somehow can't get back to profile
                             // this.$router.push('/profile');
                         }
                     }
-
                 )
             },
 
@@ -354,7 +355,11 @@
              */
             async fetchActivityTypes() {
                 await server.get('activity-types',
-                    {headers: {'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")}
+                    {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Token': sessionStorage.getItem("token")
+                        }
                     }
                 ).then(response => {
                     this.activityTypes = response.data.map(activity => activity['name']);
@@ -365,6 +370,21 @@
                     this.processGetError(error);
                 });
             },
+
+            async getUserId() {
+                await server.get(`profiles/userId`,
+                    {
+                        headers: {
+                            "Access-Control-Allow-Origin": "*",
+                            "Content-Type": "application/json",
+                            "Token": sessionStorage.getItem("token")
+                        },
+                        withCredentials: true
+                    }
+                ).then(response => {
+                    this.profileId = response.data;
+                });
+            }
         }
     }
 

@@ -50,13 +50,13 @@ public class Activity {
     @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ")
     @Temporal(TemporalType.TIMESTAMP)
     @JsonProperty("start_time")
-    private Date startTime = new Date(0);
+    private Date startTime;
 
     @Column(name = "end_time", columnDefinition = "TIMESTAMP")
     @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ")
     @Temporal(TemporalType.TIMESTAMP)
     @JsonProperty("end_time")
-    private Date endTime = new Date(0);
+    private Date endTime;
 
     // ToDO These tags need to be modified in U9 (see  api-minimal-spec2.1.txt)
     @NotNull(message = "This Activity needs a location")
@@ -164,5 +164,20 @@ public class Activity {
                     this.isContinuous() == other.isContinuous();
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "Activity{" +
+                "activityId=" + activityId +
+                ", creatorUserId=" + creatorUserId +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", activityTypes=" + activityTypes +
+                ", continuous=" + continuous +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", location='" + location + '\'' +
+                '}';
     }
 }
