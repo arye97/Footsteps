@@ -26,7 +26,6 @@
                             id="input-1"
                             v-model="activityName"
                             required
-                            placeholder="Your Activity Name..."
                     ></b-form-input>
                 </b-form-group>
 
@@ -39,7 +38,6 @@
                             id="input-2"
                             v-model="description"
                             required
-                            placeholder="Description of your activity..."
                     ></b-form-input>
                 </b-form-group>
 
@@ -49,8 +47,8 @@
                         label-for="input-3"
                 >
                     <multiselect v-model="selectedActivityTypes" id="input-3"
-                                 :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
-                                 placeholder="Select your activity types">
+                                 :options="this.activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
+                    >
                         <template slot="noResult">Invalid activity type</template>
                     </multiselect>
                 </b-form-group>
@@ -89,9 +87,8 @@
                     <b-form-input
                             id="input-location"
                             v-model="location"
-                            required
-                            placeholder="Location of your activity..."
-                    ></b-form-input>
+                            required>
+                    </b-form-input>
                 </b-form-group>
                 <div>
                     <b-button class="float-left">Back</b-button>
@@ -129,13 +126,18 @@
                 activityId: null
             }
         },
-        mounted() {
+        async mounted() {
+
             let url = window.location.pathname;
             this.activityId = url.substring(url.lastIndexOf('/') + 1);
 
-            this.fetchActivityTypes();
+            await this.getActivityData();
+            await this.fetchActivityTypes();
+
+
             //Uncomment once the activityTypes/id endpoint is created!
             //this.getActivityData();
+
 
         },
         methods: {
@@ -162,16 +164,20 @@
 
             //Getting the data from the selected activity to update
             async getActivityData() {
-                await server.get(`activity-types/${this.activityId}`,
+                await server.get(`activities/${this.activityId}`,
                     {headers: {'Content-Type' : 'application/json', 'Token' : sessionStorage.getItem('token')}
                     }
                 ).then(response => {
+                    console.log(response.data);
                     this.activityName = response.data.activity_name;
-                    this.continuous = (response.data.is_continuous === 1);
+                    this.continuous = (response.data.continuous === true);
                     this.description = response.data.description;
                     this.location = response.data.location;
                     this.startTime = response.data.start_time;
                     this.endTime = response.data.end_time;
+                    for (let i = 0; i < response.data.activity_type.length; i++) {
+                        this.selectedActivityTypes.push(response.data.activity_type[i].name);
+                    }
                     //need to also add in the activities activity types
                 }).catch(error => {
                     this.processGetError(error);
