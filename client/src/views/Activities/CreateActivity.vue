@@ -176,8 +176,8 @@
 
 <script>
     import Multiselect from 'vue-multiselect'
-    import Header from '../components/Header/Header.vue'
-    import server from "../Api";
+    import Header from '../../components/Header/Header.vue'
+    import server from "../../Api";
 
     function showError(alert_name) {
         let errorAlert = document.getElementById(alert_name);
@@ -270,6 +270,7 @@
                     }).then(response => { // If successfully registered the response will have a status of 201
                         if (response.status === 201) {
                             console.log('Activity Created Successfully!');
+                            this.$router.push("/activities");
                             // somehow can't get back to profile
                             // this.$router.push('/profile');
                         }

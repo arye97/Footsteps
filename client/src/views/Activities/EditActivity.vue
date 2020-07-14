@@ -108,8 +108,8 @@
 
 <script>
     import Multiselect from 'vue-multiselect'
-    import Header from '../components/Header/Header.vue'
-    import server from "../Api";
+    import Header from '../../components/Header/Header.vue'
+    import server from "../../Api";
 
     export default {
         components: { Header, Multiselect },
