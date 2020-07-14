@@ -43,8 +43,6 @@
                                     <b-button variant="outline-primary" v-on:click="goToPage(`/activities/${activity.id}`)">Details</b-button>
                                 </b-card-body>
                             </b-col>
-
-
                         </b-row>
                     </b-card>
                 </section>
