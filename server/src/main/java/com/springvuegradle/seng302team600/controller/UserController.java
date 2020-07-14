@@ -5,9 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.Utilities.UserValidator;
+import com.springvuegradle.seng302team600.Utilities.PasswordValidator;
 import com.springvuegradle.seng302team600.model.DefaultAdminUser;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.model.UserRole;
+import com.springvuegradle.seng302team600.payload.EditPasswordRequest;
 import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import com.springvuegradle.seng302team600.payload.UserResponse;
 import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
@@ -40,12 +42,6 @@ public class UserController {
 
     private static Log log = LogFactory.getLog(UserController.class);
 
-
-    // json Field names for Editing a password U5
-    private static final String OLD_PASSWORD_FIELD = "old_password";
-    private static final String NEW_PASSWORD_FIELD = "new_password";
-    private static final String REPEAT_PASSWORD_FIELD = "repeat_password";
-    private static final String PASSWORD_RULES_REGEX = "(?=.*[0-9])(?=.*[a-zA-Z])(?=\\S+$).{8,}";
 
     /**
      * The DefaultAdminUser that is added to the Database if one doesn't
@@ -130,6 +126,9 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email: " + newUserData.getPrimaryEmail() + " is already registered"); //409. It may be worth consider to a 200 error for security reasons
         }
 
+        // Validate the password
+        PasswordValidator.validate(newUserData.getPassword());
+
         User newUser = new User(newUserData);
         // Check the user input and throw ResponseStatusException if invalid stopping execution
         UserValidator.validate(newUser);
@@ -195,50 +194,33 @@ public class UserController {
      *     new_password != repeat_password
      *     new_password == old_password    (New pass can't be the same as old)
      *     new_password passes regular expression rules
-     * @param jsonEditPasswordString the json body of the request as a string of the form
-     *                              old_password, new_password, repeat_password
+     * @param passwordRequest the payload containing the passwords (old, new, repeat)
      * @param request the http request to the endpoint
      * @param response the http response
      * @param profileId user id obtained from the request url
-     * @throws JsonProcessingException thrown if there is an issue when converting the body to an object node
      */
     @PutMapping("/profiles/{profileId}/password")
-    public void editPassword(@RequestBody String jsonEditPasswordString, HttpServletRequest request,
-                             HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) throws IOException {
+    public void editPassword(@Validated @RequestBody EditPasswordRequest passwordRequest, HttpServletRequest request,
+                             HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) {
 
         String token = request.getHeader("Token");
         //ResponseStatusException thrown if user unauthorized or forbidden from accessing requested user
         User user = userService.findByUserId(token, profileId);   // Get the user to modify
-        ObjectMapper nodeMapper = new ObjectMapper();
-        ObjectNode modData = nodeMapper.readValue(jsonEditPasswordString, ObjectNode.class);
 
-        String oldPassword = modData.get(OLD_PASSWORD_FIELD).asText();
-        String newPassword = modData.get(NEW_PASSWORD_FIELD).asText();
-        String repeatPassword = modData.get(REPEAT_PASSWORD_FIELD).asText();
-
+        String oldPassword = passwordRequest.getOldPassword();
+        String newPassword = passwordRequest.getNewPassword();
+        String repeatPassword = passwordRequest.getRepeatPassword();
 
         // Old Password doesn't match current password (invalid password)
         if (!user.checkPassword(oldPassword)) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
-
-            // New Password and Repeated Password don't match
-        } else if (!newPassword.equals(repeatPassword)) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
-
-            // New Password matches old password
-        } else if (newPassword.equals(oldPassword)) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
-
-            // Password violates password rules
-        } else if (!passwordPassesRules(newPassword)) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
-
-            // Success!
-        } else {
-            user.setPassword(newPassword);
-            userRepository.save(user);
-            response.setStatus(HttpServletResponse.SC_OK); //200
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Given password does not equal current password");
         }
+        // Check rules and compare repeated password for validation
+        PasswordValidator.validateEdit(oldPassword, newPassword, repeatPassword);
+
+        user.setPassword(newPassword);
+        userRepository.save(user);
+        response.setStatus(HttpServletResponse.SC_OK); //200
     }
 
     /**
@@ -277,16 +259,6 @@ public class UserController {
 
         userRepository.save(modUser);
         response.setStatus(HttpServletResponse.SC_OK); //200
-    }
-
-    /**
-     * Checks is a password complies with the password rules.
-     * Password has to be longer than 8 characters and have at least one digit.
-     * @param password plaintext password
-     * @return true if it passes the rules
-     */
-    private Boolean passwordPassesRules(String password) {
-        return password.matches(PASSWORD_RULES_REGEX);
     }
 
     /**

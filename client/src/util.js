@@ -1,9 +1,15 @@
+import {nameRegex} from "./constants";
+
 export function validateUser(fieldData, fieldType) {
     const emailRegex = new RegExp(/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/);
-    const nameRegex = new RegExp(/^[a-zA-Z\s]+([a-zA-Z\s]+)*$/);
-    const middleNameRegex = new RegExp(/^[a-zA-Z_]*$/);
     const passwordRegex = new RegExp(/(?=.*[0-9])(?=.*[a-zA-Z])(?=\S+$).{8,}/);
+    const bioLength = 255;
+    const nameLength = 45;
     switch (fieldType) {
+        case "bio":
+            return {valid: fieldData.length <= bioLength};
+        case "nickname":
+            return {valid: fieldData.length <= nameLength};
         case "gender":
             return {valid: fieldData === "Male" || fieldData === "Female" || fieldData === "Non-Binary"};
         case "email":
@@ -11,14 +17,14 @@ export function validateUser(fieldData, fieldType) {
         case "password":
             return {valid: passwordRegex.test(fieldData)};
         case "middlename":
-            return {valid: middleNameRegex.test(fieldData), message: "Middle Name contains numbers or unexpected characters"};
+            return {valid: ((nameRegex.test(fieldData) || fieldData === "") && fieldData.length <= nameLength), message: "Middle Name contains numbers or unexpected characters"};
         case "firstname":
-            return {valid: nameRegex.test(fieldData), message: "First Name contains numbers or unexpected characters"};
+            return {valid: (nameRegex.test(fieldData)&& fieldData.length <= nameLength), message: "First Name contains numbers or unexpected characters"};
         case "lastname":
-            return {valid: nameRegex.test(fieldData), message: "Last Name contains numbers or unexpected characters"};
+            return {valid: (nameRegex.test(fieldData) && fieldData.length <= nameLength), message: "Last Name contains numbers or unexpected characters"};
         case "date_of_birth":
             return _isValidDOB(fieldData);
-        default: return {valid: true};
+        default: return {valid: false};
     }
 }
 
@@ -51,7 +57,7 @@ export function _isValidDOB(dateStr) {
 
 /**
  * Takes a date of birth string and returns a formatted date of birth string
- * @param dateOfBirth a string of the form day-month-year  i.e. 15-01-1998
+ * @param date_of_birth a string of the form day-month-year  i.e. 15-01-1998
  * @returns {string} formatted date of birth
  */
 export function getDateString(date_of_birth) {

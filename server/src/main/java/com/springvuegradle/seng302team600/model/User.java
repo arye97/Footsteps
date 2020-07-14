@@ -26,7 +26,7 @@ public class User {
 
     final static public int MAX_EMAILS = 5;
 
-    final static private int FIELD_LEN = 15;
+    final static private int FIELD_LEN = 45;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -108,12 +108,11 @@ public class User {
     @JsonProperty("passports")
     private List<String> passports;
 
-    @NotNull(message = "This Activity needs one or more ActivityTypes associated with it")
     @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})  // ALL except REMOVE
     @JoinTable(
             name = "user_activity_type",
             joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "activity_type_id"))
+            inverseJoinColumns = @JoinColumn(name = "id"))
     @JsonProperty("activityTypes")
     private Set<ActivityType> activityTypes;
 

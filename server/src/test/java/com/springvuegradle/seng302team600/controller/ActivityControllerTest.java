@@ -148,20 +148,20 @@ class ActivityControllerTest {
     /**
      * Test successful edit/update of an activity details
      */
-//    @Test
-//    void editActivity() throws Exception {
-//        Activity activityInRepo = objectMapper.readValue(newActivity1Json, Activity.class);
-//        activityRepository.save(activityInRepo);
-//
-//        MockHttpServletRequestBuilder httpReqEdit = MockMvcRequestBuilders.put("/activities/{activityId}", DEFAULT_ACTIVITY_ID)
-//                .header("Token", validToken)
-//                .content(newActivityEditJson)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .accept(MediaType.APPLICATION_JSON);
-//
-//        MvcResult result = mvc.perform(httpReqEdit).andExpect(status().isOk()).andReturn();
-//        assertNotNull(result.getResponse());
-//    }
+    @Test
+    void editActivity() throws Exception {
+        Activity activityInRepo = objectMapper.readValue(newActivity1Json, Activity.class);
+        activityRepository.save(activityInRepo);
+
+        MockHttpServletRequestBuilder httpReqEdit = MockMvcRequestBuilders.put("/activities/{activityId}", DEFAULT_ACTIVITY_ID)
+                .header("Token", validToken)
+                .content(newActivityEditJson)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mvc.perform(httpReqEdit).andExpect(status().isOk()).andReturn();
+        assertNotNull(result.getResponse());
+    }
 
     private final String newActivityWrongDateFormatJson = JsonConverter.toJson(true,
             "activity_name", "Port Hills Rock Climbing",

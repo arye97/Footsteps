@@ -16,7 +16,7 @@ public class Email {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "email_id", nullable = false)
+    @Column(name = "id", nullable = false)
     @JsonProperty("id")
     private Long emailId;
 
