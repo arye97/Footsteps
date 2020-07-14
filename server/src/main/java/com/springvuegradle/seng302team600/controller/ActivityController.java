@@ -145,7 +145,7 @@ public class ActivityController {
     /**
      * Delete an Activity
      * @param activityId the Id of the activity to delete
-     * @param request Used to set status of operation
+     * @param request the actual request from the client, containing pertinent data
      */
     @DeleteMapping("/activities/{activityId}")
     public void deleteActivity(@PathVariable Long activityId, HttpServletRequest request) {
@@ -169,5 +169,24 @@ public class ActivityController {
         //Delete the activity
         activityRepository.delete(activity);
 
+    }
+
+    /**
+     * Get all activities by user
+     * @param profileId the id of the user/creator
+     * @param request the actual request from the client, containing pertinent data
+     */
+    @GetMapping("/profiles/{profileId}/activities")
+    public List<Activity> getUsersActivities(@PathVariable Long profileId, HttpServletRequest request) {
+        //checking for user validation
+        try {
+            //attempt to find user by token, don't need to save user discovered
+            String token = request.getHeader("Token");
+            userRepository.findByToken(token);
+        } catch(Exception e) {
+            //User wasn't found therefore the user was not logged in.
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authorized - log in to view");
+        }
+        return activityRepository.findAllByUserId(profileId);
     }
 }
