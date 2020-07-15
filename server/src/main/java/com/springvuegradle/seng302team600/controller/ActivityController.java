@@ -5,6 +5,7 @@ import com.springvuegradle.seng302team600.Utilities.ActivityValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.model.Activity;
+import com.springvuegradle.seng302team600.model.ActivityType;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -117,15 +119,17 @@ public class ActivityController {
         JsonNode nodeActivityTypes;
         try { nodeActivityTypes = editedData.get("activity_type"); } catch (Exception NullPointerException) { nodeActivityTypes = null; }
         //may need to re-write the activity types conversion if breaks
-        Set newActivityTypes;
-        if (nodeActivityTypes != null) {newActivityTypes = nodeMapper.convertValue(nodeActivityTypes, Set.class);} else { newActivityTypes = null; }
         //Check if any have changed or are null
         if (newDescription != null) { activity.setDescription(newDescription); }
         if (newLocation != null) {activity.setLocation(newLocation);}
         if (newName != null) { activity.setName(newName); }
-        if (newActivityTypes != null) {
+        if (nodeActivityTypes != null) {
+            Set<ActivityType> activityTypes = new HashSet<>();
+            for (JsonNode element : nodeActivityTypes) {
+                activityTypes.add(new ActivityType(element.asText()));
+            }
             activity.setActivityTypes(
-                activityTypeService.getMatchingEntitiesFromRepository(newActivityTypes)
+                activityTypeService.getMatchingEntitiesFromRepository(activityTypes)
             );
         }
         if (checkContinuous != null) {
