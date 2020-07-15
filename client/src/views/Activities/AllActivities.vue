@@ -42,6 +42,9 @@
                                 <b-card-body class="cardButtons">
                                     <b-button variant="outline-primary" v-on:click="goToPage(`/activities/${activity.id}`)">Details</b-button>
                                 </b-card-body>
+                                <b-card-body class="cardButtons">
+                                    <b-button variant="outline-primary" v-on:click="goToPage(`/activities/${activity.id}`)">Delete</b-button>
+                                </b-card-body>
                             </b-col>
                         </b-row>
                     </b-card>
@@ -71,6 +74,9 @@
                                     </b-card-body>
                                     <b-card-body class="cardButtons">
                                         <b-button variant="outline-primary" v-on:click="goToPage(`/activities/${activity.id}`)">Details</b-button>
+                                    </b-card-body>
+                                    <b-card-body class="cardButtons">
+                                        <b-button variant="outline-danger" v-on:click="deleteActivity(activity.id)">Delete</b-button>
                                     </b-card-body>
                                 </b-col>
                             </b-row>
@@ -142,6 +148,39 @@
             },
             goToPage(url) {
                 this.$router.push(url);
+            },
+            /**
+             * Opens a dialog box (modal) to confirm deletion.  If Ok is pressed, then it removes the activity from the
+             * database.
+             * @param activityId Id of the activity to delete
+             * @returns {Promise<void>}
+             */
+            async deleteActivity(activityId) {
+                let confirmDeleteActivity = false;
+
+                // Open dialog box
+                await this.$bvModal.msgBoxConfirm("Are you sure you want to delete this Activity?")
+                    .then(value => {
+                        confirmDeleteActivity = value
+                    })
+                    .catch(err => {
+                        console.error(err)
+                    });
+                if (!confirmDeleteActivity) {
+                    return;
+                }
+
+                // Delete from local memory
+                this.activityList.splice(this.activityList.findIndex(a => a.id === activityId), 1);
+
+                // Delete from database
+                await server.delete(`/activities/${activityId}`, {
+                    headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json",
+                        "Token" : sessionStorage.getItem("token")},
+                    withCredentials: true
+                }).catch(error => {
+                    console.error(error);
+                })
             }
         }
     }
