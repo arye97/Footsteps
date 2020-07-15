@@ -17,6 +17,11 @@
                         <li v-if=!this.isLoggedIn class="nav-item">
                             <router-link to='/register' class="nav-link">Register</router-link>
                         </li>
+                        <li class="nav-item">
+                            <router-link v-if=this.isLoggedIn
+                                         :to="{ name: 'allActivities' }"
+                                         class="nav-link">My Activities</router-link>
+                        </li>
                         <li v-if=this.isLoggedIn class="nav-item">
                             <router-link
                                          :to="{ name: 'detailsNoID' }"

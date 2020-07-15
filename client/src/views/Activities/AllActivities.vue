@@ -21,8 +21,11 @@
     </section>
     <hr/>
     <div>
+        <div style="text-align: center">
+            <b-button style="margin-bottom: 1.7em; margin-top: 0.8em" variant="primary" v-on:click="goToPage('/activities/create')">Create New Activity</b-button>
+        </div>
         <b-tabs content-class="mt-4" justified>
-            <b-tab title="Continous" active>
+            <b-tab title="Continous" :active="continuousIsActive(true)">
                 <section v-for="activity in this.activityList" :key="activity.id">
                     <!-- Activity List -->
                     <b-card v-if="activity.continuous">
@@ -43,7 +46,7 @@
                                     <b-button variant="outline-primary" v-on:click="goToPage(`/activities/${activity.id}`)">Details</b-button>
                                 </b-card-body>
                                 <b-card-body class="cardButtons">
-                                    <b-button variant="outline-primary" v-on:click="goToPage(`/activities/${activity.id}`)">Delete</b-button>
+                                    <b-button variant="outline-danger" v-on:click="deleteActivity(activity.id)">Delete</b-button>
                                 </b-card-body>
                             </b-col>
                         </b-row>
@@ -52,7 +55,7 @@
                 <hr/>
                 <footer class="noMore">No more activities to show</footer>
             </b-tab>
-            <b-tab title="Non-Continous">
+            <b-tab title="Non-Continous" :active="continuousIsActive(false)">
                 <section v-for="activity in this.activityList" :key="activity.id">
                     <br/>
                     <!-- Activity List -->
@@ -106,7 +109,8 @@
             return {
                 activityList : [],
                 userId : null,
-                noMore: false
+                noMore: false,
+                activeTab: 0
             }
         },
         async mounted() {
@@ -148,6 +152,19 @@
             },
             goToPage(url) {
                 this.$router.push(url);
+            },
+            /**
+             * When the page is loaded, make the tab active that has activities.  If the non-continuous tab has
+             * activities, but the continuous tab doesn't, make the non-continuous tab active.
+             * Else make continuous active.
+             * @param isContinuousTab true if called by continuous tab, false of non-continuous tab.
+             */
+            continuousIsActive(isContinuousTab) {
+                if (this.activityList.filter(a => !a.continuous).length > 0 && this.activityList.filter(a => a.continuous).length === 0) {
+                    return !isContinuousTab;
+                } else {
+                    return isContinuousTab;
+                }
             },
             /**
              * Opens a dialog box (modal) to confirm deletion.  If Ok is pressed, then it removes the activity from the
