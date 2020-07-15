@@ -123,6 +123,9 @@
                     {{ nicknameCharCount }}/{{ maxNameCharCount }} characters remaining
                 </div>
             </b-form-group>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_nickname">
+                {{  'Unfortunately your nickname is to long, 45 characters is the limit'  }}
+            </div>
 
             <b-form-group label-for="gender" label="Gender: *">
                 <!-- gender field -->
@@ -160,6 +163,9 @@
                     {{ bioCharCount }}/{{ maxBioCharCount }} characters remaining
                 </div>
             </b-form-group>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_bio">
+                {{  'Unfortunately your bio is to long, 255 characters is the limit'  }}
+            </div>
 
             <b-form-group label-for="activityTypes" label="Activity Types:">
                 <!-- activity types -->
@@ -235,6 +241,14 @@
             showError('alert_email');
             count += 1;
         }
+        if(!validateUser(newUser.bio, "bio")) {
+            showError('alert_bio');
+            count += 1;
+        }
+        if(!validateUser(newUser.nickname, "nickname")) {
+            showError('alert_nickname');
+            count += 1;
+        }
         return count;
     }
 
@@ -286,6 +300,7 @@
             displayRules() {
                 this.isDisplayingRules = true;
             },
+
             unDisplayRules() {
                 if(!validateUser(this.password, "password").valid && this.password !== '') {
                     //Password rules not followed
@@ -299,6 +314,7 @@
                     this.isDisplayingRules = false;
                 }
             },
+
             /**
              * Fetch all possible activity types from the server
              */
@@ -316,6 +332,7 @@
                     this.processGetError(error);
                 });
             },
+
             async fetchCountries() {
                 let select = [];
                 // Create a request variable and assign a new XMLHttpRequest object to it.
@@ -344,6 +361,7 @@
                 this.countries = select;
                 request.send()
             },
+
             async registerUser(evt) {
                 evt.preventDefault()
                 // Save the data as a newUser object
@@ -368,14 +386,11 @@
                     showError('alert_form');
                     return;
                 } else if (validCount !== 0) {
-                    this.message_form = validCount.toString() + " empty or invalid mandatory fields have been found. Please fill them in to register";
+                    this.message_form = validCount.toString() + " empty or invalid fields have been found. Please fill them in to register";
                     showError('alert_form');
                     return;
                 }
-                console.log("The New User\\/");
-                console.log(newUser);
                 // The HTTP Post Request
-                console.log(newUser);
                 await server.post('/profiles',
                     newUser,
                     {
@@ -384,13 +399,11 @@
                     }
                 ).then(response => { //If successfully registered the response will have a status of 201
                     if (response.status === 201) {
-                        console.log('User Registered Successfully!');
                         sessionStorage.setItem("token", response.data.Token);
                         // tokenStore.setToken(response.data);
                         this.$router.push('/profile'); //Routes to profile on successful register
                     }
                 }).catch(error => {
-                    console.log(error);
                     //Get alert bar element
                     if (error.message === "Network Error" || error.message.includes("timeout")) {
                         this.message_form = error.message;
@@ -404,6 +417,7 @@
                     showError('alert_form');
                 });
             },
+
             updateCharCount() {
               this.firstNameCharCount = this.firstname.length;
               this.middleNameCharCount = this.middlename.length;
@@ -414,6 +428,7 @@
               this.bioCharCount = this.bio.length;
             }
         },
+
         computed: {
             value: {
                 get () {
