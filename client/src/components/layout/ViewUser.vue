@@ -17,7 +17,7 @@
                         </section>
 
                         <section v-else>
-                            <div v-if="loading"> Loading...</div>
+                            <div v-if="loading"> Loading... <br/><br/><b-spinner variant="primary" label="Spinning"></b-spinner></div>
                             <div v-else class="form-group font-weight-light">
                                 <h1 class="font-weight-light">Hi {{this.user.firstname}} {{this.user.middlename}} {{this.user.lastname}}!</h1>
                                 <p>You're logged in to your Hakinakina Account</p>

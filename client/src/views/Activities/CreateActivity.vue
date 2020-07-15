@@ -163,7 +163,7 @@
                     Field is mandatory and a location must be set
                 </div>
                 <div>
-                    <b-button>Back</b-button>
+                    <b-button variant="secondary" v-on:click="$router.back()">Back</b-button>
                     <b-button class="float-right" type="submit" variant="primary" @submit="onSubmit">Submit</b-button>
                 </div>
             </b-form>
