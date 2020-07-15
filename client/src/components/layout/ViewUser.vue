@@ -91,8 +91,9 @@
                         //user is set to the user data retrieved
                         this.user = response.data;
                         // If the user is an admin, redirect to the admin dashboard
-                        if (this.user.role == 10 || this.user.role == 20) {
+                        if (this.user.role === 20) {
                             this.$router.push("/admin");
+                            return;
                         }
                         this.userId = this.user.id;
                         this.formattedDate = getDateString(this.user.date_of_birth);
