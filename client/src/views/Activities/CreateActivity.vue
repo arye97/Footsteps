@@ -214,7 +214,7 @@
                 isValidFormFlag: true,
             }
         },
-        async mounted() {
+        async created() {
             if (!sessionStorage.getItem("token")) {
                 this.$router.push('/login'); //Routes to home on logout
             }

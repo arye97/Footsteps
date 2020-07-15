@@ -47,7 +47,7 @@
                         label-for="input-3"
                 >
                     <multiselect v-model="selectedActivityTypes" id="input-3"
-                                 :options="this.activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
+                                 :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
                     >
                         <template slot="noResult">Invalid activity type</template>
                     </multiselect>
@@ -91,7 +91,7 @@
                     </b-form-input>
                 </b-form-group>
                 <div>
-                    <b-button class="float-left">Back</b-button>
+                    <b-button variant="secondary" v-on:click="$router.back()">Back</b-button>
                     <b-button class="float-right" type="submit" variant="primary">Submit</b-button>
                     <!--                <b-button class="float-right" type="reset" variant="danger">Reset</b-button>-->
                 </div>
@@ -126,13 +126,14 @@
                 activityId: null
             }
         },
-        async mounted() {
+        async created() {
 
             let url = window.location.pathname;
             this.activityId = url.substring(url.lastIndexOf('/') + 1);
 
             await this.getActivityData();
             await this.fetchActivityTypes();
+            console.log(this.activityTypes)
 
 
             //Uncomment once the activityTypes/id endpoint is created!
@@ -148,7 +149,6 @@
              * Fetch all possible activity types from the server
              */
             async fetchActivityTypes() {
-                this.activityTypes = null;
                 await server.get('activity-types',
                     {headers: {'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")}
                     }
@@ -168,7 +168,6 @@
                     {headers: {'Content-Type' : 'application/json', 'Token' : sessionStorage.getItem('token')}
                     }
                 ).then(response => {
-                    console.log(response.data);
                     this.activityName = response.data.activity_name;
                     this.continuous = (response.data.continuous === true);
                     this.description = response.data.description;
