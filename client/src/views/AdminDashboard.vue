@@ -6,7 +6,7 @@
                     <Header/>
                     <br/><br/><br/>
                     <h1 class="font-weight-light">Welcome to Hakinakina!</h1><hr/>
-                    <div v-if="this.loading"> Loading...</div>
+                    <div v-if="this.loading"> {{message}}</div>
                     <div v-else>
                         <h2 class="font-weight-light">You're logged in as an admin!</h2><br/>
                         <h3 class="font-weight-light">The admin dashboard is due in a later release, but you are in the right place!</h3>
@@ -20,8 +20,6 @@
 <script>
     import Header from '../components/Header/Header';
     import server from "../Api";
-    import {tokenStore} from "../main";
-
     export default {
         name: "ViewUser",
         components: {
@@ -31,35 +29,38 @@
             return {
                 adminData: null,
                 loading: true,
+                message: 'Loading...'
             }
         },
         async mounted() {
-            await server.get(  '/profiles',
-                {headers:
-                        {"Access-Control-Allow-Origin": "*", 'Content-Type': 'application/json', 'Token': tokenStore.state.token}, withCredentials: true
-                }, )
-                .then(response => {
-                    if (response.status === 200) {
-                        console.log('Status = OK. response.data:');
+            await this.init();
+        },
+        methods: {
+            async init() {
+                await server.get(  '/profiles',
+                    {headers:
+                            {"Access-Control-Allow-Origin": "*", 'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")}, withCredentials: true
+                    }, )
+                    .then(response => {
                         this.adminData = response.data;
                         // Check if the user returned is an admin
-                        if (this.adminData.role == 0) {
+                        if (this.adminData.role === 20 || this.adminData.role === 10) {
                             // The user is an admin: show them the admin dashboard!
                             this.loading = false;
                         }
                         else {
                             this.adminData = null;
                             // This user is not an admin and so cannot see the admin dashboard -> redirect to home
-                            this.$router.push("/*");
+                            this.$router.push("/profile");
                         }
-                    }
-                }).catch(error => {
-                    if (error.response.status === 401) {
-                        this.$router.push("/*");
-                    }
-                    console.error(error);
-                    console.error(error.response);
-                })
+                    }).catch(error => {
+                        if (error.response.status === 401 || error.response.status === 404) {
+                            this.$router.push("/login");
+                        } else {
+                            this.message = "An error has occurred, please try again later";
+                        }
+                    });
+            }
         }
     }
 </script>
