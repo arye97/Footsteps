@@ -70,7 +70,7 @@ deploy-test-server:
     - sudo systemctl restart testServer
   only:
     refs:
-      - dev
+      - development
 
 deploy-test-client:
   stage: deploy
@@ -88,7 +88,7 @@ deploy-test-client:
     - sudo systemctl restart testClient
   only:
     refs:
-      - dev
+      - development
 
 deploy-prod-server:
   stage: deploy
