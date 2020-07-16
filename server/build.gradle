@@ -94,3 +94,15 @@ sonarqube {
 bootRun {
 	bootRun.systemProperty 'spring.profiles.active', "${springProfile}"
 }
+
+// Read the environment variables from the file
+task readEnvVariables {
+	doLast {
+		exec {
+			file('.env').readLines().each() {
+				def (key, value) = it.tokenize('=')
+				environment key, value
+			}
+		}
+	}
+}
