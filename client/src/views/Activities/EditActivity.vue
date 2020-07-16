@@ -127,7 +127,11 @@
                     }
                     //need to also add in the activities activity types
                 }).catch(error => {
-                    this.processGetError(error);
+                    if (error.response.data.status === 401) {
+                        this.$router.push('/login');
+                    } else {
+                        this.$router.push({ name: 'myProfile' });
+                    }
                 })
             },
 
@@ -150,11 +154,6 @@
                     userId = response.data;
                 });
                 return userId
-            },
-
-            processGetError(error) {
-                // ToDo this should probably be handled better
-                console.error(error);
             }
         }
     }

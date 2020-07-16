@@ -268,7 +268,6 @@
              * Fetch all possible activity types from the server
              */
             async fetchActivityTypes() {
-                this.activityTypes = null;
                 await server.get('activity-types',
                     {headers: {'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")}
                     }
@@ -277,8 +276,6 @@
                     this.activityTypes.sort(function (a, b) {
                         return a.toLowerCase().localeCompare(b.toLowerCase());
                     });
-                }).catch(error => {
-                    this.processGetError(error);
                 });
             },
             async fetchCountries() {

@@ -139,6 +139,7 @@ public class ActivityController {
             if (newContinuous == false) {
                 String newStartTime = editedData.get("start_time").asText();
                 String newEndTime = editedData.get("end_time").asText();
+                System.out.println(newStartTime);
                 activity.setStartTime(Date.valueOf(newStartTime));
                 activity.setEndTime(Date.valueOf(newEndTime)); //This date manipulation relies on import java.sql.Date
             }

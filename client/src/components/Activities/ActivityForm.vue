@@ -112,6 +112,9 @@
                     <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_start_after_end">
                         A start date cannot be set after the end date
                     </div>
+                    <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_start_before_epoch_date">
+                        A date cannot be set before 1st Jan, 1970
+                    </div>
 
                     <b-form-group>
                         <div v-if="has_end_time === false" >
@@ -137,6 +140,9 @@
                     </div>
                     <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_end_before_start">
                         An end date cannot be set before the start date
+                    </div>
+                    <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_end_before_epoch_date">
+                        A date cannot be set before 1st Jan, 1970
                     </div>
                 </div>
 
@@ -268,12 +274,22 @@
                         showError('alert_start_after_end');
                         this.isValidFormFlag = false;
                     }
+                    //ToDo this currently doesn't work. Should check if start date isn't before 1970
+                    else if (this.activity.startTime < new Date(0)) {
+                        showError('alert_start_before_epoch_date');
+                        this.isValidFormFlag = false;
+                    }
                     if (!this.activity.endTime) {
                         showError('alert_end');
                         this.isValidFormFlag = false;
                     }
                     else if (this.activity.endTime < this.activity.startTime) {
                         showError('alert_end_before_start');
+                        this.isValidFormFlag = false;
+                    }
+                    //ToDo this currently doesn't work. Should check if end date isn't before 1970
+                    else if (this.activity.endTime < new Date(0)) {
+                        showError('alert_end_before_epoch_date');
                         this.isValidFormFlag = false;
                     }
                 }
@@ -328,14 +344,7 @@
                     this.activityTypes.sort(function (a, b) {
                         return a.toLowerCase().localeCompare(b.toLowerCase());
                     });
-                }).catch(error => {
-                    this.processGetError(error);
                 });
-            },
-
-            processGetError(error) {
-                // ToDo this should probably be handled better
-                console.error(error);
             }
         }
     }
