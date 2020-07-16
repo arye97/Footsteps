@@ -57,6 +57,7 @@
 
             // Inserts the recieved activity data into the activity object
             await this.getActivityData(activityId);
+            this.activity.profileId = await this.getUserId();
         },
 
 
@@ -90,7 +91,7 @@
                 }
 
                 // Send the activityForm to the server to create a new activity
-                await server.put(`/activities/${this.activityId}`,
+                await server.put(`/profiles/${this.activity.profileId}/activities/${this.activityId}`,
                     activityForm, {
                         headers: {
                             "Access-Control-Allow-Origin": "*",
@@ -115,6 +116,7 @@
                     }
                 ).then(response => {
                     this.activity.activityName = response.data.activity_name;
+                    this.activity.profileId = response.data.creatorUserId;
                     this.activity.continuous = (response.data.continuous === true);
                     this.activity.description = response.data.description;
                     this.activity.location = response.data.location;
@@ -127,6 +129,27 @@
                 }).catch(error => {
                     this.processGetError(error);
                 })
+            },
+
+            /**
+             * Get the Id of the current Logged in user.
+             * @returns {Promise<*>}
+             */
+            async getUserId() {
+                let userId = null;
+                await server.get(`profiles/userId`,
+                    {
+                        headers: {
+                            "Access-Control-Allow-Origin": "*",
+                            "Content-Type": "application/json",
+                            "Token": sessionStorage.getItem("token")
+                        },
+                        withCredentials: true
+                    }
+                ).then(response => {
+                    userId = response.data;
+                });
+                return userId
             },
 
             processGetError(error) {

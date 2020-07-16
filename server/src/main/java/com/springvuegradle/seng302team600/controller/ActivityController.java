@@ -98,12 +98,14 @@ public class ActivityController {
      *  and the activity id through put the url mapping.
      * @param activityId the Id of the Activity to edit
      * @param jsonActivityEditString an Activity to edit as a json string
+     * @param profileId the Id of the User who created the activity
      */
-    @PutMapping("/activities/{activityId}")
+    @PutMapping("/profiles/{profileId}/activities/{activityId}")
     public void editActivity(@PathVariable Long activityId, HttpServletRequest request, HttpServletResponse response,
-                             @RequestBody String jsonActivityEditString) throws IOException {
+                             @RequestBody String jsonActivityEditString,
+                             @PathVariable(value = "profileId") Long profileId) throws IOException {
         String token = request.getHeader("Token"); //this is the users token
-        // NOTE: Who should be able to edit an activity?  Right now anyone can edit.
+        userValidationService.findByUserId(token, profileId);
         Activity activity = activityRepository.findByActivityId(activityId);
         //ResponseStatusException thrown if user unauthorized or forbidden from accessing requested user
         ObjectMapper nodeMapper = new ObjectMapper();
