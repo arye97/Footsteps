@@ -32,7 +32,7 @@
         -->
 
         <b-form @submit="registerUser">
-            <b-form-group label="First Name: *" label-for="first-name" >
+            <b-form-group label="First Name: *" label-for="first-name" id="first-name-group">
                 <!-- full-name field-->
                 <b-form-input
                   type="text" class="form-control" trim v-on:click="unDisplayRules" v-on:input="updateCharCount"
@@ -95,9 +95,9 @@
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_password">
                 {{  "Field is mandatory and must not be blank"  }}
             </div>
-            <div class="form-group" label-for="passwordCheck" label="Retype your Password: *">
+            <b-form-group label-for="passwordCheck" label="Retype your Password: *">
                 <b-input type="password" class="form-control" v-on:click="displayRules" v-on:input="updateCharCount" v-model="passwordCheck" id="passwordCheck" name="passwordCheck" placeholder="Retype Password..." />
-            </div>
+            </b-form-group>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_password_check">
                 {{  "Your password doesn't follow the password rules"  }}
             </div>

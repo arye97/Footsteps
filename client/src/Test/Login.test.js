@@ -47,7 +47,7 @@ test('AC9 User is taken to homepage on login', ()=> {
     let spy = jest.spyOn(router, 'push');
     loginWrapper = shallowMount(Login, {router, mocks: {server}});
     loginWrapper.setData({...userdata, ...{message:""}});
-    return loginWrapper.vm.login().then(() => {
+    return loginWrapper.vm.login(new Event("dummy")).then(() => {
         expect(loginWrapper.vm.server.post).toHaveBeenCalledWith("/login", userdata, {"headers": {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json"}, "withCredentials": true});
         expect(spy).toHaveBeenCalledWith({"name": "profile", "params": {"userId": 1}});
     });
