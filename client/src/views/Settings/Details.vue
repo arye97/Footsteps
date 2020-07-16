@@ -32,11 +32,12 @@
                                 <div class="container h-100">
                                     <div class="row h-100 align-items-center">
                                         <div class="col-12 text-center">
-                                            <h1 class="font-weight-light">Edit Profile Details</h1><br/>
+                                            <h1 class="font-weight-light"><strong>Edit Profile Details</strong></h1><br/>
                                         </div>
                                     </div>
                                 </div>
                             </header>
+                            <hr>
                             <!-- first-name field-->
                             <label for="firstname">First Name: *</label>
                             <div class="edit-area">

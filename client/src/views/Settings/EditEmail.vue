@@ -22,7 +22,7 @@
                 <div class="container h-100">
                     <div class="row h-100 align-items-center">
                         <div class="col-12 text-center">
-                            <h1 class="font-weight-light">Edit Emails</h1>
+                            <h1 class="font-weight-light"><strong>Edit Emails</strong></h1>
                             <p class="lead">Edit the emails linked to your profile</p><br/>
                         </div>
                     </div>
@@ -54,7 +54,7 @@
                                     </td>
                                     <td>
                                         <p id="primaryEmail">
-                                            {{ this.primaryEmail }}
+                                            <b>{{ this.primaryEmail }}</b>
                                         </p>
                                     </td>
                                 </tr>

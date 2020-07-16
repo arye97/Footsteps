@@ -9,7 +9,7 @@
 
                     <div class="row h-100 align-items-center">
                         <div class="col-12 text-center">
-                            <h1 class="font-weight-light">Welcome to Hakinakina</h1>
+                            <h1 class="font-weight-light"><strong>Welcome to Hakinakina</strong></h1>
                             <p class="lead">Plan your route with the best</p><br/>
                             <form v-on:submit.prevent="register" v-if="!this.isLoggedIn">
                                 <div class="col text-center">
