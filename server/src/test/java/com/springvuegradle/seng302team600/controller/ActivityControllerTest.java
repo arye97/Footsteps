@@ -163,7 +163,7 @@ class ActivityControllerTest {
         Activity activityInRepo = objectMapper.readValue(newActivity1Json, Activity.class);
         activityRepository.save(activityInRepo);
 
-        MockHttpServletRequestBuilder httpReqEdit = MockMvcRequestBuilders.put("/activities/{activityId}", DEFAULT_ACTIVITY_ID)
+        MockHttpServletRequestBuilder httpReqEdit = MockMvcRequestBuilders.put("/profiles/{profileId}/activities/{activityId}", DEFAULT_USER_ID, DEFAULT_ACTIVITY_ID)
                 .header("Token", validToken)
                 .content(newActivityEditJson)
                 .contentType(MediaType.APPLICATION_JSON)
