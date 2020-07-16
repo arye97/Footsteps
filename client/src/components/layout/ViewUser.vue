@@ -25,7 +25,7 @@
                                 <span class="accordion">
                                         <span v-if="this.user.nickname">Nickname: {{ this.user.nickname }}<br/></span>
                                         <span >Gender: {{ this.user.gender }}</span><br/>
-                                        <span>Date Of Birth: {{ this.formattedDate }} </span><br/>
+                                        <span>Date Of Birth: {{ this.user.date_of_birth }} </span><br/>
                                         <span>Email: {{ this.user.primary_email }}</span><br/>
                                         <span v-if="this.user.additional_email.length >= 1"> Additional Emails: {{ this.user.additional_email.join(", ") }}<br/></span>
                                         <span v-if="this.user.passports.length >= 1">Passports: {{this.user.passports.join(", ")}}<br/></span>
@@ -78,7 +78,6 @@
                 this.errored = false;
                 this.error = null;
                 this.fitness = null;
-                this.formattedDate = "";
                 this.userId = this.$route.params.userId;
                 this.loading = true;
                 this.continuousActivities = [];
