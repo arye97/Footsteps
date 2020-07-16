@@ -39,7 +39,7 @@
                     endTime: null,
                     location: null
                 },
-
+                activityId: null,
                 show: true,
             }
         },
@@ -52,6 +52,8 @@
             // Get the activityId out of the URL
             let url = window.location.pathname;
             let activityId = url.substring(url.lastIndexOf('/') + 1);
+            this.activityId = url.substring(url.lastIndexOf('/') + 1);
+
 
             // Inserts the recieved activity data into the activity object
             await this.getActivityData(activityId);
@@ -59,10 +61,51 @@
 
 
         methods: {
-            submitEditActivity() {
-                console.log("Simulating Edit activity")
-                console.log(this.activity)
-                // ToDo Similar to CreateActivity.vue, create a activityForm obj, but send put request
+
+            /**
+             * Makes a PUT request to the back-end to edit an activity
+             */
+            async submitEditActivity() {
+                // Create an activity object to be sent as a json to the server
+                const activityForm = {
+                    activity_name: this.activity.activityName,
+                    description: this.activity.description,
+                    activity_type: this.activity.selectedActivityTypes,
+                    continuous: this.activity.continuous,
+                    location: this.activity.location
+                };
+                // If this Activity is continuous, add a start/end time to the activityForm
+                if (!this.activity.continuous) {
+                    // If no time provided, manually concatenating Thh:mm, which is bad, might use Moment.js instead but will consult team
+                    let formattedStartTime = this.activity.startTime;
+                    let formattedEndTime = this.activity.endTime;
+                    if (this.activity.startTime.length === 10) {
+                        formattedStartTime = formattedStartTime.concat('T23:59')
+                    }
+                    if (this.activity.endTime.length === 10) {
+                        formattedEndTime = formattedEndTime.concat('T23:59')
+                    }
+                    activityForm["start_time"] = formattedStartTime.concat(':00+1300');
+                    activityForm["end_time"] = formattedEndTime.concat(':00+1300');
+                }
+
+                // Send the activityForm to the server to create a new activity
+                await server.put(`/activities/${this.activityId}`,
+                    activityForm, {
+                        headers: {
+                            "Access-Control-Allow-Origin": "*",
+                            "Content-Type": "application/json",
+                            "Token": sessionStorage.getItem("token")
+                        },
+                        withCredentials: true,
+                    }).then(response => { // If successfully registered the response will have a status of 201
+                        if (response.status === 201) {
+                            this.$router.push("/activities");
+                            // somehow can't get back to profile
+                            // this.$router.push('/profile');
+                        }
+                    }
+                )
             },
 
             //Getting the data from the selected activity to update
