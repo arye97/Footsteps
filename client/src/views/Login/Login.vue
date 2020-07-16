@@ -103,8 +103,7 @@
                 ).then(response => { //If successfully logged the response will have a status of 201
                     if (response.status === 201) {
                         sessionStorage.setItem("token", response.data.Token);
-                        let userId = response.data.userId;
-                        this.$router.push({ name: 'profile', params: {userId: userId} }); //Route to profile screen on successful login
+                        this.$router.push('/'); //Route to home screen on successful login
                     }
                 }).catch(error => { //If an error occurs during login (includes server side errors)
                     //Get alert bar element

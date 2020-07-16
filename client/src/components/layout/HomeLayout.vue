@@ -20,7 +20,16 @@
 
                             <!--div for main page stuff when user is logged in-->
                             <div v-if="this.isLoggedIn">
-                                You are logged in and looking at this div bit from HomeLayout.vue, do coding here to have a nice homepage
+                                <div class="col-sm-12 text-center">
+
+
+                                    Hi there! Feel free to use the navigation bar at the top of the screen to make your way around.
+
+                                </div>
+
+
+
+
                             </div>
                         </div>
                     </div>

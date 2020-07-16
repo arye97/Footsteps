@@ -11,7 +11,7 @@
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item active">
                             <router-link v-if=this.isLoggedIn
-                                         :to="{ name: 'myProfile' }"
+                                         :to="'/'"
                                          class="nav-link">Home</router-link>
                         </li>
                         <li v-if=!this.isLoggedIn class="nav-item">
@@ -19,7 +19,7 @@
                         </li>
                         <li v-if=this.isLoggedIn class="nav-item">
                             <router-link
-                                    :to="{ name: 'detailsNoID' }"
+                                    :to="{ name: 'myProfile' }"
                                     class="nav-link">Profile</router-link>
                         </li>
 

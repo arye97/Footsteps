@@ -23,11 +23,13 @@
 
 
     .contents{
+        border-radius: 5px;
         background-color: white;
         padding-bottom: 12px;
     }
 
     .contentsExtendedBottom{
+        border-radius: 5px;
         background-color: white;
         padding-bottom: 63px;
     }

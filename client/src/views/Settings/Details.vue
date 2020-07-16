@@ -28,6 +28,15 @@
                 <div class="settings-page" v-if="!this.isRedirecting">
                     <div class="container-fluid" v-if="loggedIn">
                         <div class="form-group">
+                            <header class="masthead">
+                                <div class="container h-100">
+                                    <div class="row h-100 align-items-center">
+                                        <div class="col-12 text-center">
+                                            <h1 class="font-weight-light">Edit Profile Details</h1><br/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </header>
                             <!-- first-name field-->
                             <label for="firstname">First Name: *</label>
                             <div class="edit-area">
