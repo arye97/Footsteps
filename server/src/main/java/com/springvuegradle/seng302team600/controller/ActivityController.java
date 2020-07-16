@@ -105,9 +105,8 @@ public class ActivityController {
                              @RequestBody String jsonActivityEditString,
                              @PathVariable(value = "profileId") Long profileId) throws IOException {
         String token = request.getHeader("Token"); //this is the users token
-        userValidationService.findByUserId(token, profileId);
+        userValidationService.findByUserId(token, profileId); //ResponseStatusException thrown if user unauthorized or forbidden from accessing requested user
         Activity activity = activityRepository.findByActivityId(activityId);
-        //ResponseStatusException thrown if user unauthorized or forbidden from accessing requested user
         ObjectMapper nodeMapper = new ObjectMapper();
         ObjectNode editedData = nodeMapper.readValue(jsonActivityEditString, ObjectNode.class);
         String newDescription;
