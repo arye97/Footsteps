@@ -67,7 +67,7 @@ export default new Router({
         },
         {
             path: '/activities/create',
-            name: 'createActivity',
+            name: 'submitCreateActivity',
             component: CreateActivity
         },
         {
