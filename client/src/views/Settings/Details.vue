@@ -154,14 +154,14 @@
                             </div>
                         </div>
                     </b-form-group>
-                </div>
-                <div class="alert alert-success alert-dismissible fade show sticky-top" role="alert" id="overall_message" hidden>
-                    <p id="alert-message">{{ message }}</p>
-                </div>
-                <div class="text-center">
-                    <b-button type="submit" id="back-btn" size="lg" variant="primary float-left" v-on:click="backToProfile">Back</b-button>
-                    <b-button type="submit" id="reset-btn" size="lg" variant="primary" v-on:click="updateInputs">Reset</b-button>
-                    <b-button type="submit" id="saveChanges-btn" size="lg" variant="success float-right" v-on:click="saveChanges">Save Changes</b-button>
+                    <div class="alert alert-success alert-dismissible fade show sticky-top" role="alert" id="overall_message" hidden>
+                        <p id="alert-message">{{ message }}</p>
+                    </div>
+                    <div class="text-center">
+                        <b-button type="submit" id="back-btn" size="lg" variant="primary float-left" v-on:click="backToProfile">Back</b-button>
+                        <b-button type="submit" id="reset-btn" size="lg" variant="primary" v-on:click="updateInputs">Reset</b-button>
+                        <b-button type="submit" id="saveChanges-btn" size="lg" variant="success float-right" v-on:click="saveChanges">Save Changes</b-button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -529,10 +529,9 @@
     }
 </script>
 <style scoped>
-    .form-group {
-        padding-top: 15px;
+    .input {
+        width:100%;
     }
-
     .settings-page {
         padding-bottom: 15px;
     }
@@ -543,7 +542,6 @@
 
     .form-control {
         max-width: 100%;
-        margin-right: 1%;
         min-width: 85%;
     }
 
@@ -552,9 +550,12 @@
     }
 
     .multiselect-box {
-        max-width: 100%;
-        min-width: 85%;
+        min-width: 100%;
         margin-right: 1%;
+    }
+
+    .multiselect {
+        width: 100%;
     }
 
     #fitnessDiv {
