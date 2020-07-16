@@ -65,14 +65,15 @@ deploy-test-server:
     - mkdir -p /home/gitlab-runner/test-server/
     - cp -r ./build/libs /home/gitlab-runner/test-server
     # Update bash script and restart service
-    - cd /home/gitlab-runner/test-server/
-    - echo SPRING_DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME > "$.env"
-    - echo SPRING_DATASOURCE_PASSWORD=$SPRING_DATASOURCE_PASSWORD > "$.env"
-    - echo SSL_KEY_STORE_PASSWORD=$SSL_KEY_STORE_PASSWORD > "$.env"
-    - echo SPRING_DEFAULT_ADMIN_EMAIL=$SPRING_DEFAULT_ADMIN_EMAIL > "$.env"
-    - echo SPRING_DEFAULT_ADMIN_PASSWORD=$SPRING_DEFAULT_ADMIN_PASSWORD > "$.env"
     - rm -f /home/gitlab-runner/runTestServer.sh || true
     - cp ../deployment-scripts/runTestServer.sh /home/gitlab-runner/runTestServer.sh
+    - cd /home/gitlab-runner/test-server/
+    - envVariables = export SPRING_DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME
+    - envVariables += "\n"export SPRING_DATASOURCE_PASSWORD=$SPRING_DATASOURCE_PASSWORD
+    - envVariables += "\n"export SSL_KEY_STORE_PASSWORD=$SSL_KEY_STORE_PASSWORD
+    - envVariables += "\n"export SPRING_DEFAULT_ADMIN_EMAIL=$SPRING_DEFAULT_ADMIN_EMAIL
+    - envVariables += "\n"export SPRING_DEFAULT_ADMIN_PASSWORD=$SPRING_DEFAULT_ADMIN_PASSWORD
+    - echo envVariables > ".env"
     - sudo systemctl restart testServer
   only:
     refs:
