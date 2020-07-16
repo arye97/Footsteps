@@ -55,7 +55,7 @@ public class UserValidator {
         if (name.length() > MAX_NAME_LEN) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid " + part + " name. " + NAME_ERROR);
         }
-        if (!name.equals("middle")) {
+        if (!part.equals("middle")) {
             if (!name.matches(nameRegex)) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid " + part + " name. " + NAME_ERROR);
             }
