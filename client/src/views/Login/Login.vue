@@ -1,44 +1,47 @@
 <template>
     <div id="app">
         <h1><br/><br/></h1>
+        <b-container class="contents" fluid>
+
             <div class="container">
-                <div class="row">
-                    <div class="col-sm-6 offset-sm-3">
-                        <Header />
-                        <router-view></router-view>
-                    </div>
-                </div>
-            </div>
-        <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
-        <!-- Full Page Image Header with Vertically Centered Content -->
-        <header class="masthead">
-            <div class="container h-100">
-                <div class="row h-100 align-items-center">
-                    <div class="col-sm-12 text-center">
-                        <h1 class="font-weight-light">Welcome to Hakinakina</h1>
-                        <p class="lead">Plan your route with the best</p>
-                        <h1 class="font-weight-light">Login</h1>
-                        <form @submit.prevent="login">
-                            <div class="form-group">
-                            <label for="email">Email Address: </label>
-                            <input type="email" class="form-control" v-model="email" id="email" placeholder="Email Address"><br/>
-                            <div class="form-group ">
-                                <label for="password">Password: </label>
-                                <input type="password" class="form-control" v-model="password" id="password" placeholder="Password"> <br/>
-                            </div>
-                                <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" hidden="true" id="alert">
-                                    {{  message  }}
-                                </div>
-                            <div class="form-group">
-                                <input v-on:submit="login" class="btn btn-primary" type="submit" value="Sign In">
-                                <router-link to="/register" class="btn btn-link">Register</router-link>
-                            </div>
+                    <div class="row">
+                        <div class="col-sm-6 offset-sm-3">
+                            <Header />
+                            <router-view></router-view>
                         </div>
-                        </form>
                     </div>
                 </div>
-            </div>
-        </header>
+            <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+            <!-- Full Page Image Header with Vertically Centered Content -->
+            <header class="masthead">
+                <div class="container h-100">
+                    <div class="row h-100 align-items-center">
+                        <div class="col-sm-12 text-center">
+                            <h1 class="font-weight-light">Welcome to Hakinakina</h1>
+                            <p class="lead">Plan your route with the best</p>
+                            <h1 class="font-weight-light">Login</h1>
+                            <form @submit.prevent="login">
+                                <div class="form-group">
+                                <label for="email">Email Address: </label>
+                                <input type="email" class="form-control" v-model="email" id="email" placeholder="Email Address"><br/>
+                                <div class="form-group ">
+                                    <label for="password">Password: </label>
+                                    <input type="password" class="form-control" v-model="password" id="password" placeholder="Password"> <br/>
+                                </div>
+                                    <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" hidden="true" id="alert">
+                                        {{  message  }}
+                                    </div>
+                                <div class="form-group">
+                                    <input v-on:submit="login" class="btn btn-primary" type="submit" value="Sign In">
+                                    <router-link to="/register" class="btn btn-link">Register</router-link>
+                                </div>
+                            </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </header>
+        </b-container>
     </div>
 </template>
 

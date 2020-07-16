@@ -9,33 +9,35 @@
                     <h1>
                         <br/><br/>
                     </h1>
-                    <div class="col-sm-12 text-center">
-                        <h1 class="font-weight-light">Welcome to Hakinakina!</h1>
-                        <section v-if="errored">
-                            <p class="font-weight-light">{{this.error}}</p>
-                            <p class="font-weight-light">Sorry, please log in to access your profile, or try again later.</p>
-                        </section>
+                    <b-container class="contents" fluid>
+                        <div class="col-sm-12 text-center">
+                            <h1 class="font-weight-light">Welcome to Hakinakina!</h1>
+                            <section v-if="errored">
+                                <p class="font-weight-light">{{this.error}}</p>
+                                <p class="font-weight-light">Sorry, please log in to access your profile, or try again later.</p>
+                            </section>
 
-                        <section v-else>
-                            <div v-if="loading"> Loading...</div>
-                            <div v-else class="form-group font-weight-light">
-                                <h1 class="font-weight-light">Hi {{this.user.firstname}} {{this.user.middlename}} {{this.user.lastname}}!</h1>
-                                <p>You're logged in to your Hakinakina Account</p>
-                                <h3 class="font-weight-light">All about you: </h3>
-                                <span class="accordion">
-                                        <span v-if="this.user.nickname">Nickname: {{ this.user.nickname }}<br/></span>
-                                        <span >Gender: {{ this.user.gender }}</span><br/>
-                                        <span>Date Of Birth: {{ this.formattedDate }} </span><br/>
-                                        <span>Email: {{ this.user.primary_email }}</span><br/>
-                                        <span v-if="this.user.additional_email.length >= 1"> Additional Emails: {{ this.user.additional_email.join(", ") }}<br/></span>
-                                        <span v-if="this.user.passports.length >= 1">Passports: {{this.user.passports.join(", ")}}<br/></span>
-                                        <span v-if="this.user.fitness >= 0">Fitness Level: {{this.fitness}}<br/></span>
-                                        <span v-if="this.user.bio">Bio: {{ this.user.bio }}<br/></span>
-                                    </span>
-                                <button type="submit" class="btn btn-link" v-if="this.isEditable" v-on:click="editProfile" >Edit Profile</button>
-                            </div>
-                        </section>
-                    </div>
+                            <section v-else>
+                                <div v-if="loading"> Loading...</div>
+                                <div v-else class="form-group font-weight-light">
+                                    <h1 class="font-weight-light">Hi {{this.user.firstname}} {{this.user.middlename}} {{this.user.lastname}}!</h1>
+                                    <p>You're logged in to your Hakinakina Account</p>
+                                    <h3 class="font-weight-light">All about you: </h3>
+                                    <span class="accordion">
+                                            <span v-if="this.user.nickname">Nickname: {{ this.user.nickname }}<br/></span>
+                                            <span >Gender: {{ this.user.gender }}</span><br/>
+                                            <span>Date Of Birth: {{ this.formattedDate }} </span><br/>
+                                            <span>Email: {{ this.user.primary_email }}</span><br/>
+                                            <span v-if="this.user.additional_email.length >= 1"> Additional Emails: {{ this.user.additional_email.join(", ") }}<br/></span>
+                                            <span v-if="this.user.passports.length >= 1">Passports: {{this.user.passports.join(", ")}}<br/></span>
+                                            <span v-if="this.user.fitness >= 0">Fitness Level: {{this.fitness}}<br/></span>
+                                            <span v-if="this.user.bio">Bio: {{ this.user.bio }}<br/></span>
+                                        </span>
+                                    <button type="submit" class="btn btn-link" v-if="this.isEditable" v-on:click="editProfile" >Edit Profile</button>
+                                </div>
+                            </section>
+                        </div>
+                    </b-container>
                 </div>
             </div>
         </div>
