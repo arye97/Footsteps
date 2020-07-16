@@ -39,6 +39,7 @@ public class UserController {
     private final UserRepository userRepository;
     private final EmailRepository emailRepository;
     private final ActivityTypeRepository activityTypeRepository;
+    private final UserValidator userValidator;
 
     private static Log log = LogFactory.getLog(UserController.class);
 
@@ -55,12 +56,13 @@ public class UserController {
 
     public UserController(UserRepository userRepository, EmailRepository emailRepository,
                           UserValidationService userService, ActivityTypeService activityTypeService,
-                          ActivityTypeRepository activityTypeRepository) {
+                          ActivityTypeRepository activityTypeRepository, UserValidator userValidator) {
         this.userRepository = userRepository;
         this.emailRepository = emailRepository;
         this.userService = userService;
         this.activityTypeService = activityTypeService;
         this.activityTypeRepository = activityTypeRepository;
+        this.userValidator = userValidator;
     }
 
     /**
@@ -131,7 +133,7 @@ public class UserController {
 
         User newUser = new User(newUserData);
         // Check the user input and throw ResponseStatusException if invalid stopping execution
-        UserValidator.validate(newUser);
+        userValidator.validate(newUser);
 
         // Use ActivityType entities from the database.  Don't create duplicates.
         newUser.setActivityTypes(
@@ -249,7 +251,7 @@ public class UserController {
         ObjectReader userReader = nodeMapper.readerForUpdating(user);
         User modUser = userReader.readValue(modData);   // Create the modified user
         // Check the user input and throw ResponseStatusException if invalid stopping execution
-        UserValidator.validate(modUser);
+        userValidator.validate(modUser);
 
 
         // Use ActivityType entities from the database.  Don't create duplicates.

@@ -199,7 +199,7 @@ public class User {
     }
 
     public void setFirstName(String firstName) {
-        this.firstName = firstName;
+        this.firstName = firstName.trim();
     }
 
     public String getMiddleName() {
@@ -207,7 +207,7 @@ public class User {
     }
 
     public void setMiddleName(String middleName) {
-        this.middleName = middleName;
+        this.middleName = middleName.trim();
     }
 
     public String getLastName() {
@@ -215,7 +215,7 @@ public class User {
     }
 
     public void setLastName(String lastName) {
-        this.lastName = lastName;
+        this.lastName = lastName.trim();
     }
 
     public String getNickName() {
@@ -223,7 +223,7 @@ public class User {
     }
 
     public void setNickName(String nickName) {
-        this.nickName = nickName;
+        this.nickName = nickName.trim();
     }
 
     public String getBio() {
@@ -231,7 +231,7 @@ public class User {
     }
 
     public void setBio(String bio) {
-        this.bio = bio;
+        this.bio = bio.trim();
     }
 
     public String getPrimaryEmail() {
