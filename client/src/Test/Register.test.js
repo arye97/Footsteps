@@ -23,18 +23,19 @@ test('Is a vue instance', () => {
 
 // ----AC4----
 const mandatoryFieldIds = [
-    ['first-name-label'],  // A list of all mandatory attributes
-    ['last-name-label'],
-    ['email-label'],
-    ['password-label'],
-    ['passwordCheck-label'],
-    ['gender-label'],
-    ['date_of_birth-label']
+    ['first-name'],  // A list of all mandatory attributes
+    ['last-name'],
+    ['email'],
+    ['password'],
+    ['passwordCheck'],
+    ['gender'],
+    ['date_of_birth']
 ];
 // Iterate though all mandatory field names (using their id attribute) and check that they contain an asterisk
 test.each(mandatoryFieldIds)('AC4 %s is marked as a mandatory attribute (with an asterisk)', (field_name) => {
     // Checks that each <label> tag above all mandatory fields ends in an asterisk.
-    expect(registerWrapper.get('#' + field_name).text()).toContain("*");
+    console.log(registerWrapper.get('[labelfor="' + field_name + '"]'));
+    expect(registerWrapper.get('[labelfor="' + field_name + '"]').attributes('label')).toContain("*");
 });
 
 
@@ -105,7 +106,7 @@ test('AC9 User is taken to homepage on register', ()=> {
     let spy = jest.spyOn(router, 'push');
     registerWrapper = shallowMount(Register, {router, mocks: {server}});
     registerWrapper.setData({...userdata, ...{passwordCheck: extraData.passwordCheck, email: extraData.primary_email, fitness: extraData.fitness}});
-    return registerWrapper.vm.registerUser().then(() => {
+    return registerWrapper.vm.registerUser(new Event("dummy")).then(() => {
         expect(registerWrapper.vm.server.post)
             .toHaveBeenCalledWith("/profiles",
                 {...userdata, ...{primary_email: extraData.primary_email}},
