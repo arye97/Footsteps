@@ -107,13 +107,14 @@ deploy-prod-server:
     - mkdir -p /home/gitlab-runner/prod-server/
     - cp -r ./build/libs /home/gitlab-runner/prod-server
     # Update bash script and restart service
-    - echo SPRING_DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME > "$.env"
-    - echo SPRING_DATASOURCE_PASSWORD=$SPRING_DATASOURCE_PASSWORD > "$.env"
-    - echo SSL_KEY_STORE_PASSWORD=$SSL_KEY_STORE_PASSWORD > "$.env"
-    - echo SPRING_DEFAULT_ADMIN_EMAIL=$SPRING_DEFAULT_ADMIN_EMAIL > "$.env"
-    - echo SPRING_DEFAULT_ADMIN_PASSWORD=$SPRING_DEFAULT_ADMIN_PASSWORD > "$.env"
     - rm -f /home/gitlab-runner/runProdServer.sh || true
     - cp ../deployment-scripts/runProdServer.sh /home/gitlab-runner.runProdServer.sh
+    - cd /home/gitlab-runner/test-server/
+    - echo "export SPRING_DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME" > envVars.txt
+    - echo "export SPRING_DATASOURCE_PASSWORD=$SPRING_DATASOURCE_PASSWORD" >> envVars.txt
+    - echo "export SSL_KEY_STORE_PASSWORD=$SSL_KEY_STORE_PASSWORD" >> envVars.txt
+    - echo "export SPRING_DEFAULT_ADMIN_EMAIL=$SPRING_DEFAULT_ADMIN_EMAIL" >> envVars.txt
+    - echo "export SPRING_DEFAULT_ADMIN_PASSWORD=$SPRING_DEFAULT_ADMIN_PASSWORD" >> envVars.txt
     - sudo systemctl restart prodServer
   only:
     refs:
