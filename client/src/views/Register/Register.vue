@@ -91,9 +91,6 @@
             <b-form-group label-for="password" label="Password: *">
                 <!-- password field-->
                 <b-input type="password" class="form-control" v-on:click="displayRules" v-on:input="updateCharCount" v-model="password" id="password" name="password" placeholder="Your Password..." />
-                <div class="word-count">
-                    {{ passwordCharCount }}/{{ maxPasswordCharCount }} characters remaining
-                </div>
             </b-form-group>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_password">
                 {{  "Field is mandatory and must not be blank"  }}
@@ -279,7 +276,6 @@
                 isDisplayingRules: false,
                 maxNameCharCount: 45,
                 maxBioCharCount: 255,
-                maxPasswordCharCount: 255,
                 maxEmailCharCount: 255,
                 firstNameCharCount: 0,
                 middleNameCharCount: 0,
@@ -287,7 +283,6 @@
                 nicknameCharCount: 0,
                 emailCharCount: 0,
                 bioCharCount: 0,
-                passwordCharCount: 0
             }
         },
 
@@ -360,7 +355,7 @@
             },
 
             async registerUser(evt) {
-                evt.preventDefault()
+                evt.preventDefault();
                 // Save the data as a newUser object
                 const newUser = {
                     lastname: this.lastname.trim(),
@@ -421,7 +416,6 @@
               this.lastNameCharCount = this.lastname.length;
               this.nicknameCharCount = this.nickname.length;
               this.emailCharCount = this.email.length;
-              this.passwordCharCount = this.password.length;
               this.bioCharCount = this.bio.length;
             }
         },

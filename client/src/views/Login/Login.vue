@@ -18,23 +18,23 @@
                         <h1 class="font-weight-light">Welcome to Hakinakina</h1>
                         <p class="lead">Plan your route with the best</p>
                         <h1 class="font-weight-light">Login</h1>
-                        <form @submit.prevent="login">
-                            <div class="form-group">
-                            <label for="email">Email Address: </label>
-                            <input type="email" class="form-control" v-model="email" id="email" placeholder="Email Address"><br/>
-                            <div class="form-group ">
-                                <label for="password">Password: </label>
-                                <input type="password" class="form-control" v-model="password" id="password" placeholder="Password"> <br/>
-                            </div>
+                        <b-form id="form" @submit="login">
+                            <b-form-group label-for="email" label="Email Address:">
+                                <b-input type="email" class="form-control" v-model="email" id="email" placeholder="Email Address" />
+                            </b-form-group>
+                            <b-form-group label-for="password" label="Password:">
+                                <b-input type="password" class="form-control" v-model="password" id="password" placeholder="Password" />
+                            </b-form-group>
                                 <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" hidden="true" id="alert">
                                     {{  message  }}
                                 </div>
-                            <div class="form-group">
-                                <input v-on:submit="login" class="btn btn-primary" type="submit" value="Sign In">
-                                <router-link to="/register" class="btn btn-link">Register</router-link>
-                            </div>
-                        </div>
-                        </form>
+                            <b-form-group>
+                                <b-button variant="primary" type="submit">Sign In</b-button>
+                                <b-link to="/register">
+                                    <b-button variant="link">Register</b-button>
+                                </b-link>
+                            </b-form-group>
+                        </b-form>
                     </div>
                 </div>
             </div>
@@ -43,7 +43,7 @@
 </template>
 
 <style>
-    form {
+    #form {
         width: 75%;
         padding-left: 25%;
     }
@@ -79,7 +79,8 @@
             }
         },
         methods: {
-            async login() {
+            async login(evt) {
+                evt.preventDefault();
                 const userLogin = {
                     email: this.email.trim(),
                     password: this.password.trim()
