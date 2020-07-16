@@ -106,11 +106,11 @@ deploy-prod-server:
     - mkdir -p /home/gitlab-runner/prod-server/
     - cp -r ./build/libs /home/gitlab-runner/prod-server
     # Update bash script and restart service
-    - - echo "$SPRING_DATASOURCE_USERNAME" > "$.env"
-      - echo "$SPRING_DATASOURCE_PASSWORD" > "$.env"
-      - echo "$SSL_KEY_STORE_PASSWORD" > "$.env"
-      - echo "$SPRING_DEFAULT_ADMIN_EMAIL" > "$.env"
-      - echo "$SPRING_DEFAULT_ADMIN_PASSWORD" > "$.env"
+    - echo "$SPRING_DATASOURCE_USERNAME" > "$.env"
+    - echo "$SPRING_DATASOURCE_PASSWORD" > "$.env"
+    - echo "$SSL_KEY_STORE_PASSWORD" > "$.env"
+    - echo "$SPRING_DEFAULT_ADMIN_EMAIL" > "$.env"
+    - echo "$SPRING_DEFAULT_ADMIN_PASSWORD" > "$.env"
     - rm -f /home/gitlab-runner/runProdServer.sh || true
     - cp ../deployment-scripts/runProdServer.sh /home/gitlab-runner.runProdServer.sh
     - sudo systemctl restart prodServer
