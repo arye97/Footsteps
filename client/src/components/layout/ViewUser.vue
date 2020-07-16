@@ -19,7 +19,7 @@
                                 <div v-if="loading"> Loading...</div>
                                 <div v-else class="form-group font-weight-light">
                                     <br/>
-                                    <h1 class="font-weight-light">{{this.user.firstname}} {{this.user.middlename}} {{this.user.lastname}} ({{this.user.nickname}})</h1>
+                                    <h1 class="font-weight-light"><strong>{{this.user.firstname}} {{this.user.middlename}} {{this.user.lastname}} ({{this.user.nickname}})</strong></h1>
                                     <br/>
                                     <h5 class="font-weight-light" v-if="this.user.bio">"{{ this.user.bio }}"<br/></h5>
                                     <br/>
@@ -33,50 +33,88 @@
 
 
                                     <!-- Handling for displaying Passport Countries -->
-                                    <h3 class="font-weight-light">Passport countries: </h3><br/>
-                                    <span class="accordion">
+                                    <h3 class="font-weight-light"><strong>Passport countries: </strong></h3><br/>
 
-                                        <b-list-group v-if="this.user.passports.length >= 1">
-                                            <b-card v-for="country in this.user.passports" v-bind:key="country" class="flex-fill" border-variant="secondary">
-                                                <b-card-text class="font-weight-light">
-                                                    {{country}}
-                                                </b-card-text>
-                                            </b-card>
-                                            <br/>
-                                        </b-list-group>
-
-                                        <b-list-group v-else horizontal="md">
-                                            <b-card class="flex-fill" border-variant="secondary">
-                                                <b-card-text class="font-weight-light">
-                                                    No selected passport countries
-                                                </b-card-text>
-                                            </b-card>
-                                        </b-list-group>
+                                    <b-list-group v-if="this.user.passports.length >= 1">
+                                        <b-card v-for="country in this.user.passports" v-bind:key="country" class="flex-fill" border-variant="secondary">
+                                            <b-card-text class="font-weight-light">
+                                                {{country}}
+                                            </b-card-text>
+                                        </b-card>
                                         <br/>
+                                    </b-list-group>
 
+                                    <b-list-group v-else horizontal="md">
+                                        <b-card class="flex-fill" border-variant="secondary">
+                                            <b-card-text class="font-weight-light">
+                                                No selected passport countries
+                                            </b-card-text>
+                                        </b-card>
+                                    </b-list-group>
+                                    <br/>
 
-                                    </span>
+                                    <!--Handling for displaying of Fitness Level-->
+                                    <h3 class="font-weight-light"><strong>Fitness Level: </strong></h3>
 
-                                    <h3 class="font-weight-light">Fitness Level: </h3>
-                                    <span v-if="this.user.fitness >= 0">{{this.fitness}}<br/></span>
+                                    <b-list-group v-if="this.user.fitness >= 0">
+                                        <b-card class="flex-fill" border-variant="secondary">
+                                            <b-card-text class="font-weight-light">
+                                                {{this.fitness}}
+                                            </b-card-text>
+                                        </b-card>
+                                        <br/>
+                                    </b-list-group>
+
+                                    <b-list-group v-else>
+                                        <b-card class="flex-fill" border-variant="secondary">
+                                            <b-card-text class="font-weight-light">
+                                                No Fitness Level selected
+                                            </b-card-text>
+                                        </b-card>
+                                        <br/>
+                                    </b-list-group>
                                     <br/>
 
                                     <!--Handling for displaying of Emails -->
-                                    <h3 class="font-weight-light">Email(s): </h3>
-                                    <span v-if="this.user.additional_email.length >= 1">{{ this.user.primary_email }} (Primary), {{this.user.additional_email.join(", ")}}<br/></span>
-                                    <span v-else>{{ this.user.primary_email }} (Primary)<br/></span>
+                                    <h3 class="font-weight-light"><strong> Email(s): </strong></h3>
+
+                                    <b-list-group>
+                                        <b-card class="flex-fill" border-variant="secondary">
+                                            <b-card-text class="font-weight-light">
+                                                {{this.user.primary_email}} (Primary)
+                                            </b-card-text>
+                                        </b-card>
+                                        <b-card v-for="email in this.user.additional_email" v-bind:key="email" class="flex-fill" border-variant="secondary">
+                                            <b-card-text class="font-weight-light">
+                                                {{email}}
+                                            </b-card-text>
+                                        </b-card>
+                                        <br/>
+                                    </b-list-group>
+
                                     <br/>
 
-                                    <h3 class="font-weight-light">Gender: </h3>
-                                    <span>{{ this.user.gender }}<br/></span><br/>
+                                    <h3 class="font-weight-light"><strong> Gender: </strong></h3>
+                                    <b-card class="flex-fill" border-variant="secondary">
+                                        <b-card-text class="font-weight-light">
+                                            {{this.user.gender}}
+                                        </b-card-text>
+                                    </b-card>
+                                    <br/>
 
-                                    <h3 class="font-weight-light">Date of Birth: </h3>
-                                    <span>{{ this.formattedDate }} <br/></span>
+                                    <h3 class="font-weight-light"><strong> Date of Birth: </strong></h3>
+
+                                    <b-card class="flex-fill" border-variant="secondary">
+                                        <b-card-text class="font-weight-light">
+                                            {{this.formattedDate}} (Primary)
+                                        </b-card-text>
+                                    </b-card>
 
                                 </div>
                             </section>
                         </div>
                     </b-container>
+                    <br/><br/>
                 </div>
             </div>
         </div>
