@@ -19,9 +19,8 @@
             <Sidebar :userId="profileId"/>
             <div class="settings-page" v-if="!this.isRedirecting">
                 <div class="container-fluid" v-if="loggedIn">
-                    <div class="form-group">
+                    <b-form-group  label-for="firstname" label="First Name: *">
                         <!-- first-name field-->
-                        <label>First Name: *</label>
                         <div class="edit-area">
                             <b-form-input
                                     class="form-control"
@@ -34,10 +33,9 @@
                         <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_first_name" hidden>
                             <p>First name is a mandatory field. You may have entered an invalid character. 45 characters is the limit</p>
                         </div>
-                    </div>
-                    <div class="form-group">
+                    </b-form-group>
+                    <b-form-group label-fot="middlename" label="Middle Name:">
                         <!-- middle-name field-->
-                        <label>Middle Name: </label>
                         <div class="edit-area">
                             <b-form-input
                                     class="form-control"
@@ -50,10 +48,9 @@
                         <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_middle_name" hidden>
                             <p>Middle name may have an invalid character. 45 characters is the limit</p>
                         </div>
-                    </div>
-                    <div class="form-group">
+                    </b-form-group>
+                    <b-form-group label-for="lastname" label="Last Name: *">
                         <!-- last-name field-->
-                        <label>Last Name: *</label>
                         <div class="edit-area">
                             <b-form-input
                                     class="form-control"
@@ -66,10 +63,9 @@
                         <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_last_name" hidden>
                             <p>Last name is a mandatory field. You may have entered an invalid character. 45 characters is the limit</p>
                         </div>
-                    </div>
-                    <div class="form-group">
+                    </b-form-group>
+                    <b-form-group label-for="fitness" label="Fitness Level:">
                         <!-- fitness level field -->
-                        <label for="fitness">Fitness Level:</label>
                         <div class="edit-area">
                             <div id="fitnessDiv" class="multiselect-box">
                                 <multiselect v-model="fitness" id="fitness" :options="fitnessOptions" :multiple="false" label="desc" :return="fitnessOptions.desc"
@@ -78,10 +74,9 @@
                                 </multiselect>
                             </div>
                         </div>
-                    </div>
-                    <div class="form-group">
+                    </b-form-group>
+                    <b-form-group label-for="nickname" label="Nickname:">
                         <!-- nickname field-->
-                        <label>Nickname: </label>
                         <div class="edit-area">
                             <b-form-input
                                     class="form-control"
@@ -94,10 +89,9 @@
                         <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_nickname" hidden>
                             <p>Unfortunately your nickname is to long, 45 characters is the limit</p>
                         </div>
-                    </div>
-                    <div class="form-group">
+                    </b-form-group>
+                    <b-form-group label-for="gender" label="Gender: *">
                         <!-- gender field -->
-                        <label for="gender">Gender: *</label>
                         <div class="edit-area">
                             <div id="genderDiv" class="multiselect-box">
                                 <multiselect v-model="gender" id="gender"
@@ -109,20 +103,18 @@
                         <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_gender" hidden>
                             <p>Gender is a mandatory field</p>
                         </div>
-                    </div>
-                    <div class="form-group">
+                    </b-form-group>
+                    <b-form-group label-for="date_of_birth" label="Date of Birth: *">
                         <!-- date-of-birth field-->
-                        <label for="date_of_birth">Date of Birth: *</label>
                         <div class="edit-area">
                             <input type="date" class="form-control" v-model="date_of_birth" id="date_of_birth" name="date_of_birth" required>
                         </div>
                         <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_dob" hidden>
                             <p>You must be 13 yrs or older. Older than 150 yrs is invalid</p>
                         </div>
-                    </div>
-                    <div class="form-group">
+                    </b-form-group>
+                    <b-form-group label-for="passports" label="Passport Country:">
                         <!-- passport country -->
-                        <label for="passports">Passport Country:</label>
                         <div class="edit-area">
                             <div id="passportsDiv" class="multiselect-box">
                                 <multiselect v-model="passports" id="passports"
@@ -132,10 +124,9 @@
                                 </multiselect>
                             </div>
                         </div>
-                    </div>
-                    <div class="form-group">
+                    </b-form-group>
+                    <b-form-group label-for="bio" label="Tell us about yourself, your Bio:">
                         <!-- user bio -->
-                        <label>Tell us about yourself, your Bio: </label>
                         <div class="edit-area">
                             <b-form-textarea
                                     class="form-control"
@@ -150,10 +141,9 @@
                         <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_bio" hidden>
                             <p>Unfortunately your bio is to long, 255 characters is the limit</p>
                         </div>
-                    </div>
-                    <div class="form-group">
+                    </b-form-group>
+                    <b-form-group label-for="activityTypes" label="Activity Types:">
                         <!-- activity types -->
-                        <label for="activityTypes">Activity Types:</label>
                         <div class="edit-area">
                             <div id="activityTypesDiv" class="multiselect-box">
                                 <multiselect v-model="selectedActivityTypes" id="activityTypes"
@@ -163,7 +153,7 @@
                                 </multiselect>
                             </div>
                         </div>
-                    </div>
+                    </b-form-group>
                 </div>
                 <div class="alert alert-success alert-dismissible fade show sticky-top" role="alert" id="overall_message" hidden>
                     <p id="alert-message">{{ message }}</p>
