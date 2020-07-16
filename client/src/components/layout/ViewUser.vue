@@ -25,7 +25,7 @@
                                 <span class="accordion">
                                         <span v-if="this.user.nickname">Nickname: {{ this.user.nickname }}<br/></span>
                                         <span >Gender: {{ this.user.gender }}</span><br/>
-                                        <span>Date Of Birth: {{ this.formattedDate }} </span><br/>
+                                        <span>Date Of Birth: {{ this.user.date_of_birth }} </span><br/>
                                         <span>Email: {{ this.user.primary_email }}</span><br/>
                                         <span v-if="this.user.additional_email.length >= 1"> Additional Emails: {{ this.user.additional_email.join(", ") }}<br/></span>
                                         <span v-if="this.user.passports.length >= 1">Passports: {{this.user.passports.join(", ")}}<br/></span>
@@ -48,7 +48,6 @@
 <script>
     import server from "../../Api";
     import {fitnessLevels} from '../../constants'
-    import {getDateString} from '../../util'
     import Header from '../../components/Header/Header';
     export default {
         name: "ViewUser",
@@ -76,7 +75,6 @@
                 this.errored = false;
                 this.error = null;
                 this.fitness = null;
-                this.formattedDate = "";
                 this.userId = this.$route.params.userId;
                 this.loading = true;
                 if (this.userId === undefined || isNaN(this.userId)) {
@@ -91,9 +89,7 @@
                     if (response.status === 200) {
                         //user is set to the user data retrieved
                         this.user = response.data;
-                        console.log(this.user);
                         this.userId = this.user.id;
-                        this.formattedDate = getDateString(this.user.date_of_birth);
                         for (let i = 0; i < fitnessLevels.length; i++) {
                             if (fitnessLevels[i].value === this.user.fitness) {
                                 this.fitness = fitnessLevels[i].desc;
