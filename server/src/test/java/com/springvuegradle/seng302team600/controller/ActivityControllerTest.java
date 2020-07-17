@@ -24,11 +24,13 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ActivityController.class)
@@ -86,6 +88,14 @@ class ActivityControllerTest {
         when(activityRepository.findByActivityId(Mockito.any(Long.class))).thenAnswer(i -> {
             for (Activity activity: activityMockTable) {
                 if (activity.getActivityId() == i.getArgument(0)) {
+                    return activity;
+                }
+            }
+            return null;
+        });
+        when(activityRepository.findAllByUserId(Mockito.any(Long.class))).thenAnswer(i -> {
+            for (Activity activity : activityMockTable) {
+                if (activity.getCreatorUserId() == i.getArgument(0)) {
                     return activity;
                 }
             }
@@ -153,7 +163,7 @@ class ActivityControllerTest {
         Activity activityInRepo = objectMapper.readValue(newActivity1Json, Activity.class);
         activityRepository.save(activityInRepo);
 
-        MockHttpServletRequestBuilder httpReqEdit = MockMvcRequestBuilders.put("/activities/{activityId}", DEFAULT_ACTIVITY_ID)
+        MockHttpServletRequestBuilder httpReqEdit = MockMvcRequestBuilders.put("/profiles/{profileId}/activities/{activityId}", DEFAULT_USER_ID, DEFAULT_ACTIVITY_ID)
                 .header("Token", validToken)
                 .content(newActivityEditJson)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -205,13 +215,34 @@ class ActivityControllerTest {
 
 
     /**
+     * Test successful get request of activities created by specific user
+     */
+    @Test
+    void getUserActivities() throws Exception {
+        //Todo: Change the assertNotNull to assertEquals(1, repoSize)
+        //Save some activities to get
+        Activity activity = objectMapper.readValue(newActivity1Json, Activity.class);
+        activityRepository.save(activity);
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get("/profiles/{profileId}/activities", DEFAULT_USER_ID)
+                .header("Token", validToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isOk())
+                .andReturn();
+        //int contentLength = result.getResponse().getContentLength();
+        assertNotNull(result); //should have one item in this list as saved above
+    }
+
+
+    /**
      * Test successful get request of activity.
      */
     @Test
     void getActivity() throws Exception {
         Activity activityInRepo = objectMapper.readValue(newActivity2Json, Activity.class);
         activityRepository.save(activityInRepo);
-
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get("/activities/{activityId}", DEFAULT_ACTIVITY_ID)
                 .content(newActivity2Json)
                 .contentType(MediaType.APPLICATION_JSON)

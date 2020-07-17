@@ -5,6 +5,7 @@ import com.springvuegradle.seng302team600.Utilities.ActivityValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.model.Activity;
+import com.springvuegradle.seng302team600.model.ActivityType;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -52,22 +54,17 @@ public class ActivityController {
                             HttpServletRequest request,
                             HttpServletResponse response,
                             @PathVariable(value = "profileId") Long profileId) {
-
         String token = request.getHeader("Token");
         // Throws error if token doesn't match the profileId, i.e. you can't create an activity with a creatorUserId that isn't your own
         userValidationService.findByUserId(token, profileId);
-
         // Use ActivityType entities from the database.  Don't create duplicates.
         newActivity.setActivityTypes(
                 activityTypeService.getMatchingEntitiesFromRepository(newActivity.getActivityTypes())
         );
         newActivity.setCreatorUserId(profileId);
-
         // Check the user input and throw ResponseStatusException if invalid stopping execution
         ActivityValidator.validate(newActivity);
-
         activityRepository.save(newActivity);
-
         response.setStatus(HttpServletResponse.SC_CREATED); //201
     }
 
@@ -101,14 +98,15 @@ public class ActivityController {
      *  and the activity id through put the url mapping.
      * @param activityId the Id of the Activity to edit
      * @param jsonActivityEditString an Activity to edit as a json string
+     * @param profileId the Id of the User who created the activity
      */
-    @PutMapping("/activities/{activityId}")
+    @PutMapping("/profiles/{profileId}/activities/{activityId}")
     public void editActivity(@PathVariable Long activityId, HttpServletRequest request, HttpServletResponse response,
-                             @RequestBody String jsonActivityEditString) throws IOException {
+                             @RequestBody String jsonActivityEditString,
+                             @PathVariable(value = "profileId") Long profileId) throws IOException {
         String token = request.getHeader("Token"); //this is the users token
-        // NOTE: Who should be able to edit an activity?  Right now anyone can edit.
+        userValidationService.findByUserId(token, profileId); //ResponseStatusException thrown if user unauthorized or forbidden from accessing requested user
         Activity activity = activityRepository.findByActivityId(activityId);
-        //ResponseStatusException thrown if user unauthorized or forbidden from accessing requested user
         ObjectMapper nodeMapper = new ObjectMapper();
         ObjectNode editedData = nodeMapper.readValue(jsonActivityEditString, ObjectNode.class);
         String newDescription;
@@ -122,15 +120,17 @@ public class ActivityController {
         JsonNode nodeActivityTypes;
         try { nodeActivityTypes = editedData.get("activity_type"); } catch (Exception NullPointerException) { nodeActivityTypes = null; }
         //may need to re-write the activity types conversion if breaks
-        Set newActivityTypes;
-        if (nodeActivityTypes != null) {newActivityTypes = nodeMapper.convertValue(nodeActivityTypes, Set.class);} else { newActivityTypes = null; }
         //Check if any have changed or are null
         if (newDescription != null) { activity.setDescription(newDescription); }
         if (newLocation != null) {activity.setLocation(newLocation);}
         if (newName != null) { activity.setName(newName); }
-        if (newActivityTypes != null) {
+        if (nodeActivityTypes != null) {
+            Set<ActivityType> activityTypes = new HashSet<>();
+            for (JsonNode element : nodeActivityTypes) {
+                activityTypes.add(new ActivityType(element.asText()));
+            }
             activity.setActivityTypes(
-                activityTypeService.getMatchingEntitiesFromRepository(newActivityTypes)
+                activityTypeService.getMatchingEntitiesFromRepository(activityTypes)
             );
         }
         if (checkContinuous != null) {
@@ -139,6 +139,7 @@ public class ActivityController {
             if (newContinuous == false) {
                 String newStartTime = editedData.get("start_time").asText();
                 String newEndTime = editedData.get("end_time").asText();
+                System.out.println(newStartTime);
                 activity.setStartTime(Date.valueOf(newStartTime));
                 activity.setEndTime(Date.valueOf(newEndTime)); //This date manipulation relies on import java.sql.Date
             }
@@ -150,7 +151,7 @@ public class ActivityController {
     /**
      * Delete an Activity
      * @param activityId the Id of the activity to delete
-     * @param request Used to set status of operation
+     * @param request the actual request from the client, containing pertinent data
      */
     @DeleteMapping("/activities/{activityId}")
     public void deleteActivity(@PathVariable Long activityId, HttpServletRequest request) {
@@ -174,5 +175,24 @@ public class ActivityController {
         //Delete the activity
         activityRepository.delete(activity);
 
+    }
+
+    /**
+     * Get all activities by user
+     * @param profileId the id of the user/creator
+     * @param request the actual request from the client, containing pertinent data
+     */
+    @GetMapping("/profiles/{profileId}/activities")
+    public List<Activity> getUsersActivities(@PathVariable Long profileId, HttpServletRequest request) {
+        //checking for user validation
+        try {
+            //attempt to find user by token, don't need to save user discovered
+            String token = request.getHeader("Token");
+            userRepository.findByToken(token);
+        } catch(Exception e) {
+            //User wasn't found therefore the user was not logged in.
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authorized - log in to view");
+        }
+        return activityRepository.findAllByUserId(profileId);
     }
 }

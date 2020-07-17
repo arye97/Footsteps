@@ -17,7 +17,7 @@
                         </section>
 
                         <section v-else>
-                            <div v-if="loading"> Loading...</div>
+                            <div v-if="loading"> Loading... <br/><br/><b-spinner variant="primary" label="Spinning"></b-spinner></div>
                             <div v-else class="form-group font-weight-light">
                                 <h1 class="font-weight-light">Hi {{this.user.firstname}} {{this.user.middlename}} {{this.user.lastname}}!</h1>
                                 <p>You're logged in to your Hakinakina Account</p>
@@ -63,7 +63,9 @@
                 fitness: null,
                 formattedDate: "",
                 userId: '',
-                isEditable: true
+                isEditable: true,
+                continuousActivities: [],
+                discreteActivities: []
             }
         },
         async mounted() {
@@ -77,34 +79,59 @@
                 this.fitness = null;
                 this.userId = this.$route.params.userId;
                 this.loading = true;
+                this.continuousActivities = [];
+                this.discreteActivities = [];
                 if (this.userId === undefined || isNaN(this.userId)) {
                     this.userId = '';
                 }
                 await this.editable();
-                await server.get(  `/profiles/${this.userId}`,
-                    {headers:
-                            {"Access-Control-Allow-Origin": "*", 'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")}, withCredentials: true
-                    },
-                ).then(response => {
-                    if (response.status === 200) {
-                        //user is set to the user data retrieved
-                        this.user = response.data;
-                        this.userId = this.user.id;
-                        for (let i = 0; i < fitnessLevels.length; i++) {
-                            if (fitnessLevels[i].value === this.user.fitness) {
-                                this.fitness = fitnessLevels[i].desc;
-                            }
-                        }
-                        //no longer loading, so show data
-                        this.loading = false;
+                await this.getProfile();
+                await this.getActivities();
+                this.loading = false;
+
+            },
+            async getProfile() {
+              await server.get(  `/profiles/${this.userId}`,
+                {headers:
+                    {"Access-Control-Allow-Origin": "*", 'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")}, withCredentials: true
+                },
+              ).then(response => {
+                if (response.status === 200) {
+                  //user is set to the user data retrieved
+                  this.user = response.data;
+                  console.log(this.user);
+                  this.userId = this.user.id;
+                  this.formattedDate = getDateString(this.user.date_of_birth);
+                  for (let i = 0; i < fitnessLevels.length; i++) {
+                    if (fitnessLevels[i].value === this.user.fitness) {
+                      this.fitness = fitnessLevels[i].desc;
                     }
-                }).catch(error => {
-                    this.loading = false;
+                  }
+                }
+              }).catch(error => {
+                this.errored = true;
+                this.error = error.response.data.message;
+                if (error.response.data.status === 404 && sessionStorage.getItem('token') !== null) {
+                  this.$router.push({ name: 'myProfile' });
+                  this.init();
+                } else {
+                  this.logout();
+                }
+              });
+            },
+            async getActivities() {
+                await server.get(  `/profiles/${this.userId}/activities`,
+                  {headers:
+                    {"Access-Control-Allow-Origin": "*", 'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")}, withCredentials: true
+                },
+                ).then(response => {if (response.status === 200) {
+                    this.continuousActivities = response.data.filter(e => e.continuous === true);
+                    this.discreteActivities = response.data.filter(e => e.continuous === false);
+                }}).catch(error => {
                     this.errored = true;
                     this.error = error.response.data.message;
                     if (error.response.data.status === 404 && sessionStorage.getItem('token') !== null) {
                         this.$router.push({ name: 'myProfile' });
-                        this.init();
                     } else {
                         this.logout();
                     }

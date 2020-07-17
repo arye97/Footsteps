@@ -3,10 +3,7 @@ package com.springvuegradle.seng302team600.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.springvuegradle.seng302team600.model.DefaultAdminUser;
-import com.springvuegradle.seng302team600.model.Email;
-import com.springvuegradle.seng302team600.model.User;
-import com.springvuegradle.seng302team600.model.UserRole;
+import com.springvuegradle.seng302team600.model.*;
 import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import com.springvuegradle.seng302team600.payload.UserResponse;
 import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
@@ -455,6 +452,9 @@ class UserControllerTest {
             "primary_email", "bob@gmail.com",
             "password", "bobsPassword0",
             "date_of_birth", "2002-1-2",
+            "activity_types", new Object[]{
+                    "Rock Climbing", "Mountaineering"
+            },
             "gender", "Male");
     private final String createUserJsonViewUser2 = JsonConverter.toJson(true,
             "lastname", "Cucumber",
@@ -659,7 +659,6 @@ class UserControllerTest {
         // Create user
         setupMocking(changePasswordUserJson);
 
-
         // Change password
         MockHttpServletRequestBuilder editPassReq = buildUserChangePassword(changePasswordFailsRulesJson);
         mvc.perform(editPassReq)
@@ -689,6 +688,44 @@ class UserControllerTest {
         // Can't find any other way to do it :(
         boolean defaultAdminWasAddedToDatabase = (boolean)ReflectionTestUtils.getField(controller, "_DAexists");
         assertTrue(defaultAdminWasAddedToDatabase);
+    }
+
+    private final String newActivityTypesString = JsonConverter.toJson(true,
+            "activities", new Object[]{
+                    "Rock Climbing", "Mountaineering"
+            });
+
+    @Test
+    /**
+     *  Tests that the PUT endpoint updates the users activity types
+     */
+    public void updateUserActivityTypes() throws Exception {
+        setupMockingNoEmail(createUserJsonViewUser1);
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post("/profiles")
+                .content(createUserJsonViewUser1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mvc.perform(httpReq)
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        MockHttpServletRequestBuilder httpReqPut = MockMvcRequestBuilders.put(
+                "/profiles/{profileId}/activity-types", dummyUser1.getUserId())
+                .header("Token", validToken)
+                .content(newActivityTypesString)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mvc.perform(httpReqPut)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        assertNotNull(result);
+
+
+
     }
 
 }

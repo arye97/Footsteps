@@ -1,11 +1,14 @@
 package com.springvuegradle.seng302team600.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.Utilities.UserValidator;
 import com.springvuegradle.seng302team600.Utilities.PasswordValidator;
+import com.springvuegradle.seng302team600.model.ActivityType;
+import com.springvuegradle.seng302team600.Utilities.UserValidator;
 import com.springvuegradle.seng302team600.model.DefaultAdminUser;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.model.UserRole;
@@ -20,6 +23,7 @@ import com.springvuegradle.seng302team600.service.UserValidationService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.rest.webmvc.support.ExcerptProjector;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +33,8 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 @RestController
 public class UserController {
@@ -97,6 +103,18 @@ public class UserController {
 //        user.setToken(null);
         response.setStatus(HttpServletResponse.SC_OK); //200
         return user;
+    }
+
+    /**
+     * Return a user id saved in the repository if authorized
+     * @param request the http request to the
+     * @param response the http response
+     * @return User id requested or null
+     */
+    @GetMapping("/profiles/userId")
+    public Long findUserId(HttpServletRequest request, HttpServletResponse response) {
+        User user = findUserData(request, response);
+        return user.getUserId();
     }
 
     /**
@@ -250,8 +268,8 @@ public class UserController {
 
         ObjectReader userReader = nodeMapper.readerForUpdating(user);
         User modUser = userReader.readValue(modData);   // Create the modified user
-        // Check the user input and throw ResponseStatusException if invalid stopping execution
-        userValidator.validate(modUser);
+        //Throws errors if user is erroneous
+        modUser.isValid();   // If this user has authorization
 
 
         // Use ActivityType entities from the database.  Don't create duplicates.
@@ -277,5 +295,38 @@ public class UserController {
         String token = request.getHeader("Token");
         // Checks if a user is an admin/default admin
         userService.findByUserId(token, profileId);
+    }
+
+    /**
+     * Adds additional activity-types to a user
+     * @param request the http request to the endpoint
+     * @param response the http response
+     * @param profileId the user who is to be updated, taken from request url
+     */
+    @PutMapping("/profiles/{profileId}/activity-types")
+    public void updateUserActivityTypes( HttpServletRequest request,
+                                         HttpServletResponse response,
+                                         @PathVariable(value = "profileId") Long profileId,
+                                         @RequestBody String jsonUserEditString) {
+        //user must be logged in
+        try {
+            String token = request.getHeader("Token");
+            if (!userService.findByToken(token).getUserId().equals(profileId)) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid user, unauthorized to edit this data");
+            }
+            User user = userService.findByUserId(token, profileId);
+            ObjectMapper nodeMapper = new ObjectMapper();
+            ObjectNode editedData = nodeMapper.readValue(jsonUserEditString, ObjectNode.class);
+            JsonNode activityTypesNode = editedData.get("activities");
+            Set<ActivityType> activityTypes = new HashSet<>();
+            for (JsonNode element : activityTypesNode) {
+                activityTypes.add(new ActivityType(element.asText()));
+            }
+            user.setActivityTypes(activityTypeService.getMatchingEntitiesFromRepository(activityTypes));
+            userRepository.save(user);
+        } catch(Exception e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid user id, user not found");
+        }
+
     }
 }
