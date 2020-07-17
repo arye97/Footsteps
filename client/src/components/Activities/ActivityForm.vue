@@ -87,7 +87,10 @@
                     <b-form-group>
                         <div v-if="has_start_time === false" >
                             <label id="input-start-label" for="input-start">Start Date: *</label>
-                            <input type="date" class="form-control" v-model="activity.startTime" id="input-start">
+                            <input type="date" class="form-control"
+                                   :value="activity.startTime.split('T')[0]"
+                                   @input="activity.startTime = dateIntoDateTimeStr($event.target.value, activity.startTime)"
+                                   id="input-start">
                         </div>
                         <div v-else>
                             <label id="input-start-time-label" for="input-start-time">Start Date: *</label>
@@ -114,7 +117,10 @@
                     <b-form-group>
                         <div v-if="has_end_time === false" >
                             <label id="input-end-label" for="input-end">End Date: *</label>
-                            <input type="date" class="form-control" v-model="activity.endTime" id="input-end">
+                            <input type="date" class="form-control"
+                                   :value="activity.endTime.split('T')[0]"
+                                   @input="activity.endTime = dateIntoDateTimeStr($event.target.value, activity.endTime)"
+                                   id="input-end">
                         </div>
                         <div v-else>
                             <label id="input-end-time-label" for="input-end-time">End Date: *</label>
@@ -240,6 +246,18 @@
                     this.formatDurationActivity();
                     await this.submitActivityFunc();
                 }
+            },
+
+            /**
+             * Takes a date string and inserts it into a date and time string.  Helper method used in DOM.
+             * (wish this could be a function)
+             * @param dateStr string of the format yyyy-MM-dd
+             * @param dateTimeStr string of the format yyyy-MM-ddThh:mm
+             */
+            dateIntoDateTimeStr(dateStr, dateTimeStr) {
+                let dateTimeArr = dateTimeStr.split('T');
+                dateTimeArr[0] = dateStr;
+                return dateTimeArr.join('T');
             },
 
             /**
