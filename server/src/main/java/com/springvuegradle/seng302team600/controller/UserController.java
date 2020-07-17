@@ -269,7 +269,7 @@ public class UserController {
         ObjectReader userReader = nodeMapper.readerForUpdating(user);
         User modUser = userReader.readValue(modData);   // Create the modified user
         //Throws errors if user is erroneous
-        modUser.isValid();   // If this user has authorization
+        userValidator.validate(modUser); // If this user has authorization
 
 
         // Use ActivityType entities from the database.  Don't create duplicates.
