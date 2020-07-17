@@ -708,4 +708,15 @@ class UserControllerTest {
         assertTrue(defaultAdminWasAddedToDatabase);
     }
 
+    @Test
+    /** Tests the response of getting a users role
+     */
+    void getUserRole() throws Exception {
+        setupMocking(createUserJsonPost);
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get("/profiles/{profileId}/role", DEFAULT_USER_ID)
+                .header("Token", validToken);
+        MvcResult request = mvc.perform(httpReq).andExpect(status().isOk()).andReturn();
+        assertNotNull(request);
+        assertEquals("0", request.getResponse().getContentAsString()); //as we are getting content as string we check it to a string of 0
+    }
 }
