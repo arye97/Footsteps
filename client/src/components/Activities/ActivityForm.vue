@@ -101,7 +101,6 @@
                                 class="checkbox-time"
                                 size="sm"
                                 v-model="has_start_time"
-                                @change="resetStartDate"
                         >
                             Include starting time
                         </b-form-checkbox>
@@ -129,7 +128,6 @@
                                 class="checkbox-time"
                                 size="sm"
                                 v-model="has_end_time"
-                                @change="resetEndDate"
                         >
                             Include ending time
                         </b-form-checkbox>
@@ -205,11 +203,15 @@
                 description: String,
                 selectedActivityTypes: Array,
                 continuous: Boolean,
+                submitStartTime: String,
+                submitEndTime: String,
+                location: String,
                 startTime: String,
                 endTime: String,
-                location: String,
             },
-            submitActivityFunc: Function
+            submitActivityFunc: Function,
+            startTime: String,
+            endTime: String
         },
         data() {
             return {
@@ -220,8 +222,8 @@
                 descriptionCharCount: 0,
                 maxDescriptionCharCount: 1500,
 
-                has_start_time: false,
-                has_end_time: false,
+                has_start_time: true,
+                has_end_time: true,
 
                 isValidFormFlag: true,
             }
@@ -239,9 +241,8 @@
                 this.isValidFormFlag = true;
                 await this.validateActivityInputs();
                 if (this.isValidFormFlag) {
+                    this.formatDurationActivity();
                     await this.submitActivityFunc();
-                    console.log("Simulating Submitting an Activity:");
-                    console.log(this.activity);
                 }
             },
 
@@ -249,6 +250,11 @@
              * Validate activity inputs, called when onSubmit is called
              */
             async validateActivityInputs() {
+                this.activity.submitStartTime = this.activity.startTime;
+                let startTime = new Date(this.activity.startTime);
+                this.activity.submitEndTime = this.activity.endTime;
+                let endTime = new Date(this.activity.endTime);
+
                 if (!this.activity.activityName || this.nameCharCount > this.maxNameCharCount) {
                     showError('alert_activity_name');
                     this.isValidFormFlag = false;
@@ -266,29 +272,29 @@
 
                 // If duration is chosen
                 if (!this.activity.continuous) {
-                    if (!this.activity.startTime) {
+                    if (!this.activity.submitStartTime) {
                         showError('alert_start');
                         this.isValidFormFlag = false;
                     }
-                    else if (this.activity.startTime > this.activity.endTime) {
+                    else if (startTime > endTime) {
                         showError('alert_start_after_end');
                         this.isValidFormFlag = false;
                     }
                     //ToDo this currently doesn't work. Should check if start date isn't before 1970
-                    else if (this.activity.startTime < new Date(0)) {
+                    else if (startTime < new Date(0)) {
                         showError('alert_start_before_epoch_date');
                         this.isValidFormFlag = false;
                     }
-                    if (!this.activity.endTime) {
+                    if (!this.activity.submitEndTime) {
                         showError('alert_end');
                         this.isValidFormFlag = false;
                     }
-                    else if (this.activity.endTime < this.activity.startTime) {
+                    else if (endTime < startTime) {
                         showError('alert_end_before_start');
                         this.isValidFormFlag = false;
                     }
                     //ToDo this currently doesn't work. Should check if end date isn't before 1970
-                    else if (this.activity.endTime < new Date(0)) {
+                    else if (startTime < new Date(0)) {
                         showError('alert_end_before_epoch_date');
                         this.isValidFormFlag = false;
                     }
@@ -297,6 +303,25 @@
                 if (!this.activity.location) {
                     showError('alert_location');
                     this.isValidFormFlag = false;
+                }
+            },
+
+            /**
+             * If this Activity is not continuous format the dates correctly for the Backend.
+             */
+            formatDurationActivity() {
+                // If this Activity is continuous, add a start/end time to the activityForm
+                if (!this.activity.continuous) {
+                    // If no time provided, manually concatenating Thh:mm, which is bad, might use Moment.js instead but will consult team
+                    if (this.activity.submitStartTime.length === 10) {
+                        this.activity.submitStartTime = this.activity.submitStartTime.concat('T23:59')
+                    }
+                    if (this.activity.submitEndTime.length === 10) {
+                        this.activity.submitEndTime = this.activity.submitEndTime.concat('T23:59')
+                    }
+
+                    this.activity.submitStartTime = this.activity.submitStartTime.concat(':00+1300');
+                    this.activity.submitEndTime = this.activity.submitEndTime.concat(':00+1300');
                 }
             },
 
@@ -312,20 +337,6 @@
              */
             updateDescriptionWordCount() {
                 this.descriptionCharCount = this.activity.description.length;
-            },
-
-            /**
-             * Resets start date, called when checkbox is ticked/unticked
-             */
-            resetStartDate() {
-                this.activity.startTime = null
-            },
-
-            /**
-             * Resets end date, called when checkbox is ticked/unticked
-             */
-            resetEndDate() {
-                this.activity.endTime = null
             },
 
             /**

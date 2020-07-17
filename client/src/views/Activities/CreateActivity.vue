@@ -35,8 +35,8 @@
                     description: null,
                     selectedActivityTypes: [],
                     continuous: true,
-                    startTime: null,
-                    endTime: null,
+                    submitStartTime: null,
+                    submitEndTime: null,
                     location: null
                 }
             }
@@ -60,22 +60,10 @@
                     description: this.activity.description,
                     activity_type: this.activity.selectedActivityTypes,
                     continuous: this.activity.continuous,
-                    location: this.activity.location
+                    location: this.activity.location,
+                    start_time: this.activity.submitStartTime,
+                    end_time: this.activity.submitEndTime
                 };
-                // If this Activity is continuous, add a start/end time to the activityForm
-                if (!this.activity.continuous) {
-                    // If no time provided, manually concatenating Thh:mm, which is bad, might use Moment.js instead but will consult team
-                    let formattedStartTime = this.activity.startTime;
-                    let formattedEndTime = this.activity.endTime;
-                    if (this.activity.startTime.length === 10) {
-                        formattedStartTime = formattedStartTime.concat('T23:59')
-                    }
-                    if (this.activity.endTime.length === 10) {
-                        formattedEndTime = formattedEndTime.concat('T23:59')
-                    }
-                    activityForm["start_time"] = formattedStartTime.concat(':00+1300');
-                    activityForm["end_time"] = formattedEndTime.concat(':00+1300');
-                }
 
                 // Send the activityForm to the server to create a new activity
                 await server.post(`/profiles/${this.activity.profileId}/activities`,

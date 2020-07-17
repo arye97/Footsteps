@@ -35,9 +35,11 @@
                     description: null,
                     selectedActivityTypes: [],
                     continuous: true,
+                    submitStartTime: null,
+                    submitEndTime: null,
+                    location: null,
                     startTime: null,
                     endTime: null,
-                    location: null
                 },
                 activityId: null,
                 show: true,
@@ -55,8 +57,10 @@
             this.activityId = url.substring(url.lastIndexOf('/') + 1);
 
 
-            // Inserts the recieved activity data into the activity object
+            // Inserts the received activity data into the activity object
             await this.getActivityData(activityId);
+            this.dateFormatToString();
+            // Potential problem later with Admins, will always assume your the creator
             this.activity.profileId = await this.getUserId();
         },
 
@@ -73,22 +77,10 @@
                     description: this.activity.description,
                     activity_type: this.activity.selectedActivityTypes,
                     continuous: this.activity.continuous,
-                    location: this.activity.location
+                    location: this.activity.location,
+                    start_time: this.activity.submitStartTime,
+                    end_time: this.activity.submitEndTime
                 };
-                // If this Activity is continuous, add a start/end time to the activityForm
-                if (!this.activity.continuous) {
-                    // If no time provided, manually concatenating Thh:mm, which is bad, might use Moment.js instead but will consult team
-                    let formattedStartTime = this.activity.startTime;
-                    let formattedEndTime = this.activity.endTime;
-                    if (this.activity.startTime.length === 10) {
-                        formattedStartTime = formattedStartTime.concat('T23:59')
-                    }
-                    if (this.activity.endTime.length === 10) {
-                        formattedEndTime = formattedEndTime.concat('T23:59')
-                    }
-                    activityForm["start_time"] = formattedStartTime.concat(':00+1300');
-                    activityForm["end_time"] = formattedEndTime.concat(':00+1300');
-                }
 
                 // Send the activityForm to the server to create a new activity
                 await server.put(`/profiles/${this.activity.profileId}/activities/${this.activityId}`,
@@ -120,8 +112,8 @@
                     this.activity.continuous = (response.data.continuous === true);
                     this.activity.description = response.data.description;
                     this.activity.location = response.data.location;
-                    this.activity.startTime = response.data.start_time;
-                    this.activity.endTime = response.data.end_time;
+                    this.activity.submitStartTime = response.data.start_time;
+                    this.activity.submitEndTime = response.data.end_time;
                     for (let i = 0; i < response.data.activity_type.length; i++) {
                         this.activity.selectedActivityTypes.push(response.data.activity_type[i].name);
                     }
@@ -133,6 +125,21 @@
                         this.$router.push({ name: 'myProfile' });
                     }
                 })
+            },
+
+            /**
+             * Convert the date received from backend into frontend date string
+             */
+            dateFormatToString() {
+                if (!this.activity.continuous) {
+                    this.activity.submitStartTime = this.activity.submitStartTime.substring(0, 16);
+                    this.activity.submitEndTime = this.activity.submitEndTime.substring(0, 16);
+                } else {
+                    this.activity.submitStartTime = null;
+                    this.activity.submitEndTime = null;
+                }
+                this.activity.startTime = this.activity.submitStartTime;
+                this.activity.endTime = this.activity.submitEndTime;
             },
 
             /**
