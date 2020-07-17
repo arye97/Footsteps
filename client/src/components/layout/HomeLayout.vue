@@ -23,7 +23,7 @@
                                 <div class="col-sm-12 text-center">
 
 
-                                    Hi there! Feel free to use the navigation bar at the top of the screen to make your way around.
+                                    <p class="lead">ACTIVITIES GO HERE</p>
 
                                 </div>
 
