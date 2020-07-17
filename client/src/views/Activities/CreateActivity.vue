@@ -6,7 +6,7 @@
             <div class="container h-100">
                 <div class="row h-100 align-items-center">
                     <div class="col-12 text-center">
-                        <h1 class="font-weight-light">Welcome to Hakinakina</h1>
+                        <h1 class="font-weight-light">Create an Activity</h1>
                         <p class="lead">Plan your route with the best</p>
                     </div>
                 </div>

@@ -1,13 +1,9 @@
 <template>
     <div>
-        <h1><br/><br/></h1>
         <header class="masthead">
             <div class="container h-100">
                 <div class="row h-100 align-items-center">
                     <div class="col-12 text-center">
-                        <h1 class="font-weight-light">
-                            Create an activity<br/>
-                        </h1>
                         Entries marked with * are required<br/><br/>
                     </div>
                 </div>
@@ -314,14 +310,14 @@
                 if (!this.activity.continuous) {
                     // If no time provided, manually concatenating Thh:mm, which is bad, might use Moment.js instead but will consult team
                     if (this.activity.submitStartTime.length === 10) {
-                        this.activity.submitStartTime = this.activity.submitStartTime.concat('T23:59')
+                        this.activity.submitStartTime = this.activity.submitStartTime.concat('T00:01')
                     }
                     if (this.activity.submitEndTime.length === 10) {
-                        this.activity.submitEndTime = this.activity.submitEndTime.concat('T23:59')
+                        this.activity.submitEndTime = this.activity.submitEndTime.concat('T00:01')
                     }
 
-                    this.activity.submitStartTime = this.activity.submitStartTime.concat(':00+1300');
-                    this.activity.submitEndTime = this.activity.submitEndTime.concat(':00+1300');
+                    this.activity.submitStartTime = this.activity.submitStartTime.concat(':00+0000');
+                    this.activity.submitEndTime = this.activity.submitEndTime.concat(':00+0000');
                 }
             },
 

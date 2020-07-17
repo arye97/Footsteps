@@ -6,8 +6,6 @@
             <div class="row h-100 align-items-center">
                 <div class="col-12 text-center">
                     <Header/>
-                    <h1 class="font-weight-light">Welcome to Hakinakina</h1>
-                    <br/>
                     <br/>
                     <h1 class="font-weight-light">
                         Find something to do!<br/>
@@ -191,7 +189,7 @@
                 this.activityList.splice(this.activityList.findIndex(a => a.id === activityId), 1);
 
                 // Delete from database
-                await server.delete(`/activities/${activityId}`, {
+                await server.delete(`/profiles/${this.userId}/activities/${activityId}`, {
                     headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json",
                         "Token" : sessionStorage.getItem("token")},
                     withCredentials: true
