@@ -179,7 +179,7 @@
     import Sidebar from "../../components/layout/ProfileEditSidebar.vue"
     import Multiselect from 'vue-multiselect'
     import Header from '../../components/Header/Header.vue'
-    import server from "../../Api";
+    import api from "../../Api";
     import {getCountryNames, fitnessLevels} from '../../constants';
     import {validateUser, getDateString} from "../../util"
 
@@ -268,10 +268,7 @@
              */
             async fetchActivityTypes() {
                 this.activityTypes = null;
-                await server.get('activity-types',
-                    {headers: {'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")}
-                    }
-                ).then(response => {
+                await api.getActivityTypes().then(response => {
                     this.activityTypes = response.data.map(activity => activity['name']);
                     this.activityTypes.sort(function (a, b) {
                         return a.toLowerCase().localeCompare(b.toLowerCase());
@@ -355,11 +352,7 @@
                     'date_of_birth' : this.date_of_birth
                 };
                 let alertDiv = document.getElementById('overall_message');
-                await server.put('profiles/'.concat(this.profileId), editedUser,
-                    {headers: {'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")},
-                        withCredentials: true
-                    }
-                ).then(() => {
+                await api.editProfile(editedUser, this.profileId).then(() => {
                     alertDiv.classList.add("alert-success");
                     alertDiv.classList.remove("alert-danger");
                     this.message = "Successfully updated field";
@@ -380,10 +373,7 @@
             async updateInputs() {
                 if (!this.isRedirecting) {
                     // If this point is reached user is authorized to edit the profile, and profileId has been set
-                    await server.get('profiles/'.concat(this.profileId),
-                        {headers: {'Content-Type': 'application/json',
-                                                 'Token': sessionStorage.getItem("token")}}
-                    ).then(response => {
+                    await api.getUserData(this.profileId).then(response => {
                         this.loggedIn = true;
                         this.setUserFields(response.data);
                     }).catch(error => {
@@ -501,14 +491,7 @@
              * Checks if user can edit this given ID.
              */
             async validateUserIdWithToken() {
-                await server.get(`/check-profile/`.concat(this.$route.params.userId),
-                    {
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Token': sessionStorage.getItem("token"),
-                        },
-                    }
-                ).then(() => {
+                await api.checkProfile(this.profileId).then(() => {
                     // 200
                     // If admin will return 200
                     this.loggedIn = true;

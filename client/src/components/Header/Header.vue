@@ -39,7 +39,7 @@
 
 
 <script>
-    import server from "../../Api";
+    import api from "../../Api";
     export default {
         name: 'Header',
         isLoggedIn: false,
@@ -59,12 +59,7 @@
                 this.isLoggedIn = (sessionStorage.getItem("token") !== null);
             },
             async logout() {
-                await server.post('/logout', null,
-                    {
-                        headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json", 'Token': sessionStorage.getItem("token")},
-                        withCredentials: true
-                    }
-                ).then(() => {
+                await api.logout().then(() => {
                     sessionStorage.clear();
                     // tokenStore.setToken(null);
                     this.isLoggedIn = (sessionStorage.getItem("token") !== null);

@@ -50,7 +50,7 @@
 </style>
 
 <script>
-    import server from '../../Api';
+    import api from '../../Api';
     // import {tokenStore} from "../../main";
     import Header from '../../components/Header/Header.vue'
 
@@ -92,13 +92,7 @@
                     return;
                 }
                 // Send login post to serve
-                server.post('/login',
-                    userLogin,
-                    {
-                        headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
-                        withCredentials: true
-                    }
-                ).then(response => { //If successfully logged the response will have a status of 201
+                api.login(userLogin).then(response => { //If successfully logged the response will have a status of 201
                     if (response.status === 201) {
                         sessionStorage.setItem("token", response.data.Token);
                         let userId = response.data.userId;

@@ -99,7 +99,7 @@
 
 <script>
     import Header from '../../components/Header/Header.vue'
-    import server from "../../Api";
+    import api from "../../Api";
     export default {
         name: "AllActivities",
         components : {
@@ -125,22 +125,14 @@
                 }
             },
             async getUserId() {
-                await server.get(`/profiles/userId`, {
-                    headers: {"Access-Control-Allow-Origin": "*", "Content-Type" : "application/json",
-                        "Token" : sessionStorage.getItem("token")},
-                        withCredentials: true
-                }).then(response => {
+                await api.getUserId().then(response => {
                     this.userId = response.data;
                 }).catch(error => {
                     console.error(error);
                 })
             },
             async getListOfActivities() {
-                await server.get(`/profiles/${this.userId}/activities`, {
-                    headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json",
-                        "Token" : sessionStorage.getItem("token")},
-                        withCredentials: true
-                    }).then(response => { //If successfully registered the response will have a status of 201
+                await api.getUserActivities(this.userId).then(response => { //If successfully registered the response will have a status of 201
 
                         if (response.data.length === 0) {
                             this.noMore = true;
@@ -191,11 +183,7 @@
                 this.activityList.splice(this.activityList.findIndex(a => a.id === activityId), 1);
 
                 // Delete from database
-                await server.delete(`/activities/${activityId}`, {
-                    headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json",
-                        "Token" : sessionStorage.getItem("token")},
-                    withCredentials: true
-                }).catch(error => {
+                await api.deleteActivity(activityId).catch(error => {
                     console.error(error);
                 })
             }

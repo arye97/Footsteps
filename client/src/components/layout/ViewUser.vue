@@ -46,9 +46,10 @@
 </template>
 
 <script>
-    import server from "../../Api";
+    import api from "../../Api";
     import {fitnessLevels} from '../../constants'
     import Header from '../../components/Header/Header';
+    import {getDateString} from "../../util"
     export default {
         name: "ViewUser",
         components: {
@@ -91,11 +92,7 @@
 
             },
             async getProfile() {
-              await server.get(  `/profiles/${this.userId}`,
-                {headers:
-                    {"Access-Control-Allow-Origin": "*", 'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")}, withCredentials: true
-                },
-              ).then(response => {
+              await api.getUserData(this.userId).then(response => {
                 if (response.status === 200) {
                   //user is set to the user data retrieved
                   this.user = response.data;
@@ -110,6 +107,7 @@
                 }
               }).catch(error => {
                 this.errored = true;
+                console.log(error);
                 this.error = error.response.data.message;
                 if (error.response.data.status === 404 && sessionStorage.getItem('token') !== null) {
                   this.$router.push({ name: 'myProfile' });
@@ -120,11 +118,7 @@
               });
             },
             async getActivities() {
-                await server.get(  `/profiles/${this.userId}/activities`,
-                  {headers:
-                    {"Access-Control-Allow-Origin": "*", 'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")}, withCredentials: true
-                },
-                ).then(response => {if (response.status === 200) {
+                await api.getUserActivities(this.userId).then(response => {if (response.status === 200) {
                     this.continuousActivities = response.data.filter(e => e.continuous === true);
                     this.discreteActivities = response.data.filter(e => e.continuous === false);
                 }}).catch(error => {
@@ -138,12 +132,7 @@
                 });
             },
             logout() {
-                server.post('/logout', null,
-                    {
-                        headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json", 'Token': sessionStorage.getItem("token")},
-                        withCredentials: true
-                    }
-                ).then(() => {
+                api.logout().then(() => {
                     sessionStorage.clear();
                     // tokenStore.setToken(null);
                     this.isLoggedIn = (sessionStorage.getItem("token") !== null);
@@ -168,11 +157,7 @@
                     this.isEditable = true;
                     return;
                 }
-                await server.get(`/check-profile/`.concat(this.userId),
-                    {headers: {
-                            'Content-Type': 'application/json',
-                            'Token': sessionStorage.getItem("token")}}
-                ).then(() => {
+                await api.checkProfile(this.userId).then(() => {
                     // Status code 200
                     // User can edit this profile
                     // If admin will return 200

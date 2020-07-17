@@ -142,7 +142,7 @@
     </div>
 </template>
 <script>
-    import server from '../../Api';
+    import api from '../../Api';
     // import {tokenStore} from "../../main";
     import Sidebar from '../../components/layout/ProfileEditSidebar';
     import Header from '../../components/Header/Header.vue'
@@ -190,11 +190,7 @@
                 }
 
                 if (this.isEditable) {
-                    await server.get(`/profiles/${this.userId}`,
-                        {
-                            headers: {'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")},
-                            withCredentials: true
-                        },).then(response => {
+                    await api.getUserData(this.profileId).then(response => {
                         this.userId = response.data.id;
                     }).catch(error => {
                         if (error.response.data.status === 401) {
@@ -202,16 +198,7 @@
                         }
                     });
 
-                    await server.get(  `/profiles/${this.userId}/emails`,
-                        {
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Token': sessionStorage.getItem("token")
-                            },
-                            withCredentials: true
-                        }
-
-                    ).then(response => {
+                    await api.getUserEmails(this.profileId).then(response => {
                         if (response.status === 200) {
                             this.loading = false;
                             this.userId = response.data["userId"];
@@ -336,16 +323,7 @@
                     } else if (this.insertedEmail === this.originalPrimaryEmail || this.originalAdditionalEmails.includes(this.insertedEmail)) {
                         this.duplicateEmailError = null;
                     } else {
-                        server.get(`/email`,
-                            {
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Token': sessionStorage.getItem("token"),
-                                    'email': this.insertedEmail
-                                },
-                                withCredentials: true
-                            }
-                        ).then(() => {
+                        api.checkUserEmail(this.insertedEmail).then(() => {
                             this.duplicateEmailError = null;
                         }).catch(error => {
                             if (error.response.status === 400) {
@@ -410,17 +388,7 @@
                         additional_email: this.additionalEmails
                     };
 
-                    server.post(`/profiles/${this.userId}/emails`,
-                        savedEmails,
-                        {
-                            headers: {
-                                "Access-Control-Allow-Origin": "*",
-                                "Content-Type": "application/json",
-                                "Token": sessionStorage.getItem("token")
-                            },
-                            withCredentials: true
-                        }
-                    ).then(() => {
+                    api.updateEmails(savedEmails).then(() => {
                         console.log("Additional Emails updated successfully!");
                         window.alert("Successfully saved changes!");
                         this.updateOriginalAdditionalEmails();
@@ -451,17 +419,7 @@
                         additional_email: this.additionalEmails
                     };
                     console.log(`/profiles/${this.userId}/emails`);
-                    server.put(`/profiles/${this.userId}/emails`,
-                        savedEmails,
-                        {
-                            headers: {
-                                "Access-Control-Allow-Origin": "*",
-                                "Content-Type": "application/json",
-                                "Token": sessionStorage.getItem("token")
-                            },
-                            withCredentials: true
-                        }
-                    ).then(() => {
+                    api.putEmails(savedEmails).then(() => {
                         console.log('Primary Email and Additional Emails updated successfully!');
                         window.alert("Successfully saved changes!");
                         this.updateOriginalPrimaryEmail();
@@ -546,11 +504,7 @@
                     this.isEditable = true;
                     return;
                 }
-                await server.get(`/check-profile/${this.userId}`,
-                    {headers: {
-                            'Content-Type': 'application/json',
-                            'Token': sessionStorage.getItem("token")}}
-                ).then(() => {
+                await api.checkProfile(this.profileId).then(() => {
                     //Status code 200
                     //User can edit this profile
                     this.isEditable = true;
@@ -569,12 +523,7 @@
              * Logs the user out and clears session token
              */
             logout () {
-                server.post('/logout', null,
-                    {
-                        headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json", 'Token': sessionStorage.getItem("token")},
-                        withCredentials: true
-                    }
-                ).then(() => {
+                api.logout().then(() => {
                     sessionStorage.clear();
                     // tokenStore.setToken(null);
                     this.isLoggedIn = (sessionStorage.getItem("token") !== null);

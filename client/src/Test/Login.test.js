@@ -2,7 +2,7 @@ import {shallowMount} from '@vue/test-utils'
 import Login from '../views/Login/Login.vue'
 import "jest"
 import '../Api'
-import server from "../Api";
+import api from "../Api";
 import router from '../index';
 jest.mock("../Api");
 
@@ -43,12 +43,12 @@ test('Is a vue instance', () => {
 
 test('AC9 User is taken to homepage on login', ()=> {
     const userdata = {email: "tester@tester.com", password: "testPass"};
-    server.post.mockImplementation(() => Promise.resolve({ data: {'Token': 'ValidToken', 'userId': 1}, status: 201 }));
+    api.login.mockImplementation(() => Promise.resolve({ data: {'Token': 'ValidToken', 'userId': 1}, status: 201 }));
     let spy = jest.spyOn(router, 'push');
-    loginWrapper = shallowMount(Login, {router, mocks: {server}});
+    loginWrapper = shallowMount(Login, {router, mocks: {api}});
     loginWrapper.setData({...userdata, ...{message:""}});
     return loginWrapper.vm.login(new Event("dummy")).then(() => {
-        expect(loginWrapper.vm.server.post).toHaveBeenCalledWith("/login", userdata, {"headers": {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json"}, "withCredentials": true});
+        expect(loginWrapper.vm.api.login).toHaveBeenCalledWith(userdata);
         expect(spy).toHaveBeenCalledWith({"name": "profile", "params": {"userId": 1}});
     });
 });

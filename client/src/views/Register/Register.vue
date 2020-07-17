@@ -189,7 +189,7 @@
 </template>
 
 <script>
-    import server from '../../Api';
+    import api from '../../Api';
     import Multiselect from 'vue-multiselect'
     import Header from '../../components/Header/Header.vue'
     import {getCountryNames, fitnessLevels} from '../../constants';
@@ -314,10 +314,7 @@
              * Fetch all possible activity types from the server
              */
             async fetchActivityTypes() {
-                await server.get('activity-types',
-                    {headers: {'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")}
-                    }
-                ).then(response => {
+                await api.getActivityTypes().then(response => {
                     this.activityTypes = response.data.map(activity => activity['name']);
                     this.activityTypes.sort(function (a, b) {
                         return a.toLowerCase().localeCompare(b.toLowerCase());
@@ -383,13 +380,7 @@
                     return;
                 }
                 // The HTTP Post Request
-                await server.post('/profiles',
-                    newUser,
-                    {
-                        headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
-                        withCredentials: true
-                    }
-                ).then(response => { //If successfully registered the response will have a status of 201
+                api.register(newUser).then(response => { //If successfully registered the response will have a status of 201
                     if (response.status === 201) {
                         sessionStorage.setItem("token", response.data.Token);
                         // tokenStore.setToken(response.data);

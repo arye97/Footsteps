@@ -18,7 +18,7 @@
 
 <script>
     import Header from '../../components/Header/Header.vue'
-    import server from "../../Api";
+    import api from "../../Api";
     import ActivityForm from "../../components/Activities/ActivityForm.vue";
 
     /**
@@ -78,15 +78,7 @@
                 }
 
                 // Send the activityForm to the server to create a new activity
-                await server.post(`/profiles/${this.activity.profileId}/activities`,
-                    activityForm, {
-                        headers: {
-                            "Access-Control-Allow-Origin": "*",
-                            "Content-Type": "application/json",
-                            "Token": sessionStorage.getItem("token")
-                        },
-                        withCredentials: true,
-                    }).then(response => { // If successfully registered the response will have a status of 201
+                await api.createActivity(activityForm, this.activity.profileId).then(response => { // If successfully registered the response will have a status of 201
                         if (response.status === 201) {
                             this.$router.push("/activities");
                             // somehow can't get back to profile
@@ -102,16 +94,7 @@
              */
             async getUserId() {
                 let userId = null;
-                await server.get(`profiles/userId`,
-                    {
-                        headers: {
-                            "Access-Control-Allow-Origin": "*",
-                            "Content-Type": "application/json",
-                            "Token": sessionStorage.getItem("token")
-                        },
-                        withCredentials: true
-                    }
-                ).then(response => {
+                await api.getUserId().then(response => {
                     userId = response.data;
                 });
                 return userId

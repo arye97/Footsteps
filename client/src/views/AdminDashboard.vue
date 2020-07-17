@@ -19,8 +19,7 @@
 
 <script>
     import Header from '../components/Header/Header';
-    import server from "../Api";
-    import {tokenStore} from "../main";
+    import api from "../Api";
 
     export default {
         name: "ViewUser",
@@ -34,11 +33,7 @@
             }
         },
         async mounted() {
-            await server.get(  '/profiles',
-                {headers:
-                        {"Access-Control-Allow-Origin": "*", 'Content-Type': 'application/json', 'Token': tokenStore.state.token}, withCredentials: true
-                }, )
-                .then(response => {
+            await api.getAllUserData().then(response => {
                     if (response.status === 200) {
                         console.log('Status = OK. response.data:');
                         this.adminData = response.data;
