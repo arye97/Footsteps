@@ -1,13 +1,9 @@
 <template>
-
     <div id="app">
         <h1><br/><br/></h1>
         <b-container class="contents" fluid>
-
-            <header class="masthead">
-                <div class="container h-100">
-
-                    <div class="row h-100 align-items-center">
+                <div class="container">
+                    <div class="row h-100">
                         <div class="col-12 text-center">
                             <h1 class="font-weight-light"><strong>Welcome to Hakinakina</strong></h1>
                             <p class="lead">Plan your route with the best</p><br/>
@@ -17,32 +13,17 @@
                                     <button type="submit" id="registerButton" class="btn btn-outline-primary" v-on:click="register">Register</button>
                                 </div>
                             </form>
-
                             <!--div for main page stuff when user is logged in-->
                             <div v-if="this.isLoggedIn">
                                 <div class="col-sm-12 text-center">
-
-
                                     <p class="lead">ACTIVITIES GO HERE</p>
-
                                 </div>
-
-
-
-
                             </div>
                         </div>
                     </div>
                 </div>
-
-
-
-            </header>
-
         </b-container>
-
     </div>
-
 </template>
 
 
