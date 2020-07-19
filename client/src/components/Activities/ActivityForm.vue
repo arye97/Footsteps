@@ -88,13 +88,16 @@
                         <div v-if="has_start_time === false" >
                             <label id="input-start-label" for="input-start">Start Date: *</label>
                             <input type="date" class="form-control"
-                                   :value="activity.startTime.split('T')[0]"
+                                   :value="activity.startTime && activity.startTime.split('T')[0]"
                                    @input="activity.startTime = dateIntoDateTimeStr($event.target.value, activity.startTime)"
                                    id="input-start">
                         </div>
                         <div v-else>
                             <label id="input-start-time-label" for="input-start-time">Start Date: *</label>
-                            <input type="datetime-local" class="form-control" v-model="activity.startTime" id="input-start-time">
+                            <input type="datetime-local" class="form-control"
+                                   :value="activity.startTime"
+                                   @input="activity.startTime = $event.target.value === '' ? activity.startTime : $event.target.value"
+                                   id="input-start-time">
                         </div>
                         <b-form-checkbox
                                 class="checkbox-time"
@@ -118,13 +121,16 @@
                         <div v-if="has_end_time === false" >
                             <label id="input-end-label" for="input-end">End Date: *</label>
                             <input type="date" class="form-control"
-                                   :value="activity.endTime.split('T')[0]"
+                                   :value="activity.endTime && activity.endTime.split('T')[0]"
                                    @input="activity.endTime = dateIntoDateTimeStr($event.target.value, activity.endTime)"
                                    id="input-end">
                         </div>
                         <div v-else>
                             <label id="input-end-time-label" for="input-end-time">End Date: *</label>
-                            <input type="datetime-local" class="form-control" v-model="activity.endTime" id="input-end-time">
+                            <input type="datetime-local" class="form-control"
+                                   :value="activity.endTime"
+                                   @input="activity.endTime = $event.target.value === '' ? activity.endTime : $event.target.value"
+                                   id="input-end-time">
                         </div>
                         <b-form-checkbox
                                 class="checkbox-time"
@@ -223,6 +229,7 @@
                 maxNameCharCount: 75,
                 descriptionCharCount: 0,
                 maxDescriptionCharCount: 1500,
+                defaultTime: "12:00",
 
                 has_start_time: true,
                 has_end_time: true,
@@ -255,7 +262,15 @@
              * @param dateTimeStr string of the format yyyy-MM-ddThh:mm
              */
             dateIntoDateTimeStr(dateStr, dateTimeStr) {
-                let dateTimeArr = dateTimeStr.split('T');
+                if (dateStr === null || dateStr === "") {
+                    return dateTimeStr;
+                }
+                let dateTimeArr;
+                if (dateTimeStr === null || dateTimeStr === "") {
+                    dateTimeArr = ["", this.defaultTime]   // 12:00
+                } else {
+                    dateTimeArr = dateTimeStr.split('T');
+                }
                 dateTimeArr[0] = dateStr;
                 return dateTimeArr.join('T');
             },

@@ -37,6 +37,8 @@
                     continuous: true,
                     submitStartTime: null,
                     submitEndTime: null,
+                    startTime: null,
+                    endTime: null,
                     location: null
                 }
             }
