@@ -3,15 +3,17 @@
         <h1><br/><br/></h1>
         <b-container class="contents" fluid>
                 <div class="container">
+                    <h1><br/></h1>
                     <div class="row h-100">
                         <div class="col-12 text-center">
-                            <h1 class="font-weight-light"><strong>Welcome to Hakinakina</strong></h1>
-                            <p class="lead">Plan your route with the best</p><br/>
+                            <h1 class="font-weight-light">Hakinakina</h1>
+                            <p class="lead">Plan your route with the best</p>
+                            <hr><br/>
                             <form v-on:submit.prevent="register" v-if="!this.isLoggedIn">
                                 <div class="col text-center">
                                     <button type="submit" id="loginButton" class="btn btn-primary" v-on:click="login" >Log In</button><br/><br/>
                                     <button type="submit" id="registerButton" class="btn btn-outline-primary" v-on:click="register">Register</button>
-                                </div>
+                                </div><br/>
                             </form>
                             <!--div for main page stuff when user is logged in-->
                             <div v-if="this.isLoggedIn">

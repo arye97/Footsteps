@@ -101,7 +101,7 @@
                                     <b-card-text class="font-weight-light">
                                         {{this.formattedDate}}
                                     </b-card-text>
-                                </b-card>
+                                </b-card><br/>
                             </div>
                         </section>
                     </div>

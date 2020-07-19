@@ -2,6 +2,7 @@
     <div>
         <h1><br/><br/></h1>
         <b-container class="contents" fluid>
+            <h1><br/></h1>
             <div class="header-sidebar">
 
                 <div>

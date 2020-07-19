@@ -15,11 +15,11 @@
             <!-- Full Page Image Header with Vertically Centered Content -->
             <header class="masthead">
                 <div class="container h-100">
+                    <h1><br/></h1>
                     <div class="row h-100 align-items-center">
                         <div class="col-sm-12 text-center">
-                            <h1 class="font-weight-light">Welcome to Hakinakina</h1>
-                            <p class="lead">Plan your route with the best</p>
-                            <h1 class="font-weight-light">Login</h1>
+                            <h1 class="font-weight-light">Login to Hakinakina</h1>
+                            <hr>
                             <form @submit.prevent="login">
                                 <div class="form-group">
                                 <label for="email">Email Address: </label>
@@ -103,7 +103,37 @@
                 ).then(response => { //If successfully logged the response will have a status of 201
                     if (response.status === 201) {
                         sessionStorage.setItem("token", response.data.Token);
-                        this.$router.push('/'); //Route to home screen on successful login
+                        this.userId = response.data.userId;
+
+                        server.get('/profiles/' + this.userId + '/role',
+                            {
+                                headers: {'Content-Type': 'application/json',
+                                     'Token': sessionStorage.getItem("token"),
+                            },
+                            }
+                        ).then(roleResponse => {
+
+                            if (roleResponse.data == 20){ //Account is default admin
+                                this.$router.push('/admin');
+                            } else{
+                                this.$router.push('/'); //Route home on successful login
+                            }
+
+                        }).catch(err => {
+                            //Get alert bar element
+                            if (err.message === "Network Error") {
+                                this.message = err.message;
+                            } else if (err.response.data.status === 401) { //Error 401: User not found
+                                this.message = err.response.data.message.toString(); //Set alert bar message to error message from server
+                            } else if (err.response.data.status === 400) { //Error 400: Bad request
+                                this.message = "An invalid login request has been received please try again"
+                            } else {    //Catch for any errors that are not specifically caught
+                                this.message = "An unknown error has occurred during login"
+                            }
+                          sessionStorage.clear();
+                          showError('alert');
+
+                        })
                     }
                 }).catch(error => { //If an error occurs during login (includes server side errors)
                     //Get alert bar element

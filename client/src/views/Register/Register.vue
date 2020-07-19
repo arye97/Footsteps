@@ -18,14 +18,12 @@
         <b-container class="contents" fluid>
             <header class="masthead">
                 <div class="container h-100">
+                    <h1><br/></h1>
                     <div class="row h-100 align-items-center">
                         <div class="col-12 text-center">
-                            <h1 class="font-weight-light">Welcome to Hakinakina</h1>
-                            <p class="lead">Plan your route with the best</p>
-                            <h1 class="font-weight-light">
-                                Register with us<br/>
-                            </h1>
+                            <h1 class="font-weight-light">Register with us<br/></h1>
                             Entries marked with * are required<br/><br/>
+                            <hr><br/>
                         </div>
                     </div>
                 </div>
@@ -152,7 +150,7 @@
             </form>
             <footer class="col-12 text-center">
                 Entries marked with * are required
-            </footer>
+            </footer><br/>
         </b-container>
         <br/><br/>
     </div>
