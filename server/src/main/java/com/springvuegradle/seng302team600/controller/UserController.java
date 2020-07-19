@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.Utilities.UserValidator;
 import com.springvuegradle.seng302team600.Utilities.PasswordValidator;
 import com.springvuegradle.seng302team600.model.ActivityType;
-import com.springvuegradle.seng302team600.Utilities.UserValidator;
 import com.springvuegradle.seng302team600.model.DefaultAdminUser;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.model.UserRole;
@@ -19,11 +18,10 @@ import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
-import com.springvuegradle.seng302team600.service.UserValidationService;
+import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.webmvc.support.ExcerptProjector;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +37,7 @@ import java.util.Set;
 @RestController
 public class UserController {
 
-    private UserValidationService userService;
+    private UserAuthenticationService userService;
     private ActivityTypeService activityTypeService;
 
     private final UserRepository userRepository;
@@ -61,7 +59,7 @@ public class UserController {
 
 
     public UserController(UserRepository userRepository, EmailRepository emailRepository,
-                          UserValidationService userService, ActivityTypeService activityTypeService,
+                          UserAuthenticationService userService, ActivityTypeService activityTypeService,
                           ActivityTypeRepository activityTypeRepository, UserValidator userValidator) {
         this.userRepository = userRepository;
         this.emailRepository = emailRepository;

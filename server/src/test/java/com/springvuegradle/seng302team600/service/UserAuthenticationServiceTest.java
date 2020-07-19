@@ -20,8 +20,8 @@ import java.util.Calendar;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
-@WebMvcTest(UserValidationService.class)
-class UserValidationServiceTest {
+@WebMvcTest(UserAuthenticationService.class)
+class UserAuthenticationServiceTest {
 
     @MockBean
     private UserRepository userRepository;
@@ -29,7 +29,7 @@ class UserValidationServiceTest {
     private EmailRepository emailRepository;
 
     @Autowired
-    private UserValidationService userService;
+    private UserAuthenticationService userService;
 
     private UserRegisterRequest userData;
 

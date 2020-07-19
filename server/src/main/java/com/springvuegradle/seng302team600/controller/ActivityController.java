@@ -10,7 +10,7 @@ import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
-import com.springvuegradle.seng302team600.service.UserValidationService;
+import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -31,14 +31,14 @@ import java.util.Set;
 public class ActivityController {
 
     private ActivityRepository activityRepository;
-    private UserValidationService userValidationService;
+    private UserAuthenticationService userAuthenticationService;
     private ActivityTypeService activityTypeService;
     private UserRepository userRepository;
 
-    public ActivityController(ActivityRepository activityRepository, UserValidationService userValidationService,
+    public ActivityController(ActivityRepository activityRepository, UserAuthenticationService userAuthenticationService,
                               ActivityTypeService activityTypeService, UserRepository userRepository) {
         this.activityRepository = activityRepository;
-        this.userValidationService = userValidationService;
+        this.userAuthenticationService = userAuthenticationService;
         this.activityTypeService = activityTypeService;
         this.userRepository = userRepository;
     }
@@ -56,7 +56,7 @@ public class ActivityController {
                             @PathVariable(value = "profileId") Long profileId) {
         String token = request.getHeader("Token");
         // Throws error if token doesn't match the profileId, i.e. you can't create an activity with a creatorUserId that isn't your own
-        userValidationService.findByUserId(token, profileId);
+        userAuthenticationService.findByUserId(token, profileId);
         // Use ActivityType entities from the database.  Don't create duplicates.
         newActivity.setActivityTypes(
                 activityTypeService.getMatchingEntitiesFromRepository(newActivity.getActivityTypes())
@@ -105,7 +105,7 @@ public class ActivityController {
                              @RequestBody String jsonActivityEditString,
                              @PathVariable(value = "profileId") Long profileId) throws IOException {
         String token = request.getHeader("Token"); //this is the users token
-        userValidationService.findByUserId(token, profileId); //ResponseStatusException thrown if user unauthorized or forbidden from accessing requested user
+        userAuthenticationService.findByUserId(token, profileId); //ResponseStatusException thrown if user unauthorized or forbidden from accessing requested user
         Activity activity = activityRepository.findByActivityId(activityId);
         ObjectMapper nodeMapper = new ObjectMapper();
         ObjectNode editedData = nodeMapper.readValue(jsonActivityEditString, ObjectNode.class);
@@ -164,7 +164,7 @@ public class ActivityController {
         String token = request.getHeader("Token");
         User user = userRepository.findByToken(token); //finds user and validates they exist
 
-        if ((!userValidationService.hasAdminPrivileges(user)) && (authorId != null)) {
+        if ((!userAuthenticationService.hasAdminPrivileges(user)) && (authorId != null)) {
             /* Only run this check if the user is NOT an Admin,
                otherwise admins can delete/edit others activities.
              */

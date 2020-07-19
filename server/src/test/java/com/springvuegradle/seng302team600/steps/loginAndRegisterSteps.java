@@ -52,7 +52,7 @@ public class loginAndRegisterSteps extends cucumberSpringBase {
 
     @Given("I am logged in as Bob with email {string} and password {string}")
     public void i_am_logged_in_as_Bob_with_email_and_password(String email, String password) {
-        when(userValidationService.login(email, password)).thenAnswer( i -> {
+        when(userAuthenticationService.login(email, password)).thenAnswer(i -> {
             User user = savedUsers.get(email);
             if (user != null) {
                 user.setToken(authenticationToken);
@@ -60,7 +60,7 @@ public class loginAndRegisterSteps extends cucumberSpringBase {
             }
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Could not login");
         });
-        assertEquals(authenticationToken, userValidationService.login(email, password));
+        assertEquals(authenticationToken, userAuthenticationService.login(email, password));
     }
 
     private void logUserOut(String authenticate) {
@@ -73,8 +73,8 @@ public class loginAndRegisterSteps extends cucumberSpringBase {
 
     @When("I log out")
     public void i_log_out() {
-        doNothing().when(userValidationService).logout(authenticationToken);
-        userValidationService.logout(authenticationToken);
+        doNothing().when(userAuthenticationService).logout(authenticationToken);
+        userAuthenticationService.logout(authenticationToken);
         logUserOut(authenticationToken);
     }
 
