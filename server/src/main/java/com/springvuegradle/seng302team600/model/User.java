@@ -29,7 +29,7 @@ public class User {
     final static public int MIN_AGE = 13;
     final static public int MAX_AGE = 150;
 
-    final static private int FIELD_LEN = 15;
+    final static private int FIELD_LEN = 45;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
