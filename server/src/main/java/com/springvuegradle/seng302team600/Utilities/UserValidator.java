@@ -40,7 +40,7 @@ public class UserValidator {
      * @return true if valid user, otherwise throw ResponseStatusException
      */
 
-    public boolean validate(User user) {
+    public boolean validate(User user) throws ResponseStatusException {
 //
         validateName(user.getFirstName(), "first");
         validateName(user.getLastName(), "last");
@@ -78,18 +78,18 @@ public class UserValidator {
      * @param part the part of the full name that the given name represents [first, middle, last]
      * @throws ResponseStatusException thrown if the given name is invalid
      */
-    private void validateName(String name, String part) {
+    public boolean validateName(String name, String part) {
         if (name == null) {
             if (part.equals("middle") || part.equals("nick")) {
-                return;
+                return true;
             }
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid " + part + " name. " + NAME_ERROR);
         }
         if (name.length() > MAX_NAME_LEN) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid " + part + " name. " + NAME_ERROR);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid " + part + " name. Name is too long");
         }
         if (!part.equals("nick")) {
-            if (name.equals("middle")) {
+            if (part.equals("middle")) {
                 if (!name.matches(nameRegex) && !name.isEmpty()) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid " + part + " name. " + NAME_ERROR);
                 }
@@ -99,6 +99,7 @@ public class UserValidator {
                 }
             }
         }
+        return true;
     }
 
 
@@ -109,7 +110,7 @@ public class UserValidator {
      * @param younger boolean tag to determine if checking if the person is younger or older (false:older, true:younger)
      * @throws ResponseStatusException given DoB results in the user being younger/older than the given age
      */
-    private void validateAge(Date DoB, int age, boolean younger) {
+    public boolean validateAge(Date DoB, int age, boolean younger) {
         Calendar calendar = Calendar.getInstance();
         //Lock calender time to end of day to ensure comparison is accurate and reliable
         calendar.set(Calendar.HOUR_OF_DAY, 23);
@@ -127,6 +128,7 @@ public class UserValidator {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date of birth");
             }
         }
+        return true;
     }
 
     /**
@@ -134,13 +136,14 @@ public class UserValidator {
      * @param bio is the bio string for the potntial user that is to be validated
      * @throws ResponseStatusException if the length of the bio string exceeds MAX_BIO_LEN
      */
-    public void validateBio(String bio) {
+    public boolean validateBio(String bio) {
         if (bio == null) {
-            return;
+            return true;
         }
         if (bio.length() > MAX_BIO_LEN) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bio exceeds maximum length");
         }
+        return true;
     }
 
     /**
@@ -150,13 +153,14 @@ public class UserValidator {
      * @param email is the string of an email for the given user
      * @throws ResponseStatusException if the given email string is invalid
      */
-    public void validateEmail(String email) {
+    public boolean validateEmail(String email) {
         if (email.length() > MAX_EMAIL_LEN) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email exceeds maximum length");
         }
         if (!email.matches(emailRegex)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email");
         }
+        return true;
     }
 
     /**
@@ -165,10 +169,11 @@ public class UserValidator {
      * @param level is the int representation of the users fitness level
      * @throws ResponseStatusException if the given fitness level is invalid
      */
-    public void validateFitnessLevel(int level) {
+    public boolean validateFitnessLevel(int level) {
         if (level < MIN_FITNESS_LEVEL || level > MAX_FITNESS_LEVEL) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid fitness level received");
         }
+        return true;
     }
 
     /**
@@ -177,18 +182,20 @@ public class UserValidator {
      * @param passport is the passport country string of the user
      * @throw ResponseStatusException if the passport string is invalid
      */
-    public void validatePassport(String passport) {
+    public boolean validatePassport(String passport) {
         if (passport == null) {
-            return;
+            return true;
         }
         if (passport.length() > MAX_PASSPORT_LEN) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum character limit exceeded for passport country");
         }
+        return true;
     }
 
-    public void validateActivityType(ActivityType activityType, Set<ActivityType> activityTypes) {
+    public boolean validateActivityType(ActivityType activityType, Set<ActivityType> activityTypes) {
         if (!activityTypes.contains(activityType)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid activity type received");
         }
+        return true;
     }
 }
