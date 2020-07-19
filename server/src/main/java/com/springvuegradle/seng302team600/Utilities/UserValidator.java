@@ -191,6 +191,9 @@ public class UserValidator {
         if (passport.length() > MAX_PASSPORT_LEN) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum character limit exceeded for passport country");
         }
+        else if (passport.length() == 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Blank/empty passport country string is not valid");
+        }
         return true;
     }
 

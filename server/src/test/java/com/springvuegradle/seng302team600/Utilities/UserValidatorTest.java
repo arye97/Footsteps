@@ -40,6 +40,7 @@ public class UserValidatorTest {
     private UserValidator userValidator;
     private User testUser;
     private User nullUser;
+    private List<String> passports;
     private List<ActivityType> activityTypeList = new ArrayList<>();
     private Set<ActivityType> activityTypeSet;
     private List<String> addEmails;
@@ -72,7 +73,7 @@ public class UserValidatorTest {
         testUser.setPrimaryEmail("john@email.com");
         testUser.setAdditionalEmails(addEmails);
         testUser.setFitnessLevel(3);
-        List<String> passports = new ArrayList<>();
+        passports = new ArrayList<>();
         passports.add("New Zealand");
         passports.add("USA");
         testUser.setPassports(passports);
@@ -259,10 +260,50 @@ public class UserValidatorTest {
     }
 
     //fitness level
+    @Test
+    public void invalidFitnessLevel() {
+        //Valid
+        assertTrue(userValidator.validate(testUser));
+
+        //Invalid number
+        testUser.setFitnessLevel(-2);
+        Exception exception = assertThrows(ResponseStatusException.class, () -> {userValidator.validate(testUser);});
+        assertEquals("400 BAD_REQUEST \"Invalid fitness level received\"", exception.getMessage());
+
+        //Valid number
+        testUser.setFitnessLevel(-1);
+        assertTrue(userValidator.validate(testUser));
+        testUser.setFitnessLevel(4);
+        assertTrue(userValidator.validate(testUser));
+
+        //Invalid number
+        testUser.setFitnessLevel(5);
+        exception = assertThrows(ResponseStatusException.class, () -> {userValidator.validate(testUser);});
+        assertEquals("400 BAD_REQUEST \"Invalid fitness level received\"", exception.getMessage());
+    }
 
     //passport
+    @Test
+    public void invalidPassports() {
+        //valid
+        assertTrue(userValidator.validate(testUser));
 
-    // activity types invlaid
+        //Invalid blank
+        passports.add("");
+        testUser.setPassports(passports);
+        Exception exception = assertThrows(ResponseStatusException.class, () -> {userValidator.validate(testUser);});
+        assertEquals("400 BAD_REQUEST \"Blank/empty passport country string is not valid\"", exception.getMessage());
+
+        //Invalid exceed length
+        passports.set(2, "long name country AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+                "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+                "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        testUser.setPassports(passports);
+        exception = assertThrows(ResponseStatusException.class, () -> {userValidator.validate(testUser);});
+        assertEquals("400 BAD_REQUEST \"Maximum character limit exceeded for passport country\"", exception.getMessage());
+    }
+
+    // activity types invalid
     @Test
     public void invalidActivityTypeTest() {
         ActivityType invalidActivityType = new ActivityType("Bad type");
