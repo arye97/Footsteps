@@ -21,8 +21,7 @@ public class UserValidatorTest {
 
     @BeforeEach
     public void setUp() {
-        testUser = new User()
-
+        User testUser = new User();
     }
 
 }

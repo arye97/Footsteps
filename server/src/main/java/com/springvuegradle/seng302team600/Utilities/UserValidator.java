@@ -53,12 +53,18 @@ public class UserValidator {
             validateEmail(emailObj.getEmail());
         }
         validateFitnessLevel(user.getFitnessLevel());
-        for (String passport : user.getPassports()) {
-            validatePassort(passport);
+        List<String> userPassports = user.getPassports();
+        if (userPassports != null) {
+            for (String passport : userPassports) {
+                validatePassport(passport);
+            }
         }
         Set<ActivityType> activityTypes = new HashSet<>(activityTypeRepository.findAll());
-        for (ActivityType activityType : user.getActivityTypes()) {
-            validateActivityType(activityType, activityTypes);
+        Set<ActivityType> userActivityTypes = user.getActivityTypes();
+        if (userActivityTypes != null) {
+            for (ActivityType activityType : userActivityTypes) {
+                validateActivityType(activityType, activityTypes);
+            }
         }
         return true;
     }
@@ -129,6 +135,9 @@ public class UserValidator {
      * @throws ResponseStatusException if the length of the bio string exceeds MAX_BIO_LEN
      */
     public void validateBio(String bio) {
+        if (bio == null) {
+            return;
+        }
         if (bio.length() > MAX_BIO_LEN) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bio exceeds maximum length");
         }
@@ -168,7 +177,10 @@ public class UserValidator {
      * @param passport is the passport country string of the user
      * @throw ResponseStatusException if the passport string is invalid
      */
-    public void validatePassort(String passport) {
+    public void validatePassport(String passport) {
+        if (passport == null) {
+            return;
+        }
         if (passport.length() > MAX_PASSPORT_LEN) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum character limit exceeded for passport country");
         }

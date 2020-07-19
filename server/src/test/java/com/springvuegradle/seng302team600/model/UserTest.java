@@ -1,6 +1,7 @@
 package com.springvuegradle.seng302team600.model;
 
 import com.springvuegradle.seng302team600.Utilities.UserValidator;
+import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.ReflectionUtils;
@@ -13,6 +14,7 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
 public class UserTest {
 
@@ -29,9 +31,10 @@ public class UserTest {
     void setUp() {
         userTest = new User();
         userTest.setFirstName("Jimmy");
-        userTest.setMiddleName(null);
         userTest.setLastName("Jones");
         userTest.setDateOfBirth(getAgeDate(50));
+        ActivityTypeRepository mockActivityTypeRepository = mock(ActivityTypeRepository.class);
+        validator = new UserValidator(mockActivityTypeRepository);
     }
 
     @Test
@@ -76,7 +79,7 @@ public class UserTest {
     @Test
     void invalidFirstNameNull() {
         assertTrue(validator.validate(userTest));
-        userTest.setFirstName(null);
+        userTest.setFirstName("");
         assertThrows(ResponseStatusException.class, () -> validator.validate(userTest));
     }
 
