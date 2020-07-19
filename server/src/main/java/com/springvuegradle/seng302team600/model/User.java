@@ -3,7 +3,7 @@ package com.springvuegradle.seng302team600.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.springvuegradle.seng302team600.payload.RegisterRequest;
+import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
@@ -13,10 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity
 public class User {
@@ -32,7 +29,7 @@ public class User {
     final static public int MIN_AGE = 13;
     final static public int MAX_AGE = 150;
 
-    final static private int FIELD_LEN = 15;
+    final static private int FIELD_LEN = 45;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -114,6 +111,14 @@ public class User {
     @JsonProperty("passports")
     private List<String> passports;
 
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})  // ALL except REMOVE
+    @JoinTable(
+            name = "user_activity_type",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "id"))
+    @JsonProperty("activityTypes")
+    private Set<ActivityType> activityTypes;
+
     public enum Gender {
         @JsonProperty("Male")
         MALE,
@@ -137,11 +142,20 @@ public class User {
     }
 
     /**
-     * Builds user from the payload, using getters and setters.
+     * Builds user from the payload, using getters and setters.  Use when creating new user from data.
+     * @param userData payload for registering.
+     */
+    public User(UserRegisterRequest userData) {
+        this();
+        this.builder(userData);
+    }
+
+    /**
+     * Builds user from the payload, using getters and setters.  Use when preserving UserId and token, etc.
      * @param userData payload for registering.
      * @return the built user.
      */
-    public User builder(RegisterRequest userData) {
+    public User builder(UserRegisterRequest userData) {
         this.setFirstName(userData.getFirstName());
         this.setMiddleName(userData.getMiddleName());
         this.setLastName(userData.getLastName());
@@ -153,6 +167,7 @@ public class User {
         this.setGender(userData.getGender());
         this.setFitnessLevel(userData.getFitnessLevel());
         this.setPassports(userData.getPassports());
+        this.setActivityTypes(userData.getActivityTypes());
         return this;
     }
 
@@ -226,6 +241,10 @@ public class User {
         return primaryEmail;
     }
 
+    public Set<ActivityType> getActivityTypes() { return activityTypes; }
+
+    public void setActivityTypes(Set<ActivityType> activityTypes) { this.activityTypes = activityTypes; }
+
     /**
      * Sets primary email of User
      * @param newPrimaryEmail an email to be set primary
@@ -263,7 +282,6 @@ public class User {
                 }
             }
         }
-
         // IF EMAIL HAS NOT BEEN ASSOCIATED TO USER
         primaryEmail = newPrimaryEmail;
         Email email = new Email(newPrimaryEmail, true, this);

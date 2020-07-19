@@ -161,7 +161,6 @@
     import Multiselect from 'vue-multiselect'
     import Header from '../../components/Header/Header.vue'
     import {getCountryNames, fitnessLevels} from '../../constants';
-    // import {tokenStore} from '../../main';
     import {validateUser} from "../../util";
 
     function showError(alert_name) {
@@ -176,7 +175,7 @@
     async function validUser(newUser, passwordCheck) {
         let count = 0; //count of blank fields
         if(!validateUser(newUser.password, "password").valid) {
-            showError('alert_password');
+            showError('alert_password_check');
             count += 1;
         }
         if (newUser.password !== passwordCheck) {
@@ -230,14 +229,17 @@
                 message_form: "",
                 message_password_check: '',
                 countries: [],
+                activityTypes: [],
                 genders: ['Male', 'Female', 'Non-Binary'],
                 passports: [],
+                selectedActivityTypes: [],
                 isDisplayingRules: false
             }
         },
 
         mounted () {
             this.fetchCountries();
+            this.fetchActivityTypes();
         },
 
         methods: {
@@ -245,7 +247,31 @@
                 this.isDisplayingRules = true;
             },
             unDisplayRules() {
-                this.isDisplayingRules = false;
+                if(!validateUser(this.password, "password").valid && this.password !== '') {
+                    //Password rules not followed
+                    showError('alert_password_check');
+
+                } else if (this.password !== this.passwordCheck && (this.password !== '' || this.passwordCheck !== '')) {
+                    //Passwords don't match
+                    showError('alert_password_match');
+
+                } else {
+                    this.isDisplayingRules = false;
+                }
+            },
+            /**
+             * Fetch all possible activity types from the server
+             */
+            async fetchActivityTypes() {
+                await server.get('activity-types',
+                    {headers: {'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")}
+                    }
+                ).then(response => {
+                    this.activityTypes = response.data.map(activity => activity['name']);
+                    this.activityTypes.sort(function (a, b) {
+                        return a.toLowerCase().localeCompare(b.toLowerCase());
+                    });
+                });
             },
             async fetchCountries() {
                 let select = [];
@@ -288,7 +314,8 @@
                     gender: this.gender,
                     bio: this.bio.trim(),
                     fitness: this.fitness.value,
-                    passports: this.passports
+                    passports: this.passports,
+                    activity_types: this.selectedActivityTypes
                 };
                 if (newUser.fitness === undefined) newUser.fitness = -1;
                 let validCount = await validUser(newUser, this.passwordCheck);

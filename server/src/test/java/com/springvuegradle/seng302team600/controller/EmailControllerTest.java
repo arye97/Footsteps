@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
-import com.springvuegradle.seng302team600.payload.RegisterRequest;
+import com.springvuegradle.seng302team600.model.UserRole;
+import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
+import com.springvuegradle.seng302team600.payload.UserResponse;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.service.UserValidationService;
@@ -44,76 +46,32 @@ class EmailControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    private String createUser1JsonPost;
-    private String addEmailsJsonPostAdditionalEmails;
-    private String addEmailsJsonPostCurrentPrimaryEmailInAdditionalEmails;
-    private String addEmailsJsonPostCurrentRemovedOneEmailInAdditionalEmails;
-    private String updateEmailsJsonPutPrimaryAndAdditionalEmails;
-
-
-    private String createUser2JsonPost;
+    private static final Long DEFAULT_USER_ID = 1L;
+    private static final Long DEFAULT_EMAIL_ID = 1L;
 
     private ObjectMapper objectMapper;
-    private User dummyUser;
-    private RegisterRequest regReq;
+    private User dummyUser1;
+    private User dummyUser2; // Used when a second user is required
     private Email dummyEmail;
-    private String validToken = "valid";
-
+    private final String validToken = "valid";
+    private boolean defaultAdminIsRegistered;
 
     @BeforeEach
-    public void setUp() {
-
-        createUser1JsonPost = "{\n" +
-                "  \"lastname\": \"Kim\",\n" +
-                "  \"firstname\": \"Tim\",\n" +
-                "  \"primary_email\": \"tim@gmail.com\",\n" +
-                "  \"password\": \"pinPwd\",\n" +
-                "  \"date_of_birth\": \"2001-7-9\",\n" +
-                "  \"gender\": \"Non-Binary\"\n" +
-                "}";
-
-        addEmailsJsonPostAdditionalEmails = "{\n" +
-                "  \"additional_email\": [\n" +
-                        "  \"sillybilly@yahoo.com\",\n" +
-                        "  \"meanyweasley@yahoo.com\"\n" +
-                "  ] " +
-                "}";
-
-        addEmailsJsonPostCurrentPrimaryEmailInAdditionalEmails = "{\n" +
-                "  \"additional_email\": [\n" +
-                        "  \"sillybilly@yahoo.com\",\n" +
-                        "  \"tim@gmail.com\"\n" +
-                "  ] " +
-                "}";
-
-        addEmailsJsonPostCurrentRemovedOneEmailInAdditionalEmails = "{\n" +
-                "  \"additional_email\": [\n" +
-                        "  \"sillybilly@yahoo.com\"\n" +
-                "  ] " +
-                "}";
-
-        updateEmailsJsonPutPrimaryAndAdditionalEmails = "{\n" +
-                "  \"primary_email\": \"lecousindangereux@gmail.com\",\n" +
-                "  \"additional_email\": [\n" +
-                        "  \"smellyjerry@yahoo.com\"\n" +
-                "  ] " +
-                "}";
-
-
-//        createUser2JsonPost = "{\n" +
-//                "  \"lastname\": \"Billy\",\n" +
-//                "  \"firstname\": \"Silly\",\n" +
-//                "  \"primary_email\": \"sillybilly@yahoo.com\",\n" +
-//                "  \"password\": \"iamASillyLittleBumbum\",\n" +
-//                "  \"date_of_birth\": \"1960-7-9\",\n" +
-//                "  \"gender\": \"Male\"\n" +
-//                "}";
-
+    void setUp() {
+        defaultAdminIsRegistered = false;
 
         objectMapper = new ObjectMapper();
         MockitoAnnotations.initMocks(this);
-        dummyUser = new User();
+        dummyUser1 = new User();
     }
+
+    private final String createUserJsonViewUser2 = JsonConverter.toJson(true,
+            "lastname", "Cucumber",
+            "firstname", "Larry",
+            "primary_email", "larry@gmail.com",
+            "password", "larrysPassword",
+            "date_of_birth", "2002-1-20",
+            "gender", "Female");
 
     private void setupMocking(String json) throws JsonProcessingException {
         setupMockingNoEmail(json);
@@ -121,42 +79,77 @@ class EmailControllerTest {
             return i.getArgument(0).equals(dummyEmail.getEmail());
         });
     }
-
     private void setupMockingNoEmail(String json) throws JsonProcessingException {
-        regReq = objectMapper.treeToValue(objectMapper.readTree(json), RegisterRequest.class);
-        dummyUser = dummyUser.builder(regReq);
-        dummyEmail = new Email(dummyUser.getPrimaryEmail(), true, dummyUser);
-        when(userRepository.save(Mockito.any(User.class))).thenReturn(dummyUser);
+        UserRegisterRequest regReq;
+        regReq = objectMapper.treeToValue(objectMapper.readTree(json), UserRegisterRequest.class);
+        dummyUser1 = dummyUser1.builder(regReq);
+        dummyEmail = new Email(dummyUser1.getPrimaryEmail(), true, dummyUser1);
+        when(userRepository.save(Mockito.any(User.class))).thenAnswer(i -> {
+            User user = i.getArgument(0);
+            if (user.getRole() == UserRole.DEFAULT_ADMIN) {
+                defaultAdminIsRegistered = true;
+            }
+            return dummyUser1;
+        });
         when(emailRepository.save(Mockito.any(Email.class))).thenReturn(dummyEmail);
         when(emailRepository.findByEmail(Mockito.matches(dummyEmail.getEmail()))).thenReturn(dummyEmail);
         when(emailRepository.getOne(Mockito.anyLong())).thenReturn(dummyEmail);
         when(userValidationService.findByToken(Mockito.anyString())).thenAnswer(i -> {
-            if (i.getArgument(0).equals(dummyUser.getToken())) return dummyUser;
+            if (i.getArgument(0).equals(dummyUser1.getToken())) return dummyUser1;
             else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         });
-        when(userRepository.findByUserId(Mockito.anyLong())).thenReturn(dummyUser);
+        when(userRepository.findByUserId(Mockito.anyLong())).thenReturn(dummyUser1);
+        when(userRepository.existsUserByRole(Mockito.anyInt())).thenAnswer(i -> {
+            if (((int)i.getArgument(0) == UserRole.DEFAULT_ADMIN) && !defaultAdminIsRegistered) {
+                return false;
+            }
+            return true;
+        });
         when(emailRepository.existsEmailByEmail(Mockito.anyString())).thenReturn(false);
         when(userValidationService.findByUserId(Mockito.anyString(), Mockito.anyLong())).thenAnswer(i -> {
-            if (i.getArgument(0).equals(dummyUser.getToken()) && i.getArgument(1).equals(dummyUser.getUserId()))
-                return dummyUser;
-            else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            if (i.getArgument(0).equals(dummyUser1.getToken()) && i.getArgument(1).equals(dummyUser1.getUserId()))
+                return dummyUser1;
+            else if ((i.getArgument(0).equals(dummyUser1.getToken())) && !(i.getArgument(1).equals(dummyUser1.getUserId())))
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            else
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         });
-        // Set up dummy user id and dummy email id
-        ReflectionTestUtils.setField(dummyUser, "userId", 1L);
-        ReflectionTestUtils.setField(dummyEmail, "id", 1L);
-        when(userValidationService.login(Mockito.anyString(), Mockito.anyString())).thenAnswer(i -> {
-            if (i.getArgument(0).equals(dummyEmail.getEmail()) && dummyUser.checkPassword(i.getArgument(1)))
-                return "ValidToken";
+        ReflectionTestUtils.setField(dummyUser1, "userId", DEFAULT_USER_ID);
+        ReflectionTestUtils.setField(dummyEmail, "emailId", DEFAULT_EMAIL_ID);
+        when(userValidationService.login(Mockito.anyString(),Mockito.anyString())).thenAnswer(i -> {
+            if (i.getArgument(0).equals(dummyEmail.getEmail()) && dummyUser1.checkPassword(i.getArgument(1))) return new UserResponse("ValidToken", dummyUser1.getUserId());
             else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         });
         Mockito.doAnswer(i -> {
-            if (i.getArgument(0).equals(dummyUser.getToken())) dummyUser.setToken(null);
+            if (i.getArgument(0).equals(dummyUser1.getToken())) dummyUser1.setToken(null);
             return null;
         }).when(userValidationService).logout(Mockito.anyString());
-        dummyUser.setToken(validToken);
-        dummyUser.setTokenTime();
+        dummyUser1.setToken(validToken);
+        dummyUser1.setTokenTime();
+
+        // Second user
+        regReq = objectMapper.treeToValue(objectMapper.readTree(createUserJsonViewUser2), UserRegisterRequest.class);
+        dummyUser2 = new User(regReq);
+        Email fakeEmail = new Email(dummyUser2.getPrimaryEmail(), true, dummyUser2);
+        ReflectionTestUtils.setField(dummyUser2, "userId", 10L);
+        ReflectionTestUtils.setField(fakeEmail, "emailId", 10L);
+        when(userValidationService.viewUserById(Mockito.anyLong(), Mockito.anyString())).thenAnswer(i -> {
+            if ((long) i.getArgument(0) == 10L && i.getArgument(1) == validToken) return dummyUser2;
+            else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        });
     }
 
+
+
+    // ----------- Tests -----------
+
+    private final String createUser1JsonPost = JsonConverter.toJson(true,
+            "lastname", "Kim",
+            "firstname", "Tim",
+            "primary_email", "tim@gmail.com",
+            "password", "pinPwd",
+            "date_of_birth", "2001-7-9",
+            "gender", "Non-Binary");
     @Test
     public void findEmailDataWhenUserIsUnauthorized_Failure() throws Exception {
         setupMocking(createUser1JsonPost);
@@ -173,7 +166,7 @@ class EmailControllerTest {
     @Test
     public void findEmailData_WhenUserIsAuthorized_Success() throws Exception {
         setupMocking(createUser1JsonPost);
-        Long userId = dummyUser.getUserId();
+        Long userId = dummyUser1.getUserId();
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/profiles/{profileId}/emails", userId)
                 .header("Token", validToken);
         MvcResult result = mvc.perform(request)
@@ -187,10 +180,13 @@ class EmailControllerTest {
     }
 
 
+    private final String addEmailsJsonPostAdditionalEmails = JsonConverter.toJson(true,
+            "additional_email", new Object[]{
+                    "sillybilly@yahoo.com", "meanyweasley@yahoo.com"});
     @Test
     public void addAdditionalEmails_Success() throws Exception {
         setupMocking(createUser1JsonPost);
-        Long userId = dummyUser.getUserId();
+        Long userId = dummyUser1.getUserId();
         MockHttpServletRequestBuilder getEmailsRequest = MockMvcRequestBuilders.get("/profiles/{profileId}/emails", userId)
                 .header("Token", validToken);
         MvcResult result = mvc.perform(getEmailsRequest)
@@ -232,6 +228,9 @@ class EmailControllerTest {
         assertEquals(expectedEmails, additionalEmailsFromJson);
     }
 
+    private final String addEmailsJsonPostCurrentPrimaryEmailInAdditionalEmails = JsonConverter.toJson(true,
+            "additional_email", new Object[]{
+                    "sillybilly@yahoo.com", "tim@gmail.com"});
     /**
      * Tests addEmails when the User submits a primary email in the list of additional emails.
      * This fails as addEmails does not have the functionality to swap primary email into additional email.
@@ -239,7 +238,7 @@ class EmailControllerTest {
     @Test
     public void addAdditionalEmails_Failure_WhenUserIsAlreadyUsingEmailAsPrimaryEmail() throws Exception {
         setupMocking(createUser1JsonPost);
-        Long userId = dummyUser.getUserId();
+        Long userId = dummyUser1.getUserId();
         MockHttpServletRequestBuilder getEmailsRequest = MockMvcRequestBuilders.get("/profiles/{profileId}/emails", userId)
                 .header("Token", validToken);
         MvcResult result = mvc.perform(getEmailsRequest)
@@ -277,6 +276,9 @@ class EmailControllerTest {
         assertEquals("", jsonNode.get("additionalEmails").asText());
     }
 
+
+    private final String addEmailsJsonPostCurrentRemovedOneEmailInAdditionalEmails = JsonConverter.toJson(true,
+            "additional_email", new Object[]{"sillybilly@yahoo.com"});
     /**
      * Tests addEmails when the User already has 2 existing additional emails A and B
      * and the User decides to remove B.
@@ -285,7 +287,7 @@ class EmailControllerTest {
     @Test
     public void addAdditionalEmails_Success_WhenUserSubmitsAnUpdatedAdditionalEmailsList() throws Exception {
         setupMocking(createUser1JsonPost);
-        Long userId = dummyUser.getUserId();
+        Long userId = dummyUser1.getUserId();
         MockHttpServletRequestBuilder getEmailsRequest = MockMvcRequestBuilders.get("/profiles/{profileId}/emails", userId)
                 .header("Token", validToken);
         MvcResult result = mvc.perform(getEmailsRequest)
@@ -341,6 +343,10 @@ class EmailControllerTest {
         assertEquals(expectedEmails, additionalEmailsFromJson);
     }
 
+
+    private final String updateEmailsJsonPutPrimaryAndAdditionalEmails = JsonConverter.toJson(true,
+            "primary_email", "lecousindangereux@gmail.com",
+            "additional_email", new Object[]{"smellyjerry@yahoo.com"});
     /**
      * Tests updateEmails when a User with no additional emails
      * submits a new primary email and a list of additional emails.
@@ -348,7 +354,7 @@ class EmailControllerTest {
     @Test
     public void updatePrimaryAndAdditionalEmails_Success_WithNoExistingAdditionalEmails() throws Exception {
         setupMocking(createUser1JsonPost);
-        Long userId = dummyUser.getUserId();
+        Long userId = dummyUser1.getUserId();
         MockHttpServletRequestBuilder getEmailsRequest = MockMvcRequestBuilders.get("/profiles/{profileId}/emails", userId)
                 .header("Token", validToken);
         MvcResult result = mvc.perform(getEmailsRequest)
@@ -398,7 +404,7 @@ class EmailControllerTest {
     @Test
     public void updatePrimaryAndAdditionalEmails_Success_WithExistingAdditionalEmails() throws Exception {
         setupMocking(createUser1JsonPost);
-        Long userId = dummyUser.getUserId();
+        Long userId = dummyUser1.getUserId();
         MockHttpServletRequestBuilder getEmailsRequest = MockMvcRequestBuilders.get("/profiles/{profileId}/emails", userId)
                 .header("Token", validToken);
         MvcResult result = mvc.perform(getEmailsRequest)
@@ -454,7 +460,7 @@ class EmailControllerTest {
     @Test
     public void checkIfEmailIsInUse_Success_WhenEmailIsNotInUse() throws Exception {
         setupMocking(createUser1JsonPost);
-        Long userId = dummyUser.getUserId();
+        Long userId = dummyUser1.getUserId();
         MockHttpServletRequestBuilder findEmailsRequest = MockMvcRequestBuilders.get("/profiles/{profileId}/emails", userId)
                 .header("Token", validToken);
         mvc.perform(findEmailsRequest)
@@ -470,7 +476,7 @@ class EmailControllerTest {
     @Test
     public void checkIfEmailIsInUse_Failure_WhenEmailIsInUse() throws Exception {
         setupMocking(createUser1JsonPost);
-        Long userId = dummyUser.getUserId();
+        Long userId = dummyUser1.getUserId();
         MockHttpServletRequestBuilder findEmailsRequest = MockMvcRequestBuilders.get("/profiles/{profileId}/emails", userId)
                 .header("Token", validToken);
         mvc.perform(findEmailsRequest)
