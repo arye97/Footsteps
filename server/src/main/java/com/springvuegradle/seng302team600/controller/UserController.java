@@ -327,4 +327,23 @@ public class UserController {
         }
 
     }
+
+    /**
+     * Returns a user's role, based on users id
+     * @param request the http request to the endpoint
+     * @param response the http response
+     * @profileId the user's id from the request url
+     */
+    @GetMapping("/profiles/{profileId}/role")
+    public int getUsersRole(HttpServletRequest request,
+                             HttpServletResponse response,
+                             @PathVariable(value = "profileId") Long profileId) {
+        try {
+            String token = request.getHeader("Token");
+            User user = userService.findByUserId(token, profileId);
+            return user.getRole();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authorized to access this data");
+        }
+    }
 }

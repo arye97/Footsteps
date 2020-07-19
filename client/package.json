@@ -8,7 +8,7 @@
     "build-prod": "vue-cli-service build --mode prod",
     "kill-all": "fuser -k 9500/tcp 9499/tcp",
     "lint": "vue-cli-service lint",
-    "test": "jest --coverage --runInBand --detectOpenHandles",
+    "unit-test": "jest --coverage --runInBand --detectOpenHandles",
     "sonarqube": "node sonarqube-analysis.js"
   },
   "dependencies": {

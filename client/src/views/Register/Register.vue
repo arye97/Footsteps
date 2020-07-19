@@ -12,24 +12,26 @@
         </div>
         <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
         <h1><br/><br/></h1>
-        <header class="masthead">
-            <div class="container h-100">
-                <div class="row h-100 align-items-center">
-                    <div class="col-12 text-center">
-                        <h1 class="font-weight-light">Welcome to Hakinakina</h1>
-                        <p class="lead">Plan your route with the best</p>
-                        <h1 class="font-weight-light">
-                            Register with us<br/>
-                        </h1>
-                        Entries marked with * are required<br/><br/>
+
+
+        <!-- contents of the page -->
+        <b-container class="contents" fluid>
+            <header class="masthead">
+                <div class="container h-100">
+                    <h1><br/></h1>
+                    <div class="row h-100 align-items-center">
+                        <div class="col-12 text-center">
+                            <h1 class="font-weight-light">Register with us<br/></h1>
+                            Entries marked with * are required<br/><br/>
+                            <hr><br/>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </header>
-        <!-- post hides data in the url bar
-            v-on:submit.prevent means when you click login then the emit wont only stay for a second
-            keeps it in the vue extension logs, wont know until later if we need this to go away
-        -->
+            </header>
+            <!-- post hides data in the url bar
+                v-on:submit.prevent means when you click login then the emit wont only stay for a second
+                keeps it in the vue extension logs, wont know until later if we need this to go away
+            -->
 
         <b-form @submit="registerUser">
             <b-form-group label="First Name: *" label-for="first-name" id="first-name-group">
@@ -184,7 +186,9 @@
         </b-form>
         <footer class="col-12 text-center">
             Entries marked with * are required
-        </footer><br/><br/>
+        </footer><br/>
+        </b-container>
+        <br/><br/>
     </div>
 </template>
 

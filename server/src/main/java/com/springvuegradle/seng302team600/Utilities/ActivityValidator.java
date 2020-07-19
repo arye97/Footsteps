@@ -83,14 +83,5 @@ public class ActivityValidator {
         if (start.getTime() < 0 || end.getTime() < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start date and end date must occur after 1970");
         }
-        //ToDo may add these checks to validation. Waiting for PO feedback
-// Shouldn't create an end or start date before the present.
-//        Date present = new Date();
-//        if (start.before(present)) {
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start date must occur after present date");
-//        }
-//        if (end.before(present)) {
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "End date must occur after present date");
-//        }
     }
 }

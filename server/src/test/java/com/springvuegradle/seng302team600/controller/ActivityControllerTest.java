@@ -22,7 +22,9 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -57,15 +59,27 @@ class ActivityControllerTest {
     private User dummyUser2; // Used when a second user is required
     private final String validToken = "valid";
     private Set<Activity> activityMockTable = new HashSet<>();
-
+    private Set<User> userMockTable = new HashSet<>();
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
         dummyUser1 = new User();
+        dummyUser1.setToken(validToken);
 
         // Mocking ActivityTypeService
         when(activityTypeService.getMatchingEntitiesFromRepository(Mockito.any())).thenAnswer(i -> i.getArgument(0));
+        when(activityRepository.findAllByUserId(Mockito.any(Long.class))).thenAnswer(i -> {
+            List<Activity> activities = new ArrayList<>();
+            for (Activity activity : activityMockTable) {
+                activities.add(activity);
+            }
+            return activities;
+        });
+        // Mocking userAuthenticationService
+        when(userAuthenticationService.findByUserId(Mockito.any(String.class), Mockito.any(Long.class))).thenAnswer(i -> dummyUser1);
+        when(userAuthenticationService.hasAdminPrivileges(Mockito.any())).thenAnswer(i ->
+                ((User) i.getArgument(0)).getToken().equals(validToken));
     }
 
     /**
@@ -77,7 +91,9 @@ class ActivityControllerTest {
         // Save
         when(activityRepository.save(Mockito.any(Activity.class))).thenAnswer(i -> {
             Activity newActivity = i.getArgument(0);
-            ReflectionTestUtils.setField(newActivity, "activityId", DEFAULT_ACTIVITY_ID + activityCount++);
+            ReflectionTestUtils.setField(newActivity, "creatorUserId", DEFAULT_USER_ID);
+            ReflectionTestUtils.setField(newActivity, "activityId", (DEFAULT_ACTIVITY_ID + activityCount++));
+            newActivity.setCreatorUserId(DEFAULT_USER_ID);
             activityMockTable.add(i.getArgument(0));
             return newActivity;
         });
@@ -140,18 +156,27 @@ class ActivityControllerTest {
         Activity activityInRepo = objectMapper.readValue(newActivity1Json, Activity.class);
         activityRepository.save(activityInRepo);
 
-        MockHttpServletRequestBuilder httpReqDelete = MockMvcRequestBuilders.delete("/activities/{activityId}", DEFAULT_ACTIVITY_ID)
+        MockHttpServletRequestBuilder httpReqDelete = MockMvcRequestBuilders.delete("/profiles/{profileId}/activities/{activityId}", DEFAULT_USER_ID, DEFAULT_ACTIVITY_ID)
                 .header("Token", validToken);
         MvcResult result = mvc.perform(httpReqDelete).andExpect(status().isOk()).andReturn();
         assertNotNull(result.getResponse());
     }
 
     private final String newActivityEditJson = JsonConverter.toJson(true,
-            "activity_name", "Nelson Coast Track race",
+            "activity_name", "Kaikoura Coast Track race",
+            "description", "A big and nice race on a lovely peninsula",
             "activity_type", new Object[]{
-                    "Astronomy", "Hiking"
+                    "Gymnastics",
+                    "Hiking"
             },
-            "location", "Nelson, NZ");
+            "continuous", false,
+            "start_time", "2020-02-20T08:00:00+1300",
+            "end_time", "2020-02-20T08:00:00+1300",
+            "location", "Kaikoura, NZ");
+
+
+
+
     /**
      * Test successful edit/update of an activity details
      */
@@ -160,6 +185,7 @@ class ActivityControllerTest {
         Activity activityInRepo = objectMapper.readValue(newActivity1Json, Activity.class);
         activityRepository.save(activityInRepo);
 
+        //Activity newActivity = objectMapper.readValue(newActivityEditJson, Activity.class);
         MockHttpServletRequestBuilder httpReqEdit = MockMvcRequestBuilders.put("/profiles/{profileId}/activities/{activityId}", DEFAULT_USER_ID, DEFAULT_ACTIVITY_ID)
                 .header("Token", validToken)
                 .content(newActivityEditJson)
@@ -167,6 +193,7 @@ class ActivityControllerTest {
                 .accept(MediaType.APPLICATION_JSON);
 
         MvcResult result = mvc.perform(httpReqEdit).andExpect(status().isOk()).andReturn();
+
         assertNotNull(result.getResponse());
     }
 

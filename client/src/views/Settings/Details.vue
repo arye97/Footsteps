@@ -1,15 +1,19 @@
 <template>
     <div>
-        <div class="header-sidebar">
-            <h1><br/><br/></h1>
-            <div>
-                <div class="container">
-                    <div class="row">
-                        <div class="col-sm-6 offset-sm-3">
-                            <template v-if="loggedIn">
-                                <Header/>
-                            </template>
-                            <router-view></router-view>
+        <h1><br/><br/></h1>
+        <b-container class="contents" fluid>
+            <h1><br/></h1>
+            <div class="header-sidebar">
+
+                <div>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm-6 offset-sm-3">
+                                <template v-if="loggedIn">
+                                    <Header/>
+                                </template>
+                                <router-view></router-view>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -17,8 +21,19 @@
         </div>
         <div v-if="loggedIn">
             <Sidebar :userId="profileId"/>
-            <div class="settings-page" v-if="!this.isRedirecting">
-                <div class="container-fluid" v-if="loggedIn">
+                <div class="settings-page" v-if="!this.isRedirecting">
+                    <div class="container-fluid" v-if="loggedIn">
+                        <div class="form-group">
+                            <header class="masthead">
+                                <div class="container h-100">
+                                    <div class="row h-100 align-items-center">
+                                        <div class="col-12 text-center">
+                                            <h1 class="font-weight-light"><strong>Edit Profile Details</strong></h1><br/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </header>
+                            <hr>
                     <b-form-group  label-for="firstname" label="First Name: *">
                         <!-- first-name field-->
                         <div class="edit-area">
@@ -30,8 +45,13 @@
                                     trim required>
                             </b-form-input>
                         </div>
-                        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_first_name" hidden>
-                            <p>First name is a mandatory field. You may have entered an invalid character. 45 characters is the limit</p>
+                        <div class="form-group">
+                            <!-- middle-name field-->
+                            <label for="middlename">Middle Name: </label>
+                            <div class="edit-area">
+                                <input type="text" class="form-control" v-model="middlename" id="middlename" name="middlename"
+                                       placeholder="Your Middle Name...">
+                            </div>
                         </div>
                     </b-form-group>
                     <b-form-group label-fot="middlename" label="Middle Name:">
@@ -45,8 +65,17 @@
                                     trim>
                             </b-form-input>
                         </div>
-                        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_middle_name" hidden>
-                            <p>Middle name may have an invalid character. 45 characters is the limit</p>
+                        <div class="form-group">
+                            <!-- fitness level field -->
+                            <label for="fitness">Fitness Level:</label>
+                            <div class="edit-area">
+                                <div id="fitnessDiv" class="multiselect multiselect-box">
+                                    <multiselect v-model="fitness" id="fitness" :options="fitnessOptions" :multiple="false" label="desc" :return="fitnessOptions.desc"
+                                                 placeholder="Please select a fitness level" track-by="value">
+                                        <template slot="singleLabel" slot-scope="{ option }"><footer> {{ option.desc }}</footer></template>
+                                    </multiselect>
+                                </div>
+                            </div>
                         </div>
                     </b-form-group>
                     <b-form-group label-for="lastname" label="Last Name: *">
@@ -60,8 +89,17 @@
                                     trim required>
                             </b-form-input>
                         </div>
-                        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_last_name" hidden>
-                            <p>Last name is a mandatory field. You may have entered an invalid character. 45 characters is the limit</p>
+                        <div class="form-group">
+                            <!-- gender field -->
+                            <label for="gender">Gender: *</label>
+                            <div class="edit-area">
+                                <div id="genderDiv" class="multiselect multiselect-box">
+                                    <multiselect v-model="gender" id="gender"
+                                                 :options="genders" placeholder="Your gender" required>
+                                        <template slot="noResult">Invalid gender</template>
+                                    </multiselect>
+                                </div>
+                            </div>
                         </div>
                     </b-form-group>
                     <b-form-group label-for="fitness" label="Fitness Level:">
@@ -164,14 +202,12 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div v-if="this.isRedirecting">
-            {{ redirectionMessage }}
-            <br/><br/><b-spinner variant="primary" label="Spinning"></b-spinner>
-        </div>
-
-
-
+            <div v-if="this.isRedirecting">
+                {{ redirectionMessage }}
+                <br/><br/><b-spinner variant="primary" label="Spinning"></b-spinner>
+            </div>
+        </b-container>
+        <br/><br/>
     </div>
 </template>
 

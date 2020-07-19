@@ -95,3 +95,15 @@ bootRun {
 	bootRun.systemProperty 'spring.profiles.active', "${springProfile}"
 	bootRun.systemProperty 'spring.config.location', "./src/main/resources/,./src/main/resources/activity_types.yml"
 }
+
+// Read the environment variables from the file
+task readEnvVariables {
+	doLast {
+		exec {
+			file('.env').readLines().each() {
+				def (key, value) = it.tokenize('=')
+				environment key, value
+			}
+		}
+	}
+}

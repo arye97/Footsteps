@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.ActivityType;
 import com.springvuegradle.seng302team600.model.User;
+import com.springvuegradle.seng302team600.model.UserRole;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
@@ -97,54 +98,38 @@ public class ActivityController {
      *  takes from the client only the json object of the to-be-updated inputs
      *  and the activity id through put the url mapping.
      * @param activityId the Id of the Activity to edit
-     * @param jsonActivityEditString an Activity to edit as a json string
+     * @param activity the activity object to update
      * @param profileId the Id of the User who created the activity
      */
     @PutMapping("/profiles/{profileId}/activities/{activityId}")
-    public void editActivity(@PathVariable Long activityId, HttpServletRequest request, HttpServletResponse response,
-                             @RequestBody String jsonActivityEditString,
-                             @PathVariable(value = "profileId") Long profileId) throws IOException {
-        String token = request.getHeader("Token"); //this is the users token
-        userAuthenticationService.findByUserId(token, profileId); //ResponseStatusException thrown if user unauthorized or forbidden from accessing requested user
-        Activity activity = activityRepository.findByActivityId(activityId);
-        ObjectMapper nodeMapper = new ObjectMapper();
-        ObjectNode editedData = nodeMapper.readValue(jsonActivityEditString, ObjectNode.class);
-        String newDescription;
-        try {newDescription = editedData.get("description").asText();} catch(Exception NullPointerException){ newDescription = null;}
-        String newLocation;
-        try {newLocation = editedData.get("location").asText();} catch(Exception NullPointerException) { newLocation = null; }
-        String newName;
-        try {newName = editedData.get("activity_name").asText(); } catch (Exception NullPointerException) { newName = null; }
-        String checkContinuous;
-        try { checkContinuous= editedData.get("continuous").asText(); } catch (Exception NullPointerException) {checkContinuous = null;}
-        JsonNode nodeActivityTypes;
-        try { nodeActivityTypes = editedData.get("activity_type"); } catch (Exception NullPointerException) { nodeActivityTypes = null; }
-        //may need to re-write the activity types conversion if breaks
-        //Check if any have changed or are null
-        if (newDescription != null) { activity.setDescription(newDescription); }
-        if (newLocation != null) {activity.setLocation(newLocation);}
-        if (newName != null) { activity.setName(newName); }
-        if (nodeActivityTypes != null) {
-            Set<ActivityType> activityTypes = new HashSet<>();
-            for (JsonNode element : nodeActivityTypes) {
-                activityTypes.add(new ActivityType(element.asText()));
-            }
-            activity.setActivityTypes(
-                activityTypeService.getMatchingEntitiesFromRepository(activityTypes)
-            );
+    public void editActivity(@PathVariable(value = "profileId") Long profileId,
+                             @PathVariable(value = "activityId") Long activityId,
+                             @Validated @RequestBody Activity activity,
+                             HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String token = request.getHeader("Token");
+        User author = userAuthenticationService.findByUserId(token, profileId);
+        //get old activity to set values
+        Activity oldActivity = activityRepository.findByActivityId(activityId);
+        //check activity exists and user is author
+        if (oldActivity == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Activity not found");
         }
-        if (checkContinuous != null) {
-            Boolean newContinuous = editedData.get("continuous").asBoolean();
-            if (checkContinuous != null) { activity.setContinuous(newContinuous);}
-            if (newContinuous == false) {
-                String newStartTime = editedData.get("start_time").asText();
-                String newEndTime = editedData.get("end_time").asText();
-                System.out.println(newStartTime);
-                activity.setStartTime(Date.valueOf(newStartTime));
-                activity.setEndTime(Date.valueOf(newEndTime)); //This date manipulation relies on import java.sql.Date
-            }
+        if ((!oldActivity.getCreatorUserId().equals(profileId)) //check for author
+                && (!userAuthenticationService.hasAdminPrivileges(author))) { //check for admin
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is unauthorized to edit this activity");
         }
-        activityRepository.save(activity);
+        ActivityValidator.validate(activity);
+        oldActivity.setDescription(activity.getDescription());
+        oldActivity.setName(activity.getName());
+        oldActivity.setLocation(activity.getLocation());
+        oldActivity.setContinuous(activity.isContinuous());
+        if (!activity.isContinuous()) {
+            oldActivity.setStartTime(activity.getStartTime());
+            oldActivity.setEndTime(activity.getEndTime());
+        }
+        oldActivity.setActivityTypes(activityTypeService.getMatchingEntitiesFromRepository(activity.getActivityTypes()));
+        //save this updated activity
+        activityRepository.save(oldActivity);
         response.setStatus(HttpServletResponse.SC_OK); //200
     }
 
@@ -153,8 +138,8 @@ public class ActivityController {
      * @param activityId the Id of the activity to delete
      * @param request the actual request from the client, containing pertinent data
      */
-    @DeleteMapping("/activities/{activityId}")
-    public void deleteActivity(@PathVariable Long activityId, HttpServletRequest request) {
+    @DeleteMapping("/profiles/{profileId}/activities/{activityId}")
+    public void deleteActivity(@PathVariable(value="profileId") Long profileId, @PathVariable(value="activityId") Long activityId, HttpServletRequest request) {
         //Check the activity is this specific users activity
         Activity activity = activityRepository.findByActivityId(activityId);
         if (activity == null) {
@@ -162,7 +147,7 @@ public class ActivityController {
         }
         Long authorId = activity.getCreatorUserId();
         String token = request.getHeader("Token");
-        User user = userRepository.findByToken(token); //finds user and validates they exist
+        User user = userAuthenticationService.findByUserId(token, profileId); //finds user and validates they exist
 
         if ((!userAuthenticationService.hasAdminPrivileges(user)) && (authorId != null)) {
             /* Only run this check if the user is NOT an Admin,
@@ -188,11 +173,12 @@ public class ActivityController {
         try {
             //attempt to find user by token, don't need to save user discovered
             String token = request.getHeader("Token");
-            userRepository.findByToken(token);
+            userAuthenticationService.findByUserId(token, profileId);
         } catch(Exception e) {
             //User wasn't found therefore the user was not logged in.
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authorized - log in to view");
         }
-        return activityRepository.findAllByUserId(profileId);
+        List<Activity> activities = activityRepository.findAllByUserId(profileId);
+        return activities;
     }
 }

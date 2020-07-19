@@ -1,47 +1,114 @@
 <template>
     <div id="app">
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-12 ">
-                    <template v-if="this.loading === false">
-                        <Header :userId="this.userId"/>
-                    </template>
-                    <h1>
-                        <br/><br/>
-                    </h1>
-                    <div class="col-sm-12 text-center">
-                        <h1 class="font-weight-light">Welcome to Hakinakina!</h1>
+        <h1><br/><br/></h1>
+        <b-container class="contents" fluid>
+            <div class="container">
+                <template v-if="this.loading === false">
+                    <Header :userId="this.userId"/>
+                </template>
+                <div class="row h-100">
+                    <div class="col-12 text-center">
                         <section v-if="errored">
                             <p class="font-weight-light">{{this.error}}</p>
                             <p class="font-weight-light">Sorry, please log in to access your profile, or try again later.</p>
                         </section>
-
                         <section v-else>
                             <div v-if="loading"> Loading... <br/><br/><b-spinner variant="primary" label="Spinning"></b-spinner></div>
-                            <div v-else class="form-group font-weight-light">
-                                <h1 class="font-weight-light">Hi {{this.user.firstname}} {{this.user.middlename}} {{this.user.lastname}}!</h1>
-                                <p>You're logged in to your Hakinakina Account</p>
-                                <h3 class="font-weight-light">All about you: </h3>
-                                <span class="accordion">
-                                        <span v-if="this.user.nickname">Nickname: {{ this.user.nickname }}<br/></span>
-                                        <span >Gender: {{ this.user.gender }}</span><br/>
-                                        <span>Date Of Birth: {{ this.user.date_of_birth }} </span><br/>
-                                        <span>Email: {{ this.user.primary_email }}</span><br/>
-                                        <span v-if="this.user.additional_email.length >= 1"> Additional Emails: {{ this.user.additional_email.join(", ") }}<br/></span>
-                                        <span v-if="this.user.passports.length >= 1">Passports: {{this.user.passports.join(", ")}}<br/></span>
-                                        <span v-if="this.user.fitness >= 0">Fitness Level: {{this.fitness}}<br/></span>
-                                        <span v-if="this.user.bio">Bio: {{ this.user.bio }}<br/></span>
-                                        <span v-if="this.user.activityTypes">Activities I am interested in: {{ this.user.activityTypes.map(at => at.name).join(", ") }}<br/></span>
-                                    </span>
-                                <button type="submit" class="btn btn-link" v-if="this.isEditable" v-on:click="editProfile" >Edit Profile</button>
+                            <div v-else class="font-weight-light">
+                                <br/>
+                                <h1 class="font-weight-light"><strong>{{this.user.firstname}} {{this.user.middlename}} {{this.user.lastname}} ({{this.user.nickname}})</strong></h1>
+                                <br/>
+                                <h5 class="font-weight-light" v-if="this.user.bio">"{{ this.user.bio }}"<br/></h5>
+                                <br/>
+
+                                <b-button type="submit" variant="success" size="med"
+                                          v-if="this.isEditable" v-on:click="editProfile">Edit Profile</b-button>
+                                <br/><br/>
+
+                                <!-- Handling for displaying Passport Countries -->
+                                <h3 class="font-weight-light"><strong>Passport countries: </strong></h3><br/>
+
+                                <b-list-group v-if="this.user.passports.length >= 1">
+                                    <b-card v-for="country in this.user.passports" v-bind:key="country" class="flex-fill" border-variant="secondary">
+                                        <b-card-text class="font-weight-light">
+                                            {{country}}
+                                        </b-card-text>
+                                    </b-card>
+                                    <br/>
+                                </b-list-group>
+
+                                <b-list-group v-else horizontal="md">
+                                    <b-card class="flex-fill" border-variant="secondary">
+                                        <b-card-text class="font-weight-light">
+                                            No selected passport countries
+                                        </b-card-text>
+                                    </b-card>
+                                </b-list-group>
+                                <br/>
+
+                                <!--Handling for displaying of Fitness Level-->
+                                <h3 class="font-weight-light"><strong>Fitness Level: </strong></h3>
+
+                                <b-list-group v-if="this.user.fitness >= 0">
+                                    <b-card class="flex-fill" border-variant="secondary">
+                                        <b-card-text class="font-weight-light">
+                                            {{this.fitness}}
+                                        </b-card-text>
+                                    </b-card>
+                                    <br/>
+                                </b-list-group>
+
+                                <b-list-group v-else>
+                                    <b-card class="flex-fill" border-variant="secondary">
+                                        <b-card-text class="font-weight-light">
+                                            No Fitness Level selected
+                                        </b-card-text>
+                                    </b-card>
+                                    <br/>
+                                </b-list-group>
+                                <br/>
+
+                                <!--Handling for displaying of Emails -->
+                                <h3 class="font-weight-light"><strong> Email(s): </strong></h3>
+
+                                <b-list-group>
+                                    <b-card class="flex-fill" border-variant="secondary">
+                                        <b-card-text class="font-weight-light">
+                                            {{this.user.primary_email}} (Primary)
+                                        </b-card-text>
+                                    </b-card>
+                                    <b-card v-for="email in this.user.additional_email" v-bind:key="email" class="flex-fill" border-variant="secondary">
+                                        <b-card-text class="font-weight-light">
+                                            {{email}}
+                                        </b-card-text>
+                                    </b-card>
+                                    <br/>
+                                </b-list-group>
+
+                                <br/>
+
+                                <h3 class="font-weight-light"><strong> Gender: </strong></h3>
+                                <b-card class="flex-fill" border-variant="secondary">
+                                    <b-card-text class="font-weight-light">
+                                        {{this.user.gender}}
+                                    </b-card-text>
+                                </b-card>
+                                <br/>
+
+                                <h3 class="font-weight-light"><strong> Date of Birth: </strong></h3>
+
+                                <b-card class="flex-fill" border-variant="secondary">
+                                    <b-card-text class="font-weight-light">
+                                        {{this.formattedDate}}
+                                    </b-card-text>
+                                </b-card><br/>
                             </div>
                         </section>
                     </div>
                 </div>
             </div>
-        </div>
-
-
+        </b-container>
+        <br/><br/>
     </div>
 </template>
 
@@ -96,7 +163,6 @@
                 if (response.status === 200) {
                   //user is set to the user data retrieved
                   this.user = response.data;
-                  console.log(this.user);
                   this.userId = this.user.id;
                   this.formattedDate = getDateString(this.user.date_of_birth);
                   for (let i = 0; i < fitnessLevels.length; i++) {
