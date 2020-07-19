@@ -3,6 +3,7 @@ package com.springvuegradle.seng302team600.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.springvuegradle.seng302team600.Utilities.UserValidator;
 import com.springvuegradle.seng302team600.model.*;
 import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import com.springvuegradle.seng302team600.payload.UserResponse;
@@ -13,6 +14,7 @@ import com.springvuegradle.seng302team600.service.ActivityTypeService;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +47,8 @@ class UserControllerTest {
     private UserAuthenticationService userAuthenticationService;
     @MockBean
     private ActivityTypeService activityTypeService;
+    @MockBean
+    private UserValidator validator;
     @Autowired
     private MockMvc mvc;
 
@@ -158,8 +162,7 @@ class UserControllerTest {
      */
     @Test
     public void newUserMissingField() throws Exception {
-        System.out.println(newUserMissingFieldJson);
-        setupMockingNoEmail(newUserMissingFieldJson);
+        setupMockingNoEmail(newUserJson);
 
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post("/profiles")
                 .content(newUserMissingFieldJson)

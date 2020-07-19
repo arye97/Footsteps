@@ -2,6 +2,7 @@ package com.springvuegradle.seng302team600.Utilities;
 
 import com.springvuegradle.seng302team600.model.ActivityType;
 import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -25,6 +26,7 @@ public class UserValidator {
     final static public int MAX_FITNESS_LEVEL = 4;
     final static public int MAX_PASSPORT_LEN = 255;
 
+    @Autowired
     private final ActivityTypeRepository activityTypeRepository;
 
     public UserValidator(ActivityTypeRepository activityTypeRepository) {

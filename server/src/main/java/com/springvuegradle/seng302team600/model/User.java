@@ -207,7 +207,8 @@ public class User {
     }
 
     public void setMiddleName(String middleName) {
-        this.middleName = middleName.trim();
+        if (middleName == null) this.middleName = null;
+        else this.middleName = middleName.trim();
     }
 
     public String getLastName() {
@@ -223,7 +224,8 @@ public class User {
     }
 
     public void setNickName(String nickName) {
-        this.nickName = nickName.trim();
+        if (nickName == null) this.nickName = null;
+        else this.nickName = nickName.trim();
     }
 
     public String getBio() {
@@ -231,7 +233,8 @@ public class User {
     }
 
     public void setBio(String bio) {
-        this.bio = bio.trim();
+        if (bio == null) this.bio = null;
+        else this.bio = bio.trim();
     }
 
     public String getPrimaryEmail() {

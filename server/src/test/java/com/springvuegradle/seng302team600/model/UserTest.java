@@ -104,13 +104,6 @@ public class UserTest {
     }
 
     @Test
-    void invalidLastNameNull() {
-        assertTrue(validator.validate(userTest));
-        userTest.setLastName(null);
-        assertThrows(ResponseStatusException.class, () -> validator.validate(userTest));
-    }
-
-    @Test
     void invalidLastNameNonAlphaChar() {
         assertTrue(validator.validate(userTest));
         userTest.setLastName("Jones7");
@@ -134,6 +127,20 @@ public class UserTest {
     void validMiddleNameNull() {
         assertTrue(validator.validate(userTest));
         userTest.setMiddleName(null);
+        assertTrue(validator.validate(userTest));
+    }
+
+    @Test
+    void validBioNull() {
+        assertTrue(validator.validate(userTest));
+        userTest.setBio(null);
+        assertTrue(validator.validate(userTest));
+    }
+
+    @Test
+    void validNicknameNull() {
+        assertTrue(validator.validate(userTest));
+        userTest.setNickName(null);
         assertTrue(validator.validate(userTest));
     }
 
