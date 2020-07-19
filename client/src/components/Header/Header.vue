@@ -3,7 +3,7 @@
         <nav :key=this.isLoggedIn class="navbar navbar-expand-lg navbar-light bg-light shadow fixed-top">
             <div class="container">
                 <!--The below v-on:click does: If your logged in, go to your profile.  Else go to the main page.-->
-                <a class="navbar-brand" v-on:click="isLoggedIn ? $router.push({ name: 'myProfile' }) : $router.push('/')" >Hakinakina</a>
+                <a class="navbar-brand" v-on:click="$router.push('/')" >Hakinakina</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -11,7 +11,7 @@
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item active">
                             <router-link v-if=this.isLoggedIn
-                                         :to="{ name: 'myProfile' }"
+                                         :to="'/'"
                                          class="nav-link">Home</router-link>
                         </li>
                         <li v-if=!this.isLoggedIn class="nav-item">
@@ -24,9 +24,10 @@
                         </li>
                         <li v-if=this.isLoggedIn class="nav-item">
                             <router-link
-                                         :to="{ name: 'detailsNoID' }"
-                                         class="nav-link">Edit My Profile</router-link>
+                                    :to="{ name: 'myProfile' }"
+                                    class="nav-link">Profile</router-link>
                         </li>
+
                         <li class="nav-item">
                             <router-link to="" v-if="this.isLoggedIn" v-on:click.native="logout" class="nav-link">Logout</router-link>
                             <router-link  v-else to='/login' class="nav-link">Login</router-link>

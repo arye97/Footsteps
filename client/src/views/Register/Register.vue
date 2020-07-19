@@ -12,152 +12,147 @@
         </div>
         <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
         <h1><br/><br/></h1>
-        <header class="masthead">
-            <div class="container h-100">
-                <div class="row h-100 align-items-center">
-                    <div class="col-12 text-center">
-                        <h1 class="font-weight-light">Welcome to Hakinakina</h1>
-                        <p class="lead">Plan your route with the best</p>
-                        <h1 class="font-weight-light">
-                            Register with us<br/>
-                        </h1>
-                        Entries marked with * are required<br/><br/>
+
+
+        <!-- contents of the page -->
+        <b-container class="contents" fluid>
+            <header class="masthead">
+                <div class="container h-100">
+                    <h1><br/></h1>
+                    <div class="row h-100 align-items-center">
+                        <div class="col-12 text-center">
+                            <h1 class="font-weight-light">Register with us<br/></h1>
+                            Entries marked with * are required<br/><br/>
+                            <hr><br/>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </header>
-        <!-- post hides data in the url bar
-            v-on:submit.prevent means when you click login then the emit wont only stay for a second
-            keeps it in the vue extension logs, wont know until later if we need this to go away
-        -->
+            </header>
+            <!-- post hides data in the url bar
+                v-on:submit.prevent means when you click login then the emit wont only stay for a second
+                keeps it in the vue extension logs, wont know until later if we need this to go away
+            -->
 
-        <form method="post" v-on:submit.prevent="registerUser">
-            <div class="form-group">
-                <!-- full-name field-->
-                <label id="first-name-label" for="first-name">First Name: *</label>
-                <input type="text" class="form-control" v-on:click="unDisplayRules" v-model="firstname" id="first-name" name="first-name" placeholder="Your First Name...">
-            </div>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_first_name">
-                {{  "Field is mandatory and can only contain letters and spaces"  }}
-            </div>
-            <div class="form-group">
-                <!-- full-name field-->
-                <label id="middle-name-label" for="middle-name">Middle Name: </label>
-                <input type="text" class="form-control" v-on:click="unDisplayRules" v-model="middlename" id="middle-name" name="middle-name" placeholder="Your Middle Name...">
-            </div>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_middle_name">
-                {{  "Field can only contain letters and spaces"  }}
-            </div>
-            <div class="form-group">
-                <!-- full-name field-->
-                <label id="last-name-label" for="last-name">Last Name: *</label>
-                <input type="text" class="form-control" v-on:click="unDisplayRules" v-model="lastname" id="last-name" name="last-name" placeholder="Your Last Name...">
-            </div>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_last_name">
-                {{  "Field is mandatory and can only contain letters and spaces"  }}
-            </div>
-            <div class="form-group">
-                <!-- email field -->
-                <label id="email-label" for="email">Email Address: *</label>
-                <input type="email" class="form-control" v-on:click="unDisplayRules" v-model="email" id="email" name="email" placeholder="Your Email Address...">
-            </div>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_email">
-                {{  "Field is mandatory, can not be blank and must be a valid email"  }}
-            </div>
-            <section v-if="isDisplayingRules">
-                <footer>Password rules:<br/>
-                    <ul>
-                        <li>Must contain at least 8 characters</li>
-                        <li>Must contain at least one letter</li>
-                        <li>Must contain at least one number</li>
-                    </ul>
-                </footer>
-            </section>
-            <div class="form-group">
-                <!-- password field-->
-                <label id="password-label" for="password">Password: *</label>
-                <input type="password" class="form-control" v-on:click="displayRules" v-model="password" id="password" name="password" placeholder="Your Password...">
-            </div>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_password">
-                {{  "Field is mandatory and must not be blank"  }}
-            </div>
-            <div class="form-group">
-                <label id="passwordCheck-label" for="passwordCheck">Retype your Password: *</label>
-                <input type="password" class="form-control" v-on:click="displayRules" v-model="passwordCheck" id="passwordCheck" name="passwordCheck" placeholder="Retype Password...">
-            </div>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_password_check">
-                {{  "Your password doesn't follow the password rules"  }}
-            </div>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_password_match">
-                {{  'Passwords do not match, please type again'  }}
-            </div>
-            <div class="form-group">
-                <!-- fitness level field -->
-                <label id="fitness-label" for="fitness">Fitness Level:</label>
-                <multiselect v-model="fitness" id="fitness" v-on:select="unDisplayRules" :options="fitnessOptions" :multiple="false" label="desc" :return="fitnessOptions.desc"
-                             placeholder="Please select a fitness level" track-by="value">
-                    <template slot="singleLabel" slot-scope="{ option }"><footer> {{ option.desc }}</footer></template>
-                </multiselect>
-            </div>
-            <div class="form-group">
-                <!-- nickname field-->
-                <label id="nickname-label" for="nickname">Nickname: </label>
-                <input type="text" class="form-control" v-on:click="unDisplayRules" v-model="nickname" id="nickname" name="nickname" placeholder="Your Nickname...">
-            </div>
-            <div class="form-group">
-                <!-- gender field -->
-                <label id="gender-label" for="gender">Gender: *</label>
-                <multiselect v-model="gender" id="gender" v-on:select="unDisplayRules"
-                             :options="genders" placeholder="Your gender">
-                    <template slot="noResult">Invalid gender</template>
-                </multiselect>
-            </div>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_gender">
-                {{  "Field is mandatory and must not be blank"  }}
-            </div>
-            <div class="form-group">
-                <!-- date of birth field-->
-                <label id="date_of_birth-label" for="date_of_birth">Date of Birth: *</label>
-                <input type="date" name="date_of_birth" class="form-control" v-model="date_of_birth" id="date_of_birth">
-            </div>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_dob">
-                {{  "Field is mandatory, can not be blank and user must be within 13 - 150 years"  }}
-            </div>
-            <div class="form-group">
-                <!-- passport country -->
-                <label id="passportCountries-label" for="passportCountries">Passport Country:</label>
-                <multiselect v-model="passports" id="passportCountries" v-on:select="unDisplayRules"
-                             :options="countries" :multiple="true" :searchable="true" :close-on-select="false"
-                             placeholder="Select your passport countries">
-                    <template slot="noResult">Country not found</template>
-                </multiselect>
-            </div>
-            <div class="form-group">
-                <!-- user bio -->
-                <label id="bio-label" for="bio">Tell us about yourself, your Bio: </label>
-                <textarea name="bio" class="form-control" id="bio" v-on:click="unDisplayRules" v-model="bio" cols="30" rows="1" placeholder="Who are you?"></textarea>
-            </div>
-            <div class="form-group">
-                <!-- activity types -->
-                <label id="activityTypes-label" for="activityTypes">Activity Types:</label>
-                <multiselect v-model="selectedActivityTypes" id="activityTypes" v-on:select="unDisplayRules"
-                             :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
-                             placeholder="Select your activity types">
-                    <template slot="noResult">Invalid activity type</template>
-                </multiselect>
-            </div>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_form">
-                {{  message_form  }}
-            </div>
-            <div class="form-group">
-                <!-- SignIn Button-->
-                <button type="submit" class="btn btn-primary">Register</button>
-                <router-link to="/login" class="btn btn-link">Login</router-link>
-            </div>
-        </form>
-        <footer class="col-12 text-center">
-            Entries marked with * are required
-        </footer><br/><br/>
+            <form method="post" v-on:submit.prevent="registerUser">
+                <div class="form-group">
+                    <!-- full-name field-->
+                    <label id="first-name-label" for="first-name">First Name: *</label>
+                    <input type="text" class="form-control" v-on:click="unDisplayRules" v-model="firstname" id="first-name" name="first-name" placeholder="Your First Name...">
+                </div>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_first_name">
+                    {{  "Field is mandatory and can only contain letters and spaces"  }}
+                </div>
+                <div class="form-group">
+                    <!-- full-name field-->
+                    <label id="middle-name-label" for="middle-name">Middle Name: </label>
+                    <input type="text" class="form-control" v-on:click="unDisplayRules" v-model="middlename" id="middle-name" name="middle-name" placeholder="Your Middle Name...">
+                </div>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_middle_name">
+                    {{  "Field can only contain letters and spaces"  }}
+                </div>
+                <div class="form-group">
+                    <!-- full-name field-->
+                    <label id="last-name-label" for="last-name">Last Name: *</label>
+                    <input type="text" class="form-control" v-on:click="unDisplayRules" v-model="lastname" id="last-name" name="last-name" placeholder="Your Last Name...">
+                </div>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_last_name">
+                    {{  "Field is mandatory and can only contain letters and spaces"  }}
+                </div>
+                <div class="form-group">
+                    <!-- email field -->
+                    <label id="email-label" for="email">Email Address: *</label>
+                    <input type="email" class="form-control" v-on:click="unDisplayRules" v-model="email" id="email" name="email" placeholder="Your Email Address...">
+                </div>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_email">
+                    {{  "Field is mandatory, can not be blank and must be a valid email"  }}
+                </div>
+                <section v-if="isDisplayingRules">
+                    <footer>Password rules:<br/>
+                        <ul>
+                            <li>Must contain at least 8 characters</li>
+                            <li>Must contain at least one letter</li>
+                            <li>Must contain at least one number</li>
+                        </ul>
+                    </footer>
+                </section>
+                <div class="form-group">
+                    <!-- password field-->
+                    <label id="password-label" for="password">Password: *</label>
+                    <input type="password" class="form-control" v-on:click="displayRules" v-model="password" id="password" name="password" placeholder="Your Password...">
+                </div>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_password">
+                    {{  "Field is mandatory and must not be blank"  }}
+                </div>
+                <div class="form-group">
+                    <label id="passwordCheck-label" for="passwordCheck">Retype your Password: *</label>
+                    <input type="password" class="form-control" v-on:click="displayRules" v-model="passwordCheck" id="passwordCheck" name="passwordCheck" placeholder="Retype Password...">
+                </div>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_password_check">
+                    {{  "Field is mandatory and must not be blank"  }}
+                </div>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_password_match">
+                    {{  'Passwords do not match, please type again'  }}
+                </div>
+                <div class="form-group">
+                    <!-- fitness level field -->
+                    <label id="fitness-label" for="fitness">Fitness Level:</label>
+                    <multiselect v-model="fitness" id="fitness" v-on:select="unDisplayRules" :options="fitnessOptions" :multiple="false" label="desc" :return="fitnessOptions.desc"
+                                 placeholder="Please select a fitness level" track-by="value">
+                        <template slot="singleLabel" slot-scope="{ option }"><footer> {{ option.desc }}</footer></template>
+                    </multiselect>
+                </div>
+                <div class="form-group">
+                    <!-- nickname field-->
+                    <label id="nickname-label" for="nickname">Nickname: </label>
+                    <input type="text" class="form-control" v-on:click="unDisplayRules" v-model="nickname" id="nickname" name="nickname" placeholder="Your Nickname...">
+                </div>
+                <div class="form-group">
+                    <!-- gender field -->
+                    <label id="gender-label" for="gender">Gender: *</label>
+                    <multiselect v-model="gender" id="gender" v-on:select="unDisplayRules"
+                                 :options="genders" placeholder="Your gender">
+                        <template slot="noResult">Invalid gender</template>
+                    </multiselect>
+                </div>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_gender">
+                    {{  "Field is mandatory and must not be blank"  }}
+                </div>
+                <div class="form-group">
+                    <!-- date of birth field-->
+                    <label id="date_of_birth-label" for="date_of_birth">Date of Birth: *</label>
+                    <input type="date" class="form-control" v-on:click="unDisplayRules" v-model="date_of_birth" id="date_of_birth" name="date_of_birth">
+                </div>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_dob">
+                    {{  "Field is mandatory, can not be blank and user must be within 13 - 150 years"  }}
+                </div>
+                <div class="form-group">
+                    <!-- passport country -->
+                    <label id="passportCountries-label" for="passportCountries">Passport Country:</label>
+                    <multiselect v-model="passports" id="passportCountries" v-on:select="unDisplayRules"
+                                 :options="countries" :multiple="true" :searchable="true" :close-on-select="false"
+                                 placeholder="Select your passport countries">
+                        <template slot="noResult">Country not found</template>
+                    </multiselect>
+                </div>
+                <div class="form-group">
+                    <!-- user bio -->
+                    <label id="bio-label" for="bio">Tell us about yourself, your Bio: </label>
+                    <textarea name="bio" class="form-control" id="bio" v-on:click="unDisplayRules" v-model="bio" cols="30" rows="1" placeholder="Who are you?"></textarea>
+                </div>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_form">
+                    {{  message_form  }}
+                </div>
+                <div class="form-group">
+                    <!-- SignIn Button-->
+                    <button type="submit" class="btn btn-primary">Register</button>
+                    <router-link to="/login" class="btn btn-link">Login</router-link>
+                </div>
+            </form>
+            <footer class="col-12 text-center">
+                Entries marked with * are required
+            </footer><br/>
+        </b-container>
+        <br/><br/>
     </div>
 </template>
 

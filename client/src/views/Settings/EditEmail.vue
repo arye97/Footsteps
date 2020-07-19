@@ -1,145 +1,147 @@
 <template>
     <div>
-        <h1><br/></h1>
-        <template v-if="userId">
-            <div>
-                <div class="container">
-                    <div class="row">
-                        <div class="col-sm-6 offset-sm-3">
-                            <Header :userId="this.userId"/>
-                            <router-view></router-view>
+        <h1><br/><br/></h1>
+        <b-container class="contentsExtendedBottom" fluid>
+            <template v-if="userId">
+                <div>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm-6 offset-sm-3">
+                                <Header :userId="this.userId"/>
+                                <router-view></router-view>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <Sidebar :userId="this.userId"/>
-        </template>
+                <Sidebar :userId="this.userId"/>
+            </template>
 
 
-        <h1><br/></h1>
-        <header class="masthead">
-            <div class="container h-100">
-                <div class="row h-100 align-items-center">
-                    <div class="col-12 text-center">
-                        <h1 class="font-weight-light">Edit Emails</h1>
-                        <p class="lead">Edit the emails linked to your profile</p><br/>
+            <h1><br/></h1>
+            <header class="masthead">
+                <div class="container h-100">
+                    <div class="row h-100 align-items-center">
+                        <div class="col-12 text-center">
+                            <h1 class="font-weight-light"><strong>Edit Emails</strong></h1>
+                            <p class="lead">Edit the emails linked to your profile</p><br/>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </header>
+            </header>
 
-        <section v-if="error">
-            <p>Sorry, looks like we can't get your info! Please try again.</p>
-            <p>{{ error }}</p>
-        </section>
-
-        <section v-else>
-
-            <section v-if="loading">
-                <div class="loading">
-                    Loading...
-                </div>
+            <section v-if="error">
+                <p>Sorry, looks like we can't get your info! Please try again.</p>
+                <p>{{ error }}</p>
             </section>
 
             <section v-else>
-                <article class="emails">
-                    <section class="primaryEmailDisplay">
-                        <table id="primaryEmailTable" class="table table-borderless">
-                            <tr>
-                                <td>
-                                    <p id="primaryEmailLabel">
-                                        <b>Primary Email:</b>
-                                    </p>
-                                </td>
-                                <td>
-                                    <p id="primaryEmail">
-                                        {{ this.primaryEmail }}
-                                    </p>
-                                </td>
-                            </tr>
-                        </table>
-                    </section>
-                    <hr>
-                    <section class="additionalEmailsDisplay">
-                        <table id="additionalEmailsTable" class="table table-borderless">
-                            <tr v-for="(additionalEmail, index) in this.additionalEmails"
-                                v-bind:key="additionalEmail">
-                                <td>
-                                    <p :id="'additionalEmail' + index">
-                                        {{ additionalEmail }}
-                                    </p>
-                                </td>
-                                <td class="deleteButtonTd">
-                                    <b-button type="submit" variant="danger" id="deleteButton" v-on:click="deleteEmail(index)">
-                                        <b-icon-trash-fill></b-icon-trash-fill>
-                                    </b-button>
-                                </td>
-                                <td class="makePrimaryButtonTd">
-                                    <b-button type="submit" variant="primary" id="primaryButton" v-on:click="setPrimary(index)">
-                                        Make Primary
-                                    </b-button>
-                                </td>
-                            </tr>
-                        </table>
-                        <form v-on:submit.prevent="addEmail" id="addEmail">
-                            <table>
-                                <tr>
-                                    <th id="addNewEmailTh">
-                                        <label for="newEmailInserted">
-                                            Add New Email:
-                                        </label>
-                                    </th>
-                                    <th id="emailMessageTh">
-                                        <label for="newEmailInserted" class="has-error">
-                                            {{ this.emailMessage }}
-                                        </label>
-                                    </th>
-                                </tr>
-                            </table>
-                            <table>
+
+                <section v-if="loading">
+                    <div class="loading">
+                        Loading...
+                    </div>
+                </section>
+
+                <section v-else>
+                    <article class="emails">
+                        <section class="primaryEmailDisplay">
+                            <table id="primaryEmailTable" class="table table-borderless">
                                 <tr>
                                     <td>
-                                        <input v-model="insertedEmail"
-                                               class="form-control"
-                                               id="newEmailInserted"
-                                               placeholder="Email address"
-                                               @keyup="checkEmail()"
-                                        >
+                                        <p id="primaryEmailLabel">
+                                            <b>Primary Email:</b>
+                                        </p>
                                     </td>
                                     <td>
-                                    <!--Disable button if duplicateEmailError is not null-->
-                                        <b-button type="submit"
-                                                variant="secondary"
-                                                v-bind:disabled="duplicateEmailError!==null"
-                                        >
-                                            <p class="h5 mb-0">
-                                                <b-icon-plus></b-icon-plus>
-                                            </p>
+                                        <p id="primaryEmail">
+                                            <b>{{ this.primaryEmail }}</b>
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </section>
+                        <hr>
+                        <section class="additionalEmailsDisplay">
+                            <table id="additionalEmailsTable" class="table table-borderless">
+                                <tr v-for="(additionalEmail, index) in this.additionalEmails"
+                                    v-bind:key="additionalEmail">
+                                    <td>
+                                        <p :id="'additionalEmail' + index">
+                                            {{ additionalEmail }}
+                                        </p>
+                                    </td>
+                                    <td class="deleteButtonTd">
+                                        <b-button type="submit" variant="danger" id="deleteButton" v-on:click="deleteEmail(index)">
+                                            <b-icon-trash-fill></b-icon-trash-fill>
+                                        </b-button>
+                                    </td>
+                                    <td class="makePrimaryButtonTd">
+                                        <b-button type="submit" variant="primary" id="primaryButton" v-on:click="setPrimary(index)">
+                                            Make Primary
                                         </b-button>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>
-                                        <label for="newEmailInserted" class="has-error" id="errorMessage">
-                                            {{ duplicateEmailError }}
-                                        </label>
-                                    </td>
-                                </tr>
-
                             </table>
-                        </form>
-                        <div id="confirmationButtons">
-                            <b-button type="submit" variant="success float-left"
-                                      size="lg" id="back" :key=this.toReload
-                                      v-on:click="backAlert">Back</b-button>
-                            <b-button type="submit" variant="success float-right"
-                                      size="lg" v-on:click="saveChanges"
-                                      v-bind:disabled="changesHaveBeenMade===false">Save Changes</b-button>
-                        </div>
-                    </section>
-                </article>
+                            <form v-on:submit.prevent="addEmail" id="addEmail">
+                                <table>
+                                    <tr>
+                                        <th id="addNewEmailTh">
+                                            <label for="newEmailInserted">
+                                                Add New Email:
+                                            </label>
+                                        </th>
+                                        <th id="emailMessageTh">
+                                            <label for="newEmailInserted" class="has-error">
+                                                {{ this.emailMessage }}
+                                            </label>
+                                        </th>
+                                    </tr>
+                                </table>
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <input v-model="insertedEmail"
+                                                   class="form-control"
+                                                   id="newEmailInserted"
+                                                   placeholder="Email address"
+                                                   @keyup="checkEmail()"
+                                            >
+                                        </td>
+                                        <td>
+                                        <!--Disable button if duplicateEmailError is not null-->
+                                            <b-button type="submit"
+                                                    variant="secondary"
+                                                    v-bind:disabled="duplicateEmailError!==null"
+                                            >
+                                                <p class="h5 mb-0">
+                                                    <b-icon-plus></b-icon-plus>
+                                                </p>
+                                            </b-button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <label for="newEmailInserted" class="has-error" id="errorMessage">
+                                                {{ duplicateEmailError }}
+                                            </label>
+                                        </td>
+                                    </tr>
+
+                                </table>
+                            </form>
+                            <div id="confirmationButtons">
+                                <b-button type="submit" variant="success float-left"
+                                          size="lg" id="back" :key=this.toReload
+                                          v-on:click="backAlert">Back</b-button>
+                                <b-button type="submit" variant="success float-right"
+                                          size="lg" v-on:click="saveChanges"
+                                          v-bind:disabled="changesHaveBeenMade===false">Save Changes</b-button>
+                            </div>
+                        </section>
+                    </article>
+                </section>
             </section>
-        </section>
+        </b-container>
     </div>
 </template>
 <script>

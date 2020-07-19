@@ -20,7 +20,10 @@ export default new Router({
     mode: 'history',
     base: process.env.VUE_APP_BASE_URL,
     routes: [
-        {path: '/', component: Home},
+        {   path: '/',
+            name: 'Home',
+            component: Home
+        },
         {path: '/login', component: Login},
         {path: '/register', component: Register},
         {

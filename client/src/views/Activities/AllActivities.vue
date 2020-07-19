@@ -7,9 +7,6 @@
                 <div class="col-12 text-center">
                     <Header/>
                     <br/>
-                    <h1 class="font-weight-light">
-                        Find something to do!<br/>
-                    </h1>
                 </div>
             </div>
         </div>
@@ -17,8 +14,18 @@
     <section>
         <!-- Search features -->
     </section>
-    <hr/>
-    <div>
+
+    <b-container class="contents">
+        <div class="container h-100">
+            <div class="row h-100 align-items-center">
+                <div class="col-12 text-center">
+                    <h1 class="font-weight-light">
+                        <br/>
+                        Find something to do!<br/>
+                    </h1>
+                </div>
+            </div>
+        </div>
         <div style="text-align: center">
             <b-button style="margin-bottom: 1.7em; margin-top: 0.8em" variant="primary" v-on:click="goToPage('/activities/create')">Create New Activity</b-button>
         </div>
@@ -88,9 +95,10 @@
             </b-tab>
 
         </b-tabs>
-    </div>
+        <br/>
+    </b-container>
 
-    <br/>
+    <br/><br/>
     </div>
 
 </template>

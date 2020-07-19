@@ -1,151 +1,120 @@
 <template>
     <div>
-        <div class="header-sidebar">
-            <h1><br/><br/></h1>
-            <div>
-                <div class="container">
-                    <div class="row">
-                        <div class="col-sm-6 offset-sm-3">
-                            <template v-if="loggedIn">
-                                <Header/>
-                            </template>
-                            <router-view></router-view>
+        <h1><br/><br/></h1>
+        <b-container class="contents" fluid>
+            <h1><br/></h1>
+            <div class="header-sidebar">
+
+                <div>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm-6 offset-sm-3">
+                                <template v-if="loggedIn">
+                                    <Header/>
+                                </template>
+                                <router-view></router-view>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div v-if="loggedIn">
-            <Sidebar :userId="profileId"/>
-            <div class="settings-page" v-if="!this.isRedirecting">
-                <div class="container-fluid" v-if="loggedIn">
-                    <div class="form-group">
-                        <!-- first-name field-->
-                        <label>First Name: *</label>
-                        <div class="edit-area">
-                            <b-form-input
-                                    class="form-control"
-                                    id="firstname"
-                                    v-model="firstname"
-                                    placeholder="Your First Name..."
-                                    trim required>
-                            </b-form-input>
-                        </div>
-                        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_first_name" hidden>
-                            <p>First name is a mandatory field. You may have entered an invalid character. 45 characters is the limit</p>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <!-- middle-name field-->
-                        <label>Middle Name: </label>
-                        <div class="edit-area">
-                            <b-form-input
-                                    class="form-control"
-                                    id="middlename"
-                                    v-model="middlename"
-                                    placeholder="Your Middle Name..."
-                                    trim>
-                            </b-form-input>
-                        </div>
-                        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_middle_name" hidden>
-                            <p>Middle name may have an invalid character. 45 characters is the limit</p>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <!-- last-name field-->
-                        <label>Last Name: *</label>
-                        <div class="edit-area">
-                            <b-form-input
-                                    class="form-control"
-                                    id="lastname"
-                                    v-model="lastname"
-                                    placeholder="Your Last Name..."
-                                    trim required>
-                            </b-form-input>
-                        </div>
-                        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_last_name" hidden>
-                            <p>Last name is a mandatory field. You may have entered an invalid character. 45 characters is the limit</p>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <!-- fitness level field -->
-                        <label for="fitness">Fitness Level:</label>
-                        <div class="edit-area">
-                            <div id="fitnessDiv" class="multiselect-box">
-                                <multiselect v-model="fitness" id="fitness" :options="fitnessOptions" :multiple="false" label="desc" :return="fitnessOptions.desc"
-                                             placeholder="Please select a fitness level" track-by="value">
-                                    <template slot="singleLabel" slot-scope="{ option }"><footer> {{ option.desc }}</footer></template>
-                                </multiselect>
+            <div v-if="loggedIn">
+                <Sidebar :userId="profileId"/>
+                <div class="settings-page" v-if="!this.isRedirecting">
+                    <div class="container-fluid" v-if="loggedIn">
+                        <div class="form-group">
+                            <header class="masthead">
+                                <div class="container h-100">
+                                    <div class="row h-100 align-items-center">
+                                        <div class="col-12 text-center">
+                                            <h1 class="font-weight-light"><strong>Edit Profile Details</strong></h1><br/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </header>
+                            <hr>
+                            <!-- first-name field-->
+                            <label for="firstname">First Name: *</label>
+                            <div class="edit-area">
+                                <input type="text" class="form-control" v-model="firstname" id="firstname" name="firstname"
+                                       placeholder="Your First Name..." required>
                             </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <!-- nickname field-->
-                        <label>Nickname: </label>
-                        <div class="edit-area">
-                            <b-form-input
-                                    class="form-control"
-                                    id="nickname"
-                                    v-model="nickname"
-                                    placeholder="Your Nickname..."
-                                    trim>
-                            </b-form-input>
-                        </div>
-                        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_nickname" hidden>
-                            <p>Unfortunately your nickname is to long, 45 characters is the limit</p>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <!-- gender field -->
-                        <label for="gender">Gender: *</label>
-                        <div class="edit-area">
-                            <div id="genderDiv" class="multiselect-box">
-                                <multiselect v-model="gender" id="gender"
-                                             :options="genders" placeholder="Your gender" required>
-                                    <template slot="noResult">Invalid gender</template>
-                                </multiselect>
+                        <div class="form-group">
+                            <!-- middle-name field-->
+                            <label for="middlename">Middle Name: </label>
+                            <div class="edit-area">
+                                <input type="text" class="form-control" v-model="middlename" id="middlename" name="middlename"
+                                       placeholder="Your Middle Name...">
                             </div>
                         </div>
-                        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_gender" hidden>
-                            <p>Gender is a mandatory field</p>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <!-- date-of-birth field-->
-                        <label for="date_of_birth">Date of Birth: *</label>
-                        <div class="edit-area">
-                            <input type="date" class="form-control" v-model="date_of_birth" id="date_of_birth" name="date_of_birth" required>
-                        </div>
-                        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_dob" hidden>
-                            <p>You must be 13 yrs or older. Older than 150 yrs is invalid</p>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <!-- passport country -->
-                        <label for="passports">Passport Country:</label>
-                        <div class="edit-area">
-                            <div id="passportsDiv" class="multiselect-box">
-                                <multiselect v-model="passports" id="passports"
-                                             :options="countries" :multiple="true" :searchable="true" :close-on-select="false"
-                                             placeholder="Select your passport countries">
-                                    <template slot="noResult">Country not found</template>
-                                </multiselect>
+                        <div class="form-group">
+                            <!-- last-name field-->
+                            <label for="lastname">Last Name: *</label>
+                            <div class="edit-area">
+                                <input type="text" class="form-control" v-model="lastname" id="lastname" name="lastname"
+                                       placeholder="Your Last Name..." required>
                             </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <!-- user bio -->
-                        <label>Tell us about yourself, your Bio: </label>
-                        <div class="edit-area">
-                            <b-form-textarea
-                                    class="form-control"
-                                    id="bio"
-                                    v-model="bio"
-                                    placeholder="Who are you?"
-                                    rows="2"
-                                    max-rows="30"
-                                    trim>
-                            </b-form-textarea>
+                        <div class="form-group">
+                            <!-- fitness level field -->
+                            <label for="fitness">Fitness Level:</label>
+                            <div class="edit-area">
+                                <div id="fitnessDiv" class="multiselect multiselect-box">
+                                    <multiselect v-model="fitness" id="fitness" :options="fitnessOptions" :multiple="false" label="desc" :return="fitnessOptions.desc"
+                                                 placeholder="Please select a fitness level" track-by="value">
+                                        <template slot="singleLabel" slot-scope="{ option }"><footer> {{ option.desc }}</footer></template>
+                                    </multiselect>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <!-- nickname field-->
+                            <label for="nickname">Nickname: </label>
+                            <div class="edit-area">
+                                <input type="text" class="form-control" v-model="nickname" id="nickname" name="nickname"
+                                       placeholder="Your Nickname...">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <!-- gender field -->
+                            <label for="gender">Gender: *</label>
+                            <div class="edit-area">
+                                <div id="genderDiv" class="multiselect multiselect-box">
+                                    <multiselect v-model="gender" id="gender"
+                                                 :options="genders" placeholder="Your gender" required>
+                                        <template slot="noResult">Invalid gender</template>
+                                    </multiselect>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <!-- date-of-birth field-->
+                            <label for="date_of_birth">Date of Birth: *</label>
+                            <div class="edit-area">
+                                <input type="date" class="form-control" v-model="date_of_birth" id="date_of_birth" name="date_of_birth" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <!-- passport country -->
+                            <label for="passports">Passport Country:</label>
+                            <div class="edit-area">
+                                <div id="passportsDiv" class="multiselect multiselect-box">
+                                    <multiselect v-model="passports" id="passports"
+                                                 :options="countries" :multiple="true" :searchable="true" :close-on-select="false"
+                                                 placeholder="Select your passport countries">
+                                        <template slot="noResult">Country not found</template>
+                                    </multiselect>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <!-- user bio -->
+                            <label for="bio">Tell us about yourself, your Bio: </label>
+                            <div class="edit-area">
+                                <textarea name="bio" class="form-control" id="bio"
+                                          v-model="bio" cols="30" rows="2" placeholder="Who are you?"></textarea>
+                            </div>
                         </div>
                         <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert_bio" hidden>
                             <p>Unfortunately your bio is to long, 255 characters is the limit</p>
@@ -174,14 +143,12 @@
                     <b-button type="submit" id="saveChanges-btn" size="lg" variant="success float-right" v-on:click="saveChanges">Save Changes</b-button>
                 </div>
             </div>
-        </div>
-        <div v-if="this.isRedirecting">
-            {{ redirectionMessage }}
-            <br/><br/><b-spinner variant="primary" label="Spinning"></b-spinner>
-        </div>
-
-
-
+            <div v-if="this.isRedirecting">
+                {{ redirectionMessage }}
+                <br/><br/><b-spinner variant="primary" label="Spinning"></b-spinner>
+            </div>
+        </b-container>
+        <br/><br/>
     </div>
 </template>
 
