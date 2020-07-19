@@ -177,6 +177,7 @@
         </div>
         <div v-if="this.isRedirecting">
             {{ redirectionMessage }}
+            <br/><br/><b-spinner variant="primary" label="Spinning"></b-spinner>
         </div>
 
 

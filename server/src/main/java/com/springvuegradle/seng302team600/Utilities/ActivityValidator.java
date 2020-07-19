@@ -71,12 +71,17 @@ public class ActivityValidator {
 
     /**
      * Checks activity start and end dates. Invalid If start is after end
+     * - Start date must be before end date
+     * - Shouldn't create a date before 1970, which causes an SQL error.
      * @param start the starting date
      * @param end the ending date
      */
     private static void validateDates(Date start, Date end) {
         if (start.after(end)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start date must be before end date");
+        }
+        if (start.getTime() < 0 || end.getTime() < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start date and end date must occur after 1970");
         }
     }
 }
