@@ -723,16 +723,13 @@ class UserControllerTest {
                 .andReturn();
 
         assertNotNull(result);
-
-
-
     }
 
     @Test
     /** Tests the response of getting a users role
      */
     void getUserRole() throws Exception {
-        setupMocking(createUserJsonPost);
+        setupMocking(newUserJson);
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get("/profiles/{profileId}/role", DEFAULT_USER_ID)
                 .header("Token", validToken);
         MvcResult request = mvc.perform(httpReq).andExpect(status().isOk()).andReturn();

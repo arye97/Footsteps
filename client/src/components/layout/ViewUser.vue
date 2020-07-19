@@ -168,7 +168,6 @@
                 if (response.status === 200) {
                   //user is set to the user data retrieved
                   this.user = response.data;
-                  console.log(this.user);
                   this.userId = this.user.id;
                   this.formattedDate = getDateString(this.user.date_of_birth);
                   for (let i = 0; i < fitnessLevels.length; i++) {
