@@ -109,7 +109,7 @@ deploy-prod-server:
     # Update bash script and restart service
     - rm -f /home/gitlab-runner/runProdServer.sh || true
     - cp ../deployment-scripts/runProdServer.sh /home/gitlab-runner/runProdServer.sh
-    - cd /home/gitlab-runner/test-server/
+    - cd /home/gitlab-runner/prod-server/
     - echo "export SPRING_DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME" > envVars.txt
     - echo "export SPRING_DATASOURCE_PASSWORD=$SPRING_DATASOURCE_PASSWORD" >> envVars.txt
     - echo "export SSL_KEY_STORE_PASSWORD=$SSL_KEY_STORE_PASSWORD" >> envVars.txt
