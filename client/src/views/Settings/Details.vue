@@ -4,7 +4,6 @@
         <b-container class="contents" fluid>
             <h1><br/></h1>
             <div class="header-sidebar">
-
                 <div>
                     <div class="container">
                         <div class="row">
@@ -18,7 +17,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+
         <div v-if="loggedIn">
             <Sidebar :userId="profileId"/>
                 <div class="settings-page" v-if="!this.isRedirecting">
@@ -45,16 +44,8 @@
                                     trim required>
                             </b-form-input>
                         </div>
-                        <div class="form-group">
-                            <!-- middle-name field-->
-                            <label for="middlename">Middle Name: </label>
-                            <div class="edit-area">
-                                <input type="text" class="form-control" v-model="middlename" id="middlename" name="middlename"
-                                       placeholder="Your Middle Name...">
-                            </div>
-                        </div>
                     </b-form-group>
-                    <b-form-group label-fot="middlename" label="Middle Name:">
+                    <b-form-group label-for="middlename" label="Middle Name:">
                         <!-- middle-name field-->
                         <div class="edit-area">
                             <b-form-input
@@ -64,18 +55,6 @@
                                     placeholder="Your Middle Name..."
                                     trim>
                             </b-form-input>
-                        </div>
-                        <div class="form-group">
-                            <!-- fitness level field -->
-                            <label for="fitness">Fitness Level:</label>
-                            <div class="edit-area">
-                                <div id="fitnessDiv" class="multiselect multiselect-box">
-                                    <multiselect v-model="fitness" id="fitness" :options="fitnessOptions" :multiple="false" label="desc" :return="fitnessOptions.desc"
-                                                 placeholder="Please select a fitness level" track-by="value">
-                                        <template slot="singleLabel" slot-scope="{ option }"><footer> {{ option.desc }}</footer></template>
-                                    </multiselect>
-                                </div>
-                            </div>
                         </div>
                     </b-form-group>
                     <b-form-group label-for="lastname" label="Last Name: *">
@@ -88,29 +67,6 @@
                                     placeholder="Your Last Name..."
                                     trim required>
                             </b-form-input>
-                        </div>
-                        <div class="form-group">
-                            <!-- gender field -->
-                            <label for="gender">Gender: *</label>
-                            <div class="edit-area">
-                                <div id="genderDiv" class="multiselect multiselect-box">
-                                    <multiselect v-model="gender" id="gender"
-                                                 :options="genders" placeholder="Your gender" required>
-                                        <template slot="noResult">Invalid gender</template>
-                                    </multiselect>
-                                </div>
-                            </div>
-                        </div>
-                    </b-form-group>
-                    <b-form-group label-for="fitness" label="Fitness Level:">
-                        <!-- fitness level field -->
-                        <div class="edit-area">
-                            <div id="fitnessDiv" class="multiselect-box">
-                                <multiselect v-model="fitness" id="fitness" :options="fitnessOptions" :multiple="false" label="desc" :return="fitnessOptions.desc"
-                                             placeholder="Please select a fitness level" track-by="value">
-                                    <template slot="singleLabel" slot-scope="{ option }"><footer> {{ option.desc }}</footer></template>
-                                </multiselect>
-                            </div>
                         </div>
                     </b-form-group>
                     <b-form-group label-for="nickname" label="Nickname:">
@@ -142,6 +98,19 @@
                             <p>Gender is a mandatory field</p>
                         </div>
                     </b-form-group>
+                    <b-form-group label-for="fitness" label="Fitness Level:">
+                        <div class="form-group">
+                            <!-- fitness level field -->
+                            <div class="edit-area">
+                                <div id="fitnessDiv" class="multiselect multiselect-box">
+                                    <multiselect v-model="fitness" id="fitness" :options="fitnessOptions" :multiple="false" label="desc" :return="fitnessOptions.desc"
+                                                 placeholder="Please select a fitness level" track-by="value">
+                                        <template slot="singleLabel" slot-scope="{ option }"><footer> {{ option.desc }}</footer></template>
+                                    </multiselect>
+                                </div>
+                            </div>
+                        </div>
+                    </b-form-group>
                     <b-form-group label-for="date_of_birth" label="Date of Birth: *">
                         <!-- date-of-birth field-->
                         <div class="edit-area">
@@ -163,6 +132,18 @@
                             </div>
                         </div>
                     </b-form-group>
+                    <b-form-group label-for="activityTypes" label="Activity Types:">
+                        <!-- activity types -->
+                        <div class="edit-area">
+                            <div id="activityTypesDiv" class="multiselect-box">
+                                <multiselect v-model="selectedActivityTypes" id="activityTypes"
+                                             :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
+                                             placeholder="Select your activity types">
+                                    <template slot="noResult">Invalid activity type</template>
+                                </multiselect>
+                            </div>
+                        </div>
+                    </b-form-group>
                     <b-form-group label-for="bio" label="Tell us about yourself, your Bio:">
                         <!-- user bio -->
                         <div class="edit-area">
@@ -180,18 +161,6 @@
                             <p>Unfortunately your bio is to long, 255 characters is the limit</p>
                         </div>
                     </b-form-group>
-                    <b-form-group label-for="activityTypes" label="Activity Types:">
-                        <!-- activity types -->
-                        <div class="edit-area">
-                            <div id="activityTypesDiv" class="multiselect-box">
-                                <multiselect v-model="selectedActivityTypes" id="activityTypes"
-                                        :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
-                                        placeholder="Select your activity types">
-                                     <template slot="noResult">Invalid activity type</template>
-                                </multiselect>
-                            </div>
-                        </div>
-                    </b-form-group>
                     <div class="alert alert-success alert-dismissible fade show sticky-top" role="alert" id="overall_message" hidden>
                         <p id="alert-message">{{ message }}</p>
                     </div>
@@ -206,6 +175,8 @@
                 {{ redirectionMessage }}
                 <br/><br/><b-spinner variant="primary" label="Spinning"></b-spinner>
             </div>
+                </div>
+        </div>
         </b-container>
         <br/><br/>
     </div>
@@ -217,7 +188,7 @@
     import Header from '../../components/Header/Header.vue'
     import api from "../../Api";
     import {getCountryNames, fitnessLevels} from '../../constants';
-    import {validateUser, getDateString} from "../../util"
+    import {validateUser} from "../../util"
 
     export default {
         name: "Details.vue",
@@ -263,6 +234,7 @@
                 this.redirectionMessage = '';
                 this.fetchCountries();
                 await this.fetchActivityTypes();
+                console.log(this.$route.params.userId);
                 if (this.$route.params.userId !== undefined) {
                     await this.validateUserIdWithToken(); // If allowed to edit profileId is set
                 }
@@ -513,7 +485,7 @@
                 this.passports = user.passports;
                 this.bio = user.bio;
                 this.selectedActivityTypes = user.activityTypes.map(at => at.name);
-                this.date_of_birth = getDateString(user.date_of_birth);
+                this.date_of_birth = user.date_of_birth;
                 for (const option in this.fitnessOptions) {
                     if (this.fitnessOptions[option].value === user.fitness) {
                         this.fitness = this.fitnessOptions[option];
@@ -527,7 +499,7 @@
              * Checks if user can edit this given ID.
              */
             async validateUserIdWithToken() {
-                await api.checkProfile(this.profileId).then(() => {
+                await api.checkProfile(this.$route.params.userId).then(() => {
                     // 200
                     // If admin will return 200
                     this.loggedIn = true;

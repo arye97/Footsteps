@@ -99,7 +99,7 @@
 
                                 <b-card class="flex-fill" border-variant="secondary">
                                     <b-card-text class="font-weight-light">
-                                        {{this.formattedDate}}
+                                        {{this.user.date_of_birth}}
                                     </b-card-text>
                                 </b-card><br/>
                             </div>
@@ -116,7 +116,7 @@
     import api from "../../Api";
     import {fitnessLevels} from '../../constants'
     import Header from '../../components/Header/Header';
-    import {getDateString} from "../../util"
+    //import {getDateString} from "../../util"
     export default {
         name: "ViewUser",
         components: {
@@ -154,7 +154,6 @@
                 }
                 await this.editable();
                 await this.getProfile();
-                await this.getActivities();
                 this.loading = false;
 
             },
@@ -164,7 +163,6 @@
                   //user is set to the user data retrieved
                   this.user = response.data;
                   this.userId = this.user.id;
-                  this.formattedDate = getDateString(this.user.date_of_birth);
                   for (let i = 0; i < fitnessLevels.length; i++) {
                     if (fitnessLevels[i].value === this.user.fitness) {
                       this.fitness = fitnessLevels[i].desc;
@@ -182,20 +180,6 @@
                   this.logout();
                 }
               });
-            },
-            async getActivities() {
-                await api.getUserActivities(this.userId).then(response => {if (response.status === 200) {
-                    this.continuousActivities = response.data.filter(e => e.continuous === true);
-                    this.discreteActivities = response.data.filter(e => e.continuous === false);
-                }}).catch(error => {
-                    this.errored = true;
-                    this.error = error.response.data.message;
-                    if (error.response.data.status === 404 && sessionStorage.getItem('token') !== null) {
-                        this.$router.push({ name: 'myProfile' });
-                    } else {
-                        this.logout();
-                    }
-                });
             },
             logout() {
                 api.logout().then(() => {

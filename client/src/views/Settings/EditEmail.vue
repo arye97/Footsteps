@@ -2,7 +2,7 @@
     <div>
         <h1><br/><br/></h1>
         <b-container class="contentsExtendedBottom" fluid>
-            <template v-if="userId">
+            <template v-if="this.userId">
                 <div>
                     <div class="container">
                         <div class="row">
@@ -171,7 +171,8 @@
                 isEditable: false
             }
         },
-        async beforeMount() {
+        async mounted() {
+
             await this.init();
         },
         methods: {
@@ -185,15 +186,15 @@
                 this.changesHaveBeenMade = false;
 
                 this.userId = this.$route.params.userId;
-                if (this.userId === undefined || isNaN(this.userId)) {
+                if (this.userId === undefined) {
                     this.isEditable = true;
                     this.userId = '';
                 } else {
                     await this.editable(); // If allowed to edit, userId is set
                 }
-
                 if (this.isEditable) {
-                    await api.getUserData(this.profileId).then(response => {
+
+                    await api.getUserData(this.userId).then(response => {
                         this.userId = response.data.id;
                     }).catch(error => {
                         if (error.response.data.status === 401) {
@@ -201,7 +202,7 @@
                         }
                     });
 
-                    await api.getUserEmails(this.profileId).then(response => {
+                    await api.getUserEmails(this.userId).then(response => {
                         if (response.status === 200) {
                             this.loading = false;
                             this.userId = response.data["userId"];
@@ -391,7 +392,7 @@
                         additional_email: this.additionalEmails
                     };
 
-                    api.updateEmails(savedEmails).then(() => {
+                    api.updateEmails(savedEmails, this.userId).then(() => {
                         console.log("Additional Emails updated successfully!");
                         window.alert("Successfully saved changes!");
                         this.updateOriginalAdditionalEmails();
@@ -421,8 +422,7 @@
                         primary_email: this.primaryEmail,
                         additional_email: this.additionalEmails
                     };
-                    console.log(`/profiles/${this.userId}/emails`);
-                    api.putEmails(savedEmails).then(() => {
+                    api.putEmails(savedEmails, this.userId).then(() => {
                         console.log('Primary Email and Additional Emails updated successfully!');
                         window.alert("Successfully saved changes!");
                         this.updateOriginalPrimaryEmail();
@@ -507,7 +507,7 @@
                     this.isEditable = true;
                     return;
                 }
-                await api.checkProfile(this.profileId).then(() => {
+                await api.checkProfile(this.userId).then(() => {
                     //Status code 200
                     //User can edit this profile
                     this.isEditable = true;

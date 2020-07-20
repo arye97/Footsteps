@@ -25,7 +25,6 @@
     import Header from '../components/Header/Header';
     import api from "../Api";
 
-    import server from "../Api";
     export default {
         name: "ViewUser",
         components: {
