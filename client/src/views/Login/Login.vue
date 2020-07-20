@@ -39,6 +39,7 @@
                         </b-form>
                     </div>
                 </div>
+                </div>
             </header>
         </b-container>
     </div>
@@ -98,14 +99,7 @@
                     if (response.status === 201) {
                         sessionStorage.setItem("token", response.data.Token);
                         this.userId = response.data.userId;
-
-                        server.get('/profiles/' + this.userId + '/role',
-                            {
-                                headers: {'Content-Type': 'application/json',
-                                     'Token': sessionStorage.getItem("token"),
-                            },
-                            }
-                        ).then(roleResponse => {
+                        api.getUserRoles(this.userId).then(roleResponse => {
                             if (roleResponse.data == 20){ //Account is default admin
                                 this.$router.push('/admin');
                             } else{
