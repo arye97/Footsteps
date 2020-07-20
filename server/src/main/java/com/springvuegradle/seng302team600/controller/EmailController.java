@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
-import com.springvuegradle.seng302team600.service.UserValidationService;
+import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -23,12 +23,12 @@ import java.util.Map;
 @RestController
 public class EmailController {
 
-    private UserValidationService userService;
+    private UserAuthenticationService userService;
 
     private final UserRepository userRepository;
     private final EmailRepository emailRepository;
 
-    public EmailController(UserRepository userRepository, EmailRepository emailRepository, UserValidationService userService) {
+    public EmailController(UserRepository userRepository, EmailRepository emailRepository, UserAuthenticationService userService) {
         this.userRepository = userRepository;
         this.emailRepository = emailRepository;
         this.userService = userService;

@@ -2,7 +2,7 @@
     <div>
         <h1><br/><br/></h1>
         <b-container class="contentsExtendedBottom" fluid>
-            <template v-if="userId">
+            <template v-if="this.userId">
                 <div>
                     <div class="container">
                         <div class="row">
@@ -145,7 +145,7 @@
     </div>
 </template>
 <script>
-    import server from '../../Api';
+    import api from '../../Api';
     // import {tokenStore} from "../../main";
     import Sidebar from '../../components/layout/ProfileEditSidebar';
     import Header from '../../components/Header/Header.vue'
@@ -171,7 +171,8 @@
                 isEditable: false
             }
         },
-        async beforeMount() {
+        async mounted() {
+
             await this.init();
         },
         methods: {
@@ -185,19 +186,15 @@
                 this.changesHaveBeenMade = false;
 
                 this.userId = this.$route.params.userId;
-                if (this.userId === undefined || isNaN(this.userId)) {
+                if (this.userId === undefined) {
                     this.isEditable = true;
                     this.userId = '';
                 } else {
                     await this.editable(); // If allowed to edit, userId is set
                 }
-
                 if (this.isEditable) {
-                    await server.get(`/profiles/${this.userId}`,
-                        {
-                            headers: {'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")},
-                            withCredentials: true
-                        },).then(response => {
+
+                    await api.getUserData(this.userId).then(response => {
                         this.userId = response.data.id;
                     }).catch(error => {
                         if (error.response.data.status === 401) {
@@ -205,16 +202,7 @@
                         }
                     });
 
-                    await server.get(  `/profiles/${this.userId}/emails`,
-                        {
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Token': sessionStorage.getItem("token")
-                            },
-                            withCredentials: true
-                        }
-
-                    ).then(response => {
+                    await api.getUserEmails(this.userId).then(response => {
                         if (response.status === 200) {
                             this.loading = false;
                             this.userId = response.data["userId"];
@@ -258,12 +246,12 @@
                     this.emailCount++;
                     this.setEmailCountMessage();
                     this.checkIfChangesMade();
-                    let emailTextBox = document.getElementById("newEmailInserted").value;
-                    if (emailTextBox === this.primaryEmail || this.additionalEmails.includes(emailTextBox)) {
+                    if (this.insertedEmail === this.primaryEmail || this.additionalEmails.includes(this.insertedEmail)) {
                         // Disable add button if user already assigned to email
                         this.duplicateEmailError = "";
                     }
                 }
+                this.insertedEmail = null;
             },
 
             /**
@@ -301,21 +289,16 @@
                 this.emailCount--;
 
                 // Disables/Enables the SAVE button
-                if (this.additionalEmails === this.originalAdditionalEmails) {
-                    this.changesHaveBeenMade = false;
-                } else {
-                    this.changesHaveBeenMade = true;
-                }
+                this.changesHaveBeenMade = this.additionalEmails !== this.originalAdditionalEmails;
 
                 // Disables/Enables the ADD (+) button
-                let emailTextBox = document.getElementById("newEmailInserted").value;
-                if (emailTextBox === this.primaryEmail || this.additionalEmails.includes(emailTextBox)) {
+                if (this.insertedEmail === this.primaryEmail || this.additionalEmails.includes(this.insertedEmail)) {
                     // Disable add button if user already assigned to email
                     this.duplicateEmailError = "You are already assigned to this email!";
-                } else if (emailTextBox === this.originalPrimaryEmail
-                        || emailTextBox === emailToBeRemoved
-                        || this.originalAdditionalEmails.includes(emailTextBox)
-                        || (this.duplicateEmailError !== "You are already assigned to this email!"
+                } else if (this.insertedEmail === this.originalPrimaryEmail
+                    || this.insertedEmail === emailToBeRemoved
+                    || this.originalAdditionalEmails.includes(this.insertedEmail)
+                    || (this.duplicateEmailError !== "You are already assigned to this email!"
                         && this.duplicateEmailError !== "We're sorry, that email is taken.")) {
                     // Enable add button if email assigned TO ORIGINAL PRIMARY EMAIL AND ADDITIONAL EMAIL AND IS TO BE REMOVED
                     this.duplicateEmailError = null;
@@ -333,33 +316,23 @@
              * This function is called to set the disabling/enabling of the ADD (+) button.
              */
             checkEmail() {
-                let emailTextBox = document.getElementById("newEmailInserted").value;
                 // Check if Email is formatted correctly
-                if ((/(.+)@(.+){2,}\.(.+){2,}/).test(emailTextBox)) {
+                if ((/(.+)@(.+){2,}\.(.+){2,}/).test(this.insertedEmail)) {
                     if (this.emailMessage === "Email limit reached!") {
                         // Disable add button if email limit reached
                         this.duplicateEmailError = "";
-                    } else if (emailTextBox === this.primaryEmail || this.additionalEmails.includes(emailTextBox)) {
+                    } else if (this.insertedEmail === this.primaryEmail || this.additionalEmails.includes(this.insertedEmail)) {
                         // Disable add button if user already assigned to email
                         this.duplicateEmailError = "You are already assigned to this email!";
-                    } else if (emailTextBox === this.originalPrimaryEmail || this.originalAdditionalEmails.includes(emailTextBox)) {
+                    } else if (this.insertedEmail === this.originalPrimaryEmail || this.originalAdditionalEmails.includes(this.insertedEmail)) {
                         this.duplicateEmailError = null;
                     } else {
-                        server.get(`/email`,
-                            {
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                           'Token': sessionStorage.getItem("token"),
-                                           'email': emailTextBox
-                                },
-                                withCredentials: true
-                            }
-                        ).then(() => {
+                        api.checkUserEmail(this.insertedEmail).then(() => {
                             this.duplicateEmailError = null;
                         }).catch(error => {
                             if (error.response.status === 400) {
                                 console.log(error.response.data.message);
-                                let message = "Bad Request: email " + emailTextBox + " is already in use";
+                                let message = "Bad Request: email " + this.insertedEmail + " is already in use";
                                 // Disable add button if email is in use
                                 if (error.response.data.message === message) {
                                     this.duplicateEmailError = "We're sorry, that email is taken."
@@ -373,7 +346,11 @@
                         })
                     }
                 } else {
-                    this.duplicateEmailError = "";
+                    if (this.insertedEmail) {
+                        this.duplicateEmailError = "Please enter a valid email!";
+                    } else {
+                        this.duplicateEmailError = "";
+                    }
                 }
             },
 
@@ -415,17 +392,7 @@
                         additional_email: this.additionalEmails
                     };
 
-                    server.post(`/profiles/${this.userId}/emails`,
-                        savedEmails,
-                        {
-                            headers: {
-                                "Access-Control-Allow-Origin": "*",
-                                               "Content-Type": "application/json",
-                                                      "Token": sessionStorage.getItem("token")
-                            },
-                            withCredentials: true
-                        }
-                    ).then(() => {
+                    api.updateEmails(savedEmails, this.userId).then(() => {
                         console.log("Additional Emails updated successfully!");
                         window.alert("Successfully saved changes!");
                         this.updateOriginalAdditionalEmails();
@@ -455,18 +422,7 @@
                         primary_email: this.primaryEmail,
                         additional_email: this.additionalEmails
                     };
-                    console.log(`/profiles/${this.userId}/emails`);
-                    server.put(`/profiles/${this.userId}/emails`,
-                        savedEmails,
-                        {
-                            headers: {
-                                "Access-Control-Allow-Origin": "*",
-                                               "Content-Type": "application/json",
-                                                      "Token": sessionStorage.getItem("token")
-                            },
-                            withCredentials: true
-                        }
-                    ).then(() => {
+                    api.putEmails(savedEmails, this.userId).then(() => {
                         console.log('Primary Email and Additional Emails updated successfully!');
                         window.alert("Successfully saved changes!");
                         this.updateOriginalPrimaryEmail();
@@ -551,11 +507,7 @@
                     this.isEditable = true;
                     return;
                 }
-                await server.get(`/check-profile/${this.userId}`,
-                    {headers: {
-                            'Content-Type': 'application/json',
-                            'Token': sessionStorage.getItem("token")}}
-                ).then(() => {
+                await api.checkProfile(this.userId).then(() => {
                     //Status code 200
                     //User can edit this profile
                     this.isEditable = true;
@@ -574,12 +526,7 @@
              * Logs the user out and clears session token
              */
             logout () {
-                server.post('/logout', null,
-                    {
-                        headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json", 'Token': sessionStorage.getItem("token")},
-                        withCredentials: true
-                    }
-                ).then(() => {
+                api.logout().then(() => {
                     sessionStorage.clear();
                     // tokenStore.setToken(null);
                     this.isLoggedIn = (sessionStorage.getItem("token") !== null);
@@ -703,12 +650,11 @@
         margin-bottom:0;
         padding-bottom:0;
         text-align: right;
-        color: #707070;
+        color: orangered;
     }
 
     #errorMessage {
         margin-top: 5px;
-        color: chocolate;
+        color: red;
     }
 </style>
-

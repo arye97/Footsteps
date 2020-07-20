@@ -99,7 +99,7 @@
 
                                 <b-card class="flex-fill" border-variant="secondary">
                                     <b-card-text class="font-weight-light">
-                                        {{this.formattedDate}}
+                                        {{this.user.date_of_birth}}
                                     </b-card-text>
                                 </b-card><br/>
                             </div>
@@ -113,10 +113,10 @@
 </template>
 
 <script>
-    import server from "../../Api";
+    import api from "../../Api";
     import {fitnessLevels} from '../../constants'
-    import {getDateString} from '../../util'
     import Header from '../../components/Header/Header';
+    //import {getDateString} from "../../util"
     export default {
         name: "ViewUser",
         components: {
@@ -145,7 +145,6 @@
                 this.errored = false;
                 this.error = null;
                 this.fitness = null;
-                this.formattedDate = "";
                 this.userId = this.$route.params.userId;
                 this.loading = true;
                 this.continuousActivities = [];
@@ -155,21 +154,15 @@
                 }
                 await this.editable();
                 await this.getProfile();
-                await this.getActivities();
                 this.loading = false;
 
             },
             async getProfile() {
-              await server.get(  `/profiles/${this.userId}`,
-                {headers:
-                    {"Access-Control-Allow-Origin": "*", 'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")}, withCredentials: true
-                },
-              ).then(response => {
+              await api.getUserData(this.userId).then(response => {
                 if (response.status === 200) {
                   //user is set to the user data retrieved
                   this.user = response.data;
                   this.userId = this.user.id;
-                  this.formattedDate = getDateString(this.user.date_of_birth);
                   for (let i = 0; i < fitnessLevels.length; i++) {
                     if (fitnessLevels[i].value === this.user.fitness) {
                       this.fitness = fitnessLevels[i].desc;
@@ -178,6 +171,7 @@
                 }
               }).catch(error => {
                 this.errored = true;
+                console.log(error);
                 this.error = error.response.data.message;
                 if (error.response.data.status === 404 && sessionStorage.getItem('token') !== null) {
                   this.$router.push({ name: 'myProfile' });
@@ -187,31 +181,8 @@
                 }
               });
             },
-            async getActivities() {
-                await server.get(  `/profiles/${this.userId}/activities`,
-                  {headers:
-                    {"Access-Control-Allow-Origin": "*", 'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")}, withCredentials: true
-                },
-                ).then(response => {if (response.status === 200) {
-                    this.continuousActivities = response.data.filter(e => e.continuous === true);
-                    this.discreteActivities = response.data.filter(e => e.continuous === false);
-                }}).catch(error => {
-                    this.errored = true;
-                    this.error = error.response.data.message;
-                    if (error.response.data.status === 404 && sessionStorage.getItem('token') !== null) {
-                        this.$router.push({ name: 'myProfile' });
-                    } else {
-                        this.logout();
-                    }
-                });
-            },
             logout() {
-                server.post('/logout', null,
-                    {
-                        headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json", 'Token': sessionStorage.getItem("token")},
-                        withCredentials: true
-                    }
-                ).then(() => {
+                api.logout().then(() => {
                     sessionStorage.clear();
                     // tokenStore.setToken(null);
                     this.isLoggedIn = (sessionStorage.getItem("token") !== null);
@@ -236,11 +207,7 @@
                     this.isEditable = true;
                     return;
                 }
-                await server.get(`/check-profile/`.concat(this.userId),
-                    {headers: {
-                            'Content-Type': 'application/json',
-                            'Token': sessionStorage.getItem("token")}}
-                ).then(() => {
+                await api.checkProfile(this.userId).then(() => {
                     // Status code 200
                     // User can edit this profile
                     // If admin will return 200

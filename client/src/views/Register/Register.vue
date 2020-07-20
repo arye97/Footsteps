@@ -33,131 +33,167 @@
                 keeps it in the vue extension logs, wont know until later if we need this to go away
             -->
 
-            <form method="post" v-on:submit.prevent="registerUser">
-                <div class="form-group">
-                    <!-- full-name field-->
-                    <label id="first-name-label" for="first-name">First Name: *</label>
-                    <input type="text" class="form-control" v-on:click="unDisplayRules" v-model="firstname" id="first-name" name="first-name" placeholder="Your First Name...">
+        <b-form @submit="registerUser">
+            <b-form-group label="First Name: *" label-for="first-name" id="first-name-group">
+                <!-- full-name field-->
+                <b-form-input
+                  type="text" class="form-control" trim v-on:click="unDisplayRules" v-on:input="updateCharCount"
+                  v-model="firstname" id="first-name" name="first-name" placeholder="Your First Name..."
+                />
+                <div class="word-count">
+                    {{ firstNameCharCount }}/{{ maxNameCharCount }} characters remaining
                 </div>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_first_name">
-                    {{  "Field is mandatory and can only contain letters and spaces"  }}
+            </b-form-group>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_first_name">
+                {{  "Field is mandatory and can only contain letters, spaces, hyphens, and apostrophes"  }}
+            </div>
+
+            <b-form-group label="Middle Name: " label-for="middle-name">
+                <!-- full-name field-->
+                <b-form-input type="text" class="form-control" trim v-on:click="unDisplayRules" v-on:input="updateCharCount" v-model="middlename" id="middle-name" name="middle-name" placeholder="Your Middle Name..." />
+                <div class="word-count">
+                    {{ middleNameCharCount }}/{{ maxNameCharCount }} characters remaining
                 </div>
-                <div class="form-group">
-                    <!-- full-name field-->
-                    <label id="middle-name-label" for="middle-name">Middle Name: </label>
-                    <input type="text" class="form-control" v-on:click="unDisplayRules" v-model="middlename" id="middle-name" name="middle-name" placeholder="Your Middle Name...">
+            </b-form-group>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_middle_name">
+                {{  "Field can only contain letters, spaces, hyphens, and apostrophes"  }}
+            </div>
+
+            <b-form-group label-for="last-name" label="Last Name: *">
+                <!-- full-name field-->
+                <b-input type="text" class="form-control" trim v-on:click="unDisplayRules" v-on:input="updateCharCount" v-model="lastname" id="last-name" name="last-name" placeholder="Your Last Name..." />
+                <div class="word-count">
+                    {{ lastNameCharCount }}/{{ maxNameCharCount }} characters remaining
                 </div>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_middle_name">
-                    {{  "Field can only contain letters and spaces"  }}
+            </b-form-group>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_last_name">
+                {{  "Field is mandatory and can only contain letters, spaces, hyphens, and apostrophes"  }}
+            </div>
+            <b-form-group label-for="email" label="Email Address: *">
+                <!-- email field -->
+                <b-input type="email" class="form-control" trim v-on:click="unDisplayRules" v-on:input="updateCharCount" v-model="email" id="email" name="email" placeholder="Your Email Address..." />
+                <div class="word-count">
+                    {{ emailCharCount }}/{{ maxEmailCharCount }} characters remaining
                 </div>
-                <div class="form-group">
-                    <!-- full-name field-->
-                    <label id="last-name-label" for="last-name">Last Name: *</label>
-                    <input type="text" class="form-control" v-on:click="unDisplayRules" v-model="lastname" id="last-name" name="last-name" placeholder="Your Last Name...">
+            </b-form-group>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_email">
+                {{  "Field is mandatory, can not be blank and must be a valid email"  }}
+            </div>
+
+            <section v-if="isDisplayingRules">
+                <footer>Password rules:<br/>
+                    <ul>
+                        <li>Must contain at least 8 characters</li>
+                        <li>Must contain at least one letter</li>
+                        <li>Must contain at least one number</li>
+                    </ul>
+                </footer>
+            </section>
+
+            <b-form-group label-for="password" label="Password: *">
+                <!-- password field-->
+                <b-input type="password" class="form-control" v-on:click="displayRules" v-on:input="updateCharCount" v-model="password" id="password" name="password" placeholder="Your Password..." />
+            </b-form-group>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_password">
+                {{  "Field is mandatory and must not be blank"  }}
+            </div>
+            <b-form-group label-for="passwordCheck" label="Retype your Password: *">
+                <b-input type="password" class="form-control" v-on:click="displayRules" v-on:input="updateCharCount" v-model="passwordCheck" id="passwordCheck" name="passwordCheck" placeholder="Retype Password..." />
+            </b-form-group>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_password_check">
+                {{  "Your password doesn't follow the password rules"  }}
+            </div>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_password_match">
+                {{  'Passwords do not match, please type again'  }}
+            </div>
+
+            <b-form-group label-for="fitness" label="Fitness Level:">
+                <!-- fitness level field -->
+                <multiselect v-model="fitness" id="fitness" v-on:select="unDisplayRules" :options="fitnessOptions" :multiple="false" label="desc" :return="fitnessOptions.desc"
+                             placeholder="Please select a fitness level" track-by="value">
+                    <template slot="singleLabel" slot-scope="{ option }"><footer> {{ option.desc }}</footer></template>
+                </multiselect>
+            </b-form-group>
+
+            <b-form-group label-for="nickname" label="Nickname:">
+                <!-- nickname field-->
+                <b-input type="text" class="form-control" v-on:click="unDisplayRules" v-model="nickname" id="nickname" name="nickname" placeholder="Your Nickname..." />
+                <div class="word-count">
+                    {{ nicknameCharCount }}/{{ maxNameCharCount }} characters remaining
                 </div>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_last_name">
-                    {{  "Field is mandatory and can only contain letters and spaces"  }}
+            </b-form-group>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_nickname">
+                {{  'Unfortunately your nickname is to long, 45 characters is the limit'  }}
+            </div>
+
+            <b-form-group label-for="gender" label="Gender: *">
+                <!-- gender field -->
+                <multiselect v-model="gender" id="gender" v-on:select="unDisplayRules"
+                             :options="genders" placeholder="Your gender">
+                    <template slot="noResult">Invalid gender</template>
+                </multiselect>
+            </b-form-group>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_gender">
+                {{  "Field is mandatory and must not be blank"  }}
+            </div>
+
+            <b-form-group label-for="date_of_birth" label="Date of Birth: *">
+                <!-- date of birth field-->
+                <b-input type="date" name="date_of_birth" class="form-control" v-model="date_of_birth" id="date_of_birth" />
+            </b-form-group>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_dob">
+                {{  "Field is mandatory, can not be blank and user must be within 13 - 150 years"  }}
+            </div>
+
+            <b-form-group label-for="passportCountries" label="Passport Country:">
+                <!-- passport country -->
+                <multiselect v-model="passports" id="passportCountries" v-on:select="unDisplayRules"
+                             :options="countries" :multiple="true" :searchable="true" :close-on-select="false"
+                             placeholder="Select your passport countries">
+                    <template slot="noResult">Country not found</template>
+                </multiselect>
+            </b-form-group>
+
+            <b-form-group label-for="bio" label="Tell us about yourself, your Bio:">
+                <!-- user bio -->
+                <b-form-textarea name="bio" class="form-control" id="bio" v-on:click="unDisplayRules"
+                                 v-on:input="updateCharCount" v-model="bio" cols="30" rows="1" placeholder="Who are you?" />
+                <div class="word-count">
+                    {{ bioCharCount }}/{{ maxBioCharCount }} characters remaining
                 </div>
-                <div class="form-group">
-                    <!-- email field -->
-                    <label id="email-label" for="email">Email Address: *</label>
-                    <input type="email" class="form-control" v-on:click="unDisplayRules" v-model="email" id="email" name="email" placeholder="Your Email Address...">
-                </div>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_email">
-                    {{  "Field is mandatory, can not be blank and must be a valid email"  }}
-                </div>
-                <section v-if="isDisplayingRules">
-                    <footer>Password rules:<br/>
-                        <ul>
-                            <li>Must contain at least 8 characters</li>
-                            <li>Must contain at least one letter</li>
-                            <li>Must contain at least one number</li>
-                        </ul>
-                    </footer>
-                </section>
-                <div class="form-group">
-                    <!-- password field-->
-                    <label id="password-label" for="password">Password: *</label>
-                    <input type="password" class="form-control" v-on:click="displayRules" v-model="password" id="password" name="password" placeholder="Your Password...">
-                </div>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_password">
-                    {{  "Field is mandatory and must not be blank"  }}
-                </div>
-                <div class="form-group">
-                    <label id="passwordCheck-label" for="passwordCheck">Retype your Password: *</label>
-                    <input type="password" class="form-control" v-on:click="displayRules" v-model="passwordCheck" id="passwordCheck" name="passwordCheck" placeholder="Retype Password...">
-                </div>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_password_check">
-                    {{  "Field is mandatory and must not be blank"  }}
-                </div>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_password_match">
-                    {{  'Passwords do not match, please type again'  }}
-                </div>
-                <div class="form-group">
-                    <!-- fitness level field -->
-                    <label id="fitness-label" for="fitness">Fitness Level:</label>
-                    <multiselect v-model="fitness" id="fitness" v-on:select="unDisplayRules" :options="fitnessOptions" :multiple="false" label="desc" :return="fitnessOptions.desc"
-                                 placeholder="Please select a fitness level" track-by="value">
-                        <template slot="singleLabel" slot-scope="{ option }"><footer> {{ option.desc }}</footer></template>
-                    </multiselect>
-                </div>
-                <div class="form-group">
-                    <!-- nickname field-->
-                    <label id="nickname-label" for="nickname">Nickname: </label>
-                    <input type="text" class="form-control" v-on:click="unDisplayRules" v-model="nickname" id="nickname" name="nickname" placeholder="Your Nickname...">
-                </div>
-                <div class="form-group">
-                    <!-- gender field -->
-                    <label id="gender-label" for="gender">Gender: *</label>
-                    <multiselect v-model="gender" id="gender" v-on:select="unDisplayRules"
-                                 :options="genders" placeholder="Your gender">
-                        <template slot="noResult">Invalid gender</template>
-                    </multiselect>
-                </div>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_gender">
-                    {{  "Field is mandatory and must not be blank"  }}
-                </div>
-                <div class="form-group">
-                    <!-- date of birth field-->
-                    <label id="date_of_birth-label" for="date_of_birth">Date of Birth: *</label>
-                    <input type="date" class="form-control" v-on:click="unDisplayRules" v-model="date_of_birth" id="date_of_birth" name="date_of_birth">
-                </div>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_dob">
-                    {{  "Field is mandatory, can not be blank and user must be within 13 - 150 years"  }}
-                </div>
-                <div class="form-group">
-                    <!-- passport country -->
-                    <label id="passportCountries-label" for="passportCountries">Passport Country:</label>
-                    <multiselect v-model="passports" id="passportCountries" v-on:select="unDisplayRules"
-                                 :options="countries" :multiple="true" :searchable="true" :close-on-select="false"
-                                 placeholder="Select your passport countries">
-                        <template slot="noResult">Country not found</template>
-                    </multiselect>
-                </div>
-                <div class="form-group">
-                    <!-- user bio -->
-                    <label id="bio-label" for="bio">Tell us about yourself, your Bio: </label>
-                    <textarea name="bio" class="form-control" id="bio" v-on:click="unDisplayRules" v-model="bio" cols="30" rows="1" placeholder="Who are you?"></textarea>
-                </div>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_form">
-                    {{  message_form  }}
-                </div>
-                <div class="form-group">
-                    <!-- SignIn Button-->
-                    <button type="submit" class="btn btn-primary">Register</button>
-                    <router-link to="/login" class="btn btn-link">Login</router-link>
-                </div>
-            </form>
-            <footer class="col-12 text-center">
-                Entries marked with * are required
-            </footer><br/>
+            </b-form-group>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_bio">
+                {{  'Unfortunately your bio is to long, 255 characters is the limit'  }}
+            </div>
+
+            <b-form-group label-for="activityTypes" label="Activity Types:">
+                <!-- activity types -->
+                <multiselect v-model="selectedActivityTypes" id="activityTypes" v-on:select="unDisplayRules"
+                             :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
+                             placeholder="Select your activity types">
+                    <template slot="noResult">Invalid activity type</template>
+                </multiselect>
+            </b-form-group>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_form">
+                {{  message_form  }}
+            </div>
+
+            <b-form-group>
+                <!-- SignIn Button-->
+                <b-button type="submit" variant="primary">Register</b-button>
+                <router-link to="/login" class="btn btn-link">Login</router-link>
+            </b-form-group>
+        </b-form>
+        <footer class="col-12 text-center">
+            Entries marked with * are required
+        </footer><br/>
         </b-container>
         <br/><br/>
     </div>
 </template>
 
 <script>
-    import server from '../../Api';
+    import api from '../../Api';
     import Multiselect from 'vue-multiselect'
     import Header from '../../components/Header/Header.vue'
     import {getCountryNames, fitnessLevels} from '../../constants';
@@ -206,6 +242,14 @@
             showError('alert_email');
             count += 1;
         }
+        if(!validateUser(newUser.bio, "bio")) {
+            showError('alert_bio');
+            count += 1;
+        }
+        if(!validateUser(newUser.nickname, "nickname")) {
+            showError('alert_nickname');
+            count += 1;
+        }
         return count;
     }
 
@@ -233,7 +277,16 @@
                 genders: ['Male', 'Female', 'Non-Binary'],
                 passports: [],
                 selectedActivityTypes: [],
-                isDisplayingRules: false
+                isDisplayingRules: false,
+                maxNameCharCount: 45,
+                maxBioCharCount: 255,
+                maxEmailCharCount: 255,
+                firstNameCharCount: 0,
+                middleNameCharCount: 0,
+                lastNameCharCount: 0,
+                nicknameCharCount: 0,
+                emailCharCount: 0,
+                bioCharCount: 0,
             }
         },
 
@@ -246,6 +299,7 @@
             displayRules() {
                 this.isDisplayingRules = true;
             },
+
             unDisplayRules() {
                 if(!validateUser(this.password, "password").valid && this.password !== '') {
                     //Password rules not followed
@@ -259,20 +313,19 @@
                     this.isDisplayingRules = false;
                 }
             },
+
             /**
              * Fetch all possible activity types from the server
              */
             async fetchActivityTypes() {
-                await server.get('activity-types',
-                    {headers: {'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")}
-                    }
-                ).then(response => {
+                await api.getActivityTypes().then(response => {
                     this.activityTypes = response.data.map(activity => activity['name']);
                     this.activityTypes.sort(function (a, b) {
                         return a.toLowerCase().localeCompare(b.toLowerCase());
                     });
                 });
             },
+
             async fetchCountries() {
                 let select = [];
                 // Create a request variable and assign a new XMLHttpRequest object to it.
@@ -301,7 +354,9 @@
                 this.countries = select;
                 request.send()
             },
-            async registerUser() {
+
+            async registerUser(evt) {
+                evt.preventDefault();
                 // Save the data as a newUser object
                 const newUser = {
                     lastname: this.lastname.trim(),
@@ -324,29 +379,18 @@
                     showError('alert_form');
                     return;
                 } else if (validCount !== 0) {
-                    this.message_form = validCount.toString() + " empty or invalid mandatory fields have been found. Please fill them in to register";
+                    this.message_form = validCount.toString() + " empty or invalid fields have been found. Please fill them in to register";
                     showError('alert_form');
                     return;
                 }
-                console.log("The New User\\/");
-                console.log(newUser);
                 // The HTTP Post Request
-                console.log(newUser);
-                await server.post('/profiles',
-                    newUser,
-                    {
-                        headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
-                        withCredentials: true
-                    }
-                ).then(response => { //If successfully registered the response will have a status of 201
+                api.register(newUser).then(response => { //If successfully registered the response will have a status of 201
                     if (response.status === 201) {
-                        console.log('User Registered Successfully!');
                         sessionStorage.setItem("token", response.data.Token);
                         // tokenStore.setToken(response.data);
                         this.$router.push('/profile'); //Routes to profile on successful register
                     }
                 }).catch(error => {
-                    console.log(error);
                     //Get alert bar element
                     if (error.message === "Network Error" || error.message.includes("timeout")) {
                         this.message_form = error.message;
@@ -359,8 +403,18 @@
                     }
                     showError('alert_form');
                 });
+            },
+
+            updateCharCount() {
+              this.firstNameCharCount = this.firstname.length;
+              this.middleNameCharCount = this.middlename.length;
+              this.lastNameCharCount = this.lastname.length;
+              this.nicknameCharCount = this.nickname.length;
+              this.emailCharCount = this.email.length;
+              this.bioCharCount = this.bio.length;
             }
         },
+
         computed: {
             value: {
                 get () {
@@ -377,8 +431,15 @@
 
 </script>
 
-<style src="vue-multiselect/dist/vue-multiselect.min.css">
+<style src="vue-multiselect/dist/vue-multiselect.min.css" />
+<style>
     .multiselect {
         color: black;
+    }
+
+    .word-count {
+        padding-top: 7px;
+        color: #707070;
+        font-size: 0.8em;
     }
 </style>
