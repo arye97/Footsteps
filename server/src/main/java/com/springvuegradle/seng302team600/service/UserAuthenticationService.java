@@ -2,6 +2,7 @@ package com.springvuegradle.seng302team600.service;
 
 import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
+import com.springvuegradle.seng302team600.model.UserRole;
 import com.springvuegradle.seng302team600.payload.UserResponse;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
@@ -13,7 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.security.SecureRandom;
 
 @Service("userService")
-public class UserValidationService {
+public class UserAuthenticationService {
 
     @Autowired
     private EmailRepository emailRepository;
@@ -124,7 +125,7 @@ public class UserValidationService {
      * @return boolean that indicates if user is an admin
      */
     public boolean hasAdminPrivileges(User thisUser) {
-        return thisUser.getRole() >= 10;
+        return thisUser.getRole() >= UserRole.ADMIN;
     }
 
     /**

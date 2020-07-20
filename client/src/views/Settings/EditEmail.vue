@@ -1,149 +1,151 @@
 <template>
     <div>
-        <h1><br/></h1>
-        <template v-if="userId">
-            <div>
-                <div class="container">
-                    <div class="row">
-                        <div class="col-sm-6 offset-sm-3">
-                            <Header :userId="this.userId"/>
-                            <router-view></router-view>
+        <h1><br/><br/></h1>
+        <b-container class="contentsExtendedBottom" fluid>
+            <template v-if="this.userId">
+                <div>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm-6 offset-sm-3">
+                                <Header :userId="this.userId"/>
+                                <router-view></router-view>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <Sidebar :userId="this.userId"/>
-        </template>
+                <Sidebar :userId="this.userId"/>
+            </template>
 
 
-        <h1><br/></h1>
-        <header class="masthead">
-            <div class="container h-100">
-                <div class="row h-100 align-items-center">
-                    <div class="col-12 text-center">
-                        <h1 class="font-weight-light">Edit Emails</h1>
-                        <p class="lead">Edit the emails linked to your profile</p><br/>
+            <h1><br/></h1>
+            <header class="masthead">
+                <div class="container h-100">
+                    <div class="row h-100 align-items-center">
+                        <div class="col-12 text-center">
+                            <h1 class="font-weight-light"><strong>Edit Emails</strong></h1>
+                            <p class="lead">Edit the emails linked to your profile</p><br/>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </header>
+            </header>
 
-        <section v-if="error">
-            <p>Sorry, looks like we can't get your info! Please try again.</p>
-            <p>{{ error }}</p>
-        </section>
-
-        <section v-else>
-
-            <section v-if="loading">
-                <div class="loading">
-                    Loading...
-                </div>
+            <section v-if="error">
+                <p>Sorry, looks like we can't get your info! Please try again.</p>
+                <p>{{ error }}</p>
             </section>
 
             <section v-else>
-                <article class="emails">
-                    <section class="primaryEmailDisplay">
-                        <table id="primaryEmailTable" class="table table-borderless">
-                            <tr>
-                                <td>
-                                    <p id="primaryEmailLabel">
-                                        <b>Primary Email:</b>
-                                    </p>
-                                </td>
-                                <td>
-                                    <p id="primaryEmail">
-                                        {{ this.primaryEmail }}
-                                    </p>
-                                </td>
-                            </tr>
-                        </table>
-                    </section>
-                    <hr>
-                    <section class="additionalEmailsDisplay">
-                        <table id="additionalEmailsTable" class="table table-borderless">
-                            <tr v-for="(additionalEmail, index) in this.additionalEmails"
-                                v-bind:key="additionalEmail">
-                                <td>
-                                    <p :id="'additionalEmail' + index">
-                                        {{ additionalEmail }}
-                                    </p>
-                                </td>
-                                <td class="deleteButtonTd">
-                                    <b-button type="submit" variant="danger" id="deleteButton" v-on:click="deleteEmail(index)">
-                                        <b-icon-trash-fill></b-icon-trash-fill>
-                                    </b-button>
-                                </td>
-                                <td class="makePrimaryButtonTd">
-                                    <b-button type="submit" variant="primary" id="primaryButton" v-on:click="setPrimary(index)">
-                                        Make Primary
-                                    </b-button>
-                                </td>
-                            </tr>
-                        </table>
-                        <form v-on:submit.prevent="addEmail" id="addEmail">
-                            <table>
-                                <tr>
-                                    <th id="addNewEmailTh">
-                                        <label for="newEmailInserted">
-                                            Add New Email:
-                                        </label>
-                                    </th>
-                                    <th id="emailMessageTh">
-                                        <label for="newEmailInserted" class="has-error">
-                                            {{ this.emailMessage }}
-                                        </label>
-                                    </th>
-                                </tr>
-                            </table>
-                            <table>
+
+                <section v-if="loading">
+                    <div class="loading">
+                        Loading...
+                    </div>
+                </section>
+
+                <section v-else>
+                    <article class="emails">
+                        <section class="primaryEmailDisplay">
+                            <table id="primaryEmailTable" class="table table-borderless">
                                 <tr>
                                     <td>
-                                        <input v-model="insertedEmail"
-                                               class="form-control"
-                                               id="newEmailInserted"
-                                               placeholder="Email address"
-                                               @keyup="checkEmail()"
-                                        >
+                                        <p id="primaryEmailLabel">
+                                            <b>Primary Email:</b>
+                                        </p>
                                     </td>
                                     <td>
-                                    <!--Disable button if duplicateEmailError is not null-->
-                                        <b-button type="submit"
-                                                variant="secondary"
-                                                v-bind:disabled="duplicateEmailError!==null"
-                                        >
-                                            <p class="h5 mb-0">
-                                                <b-icon-plus></b-icon-plus>
-                                            </p>
+                                        <p id="primaryEmail">
+                                            <b>{{ this.primaryEmail }}</b>
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </section>
+                        <hr>
+                        <section class="additionalEmailsDisplay">
+                            <table id="additionalEmailsTable" class="table table-borderless">
+                                <tr v-for="(additionalEmail, index) in this.additionalEmails"
+                                    v-bind:key="additionalEmail">
+                                    <td>
+                                        <p :id="'additionalEmail' + index">
+                                            {{ additionalEmail }}
+                                        </p>
+                                    </td>
+                                    <td class="deleteButtonTd">
+                                        <b-button type="submit" variant="danger" id="deleteButton" v-on:click="deleteEmail(index)">
+                                            <b-icon-trash-fill></b-icon-trash-fill>
+                                        </b-button>
+                                    </td>
+                                    <td class="makePrimaryButtonTd">
+                                        <b-button type="submit" variant="primary" id="primaryButton" v-on:click="setPrimary(index)">
+                                            Make Primary
                                         </b-button>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>
-                                        <label for="newEmailInserted" class="has-error" id="errorMessage">
-                                            {{ duplicateEmailError }}
-                                        </label>
-                                    </td>
-                                </tr>
-
                             </table>
-                        </form>
-                        <div id="confirmationButtons">
-                            <b-button type="submit" variant="success float-left"
-                                      size="lg" id="back" :key=this.toReload
-                                      v-on:click="backAlert">Back</b-button>
-                            <b-button type="submit" variant="success float-right"
-                                      size="lg" v-on:click="saveChanges"
-                                      v-bind:disabled="changesHaveBeenMade===false">Save Changes</b-button>
-                        </div>
-                    </section>
-                </article>
+                            <form v-on:submit.prevent="addEmail" id="addEmail">
+                                <table>
+                                    <tr>
+                                        <th id="addNewEmailTh">
+                                            <label for="newEmailInserted">
+                                                Add New Email:
+                                            </label>
+                                        </th>
+                                        <th id="emailMessageTh">
+                                            <label for="newEmailInserted" class="has-error">
+                                                {{ this.emailMessage }}
+                                            </label>
+                                        </th>
+                                    </tr>
+                                </table>
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <input v-model="insertedEmail"
+                                                   class="form-control"
+                                                   id="newEmailInserted"
+                                                   placeholder="Email address"
+                                                   @keyup="checkEmail()"
+                                            >
+                                        </td>
+                                        <td>
+                                        <!--Disable button if duplicateEmailError is not null-->
+                                            <b-button type="submit"
+                                                    variant="secondary"
+                                                    v-bind:disabled="duplicateEmailError!==null"
+                                            >
+                                                <p class="h5 mb-0">
+                                                    <b-icon-plus></b-icon-plus>
+                                                </p>
+                                            </b-button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <label for="newEmailInserted" class="has-error" id="errorMessage">
+                                                {{ duplicateEmailError }}
+                                            </label>
+                                        </td>
+                                    </tr>
+
+                                </table>
+                            </form>
+                            <div id="confirmationButtons">
+                                <b-button type="submit" variant="success float-left"
+                                          size="lg" id="back" :key=this.toReload
+                                          v-on:click="backAlert">Back</b-button>
+                                <b-button type="submit" variant="success float-right"
+                                          size="lg" v-on:click="saveChanges"
+                                          v-bind:disabled="changesHaveBeenMade===false">Save Changes</b-button>
+                            </div>
+                        </section>
+                    </article>
+                </section>
             </section>
-        </section>
+        </b-container>
     </div>
 </template>
 <script>
-    import server from '../../Api';
+    import api from '../../Api';
     // import {tokenStore} from "../../main";
     import Sidebar from '../../components/layout/ProfileEditSidebar';
     import Header from '../../components/Header/Header.vue'
@@ -169,7 +171,8 @@
                 isEditable: false
             }
         },
-        async beforeMount() {
+        async mounted() {
+
             await this.init();
         },
         methods: {
@@ -183,19 +186,15 @@
                 this.changesHaveBeenMade = false;
 
                 this.userId = this.$route.params.userId;
-                if (this.userId === undefined || isNaN(this.userId)) {
+                if (this.userId === undefined) {
                     this.isEditable = true;
                     this.userId = '';
                 } else {
                     await this.editable(); // If allowed to edit, userId is set
                 }
-
                 if (this.isEditable) {
-                    await server.get(`/profiles/${this.userId}`,
-                        {
-                            headers: {'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")},
-                            withCredentials: true
-                        },).then(response => {
+
+                    await api.getUserData(this.userId).then(response => {
                         this.userId = response.data.id;
                     }).catch(error => {
                         if (error.response.data.status === 401) {
@@ -203,16 +202,7 @@
                         }
                     });
 
-                    await server.get(  `/profiles/${this.userId}/emails`,
-                        {
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Token': sessionStorage.getItem("token")
-                            },
-                            withCredentials: true
-                        }
-
-                    ).then(response => {
+                    await api.getUserEmails(this.userId).then(response => {
                         if (response.status === 200) {
                             this.loading = false;
                             this.userId = response.data["userId"];
@@ -256,12 +246,12 @@
                     this.emailCount++;
                     this.setEmailCountMessage();
                     this.checkIfChangesMade();
-                    let emailTextBox = document.getElementById("newEmailInserted").value;
-                    if (emailTextBox === this.primaryEmail || this.additionalEmails.includes(emailTextBox)) {
+                    if (this.insertedEmail === this.primaryEmail || this.additionalEmails.includes(this.insertedEmail)) {
                         // Disable add button if user already assigned to email
                         this.duplicateEmailError = "";
                     }
                 }
+                this.insertedEmail = null;
             },
 
             /**
@@ -299,21 +289,16 @@
                 this.emailCount--;
 
                 // Disables/Enables the SAVE button
-                if (this.additionalEmails === this.originalAdditionalEmails) {
-                    this.changesHaveBeenMade = false;
-                } else {
-                    this.changesHaveBeenMade = true;
-                }
+                this.changesHaveBeenMade = this.additionalEmails !== this.originalAdditionalEmails;
 
                 // Disables/Enables the ADD (+) button
-                let emailTextBox = document.getElementById("newEmailInserted").value;
-                if (emailTextBox === this.primaryEmail || this.additionalEmails.includes(emailTextBox)) {
+                if (this.insertedEmail === this.primaryEmail || this.additionalEmails.includes(this.insertedEmail)) {
                     // Disable add button if user already assigned to email
                     this.duplicateEmailError = "You are already assigned to this email!";
-                } else if (emailTextBox === this.originalPrimaryEmail
-                        || emailTextBox === emailToBeRemoved
-                        || this.originalAdditionalEmails.includes(emailTextBox)
-                        || (this.duplicateEmailError !== "You are already assigned to this email!"
+                } else if (this.insertedEmail === this.originalPrimaryEmail
+                    || this.insertedEmail === emailToBeRemoved
+                    || this.originalAdditionalEmails.includes(this.insertedEmail)
+                    || (this.duplicateEmailError !== "You are already assigned to this email!"
                         && this.duplicateEmailError !== "We're sorry, that email is taken.")) {
                     // Enable add button if email assigned TO ORIGINAL PRIMARY EMAIL AND ADDITIONAL EMAIL AND IS TO BE REMOVED
                     this.duplicateEmailError = null;
@@ -331,33 +316,23 @@
              * This function is called to set the disabling/enabling of the ADD (+) button.
              */
             checkEmail() {
-                let emailTextBox = document.getElementById("newEmailInserted").value;
                 // Check if Email is formatted correctly
-                if ((/(.+)@(.+){2,}\.(.+){2,}/).test(emailTextBox)) {
+                if ((/(.+)@(.+){2,}\.(.+){2,}/).test(this.insertedEmail)) {
                     if (this.emailMessage === "Email limit reached!") {
                         // Disable add button if email limit reached
                         this.duplicateEmailError = "";
-                    } else if (emailTextBox === this.primaryEmail || this.additionalEmails.includes(emailTextBox)) {
+                    } else if (this.insertedEmail === this.primaryEmail || this.additionalEmails.includes(this.insertedEmail)) {
                         // Disable add button if user already assigned to email
                         this.duplicateEmailError = "You are already assigned to this email!";
-                    } else if (emailTextBox === this.originalPrimaryEmail || this.originalAdditionalEmails.includes(emailTextBox)) {
+                    } else if (this.insertedEmail === this.originalPrimaryEmail || this.originalAdditionalEmails.includes(this.insertedEmail)) {
                         this.duplicateEmailError = null;
                     } else {
-                        server.get(`/email`,
-                            {
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                           'Token': sessionStorage.getItem("token"),
-                                           'email': emailTextBox
-                                },
-                                withCredentials: true
-                            }
-                        ).then(() => {
+                        api.checkUserEmail(this.insertedEmail).then(() => {
                             this.duplicateEmailError = null;
                         }).catch(error => {
                             if (error.response.status === 400) {
                                 console.log(error.response.data.message);
-                                let message = "Bad Request: email " + emailTextBox + " is already in use";
+                                let message = "Bad Request: email " + this.insertedEmail + " is already in use";
                                 // Disable add button if email is in use
                                 if (error.response.data.message === message) {
                                     this.duplicateEmailError = "We're sorry, that email is taken."
@@ -371,7 +346,11 @@
                         })
                     }
                 } else {
-                    this.duplicateEmailError = "";
+                    if (this.insertedEmail) {
+                        this.duplicateEmailError = "Please enter a valid email!";
+                    } else {
+                        this.duplicateEmailError = "";
+                    }
                 }
             },
 
@@ -413,17 +392,7 @@
                         additional_email: this.additionalEmails
                     };
 
-                    server.post(`/profiles/${this.userId}/emails`,
-                        savedEmails,
-                        {
-                            headers: {
-                                "Access-Control-Allow-Origin": "*",
-                                               "Content-Type": "application/json",
-                                                      "Token": sessionStorage.getItem("token")
-                            },
-                            withCredentials: true
-                        }
-                    ).then(() => {
+                    api.updateEmails(savedEmails, this.userId).then(() => {
                         console.log("Additional Emails updated successfully!");
                         window.alert("Successfully saved changes!");
                         this.updateOriginalAdditionalEmails();
@@ -453,18 +422,7 @@
                         primary_email: this.primaryEmail,
                         additional_email: this.additionalEmails
                     };
-                    console.log(`/profiles/${this.userId}/emails`);
-                    server.put(`/profiles/${this.userId}/emails`,
-                        savedEmails,
-                        {
-                            headers: {
-                                "Access-Control-Allow-Origin": "*",
-                                               "Content-Type": "application/json",
-                                                      "Token": sessionStorage.getItem("token")
-                            },
-                            withCredentials: true
-                        }
-                    ).then(() => {
+                    api.putEmails(savedEmails, this.userId).then(() => {
                         console.log('Primary Email and Additional Emails updated successfully!');
                         window.alert("Successfully saved changes!");
                         this.updateOriginalPrimaryEmail();
@@ -549,11 +507,7 @@
                     this.isEditable = true;
                     return;
                 }
-                await server.get(`/check-profile/${this.userId}`,
-                    {headers: {
-                            'Content-Type': 'application/json',
-                            'Token': sessionStorage.getItem("token")}}
-                ).then(() => {
+                await api.checkProfile(this.userId).then(() => {
                     //Status code 200
                     //User can edit this profile
                     this.isEditable = true;
@@ -572,12 +526,7 @@
              * Logs the user out and clears session token
              */
             logout () {
-                server.post('/logout', null,
-                    {
-                        headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json", 'Token': sessionStorage.getItem("token")},
-                        withCredentials: true
-                    }
-                ).then(() => {
+                api.logout().then(() => {
                     sessionStorage.clear();
                     // tokenStore.setToken(null);
                     this.isLoggedIn = (sessionStorage.getItem("token") !== null);
@@ -701,12 +650,11 @@
         margin-bottom:0;
         padding-bottom:0;
         text-align: right;
-        color: #707070;
+        color: orangered;
     }
 
     #errorMessage {
         margin-top: 5px;
-        color: chocolate;
+        color: red;
     }
 </style>
-

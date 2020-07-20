@@ -1,96 +1,98 @@
 <template>
     <div>
-        <h1><br/></h1>
-        <template v-if="userId">
-            <div>
-                <div class="container">
-                    <div class="row">
-                        <div class="col-sm-6 offset-sm-3">
-                            <Header :userId="this.userId"/>
-                            <router-view></router-view>
+        <h1><br/><br/></h1>
+        <b-container class="contentsExtendedBottom" fluid>
+            <template v-if="userId">
+                <div>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm-6 offset-sm-3">
+                                <Header :userId="this.userId"/>
+                                <router-view></router-view>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <Sidebar :userId="this.userId"/>
-        </template>
+                <Sidebar :userId="this.userId"/>
+            </template>
 
-        <h1><br/></h1>
-        <header class="masthead">
-            <div class="container h-100">
-                <div class="row h-100 align-items-center">
-                    <div class="col-12 text-center">
-                        <h1 class="font-weight-light">Edit Password</h1>
-                        <p class="lead">Edit the password linked to your profile</p><br/>
+            <h1><br/></h1>
+            <header class="masthead">
+                <div class="container h-100">
+                    <div class="row h-100 align-items-center">
+                        <div class="col-12 text-center">
+                            <h1 class="font-weight-light"><strong>Edit Password</strong></h1>
+                            <p class="lead">Edit the password linked to your profile</p><br/>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </header>
+            </header>
 
-        <section v-if="loading">
-            <div class="loading text-center">
-                <p>Loading...</p>
-            </div>
-        </section>
+            <section v-if="loading">
+                <div class="loading text-center">
+                    <p>Loading...</p>
+                </div>
+            </section>
 
-        <section v-else>
-            <footer class="text-center">
-                <hr/>Password rules:<br/>
-            </footer>
-            <footer>
-                <ul>
-                    <li>Must contain at least 8 characters</li>
-                    <li>Must contain at least one letter</li>
-                    <li>Must contain at least one number</li>
-                </ul>
-            </footer><br/>
-            <form v-on:submit.prevent="editPassword">
-                <div class="form-group text-center">
-                    <input type="password"
-                           v-model="oldPass"
-                           class="form-control"
-                           id="oldPass"
-                           placeholder="Enter Old Password..."
-                    >
-                </div>
-                <div class="form-group text-center">
-                    <input type="password"
-                           v-model="newPass"
-                           class="form-control"
-                           id="newPass"
-                           placeholder="Enter New Password.."
-                           @keyup="checkPasswords()"
-                    >
-                </div>
-                <div class="form-group text-center">
-                    <input type="password"
-                           v-model="repeatPass"
-                           class="form-control"
-                           id="repeatPass"
-                           placeholder="Retype New Password.."
-                           @keyup="checkPasswords()"
-                    >
-                </div>
+            <section v-else>
+                <footer class="text-center">
+                    <hr/>Password rules:<br/>
+                </footer>
+                <footer>
+                    <ul>
+                        <li>Must contain at least 8 characters</li>
+                        <li>Must contain at least one letter</li>
+                        <li>Must contain at least one number</li>
+                    </ul>
+                </footer><br/>
+                <form v-on:submit.prevent="editPassword">
+                    <div class="form-group text-center">
+                        <input type="password"
+                               v-model="oldPass"
+                               class="form-control"
+                               id="oldPass"
+                               placeholder="Enter Old Password..."
+                        >
+                    </div>
+                    <div class="form-group text-center">
+                        <input type="password"
+                               v-model="newPass"
+                               class="form-control"
+                               id="newPass"
+                               placeholder="Enter New Password.."
+                               @keyup="checkPasswords()"
+                        >
+                    </div>
+                    <div class="form-group text-center">
+                        <input type="password"
+                               v-model="repeatPass"
+                               class="form-control"
+                               id="repeatPass"
+                               placeholder="Retype New Password.."
+                               @keyup="checkPasswords()"
+                        >
+                    </div>
 
-                <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="form_message">
-                    {{  message  }}
-                </div>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="form_message">
+                        {{  message  }}
+                    </div>
 
-                <div id="confirmationButtons">
-                    <b-button type="submit" variant="success float-left"
-                              size="lg" id="back" v-on:click="backToProfile">
-                              Back</b-button>
-                    <b-button type="submit" variant="success float-right"
-                              size="lg" v-on:click="editPassword">
-                              Submit</b-button>
-                </div>
-            </form>
-        </section>
+                    <div id="confirmationButtons">
+                        <b-button type="submit" variant="success float-left"
+                                  size="lg" id="back" v-on:click="backToProfile">
+                                  Back</b-button>
+                        <b-button type="submit" variant="success float-right"
+                                  size="lg" v-on:click="editPassword">
+                                  Submit</b-button>
+                    </div>
+                </form>
+            </section>
+        </b-container>
     </div>
 </template>
 
 <script>
-    import server from '../../Api';
+    import api from '../../Api';
     import Sidebar from '../../components/layout/ProfileEditSidebar';
     import Header from '../../components/Header/Header.vue'
     import {validateUser} from "../../util";
@@ -135,15 +137,7 @@
                     await this.editable(); // If allowed to edit, userId is set
                 }
                 if (this.isEditable) {
-                    server.get(`profiles/${this.userId}`,
-                        {
-                            headers:
-                                {
-                                    'Content-Type': 'application/json',
-                                    'Token': sessionStorage.getItem('token')
-                                }
-                        }
-                    ).then(response => {
+                    api.getUserData(this.userId).then(response => {
                         this.loading = false;
                         this.user = response.data;
                         this.userId = this.user.id;
@@ -218,14 +212,7 @@
                     this.showMessage('form_message', true);
                     return;
                 }
-                server.put(`/profiles/${this.userId}/password`,
-                    {'old_password': this.oldPass,
-                        'new_password': this.newPass,
-                        'repeat_password': this.repeatPass},
-                    {headers:
-                            {'Content-Type': 'application/json',
-                                    'Token': sessionStorage.getItem('token')}
-                    }).then(response => {
+                api.updatePassword(this.userId, this.oldPass, this.newPass, this.repeatPass).then(response => {
                         if (response.status === 200) {
                             this.message = 'Your New password was saved successfully';
                             this.showMessage('form_message', false);
@@ -254,11 +241,7 @@
                     this.isEditable = true;
                     return;
                 }
-                await server.get(`/check-profile/${this.userId}`,
-                    {headers: {
-                            'Content-Type': 'application/json',
-                            'Token': sessionStorage.getItem("token")}}
-                ).then(() => {
+                await api.checkProfile(this.userId).then(() => {
                     //Status code 200
                     //User can edit this profile
                     this.isEditable = true;
@@ -277,12 +260,7 @@
              * Logs the user out and clears session token
              */
             logout () {
-                server.post('/logout', null,
-                    {
-                        headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json", 'Token': sessionStorage.getItem("token")},
-                        withCredentials: true
-                    }
-                ).then(() => {
+                api.logout().then(() => {
                     sessionStorage.clear();
                     // tokenStore.setToken(null);
                     this.isLoggedIn = (sessionStorage.getItem("token") !== null);

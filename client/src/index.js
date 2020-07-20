@@ -9,7 +9,9 @@ import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import Details from "./views/Settings/Details.vue";
 import ViewUser from "./components/layout/ViewUser.vue";
 import EditPassword from "./views/Settings/EditPassword";
-
+import CreateActivity from "./views/Activities/CreateActivity";
+import EditActivity from "./views/Activities/EditActivity";
+import AllActivities from "./views/Activities/AllActivities";
 Vue.use(Router);
 Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
@@ -18,7 +20,10 @@ export default new Router({
     mode: 'history',
     base: process.env.VUE_APP_BASE_URL,
     routes: [
-        {path: '/', component: Home},
+        {   path: '/',
+            name: 'Home',
+            component: Home
+        },
         {path: '/login', component: Login},
         {path: '/register', component: Register},
         {
@@ -60,7 +65,24 @@ export default new Router({
             name: 'profile',
             component: ViewUser
         },
-        {path: '/admin', component: AdminDashboard},
+        {   path: '/admin',
+            component: AdminDashboard
+        },
+        {
+            path: '/activities/create',
+            name: 'submitCreateActivity',
+            component: CreateActivity
+        },
+        {
+            path: '/activities/edit/:activityId',
+            name: 'editActivity',
+            component: EditActivity
+        },
+        {
+            path: '/activities/',
+            name: 'allActivities',
+            component: AllActivities
+        },
         // otherwise redirect to home
         { path: '/*', redirect: '/login' }
     ]
