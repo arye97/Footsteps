@@ -3,7 +3,7 @@ package com.springvuegradle.seng302team600.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.springvuegradle.seng302team600.payload.RegisterRequest;
+import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
@@ -13,10 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity
 public class User {
@@ -29,16 +26,18 @@ public class User {
 
     final static public int MAX_EMAILS = 5;
 
-    final static public int MIN_AGE = 13;
-    final static public int MAX_AGE = 150;
-
-    final static private int FIELD_LEN = 15;
+    final static private int FIELD_LEN = 45;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", nullable = false)
     @JsonProperty("id")
     private Long userId;
+
+    @NotNull(message = "This user needs a role")
+    @Column(name = "role", nullable = false)
+    @JsonProperty("role")
+    protected int role;
 
     private String token;
 
@@ -109,6 +108,13 @@ public class User {
     @JsonProperty("passports")
     private List<String> passports;
 
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})  // ALL except REMOVE
+    @JoinTable(
+            name = "user_activity_type",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "id"))
+    @JsonProperty("activityTypes")
+    private Set<ActivityType> activityTypes;
 
     public enum Gender {
         @JsonProperty("Male")
@@ -128,14 +134,25 @@ public class User {
      * Default constructor for User.
      * Mandatory for repository actions.
      */
-    public User() {}
+    public User() {
+        this.role = UserRole.USER;
+    }
 
     /**
-     * Builds user from the payload, using getters and setters.
+     * Builds user from the payload, using getters and setters.  Use when creating new user from data.
+     * @param userData payload for registering.
+     */
+    public User(UserRegisterRequest userData) {
+        this();
+        this.builder(userData);
+    }
+
+    /**
+     * Builds user from the payload, using getters and setters.  Use when preserving UserId and token, etc.
      * @param userData payload for registering.
      * @return the built user.
      */
-    public User builder(RegisterRequest userData) {
+    public User builder(UserRegisterRequest userData) {
         this.setFirstName(userData.getFirstName());
         this.setMiddleName(userData.getMiddleName());
         this.setLastName(userData.getLastName());
@@ -147,6 +164,7 @@ public class User {
         this.setGender(userData.getGender());
         this.setFitnessLevel(userData.getFitnessLevel());
         this.setPassports(userData.getPassports());
+        this.setActivityTypes(userData.getActivityTypes());
         return this;
     }
 
@@ -165,9 +183,11 @@ public class User {
 
     public boolean isTimedOut() {
         ///time calculated in milliseconds
-        Date now = new Date();
-        long diff = now.getTime() - tokenTime.getTime();
-        return diff >= tokenDecayTime || diff < 0;
+        if (this.tokenTime != null) {
+            Date now = new Date();
+            long diff = now.getTime() - tokenTime.getTime();
+            return diff >= tokenDecayTime || diff < 0;
+        } else return true; //Default to the user being timed out
     }
 
     public void setTokenTime() {
@@ -179,7 +199,7 @@ public class User {
     }
 
     public void setFirstName(String firstName) {
-        this.firstName = firstName;
+        this.firstName = firstName.trim();
     }
 
     public String getMiddleName() {
@@ -187,7 +207,8 @@ public class User {
     }
 
     public void setMiddleName(String middleName) {
-        this.middleName = middleName;
+        if (middleName == null) this.middleName = null;
+        else this.middleName = middleName.trim();
     }
 
     public String getLastName() {
@@ -195,7 +216,7 @@ public class User {
     }
 
     public void setLastName(String lastName) {
-        this.lastName = lastName;
+        this.lastName = lastName.trim();
     }
 
     public String getNickName() {
@@ -203,7 +224,8 @@ public class User {
     }
 
     public void setNickName(String nickName) {
-        this.nickName = nickName;
+        if (nickName == null) this.nickName = null;
+        else this.nickName = nickName.trim();
     }
 
     public String getBio() {
@@ -211,12 +233,17 @@ public class User {
     }
 
     public void setBio(String bio) {
-        this.bio = bio;
+        if (bio == null) this.bio = null;
+        else this.bio = bio.trim();
     }
 
     public String getPrimaryEmail() {
         return primaryEmail;
     }
+
+    public Set<ActivityType> getActivityTypes() { return activityTypes; }
+
+    public void setActivityTypes(Set<ActivityType> activityTypes) { this.activityTypes = activityTypes; }
 
     /**
      * Sets primary email of User
@@ -255,7 +282,6 @@ public class User {
                 }
             }
         }
-
         // IF EMAIL HAS NOT BEEN ASSOCIATED TO USER
         primaryEmail = newPrimaryEmail;
         Email email = new Email(newPrimaryEmail, true, this);
@@ -263,6 +289,8 @@ public class User {
     }
 
     public List<String> getAdditionalEmails() {
+        // Makes a copy instead of returning private object
+        List<String> additionalEmails = new ArrayList<>(this.additionalEmails);
         return additionalEmails;
     }
 
@@ -405,47 +433,12 @@ public class User {
         return passports.remove(passport);
     }
 
-    /**
-     * Runs a sanity check on the user and throws errors if the are invalid fields
-     * @throws ResponseStatusException thrown if the users first, middle or last names are invalid
-     * thrown if the user is younger than 13
-     * thrown if the user is older than 150yr
-     * @return returns true if valid user
-     */
-    public boolean isValid() {
-        final String nameRegex = "^[a-zA-Z'-]+$";
-        String nameError = "Name must contain at least one letter and no non-letter characters";
-        if (firstName == null || lastName == null) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid name. " + nameError); }
-        if (! firstName.matches(nameRegex) ) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid first name. " + nameError); }
-        if (! lastName.matches(nameRegex) ) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid last name. " + nameError); }
-        if (middleName != null) {
-            if (! middleName.matches(nameRegex) && ! middleName.trim().isEmpty() ) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid middle name. " + nameError); }
-        }
-        if (ageCheck(dateOfBirth, MIN_AGE, true)) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must be at least 13 years old to register for this app"); }
-        if (ageCheck(dateOfBirth, MAX_AGE, false)) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date of birth"); }
-        return true;
+    public int getRole() {
+        return role;
     }
 
-    /**
-     * Checks if the given date of birth would result in the user being younger or older than the given age
-     * @param DoB date of birth for prespective new user
-     * @param age age to check against
-     * @param younger boolean tag to determine if checking if the person is younger or older (false:older, true:younger)
-     * @return boolean tag denoting how given DoB compares to given age with respect to younger tag
-     */
-    private boolean ageCheck(Date DoB, int age, boolean younger) {
-        Calendar calendar = Calendar.getInstance();
-        //Lock calender time to end of day to ensure comparison is accurate and reliable
-        calendar.set(Calendar.HOUR_OF_DAY, 23);
-        calendar.set(Calendar.MINUTE, 59);
-        calendar.set(Calendar.SECOND, 59);
-        calendar.set(Calendar.MILLISECOND, 99);
-        calendar.add(Calendar.YEAR, -age);
-        Date ageDate = calendar.getTime();
-        if ( younger ) {
-            return ageDate.before(DoB);
-        } else {
-            return ageDate.after(DoB);
-        }
+    @Override
+    public String toString() {
+        return String.format("%s %s at %s", firstName, lastName, primaryEmail);
     }
 }

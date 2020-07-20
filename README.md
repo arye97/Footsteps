@@ -2,7 +2,7 @@
 -----
 This is the README file for the SENG302 Team 600 Hakinakina Application.
 
-Hakinakina is a fitness and leisure tracking web application.
+Hakinakina is a fitness and leisure tracking web application.  
 It has been built using javascript - utilising Vue - and java - using Spring.
 
 ### Team Details
@@ -21,7 +21,7 @@ This project has been completed by Team600 from the SENG302 2020 class.
 
 ### Basic Project Structure
 - client/src Frontend source code (JS - Vue)
-- client/public publicly accesable web assets
+- client/public publicly accessible web assets
 - client/dist Frontend production build
 
 - server/src Backend source code (Java - Spring)
@@ -33,10 +33,16 @@ To run the full application, first run the server and then run the client
 Set up the environment variables according to the information stored in eng-git
 
 ##### Server (Backend/API)
-1. Navigate to the server folder: 
-Example command: `cd server`
-2. Run the server
-Command: `./gradlew bootRun`
+1. Set up the following environment variables:
+    - SPRING_DATASOURCE_USERNAME
+    - SPRING_DATASOURCE_PASSWORD
+    - SPRING_DEFAULT_ADMIN_EMAIL
+    - SPRING_DEFAULT_ADMIN_PASSWORD  
+    With the credentials for the database and default admin.  If you don't have access to these values, you can still run the application locally (see step 3).  
+2. Navigate to the server folder: Example command: `cd server`  
+3. Run the server Command: `./gradlew bootRun`  
+    - By default this will run the localDev profile. You may use a specific server profile using the command `./gradlew bootRun -PspringProfile=profileName` instead  
+    - If you do not have access to the test database or default admin credentials, you can use an in memory database by using the command `./gradlew bootRun -PspringProfile=local` instead  
 
 Running on: http://localhost:9499/
 
@@ -62,7 +68,7 @@ Interfacing with the backend uses Postman with HTTP requests:
   "password": "jack"
 }
 ```
-- Editing users with a POST by sending the id of the user to edit, and all atributes that are edited
+- Editing users with a POST by sending the id of the user to edit, and all attributes that are edited
 ```
 {
   "id": "1",
@@ -70,6 +76,14 @@ Interfacing with the backend uses Postman with HTTP requests:
   "password": "I am a nice bio"
 }
 ```
+##### Server Profiles
+The server has several profiles that can be used, allowing for the use of different databases.  
+In order to use most profiles, you must have credentials set in your environment variables:  
+- **local**: Uses an in memory database. For use when testing. Does not require credentials.  
+- **localDev**: Uses the test database. For use when testing with persistent data, and using SSH to access the database.  
+- **localProd**: Uses the prod database. This profile is not intended for future use outside of debugging the prod database.   
+- **dev**: Uses the test database. For use when deploying the development server on the virtual machine.   
+- **prod**: Uses the prod database. For use when deploying the production server on the virtual machine.  
 
 ### Sonarqube Analysis (Backend)
 The Hakinakina program has a backend code analyser that is executed by

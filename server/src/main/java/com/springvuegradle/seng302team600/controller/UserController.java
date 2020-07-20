@@ -1,34 +1,88 @@
 package com.springvuegradle.seng302team600.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.springvuegradle.seng302team600.Utilities.UserValidator;
+import com.springvuegradle.seng302team600.Utilities.PasswordValidator;
+import com.springvuegradle.seng302team600.model.ActivityType;
+import com.springvuegradle.seng302team600.model.DefaultAdminUser;
 import com.springvuegradle.seng302team600.model.User;
-import com.springvuegradle.seng302team600.payload.RegisterRequest;
+import com.springvuegradle.seng302team600.model.UserRole;
+import com.springvuegradle.seng302team600.payload.EditPasswordRequest;
+import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
+import com.springvuegradle.seng302team600.payload.UserResponse;
+import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
-import com.springvuegradle.seng302team600.service.UserValidationService;
+import com.springvuegradle.seng302team600.service.ActivityTypeService;
+import com.springvuegradle.seng302team600.service.UserAuthenticationService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 @RestController
 public class UserController {
 
-    private UserValidationService userService;
+    private UserAuthenticationService userService;
+    private ActivityTypeService activityTypeService;
 
     private final UserRepository userRepository;
     private final EmailRepository emailRepository;
+    private final ActivityTypeRepository activityTypeRepository;
+    private final UserValidator userValidator;
 
-    public UserController(UserRepository userRepository, EmailRepository emailRepository, UserValidationService userService) {
+    private static Log log = LogFactory.getLog(UserController.class);
+
+
+    /**
+     * The DefaultAdminUser that is added to the Database if one doesn't
+     * already exist. This is @Autowired so Spring can set it's
+     * primaryEmail and password through environment variables
+     */
+    @Autowired
+    private DefaultAdminUser defaultAdmin;
+    private boolean _DAexists = false;
+
+
+    public UserController(UserRepository userRepository, EmailRepository emailRepository,
+                          UserAuthenticationService userService, ActivityTypeService activityTypeService,
+                          ActivityTypeRepository activityTypeRepository, UserValidator userValidator) {
         this.userRepository = userRepository;
         this.emailRepository = emailRepository;
         this.userService = userService;
+        this.activityTypeService = activityTypeService;
+        this.activityTypeRepository = activityTypeRepository;
+        this.userValidator = userValidator;
+    }
+
+    /**
+     * Checks if there is a default admin in the Database.  If there isn't, one is created and added.
+     * The email and password of the default admin are specified as environment variables in application.properties
+     * The annotation @PostConstruct causes the method to be called during construction, but after all beans have
+     * been initialized.  (Calling it in UserController() constructor won't work.)
+     */
+    @PostConstruct
+    private void createDefaultAdmin() {
+        if (!userRepository.existsUserByRole(UserRole.DEFAULT_ADMIN)) {
+            log.info("No Default Admin in database.  Creating: " + defaultAdmin);
+            userRepository.save(defaultAdmin);
+        }
+        // Flag used for testing that a default admin exists or was created
+        _DAexists = true;
     }
 
     /**
@@ -44,6 +98,37 @@ public class UserController {
         user.setTransientEmailStrings();
         //Security breach if password sent to client
         user.setPassword(null);
+//        user.setToken(null);
+        response.setStatus(HttpServletResponse.SC_OK); //200
+        return user;
+    }
+
+    /**
+     * Return a user id saved in the repository if authorized
+     * @param request the http request to the
+     * @param response the http response
+     * @return User id requested or null
+     */
+    @GetMapping("/profiles/userId")
+    public Long findUserId(HttpServletRequest request, HttpServletResponse response) {
+        User user = findUserData(request, response);
+        return user.getUserId();
+    }
+
+    /**
+     * Return a User saved in the repository based on the user id
+     * @param request the http request
+     * @param response the http response
+     * @return User requested or null
+     */
+    @GetMapping("/profiles/{profileId}")
+    public User findSpecificUserData(HttpServletRequest request, HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) {
+        String token = request.getHeader("Token");
+        User user = userService.viewUserById(profileId, token);
+        user.setTransientEmailStrings();
+        // Security breach if password is sent to the client
+        user.setPassword(null);
+//        user.setToken(null);
         response.setStatus(HttpServletResponse.SC_OK); //200
         return user;
     }
@@ -54,24 +139,30 @@ public class UserController {
      * @param response the http response
      */
     @PostMapping("/profiles")
-    public String newUser(@Validated @RequestBody RegisterRequest newUserData, HttpServletResponse response) {
+    public UserResponse newUser(@Validated @RequestBody UserRegisterRequest newUserData, HttpServletResponse response) {
         if (emailRepository.existsEmailByEmail(newUserData.getPrimaryEmail())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email: " + newUserData.getPrimaryEmail() + " is already registered"); //409. It may be worth consider to a 200 error for security reasons
         }
 
+        // Validate the password
+        PasswordValidator.validate(newUserData.getPassword());
 
-        User newUser = new User();
-        newUser.builder(newUserData);
-        //Throws errors if user is erroneous
-        newUser.isValid();
+        User newUser = new User(newUserData);
+        // Check the user input and throw ResponseStatusException if invalid stopping execution
+        userValidator.validate(newUser);
+
+        // Use ActivityType entities from the database.  Don't create duplicates.
+        newUser.setActivityTypes(
+                activityTypeService.getMatchingEntitiesFromRepository(newUser.getActivityTypes())
+        );
 
         //Saving generates user id
         //If mandatory fields not given, exception in UserRepository.save ends function execution and makes response body
         //Gives request status:400 and specifies needed field if null in required field
         userRepository.save(newUser);
-        String token = userService.login(newUserData.getPrimaryEmail(), newUserData.getPassword());
+        UserResponse userResponse = userService.login(newUserData.getPrimaryEmail(), newUserData.getPassword());
         response.setStatus(HttpServletResponse.SC_CREATED); //201
-        return token;
+        return userResponse;
     }
 
     /**
@@ -82,16 +173,16 @@ public class UserController {
      * @return token to be stored by the client.
      */
     @PostMapping("/login")
-    public String logIn(@RequestBody String jsonLogInString, HttpServletResponse response) throws JsonProcessingException {
+    public UserResponse logIn(@RequestBody String jsonLogInString, HttpServletResponse response) throws JsonProcessingException {
         ObjectNode node = new ObjectMapper().readValue(jsonLogInString, ObjectNode.class);
 
         if (node.has("email") && node.has("password")) {
             String email = node.get("email").toString().replace("\"", "");
             String password = node.get("password").toString().replace("\"", "");
             //ResponseStatusException thrown if email or password incorrect
-            String token = userService.login(email, password);
+            UserResponse userResponse = userService.login(email, password);
             response.setStatus(HttpServletResponse.SC_CREATED); //201
-            return token;
+            return userResponse;
         }
         //email and/or password fields not given
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
@@ -115,6 +206,42 @@ public class UserController {
     }
 
     /**
+     * If the current user has authorization edit the users password.  Only edits the password
+     * if the following conditions hold:
+     *     old_password doesn't equal the user's password
+     *     new_password != repeat_password
+     *     new_password == old_password    (New pass can't be the same as old)
+     *     new_password passes regular expression rules
+     * @param passwordRequest the payload containing the passwords (old, new, repeat)
+     * @param request the http request to the endpoint
+     * @param response the http response
+     * @param profileId user id obtained from the request url
+     */
+    @PutMapping("/profiles/{profileId}/password")
+    public void editPassword(@Validated @RequestBody EditPasswordRequest passwordRequest, HttpServletRequest request,
+                             HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) {
+
+        String token = request.getHeader("Token");
+        //ResponseStatusException thrown if user unauthorized or forbidden from accessing requested user
+        User user = userService.findByUserId(token, profileId);   // Get the user to modify
+
+        String oldPassword = passwordRequest.getOldPassword();
+        String newPassword = passwordRequest.getNewPassword();
+        String repeatPassword = passwordRequest.getRepeatPassword();
+
+        // Old Password doesn't match current password (invalid password)
+        if (!user.checkPassword(oldPassword)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Given password does not equal current password");
+        }
+        // Check rules and compare repeated password for validation
+        PasswordValidator.validateEdit(oldPassword, newPassword, repeatPassword);
+
+        user.setPassword(newPassword);
+        userRepository.save(user);
+        response.setStatus(HttpServletResponse.SC_OK); //200
+    }
+
+    /**
      * If the current user has authorization edit user with given id.
      * @param jsonEditProfileString the json body of the request as a string
      * @param request the http request to the endpoint
@@ -128,7 +255,9 @@ public class UserController {
         String token = request.getHeader("Token");
         ObjectMapper nodeMapper = new ObjectMapper();
         //ResponseStatusException thrown if user unauthorized or forbidden from accessing requested user
-        User user = userService.findByUserId(token, profileId);
+
+        // Check if user has admin privileges
+        User user = userService.findByUserId(token, profileId);   // Get the user to modify
         //Remove fields that should not be modified here
         ObjectNode modData = nodeMapper.readValue(jsonEditProfileString, ObjectNode.class);
         modData.remove("primary_email");
@@ -136,11 +265,85 @@ public class UserController {
         modData.remove("password");
 
         ObjectReader userReader = nodeMapper.readerForUpdating(user);
-        User modUser = userReader.readValue(modData);
+        User modUser = userReader.readValue(modData);   // Create the modified user
         //Throws errors if user is erroneous
-        modUser.isValid();
+        userValidator.validate(modUser); // If this user has authorization
+
+
+        // Use ActivityType entities from the database.  Don't create duplicates.
+        modUser.setActivityTypes(
+                activityTypeService.getMatchingEntitiesFromRepository(modUser.getActivityTypes())
+        );
+
         userRepository.save(modUser);
         response.setStatus(HttpServletResponse.SC_OK); //200
     }
 
+    /**
+     * Takes a token and a user id and queries the repository
+     * to check if a user is logged in with a provided token.
+     * @param request the http request to the endpoint
+     * @param response the http response
+     * @param profileId user id obtained from the request url
+     */
+    @GetMapping("/check-profile/{profileId}")
+    public void checkIfUserIdMatchesToken(HttpServletRequest request,
+                                           HttpServletResponse response,
+                                           @PathVariable(value = "profileId") Long profileId) {
+        String token = request.getHeader("Token");
+        // Checks if a user is an admin/default admin
+        userService.findByUserId(token, profileId);
+    }
+
+    /**
+     * Adds additional activity-types to a user
+     * @param request the http request to the endpoint
+     * @param response the http response
+     * @param profileId the user who is to be updated, taken from request url
+     */
+    @PutMapping("/profiles/{profileId}/activity-types")
+    public void updateUserActivityTypes( HttpServletRequest request,
+                                         HttpServletResponse response,
+                                         @PathVariable(value = "profileId") Long profileId,
+                                         @RequestBody String jsonUserEditString) {
+        //user must be logged in
+        try {
+            String token = request.getHeader("Token");
+            if (!userService.findByToken(token).getUserId().equals(profileId)) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid user, unauthorized to edit this data");
+            }
+            User user = userService.findByUserId(token, profileId);
+            ObjectMapper nodeMapper = new ObjectMapper();
+            ObjectNode editedData = nodeMapper.readValue(jsonUserEditString, ObjectNode.class);
+            JsonNode activityTypesNode = editedData.get("activities");
+            Set<ActivityType> activityTypes = new HashSet<>();
+            for (JsonNode element : activityTypesNode) {
+                activityTypes.add(new ActivityType(element.asText()));
+            }
+            user.setActivityTypes(activityTypeService.getMatchingEntitiesFromRepository(activityTypes));
+            userRepository.save(user);
+        } catch(Exception e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid user id, user not found");
+        }
+
+    }
+
+    /**
+     * Returns a user's role, based on users id
+     * @param request the http request to the endpoint
+     * @param response the http response
+     * @profileId the user's id from the request url
+     */
+    @GetMapping("/profiles/{profileId}/role")
+    public int getUsersRole(HttpServletRequest request,
+                             HttpServletResponse response,
+                             @PathVariable(value = "profileId") Long profileId) {
+        try {
+            String token = request.getHeader("Token");
+            User user = userService.findByUserId(token, profileId);
+            return user.getRole();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authorized to access this data");
+        }
+    }
 }

@@ -2,16 +2,18 @@ package com.springvuegradle.seng302team600.payload;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.springvuegradle.seng302team600.model.ActivityType;
 import com.springvuegradle.seng302team600.model.User;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Required to preserve input from client without User class changing values.
  * Password doesn't get converted to an encoded password.
  */
-public class RegisterRequest {
+public class UserRegisterRequest {
 
     @JsonProperty("firstname")
     private String firstName;
@@ -47,7 +49,10 @@ public class RegisterRequest {
     @JsonProperty("passports")
     private List<String> passports;
 
-    public RegisterRequest() {}
+    @JsonProperty("activity_types")
+    private Set<ActivityType> activityTypes;
+
+    public UserRegisterRequest() {}
 
     public String getFirstName() {
         return firstName;
@@ -136,4 +141,8 @@ public class RegisterRequest {
     public void setPassports(List<String> passports) {
         this.passports = passports;
     }
+
+    public Set<ActivityType> getActivityTypes() { return activityTypes; }
+
+    public void setActivityTypes(Set<ActivityType> activityTypes) { this.activityTypes = activityTypes; }
 }

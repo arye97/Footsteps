@@ -16,8 +16,9 @@ public class Email {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     @JsonProperty("id")
-    private Long id;
+    private Long emailId;
 
     @Column(name = "email", nullable = false)
     private String email;
@@ -48,12 +49,12 @@ public class Email {
         this.user = user;
     }
 
-    public Long getId() {
-        return id;
+    public Long getEmailId() {
+        return emailId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setEmailId(Long emailId) {
+        this.emailId = emailId;
     }
 
     public String getEmail() {
@@ -83,7 +84,7 @@ public class Email {
     @Override
     public String toString() {
         return "Email{" +
-                "id=" + id +
+                "emailId=" + emailId +
                 ", email='" + email + '\'' +
                 ", isPrimary=" + isPrimary +
                 ", user=" + user +

@@ -15,4 +15,25 @@
 </script>
 
 <style>
+    body{
+        background-image: url('../../assets/jpg/mt1.jpg');
+
+        background-size: cover;
+    }
+
+
+    .contents{
+        border-radius: 5px;
+        background-color: white;
+        padding-bottom: 12px;
+    }
+
+    .contentsExtendedBottom{
+        border-radius: 5px;
+        background-color: white;
+        padding-bottom: 63px;
+    }
+
+
+
 </style>

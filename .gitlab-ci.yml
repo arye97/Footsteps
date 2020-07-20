@@ -1,3 +1,9 @@
+stages:
+  - build
+  - setup
+  - test
+  - deploy
+
 tag_checker:
   stage: build
   script:
@@ -5,50 +11,129 @@ tag_checker:
   only:
     - tags
 
+setup:
+  stage: setup
+  script:
+    - cd client
+    - npm install
+  cache:
+    paths:
+      - client/node_modules/
+  artifacts:
+    paths:
+      - client/node_modules/
+
+image: gradle:alpine
+variables:
+  SONAR_TOKEN: "0a1467036e853397c101cf62ed6658536721f7e4"
+  SONAR_HOST_URL: "https://csse-s302g6.canterbury.ac.nz/sonarqube/"
+  GIT_DEPTH: 0
+sonarqube-check:
+  stage: test
+  script:
+    - cd server
+    - ./gradlew build
+    - ./gradlew sonarqube
+    - cd ../client
+    - npm install
+    - npm run test
+    - npm run sonarqube
+  allow_failure: true
+  only:
+    - development
+
 junit:
   stage: test
   script:
     - cd server
     - ./gradlew test
 
-dev-build:
+jest:
+  stage: test
+  script:
+    - cd client
+    - npm run unit-test
+
+deploy-test-server:
   stage: deploy
   script:
-    - fuser -k 9499/tcp 9500/tcp || true
-    - cd client
-    - npm install
-    - npm run build
-    - cd ../server
+    # Create artifact
+    - cd server
     - ./gradlew bootJar
-    - cd ..
-    - mkdir -p ../client-dev/
-    - mkdir -p ../server-dev/
-    - cp -r ./client/dist/ ../client-dev/
-    - cp -r ./server/build/libs ../server-dev
-    # - java -jar ../server-dev/libs/server-0.0.1-SNAPSHOT.jar --server.port=9499 # convert to be run with service
-    # - serve -s ../client-dev/dist -l 9500 # convert to be run with service
-  except:
-    - tags
+    # Move artifact to clean directory
+    - rm -rf /home/gitlab-runner/test-server/
+    - mkdir -p /home/gitlab-runner/test-server/
+    - cp -r ./build/libs /home/gitlab-runner/test-server
+    # Update bash script and restart service
+    - rm -f /home/gitlab-runner/runTestServer.sh || true
+    - cp ../deployment-scripts/runTestServer.sh /home/gitlab-runner/runTestServer.sh
+    - cd /home/gitlab-runner/test-server/
+    - echo "export SPRING_DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME" > envVars.txt
+    - echo "export SPRING_DATASOURCE_PASSWORD=$SPRING_DATASOURCE_PASSWORD" >> envVars.txt
+    - echo "export SSL_KEY_STORE_PASSWORD=$SSL_KEY_STORE_PASSWORD" >> envVars.txt
+    - echo "export SPRING_DEFAULT_ADMIN_EMAIL=$SPRING_DEFAULT_ADMIN_EMAIL" >> envVars.txt
+    - echo "export SPRING_DEFAULT_ADMIN_PASSWORD=$SPRING_DEFAULT_ADMIN_PASSWORD" >> envVars.txt
+    - sudo systemctl restart testServer
+  only:
+    refs:
+      - development
 
-release-build:
- stage: deploy
- script:
-    - fuser -k 8999/tcp 9000/tcp || true
+deploy-test-client:
+  stage: deploy
+  script:
+    # Create artifact
     - cd client
-    - npm install
-    - npm run build-prod
-    - cd ../server
+    - npm run build
+    # Move artifact to clean directory
+    - rm -rf /home/gitlab-runner/test-client/
+    - mkdir -p /home/gitlab-runner/test-client/
+    - cp -r ./dist /home/gitlab-runner/test-client
+    # Update bash script and restart service
+    - rm -f /home/gitlab-runner/runTestClient.sh || true
+    - cp ../deployment-scripts/runTestClient.sh /home/gitlab-runner/runTestClient.sh
+    - sudo systemctl restart testClient
+  only:
+    refs:
+      - development
+
+deploy-prod-server:
+  stage: deploy
+  script:
+    # Create artifact
+    - cd server
     - ./gradlew bootJar
-    - cd ..
-    - mkdir -p ../client-prod/
-    - mkdir -p ../server-prod/
-    - cp -r ./client/dist/ ../client-prod/
-    - cp -r ./server/build/libs ../server-prod/
-    # - java -jar ../server-prod/libs/server-0.0.1-SNAPSHOT.jar --server.port=8999 # convert to be run with service
-    # - serve -s ../client-prod/dist -l 9000 # convert to be run with service
- artifacts:
-    paths:
-    - client/dist
-    - server/out
- only:
-    - tags
+    # Move artifact to clean directory
+    - rm -rf /home/gitlab-runner/prod-server/
+    - mkdir -p /home/gitlab-runner/prod-server/
+    - cp -r ./build/libs /home/gitlab-runner/prod-server
+    # Update bash script and restart service
+    - rm -f /home/gitlab-runner/runProdServer.sh || true
+    - cp ../deployment-scripts/runProdServer.sh /home/gitlab-runner.runProdServer.sh
+    - cd /home/gitlab-runner/test-server/
+    - echo "export SPRING_DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME" > envVars.txt
+    - echo "export SPRING_DATASOURCE_PASSWORD=$SPRING_DATASOURCE_PASSWORD" >> envVars.txt
+    - echo "export SSL_KEY_STORE_PASSWORD=$SSL_KEY_STORE_PASSWORD" >> envVars.txt
+    - echo "export SPRING_DEFAULT_ADMIN_EMAIL=$SPRING_DEFAULT_ADMIN_EMAIL" >> envVars.txt
+    - echo "export SPRING_DEFAULT_ADMIN_PASSWORD=$SPRING_DEFAULT_ADMIN_PASSWORD" >> envVars.txt
+    - sudo systemctl restart prodServer
+  only:
+    refs:
+      - master
+
+deploy-prod-client:
+  stage: deploy
+  script:
+    # Create artifact
+    - cd client
+    - npm run build
+    # Move artifact to clean directory
+    - rm -rf /home/gitlab-runner/prod-client/
+    - mkdir -p /home/gitlab-runner/prod-client/
+    - cp -r ./dist /home/gitlab-runner/prod-client
+    # Update bash script and restart service
+    - rm -f /home/gitlab-runner/runProdClient.sh || true
+    - cp ../deployment-scripts/runProdClient.sh /home/gitlab-runner/runProdClient.sh
+    - sudo systemctl restart prodClient
+  only:
+    refs:
+      - master

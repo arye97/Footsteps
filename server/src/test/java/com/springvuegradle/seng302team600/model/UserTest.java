@@ -1,5 +1,7 @@
 package com.springvuegradle.seng302team600.model;
 
+import com.springvuegradle.seng302team600.Utilities.UserValidator;
+import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.ReflectionUtils;
@@ -12,10 +14,12 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
 public class UserTest {
 
     private User userTest;
+    private UserValidator validator;
 
     private Date getAgeDate(int age) {
         Calendar calendar = Calendar.getInstance();
@@ -27,9 +31,10 @@ public class UserTest {
     void setUp() {
         userTest = new User();
         userTest.setFirstName("Jimmy");
-        userTest.setMiddleName(null);
         userTest.setLastName("Jones");
         userTest.setDateOfBirth(getAgeDate(50));
+        ActivityTypeRepository mockActivityTypeRepository = mock(ActivityTypeRepository.class);
+        validator = new UserValidator(mockActivityTypeRepository);
     }
 
     @Test
@@ -37,15 +42,15 @@ public class UserTest {
      * Checks ages 12, 13 and today (0)
      */
     void ageTooYoung() {
-        assertTrue(userTest.isValid());
+        assertTrue(validator.validate(userTest));
         userTest.setDateOfBirth(getAgeDate(12));
-        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> validator.validate(userTest));
         userTest.setDateOfBirth(Calendar.getInstance().getTime());
-        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> validator.validate(userTest));
         userTest.setDateOfBirth(getAgeDate(13));
-        assertTrue(userTest.isValid());
+        assertTrue(validator.validate(userTest));
         userTest.setDateOfBirth(getAgeDate(14));
-        assertTrue(userTest.isValid());
+        assertTrue(validator.validate(userTest));
     }
 
     @Test
@@ -53,94 +58,101 @@ public class UserTest {
      * Checks ages 151, 150 and 149
      */
     void ageTooOld() {
-        assertTrue(userTest.isValid());
+        assertTrue(validator.validate(userTest));
         userTest.setDateOfBirth(getAgeDate(151));
-        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> validator.validate(userTest));
         userTest.setDateOfBirth(getAgeDate(150));
-        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> validator.validate(userTest));
         userTest.setDateOfBirth(getAgeDate(149));
-        assertTrue(userTest.isValid());
+        assertTrue(validator.validate(userTest));
     }
 
     @Test
     void invalidFirstNameEmpty() {
-        assertTrue(userTest.isValid());
+        assertTrue(validator.validate(userTest));
         userTest.setFirstName("");
-        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> validator.validate(userTest));
         userTest.setFirstName("    ");
-        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> validator.validate(userTest));
     }
 
     @Test
     void invalidFirstNameNull() {
-        assertTrue(userTest.isValid());
-        userTest.setFirstName(null);
-        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
+        assertTrue(validator.validate(userTest));
+        userTest.setFirstName("");
+        assertThrows(ResponseStatusException.class, () -> validator.validate(userTest));
     }
 
     @Test
     void invalidFirstNameNonAlphaChar() {
-        assertTrue(userTest.isValid());
+        assertTrue(validator.validate(userTest));
         userTest.setFirstName("Jimmy7");
-        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> validator.validate(userTest));
         userTest.setFirstName("Jimmy@");
-        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> validator.validate(userTest));
         userTest.setFirstName("!");
-        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> validator.validate(userTest));
     }
 
     @Test
     void invalidLastNameEmpty() {
-        assertTrue(userTest.isValid());
+        assertTrue(validator.validate(userTest));
         userTest.setLastName("");
-        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> validator.validate(userTest));
         userTest.setLastName("     ");
-        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
-    }
-
-    @Test
-    void invalidLastNameNull() {
-        assertTrue(userTest.isValid());
-        userTest.setLastName(null);
-        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> validator.validate(userTest));
     }
 
     @Test
     void invalidLastNameNonAlphaChar() {
-        assertTrue(userTest.isValid());
+        assertTrue(validator.validate(userTest));
         userTest.setLastName("Jones7");
-        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> validator.validate(userTest));
         userTest.setLastName("Jones^");
-        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> validator.validate(userTest));
         userTest.setLastName("%");
-        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> validator.validate(userTest));
     }
 
     @Test
     void validMiddleNameEmpty() {
-        assertTrue(userTest.isValid());
+        assertTrue(validator.validate(userTest));
         userTest.setMiddleName("");
-        assertTrue(userTest.isValid());
+        assertTrue(validator.validate(userTest));
         userTest.setMiddleName("     ");
-        assertTrue(userTest.isValid());
+        assertTrue(validator.validate(userTest));
     }
 
     @Test
     void validMiddleNameNull() {
-        assertTrue(userTest.isValid());
+        assertTrue(validator.validate(userTest));
         userTest.setMiddleName(null);
-        assertTrue(userTest.isValid());
+        assertTrue(validator.validate(userTest));
+    }
+
+    @Test
+    void validBioNull() {
+        assertTrue(validator.validate(userTest));
+        userTest.setBio(null);
+        assertTrue(validator.validate(userTest));
+    }
+
+    @Test
+    void validNicknameNull() {
+        assertTrue(validator.validate(userTest));
+        userTest.setNickName(null);
+        assertTrue(validator.validate(userTest));
     }
 
     @Test
     void invalidMiddleNameNonAlphaChar() {
-        assertTrue(userTest.isValid());
+        assertTrue(validator.validate(userTest));
         userTest.setMiddleName("Johnny7");
-        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> validator.validate(userTest));
         userTest.setMiddleName("Johnny*");
-        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> validator.validate(userTest));
         userTest.setMiddleName("+");
-        assertThrows(ResponseStatusException.class, () -> userTest.isValid());
+        assertThrows(ResponseStatusException.class, () -> validator.validate(userTest));
     }
 
     @Test

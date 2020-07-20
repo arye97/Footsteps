@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
-import com.springvuegradle.seng302team600.service.UserValidationService;
+import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -23,12 +23,12 @@ import java.util.Map;
 @RestController
 public class EmailController {
 
-    private UserValidationService userService;
+    private UserAuthenticationService userService;
 
     private final UserRepository userRepository;
     private final EmailRepository emailRepository;
 
-    public EmailController(UserRepository userRepository, EmailRepository emailRepository, UserValidationService userService) {
+    public EmailController(UserRepository userRepository, EmailRepository emailRepository, UserAuthenticationService userService) {
         this.userRepository = userRepository;
         this.emailRepository = emailRepository;
         this.userService = userService;
@@ -40,11 +40,11 @@ public class EmailController {
      * @param response HttpServletResponse received from the front-end
      * @return JSON object with primaryEmails and additionalEmails field
      */
-    @GetMapping("/emails")
-    public Map<String, Object> findUserEmails(HttpServletRequest request, HttpServletResponse response) {
+    @GetMapping("/profiles/{profileId}/emails")
+    public Map<String, Object> findUserEmails(HttpServletRequest request, HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) {
         String token = request.getHeader("Token");
         // Errors are thrown in userService
-        User user = userService.findByToken(token);
+        User user = userService.findByUserId(token, profileId);
         user.setTransientEmailStrings();
         Map<String, Object> userIdAndEmails = new HashMap<>();
         userIdAndEmails.put("userId", user.getUserId());
