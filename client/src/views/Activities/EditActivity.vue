@@ -2,16 +2,20 @@
     <div>
         <Header />
         <h1><br/><br/></h1>
-        <header class="masthead">
-            <div class="container h-100">
-                <div class="row h-100 align-items-center">
-                    <div class="col-12 text-center">
-                        <h1 class="font-weight-light">Edit your activity</h1>
+        <b-container class="contents" fluid>
+            <h1><br/></h1>
+            <header class="masthead">
+                <div class="container h-100">
+                    <div class="row h-100 align-items-center">
+                        <div class="col-12 text-center">
+                            <h1 class="font-weight-light">Edit your activity</h1>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </header>
-        <activity-form :submit-activity-func="submitEditActivity" :activity="activity"></activity-form>
+            </header>
+            <activity-form :submit-activity-func="submitEditActivity" :activity="activity"></activity-form>
+        </b-container>
+        <br/><br/>
     </div>
 </template>
 
