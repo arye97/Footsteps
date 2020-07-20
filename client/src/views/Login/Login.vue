@@ -100,7 +100,7 @@
                         sessionStorage.setItem("token", response.data.Token);
                         this.userId = response.data.userId;
                         api.getUserRoles(this.userId).then(roleResponse => {
-                            if (roleResponse.data == 20){ //Account is default admin
+                            if (roleResponse.data === 20){ //Account is default admin
                                 this.$router.push('/admin');
                             } else{
                                 this.$router.push('/'); //Route home on successful login

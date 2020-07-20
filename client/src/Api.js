@@ -26,14 +26,14 @@ function getExtendedTokenHeader(extendedHeaders) {
 export default {
   login: (loginData) => server.post('/login', loginData),
   register: (userData) => server.post('/profiles', userData),
-  getActivityTypes: () => server.get('activity-types', getTokenHeader()),
+  getActivityTypes: () => server.get('/activity-types', getTokenHeader()),
   editProfile: (userData, profileId) => server.put(`profiles/${profileId}`, userData, getTokenHeader()),
-  getUserData: (profileId) => server.get(`profiles/${profileId}`, getTokenHeader()),
-  checkProfile: (profileId) => server.get(`/check-profile/${profileId}`, getTokenHeader()),
+  getUserData: (profileId) => server.get(`/profiles/${profileId}`, getTokenHeader()),
+  checkProfile: (profileId) => server.get(`/check-profile/`.concat(profileId), getTokenHeader()),
   getUserEmails: (profileId) => server.get(`/profiles/${profileId}/emails`, getTokenHeader()),
   checkUserEmail: (insertedEmail) => server.get(`/email`, getExtendedTokenHeader({'email': insertedEmail})),
-  updateEmails: (emails) => server.post(`/profiles/${this.userId}/emails`, emails, getTokenHeader()),
-  putEmails: (emails) => server.put(`/profiles/${this.userId}/emails`, emails, getTokenHeader()),
+  updateEmails: (emails, profileId) => server.post(`/profiles/${profileId}/emails`, emails, getTokenHeader()),
+  putEmails: (emails, profileId) => server.put(`/profiles/${profileId}/emails`, emails, getTokenHeader()),
   logout: () => server.post('/logout', null, getTokenHeader()),
   updatePassword: (userId, oldPass, newPass, repeatPass) => server.put(`/profiles/${userId}/password`,
     {'old_password': oldPass, 'new_password': newPass, 'repeat_password': repeatPass}, getTokenHeader()),
@@ -43,6 +43,6 @@ export default {
   deleteActivity: (activityId) => server.delete(`/activities/${activityId}`, getTokenHeader()),
   createActivity: (activityData, profileId) => server.post(`/profiles/${profileId}/activities`, activityData, getTokenHeader()),
   updateActivity: (activityData, profileId, activityId) => server.put(`/profiles/${profileId}/activities/${activityId}`, activityData, getTokenHeader()),
-  getActivityData: (activityId) => server.get(`activities/${activityId}`, getTokenHeader()),
+  getActivityData: (activityId) => server.get(`/activities/${activityId}`, getTokenHeader()),
   getUserRoles: (userId) => server.get(`/profiles/${userId}/role`, getTokenHeader())
 }
