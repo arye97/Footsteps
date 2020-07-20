@@ -3,21 +3,21 @@ import {nameRegex} from "./constants";
 export function validateUser(fieldData, fieldType) {
     const emailRegex = new RegExp(/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/);
     const passwordRegex = new RegExp(/(?=.*[0-9])(?=.*[a-zA-Z])(?=\S+$).{8,}/);
-    const bioLength = 255;
+    const bioPasswordEmailLength = 255;
     const nameLength = 45;
     switch (fieldType) {
         case "bio":
-            return {valid: fieldData.length <= bioLength};
+            return {valid: fieldData.length <= bioPasswordEmailLength};
         case "nickname":
             return {valid: fieldData.length <= nameLength};
         case "gender":
             return {valid: fieldData === "Male" || fieldData === "Female" || fieldData === "Non-Binary"};
         case "email":
-            return {valid: emailRegex.test(fieldData)};
+            return {valid: (emailRegex.test(fieldData) || fieldData.length <= bioPasswordEmailLength)};
         case "password":
-            return {valid: passwordRegex.test(fieldData)};
+            return {valid: (passwordRegex.test(fieldData) || fieldData.length <= bioPasswordEmailLength)};
         case "middlename":
-            return {valid: ((nameRegex.test(fieldData) || fieldData === "") && fieldData.length <= nameLength), message: "Middle Name contains numbers or unexpected characters"};
+            return {valid: ((nameRegex.test(fieldData) || fieldData === "" || fieldData == null) && fieldData.length <= nameLength), message: "Middle Name contains numbers or unexpected characters"};
         case "firstname":
             return {valid: (nameRegex.test(fieldData)&& fieldData.length <= nameLength), message: "First Name contains numbers or unexpected characters"};
         case "lastname":

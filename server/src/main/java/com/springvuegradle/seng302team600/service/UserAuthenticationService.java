@@ -14,7 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.security.SecureRandom;
 
 @Service("userService")
-public class UserValidationService {
+public class UserAuthenticationService {
 
     @Autowired
     private EmailRepository emailRepository;

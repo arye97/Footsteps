@@ -92,7 +92,7 @@
 </template>
 
 <script>
-    import server from '../../Api';
+    import api from '../../Api';
     import Sidebar from '../../components/layout/ProfileEditSidebar';
     import Header from '../../components/Header/Header.vue'
     import {validateUser} from "../../util";
@@ -137,15 +137,7 @@
                     await this.editable(); // If allowed to edit, userId is set
                 }
                 if (this.isEditable) {
-                    server.get(`profiles/${this.userId}`,
-                        {
-                            headers:
-                                {
-                                    'Content-Type': 'application/json',
-                                    'Token': sessionStorage.getItem('token')
-                                }
-                        }
-                    ).then(response => {
+                    api.getUserData(this.userId).then(response => {
                         this.loading = false;
                         this.user = response.data;
                         this.userId = this.user.id;
@@ -220,14 +212,7 @@
                     this.showMessage('form_message', true);
                     return;
                 }
-                server.put(`/profiles/${this.userId}/password`,
-                    {'old_password': this.oldPass,
-                        'new_password': this.newPass,
-                        'repeat_password': this.repeatPass},
-                    {headers:
-                            {'Content-Type': 'application/json',
-                                    'Token': sessionStorage.getItem('token')}
-                    }).then(response => {
+                api.updatePassword(this.userId, this.oldPass, this.newPass, this.repeatPass).then(response => {
                         if (response.status === 200) {
                             this.message = 'Your New password was saved successfully';
                             this.showMessage('form_message', false);
@@ -256,11 +241,7 @@
                     this.isEditable = true;
                     return;
                 }
-                await server.get(`/check-profile/${this.userId}`,
-                    {headers: {
-                            'Content-Type': 'application/json',
-                            'Token': sessionStorage.getItem("token")}}
-                ).then(() => {
+                await api.checkProfile(this.userId).then(() => {
                     //Status code 200
                     //User can edit this profile
                     this.isEditable = true;
@@ -279,12 +260,7 @@
              * Logs the user out and clears session token
              */
             logout () {
-                server.post('/logout', null,
-                    {
-                        headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json", 'Token': sessionStorage.getItem("token")},
-                        withCredentials: true
-                    }
-                ).then(() => {
+                api.logout().then(() => {
                     sessionStorage.clear();
                     // tokenStore.setToken(null);
                     this.isLoggedIn = (sessionStorage.getItem("token") !== null);

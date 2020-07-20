@@ -10,7 +10,7 @@ import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import com.springvuegradle.seng302team600.payload.UserResponse;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
-import com.springvuegradle.seng302team600.service.UserValidationService;
+import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -42,7 +42,7 @@ class EmailControllerTest {
     @MockBean
     private EmailRepository emailRepository;
     @MockBean
-    private UserValidationService userValidationService;
+    private UserAuthenticationService userAuthenticationService;
     @Autowired
     private MockMvc mvc;
 
@@ -94,7 +94,7 @@ class EmailControllerTest {
         when(emailRepository.save(Mockito.any(Email.class))).thenReturn(dummyEmail);
         when(emailRepository.findByEmail(Mockito.matches(dummyEmail.getEmail()))).thenReturn(dummyEmail);
         when(emailRepository.getOne(Mockito.anyLong())).thenReturn(dummyEmail);
-        when(userValidationService.findByToken(Mockito.anyString())).thenAnswer(i -> {
+        when(userAuthenticationService.findByToken(Mockito.anyString())).thenAnswer(i -> {
             if (i.getArgument(0).equals(dummyUser1.getToken())) return dummyUser1;
             else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         });
@@ -106,7 +106,7 @@ class EmailControllerTest {
             return true;
         });
         when(emailRepository.existsEmailByEmail(Mockito.anyString())).thenReturn(false);
-        when(userValidationService.findByUserId(Mockito.anyString(), Mockito.anyLong())).thenAnswer(i -> {
+        when(userAuthenticationService.findByUserId(Mockito.anyString(), Mockito.anyLong())).thenAnswer(i -> {
             if (i.getArgument(0).equals(dummyUser1.getToken()) && i.getArgument(1).equals(dummyUser1.getUserId()))
                 return dummyUser1;
             else if ((i.getArgument(0).equals(dummyUser1.getToken())) && !(i.getArgument(1).equals(dummyUser1.getUserId())))
@@ -116,14 +116,14 @@ class EmailControllerTest {
         });
         ReflectionTestUtils.setField(dummyUser1, "userId", DEFAULT_USER_ID);
         ReflectionTestUtils.setField(dummyEmail, "emailId", DEFAULT_EMAIL_ID);
-        when(userValidationService.login(Mockito.anyString(),Mockito.anyString())).thenAnswer(i -> {
+        when(userAuthenticationService.login(Mockito.anyString(),Mockito.anyString())).thenAnswer(i -> {
             if (i.getArgument(0).equals(dummyEmail.getEmail()) && dummyUser1.checkPassword(i.getArgument(1))) return new UserResponse("ValidToken", dummyUser1.getUserId());
             else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         });
         Mockito.doAnswer(i -> {
             if (i.getArgument(0).equals(dummyUser1.getToken())) dummyUser1.setToken(null);
             return null;
-        }).when(userValidationService).logout(Mockito.anyString());
+        }).when(userAuthenticationService).logout(Mockito.anyString());
         dummyUser1.setToken(validToken);
         dummyUser1.setTokenTime();
 
@@ -133,7 +133,7 @@ class EmailControllerTest {
         Email fakeEmail = new Email(dummyUser2.getPrimaryEmail(), true, dummyUser2);
         ReflectionTestUtils.setField(dummyUser2, "userId", 10L);
         ReflectionTestUtils.setField(fakeEmail, "emailId", 10L);
-        when(userValidationService.viewUserById(Mockito.anyLong(), Mockito.anyString())).thenAnswer(i -> {
+        when(userAuthenticationService.viewUserById(Mockito.anyLong(), Mockito.anyString())).thenAnswer(i -> {
             if ((long) i.getArgument(0) == 10L && i.getArgument(1) == validToken) return dummyUser2;
             else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         });

@@ -20,25 +20,25 @@
                         <div class="col-sm-12 text-center">
                             <h1 class="font-weight-light">Login to Hakinakina</h1>
                             <hr>
-                            <form @submit.prevent="login">
-                                <div class="form-group">
-                                <label for="email">Email Address: </label>
-                                <input type="email" class="form-control" v-model="email" id="email" placeholder="Email Address"><br/>
-                                <div class="form-group ">
-                                    <label for="password">Password: </label>
-                                    <input type="password" class="form-control" v-model="password" id="password" placeholder="Password"> <br/>
+                        <b-form id="form" @submit="login">
+                            <b-form-group label-for="email" label="Email Address:">
+                                <b-input type="email" class="form-control" v-model="email" id="email" placeholder="Email Address" />
+                            </b-form-group>
+                            <b-form-group label-for="password" label="Password:">
+                                <b-input type="password" class="form-control" v-model="password" id="password" placeholder="Password" />
+                            </b-form-group>
+                                <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" hidden="true" id="alert">
+                                    {{  message  }}
                                 </div>
-                                    <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" hidden="true" id="alert">
-                                        {{  message  }}
-                                    </div>
-                                <div class="form-group">
-                                    <input v-on:submit="login" class="btn btn-primary" type="submit" value="Sign In">
-                                    <router-link to="/register" class="btn btn-link">Register</router-link>
-                                </div>
-                            </div>
-                            </form>
-                        </div>
+                            <b-form-group>
+                                <b-button variant="primary" type="submit">Sign In</b-button>
+                                <b-link to="/register">
+                                    <b-button variant="link">Register</b-button>
+                                </b-link>
+                            </b-form-group>
+                        </b-form>
                     </div>
+                </div>
                 </div>
             </header>
         </b-container>
@@ -46,14 +46,14 @@
 </template>
 
 <style>
-    form {
+    #form {
         width: 75%;
         padding-left: 25%;
     }
 </style>
 
 <script>
-    import server from '../../Api';
+    import api from '../../Api';
     // import {tokenStore} from "../../main";
     import Header from '../../components/Header/Header.vue'
 
@@ -82,7 +82,8 @@
             }
         },
         methods: {
-            async login() {
+            async login(evt) {
+                evt.preventDefault();
                 const userLogin = {
                     email: this.email.trim(),
                     password: this.password.trim()
@@ -94,25 +95,12 @@
                     return;
                 }
                 // Send login post to serve
-                await server.post('/login',
-                    userLogin,
-                    {
-                        headers: {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
-                        withCredentials: true
-                    }
-                ).then(response => { //If successfully logged the response will have a status of 201
+                api.login(userLogin).then(response => { //If successfully logged the response will have a status of 201
                     if (response.status === 201) {
                         sessionStorage.setItem("token", response.data.Token);
                         this.userId = response.data.userId;
-
-                        server.get('/profiles/' + this.userId + '/role',
-                            {
-                                headers: {'Content-Type': 'application/json',
-                                     'Token': sessionStorage.getItem("token"),
-                            },
-                            }
-                        ).then(roleResponse => {
-                            if (roleResponse.data == 20){ //Account is default admin
+                        api.getUserRoles(this.userId).then(roleResponse => {
+                            if (roleResponse.data === 20){ //Account is default admin
                                 this.$router.push('/admin');
                             } else{
                                 this.$router.push('/'); //Route home on successful login

@@ -11,7 +11,7 @@ import com.springvuegradle.seng302team600.model.UserRole;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
-import com.springvuegradle.seng302team600.service.UserValidationService;
+import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -32,14 +32,14 @@ import java.util.Set;
 public class ActivityController {
 
     private ActivityRepository activityRepository;
-    private UserValidationService userValidationService;
+    private UserAuthenticationService userAuthenticationService;
     private ActivityTypeService activityTypeService;
     private UserRepository userRepository;
 
-    public ActivityController(ActivityRepository activityRepository, UserValidationService userValidationService,
+    public ActivityController(ActivityRepository activityRepository, UserAuthenticationService userAuthenticationService,
                               ActivityTypeService activityTypeService, UserRepository userRepository) {
         this.activityRepository = activityRepository;
-        this.userValidationService = userValidationService;
+        this.userAuthenticationService = userAuthenticationService;
         this.activityTypeService = activityTypeService;
         this.userRepository = userRepository;
     }
@@ -57,7 +57,7 @@ public class ActivityController {
                             @PathVariable(value = "profileId") Long profileId) {
         String token = request.getHeader("Token");
         // Throws error if token doesn't match the profileId, i.e. you can't create an activity with a creatorUserId that isn't your own
-        userValidationService.findByUserId(token, profileId);
+        userAuthenticationService.findByUserId(token, profileId);
         // Use ActivityType entities from the database.  Don't create duplicates.
         newActivity.setActivityTypes(
                 activityTypeService.getMatchingEntitiesFromRepository(newActivity.getActivityTypes())
@@ -107,7 +107,7 @@ public class ActivityController {
                              @Validated @RequestBody Activity activity,
                              HttpServletRequest request, HttpServletResponse response) throws IOException {
         String token = request.getHeader("Token");
-        User author = userValidationService.findByUserId(token, profileId);
+        User author = userAuthenticationService.findByUserId(token, profileId);
         //get old activity to set values
         Activity oldActivity = activityRepository.findByActivityId(activityId);
         //check activity exists and user is author
@@ -115,7 +115,7 @@ public class ActivityController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Activity not found");
         }
         if ((!oldActivity.getCreatorUserId().equals(profileId)) //check for author
-                && (!userValidationService.hasAdminPrivileges(author))) { //check for admin
+                && (!userAuthenticationService.hasAdminPrivileges(author))) { //check for admin
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is unauthorized to edit this activity");
         }
         ActivityValidator.validate(activity);
@@ -147,9 +147,9 @@ public class ActivityController {
         }
         Long authorId = activity.getCreatorUserId();
         String token = request.getHeader("Token");
-        User user = userValidationService.findByUserId(token, profileId); //finds user and validates they exist
+        User user = userAuthenticationService.findByUserId(token, profileId); //finds user and validates they exist
 
-        if ((!userValidationService.hasAdminPrivileges(user)) && (authorId != null)) {
+        if ((!userAuthenticationService.hasAdminPrivileges(user)) && (authorId != null)) {
             /* Only run this check if the user is NOT an Admin,
                otherwise admins can delete/edit others activities.
              */
@@ -173,7 +173,7 @@ public class ActivityController {
         try {
             //attempt to find user by token, don't need to save user discovered
             String token = request.getHeader("Token");
-            userValidationService.findByUserId(token, profileId);
+            userAuthenticationService.findByUserId(token, profileId);
         } catch(Exception e) {
             //User wasn't found therefore the user was not logged in.
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authorized - log in to view");

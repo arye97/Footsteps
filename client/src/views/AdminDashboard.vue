@@ -23,7 +23,8 @@
 
 <script>
     import Header from '../components/Header/Header';
-    import server from "../Api";
+    import api from "../Api";
+
     export default {
         name: "ViewUser",
         components: {
@@ -41,24 +42,20 @@
         },
         methods: {
             async init() {
-                await server.get(  '/profiles',
-                    {headers:
-                            {"Access-Control-Allow-Origin": "*", 'Content-Type': 'application/json', 'Token': sessionStorage.getItem("token")}, withCredentials: true
-                    }, )
+                await api.getAllUserData()
                     .then(response => {
                         this.adminData = response.data;
                         // Check if the user returned is an admin
                         if (this.adminData.role === 20 || this.adminData.role === 10) {
                             // The user is an admin: show them the admin dashboard!
                             this.loading = false;
-                        }
-                        else {
+                        } else {
                             this.adminData = null;
                             // This user is not an admin and so cannot see the admin dashboard -> redirect to home
                             this.$router.push("/profile");
                         }
                     }).catch(error => {
-                        if (error.response.status === 401 || error.response.status === 404) {
+                        if (error.status === 401 || error.status === 404) {
                             this.$router.push("/login");
                         } else {
                             this.message = "An error has occurred, please try again later";

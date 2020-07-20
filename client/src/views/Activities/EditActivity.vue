@@ -17,7 +17,7 @@
 
 <script>
     import Header from '../../components/Header/Header.vue'
-    import server from "../../Api";
+    import api from "../../Api";
     import ActivityForm from "../../components/Activities/ActivityForm";
 
     /**
@@ -82,15 +82,8 @@
                 };
 
                 // Send the activityForm to the server to create a new activity
-                await server.put(`/profiles/${this.activity.profileId}/activities/${this.activityId}`,
-                    activityForm, {
-                        headers: {
-                            "Access-Control-Allow-Origin": "*",
-                            "Content-Type": "application/json",
-                            "Token": sessionStorage.getItem("token")
-                        },
-                        withCredentials: true,
-                    }).then(response => { // If successfully registered the response will have a status of 201
+                await api.updateActivity(activityForm, this.activity.profileId, this.activityId)
+                  .then(response => { // If successfully registered the response will have a status of 201
                         if (response.status === 200) {
                             this.$router.push("/activities");
                             // somehow can't get back to profile
@@ -102,10 +95,7 @@
 
             //Getting the data from the selected activity to update
             async getActivityData(activityId) {
-                await server.get(`activities/${activityId}`,
-                    {headers: {'Content-Type' : 'application/json', 'Token' : sessionStorage.getItem('token')}
-                    }
-                ).then(response => {
+                await api.getActivityData(activityId).then(response => {
                     this.activity.activityName = response.data.activity_name;
                     this.activity.profileId = response.data.creatorUserId;
                     this.activity.continuous = (response.data.continuous === true);
@@ -147,16 +137,7 @@
              */
             async getUserId() {
                 let userId = null;
-                await server.get(`profiles/userId`,
-                    {
-                        headers: {
-                            "Access-Control-Allow-Origin": "*",
-                            "Content-Type": "application/json",
-                            "Token": sessionStorage.getItem("token")
-                        },
-                        withCredentials: true
-                    }
-                ).then(response => {
+                await api.getUserId().then(response => {
                     userId = response.data;
                 });
                 return userId

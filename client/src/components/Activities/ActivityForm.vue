@@ -185,7 +185,7 @@
 
 <script>
     import Multiselect from 'vue-multiselect'
-    import server from "../../Api";
+    import api from "../../Api";
 
     function showError(alert_name) {
         let errorAlert = document.getElementById(alert_name);
@@ -372,14 +372,7 @@
              * Fetch all possible activity types from the server
              */
             async fetchActivityTypes() {
-                await server.get('activity-types',
-                    {
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Token': sessionStorage.getItem("token")
-                        }
-                    }
-                ).then(response => {
+                await api.getActivityTypes().then(response => {
                     this.activityTypes = response.data.map(activity => activity['name']);
                     this.activityTypes.sort(function (a, b) {
                         return a.toLowerCase().localeCompare(b.toLowerCase());
