@@ -102,6 +102,27 @@
                                         {{this.user.date_of_birth}}
                                     </b-card-text>
                                 </b-card><br/>
+
+                                <!-- Handling for displaying Activity Types -->
+                                <h3 class="font-weight-light"><strong>Activity Types: </strong></h3><br/>
+
+                                <b-list-group v-if="this.user.activityTypes.length >= 1">
+                                    <b-card v-for="activityType in this.user.activityTypes" v-bind:key="activityType" class="flex-fill" border-variant="secondary">
+                                        <b-card-text class="font-weight-light">
+                                            {{activityType.name}}
+                                        </b-card-text>
+                                    </b-card>
+                                    <br/>
+                                </b-list-group>
+
+                                <b-list-group v-else horizontal="md">
+                                    <b-card class="flex-fill" border-variant="secondary">
+                                        <b-card-text class="font-weight-light">
+                                            No selected Activity Types
+                                        </b-card-text>
+                                    </b-card>
+                                </b-list-group>
+                                <br/>
                             </div>
                         </section>
                     </div>
@@ -132,6 +153,7 @@
                 formattedDate: "",
                 userId: '',
                 isEditable: true,
+                activityTypes: [],
                 continuousActivities: [],
                 discreteActivities: []
             }
@@ -147,6 +169,7 @@
                 this.fitness = null;
                 this.userId = this.$route.params.userId;
                 this.loading = true;
+                await this.fetchActivityTypes();
                 this.continuousActivities = [];
                 this.discreteActivities = [];
                 if (this.userId === undefined || isNaN(this.userId)) {
@@ -156,6 +179,20 @@
                 await this.getProfile();
                 this.loading = false;
 
+            },
+            /**
+             * Fetch all possible activity types from the server.
+             */
+            async fetchActivityTypes() {
+                this.activityTypes = null;
+                await api.getActivityTypes().then(response => {
+                    this.activityTypes = response.data.map(activity => activity['name']);
+                    this.activityTypes.sort(function (a, b) {
+                        return a.toLowerCase().localeCompare(b.toLowerCase());
+                    });
+                }).catch(error => {
+                    this.processGetError(error);
+                });
             },
             async getProfile() {
               await api.getUserData(this.userId).then(response => {
