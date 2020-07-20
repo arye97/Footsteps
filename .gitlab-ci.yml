@@ -125,7 +125,7 @@ deploy-prod-client:
   script:
     # Create artifact
     - cd client
-    - npm run build
+    - npm run build-prod
     # Move artifact to clean directory
     - rm -rf /home/gitlab-runner/prod-client/
     - mkdir -p /home/gitlab-runner/prod-client/

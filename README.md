@@ -107,7 +107,7 @@ An example user has been created, so you can view the application.
 This can be accessed by logging in using the following credentials:
 
 **Email**:  sarahjones@yahoo.com  
-**Password**:  123456
+**Password**:  One23456
 
 ### Sonarqube Analysis (Frontend)
 The Hakinakina program has a frontend code analyser that is executed by
