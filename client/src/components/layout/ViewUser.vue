@@ -16,7 +16,8 @@
                             <div v-if="loading"> Loading... <br/><br/><b-spinner variant="primary" label="Spinning"></b-spinner></div>
                             <div v-else class="font-weight-light">
                                 <br/>
-                                <h1 class="font-weight-light"><strong>{{this.user.firstname}} {{this.user.middlename}} {{this.user.lastname}} ({{this.user.nickname}})</strong></h1>
+                                <h1 class="font-weight-light"><strong>{{this.user.firstname}} {{this.user.middlename}} {{this.user.lastname}}</strong></h1>
+                                <h1 class="font-weight-light" v-if="this.user.nickname">{{this.user.nickname}}</h1>
                                 <br/>
                                 <h5 class="font-weight-light" v-if="this.user.bio">"{{ this.user.bio }}"<br/></h5>
                                 <br/>
@@ -208,7 +209,6 @@
                 }
               }).catch(error => {
                 this.errored = true;
-                console.log(error);
                 this.error = error.response.data.message;
                 if (error.response.data.status === 404 && sessionStorage.getItem('token') !== null) {
                   this.$router.push({ name: 'myProfile' });
@@ -233,7 +233,7 @@
                 })
             },
             editProfile () {
-                this.$router.push({name: 'details', params:  { userId: this.userId }});
+                this.$router.push({name: 'editProfile', params:  { userId: this.userId }});
             },
 
             /**

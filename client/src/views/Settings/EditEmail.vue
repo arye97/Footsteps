@@ -1,34 +1,6 @@
 <template>
     <div>
-        <h1><br/><br/></h1>
         <b-container class="contentsExtendedBottom" fluid>
-            <template v-if="this.userId">
-                <div>
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-sm-6 offset-sm-3">
-                                <Header :userId="this.userId"/>
-                                <router-view></router-view>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <Sidebar :userId="this.userId"/>
-            </template>
-
-
-            <h1><br/></h1>
-            <header class="masthead">
-                <div class="container h-100">
-                    <div class="row h-100 align-items-center">
-                        <div class="col-12 text-center">
-                            <h1 class="font-weight-light"><strong>Edit Emails</strong></h1>
-                            <p class="lead">Edit the emails linked to your profile</p><br/>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
             <section v-if="error">
                 <p>Sorry, looks like we can't get your info! Please try again.</p>
                 <p>{{ error }}</p>
@@ -38,7 +10,7 @@
 
                 <section v-if="loading">
                     <div class="loading">
-                        Loading...
+                        <b-spinner variant="primary" label="Spinning"></b-spinner>
                     </div>
                 </section>
 
@@ -146,12 +118,8 @@
 </template>
 <script>
     import api from '../../Api';
-    // import {tokenStore} from "../../main";
-    import Sidebar from '../../components/layout/ProfileEditSidebar';
-    import Header from '../../components/Header/Header.vue'
     export default {
         name: "EditEmail",
-        components: { Sidebar, Header },
         data () {
             return {
                 //each time toReload increases then the html el will reload

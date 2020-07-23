@@ -1,43 +1,16 @@
 <template>
     <div>
-        <h1><br/><br/></h1>
         <b-container class="contentsExtendedBottom" fluid>
-            <template v-if="userId">
-                <div>
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-sm-6 offset-sm-3">
-                                <Header :userId="this.userId"/>
-                                <router-view></router-view>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <Sidebar :userId="this.userId"/>
-            </template>
-
-            <h1><br/></h1>
-            <header class="masthead">
-                <div class="container h-100">
-                    <div class="row h-100 align-items-center">
-                        <div class="col-12 text-center">
-                            <h1 class="font-weight-light"><strong>Edit Password</strong></h1>
-                            <p class="lead">Edit the password linked to your profile</p><br/>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
             <section v-if="loading">
                 <div class="loading text-center">
-                    <p>Loading...</p>
+                    <b-spinner variant="primary" label="Spinning"></b-spinner>
                 </div>
             </section>
 
             <section v-else>
-                <footer class="text-center">
-                    <hr/>Password rules:<br/>
-                </footer>
+                <h4 class="text-center">
+                    Password rules:<br/>
+                </h4>
                 <footer>
                     <ul>
                         <li>Must contain at least 8 characters</li>
@@ -47,30 +20,33 @@
                 </footer><br/>
                 <form v-on:submit.prevent="editPassword">
                     <div class="form-group text-center">
-                        <input type="password"
-                               v-model="oldPass"
-                               class="form-control"
-                               id="oldPass"
-                               placeholder="Enter Old Password..."
-                        >
+                        <b-input-group prepend="Old Password">
+                            <b-input type="password"
+                                   v-model="oldPass"
+                                   class="form-control"
+                                   id="oldPass"
+                            ></b-input>
+                        </b-input-group>
                     </div>
                     <div class="form-group text-center">
-                        <input type="password"
-                               v-model="newPass"
-                               class="form-control"
-                               id="newPass"
-                               placeholder="Enter New Password.."
-                               @keyup="checkPasswords()"
-                        >
+                        <b-input-group prepend="New Password">
+                            <b-input type="password"
+                                   v-model="newPass"
+                                   class="form-control"
+                                   id="newPass"
+                                   @keyup="checkPasswords()"
+                            ></b-input>
+                        </b-input-group>
                     </div>
                     <div class="form-group text-center">
-                        <input type="password"
-                               v-model="repeatPass"
-                               class="form-control"
-                               id="repeatPass"
-                               placeholder="Retype New Password.."
-                               @keyup="checkPasswords()"
-                        >
+                        <b-input-group prepend="Repeat Password">
+                            <b-input type="password"
+                                   v-model="repeatPass"
+                                   class="form-control"
+                                   id="repeatPass"
+                                   @keyup="checkPasswords()"
+                            ></b-input>
+                        </b-input-group>
                     </div>
 
                     <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="form_message">
@@ -93,15 +69,13 @@
 
 <script>
     import api from '../../Api';
-    import Sidebar from '../../components/layout/ProfileEditSidebar';
-    import Header from '../../components/Header/Header.vue'
     import {validateUser} from "../../util";
 
     const TIMEOUT_DURATION = 5000;   // Time for error/success messages to disappear
 
     export default {
         name: "EditPassword",
-        components: { Sidebar, Header},
+        components: {},
         data () {
             return {
                 loading: true,

@@ -20,9 +20,9 @@
                                 <div class="col-sm-12 text-center">
                                     <p class="lead">
 
-                                        <b-button variant="success" size="med" v-on:click="$router.push('Profile')">My Profile</b-button><br/><br/>
+                                        <b-button variant="success" size="med" v-on:click="$router.push({name: 'profile'})">My Profile</b-button><br/><br/>
 
-                                        <b-button variant="success" size="med" v-on:click="$router.push('Activities')">My Activities</b-button><br/><br/>
+                                        <b-button variant="success" size="med" v-on:click="$router.push({name: 'allActivities'})">My Activities</b-button><br/><br/>
 
                                     </p>
                                 </div>
@@ -46,6 +46,10 @@
             }
         },
         props: ['userId'],
+        mounted() {
+            this.setIsLoggedIn();
+
+        },
         watch: {
             isLoggedIn: function () {
                 this.setIsLoggedIn();
