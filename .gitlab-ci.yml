@@ -108,7 +108,7 @@ deploy-prod-server:
     - cp -r ./build/libs /home/gitlab-runner/prod-server
     # Update bash script and restart service
     - rm -f /home/gitlab-runner/runProdServer.sh || true
-    - cp ../deployment-scripts/runProdServer.sh /home/gitlab-runner.runProdServer.sh
+    - cp ../deployment-scripts/runProdServer.sh /home/gitlab-runner/runProdServer.sh
     - cd /home/gitlab-runner/test-server/
     - echo "export SPRING_DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME" > envVars.txt
     - echo "export SPRING_DATASOURCE_PASSWORD=$SPRING_DATASOURCE_PASSWORD" >> envVars.txt
@@ -125,7 +125,7 @@ deploy-prod-client:
   script:
     # Create artifact
     - cd client
-    - npm run build
+    - npm run build-prod
     # Move artifact to clean directory
     - rm -rf /home/gitlab-runner/prod-client/
     - mkdir -p /home/gitlab-runner/prod-client/

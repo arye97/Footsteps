@@ -29,6 +29,9 @@ This project has been completed by Team600 from the SENG302 2020 class.
 
 ### How to run
 To run the full application, first run the server and then run the client
+##### Add Environment Variables
+Set up the environment variables according to the information stored in eng-git
+
 ##### Server (Backend/API)
 1. Set up the following environment variables:
     - SPRING_DATASOURCE_USERNAME
@@ -82,7 +85,14 @@ In order to use most profiles, you must have credentials set in your environment
 - **dev**: Uses the test database. For use when deploying the development server on the virtual machine.   
 - **prod**: Uses the prod database. For use when deploying the production server on the virtual machine.  
 
-##### Client (Frotnend/GUI)
+### Sonarqube Analysis (Backend)
+The Hakinakina program has a backend code analyser that is executed by
+Sonarqube and is then published to a server for analysis. It is 
+normally run on every build automatically but for manual code analysis do the 
+following: To run sonarqube for the backend refer to the "Server (Backend/API)" heading
+above and follow step 1, then followed by the command: './gradlew sonarqube'
+
+##### Client (Frontend/GUI)
 1. Navigate to the client folder
 Example command: `cd client`
 2. Install the dependencies
@@ -93,11 +103,19 @@ Command: `npm run serve`
 Running on: http://localhost:9500/
 
 ### Example User
-An example user has been created.  
+An example user has been created, so you can view the application.  
 This can be accessed by logging in using the following credentials:
 
-**Username**:  
-**Password**:
+**Email**:  sarahjones@yahoo.com  
+**Password**:  One23456
+
+### Sonarqube Analysis (Frontend)
+The Hakinakina program has a frontend code analyser that is executed by
+Sonarqube and is then published to a server for analysis. It is 
+normally run on every build automatically but for manual code analysis do the 
+following: To run sonarqube for the front end refer to the "Client (Frontend/GUI)" heading
+above and follow steps 1-2, after step 2 is complete type the
+Command: 'npm run sonarqube'
 
 ### Third Party Dependencies
 The Hakinakina program does use some external libraries. These are listed below.

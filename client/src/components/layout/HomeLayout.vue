@@ -18,7 +18,13 @@
                             <!--div for main page stuff when user is logged in-->
                             <div v-if="this.isLoggedIn">
                                 <div class="col-sm-12 text-center">
-                                    <p class="lead">ACTIVITIES GO HERE</p>
+                                    <p class="lead">
+
+                                        <b-button variant="success" size="med" v-on:click="$router.push('Profile')">My Profile</b-button><br/><br/>
+
+                                        <b-button variant="success" size="med" v-on:click="$router.push('Activities')">My Activities</b-button><br/><br/>
+
+                                    </p>
                                 </div>
                             </div>
                         </div>
