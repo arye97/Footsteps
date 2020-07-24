@@ -189,7 +189,7 @@
                 this.activityList.splice(this.activityList.findIndex(a => a.id === activityId), 1);
 
                 // Delete from database
-                await api.deleteActivity(activityId).catch(error => {
+                await api.deleteActivity(this.userId, activityId).catch(error => {
                     console.error(error);
                 })
             }
