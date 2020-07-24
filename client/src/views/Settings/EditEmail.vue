@@ -360,7 +360,7 @@
                         additional_email: this.additionalEmails
                     };
 
-                    api.updateEmails(savedEmails, this.userId).then(() => {
+                    api.setAdditionalEmails(savedEmails, this.userId).then(() => {
                         console.log("Additional Emails updated successfully!");
                         window.alert("Successfully saved changes!");
                         this.updateOriginalAdditionalEmails();
@@ -390,7 +390,7 @@
                         primary_email: this.primaryEmail,
                         additional_email: this.additionalEmails
                     };
-                    api.putEmails(savedEmails, this.userId).then(() => {
+                    api.setEmails(savedEmails, this.userId).then(() => {
                         console.log('Primary Email and Additional Emails updated successfully!');
                         window.alert("Successfully saved changes!");
                         this.updateOriginalPrimaryEmail();

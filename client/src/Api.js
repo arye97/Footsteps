@@ -1,5 +1,8 @@
 import axios from 'axios'
 
+// Needed for testing
+require('dotenv').config();
+
 const SERVER_URL = process.env.VUE_APP_SERVER_ADD;
 
 const server = axios.create({
@@ -31,8 +34,8 @@ export default {
   checkProfile: (profileId) => server.get(`/check-profile/`.concat(profileId), getTokenHeader()),
   getUserEmails: (profileId) => server.get(`/profiles/${profileId}/emails`, getTokenHeader()),
   checkUserEmail: (insertedEmail) => server.get(`/email`, getExtendedTokenHeader({'email': insertedEmail})),
-  updateEmails: (emails, profileId) => server.post(`/profiles/${profileId}/emails`, emails, getTokenHeader()),
-  putEmails: (emails, profileId) => server.put(`/profiles/${profileId}/emails`, emails, getTokenHeader()),
+  setAdditionalEmails: (emails, profileId) => server.post(`/profiles/${profileId}/emails`, emails, getTokenHeader()),
+  setEmails: (emails, profileId) => server.put(`/profiles/${profileId}/emails`, emails, getTokenHeader()),
   logout: () => server.post('/logout', null, getTokenHeader()),
   updatePassword: (userId, oldPass, newPass, repeatPass) => server.put(`/profiles/${userId}/password`,
     {'old_password': oldPass, 'new_password': newPass, 'repeat_password': repeatPass}, getTokenHeader()),
