@@ -16,10 +16,9 @@ function getTokenHeader() {
 
 function getExtendedTokenHeader(extendedHeaders) {
   let header = {
-    headers: {'Token': sessionStorage.getItem("token"), "Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
+    headers: {'Token': sessionStorage.getItem("token"), 'email' : extendedHeaders, "Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
     withCredentials: true
   };
-  header.assign(extendedHeaders);
   return header;
 }
 
@@ -40,7 +39,7 @@ export default {
   getAllUserData: () => server.get('/profiles', getTokenHeader()),
   getUserActivities: (profileId) => server.get(`/profiles/${profileId}/activities`, getTokenHeader()),
   getUserId: () => server.get(`/profiles/userId`, getTokenHeader()),
-  deleteActivity: (activityId) => server.delete(`/activities/${activityId}`, getTokenHeader()),
+  deleteActivity: (profileId, activityId) => server.delete(`/profiles/${profileId}/activities/${activityId}`, getTokenHeader()),
   createActivity: (activityData, profileId) => server.post(`/profiles/${profileId}/activities`, activityData, getTokenHeader()),
   updateActivity: (activityData, profileId, activityId) => server.put(`/profiles/${profileId}/activities/${activityId}`, activityData, getTokenHeader()),
   getActivityData: (activityId) => server.get(`/activities/${activityId}`, getTokenHeader()),

@@ -1,38 +1,17 @@
 <template>
     <div>
-        <h1><br/><br/></h1>
         <b-container class="contents" fluid>
-            <h1><br/></h1>
-            <div class="header-sidebar">
-                <div>
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-sm-6 offset-sm-3">
-                                <template v-if="loggedIn">
-                                    <Header/>
-                                </template>
-                                <router-view></router-view>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <section v-if="loading">
+            <div class="loading text-center">
+                <b-spinner variant="primary" label="Spinning"></b-spinner>
+                <br/>
             </div>
+        </section>
 
         <div v-if="loggedIn">
-            <Sidebar :userId="profileId"/>
                 <div class="settings-page" v-if="!this.isRedirecting">
                     <div class="container-fluid" v-if="loggedIn">
                         <div class="form-group">
-                            <header class="masthead">
-                                <div class="container h-100">
-                                    <div class="row h-100 align-items-center">
-                                        <div class="col-12 text-center">
-                                            <h1 class="font-weight-light"><strong>Edit Profile Details</strong></h1><br/>
-                                        </div>
-                                    </div>
-                                </div>
-                            </header>
-                            <hr>
                     <b-form-group  label-for="firstname" label="First Name: *">
                         <!-- first-name field-->
                         <div class="edit-area">
@@ -183,9 +162,7 @@
 </template>
 
 <script>
-    import Sidebar from "../../components/layout/ProfileEditSidebar.vue"
     import Multiselect from 'vue-multiselect'
-    import Header from '../../components/Header/Header.vue'
     import api from "../../Api";
     import {getCountryNames, fitnessLevels} from '../../constants';
     import {validateUser} from "../../util"
@@ -193,10 +170,11 @@
     export default {
         name: "Details.vue",
         components: {
-            Sidebar, Multiselect, Header
+            Multiselect
         },
         data() {
             return {
+                loading: true,
                 profileId: '',
                 firstname: '',
                 middlename: '',
@@ -234,7 +212,6 @@
                 this.redirectionMessage = '';
                 this.fetchCountries();
                 await this.fetchActivityTypes();
-                console.log(this.$route.params.userId);
                 if (this.$route.params.userId !== undefined) {
                     await this.validateUserIdWithToken(); // If allowed to edit profileId is set
                 }
@@ -383,6 +360,7 @@
                     // If this point is reached user is authorized to edit the profile, and profileId has been set
                     await api.getUserData(this.profileId).then(response => {
                         this.loggedIn = true;
+                        this.loading = false;
                         this.setUserFields(response.data);
                     }).catch(error => {
                         this.processGetError(error);
