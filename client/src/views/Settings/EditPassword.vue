@@ -75,7 +75,6 @@
 
     export default {
         name: "EditPassword",
-        components: {},
         data () {
             return {
                 loading: true,
