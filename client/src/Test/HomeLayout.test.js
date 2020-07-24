@@ -28,10 +28,6 @@ test('Is a vue instance', () => {
     expect(homeLayout.isVueInstance).toBeTruthy();
 });
 
-test('Does not have a mounted hook', () => {
-    expect(HomeLayout.mounted).toBeUndefined();
-});
-
 // ----AC1----
 test('AC1 Has 2 buttons', () => {
     expect(homeLayout.findAll('button')).toHaveLength(2);
