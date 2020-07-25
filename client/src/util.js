@@ -13,9 +13,9 @@ export function validateUser(fieldData, fieldType) {
         case "gender":
             return {valid: fieldData === "Male" || fieldData === "Female" || fieldData === "Non-Binary"};
         case "email":
-            return {valid: (emailRegex.test(fieldData) || fieldData.length <= bioPasswordEmailLength)};
+            return {valid: (emailRegex.test(fieldData) && fieldData.length <= bioPasswordEmailLength)};
         case "password":
-            return {valid: (passwordRegex.test(fieldData) || fieldData.length <= bioPasswordEmailLength)};
+            return {valid: (passwordRegex.test(fieldData) && fieldData.length <= bioPasswordEmailLength)};
         case "middlename":
             return {valid: ((nameRegex.test(fieldData) || fieldData === "" || fieldData == null) && fieldData.length <= nameLength), message: "Middle Name contains numbers or unexpected characters"};
         case "firstname":
