@@ -6,7 +6,7 @@
                     <h1><br/></h1>
                     <div class="row h-100">
                         <div class="col-12 text-center">
-                            <h1 class="font-weight-light">Hakinakina</h1>
+                            <h1 class="font-weight-light">Footsteps</h1>
                             <p class="lead">Plan your route with the best</p>
                             <hr><br/>
                             <form v-on:submit.prevent="register" v-if="!this.isLoggedIn">

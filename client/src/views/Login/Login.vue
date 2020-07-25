@@ -18,7 +18,7 @@
                     <h1><br/></h1>
                     <div class="row h-100 align-items-center">
                         <div class="col-sm-12 text-center">
-                            <h1 class="font-weight-light">Login to Hakinakina</h1>
+                            <h1 class="font-weight-light">Login to Footsteps</h1>
                             <hr>
                         <b-form id="form" @submit="login">
                             <b-form-group label-for="email" label="Email Address:">
