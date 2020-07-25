@@ -24,7 +24,7 @@
                             placeholder="Your Activity Name..."
                     ></b-form-input>
                     <div class="word-count">
-                        {{ nameCharCount }}/{{ maxNameCharCount }} characters remaining
+                        {{ nameCharCount }}/{{ maxNameCharCount }} characters left
                     </div>
                 </b-form-group>
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_activity_name">
@@ -45,7 +45,7 @@
                             placeholder="Description of your activity..."
                     ></b-form-textarea>
                     <div class="word-count">
-                        {{ descriptionCharCount }}/{{ maxDescriptionCharCount }} characters remaining
+                        {{ descriptionCharCount }}/{{ maxDescriptionCharCount }} characters left
                     </div>
                 </b-form-group>
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_description">

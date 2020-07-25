@@ -41,7 +41,7 @@
                   v-model="firstname" id="first-name" name="first-name" placeholder="Your First Name..."
                 />
                 <div class="word-count">
-                    {{ firstNameCharCount }}/{{ maxNameCharCount }} characters remaining
+                    {{ firstNameCharCount }}/{{ maxNameCharCount }} characters left
                 </div>
             </b-form-group>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_first_name">
@@ -52,7 +52,7 @@
                 <!-- full-name field-->
                 <b-form-input type="text" class="form-control" trim v-on:click="unDisplayRules" v-on:input="updateCharCount" v-model="middlename" id="middle-name" name="middle-name" placeholder="Your Middle Name..." />
                 <div class="word-count">
-                    {{ middleNameCharCount }}/{{ maxNameCharCount }} characters remaining
+                    {{ middleNameCharCount }}/{{ maxNameCharCount }} characters left
                 </div>
             </b-form-group>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_middle_name">
@@ -63,7 +63,7 @@
                 <!-- full-name field-->
                 <b-input type="text" class="form-control" trim v-on:click="unDisplayRules" v-on:input="updateCharCount" v-model="lastname" id="last-name" name="last-name" placeholder="Your Last Name..." />
                 <div class="word-count">
-                    {{ lastNameCharCount }}/{{ maxNameCharCount }} characters remaining
+                    {{ lastNameCharCount }}/{{ maxNameCharCount }} characters left
                 </div>
             </b-form-group>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_last_name">
@@ -73,7 +73,7 @@
                 <!-- email field -->
                 <b-input type="email" class="form-control" trim v-on:click="unDisplayRules" v-on:input="updateCharCount" v-model="email" id="email" name="email" placeholder="Your Email Address..." />
                 <div class="word-count">
-                    {{ emailCharCount }}/{{ maxEmailCharCount }} characters remaining
+                    {{ emailCharCount }}/{{ maxEmailCharCount }} characters left
                 </div>
             </b-form-group>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_email">
@@ -119,7 +119,7 @@
                 <!-- nickname field-->
                 <b-input type="text" class="form-control" v-on:click="unDisplayRules" v-model="nickname" id="nickname" name="nickname" placeholder="Your Nickname..." />
                 <div class="word-count">
-                    {{ nicknameCharCount }}/{{ maxNameCharCount }} characters remaining
+                    {{ nicknameCharCount }}/{{ maxNameCharCount }} characters left
                 </div>
             </b-form-group>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_nickname">
@@ -159,7 +159,7 @@
                 <b-form-textarea name="bio" class="form-control" id="bio" v-on:click="unDisplayRules"
                                  v-on:input="updateCharCount" v-model="bio" cols="30" rows="1" placeholder="Who are you?" />
                 <div class="word-count">
-                    {{ bioCharCount }}/{{ maxBioCharCount }} characters remaining
+                    {{ bioCharCount }}/{{ maxBioCharCount }} characters left
                 </div>
             </b-form-group>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_bio">
