@@ -106,7 +106,7 @@
 <script>
     import Header from '../../components/Header/Header.vue'
     import api from "../../Api";
-    import { formateDateTime } from "../../util";
+    import { formatDateTime } from "../../util";
     export default {
         name: "AllActivities",
         components : {
@@ -126,7 +126,7 @@
             await this.getListOfActivities();
         },
         methods: {
-            getDateTime: formateDateTime,
+            getDateTime: formatDateTime,
             checkLoggedIn() {
                 if (!sessionStorage.getItem("token")) {
                     this.$router.push("/login");
