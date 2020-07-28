@@ -1,6 +1,6 @@
 import {shallowMount} from '@vue/test-utils'
 import Login from '../views/Login/Login.vue'
-import "jest"
+import 'vue-jest'
 import '../Api'
 import api from "../Api";
 import router from '../index';
