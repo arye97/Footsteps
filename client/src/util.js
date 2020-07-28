@@ -46,9 +46,6 @@ export function _isValidDOB(dateStr) {
             return {valid: false}
         }
     }
-    //let age = new Date(Date.now() - dob);
-    //let ageYear = Math.abs(age.getUTCFullYear() - 1970);
-    //console.log(age, ageYear);
     if (dob > minDate) return {valid: false, message: "Given age is considered too young to be registered "};
     if (dob < maxDate) return {valid: false, message: "Given age is considered too old to be registered "};
     return {valid: true}

@@ -256,7 +256,8 @@
             },
 
             /**
-             * Takes a date string and inserts it into a date and time string.  Helper method used in DOM.
+             * Takes a date string of the form yyyy-MM-dd and inserts it into a date and time string of the
+             * format yyyy-MM-ddThh:mm.  Helper method used in DOM.
              * (wish this could be a function)
              * @param dateStr string of the format yyyy-MM-dd
              * @param dateTimeStr string of the format yyyy-MM-ddThh:mm
@@ -336,22 +337,19 @@
             },
 
             /**
-             * If this Activity is not continuous format the dates correctly for the Backend.
+             * Format the dates correctly for the Backend.
              */
             formatDurationActivity() {
-                // If this Activity is continuous, add a start/end time to the activityForm
-                if (!this.activity.continuous) {
-                    // If no time provided, manually concatenating Thh:mm, which is bad, might use Moment.js instead but will consult team
-                    if (this.activity.submitStartTime.length === 10) {
-                        this.activity.submitStartTime = this.activity.submitStartTime.concat('T00:01')
-                    }
-                    if (this.activity.submitEndTime.length === 10) {
-                        this.activity.submitEndTime = this.activity.submitEndTime.concat('T00:01')
-                    }
-
-                    this.activity.submitStartTime = this.activity.submitStartTime.concat(':00+0000');
-                    this.activity.submitEndTime = this.activity.submitEndTime.concat(':00+0000');
+                // If no time provided, manually concatenating Thh:mm, which is bad, might use Moment.js instead but will consult team
+                if (this.activity.submitStartTime.length === 10) {
+                    this.activity.submitStartTime = this.activity.submitStartTime.concat('T00:01')
                 }
+                if (this.activity.submitEndTime.length === 10) {
+                    this.activity.submitEndTime = this.activity.submitEndTime.concat('T00:01')
+                }
+
+                this.activity.submitStartTime = this.activity.submitStartTime.concat(':00+0000');
+                this.activity.submitEndTime = this.activity.submitEndTime.concat(':00+0000');
             },
 
             /**
