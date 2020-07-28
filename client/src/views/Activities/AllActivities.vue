@@ -70,8 +70,8 @@
                                     <b-card-text>
                                         Name: {{activity.activity_name}} <br/><br/>
                                         Description: {{activity.description}} <br/><br/>
-                                        Start Date: {{new Date(activity.start_time).toDateString()}} <br/><br/>
-                                        End Date: {{new Date(activity.end_time).toDateString()}} <br/><br/>
+                                        Start Date: {{formatDateTime(activity.start_time)}} <br/><br/>
+                                        End Date: {{formatDateTime(activity.end_time)}} <br/><br/>
                                         Duration: {{Math.floor(((new Date(activity.end_time) - new Date(activity.start_time))/1000/60/60/24))}} Days
                                         {{Math.floor(((new Date(activity.end_time) - new Date(activity.start_time))/1000/60/60/365))}} Hours
                                     </b-card-text>
@@ -139,11 +139,24 @@
             },
             async getListOfActivities() {
                 await api.getUserActivities(this.userId).then(response => { //If successfully registered the response will have a status of 201
+                    // console.log(response.data[15])
+                    // console.log(response.data[15].end_time)
+                    // console.log(new Date(response.data[15].end_time).toUTCString());
+                    // // console.log(new Date(response.data[15].end_time).toDateString());
+                    // // console.log(new Date(response.data[15].end_time).toLocaleDateString());
+                    // console.log(new Date(response.data[15].end_time).getDate())
+                    // console.log(new Date(response.data[15].end_time).getDay())
+                    // console.log(new Date(response.data[15].end_time).getMonth())
+                    // console.log(new Date(response.data[15].end_time).getUTCFullYear())
+                    // console.log(new Date(response.data[15].end_time).getFullYear())
+                    // console.log(new Date(response.data[15].end_time).getMinutes())
+                    // console.log(new Date(response.data[15].end_time).getHours())
+                    // console.log(new Date(response.data[15].end_time).getTime())
 
-                        if (response.data.length === 0) {
-                            this.noMore = true;
-                        }
-                        this.activityList = response.data;
+                    if (response.data.length === 0) {
+                        this.noMore = true;
+                    }
+                    this.activityList = response.data;
                     }).catch(error => {
                         console.error(error);
                 })
@@ -192,6 +205,39 @@
                 await api.deleteActivity(this.userId, activityId).catch(error => {
                     console.error(error);
                 })
+            },
+
+            /**
+             * Formats ISO8601 into readable date-time.
+             * In addition, converts 24 hour time to AM/PM time.
+             * e.g. Mon, 1 Jan 2000 10:00 AM
+             * @param activityDateTime ISO8601 date-time
+             * @returns {string} formatted date-time
+             */
+            formatDateTime(activityDateTime) {
+                let UTCDateTime = new Date(activityDateTime).toUTCString().replace("GMT", "").slice(0, -4);
+                let activityDate = UTCDateTime.slice(0, UTCDateTime.length - 5);
+                let activityTime = UTCDateTime.slice(UTCDateTime.length - 5);
+                let activityHour = activityTime.slice(0, 2);
+                let activityMinute = activityTime.slice(3);
+                let AMPMTime;
+
+                // Convert 24 hour clock to AM/PM clock
+                if (activityHour < 12) {
+                    if (activityHour === '00') {
+                        AMPMTime = '12' + ":" + activityMinute + " AM"
+                    } else {
+                        AMPMTime = activityHour + ":" + activityMinute + " AM"
+                    }
+                } else {
+                    if (activityHour === '12'){
+                        AMPMTime = '12' + ":" + activityMinute + " PM"
+                    } else {
+                        activityHour -= 12;
+                        AMPMTime = activityHour + ":" + activityMinute + " PM"
+                    }
+                }
+                return activityDate + AMPMTime;
             }
         }
     }
