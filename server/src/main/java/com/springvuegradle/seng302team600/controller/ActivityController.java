@@ -101,6 +101,7 @@ public class ActivityController {
      * @param activity the activity object to update
      * @param profileId the Id of the User who created the activity
      */
+
     @PutMapping("/profiles/{profileId}/activities/{activityId}")
     public void editActivity(@PathVariable(value = "profileId") Long profileId,
                              @PathVariable(value = "activityId") Long activityId,
