@@ -3,7 +3,9 @@
         <nav :key=this.isLoggedIn class="navbar navbar-expand-lg navbar-light bg-light shadow fixed-top">
             <div class="container">
                 <!--The below v-on:click does: If your logged in, go to your profile.  Else go to the main page.-->
-                <a class="navbar-brand" v-on:click="$router.push('/')" ><img src="../../../assets/png/Footsteps_full.png" width="20%" alt="Footsteps Logo"></a>
+                <a class="navbar-brand" v-on:click="$router.push('/')" >
+                    <img id="logo" src="../../../assets/png/Footsteps_full.png" width="20%" alt="Footsteps Logo">
+                </a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>

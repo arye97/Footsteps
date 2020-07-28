@@ -6,7 +6,7 @@
                     <h1><br/></h1>
                     <div class="row h-100">
                         <div class="col-12 text-center">
-                            <img src="../../../assets/png/Footsteps_full.png" width="80%" alt="Footsteps Logo">
+                            <img id="logo" src="../../../assets/png/Footsteps_full.png" width="80%" alt="Footsteps Logo">
                             <br/><br/>
                             <p class="lead">Plan your route with the best</p>
                             <hr><br/>
