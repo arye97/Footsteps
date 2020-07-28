@@ -186,6 +186,7 @@
 <script>
     import Multiselect from 'vue-multiselect'
     import api from "../../Api";
+    import {localTimeZoneToBackEndTime} from "../../util";
 
     function showError(alert_name) {
         let errorAlert = document.getElementById(alert_name);
@@ -339,19 +340,16 @@
              * If this Activity is not continuous format the dates correctly for the Backend.
              */
             formatDurationActivity() {
-                // If this Activity is continuous, add a start/end time to the activityForm
-                if (!this.activity.continuous) {
-                    // If no time provided, manually concatenating Thh:mm, which is bad, might use Moment.js instead but will consult team
-                    if (this.activity.submitStartTime.length === 10) {
-                        this.activity.submitStartTime = this.activity.submitStartTime.concat('T00:01')
-                    }
-                    if (this.activity.submitEndTime.length === 10) {
-                        this.activity.submitEndTime = this.activity.submitEndTime.concat('T00:01')
-                    }
-
-                    this.activity.submitStartTime = this.activity.submitStartTime.concat(':00+0000');
-                    this.activity.submitEndTime = this.activity.submitEndTime.concat(':00+0000');
+                // If no time provided, manually concatenating Thh:mm, which is bad, might use Moment.js instead but will consult team
+                if (this.activity.submitStartTime.length === 10) {
+                    this.activity.submitStartTime = this.activity.submitStartTime.concat('T00:01')
                 }
+                if (this.activity.submitEndTime.length === 10) {
+                    this.activity.submitEndTime = this.activity.submitEndTime.concat('T00:01')
+                }
+
+                this.activity.submitStartTime = localTimeZoneToBackEndTime(this.activity.submitStartTime);
+                this.activity.submitEndTime = localTimeZoneToBackEndTime(this.activity.submitEndTime);
             },
 
             /**
