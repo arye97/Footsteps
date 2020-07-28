@@ -82,6 +82,7 @@
       "tsx",
       "node",
       "vue"
-    ]
+    ],
+    "globalSetup": "<rootDir>/jest-setup-global.js"
   }
 }
