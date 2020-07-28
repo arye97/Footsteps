@@ -340,7 +340,6 @@
              * If this Activity is not continuous format the dates correctly for the Backend.
              */
             formatDurationActivity() {
-                // If no time provided, manually concatenating Thh:mm, which is bad, might use Moment.js instead but will consult team
                 if (this.activity.submitStartTime.length === 10) {
                     this.activity.submitStartTime = this.activity.submitStartTime.concat('T00:01')
                 }

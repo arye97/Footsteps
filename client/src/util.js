@@ -122,6 +122,7 @@ export function localTimeZoneToBackEndTime(frontEndDate) {
  * @returns {string} formatted date-time
  */
 export function formatDateTime(dateTime) {
+    dateTime = backendDateToLocalTimeZone(dateTime) + ":00+0000";
     let UTCDateTime = new Date(dateTime).toUTCString().replace("GMT", "").slice(0, -4);
     let date = UTCDateTime.slice(0, UTCDateTime.length - 5);
     let time = UTCDateTime.slice(UTCDateTime.length - 5);

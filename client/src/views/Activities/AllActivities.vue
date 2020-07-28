@@ -141,20 +141,6 @@
             },
             async getListOfActivities() {
                 await api.getUserActivities(this.userId).then(response => { //If successfully registered the response will have a status of 201
-                    // console.log(response.data[15])
-                    // console.log(response.data[15].end_time)
-                    // console.log(new Date(response.data[15].end_time).toUTCString());
-                    // // console.log(new Date(response.data[15].end_time).toDateString());
-                    // // console.log(new Date(response.data[15].end_time).toLocaleDateString());
-                    // console.log(new Date(response.data[15].end_time).getDate())
-                    // console.log(new Date(response.data[15].end_time).getDay())
-                    // console.log(new Date(response.data[15].end_time).getMonth())
-                    // console.log(new Date(response.data[15].end_time).getUTCFullYear())
-                    // console.log(new Date(response.data[15].end_time).getFullYear())
-                    // console.log(new Date(response.data[15].end_time).getMinutes())
-                    // console.log(new Date(response.data[15].end_time).getHours())
-                    // console.log(new Date(response.data[15].end_time).getTime())
-
                     if (response.data.length === 0) {
                         this.noMore = true;
                     }
