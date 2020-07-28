@@ -311,7 +311,6 @@
                         showError('alert_start_after_end');
                         this.isValidFormFlag = false;
                     }
-                    //ToDo this currently doesn't work. Should check if start date isn't before 1970
                     else if (startTime < new Date(0)) {
                         showError('alert_start_before_epoch_date');
                         this.isValidFormFlag = false;
@@ -324,8 +323,7 @@
                         showError('alert_end_before_start');
                         this.isValidFormFlag = false;
                     }
-                    //ToDo this currently doesn't work. Should check if end date isn't before 1970
-                    else if (startTime < new Date(0)) {
+                    else if (endTime < new Date(0)) {
                         showError('alert_end_before_epoch_date');
                         this.isValidFormFlag = false;
                     }
