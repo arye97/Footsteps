@@ -3,9 +3,7 @@
         <h1><br/><br/></h1>
         <b-container class="contents" fluid>
             <div class="container">
-                <template v-if="this.loading === false">
-                    <Header :userId="this.userId"/>
-                </template>
+                <Header :userId="this.userId"/>
                 <div class="row h-100">
                     <div class="col-12 text-center">
                         <section v-if="errored">
@@ -209,8 +207,8 @@
                 }
               }).catch(error => {
                 this.errored = true;
-                this.error = error.response.data.message;
-                if (error.response.data.status === 404 && sessionStorage.getItem('token') !== null) {
+                this.error = error.message;
+                if (error.status === 404 && sessionStorage.getItem('token') !== null) {
                   this.$router.push({ name: 'myProfile' });
                   this.init();
                 } else {
@@ -251,7 +249,7 @@
                     this.isEditable = true;
                 }).catch(error => {
                     this.isEditable = false;
-                    if (error.response.data.status === 401) {
+                    if (error.status === 401) {
                         this.logout();
                     }
                 });

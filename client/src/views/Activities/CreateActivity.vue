@@ -53,7 +53,8 @@
             if (!sessionStorage.getItem("token")) {
                 this.$router.push('/login'); //Routes to home on logout
             }
-            this.activity.profileId = await this.getUserId();
+            let userId = await this.getUserId();
+            this.activity.profileId = userId;
         },
         methods: {
 
@@ -73,14 +74,12 @@
                 };
 
                 // Send the activityForm to the server to create a new activity
-                await api.createActivity(activityForm, this.activity.profileId).then(response => { // If successfully registered the response will have a status of 201
-                        if (response.status === 201) {
-                            this.$router.push("/activities");
-                            // somehow can't get back to profile
-                            // this.$router.push('/profile');
-                        }
-                    }
-                )
+                await api.createActivity(activityForm, this.activity.profileId)
+                    .then(() => { // If successfully registered the response will have a status of 201
+                        this.$router.push("/activities");
+                    }).catch(err => {
+                        console.error(err);
+                    })
             },
 
             /**
