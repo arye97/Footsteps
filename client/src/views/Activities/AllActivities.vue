@@ -70,8 +70,8 @@
                                     <b-card-text>
                                         Name: {{activity.activity_name}} <br/><br/>
                                         Description: {{activity.description}} <br/><br/>
-                                        Start Date: {{formatDateTime(activity.start_time)}} <br/><br/>
-                                        End Date: {{formatDateTime(activity.end_time)}} <br/><br/>
+                                        Start Date: {{getDateTime(activity.start_time)}} <br/><br/>
+                                        End Date: {{getDateTime(activity.end_time)}} <br/><br/>
                                         Duration: {{Math.floor(((new Date(activity.end_time) - new Date(activity.start_time))/1000/60/60/24))}} Days
                                         {{Math.floor(((new Date(activity.end_time) - new Date(activity.start_time))/1000/60/60/365))}} Hours
                                     </b-card-text>
@@ -106,6 +106,7 @@
 <script>
     import Header from '../../components/Header/Header.vue'
     import api from "../../Api";
+    import { formateDateTime } from "../../util";
     export default {
         name: "AllActivities",
         components : {
@@ -125,6 +126,7 @@
             await this.getListOfActivities();
         },
         methods: {
+            getDateTime: formateDateTime,
             checkLoggedIn() {
                 if (!sessionStorage.getItem("token")) {
                     this.$router.push("/login");
@@ -207,38 +209,6 @@
                 })
             },
 
-            /**
-             * Formats ISO8601 into readable date-time.
-             * In addition, converts 24 hour time to AM/PM time.
-             * e.g. Mon, 1 Jan 2000 10:00 AM
-             * @param activityDateTime ISO8601 date-time
-             * @returns {string} formatted date-time
-             */
-            formatDateTime(activityDateTime) {
-                let UTCDateTime = new Date(activityDateTime).toUTCString().replace("GMT", "").slice(0, -4);
-                let activityDate = UTCDateTime.slice(0, UTCDateTime.length - 5);
-                let activityTime = UTCDateTime.slice(UTCDateTime.length - 5);
-                let activityHour = activityTime.slice(0, 2);
-                let activityMinute = activityTime.slice(3);
-                let AMPMTime;
-
-                // Convert 24 hour clock to AM/PM clock
-                if (activityHour < 12) {
-                    if (activityHour === '00') {
-                        AMPMTime = '12' + ":" + activityMinute + " AM"
-                    } else {
-                        AMPMTime = activityHour + ":" + activityMinute + " AM"
-                    }
-                } else {
-                    if (activityHour === '12'){
-                        AMPMTime = '12' + ":" + activityMinute + " PM"
-                    } else {
-                        activityHour -= 12;
-                        AMPMTime = activityHour + ":" + activityMinute + " PM"
-                    }
-                }
-                return activityDate + AMPMTime;
-            }
         }
     }
 </script>

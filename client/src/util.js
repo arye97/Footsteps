@@ -70,3 +70,39 @@ export function getDateString(date_of_birth) {
         + ( month < 10 ? '0' : "" ) + month.toString() + '-'
         + ( day < 10 ?'0' : "" ) + day.toString();
 }
+
+/**
+ * Formats ISO8601 into readable date-time.
+ * In addition, converts 24 hour time to AM/PM time.
+ * e.g. Mon, 1 Jan 2000 10:00 AM
+ * @param dateTime ISO8601 date-time
+ * @returns {string} formatted date-time
+ */
+export function formateDateTime(dateTime) {
+    let UTCDateTime = new Date(dateTime).toUTCString().replace("GMT", "").slice(0, -4);
+    let date = UTCDateTime.slice(0, UTCDateTime.length - 5);
+    let time = UTCDateTime.slice(UTCDateTime.length - 5);
+    let hour = time.slice(0, 2);
+    let minute = time.slice(3);
+    let AMPMTime;
+
+    // Convert 24 hour clock to AM/PM clock
+    if (hour < 12) {
+        if (hour === '00') {
+            AMPMTime = '12' + ":" + minute + " AM"
+        } else {
+            AMPMTime = hour + ":" + minute + " AM"
+        }
+    } else {
+        if (hour === '12'){
+            AMPMTime = '12' + ":" + minute + " PM"
+        } else {
+            hour -= 12;
+            if (hour < 10) {
+                hour = '0' + hour;
+            }
+            AMPMTime = hour + ":" + minute + " PM"
+        }
+    }
+    return date + AMPMTime;
+}
