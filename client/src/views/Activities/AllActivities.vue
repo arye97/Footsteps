@@ -33,7 +33,7 @@
             <b-spinner class="margin-bottom: 1.7em; margin-top: 0.8em" variant="primary" label="Spinning"></b-spinner>
         </div>
         <b-tabs v-else content-class="mt-4" justified>
-            <b-tab title="Continous" :active="continuousIsActive(true)">
+            <b-tab title="Continuous" :active="continuousIsActive(true)">
                 <section v-for="activity in this.activityList" :key="activity.id">
                     <!-- Activity List -->
                     <b-card v-if="activity.continuous">
@@ -44,6 +44,8 @@
                                     Name: {{activity.activity_name}}
                                     <br/><br/>
                                     Description: {{activity.description}}
+                                    <br/><br/>
+                                    Creator: {{creatorName}}
                                 </b-card-text>
                             </b-col>
                             <b-col md="6">
@@ -63,7 +65,7 @@
                 <hr/>
                 <footer class="noMore">No more activities to show</footer>
             </b-tab>
-            <b-tab title="Non-Continous" :active="continuousIsActive(false)">
+            <b-tab title="Non-Continuous" :active="continuousIsActive(false)">
                 <section v-for="activity in this.activityList" :key="activity.id">
                     <br/>
                     <!-- Activity List -->
@@ -73,10 +75,11 @@
                                     <b-card-text>
                                         Name: {{activity.activity_name}} <br/><br/>
                                         Description: {{activity.description}} <br/><br/>
-                                        Start Date: {{new Date(activity.start_time).toDateString()}} <br/><br/>
-                                        End Date: {{new Date(activity.end_time).toDateString()}} <br/><br/>
+                                        Start Date: {{getDateTime(activity.start_time)}} <br/><br/>
+                                        End Date: {{getDateTime(activity.end_time)}} <br/><br/>
                                         Duration: {{getDays(activity)}} Days
-                                        {{getHours(activity)}} Hours
+                                        {{getHours(activity)}} Hours <br/><br/>
+                                        Creator: {{creatorName}}
                                     </b-card-text>
                                 </b-col>
                                 <b-col md="6">
@@ -109,6 +112,7 @@
 <script>
     import Header from '../../components/Header/Header.vue'
     import api from "../../Api";
+    import { formatDateTime } from "../../util";
     export default {
         name: "AllActivities",
         components : {
@@ -118,6 +122,8 @@
             return {
                 activityList : [],
                 userId : null,
+                creatorId: null,
+                creatorName: null,
                 noMore: false,
                 activeTab: 0,
                 loading: true
@@ -129,9 +135,10 @@
         async mounted() {
             this.userId = await this.getUserId();
             await this.getListOfActivities();
+            await this.getCreatorName();
         },
         methods: {
-
+            getDateTime: formatDateTime,
             getDays(activity) {
                 return Math.floor(((new Date(activity.end_time) - new Date(activity.start_time))/1000/60/60/24))
             },
@@ -151,20 +158,18 @@
                 let userId = null;
                 await api.getUserId().then(response => {
                     userId = response.data;
+                    this.creatorId = this.userId;
                 });
                 return userId
             },
-
             async getListOfActivities() {
                 await api.getUserActivities(this.userId)
                     .then(response => { //If successfully registered the response will have a status of 201
-                    
                         if (response.data.length === 0) {
                             this.noMore = true;
                         }
                         this.loading = false;
                         this.activityList = response.data;
-
                     }).catch(error => {
                         console.error(error);
                 })
@@ -213,7 +218,14 @@
                 await api.deleteActivity(this.userId, activityId).catch(error => {
                     console.error(error);
                 })
-            }
+            },
+          async getCreatorName() {
+              await api.getUserData(this.creatorId).then((response) => {
+                    this.creatorName = `${response.data.firstname} ${response.data.lastname}`;
+              }).catch(() => {
+                    this.creatorName = "Could not load creator's name";
+              });
+          }
         }
     }
 </script>
