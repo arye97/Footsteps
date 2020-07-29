@@ -56,7 +56,7 @@
                                     <b-button variant="outline-primary" v-b-modal.activity-duration-modal>Details</b-button>
                                 </b-card-body>
                                 <b-modal id="activity-duration-modal" size="lg" centered ok-only scrollable :title="activity.activity_name">
-                                    <b-container>
+                                    <b-card class="flex-fill" border-variant="secondary">
                                         <b-row class="mb-1">
                                             <b-col><strong>Location: </strong></b-col>
                                             <b-col>{{activity.location}}</b-col>
@@ -65,12 +65,14 @@
                                             <b-col><strong>Creator: </strong></b-col>
                                             <b-col>{{creatorName}}</b-col>
                                         </b-row>
-                                    </b-container>
+                                    </b-card>
                                     <br>
-                                    <p class="text-justified">
-                                        <strong>Description: </strong><br>
-                                        {{activity.description}}
-                                    </p>
+                                    <b-card class="flex-fill" border-variant="secondary">
+                                        <p class="text-justified">
+                                            <strong>Description: </strong><br>
+                                            {{activity.description}}
+                                        </p>
+                                    </b-card>
                                 </b-modal>
                                 <b-card-body class="cardButtons">
                                     <b-button variant="outline-danger" v-on:click="deleteActivity(activity.id)">Delete</b-button>
@@ -108,7 +110,7 @@
                                         <b-button variant="outline-primary" v-b-modal.activity-continuous-modal>Details</b-button>
                                     </b-card-body>
                                     <b-modal id="activity-continuous-modal" size="lg" centered ok-only scrollable :title="activity.activity_name">
-                                        <b-container>
+                                        <b-card class="flex-fill" border-variant="secondary">
                                             <b-row class="mb-1">
                                                 <b-col><strong>Start Date: </strong></b-col>
                                                 <b-col>{{getDateTime(activity.start_time)}}</b-col>
@@ -130,12 +132,14 @@
                                                 <b-col><strong>Creator: </strong></b-col>
                                                 <b-col>{{creatorName}}</b-col>
                                             </b-row>
-                                        </b-container>
+                                        </b-card>
                                         <br>
-                                        <p class="text-justified">
-                                            <strong>Description: </strong><br>
-                                            {{activity.description}}
-                                        </p>
+                                        <b-card class="flex-fill" border-variant="secondary">
+                                            <p class="text-justified">
+                                                <strong>Description: </strong><br>
+                                                {{activity.description}}
+                                            </p>
+                                        </b-card>
                                     </b-modal>
                                     <b-card-body class="cardButtons">
                                         <b-button variant="outline-danger" v-on:click="deleteActivity(activity.id)">Delete</b-button>
