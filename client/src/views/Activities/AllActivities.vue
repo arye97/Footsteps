@@ -41,11 +41,11 @@
                             <b-col md="6">
                                 <b-card-text>
                                     <br/>
-                                    Name: {{activity.activity_name}}
+                                    <strong>Name: </strong>{{activity.activity_name}}
                                     <br/><br/>
-                                    Description: {{activity.description}}
+                                    <strong>Description: </strong><br>{{activity.description}}
                                     <br/><br/>
-                                    Creator: {{creatorName}}
+                                    <strong>Creator: </strong>{{creatorName}}
                                 </b-card-text>
                             </b-col>
                             <b-col md="6">
@@ -53,8 +53,25 @@
                                     <b-button variant="outline-primary" v-on:click="goToPage(`/activities/edit/${activity.id}`)">Edit</b-button>
                                 </b-card-body>
                                 <b-card-body class="cardButtons">
-                                    <b-button variant="outline-primary" v-on:click="goToPage(`/activities/${activity.id}`)">Details</b-button>
+                                    <b-button variant="outline-primary" v-b-modal.activity-duration-modal>Details</b-button>
                                 </b-card-body>
+                                <b-modal id="activity-duration-modal" size="lg" centered ok-only scrollable :title="activity.activity_name">
+                                    <b-container>
+                                        <b-row class="mb-1">
+                                            <b-col><strong>Location: </strong></b-col>
+                                            <b-col>{{activity.location}}</b-col>
+                                        </b-row>
+                                        <b-row class="mb-1">
+                                            <b-col><strong>Creator: </strong></b-col>
+                                            <b-col>{{creatorName}}</b-col>
+                                        </b-row>
+                                    </b-container>
+                                    <br>
+                                    <p class="text-justified">
+                                        <strong>Description: </strong><br>
+                                        {{activity.description}}
+                                    </p>
+                                </b-modal>
                                 <b-card-body class="cardButtons">
                                     <b-button variant="outline-danger" v-on:click="deleteActivity(activity.id)">Delete</b-button>
                                 </b-card-body>
@@ -67,19 +84,20 @@
             </b-tab>
             <b-tab title="Non-Continuous" :active="continuousIsActive(false)">
                 <section v-for="activity in this.activityList" :key="activity.id">
-                    <br/>
                     <!-- Activity List -->
                     <b-card v-if="!activity.continuous">
                             <b-row no-gutters>
                                 <b-col md="6">
                                     <b-card-text>
-                                        Name: {{activity.activity_name}} <br/><br/>
-                                        Description: {{activity.description}} <br/><br/>
-                                        Start Date: {{getDateTime(activity.start_time)}} <br/><br/>
-                                        End Date: {{getDateTime(activity.end_time)}} <br/><br/>
-                                        Duration: {{getDays(activity)}} Days
-                                        {{getHours(activity)}} Hours <br/><br/>
-                                        Creator: {{creatorName}}
+                                        <strong>Name: </strong>{{activity.activity_name}}
+                                        <br/><br/>
+                                        <strong>Start Date: </strong>{{getDateTime(activity.start_time)}}
+                                        <br/><br/>
+                                        <strong>End Date: </strong>{{getDateTime(activity.end_time)}}
+                                        <br/><br/>
+                                        <strong>Creator: </strong>{{creatorName}}
+                                        <br/><br/>
+                                        <strong>Description: </strong><br>{{activity.description}}
                                     </b-card-text>
                                 </b-col>
                                 <b-col md="6">
@@ -87,8 +105,38 @@
                                         <b-button variant="outline-primary" v-on:click="goToPage(`/activities/edit/${activity.id}`)">Edit</b-button>
                                     </b-card-body>
                                     <b-card-body class="cardButtons">
-                                        <b-button variant="outline-primary" v-on:click="goToPage(`/activities/${activity.id}`)">Details</b-button>
+                                        <b-button variant="outline-primary" v-b-modal.activity-continuous-modal>Details</b-button>
                                     </b-card-body>
+                                    <b-modal id="activity-continuous-modal" size="lg" centered ok-only scrollable :title="activity.activity_name">
+                                        <b-container>
+                                            <b-row class="mb-1">
+                                                <b-col><strong>Start Date: </strong></b-col>
+                                                <b-col>{{getDateTime(activity.start_time)}}</b-col>
+                                            </b-row>
+                                            <b-row class="mb-1">
+                                                <b-col><strong>End Date: </strong></b-col>
+                                                <b-col>{{getDateTime(activity.end_time)}}</b-col>
+                                            </b-row>
+                                            <b-row class="mb-1">
+                                                <b-col><strong>Duration: </strong></b-col>
+                                                <b-col>{{getDays(activity)}} Days
+                                                    {{getHours(activity)}} Hours</b-col>
+                                            </b-row>
+                                            <b-row class="mb-1">
+                                                <b-col><strong>Location: </strong></b-col>
+                                                <b-col>{{activity.location}}</b-col>
+                                            </b-row>
+                                            <b-row class="mb-1">
+                                                <b-col><strong>Creator: </strong></b-col>
+                                                <b-col>{{creatorName}}</b-col>
+                                            </b-row>
+                                        </b-container>
+                                        <br>
+                                        <p class="text-justified">
+                                            <strong>Description: </strong><br>
+                                            {{activity.description}}
+                                        </p>
+                                    </b-modal>
                                     <b-card-body class="cardButtons">
                                         <b-button variant="outline-danger" v-on:click="deleteActivity(activity.id)">Delete</b-button>
                                     </b-card-body>
@@ -158,7 +206,7 @@
                 let userId = null;
                 await api.getUserId().then(response => {
                     userId = response.data;
-                    this.creatorId = this.userId;
+                    this.creatorId = userId;
                 });
                 return userId
             },
@@ -221,9 +269,9 @@
             },
           async getCreatorName() {
               await api.getUserData(this.creatorId).then((response) => {
-                    this.creatorName = `${response.data.firstname} ${response.data.lastname}`;
+                  this.creatorName = `${response.data.firstname} ${response.data.lastname}`;
               }).catch(() => {
-                    this.creatorName = "Could not load creator's name";
+                  this.creatorName = "Could not load creator's name";
               });
           }
         }
@@ -234,6 +282,9 @@
     .noMore {
         text-align: center;
 
+    }
+    .text-justified {
+        text-align: justify;
     }
     .cardButtons {
         display: flex;
