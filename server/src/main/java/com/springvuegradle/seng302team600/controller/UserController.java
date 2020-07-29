@@ -14,9 +14,7 @@ import com.springvuegradle.seng302team600.model.UserRole;
 import com.springvuegradle.seng302team600.payload.EditPasswordRequest;
 import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import com.springvuegradle.seng302team600.payload.UserResponse;
-import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
-import com.springvuegradle.seng302team600.repository.EmailRepository;
-import com.springvuegradle.seng302team600.repository.UserRepository;
+import com.springvuegradle.seng302team600.repository.*;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.apache.commons.logging.Log;
@@ -31,7 +29,9 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -42,6 +42,7 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final EmailRepository emailRepository;
+    private final ActivityActivityTypeRepository activityActivityTypeRepository;
     private final ActivityTypeRepository activityTypeRepository;
     private final UserValidator userValidator;
 
@@ -60,11 +61,13 @@ public class UserController {
 
     public UserController(UserRepository userRepository, EmailRepository emailRepository,
                           UserAuthenticationService userService, ActivityTypeService activityTypeService,
+                          ActivityActivityTypeRepository activityActivityTypeRepository,
                           ActivityTypeRepository activityTypeRepository, UserValidator userValidator) {
         this.userRepository = userRepository;
         this.emailRepository = emailRepository;
         this.userService = userService;
         this.activityTypeService = activityTypeService;
+        this.activityActivityTypeRepository = activityActivityTypeRepository;
         this.activityTypeRepository = activityTypeRepository;
         this.userValidator = userValidator;
     }
@@ -92,7 +95,8 @@ public class UserController {
      * @return User requested or null
      */
     @GetMapping("/profiles")
-    public User findUserData(HttpServletRequest request, HttpServletResponse response) {
+    public User findUserData(HttpServletRequest request,
+                             HttpServletResponse response) {
         String token = request.getHeader("Token");
         User user = userService.findByToken(token);
         user.setTransientEmailStrings();
@@ -346,4 +350,28 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authorized to access this data");
         }
     }
+
+    @RequestMapping(
+            value = "/profiles",
+            params = { "activity", "method" },
+            method = RequestMethod.GET
+    )
+    public List<User> getUserByActivityType(HttpServletRequest request,
+                                            HttpServletResponse response,
+                                            @RequestParam(value="activity") String activityTypes,
+                                            @RequestParam(value="method") String method) {
+        String[] activity_types = activityTypes.split("%");
+
+        if (method.equals("and")) {
+            List<Long> longs = new ArrayList<Long>();
+            longs.add(12L);
+            longs.add(34L);
+
+            System.out.println(activityActivityTypeRepository.findByActivityTypeIds(longs, 2));
+            return null;
+        }
+
+        return null;
+    }
 }
+

@@ -7,6 +7,7 @@ import com.springvuegradle.seng302team600.Utilities.UserValidator;
 import com.springvuegradle.seng302team600.model.*;
 import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import com.springvuegradle.seng302team600.payload.UserResponse;
+import com.springvuegradle.seng302team600.repository.ActivityActivityTypeRepository;
 import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
@@ -43,6 +44,8 @@ class UserControllerTest {
     private EmailRepository emailRepository;
     @MockBean
     private ActivityTypeRepository activityTypeRepository;
+    @MockBean
+    private ActivityActivityTypeRepository activityActivityTypeRepository;
     @MockBean
     private UserAuthenticationService userAuthenticationService;
     @MockBean
