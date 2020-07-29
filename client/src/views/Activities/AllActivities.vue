@@ -158,7 +158,7 @@
             async getListOfActivities() {
                 await api.getUserActivities(this.userId)
                     .then(response => { //If successfully registered the response will have a status of 201
-                        console.log(response);
+                    
                         if (response.data.length === 0) {
                             this.noMore = true;
                         }
