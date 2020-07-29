@@ -81,6 +81,7 @@
     ],
     "setupFilesAfterEnv": [
       "./src/Test/LiveBackEnd/setup.js"
-    ]
+    ],
+    "globalSetup": "<rootDir>/jest-setup-global.js"
   }
 }
