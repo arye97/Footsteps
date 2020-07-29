@@ -110,9 +110,9 @@
                             //Get alert bar element
                             if (err.message === "Network Error") {
                                 this.message = err.message;
-                            } else if (err.status === 401) { //Error 401: User not found
+                            } else if (err.response.status === 401) { //Error 401: User not found
                                 this.message = err.message; //Set alert bar message to error message from server
-                            } else if (err.status === 400) { //Error 400: Bad request
+                            } else if (err.response.status === 400) { //Error 400: Bad request
                                 this.message = "An invalid login request has been received please try again"
                             } else {    //Catch for any errors that are not specifically caught
                                 this.message = "An unknown error has occurred during login"
@@ -126,9 +126,9 @@
                     //Get alert bar element
                     if (error.message === "Network Error") {
                         this.message = error.message;
-                    } else if (error.status === 401) { //Error 401: User not found or incorrect password
-                        this.message = error.message; //Set alert bar message to error message from server
-                    } else if (error.status === 400) { //Error 400: Bad request (email and/or password fields not given)
+                    } else if (error.response.status === 401) { //Error 401: User not found or incorrect password
+                        this.message = error.response.data.message; //Set alert bar message to error message from server
+                    } else if (error.response.status === 400) { //Error 400: Bad request (email and/or password fields not given)
                         this.message = "An invalid login request has been received please try again"
                     } else {    //Catch for any errors that are not specifically caught
                         this.message = "An unknown error has occurred during login"

@@ -207,8 +207,8 @@
                 }
               }).catch(error => {
                 this.errored = true;
-                this.error = error.message;
-                if (error.status === 404 && sessionStorage.getItem('token') !== null) {
+                this.error = error.response.data.message;
+                if (error.response.data.status === 404 && sessionStorage.getItem('token') !== null) {
                   this.$router.push({ name: 'myProfile' });
                   this.init();
                 } else {
@@ -249,7 +249,7 @@
                     this.isEditable = true;
                 }).catch(error => {
                     this.isEditable = false;
-                    if (error.status === 401) {
+                    if (error.response.data.status === 401) {
                         this.logout();
                     }
                 });
