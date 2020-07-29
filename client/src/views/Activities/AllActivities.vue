@@ -42,7 +42,7 @@
                                     <br/><br/>
                                     Description: {{activity.description}}
                                     <br/><br/>
-                                    Creator: {{ creatorName  }}
+                                    Creator: {{creatorName}}
                                 </b-card-text>
                             </b-col>
                             <b-col md="6">
@@ -72,11 +72,11 @@
                                     <b-card-text>
                                         Name: {{activity.activity_name}} <br/><br/>
                                         Description: {{activity.description}} <br/><br/>
-                                        Start Date: {{new Date(activity.start_time).toDateString()}} <br/><br/>
-                                        End Date: {{new Date(activity.end_time).toDateString()}} <br/><br/>
+                                        Start Date: {{getDateTime(activity.start_time)}} <br/><br/>
+                                        End Date: {{getDateTime(activity.end_time)}} <br/><br/>
                                         Duration: {{Math.floor(((new Date(activity.end_time) - new Date(activity.start_time))/1000/60/60/24))}} Days
                                         {{Math.floor(((new Date(activity.end_time) - new Date(activity.start_time))/1000/60/60/365))}} Hours <br/><br/>
-                                        Creator: {{ creatorName  }}
+                                        Creator: {{creatorName}}
                                     </b-card-text>
                                 </b-col>
                                 <b-col md="6">
@@ -109,6 +109,7 @@
 <script>
     import Header from '../../components/Header/Header.vue'
     import api from "../../Api";
+    import { formatDateTime } from "../../util";
     export default {
         name: "AllActivities",
         components : {
@@ -131,6 +132,7 @@
             await this.getCreatorName();
         },
         methods: {
+            getDateTime: formatDateTime,
             checkLoggedIn() {
                 if (!sessionStorage.getItem("token")) {
                     this.$router.push("/login");
@@ -147,11 +149,10 @@
             },
             async getListOfActivities() {
                 await api.getUserActivities(this.userId).then(response => { //If successfully registered the response will have a status of 201
-
-                        if (response.data.length === 0) {
-                            this.noMore = true;
-                        }
-                        this.activityList = response.data;
+                    if (response.data.length === 0) {
+                        this.noMore = true;
+                    }
+                    this.activityList = response.data;
                     }).catch(error => {
                         console.error(error);
                 })

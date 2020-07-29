@@ -47,6 +47,7 @@ public class Activity {
     private boolean continuous;
 
     @Column(name = "start_time", columnDefinition = "TIMESTAMP")
+    // See here for format pattern: https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
     @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ")
     @Temporal(TemporalType.TIMESTAMP)
     @JsonProperty("start_time")
