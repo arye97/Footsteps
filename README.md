@@ -46,36 +46,10 @@ Set up the environment variables according to the information stored in eng-git
 
 Running on: http://localhost:9499/
 
-Interfacing with the backend uses Postman with HTTP requests:
-- Creating a user with a POST and the path: '/createprofile'
-```
-{
-  "firstname": "Maurice",
-  "middlename": "Jack",
-  "lastname" : "DADSSA",
-  "nickname": "Jacky",
-  "email" : "mauricejacask@yahoo.com",
-  "password": "jack",
-  "bio": "Jacky loves to ride his bike on crazy mountains.",
-  "date_of_birth": "1985-12-20",
-  "gender": "male"
-}
-```
-- User login with a GET and the path: '/login'
-```
-{
-  "email" : "mauricejacask@yahoo.com",
-  "password": "jack"
-}
-```
-- Editing users with a POST by sending the id of the user to edit, and all attributes that are edited
-```
-{
-  "id": "1",
-  "bio": "I am a nice bio",
-  "password": "I am a nice bio"
-}
-```
+### Default Admin credentials  
+**Username/Email:**  default@default.com  
+**Password:**  pzHqSbMXAsbh2Ajd  
+
 ##### Server Profiles
 The server has several profiles that can be used, allowing for the use of different databases.  
 In order to use most profiles, you must have credentials set in your environment variables:  

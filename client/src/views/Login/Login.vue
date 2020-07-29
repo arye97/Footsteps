@@ -95,11 +95,11 @@
                     return;
                 }
                 // Send login post to serve
-                api.login(userLogin).then(response => { //If successfully logged the response will have a status of 201
+                await api.login(userLogin).then(async response => { //If successfully logged the response will have a status of 201
                     if (response.status === 201) {
                         sessionStorage.setItem("token", response.data.Token);
                         this.userId = response.data.userId;
-                        api.getUserRoles(this.userId).then(roleResponse => {
+                        await api.getUserRoles(this.userId).then(roleResponse => {
                             if (roleResponse.data === 20){ //Account is default admin
                                 this.$router.push('/admin');
                             } else{
