@@ -30,7 +30,7 @@
             <b-button style="margin-bottom: 1.7em; margin-top: 0.8em" variant="primary" v-on:click="goToPage('/activities/create')">Create New Activity</b-button>
         </div>
         <b-tabs content-class="mt-4" justified>
-            <b-tab title="Continous" :active="continuousIsActive(true)">
+            <b-tab title="Continuous" :active="continuousIsActive(true)">
                 <section v-for="activity in this.activityList" :key="activity.id">
                     <!-- Activity List -->
                     <b-card v-if="activity.continuous">
@@ -41,6 +41,8 @@
                                     Name: {{activity.activity_name}}
                                     <br/><br/>
                                     Description: {{activity.description}}
+                                    <br/><br/>
+                                    Creator: {{creatorName}}
                                 </b-card-text>
                             </b-col>
                             <b-col md="6">
@@ -60,7 +62,7 @@
                 <hr/>
                 <footer class="noMore">No more activities to show</footer>
             </b-tab>
-            <b-tab title="Non-Continous" :active="continuousIsActive(false)">
+            <b-tab title="Non-Continuous" :active="continuousIsActive(false)">
                 <section v-for="activity in this.activityList" :key="activity.id">
                     <br/>
                     <!-- Activity List -->
@@ -73,7 +75,8 @@
                                         Start Date: {{getDateTime(activity.start_time)}} <br/><br/>
                                         End Date: {{getDateTime(activity.end_time)}} <br/><br/>
                                         Duration: {{Math.floor(((new Date(activity.end_time) - new Date(activity.start_time))/1000/60/60/24))}} Days
-                                        {{Math.floor(((new Date(activity.end_time) - new Date(activity.start_time))/1000/60/60/365))}} Hours
+                                        {{Math.floor(((new Date(activity.end_time) - new Date(activity.start_time))/1000/60/60/365))}} Hours <br/><br/>
+                                        Creator: {{creatorName}}
                                     </b-card-text>
                                 </b-col>
                                 <b-col md="6">
@@ -116,6 +119,8 @@
             return {
                 activityList : [],
                 userId : null,
+                creatorId: null,
+                creatorName: null,
                 noMore: false,
                 activeTab: 0
             }
@@ -124,6 +129,7 @@
             await this.getUserId();
             this.checkLoggedIn();
             await this.getListOfActivities();
+            await this.getCreatorName();
         },
         methods: {
             getDateTime: formatDateTime,
@@ -135,6 +141,8 @@
             async getUserId() {
                 await api.getUserId().then(response => {
                     this.userId = response.data;
+                    //TODO: Change the method of getting the creator's id once other users can view the list
+                    this.creatorId = this.userId;
                 }).catch(error => {
                     console.error(error);
                 })
@@ -194,7 +202,13 @@
                     console.error(error);
                 })
             },
-
+          async getCreatorName() {
+              await api.getUserData(this.creatorId).then((response) => {
+                    this.creatorName = `${response.data.firstname} ${response.data.lastname}`;
+              }).catch(() => {
+                    this.creatorName = "Could not load creator's name";
+              });
+          }
         }
     }
 </script>
