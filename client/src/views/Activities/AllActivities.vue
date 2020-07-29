@@ -29,7 +29,10 @@
         <div style="text-align: center">
             <b-button style="margin-bottom: 1.7em; margin-top: 0.8em" variant="primary" v-on:click="goToPage('/activities/create')">Create New Activity</b-button>
         </div>
-        <b-tabs content-class="mt-4" justified>
+        <div v-if="this.loading" style="text-align: center">
+            <b-spinner class="margin-bottom: 1.7em; margin-top: 0.8em" variant="primary" label="Spinning"></b-spinner>
+        </div>
+        <b-tabs v-else content-class="mt-4" justified>
             <b-tab title="Continuous" :active="continuousIsActive(true)">
                 <section v-for="activity in this.activityList" :key="activity.id">
                     <!-- Activity List -->
@@ -74,8 +77,8 @@
                                         Description: {{activity.description}} <br/><br/>
                                         Start Date: {{getDateTime(activity.start_time)}} <br/><br/>
                                         End Date: {{getDateTime(activity.end_time)}} <br/><br/>
-                                        Duration: {{Math.floor(((new Date(activity.end_time) - new Date(activity.start_time))/1000/60/60/24))}} Days
-                                        {{Math.floor(((new Date(activity.end_time) - new Date(activity.start_time))/1000/60/60/365))}} Hours <br/><br/>
+                                        Duration: {{getDays(activity)}} Days
+                                        {{getHours(activity)}} Hours <br/><br/>
                                         Creator: {{creatorName}}
                                     </b-card-text>
                                 </b-col>
@@ -122,37 +125,51 @@
                 creatorId: null,
                 creatorName: null,
                 noMore: false,
-                activeTab: 0
+                activeTab: 0,
+                loading: true
             }
         },
-        async mounted() {
-            await this.getUserId();
+        beforeMount() {
             this.checkLoggedIn();
+        },
+        async mounted() {
+            this.userId = await this.getUserId();
             await this.getListOfActivities();
             await this.getCreatorName();
         },
         methods: {
             getDateTime: formatDateTime,
+            getDays(activity) {
+                return Math.floor(((new Date(activity.end_time) - new Date(activity.start_time))/1000/60/60/24))
+            },
+            getHours(activity) {
+                return Math.ceil(((new Date(activity.end_time) - new Date(activity.start_time))/1000/60/60)) % 24
+            },
             checkLoggedIn() {
                 if (!sessionStorage.getItem("token")) {
                     this.$router.push("/login");
                 }
             },
+            /**
+             * Get the Id of the current Logged in user.
+             * @returns {Promise<*>}
+             */
             async getUserId() {
+                let userId = null;
                 await api.getUserId().then(response => {
-                    this.userId = response.data;
-                    //TODO: Change the method of getting the creator's id once other users can view the list
+                    userId = response.data;
                     this.creatorId = this.userId;
-                }).catch(error => {
-                    console.error(error);
-                })
+                });
+                return userId
             },
             async getListOfActivities() {
-                await api.getUserActivities(this.userId).then(response => { //If successfully registered the response will have a status of 201
-                    if (response.data.length === 0) {
-                        this.noMore = true;
-                    }
-                    this.activityList = response.data;
+                await api.getUserActivities(this.userId)
+                    .then(response => { //If successfully registered the response will have a status of 201
+                        if (response.data.length === 0) {
+                            this.noMore = true;
+                        }
+                        this.loading = false;
+                        this.activityList = response.data;
                     }).catch(error => {
                         console.error(error);
                 })
