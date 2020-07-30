@@ -3,7 +3,7 @@
         <div class="container">
             <!--The below v-on:click does: If your logged in, go to your profile.  Else go to the main page.-->
             <b-navbar-brand v-on:click="$router.push('/')">
-                <img id="logo" src="../../../assets/png/Footsteps_full.png" width="20%" alt="Footsteps Logo">
+                <img id="logo" src="../../../assets/png/Footsteps_full.png" width="180" alt="Footsteps Logo">
             </b-navbar-brand>
             <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
             <b-collapse id="navbarResponsive" is-nav>
