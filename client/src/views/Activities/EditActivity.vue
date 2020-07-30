@@ -91,8 +91,6 @@
                   .then(response => { // If successfully registered the response will have a status of 201
                         if (response.status === 200) {
                             this.$router.push("/activities");
-                            // somehow can't get back to profile
-                            // this.$router.push('/profile');
                         }
                     }
                 )
