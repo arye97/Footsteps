@@ -23,6 +23,7 @@
     import Header from '../../components/Header/Header.vue'
     import api from "../../Api";
     import ActivityForm from "../../components/Activities/ActivityForm";
+    import {backendDateToLocalTimeZone} from "../../util";
 
     /**
      * A view used to edit an activity
@@ -90,14 +91,14 @@
                   .then(response => { // If successfully registered the response will have a status of 201
                         if (response.status === 200) {
                             this.$router.push("/activities");
-                            // somehow can't get back to profile
-                            // this.$router.push('/profile');
                         }
                     }
                 )
             },
 
-            //Getting the data from the selected activity to update
+            /**
+             * Get the data of the selected activity from the backend.  Load it into the activity object
+             */
             async getActivityData(activityId) {
                 await api.getActivityData(activityId).then(response => {
                     this.activity.activityName = response.data.activity_name;
@@ -105,8 +106,8 @@
                     this.activity.continuous = (response.data.continuous === true);
                     this.activity.description = response.data.description;
                     this.activity.location = response.data.location;
-                    this.activity.submitStartTime = response.data.start_time;
-                    this.activity.submitEndTime = response.data.end_time;
+                    this.activity.submitStartTime = backendDateToLocalTimeZone(response.data.start_time);
+                    this.activity.submitEndTime = backendDateToLocalTimeZone(response.data.end_time);
                     for (let i = 0; i < response.data.activity_type.length; i++) {
                         this.activity.selectedActivityTypes.push(response.data.activity_type[i].name);
                     }
@@ -128,6 +129,7 @@
                     this.activity.submitStartTime = this.activity.submitStartTime.substring(0, 16);
                     this.activity.submitEndTime = this.activity.submitEndTime.substring(0, 16);
                 } else {
+                    // Make it null, that way it shows as blank if activity is given a duration
                     this.activity.submitStartTime = null;
                     this.activity.submitEndTime = null;
                 }
