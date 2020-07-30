@@ -87,7 +87,8 @@
             },
 
             search() {
-                console.log(this.selectedActivityTypes);
+                // called when search button is hit
+                //todo: add functionality
             }
         }
     }
