@@ -140,7 +140,6 @@
             }
         },
         async mounted() {
-
             await this.init();
         },
         methods: {

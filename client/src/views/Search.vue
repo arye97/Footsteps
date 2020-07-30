@@ -25,6 +25,8 @@
 </template>
 
 <script>
+    import api from '../Api';
+
     export default {
         name: "Search",
 
@@ -39,8 +41,19 @@
                 this.$router.push(url);
             },
 
-            search(searchTerm) {
-                console.log(searchTerm);
+            /**
+             * Searches a user based on a string of activity types and a method AND or OR
+             * @param searchTerm a string of activity types
+             * @param method a string indicating AND or OR
+             */
+            search(searchTerm, method) {
+                api.getUsersByActivityType(searchTerm, method)
+                    .then(response => {
+                        if (response.status === 200) {
+                            console.log(response.data)
+                            // Show users in page
+                        }
+                    })
             }
         }
     }
