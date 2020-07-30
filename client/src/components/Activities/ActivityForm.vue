@@ -251,7 +251,9 @@
                 this.isValidFormFlag = true;
                 await this.validateActivityInputs();
                 if (this.isValidFormFlag) {
-                    this.formatDurationActivity();
+                    if (!this.activity.continuous) {
+                        this.formatDurationActivity();
+                    }
                     await this.submitActivityFunc();
                 }
             },
