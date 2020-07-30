@@ -10,6 +10,7 @@ import CreateActivity from "./views/Activities/CreateActivity";
 import EditActivity from "./views/Activities/EditActivity";
 import AllActivities from "./views/Activities/AllActivities";
 import EditProfile from "./views/Settings/EditProfile";
+import Search from "./views/Search"
 Vue.use(Router);
 Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
@@ -62,6 +63,11 @@ export default new Router({
             path: '/profile/:userId/edit',
             name: 'editProfile',
             component: EditProfile
+        },
+        {
+            path: '/search/users',
+            name: 'searchPage',
+            component: Search
         },
         // otherwise redirect to home
         { path: '/*', redirect: '/login' }

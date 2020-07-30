@@ -27,6 +27,11 @@
                                     :to="{ name: 'myProfile' }"
                                     class="nav-link">Profile</router-link>
                         </li>
+                        <li v-if=this.isLoggedIn class="nav-item">
+                            <router-link
+                                    :to="{ name: 'searchPage' }"
+                                    class="nav-link">Search</router-link>
+                        </li>
 
                         <li class="nav-item">
                             <router-link to="" v-if="this.isLoggedIn" v-on:click.native="logout" class="nav-link">Logout</router-link>
