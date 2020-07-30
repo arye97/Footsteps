@@ -259,7 +259,8 @@
             },
 
             /**
-             * Takes a date string and inserts it into a date and time string.  Helper method used in DOM.
+             * Takes a date string of the form yyyy-MM-dd and inserts it into a date and time string of the
+             * format yyyy-MM-ddThh:mm.  Helper method used in DOM.
              * (wish this could be a function)
              * @param dateStr string of the format yyyy-MM-dd
              * @param dateTimeStr string of the format yyyy-MM-ddThh:mm
@@ -339,7 +340,7 @@
             },
 
             /**
-             * If this Activity is not continuous format the dates correctly for the Backend.
+             * Format the dates correctly for the Backend.
              */
             formatDurationActivity() {
                 if (this.activity.submitStartTime.length === 10) {

@@ -84,7 +84,7 @@
                 <hr/>
                 <footer class="noMore">No more activities to show</footer>
             </b-tab>
-            <b-tab title="Non-Continuous" :active="continuousIsActive(false)">
+            <b-tab title="Duration" :active="continuousIsActive(false)">
                 <section v-for="activity in this.activityList" :key="activity.id">
                     <!-- Activity List -->
                     <b-card v-if="!activity.continuous">
