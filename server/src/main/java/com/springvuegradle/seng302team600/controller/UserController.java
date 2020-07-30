@@ -29,14 +29,12 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 public class UserController {
 
+    private final UserActivityTypeRepository userActivityTypeRepository;
     private UserAuthenticationService userService;
     private ActivityTypeService activityTypeService;
 
@@ -62,6 +60,7 @@ public class UserController {
     public UserController(UserRepository userRepository, EmailRepository emailRepository,
                           UserAuthenticationService userService, ActivityTypeService activityTypeService,
                           ActivityActivityTypeRepository activityActivityTypeRepository,
+                          UserActivityTypeRepository userActivityTypeRepository,
                           ActivityTypeRepository activityTypeRepository, UserValidator userValidator) {
         this.userRepository = userRepository;
         this.emailRepository = emailRepository;
@@ -70,6 +69,7 @@ public class UserController {
         this.activityActivityTypeRepository = activityActivityTypeRepository;
         this.activityTypeRepository = activityTypeRepository;
         this.userValidator = userValidator;
+        this.userActivityTypeRepository = userActivityTypeRepository;
     }
 
     /**
@@ -356,21 +356,25 @@ public class UserController {
             params = { "activity", "method" },
             method = RequestMethod.GET
     )
-    public List<User> getUserByActivityType(HttpServletRequest request,
+    public List<User> getUsersByActivityType(HttpServletRequest request,
                                             HttpServletResponse response,
                                             @RequestParam(value="activity") String activityTypes,
                                             @RequestParam(value="method") String method) {
         String[] activity_types = activityTypes.split("%");
+        activity_types = activity_types[0].split(" ");
+        List<String> types = Arrays.asList(activity_types);
+
+        //Need to get the activityTypeIds from the names
+        List<Long> activityTypeIds = activityTypeRepository.findActivityTypeIdsByNames(types);
+        int numActivityTypes = activityTypeIds.size();
 
         if (method.equals("and")) {
-            List<Long> longs = new ArrayList<Long>();
-            longs.add(12L);
-            longs.add(34L);
-
-            System.out.println(activityActivityTypeRepository.findByActivityTypeIds(longs, 2));
-            return null;
+            List<Long> userIds = userActivityTypeRepository.findByAllActivityTypeIds(activityTypeIds, numActivityTypes); //Gets the userIds
+            return userRepository.getUsersByIds(userIds);
+        } else if (method.equals("or")) {
+            List<Long> userIds = userActivityTypeRepository.findBySomeActivityTypeIds(activityTypeIds); //Gets the userIds
+            return userRepository.getUsersByIds(userIds);
         }
-
         return null;
     }
 }
