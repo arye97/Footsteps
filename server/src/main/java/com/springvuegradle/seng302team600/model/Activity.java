@@ -54,7 +54,7 @@ public class Activity {
     private Date startTime;
 
     @Column(name = "end_time", columnDefinition = "TIMESTAMP")
-    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm")
+    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ")
     @Temporal(TemporalType.TIMESTAMP)
     @JsonProperty("end_time")
     private Date endTime;
