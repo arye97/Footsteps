@@ -45,7 +45,13 @@
                                     <br/><br/>
                                     <strong>Creator: </strong>{{creatorName}}
                                     <br/><br/>
-                                    <strong>Description: </strong><br>{{activity.description}}
+                                    <strong>Description: </strong><br>
+                                    <div v-if="activity.description.length <= 100">
+                                        {{activity.description}}
+                                    </div>
+                                    <div v-else>
+                                        {{activity.description.substring(0,100)+"...."}}
+                                    </div>
                                 </b-card-text>
                             </b-col>
                             <b-col md="6">
@@ -109,7 +115,13 @@
                                         <br/><br/>
                                         <strong>End Date: </strong>{{getDateTime(activity.end_time)}}
                                         <br/><br/>
-                                        <strong>Description: </strong><br>{{activity.description}}
+                                        <strong>Description: </strong><br>
+                                        <div v-if="activity.description.length <= 100">
+                                            {{activity.description}}
+                                        </div>
+                                        <div v-else>
+                                            {{activity.description.substring(0,100)+"...."}}
+                                        </div>
                                     </b-card-text>
                                 </b-col>
                                 <b-col md="6">
