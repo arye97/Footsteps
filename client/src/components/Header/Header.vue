@@ -27,9 +27,11 @@
                                 :to="{ name: 'myProfile' }"
                                 class="nav-link">Profile</router-link>
                     </b-nav-item>
-                    <b-nav-item>
-                        <router-link to="" v-if="this.isLoggedIn" v-on:click.native="logout" class="nav-link">Logout</router-link>
-                        <router-link  v-else to='/login' class="nav-link">Login</router-link>
+                    <b-nav-item v-if=this.isLoggedIn>
+                        <router-link to="" v-on:click.native="logout" class="nav-link">Logout</router-link>
+                    </b-nav-item>
+                    <b-nav-item v-if=!this.isLoggedIn>
+                        <router-link to='/login' class="nav-link">Login</router-link>
                     </b-nav-item>
                 </b-collapse>
             </b-navbar-nav>
