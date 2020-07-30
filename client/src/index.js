@@ -15,6 +15,40 @@ Vue.use(Router);
 Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
 
+/**
+* Guard my route function is a function that checks if a user is 
+* authenticated by checking session storage for a token. It will then check the
+* associated boolean variable and if this is true it will go to the home page,
+* if not it will take you to the login page. This function is specifically built
+* for users trying to access the login page whilst being logged in already. But 
+* can be refactored to be used as a general router guard with minor changes.
+* @param to - the target Route Object being navigated to.
+* @param from - the current route being navigated away from.
+* @param next - move on to the next hook in the pipeline. If no hooks are left, 
+* the navigation is confirmed.
+*/
+function guardMyroute(to, from, next)
+{
+    //Boolean variable for authenticated user
+    let isAuthenticated = false;
+    //uses sessionstorage to figure out if a user is logged in or not, goes through
+    //if not assigns false to boolean variable to show that user is not logged in
+    if(sessionStorage.getItem("token"))
+        isAuthenticated = true;
+    else
+        isAuthenticated= false;
+    //Checks if the user is authenticated, if user is authenticated will go to home page
+    //because you shouldn't be able to access the login page if so
+    if(!isAuthenticated)
+    {
+        next(); // allow to enter login route
+    }
+    else
+    {
+        next('/'); // go to '/' home page;
+    }
+}
+
 export default new Router({
     mode: 'history',
     base: process.env.VUE_APP_BASE_URL,
@@ -25,6 +59,7 @@ export default new Router({
         },
         {   path: '/login',
             name: 'login',
+            beforeEnter: guardMyroute,
             component: Login
         },
         {   path: '/register',
