@@ -76,10 +76,22 @@
                 // Send the activityForm to the server to create a new activity
                 await api.createActivity(activityForm, this.activity.profileId)
                     .then(() => { // If successfully registered the response will have a status of 201
-                        this.$router.push({name: 'allActivities', params: {alertMessage: 'Activity added successfully', alertCount: 5}});
-                    }).catch(err => {
-                        console.error(err);
-                    })
+                        this.$router.push("/activities");
+                    }
+                    ).catch(error => {
+                    if (error.response.data.status === 401) {
+                        this.$router.push("/login");
+                    } else if (error.response.data.status === 400) {
+                        this.message = "Entered activity field(s) are invalid";
+                        this.showError('overall_message');
+                    } else if (error.response.data.status === 403) {
+                        this.message = "Sorry unable to create this activity (forbidden access)"
+                        this.showError("overall_message");
+                    } else {
+                        this.message = "Unknown error has occurred whilst creating this activity";
+                        this.showError("overall_message");
+                    }
+                })
             },
 
             /**
@@ -90,6 +102,13 @@
                 let userId = null;
                 await api.getUserId().then(response => {
                     userId = response.data;
+                }).catch(error => {
+                    if (error.response.data.status === 401) {
+                        this.$router.push("/login");
+                    } else {
+                        this.message = "Unknown error has occurred whilst creating this activity";
+                        this.showError("overall_message");
+                    }
                 });
                 return userId
             }
