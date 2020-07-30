@@ -157,10 +157,10 @@ public class UserValidator {
      */
     public boolean validateEmail(String email) {
         if (email.length() > MAX_EMAIL_LEN) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email exceeds maximum length");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Email exceeds maximum length: '%s'", email));
         }
         if (!email.matches(emailRegex)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Invalid email: '%s'", email));
         }
         return true;
     }
