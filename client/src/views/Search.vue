@@ -18,26 +18,26 @@
         <div class="container h-100">
             <b-row>
                 <b-col cols="8">
-                    <multiselect v-model="selectedActivityTypes" id="activityTypes" v-on:select="unDisplayRules"
+                    <multiselect v-model="selectedActivityTypes" id="searchBoxActivities" v-on:select="unDisplayRules"
                                  :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
                                  placeholder="Select your activity types">
                         <template slot="noResult">Invalid activity type</template>
                     </multiselect>
                 </b-col>
                 <b-col cols="4">
-                    <b-form-select v-model="searchMode" :options="searchModes"></b-form-select>
+                    <b-form-select id="searchModeSelect" v-model="searchMode" :options="searchModes"></b-form-select>
                 </b-col>
             </b-row>
             <b-row style="margin-bottom: 1.7em; margin-top: 0.8em">
                 <b-col cols="2" align-self="center">
-                    <b-button variant="primary" v-on:click="search()">
+                    <b-button id="searchButton" variant="primary" v-on:click="search()">
                         Search</b-button>
                 </b-col>
                 <b-col cols="4" align-self="center">
-                    <b-form-radio v-model="searchType" name="andType" value="and">Search including all</b-form-radio>
+                    <b-form-radio id="andRadioButton" v-model="searchType" name="andType" value="and">Search including all</b-form-radio>
                 </b-col>
                 <b-col cols="4" align-self="center">
-                    <b-form-radio v-model="searchType" name="orType" value="or">Search including some</b-form-radio>
+                    <b-form-radio id="orRadioButton" v-model="searchType" name="orType" value="or">Search including some</b-form-radio>
                 </b-col>
             </b-row>
         </div>
