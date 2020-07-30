@@ -67,10 +67,11 @@
         data() {
             return {
                 searchMode: 'activityType',
-                searchModes: [
+                searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
                     { value: 'activityType', text: 'Activity Type'}
                 ],
                 selectedActivityTypes : [],
+                //todo: this list should be grabbed from the database, only hard coded for simplicity
                 activityTypes: [
                     "Archery",
                     "E-sports",
