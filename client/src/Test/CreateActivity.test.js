@@ -4,11 +4,12 @@ import CreateActivity from "../views/Activities/CreateActivity";
 import api from "../Api";
 jest.mock("../Api");
 
-let createactivity;
+let createActivity;
 let push;
 let config;
+const DEFAULT_USER_ID = 1;
 
-beforeEach(() => {
+beforeAll(() => {
     push = jest.fn();
     const $router = {
         push: jest.fn()
@@ -23,7 +24,9 @@ beforeEach(() => {
             $router
         }
     };
-    createactivity = shallowMount(CreateActivity, config);
+    // This Removes: TypeError: Cannot read property 'then' of undefined
+    api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID, status: 200 }));
+    createActivity = shallowMount(CreateActivity, config);
 });
 
 const ACTIVITY1 = {
@@ -37,13 +40,18 @@ const ACTIVITY1 = {
 };
 
 test('Is a vue instance', () => {
-    expect(createactivity.isVueInstance).toBeTruthy();
+    expect(createActivity.isVueInstance).toBeTruthy();
 });
 
 test('Is a vue instance', () => {
-    createactivity.setProps({
+    createActivity.setProps({
         ACTIVITY1
     });
-    api.createActivity.mockImplementation(() => Promise.resolve({ status: 400 }));
-    expect(() => createactivity.vm.submitCreateActivity()).toThrow("Entered activity field(s) are invalid");
+
+    let networkError = new Error("Mocked Network Error");
+    networkError.response = {status: 400};   // Explicitly give the error a response.status
+    api.createActivity.mockImplementation(() => Promise.reject(networkError));  // Mocks errors sent from the server
+
+    return createActivity.vm.submitCreateActivity().catch(
+        error => expect(error).toEqual(new Error("Entered activity field(s) are invalid")));
 });
