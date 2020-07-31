@@ -1,43 +1,42 @@
-
 <template>
-        <nav :key=this.isLoggedIn class="navbar navbar-expand-lg navbar-light bg-light shadow fixed-top">
-            <div class="container">
-                <!--The below v-on:click does: If your logged in, go to your profile.  Else go to the main page.-->
-                <a class="navbar-brand" v-on:click="$router.push('/')" >
-                    <img id="logo" src="../../../assets/png/Footsteps_full.png" width="20%" alt="Footsteps Logo">
-                </a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarResponsive">
-                    <ul class="navbar-nav ml-auto">
-                        <li class="nav-item active">
-                            <router-link v-if=this.isLoggedIn
-                                         :to="'/'"
-                                         class="nav-link">Home</router-link>
-                        </li>
-                        <li v-if=!this.isLoggedIn class="nav-item">
-                            <router-link to='/register' class="nav-link">Register</router-link>
-                        </li>
-                        <li class="nav-item">
-                            <router-link v-if=this.isLoggedIn
-                                         :to="{ name: 'allActivities' }"
-                                         class="nav-link">My Activities</router-link>
-                        </li>
-                        <li v-if=this.isLoggedIn class="nav-item">
-                            <router-link
-                                    :to="{ name: 'myProfile' }"
-                                    class="nav-link">Profile</router-link>
-                        </li>
-
-                        <li class="nav-item">
-                            <router-link to="" v-if="this.isLoggedIn" v-on:click.native="logout" class="nav-link">Logout</router-link>
-                            <router-link  v-else to='/login' class="nav-link">Login</router-link>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
+    <b-nav :key=this.isLoggedIn class="navbar navbar-expand-lg navbar-light bg-light shadow fixed-top">
+        <div class="container">
+            <!--Logo-->
+            <!--The below v-on:click does: If your logged in, go to your profile.  Else go to the main page.-->
+            <b-navbar-brand v-on:click="$router.push('/')">
+                <img id="logo" src="../../../assets/png/Footsteps_full.png" width="180" alt="Footsteps Logo">
+            </b-navbar-brand>
+            <!--Collapsed nav-bar expansion button-->
+            <b-navbar-toggle target="nav-collapse" class="navbar-toggler-right" id="togglerButton"></b-navbar-toggle>
+            <!--Collapsible componentry (all links except for the logo)-->
+            <b-navbar-nav class="ml-auto">
+                <b-collapse id="nav-collapse" is-nav>
+                    <b-nav-item  v-if=this.isLoggedIn>
+                        <router-link :to="'/'"
+                                     class="nav-link">Home</router-link>
+                    </b-nav-item>
+                    <b-nav-item v-if=!this.isLoggedIn>
+                        <router-link to='/register' class="nav-link">Register</router-link>
+                    </b-nav-item>
+                    <b-nav-item  v-if=this.isLoggedIn>
+                        <router-link :to="{ name: 'allActivities' }"
+                                     class="nav-link">My Activities</router-link>
+                    </b-nav-item>
+                    <b-nav-item v-if=this.isLoggedIn>
+                        <router-link
+                                :to="{ name: 'myProfile' }"
+                                class="nav-link">Profile</router-link>
+                    </b-nav-item>
+                    <b-nav-item v-if=this.isLoggedIn>
+                        <router-link to="" v-on:click.native="logout" class="nav-link">Logout</router-link>
+                    </b-nav-item>
+                    <b-nav-item v-if=!this.isLoggedIn>
+                        <router-link to='/login' class="nav-link">Login</router-link>
+                    </b-nav-item>
+                </b-collapse>
+            </b-navbar-nav>
+        </div>
+    </b-nav>
 </template>
 
 
