@@ -46,7 +46,8 @@
              * @param searchTerm a string of activity types
              * @param method a string indicating AND or OR
              */
-            search(searchTerm, method) {
+            async search(searchTerm, method) {
+                // Endpoint stuff
                 api.getUsersByActivityType(searchTerm, method)
                     .then(response => {
                         if (response.status === 200) {

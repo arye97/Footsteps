@@ -1,16 +1,145 @@
-import { search } from '../views/Search';
-import "jest"
+import Search from '../views/Search';
+import "vue-jest"
+import api from '../Api'
+import {shallowMount} from "@vue/test-utils";
+import router from "../index";
+
+jest.mock('../Api');
+
+let searchWrapper;
+
+beforeEach(() => {
+    searchWrapper = shallowMount(Search, { mocks: {api} });
+});
 
 
-// NOTE jest-setup-global.js explicitly sets the timezone to New Zealand time.
 describe("Searching user based on activity types", () => {
+    describe("With the 'or' method", () => {
+        test("Search user with one activity type 'hiking'", () => {
+            let response = [
+                {
+                    "firstname": "DJ",
+                    "lastname": "Roomba",
+                    "activityTypes": [
+                        {
+                            "activityTypeId": 12,
+                            "name": "Biking"
+                        },
+                        {
+                            "activityTypeId": 34,
+                            "name": "Hiking"
+                        }
+                    ]
+                },
+                {
+                    "firstname": "Akira",
+                    "lastname": "Kurosawa",
+                    "activityTypes": [
+                        {
+                            "activityTypeId": 12,
+                            "name": "Biking"
+                        },
+                        {
+                            "activityTypeId": 34,
+                            "name": "Hiking"
+                        }
+                    ]
+                },
+                {
+                    "firstname": "Samantha",
+                    "lastname": "Saliva",
+                    "activityTypes": [
+                        {
+                            "activityTypeId": 7,
+                            "name": "Athletics"
+                        },
+                        {
+                            "activityTypeId": 34,
+                            "name": "Hiking"
+                        }
+                    ]
+                }
+            ];
+            api.getUsersByActivityType.mockImplementation(() =>
+                Promise.resolve({
+                    data: response,
+                    status: 200
+                })
+            );
+            searchWrapper = shallowMount(Search, {router, mocks: {api}});
+            searchWrapper.setData(response);
+            return searchWrapper.vm.search("hiking", "or").then(() => {
+                expect(searchWrapper.vm.api.getUsersByActivityType).toHaveBeenCalledWith("hiking", "or");
+            });
+        });
 
-    describe("From Back End to Front End", () => {
+        test("Search user with two activity types 'hiking' and 'biking'", () => {
+            let response = [
+                {
+                    "firstname": "DJ",
+                    "lastname": "Roomba",
+                    "activityTypes": [
+                        {
+                            "activityTypeId": 12,
+                            "name": "Biking"
+                        },
+                        {
+                            "activityTypeId": 34,
+                            "name": "Hiking"
+                        }
+                    ]
+                },
+                {
+                    "firstname": "Akira",
+                    "lastname": "Kurosawa",
+                    "activityTypes": [
+                        {
+                            "activityTypeId": 12,
+                            "name": "Biking"
+                        },
+                        {
+                            "activityTypeId": 34,
+                            "name": "Hiking"
+                        }
+                    ]
+                },
+                {
+                    "firstname": "Samantha",
+                    "lastname": "Saliva",
+                    "activityTypes": [
+                        {
+                            "activityTypeId": 7,
+                            "name": "Athletics"
+                        },
+                        {
+                            "activityTypeId": 34,
+                            "name": "Hiking"
+                        }
+                    ]
+                },
+                {
+                    "firstname": "Manny",
+                    "lastname": "Mannamynamo",
+                    "activityTypes": [
+                        {
+                            "activityTypeId": 12,
+                            "name": "Biking"
+                        }
+                    ]
+                }
+            ];
 
-        test("Back end date in UTC time", () => {
-            const backEndDate = "1997-02-11T09:00:00+0000";
-            expect(backendDateToLocalTimeZone(backEndDate)).toBe("1997-02-11T21:00");
-
+            api.getUsersByActivityType.mockImplementation(() =>
+                Promise.resolve({
+                    data: response,
+                    status: 200
+                })
+            );
+            searchWrapper = shallowMount(Search, {router, mocks: {api}});
+            searchWrapper.setData(response);
+            return searchWrapper.vm.search("hiking biking", "or").then(() => {
+                expect(searchWrapper.vm.api.getUsersByActivityType).toHaveBeenCalledWith("hiking biking", "or");
+            });
         });
     });
 });
