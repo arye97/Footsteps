@@ -171,8 +171,8 @@
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_location">
                     {{ "Field is mandatory and a location must be set" }}
                 </div>
-                <div class="alert alert-success alert-dismissible fade show sticky-top" role="alert" id="overall_message" hidden>
-                    <p id="alert-message">{{ message }}</p>
+                <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="overall_message" hidden>
+                    <p id="alert-message">{{ overallMessageText }}</p>
                 </div>
                 <div>
                     <b-button variant="secondary" v-on:click="$router.back()">Back</b-button>
@@ -228,7 +228,6 @@
         data() {
             return {
                 activityTypes: [],
-                message: "",
                 nameCharCount: 0,
                 maxNameCharCount: 75,
                 descriptionCharCount: 0,
@@ -239,6 +238,7 @@
                 has_end_time: true,
 
                 isValidFormFlag: true,
+                overallMessageText: ""
             }
         },
         async created() {
@@ -257,7 +257,12 @@
                     if (!this.activity.continuous) {
                         this.formatDurationActivity();
                     }
-                    await this.submitActivityFunc();
+                    try {
+                        await this.submitActivityFunc();
+                    } catch(err) {
+                        this.overallMessageText = err.message;
+                        showError('overall_message');
+                    }
                 }
             },
 
