@@ -45,6 +45,8 @@ class UserControllerTest {
     @MockBean
     private EmailRepository emailRepository;
     @MockBean
+    private ActivityActivityTypeRepository activityActivityTypeRepository;
+    @MockBean
     private ActivityTypeRepository activityTypeRepository;
     @MockBean
     private UserActivityTypeRepository userActivityTypeRepository;
