@@ -16,7 +16,6 @@ import com.springvuegradle.seng302team600.service.ActivityTypeService;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,8 +46,6 @@ class UserControllerTest {
     private EmailRepository emailRepository;
     @MockBean
     private ActivityTypeRepository activityTypeRepository;
-    @MockBean
-    private ActivityActivityTypeRepository activityActivityTypeRepository;
     @MockBean
     private UserActivityTypeRepository userActivityTypeRepository;
     @MockBean

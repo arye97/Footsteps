@@ -368,12 +368,16 @@ public class UserController {
                                             HttpServletResponse response,
                                             @RequestParam(value="activity") String activityTypes,
                                             @RequestParam(value="method") String method) {
+        String token = request.getHeader("Token");
+        if (token == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not logged in");
+        }
+        if (activityTypes.length() < 1) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Activity Types must be specified");
+        }
         String[] activity_types = activityTypes.split("%");
         activity_types = activity_types[0].split(" ");
-        List<String> types = new ArrayList<>();
-        for (String type : activity_types) {
-            types.add(type);
-        }
+        List<String> types = new ArrayList<>(Arrays.asList(activity_types));
         //Need to get the activityTypeIds from the names
         List<Long> activityTypeIds = activityTypeRepository.findActivityTypeIdsByNames(types);
         int numActivityTypes = activityTypeIds.size();
@@ -384,8 +388,9 @@ public class UserController {
         } else if (method.equals("or")) {
             List<Long> userIds = userActivityTypeRepository.findBySomeActivityTypeIds(activityTypeIds); //Gets the userIds
             return userRepository.getUsersByIds(userIds);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Method must be specified as either (AND, OR)");
         }
-        return null;
     }
 }
 
