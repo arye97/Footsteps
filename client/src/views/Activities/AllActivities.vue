@@ -55,44 +55,42 @@
                                 </b-card-text>
                             </b-col>
                             <b-col md="6">
-                                <b-card-body class="cardButtons">
-                                    <b-button variant="outline-primary" v-on:click="goToPage(`/activities/edit/${activity.id}`)">Edit</b-button>
-                                </b-card-body>
-                                <b-card-body class="cardButtons">
-                                    <b-button variant="outline-primary" v-b-modal="'activity' + activity.id + '-continuous-modal'">Details</b-button>
-                                </b-card-body>
-                                <b-modal :id="'activity' + activity.id + '-continuous-modal'" size="lg" centered ok-only scrollable :title="activity.activity_name">
-                                    <b-card class="flex-fill" border-variant="secondary">
-                                        <b-row class="mb-1">
-                                            <b-col><strong>Creator: </strong></b-col>
-                                            <b-col>{{creatorName}}</b-col>
-                                        </b-row>
-                                        <b-row class="mb-1">
-                                            <b-col><strong>Location: </strong></b-col>
-                                            <b-col>{{activity.location}}</b-col>
-                                        </b-row>
-                                        <b-row class="mb-1">
-                                            <b-col><strong>Activity types: </strong></b-col>
-                                            <b-col>
-                                                <section v-for="activityType in activity.activity_type" v-bind:key="activityType">
-                                                    <div>
-                                                        {{activityType.name}}
-                                                    </div>
-                                                </section>
-                                            </b-col>
-                                        </b-row>
-                                    </b-card>
-                                    <br>
-                                    <b-card class="flex-fill" border-variant="secondary">
-                                        <p class="text-justified">
-                                            <strong>Description: </strong><br>
-                                            {{activity.description}}
-                                        </p>
-                                    </b-card>
-                                </b-modal>
-                                <b-card-body class="cardButtons">
-                                    <b-button variant="outline-danger" v-on:click="deleteActivity(activity.id)">Delete</b-button>
-                                </b-card-body>
+                                <div class="activity-button-group">
+                                    <b-button-group vertical>
+                                        <b-button variant="outline-primary" v-on:click="goToPage(`/activities/edit/${activity.id}`)">Edit</b-button>
+                                        <b-button variant="outline-primary" v-b-modal="'activity' + activity.id + '-continuous-modal'">Details</b-button>
+                                        <b-modal :id="'activity' + activity.id + '-continuous-modal'" size="lg" centered ok-only scrollable :title="activity.activity_name">
+                                            <b-card class="flex-fill" border-variant="secondary">
+                                                <b-row class="mb-1">
+                                                    <b-col><strong>Creator: </strong></b-col>
+                                                    <b-col>{{creatorName}}</b-col>
+                                                </b-row>
+                                                <b-row class="mb-1">
+                                                    <b-col><strong>Location: </strong></b-col>
+                                                    <b-col>{{activity.location}}</b-col>
+                                                </b-row>
+                                                <b-row class="mb-1">
+                                                    <b-col><strong>Activity types: </strong></b-col>
+                                                    <b-col>
+                                                        <section v-for="activityType in activity.activity_type" v-bind:key="activityType">
+                                                            <div>
+                                                                {{activityType.name}}
+                                                            </div>
+                                                        </section>
+                                                    </b-col>
+                                                </b-row>
+                                            </b-card>
+                                            <br>
+                                            <b-card class="flex-fill" border-variant="secondary">
+                                                <p class="text-justified">
+                                                    <strong>Description: </strong><br>
+                                                    {{activity.description}}
+                                                </p>
+                                            </b-card>
+                                        </b-modal>
+                                        <b-button variant="outline-danger" v-on:click="deleteActivity(activity.id)">Delete</b-button>
+                                    </b-button-group>
+                                </div>
                             </b-col>
                         </b-row>
                     </b-card>
@@ -125,57 +123,55 @@
                                     </b-card-text>
                                 </b-col>
                                 <b-col md="6">
-                                    <b-card-body class="cardButtons">
-                                        <b-button variant="outline-primary" v-on:click="goToPage(`/activities/edit/${activity.id}`)">Edit</b-button>
-                                    </b-card-body>
-                                    <b-card-body class="cardButtons">
-                                        <b-button variant="outline-primary" v-b-modal="'activity' + activity.id + '-duration-modal'">Details</b-button>
-                                    </b-card-body>
-                                    <b-modal :id="'activity' + activity.id + '-duration-modal'" size="lg" centered ok-only scrollable :title="activity.activity_name">
-                                        <b-card class="flex-fill" border-variant="secondary">
-                                            <b-row class="mb-1">
-                                                <b-col><strong>Creator: </strong></b-col>
-                                                <b-col>{{creatorName}}</b-col>
-                                            </b-row>
-                                            <b-row class="mb-1">
-                                                <b-col><strong>Start Date: </strong></b-col>
-                                                <b-col>{{getDateTime(activity.start_time)}}</b-col>
-                                            </b-row>
-                                            <b-row class="mb-1">
-                                                <b-col><strong>End Date: </strong></b-col>
-                                                <b-col>{{getDateTime(activity.end_time)}}</b-col>
-                                            </b-row>
-                                            <b-row class="mb-1">
-                                                <b-col><strong>Duration: </strong></b-col>
-                                                <b-col>{{getDays(activity)}} Days
-                                                    {{getHours(activity)}} Hours</b-col>
-                                            </b-row>
-                                            <b-row class="mb-1">
-                                                <b-col><strong>Location: </strong></b-col>
-                                                <b-col>{{activity.location}}</b-col>
-                                            </b-row>
-                                            <b-row class="mb-1">
-                                                <b-col><strong>Activity types: </strong></b-col>
-                                                <b-col>
-                                                    <section v-for="activityType in activity.activity_type" v-bind:key="activityType">
-                                                        <div>
-                                                            {{activityType.name}}
-                                                        </div>
-                                                    </section>
-                                                </b-col>
-                                            </b-row>
-                                        </b-card>
-                                        <br>
-                                        <b-card class="flex-fill" border-variant="secondary">
-                                            <p class="text-justified">
-                                                <strong>Description: </strong><br>
-                                                {{activity.description}}
-                                            </p>
-                                        </b-card>
-                                    </b-modal>
-                                    <b-card-body class="cardButtons">
-                                        <b-button variant="outline-danger" v-on:click="deleteActivity(activity.id)">Delete</b-button>
-                                    </b-card-body>
+                                    <div class="activity-button-group">
+                                        <b-button-group vertical>
+                                            <b-button variant="outline-primary" v-on:click="goToPage(`/activities/edit/${activity.id}`)">Edit</b-button>
+                                            <b-button variant="outline-primary" v-b-modal="'activity' + activity.id + '-duration-modal'">Details</b-button>
+                                            <b-modal :id="'activity' + activity.id + '-duration-modal'" size="lg" centered ok-only scrollable :title="activity.activity_name">
+                                            <b-card class="flex-fill" border-variant="secondary">
+                                                <b-row class="mb-1">
+                                                    <b-col><strong>Creator: </strong></b-col>
+                                                    <b-col>{{creatorName}}</b-col>
+                                                </b-row>
+                                                <b-row class="mb-1">
+                                                    <b-col><strong>Start Date: </strong></b-col>
+                                                    <b-col>{{getDateTime(activity.start_time)}}</b-col>
+                                                </b-row>
+                                                <b-row class="mb-1">
+                                                    <b-col><strong>End Date: </strong></b-col>
+                                                    <b-col>{{getDateTime(activity.end_time)}}</b-col>
+                                                </b-row>
+                                                <b-row class="mb-1">
+                                                    <b-col><strong>Duration: </strong></b-col>
+                                                    <b-col>{{getDays(activity)}} Days
+                                                        {{getHours(activity)}} Hours</b-col>
+                                                </b-row>
+                                                <b-row class="mb-1">
+                                                    <b-col><strong>Location: </strong></b-col>
+                                                    <b-col>{{activity.location}}</b-col>
+                                                </b-row>
+                                                <b-row class="mb-1">
+                                                    <b-col><strong>Activity types: </strong></b-col>
+                                                    <b-col>
+                                                        <section v-for="activityType in activity.activity_type" v-bind:key="activityType">
+                                                            <div>
+                                                                {{activityType.name}}
+                                                            </div>
+                                                        </section>
+                                                    </b-col>
+                                                </b-row>
+                                            </b-card>
+                                            <br>
+                                            <b-card class="flex-fill" border-variant="secondary">
+                                                <p class="text-justified">
+                                                    <strong>Description: </strong><br>
+                                                    {{activity.description}}
+                                                </p>
+                                            </b-card>
+                                        </b-modal>
+                                            <b-button variant="outline-danger" v-on:click="deleteActivity(activity.id)">Delete</b-button>
+                                        </b-button-group>
+                                    </div>
                                 </b-col>
                             </b-row>
                     </b-card>
@@ -323,9 +319,13 @@
     .text-justified {
         text-align: justify;
     }
-    .cardButtons {
-        display: flex;
-        align-items: center;
-        justify-content: center;
+
+    .activity-button-group {
+        padding-top: 40px;
+        padding-left: 70px;
+    }
+
+    .activity-button-group button {
+        width: 200%;
     }
 </style>
