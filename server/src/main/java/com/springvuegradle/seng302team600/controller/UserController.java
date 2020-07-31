@@ -356,14 +356,28 @@ public class UserController {
             params = { "activity", "method" },
             method = RequestMethod.GET
     )
+    /**
+     * Returns a list of users having activity types attributed to their profiles
+     * Either using AND so all provided activity types MUST be included in returned user or
+     * OR where one or more can be related to a user
+     * @param activity the list of activity types
+     * @param method the method to use (OR, AND)
+     * @return a list of users
+     */
     public List<User> getUsersByActivityType(HttpServletRequest request,
                                             HttpServletResponse response,
                                             @RequestParam(value="activity") String activityTypes,
                                             @RequestParam(value="method") String method) {
+        String token = request.getHeader("Token");
+        if (token == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not logged in");
+        }
+        if (activityTypes.length() < 1) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Activity Types must be specified");
+        }
         String[] activity_types = activityTypes.split("%");
         activity_types = activity_types[0].split(" ");
-        List<String> types = Arrays.asList(activity_types);
-
+        List<String> types = new ArrayList<>(Arrays.asList(activity_types));
         //Need to get the activityTypeIds from the names
         List<Long> activityTypeIds = activityTypeRepository.findActivityTypeIdsByNames(types);
         int numActivityTypes = activityTypeIds.size();
@@ -374,8 +388,9 @@ public class UserController {
         } else if (method.equals("or")) {
             List<Long> userIds = userActivityTypeRepository.findBySomeActivityTypeIds(activityTypeIds); //Gets the userIds
             return userRepository.getUsersByIds(userIds);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Method must be specified as either (AND, OR)");
         }
-        return null;
     }
 }
 
