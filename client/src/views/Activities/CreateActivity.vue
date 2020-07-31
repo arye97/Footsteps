@@ -74,22 +74,18 @@
                 };
 
                 // Send the activityForm to the server to create a new activity
-                await api.createActivity(activityForm, this.activity.profileId)
-                    .then(() => { // If successfully registered the response will have a status of 201
+                await api.createActivity(activityForm, this.activity.profileId).then(() => { // If successfully registered the response will have a status of 201
                         this.$router.push("/activities");
-                    }
-                    ).catch(error => {
-                    if (error.response.data.status === 401) {
+                    }).catch(error => {
+                        console.log(error.response.status)
+                    if (error.response.status === 401) {
                         this.$router.push("/login");
-                    } else if (error.response.data.status === 400) {
-                        this.message = "Entered activity field(s) are invalid";
-                        this.showError('overall_message');
-                    } else if (error.response.data.status === 403) {
-                        this.message = "Sorry unable to create this activity (forbidden access)"
-                        this.showError("overall_message");
+                    } else if (error.response.status === 400) {
+                        throw new Error("Entered activity field(s) are invalid");
+                    } else if (error.response.status === 403) {
+                        throw new Error("Sorry unable to create this activity (forbidden access)");
                     } else {
-                        this.message = "Unknown error has occurred whilst creating this activity";
-                        this.showError("overall_message");
+                        throw new Error("Unknown error has occurred whilst creating this activity");
                     }
                 })
             },
@@ -106,8 +102,9 @@
                     if (error.response.data.status === 401) {
                         this.$router.push("/login");
                     } else {
-                        this.message = "Unknown error has occurred whilst creating this activity";
-                        this.showError("overall_message");
+                        // this.message = "Unknown error has occurred whilst creating this activity";
+                        // this.showError("overall_message");
+                        throw new Error("Unknown error has occurred whilst creating this activity")
                     }
                 });
                 return userId

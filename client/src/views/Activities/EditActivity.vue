@@ -111,9 +111,8 @@
                     for (let i = 0; i < response.data.activity_type.length; i++) {
                         this.activity.selectedActivityTypes.push(response.data.activity_type[i].name);
                     }
-                    //need to also add in the activities activity types
                 }).catch(error => {
-                    if (error.response.data.status === 401) {
+                    if (error.response.status === 401) {
                         this.$router.push('/login');
                     } else {
                         this.$router.push({ name: 'myProfile' });
