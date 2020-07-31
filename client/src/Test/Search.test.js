@@ -13,23 +13,23 @@ test('Is a vue instance', () => {
 });
 
 test('Activities search bos exists', () => {
-    expect(searchPage.find('#searchBoxActivities').exists()).toBeTruthy()
+    expect(searchPage.find('#searchBoxActivities').exists()).toBeTruthy();
 });
 
 test('Search mode selector exists', () => {
-    expect(searchPage.find('#searchModeSelect').exists()).toBeTruthy()
+    expect(searchPage.find('#searchModeSelect').exists()).toBeTruthy();
 });
 
 test('Search button exists', () => {
-    expect(searchPage.find('#searchButton').exists()).toBeTruthy()
+    expect(searchPage.find('#searchButton').exists()).toBeTruthy();
 });
 
 test('And search operator radio button exists', () => {
-    expect(searchPage.find('#andRadioButton').exists()).toBeTruthy()
+    expect(searchPage.find('#andRadioButton').exists()).toBeTruthy();
 });
 
 test('Or search operator radio button exists', () => {
-    expect(searchPage.find('#orRadioButton').exists()).toBeTruthy()
+    expect(searchPage.find('#orRadioButton').exists()).toBeTruthy();
 });
 
 

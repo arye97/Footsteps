@@ -63,7 +63,7 @@
             Header,
             Multiselect
         },
-
+        //todo: replace b-card on lines 45-49 with user cards. Current card is just for debugging/testing
         data() {
             return {
                 searchMode: 'activityType',
