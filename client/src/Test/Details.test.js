@@ -35,18 +35,58 @@ beforeEach(() => {
   editWrapper = mount(Details, {router, mocks: {api}, sync: false});
 });
 
-
-
 test('Is a vue instance', () => {
   expect(editWrapper.isVueInstance).toBeTruthy();
 });
 
-test('Check that an error is thrown if the first name is changed', async () => {
-  let updatedUser = getChangeableUser();
-  updatedUser.firstname = "Mutate";
-  //Have to wait for the next tick in the test so that the dom will render properly
-  await editWrapper.vm.$nextTick();
-  editWrapper.find('#firstname').setValue("Mutate");
-  editWrapper.find('#saveChanges-btn').trigger('click');
-  expect(editWrapper.vm.api.editProfile).toBeCalledWith(updatedUser, testUser.id);
+describe('On first name ', () => {
+  test('change the profile is updated', () => {
+    let updatedUser = getChangeableUser();
+    updatedUser.firstname = "Mutate";
+    //Have to wait for the next tick in the test so that the dom will render properly
+    editWrapper.vm.$nextTick().then(() => {
+      editWrapper.find('#firstname').setValue("Mutate");
+      editWrapper.find('#saveChanges-btn').trigger('click').then(() => {
+        expect(editWrapper.vm.api.editProfile).toBeCalledWith(updatedUser, testUser.id);
+      });
+    });
+  });
+
+  test('deletion an error is thrown', () => {
+    let updatedUser = getChangeableUser();
+    updatedUser.firstname = "";
+    //Have to wait for the next tick in the test so that the dom will render properly
+    editWrapper.vm.$nextTick().then(() => {
+      editWrapper.find('#firstname').setValue("");
+      editWrapper.find('#saveChanges-btn').trigger('click').then(() => {
+        expect(editWrapper.vm.api.editProfile).toBeCalledTimes(0);
+      });
+    });
+  });
+});
+
+describe('On middle name ', () => {
+  test('change the profile is updated', () => {
+    let updatedUser = getChangeableUser();
+    updatedUser.middlename = "Mutate";
+    //Have to wait for the next tick in the test so that the dom will render properly
+    editWrapper.vm.$nextTick().then(() => {
+      editWrapper.find('#middlename').setValue("");
+      editWrapper.find('#saveChanges-btn').trigger('click').then(() => {
+        expect(editWrapper.vm.api.editProfile).toBeCalledWith(updatedUser, testUser.id);
+      });
+    });
+  });
+
+  test('deletion the profile is updated', async () => {
+    let updatedUser = getChangeableUser();
+    updatedUser.middlename = "";
+    //Have to wait for the next tick in the test so that the dom will render properly
+    editWrapper.vm.$nextTick().then(() => {
+      editWrapper.find('#middlename').setValue("");
+      editWrapper.find('#saveChanges-btn').trigger('click').then(() => {
+        expect(editWrapper.vm.api.editProfile).toBeCalledWith(updatedUser, testUser.id);
+      });
+    });
+  });
 });
