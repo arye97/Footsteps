@@ -75,9 +75,8 @@
 
                 // Send the activityForm to the server to create a new activity
                 await api.createActivity(activityForm, this.activity.profileId).then(() => { // If successfully registered the response will have a status of 201
-                        this.$router.push("/activities");
-                    }).catch(error => {
-                        console.log(error.response.status)
+                    this.$router.push("/activities");
+                }).catch(error => {
                     if (error.response.status === 401) {
                         this.$router.push("/login");
                     } else if (error.response.status === 400) {
