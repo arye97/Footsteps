@@ -206,8 +206,7 @@
                 creatorName: null,
                 noMore: false,
                 activeTab: 0,
-                loading: true,
-                activityType: null
+                loading: true
             }
         },
         beforeMount() {
