@@ -91,7 +91,8 @@ export default new Router({
         {
             path: '/activities/',
             name: 'allActivities',
-            component: AllActivities
+            component: AllActivities,
+            props: true,
         },
         {
             path: '/profile/:userId/edit',
