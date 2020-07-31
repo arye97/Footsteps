@@ -361,9 +361,10 @@ public class UserController {
                                             @RequestParam(value="activity") String activityTypes,
                                             @RequestParam(value="method") String method) {
         String[] activity_types = activityTypes.split("%");
-        activity_types = activity_types[0].split(" ");
-        List<String> types = Arrays.asList(activity_types);
-
+        List<String> types = new ArrayList<>();
+        for (String type : activity_types) {
+            types.add(type);
+        }
         //Need to get the activityTypeIds from the names
         List<Long> activityTypeIds = activityTypeRepository.findActivityTypeIdsByNames(types);
         int numActivityTypes = activityTypeIds.size();
