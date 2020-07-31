@@ -356,6 +356,14 @@ public class UserController {
             params = { "activity", "method" },
             method = RequestMethod.GET
     )
+    /**
+     * Returns a list of users having activity types attributed to their profiles
+     * Either using AND so all provided activity types MUST be included in returned user or
+     * OR where one or more can be related to a user
+     * @param activity the list of activity types
+     * @param method the method to use (OR, AND)
+     * @return a list of users
+     */
     public List<User> getUsersByActivityType(HttpServletRequest request,
                                             HttpServletResponse response,
                                             @RequestParam(value="activity") String activityTypes,
