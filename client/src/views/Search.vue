@@ -97,13 +97,29 @@
             async search() {
                 let activityTypes = this.selectedActivityTypes.join(" ");
                 // Endpoint stuff
+
                 api.getUsersByActivityType(activityTypes, this.searchType)
                     .then(response => {
                         if (response.status === 200) {
                             console.log(response.data)
                             // Show users in page
                         }
-                    })
+                    }).catch(err => {
+                        if (err.response.status === 401) {
+                            // User is not logged in
+                            // todo redirecting screen message
+                            this.$router.push('/login');
+                        } else if (err.response.status === 400) {
+                            if (err.response.data.message === "Activity Types must be specified") {
+                                // todo alert activity types must be specified (can't be empty)
+                                console.log(err.response.data.message)
+                            } else if (err.response.data.message === "Method must be specified as either (AND, OR)") {
+                                // todo must specify method, although UI doesn't give you option to do this
+                                // I think we should instead do an "Unknown error occurred" page and then refresh page
+                                console.log(err.response.data.message)
+                            }
+                        }
+                })
             }
         }
     }
