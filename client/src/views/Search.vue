@@ -18,7 +18,7 @@
         <div class="container h-100">
             <b-row>
                 <b-col cols="8">
-                    <multiselect v-model="selectedActivityTypes" id="searchBoxActivities" v-on:select="unDisplayRules"
+                    <multiselect v-model="selectedActivityTypes" id="searchBoxActivities"
                                  :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
                                  placeholder="Select your activity types">
                         <template slot="noResult">Invalid activity type</template>
@@ -76,7 +76,9 @@
                     "Archery",
                     "E-sports",
                     "Fencing",
-                    "Boating"
+                    "Boating",
+                    "Hiking",
+                    "Biking"
                 ],
                 searchType: "and"
             }
@@ -92,9 +94,10 @@
              * @param searchTerm a string of activity types
              * @param method a string indicating AND or OR
              */
-            async search(searchTerm, method) {
+            async search() {
+                let activityTypes = this.selectedActivityTypes.join(" ");
                 // Endpoint stuff
-                api.getUsersByActivityType(searchTerm, method)
+                api.getUsersByActivityType(activityTypes, this.searchType)
                     .then(response => {
                         if (response.status === 200) {
                             console.log(response.data)
