@@ -7,14 +7,22 @@ jest.mock("../Api");
 let editEmail;
 let push;
 
-const PAUSE = 100;
+const PAUSE = 150;
 const DEFAULT_USER_ID = 1;
 const MAX_EMAILS = 5;
 
+/**
+ * A function to cause a delay before a promise is resolved
+ * @param milliseconds time to delay
+ * @returns {Promise<any>} code to execute after delay
+ */
 const sleep = (milliseconds) => {
     return new Promise(resolve => setTimeout(resolve, milliseconds))
 };
 
+/**
+ * Before each test, mock the necessary properties and methods.
+ */
 beforeEach(() => {
     return new Promise(resolve => {
         push = jest.fn();
@@ -48,6 +56,11 @@ beforeEach(() => {
                 $router
             }
         });
+
+        // This causes a delay between beforeEach finishing, and the tests being run.
+        // This isn't at all good practice, but its the only way I am able
+        // to get EditEmail to fully mount before the tests are run.
+        // resolve() signals the above promise to complete
         sleep(PAUSE).then(() => resolve());
     });
 });
