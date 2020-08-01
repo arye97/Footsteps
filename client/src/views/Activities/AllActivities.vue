@@ -237,6 +237,9 @@
     </b-container>
 
     <br/><br/>
+        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="overall_message" hidden>
+            <p id="alert-message">{{ overallMessageText }}</p>
+        </div>
     </div>
 
 </template>
@@ -245,6 +248,16 @@
     import Header from '../../components/Header/Header.vue'
     import api from "../../Api";
     import { formatDateTime } from "../../util";
+
+    function showError(alert_name) {
+        let errorAlert = document.getElementById(alert_name);
+
+        errorAlert.hidden = false;          //Show alert bar
+        setTimeout(function () {    //Hide alert bar after ~9000ms
+            errorAlert.hidden = true;
+        }, 9000);
+    }
+
     export default {
         name: "AllActivities",
         components : {
@@ -313,6 +326,12 @@
                 await api.getUserId().then(response => {
                     userId = response.data;
                     this.creatorId = userId;
+                }).catch(error => {
+                    if (error.response.data.status === 401) {
+                        this.$router.push("/login");
+                    } else {
+                        this.$router.push({ name: 'myProfile' });
+                    }
                 });
                 return userId
             },
@@ -326,17 +345,15 @@
                         this.loading = false;
                         this.activityList = response.data;
                     }).catch(error => {
-                        this.loading = false;
-                        this.errored = true;
-                        this.error_message = error.message;
-                        if ((error.code === "ECONNREFUSED") || (error.code === "ECONNABORTED")) {
-                            this.error_message = "Cannot connect to server - try again later!";
-                        } else if (error.status === 401){
-                            this.error_message = "No activities found!";
+                        if (error.response.status === 401) {
+                            this.$router.push('/login');
+                        } else if (error.response.status === 403) {
+                            this.overallMessageText = "Sorry unable to get activities (forbidden access)";
+                            showError('overall_message');
                         } else {
-                            this.error_message = "Something went wrong! Try again later!";
+                            this.$router.push({ name: 'myProfile' });
                         }
-                })
+                    })
             },
             goToPage(url) {
                 this.$router.push(url);
@@ -369,7 +386,8 @@
                         confirmDeleteActivity = value
                     })
                     .catch(err => {
-                        console.error(err)
+                        this.overallMessageText = err.message;
+                        showError('overall_message');
                     });
                 if (!confirmDeleteActivity) {
                     return;
@@ -380,7 +398,18 @@
 
                 // Delete from database
                 await api.deleteActivity(this.userId, activityId).catch(error => {
-                    console.error(error);
+                    if (error.response.status === 401) {
+                        this.$router.push("/login");
+                    } else if (error.response.status === 403) {
+                        this.overallMessageText = "Sorry unable to create this activity (forbidden access)";
+                        showError('overall_message');
+                    } else if (error.response.status === 404) {
+                        this.overallMessageText = "Activity not found";
+                        showError('overall_message');
+                    } else {
+                        this.overallMessageText = "An unknown error occurred";
+                        showError('overall_message');
+                    }
                 })
             },
           async getCreatorName() {
