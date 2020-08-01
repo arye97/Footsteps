@@ -78,8 +78,7 @@ public class UserAuthenticationService {
      * @return User requested or ResponseStatusException is thrown (if unauthorized or timed out)
      */
     public User findByToken(String token) {
-        System.out.println(token);
-        if (token == null) {
+        if (token == null || token.equals("[object Object]")) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not logged in");
         }
         User user = userRepository.findByToken(token);

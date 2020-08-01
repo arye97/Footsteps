@@ -370,7 +370,6 @@ public class UserController {
                                             @RequestParam(value="method") String method) {
         String token = request.getHeader("Token");
         // User validation
-        System.out.println(token);
         userService.findByToken(token);
 
         if (activityTypes.length() < 1) {

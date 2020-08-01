@@ -108,6 +108,7 @@
                         if (err.response.status === 401) {
                             // User is not logged in
                             // todo redirecting screen message
+                            console.log(err.response.data.message)
                             this.$router.push('/login');
                         } else if (err.response.status === 400) {
                             if (err.response.data.message === "Activity Types must be specified") {
