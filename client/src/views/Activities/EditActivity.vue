@@ -93,7 +93,17 @@
                             this.$router.push("/activities");
                         }
                     }
-                )
+                ).catch(error => {
+                        if (error.response.status === 401) {
+                            this.$router.push("/login");
+                        } else if (error.response.status === 404) {
+                            throw new Error("Activity not found");
+                        } else if (error.response.status === 403) {
+                            throw new Error("Sorry unable to edit this activity (forbidden access)");
+                        } else {
+                            throw new Error("Unknown error has occurred whilst editing this activity");
+                        }
+                    });
             },
 
             /**
@@ -144,6 +154,12 @@
                 let userId = null;
                 await api.getUserId().then(response => {
                     userId = response.data;
+                }).catch(error => {
+                    if (error.response.data.status === 401) {
+                        this.$router.push("/login");
+                    } else {
+                        this.$router.push({ name: 'myProfile' });
+                    }
                 });
                 return userId
             }

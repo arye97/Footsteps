@@ -2,6 +2,7 @@ import 'vue-jest'
 import {shallowMount} from '@vue/test-utils'
 import CreateActivity from "../views/Activities/CreateActivity";
 import api from "../Api";
+import router from "../index";
 jest.mock("../Api");
 
 let createActivity;
@@ -43,7 +44,7 @@ test('Is a vue instance', () => {
     expect(createActivity.isVueInstance).toBeTruthy();
 });
 
-test('Is a vue instance', () => {
+test('Catches an http status error of 400 or an invalid activity field when activity form is submitted and gives user an appropriate alert', () => {
     createActivity.setProps({
         ACTIVITY1
     });
@@ -54,4 +55,30 @@ test('Is a vue instance', () => {
 
     return createActivity.vm.submitCreateActivity().catch(
         error => expect(error).toEqual(new Error("Entered activity field(s) are invalid")));
+});
+
+test('Catches an http status error of 401 or user not authenticated when activity form is submitted and takes user to login page', () => {
+    createActivity.setProps({
+        ACTIVITY1
+    });
+
+    let networkError = new Error("Mocked Network Error");
+    networkError.response = {status: 401};   // Explicitly give the error a response.status
+    api.createActivity.mockImplementation(() => Promise.reject(networkError));  // Mocks errors sent from the server
+
+    return createActivity.vm.submitCreateActivity().catch(
+        error => expect(error).toBe(this.$router.push("/login")));
+});
+
+test('Catches an http status error of 403 or forbidden access when activity form is submitted and gives user an appropriate alert', () => {
+    createActivity.setProps({
+        ACTIVITY1
+    });
+
+    let networkError = new Error("Mocked Network Error");
+    networkError.response = {status: 403};   // Explicitly give the error a response.status
+    api.createActivity.mockImplementation(() => Promise.reject(networkError));  // Mocks errors sent from the server
+
+    return createActivity.vm.submitCreateActivity().catch(
+        error => expect(error).toEqual(new Error("Sorry unable to create this activity (forbidden access)")));
 });

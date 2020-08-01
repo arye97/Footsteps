@@ -101,9 +101,7 @@
                     if (error.response.data.status === 401) {
                         this.$router.push("/login");
                     } else {
-                        // this.message = "Unknown error has occurred whilst creating this activity";
-                        // this.showError("overall_message");
-                        throw new Error("Unknown error has occurred whilst creating this activity")
+                        throw new Error("Unknown error has occurred")
                     }
                 });
                 return userId
