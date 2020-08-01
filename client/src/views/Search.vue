@@ -71,17 +71,17 @@
                     { value: 'activityType', text: 'Activity Type'}
                 ],
                 selectedActivityTypes : [],
-                //todo: this list should be grabbed from the database, only hard coded for simplicity
-                activityTypes: [
-                    "Archery",
-                    "E-sports",
-                    "Fencing",
-                    "Boating",
-                    "Hiking",
-                    "Biking"
-                ],
+                activityTypes: [],
                 searchType: "and"
             }
+        },
+
+        async mounted() {
+            // If not logged in
+            if (!sessionStorage.getItem("token")) {
+                this.$router.push('/login'); //Routes to home on logout
+            }
+            await this.fetchActivityTypes();
         },
 
         methods: {
@@ -121,6 +121,18 @@
                             }
                         }
                 })
+            },
+
+            /**
+             * Fetch all possible activity types from the server
+             */
+            async fetchActivityTypes() {
+                await api.getActivityTypes().then(response => {
+                    this.activityTypes = response.data.map(activity => activity['name']);
+                    this.activityTypes.sort(function (a, b) {
+                        return a.toLowerCase().localeCompare(b.toLowerCase());
+                    });
+                });
             }
         }
     }
