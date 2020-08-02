@@ -3,7 +3,7 @@ package com.springvuegradle.seng302team600.service;
 import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
-import com.springvuegradle.seng302team600.payload.UserResponse;
+import com.springvuegradle.seng302team600.payload.LoginResponse;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -111,10 +111,10 @@ class UserAuthenticationServiceTest {
 
     @Test
     public void loginAuthorizedUsers() {
-        UserResponse userResponse = userService.login(userData.getPrimaryEmail(), userData.getPassword());
-        assertNotNull(userResponse);
-        assertEquals(dummyUser.getUserId(), userResponse.getUserId());
-        assertEquals(dummyUser.getToken(), userResponse.getToken());
+        LoginResponse loginResponse = userService.login(userData.getPrimaryEmail(), userData.getPassword());
+        assertNotNull(loginResponse);
+        assertEquals(dummyUser.getUserId(), loginResponse.getUserId());
+        assertEquals(dummyUser.getToken(), loginResponse.getToken());
     }
 
     @Test
