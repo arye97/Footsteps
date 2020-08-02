@@ -14,9 +14,7 @@ import com.springvuegradle.seng302team600.model.UserRole;
 import com.springvuegradle.seng302team600.payload.EditPasswordRequest;
 import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import com.springvuegradle.seng302team600.payload.UserResponse;
-import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
-import com.springvuegradle.seng302team600.repository.EmailRepository;
-import com.springvuegradle.seng302team600.repository.UserRepository;
+import com.springvuegradle.seng302team600.repository.*;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.apache.commons.logging.Log;
@@ -31,17 +29,18 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 public class UserController {
 
+    private final UserActivityTypeRepository userActivityTypeRepository;
     private UserAuthenticationService userService;
     private ActivityTypeService activityTypeService;
 
     private final UserRepository userRepository;
     private final EmailRepository emailRepository;
+    private final ActivityActivityTypeRepository activityActivityTypeRepository;
     private final ActivityTypeRepository activityTypeRepository;
     private final UserValidator userValidator;
 
@@ -60,13 +59,17 @@ public class UserController {
 
     public UserController(UserRepository userRepository, EmailRepository emailRepository,
                           UserAuthenticationService userService, ActivityTypeService activityTypeService,
+                          ActivityActivityTypeRepository activityActivityTypeRepository,
+                          UserActivityTypeRepository userActivityTypeRepository,
                           ActivityTypeRepository activityTypeRepository, UserValidator userValidator) {
         this.userRepository = userRepository;
         this.emailRepository = emailRepository;
         this.userService = userService;
         this.activityTypeService = activityTypeService;
+        this.activityActivityTypeRepository = activityActivityTypeRepository;
         this.activityTypeRepository = activityTypeRepository;
         this.userValidator = userValidator;
+        this.userActivityTypeRepository = userActivityTypeRepository;
     }
 
     /**
@@ -92,7 +95,8 @@ public class UserController {
      * @return User requested or null
      */
     @GetMapping("/profiles")
-    public User findUserData(HttpServletRequest request, HttpServletResponse response) {
+    public User findUserData(HttpServletRequest request,
+                             HttpServletResponse response) {
         String token = request.getHeader("Token");
         User user = userService.findByToken(token);
         user.setTransientEmailStrings();
@@ -346,4 +350,47 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authorized to access this data");
         }
     }
+
+    @RequestMapping(
+            value = "/profiles",
+            params = { "activity", "method" },
+            method = RequestMethod.GET
+    )
+    /**
+     * Returns a list of users having activity types attributed to their profiles
+     * Either using AND so all provided activity types MUST be included in returned user or
+     * OR where one or more can be related to a user
+     * @param activity the list of activity types
+     * @param method the method to use (OR, AND)
+     * @return a list of users
+     */
+    public List<User> getUsersByActivityType(HttpServletRequest request,
+                                            HttpServletResponse response,
+                                            @RequestParam(value="activity") String activityTypes,
+                                            @RequestParam(value="method") String method) {
+        String token = request.getHeader("Token");
+        if (token == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not logged in");
+        }
+        if (activityTypes.length() < 1) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Activity Types must be specified");
+        }
+        String[] activity_types = activityTypes.split("%");
+        activity_types = activity_types[0].split(" ");
+        List<String> types = new ArrayList<>(Arrays.asList(activity_types));
+        //Need to get the activityTypeIds from the names
+        List<Long> activityTypeIds = activityTypeRepository.findActivityTypeIdsByNames(types);
+        int numActivityTypes = activityTypeIds.size();
+
+        if (method.equals("and")) {
+            List<Long> userIds = userActivityTypeRepository.findByAllActivityTypeIds(activityTypeIds, numActivityTypes); //Gets the userIds
+            return userRepository.getUsersByIds(userIds);
+        } else if (method.equals("or")) {
+            List<Long> userIds = userActivityTypeRepository.findBySomeActivityTypeIds(activityTypeIds); //Gets the userIds
+            return userRepository.getUsersByIds(userIds);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Method must be specified as either (AND, OR)");
+        }
+    }
 }
+

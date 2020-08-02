@@ -7,14 +7,15 @@ import com.springvuegradle.seng302team600.Utilities.UserValidator;
 import com.springvuegradle.seng302team600.model.*;
 import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import com.springvuegradle.seng302team600.payload.UserResponse;
+import com.springvuegradle.seng302team600.repository.ActivityActivityTypeRepository;
 import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
+import com.springvuegradle.seng302team600.repository.UserActivityTypeRepository;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,8 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -42,7 +45,11 @@ class UserControllerTest {
     @MockBean
     private EmailRepository emailRepository;
     @MockBean
+    private ActivityActivityTypeRepository activityActivityTypeRepository;
+    @MockBean
     private ActivityTypeRepository activityTypeRepository;
+    @MockBean
+    private UserActivityTypeRepository userActivityTypeRepository;
     @MockBean
     private UserAuthenticationService userAuthenticationService;
     @MockBean
@@ -72,7 +79,6 @@ class UserControllerTest {
     @BeforeEach
     void setUp() {
         defaultAdminIsRegistered = false;
-
         MockitoAnnotations.initMocks(this);
         dummyUser1 = new User();
     }
@@ -83,6 +89,7 @@ class UserControllerTest {
             return i.getArgument(0).equals(dummyEmail.getEmail());
         });
     }
+
     private void setupMockingNoEmail(String json) throws JsonProcessingException {
         UserRegisterRequest regReq;
         regReq = objectMapper.treeToValue(objectMapper.readTree(json), UserRegisterRequest.class);
@@ -140,6 +147,62 @@ class UserControllerTest {
         when(userAuthenticationService.viewUserById(Mockito.anyLong(), Mockito.anyString())).thenAnswer(i -> {
             if ((long) i.getArgument(0) == 10L && i.getArgument(1) == validToken) return dummyUser2;
             else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        });
+        when(userActivityTypeRepository.findByAllActivityTypeIds(Mockito.anyList(), Mockito.anyInt())).thenAnswer(i -> {
+            List<Long> activityTypesToMatch = i.getArgument(0);
+            boolean matched = true;
+            List<Long> typeId = new ArrayList<>();
+            typeId.add(12L);
+            for (Long type : activityTypesToMatch) {
+                if (!typeId.contains(type)) {
+                    matched = false;
+                    break;
+                }
+            }
+            if (matched) {
+                List<Long> newUserList = new ArrayList<>();
+                newUserList.add(dummyUser1.getUserId());
+                return newUserList;
+            } else {
+                return null;
+            }
+        });
+        when(userActivityTypeRepository.findBySomeActivityTypeIds(Mockito.anyList())).thenAnswer(i -> {
+            List<Long> activityTypesToMatch = i.getArgument(0);
+            boolean matched = false;
+            List<Long> typeId = new ArrayList<>();
+            typeId.add(12L);
+            for (Long type : activityTypesToMatch) {
+                if (typeId.contains(type)) {
+                    matched = true;
+                    break;
+                }
+            }
+            if (matched) {
+                List<Long> newUserList = new ArrayList<>();
+                newUserList.add(DEFAULT_USER_ID);
+                return newUserList;
+            } else {
+                return null;
+            }
+        });
+        when(activityTypeRepository.findActivityTypeIdsByNames(Mockito.anyList())).thenAnswer(i -> {
+            List<Long> activityTypeList = new ArrayList<>();
+            activityTypeList.add(12L);
+            activityTypeList.add(34L);
+            return activityTypeList;
+        });
+        when(userRepository.getUsersByIds(Mockito.anyList())).thenAnswer(i -> {
+            if (i.getArguments()[0].equals(dummyUser1.getUserId())) {
+                List<User> users = new ArrayList<>();
+                users.add(dummyUser1);
+                return users;
+            } else {
+                List<User> users = new ArrayList<>();
+                users.add(dummyUser1);
+                return users;
+            }
+
         });
     }
 
@@ -530,7 +593,6 @@ class UserControllerTest {
                 .andExpect(status().isOk());
 
         //Check token
-        System.out.println(userId);
         MockHttpServletRequestBuilder getRequestCheckToken = MockMvcRequestBuilders.get("/check-profile/{id}", userId)
                 .header("Token", validToken);
         mvc.perform(getRequestCheckToken)
@@ -738,5 +800,42 @@ class UserControllerTest {
         MvcResult request = mvc.perform(httpReq).andExpect(status().isOk()).andReturn();
         assertNotNull(request);
         assertEquals("0", request.getResponse().getContentAsString()); //as we are getting content as string we check it to a string of 0
+    }
+
+    private final String newUserWithActivityTypes = JsonConverter.toJson(
+            "lastname", "Pocket",
+            "firstname", "Poly",
+            "middlename", "Michelle",
+            "nickname", "Pino",
+            "primary_email", "poly@pocket.com",
+            "password", "somepwd0",
+            "bio", "Poly Pocket is so tiny.",
+            "activity_types", new Object[]{"Hiking"},
+            "date_of_birth", "2000-11-11",
+            "gender", "Female",
+            "fitness", 3,
+            "passports", new Object[]{"Australia", "Antarctica"});
+
+    @Test
+    /**
+     * Tests the response of getting the user by activity types
+     * using the activity types set in the user
+     */
+    void getUserByActivityTypes() throws Exception {
+        setupMocking(newUserWithActivityTypes);
+
+        MockHttpServletRequestBuilder httpReqOR = MockMvcRequestBuilders.get("/profiles?activity=hiking%biking&method=or")
+                .header("Token", validToken);
+
+        MockHttpServletRequestBuilder httpReqAND = MockMvcRequestBuilders.get("/profiles?activity=hiking%biking&method=and")
+                .header("Token", validToken);
+
+        MvcResult requestOR = mvc.perform(httpReqOR).andExpect(status().isOk()).andReturn();
+        MvcResult requestAND = mvc.perform(httpReqAND).andExpect(status().isOk()).andReturn();
+
+        //As the response will have content-type: application/json we can't check for null
+        assertTrue(requestOR.getResponse().getContentAsString().length() > 1); // should be 1 as the user has hiking
+        assertEquals(0, requestAND.getResponse().getContentLength()); //should be equal as the user will not have BOTH hiking AND biking
+
     }
 }
