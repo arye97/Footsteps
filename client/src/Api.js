@@ -1,10 +1,13 @@
 import axios from 'axios'
 
+// Needed for testing
+require('dotenv').config();
+
 const SERVER_URL = process.env.VUE_APP_SERVER_ADD;
 
 const server = axios.create({
   baseURL: SERVER_URL,
-  timeout: 2000
+  timeout: 3000
 });
 
 function getTokenHeader() {
@@ -31,8 +34,8 @@ export default {
   checkProfile: (profileId) => server.get(`/check-profile/`.concat(profileId), getTokenHeader()),
   getUserEmails: (profileId) => server.get(`/profiles/${profileId}/emails`, getTokenHeader()),
   checkUserEmail: (insertedEmail) => server.get(`/email`, getExtendedTokenHeader({'email': insertedEmail})),
-  updateEmails: (emails, profileId) => server.post(`/profiles/${profileId}/emails`, emails, getTokenHeader()),
-  putEmails: (emails, profileId) => server.put(`/profiles/${profileId}/emails`, emails, getTokenHeader()),
+  setAdditionalEmails: (emails, profileId) => server.post(`/profiles/${profileId}/emails`, emails, getTokenHeader()),
+  setEmails: (emails, profileId) => server.put(`/profiles/${profileId}/emails`, emails, getTokenHeader()),
   logout: () => server.post('/logout', null, getTokenHeader()),
   updatePassword: (userId, oldPass, newPass, repeatPass) => server.put(`/profiles/${userId}/password`,
     {'old_password': oldPass, 'new_password': newPass, 'repeat_password': repeatPass}, getTokenHeader()),
@@ -43,5 +46,6 @@ export default {
   createActivity: (activityData, profileId) => server.post(`/profiles/${profileId}/activities`, activityData, getTokenHeader()),
   updateActivity: (activityData, profileId, activityId) => server.put(`/profiles/${profileId}/activities/${activityId}`, activityData, getTokenHeader()),
   getActivityData: (activityId) => server.get(`/activities/${activityId}`, getTokenHeader()),
-  getUserRoles: (userId) => server.get(`/profiles/${userId}/role`, getTokenHeader())
+  getUserRoles: (userId) => server.get(`/profiles/${userId}/role`, getTokenHeader()),
+  getUsersByActivityType: (activityTypes, method) => server.get(`profiles?activity=${activityTypes}&method=${method}`, getTokenHeader()),
 }

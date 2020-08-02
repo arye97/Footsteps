@@ -3,9 +3,7 @@
         <h1><br/><br/></h1>
         <b-container class="contents" fluid>
             <div class="container">
-                <template v-if="this.loading === false">
-                    <Header :userId="this.userId"/>
-                </template>
+                <Header :userId="this.userId"/>
                 <div class="row h-100">
                     <div class="col-12 text-center">
                         <section v-if="errored">
