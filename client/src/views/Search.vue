@@ -70,7 +70,7 @@
                         <b-list-group>
                             <section v-for="activityType in user.activityTypes" v-bind:key="activityType">
                                 <!-- Only display queried activity types -->
-                                <b-list-group-item v-if="selectedActivityTypes.indexOf(activityType.name) > -1" variant="success">
+                                <b-list-group-item v-if="selectedActivityTypes.indexOf(activityType.name) > -1" variant="primary">
                                     {{ activityType.name }}
                                 </b-list-group-item>
                             </section>
@@ -139,7 +139,6 @@
                 api.getUsersByActivityType(activityTypes, this.searchType)
                     .then(response => {
                         if (response.status === 200) {
-                            console.log(response.data)
                             // Show users in page
                             this.userList = response.data;
                         }
