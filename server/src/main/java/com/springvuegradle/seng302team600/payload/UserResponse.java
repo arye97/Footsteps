@@ -35,7 +35,7 @@ public class UserResponse {
     @JsonProperty("additional_email")
     private List<String> additionalEmails = new ArrayList<>();
 
-    @JsonProperty("activities")
+    @JsonProperty("activityTypes")
     private Set<ActivityType> activityTypes;
 
     //adding extra data for the user profile page redirection
