@@ -57,7 +57,7 @@
                 <b-row class="mb-1">
                     <b-col>
                         <!-- user.primary_email would be better but is null from BE -->
-                        <strong>Email: </strong>{{ user.emails[0].email }}
+                        <strong>Email: </strong>{{ user.primary_email }}
                         <br/><br/>
                         <div v-if="user.bio.length <= 75">
                             {{ user.bio }}
