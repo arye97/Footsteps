@@ -7,6 +7,7 @@ import com.springvuegradle.seng302team600.Utilities.UserValidator;
 import com.springvuegradle.seng302team600.model.*;
 import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import com.springvuegradle.seng302team600.payload.UserResponse;
+import com.springvuegradle.seng302team600.payload.UserSearchResponse;
 import com.springvuegradle.seng302team600.repository.ActivityActivityTypeRepository;
 import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
 import com.springvuegradle.seng302team600.repository.UserActivityTypeRepository;
@@ -31,6 +32,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -193,14 +195,14 @@ class UserControllerTest {
             return activityTypeList;
         });
         when(userRepository.getUsersByIds(Mockito.anyList())).thenAnswer(i -> {
-            if (i.getArguments()[0].equals(dummyUser1.getUserId())) {
+            List<Long> checkId = new ArrayList<>();
+            checkId.add(dummyUser1.getUserId());
+            if (i.getArguments()[0].equals(checkId)) {
                 List<User> users = new ArrayList<>();
                 users.add(dummyUser1);
                 return users;
             } else {
-                List<User> users = new ArrayList<>();
-                users.add(dummyUser1);
-                return users;
+                return null;
             }
 
         });
@@ -831,11 +833,11 @@ class UserControllerTest {
                 .header("Token", validToken);
 
         MvcResult requestOR = mvc.perform(httpReqOR).andExpect(status().isOk()).andReturn();
-        MvcResult requestAND = mvc.perform(httpReqAND).andExpect(status().isOk()).andReturn();
+        MvcResult requestAND = mvc.perform(httpReqAND).andExpect(status().is4xxClientError()).andReturn();
 
         //As the response will have content-type: application/json we can't check for null
         assertTrue(requestOR.getResponse().getContentAsString().length() > 1); // should be 1 as the user has hiking
-        assertEquals(0, requestAND.getResponse().getContentLength()); //should be equal as the user will not have BOTH hiking AND biking
+        assertNull(requestAND.getResponse().getContentType()); //should be equal as the user will not have BOTH hiking AND biking
 
     }
 }
