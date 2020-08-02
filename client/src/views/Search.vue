@@ -91,13 +91,11 @@
 
             /**
              * Searches a user based on a string of activity types and a method AND or OR
-             * @param searchTerm a string of activity types
-             * @param method a string indicating AND or OR
              */
             async search() {
+                // Converts list of activity types into string
+                // e.g. ["Hiking", "Biking"] into "Hiking Biking"
                 let activityTypes = this.selectedActivityTypes.join(" ");
-                // Endpoint stuff
-
                 api.getUsersByActivityType(activityTypes, this.searchType)
                     .then(response => {
                         if (response.status === 200) {
