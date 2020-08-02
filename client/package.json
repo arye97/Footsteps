@@ -32,10 +32,10 @@
     "babel-eslint": "^10.0.3",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^6.1.2",
-    "jest": "^25.1.0",
-    "vue-jest": "^3.0.5",
+    "jest": "^25.5.4",
     "jest-sonar-reporter": "^2.0.0",
     "sonarqube-scanner": "^2.6.0",
+    "vue-jest": "^3.0.5",
     "vue-template-compiler": "^2.6.11"
   },
   "eslintConfig": {

@@ -7,13 +7,11 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.Utilities.UserValidator;
 import com.springvuegradle.seng302team600.Utilities.PasswordValidator;
-import com.springvuegradle.seng302team600.model.ActivityType;
-import com.springvuegradle.seng302team600.model.DefaultAdminUser;
-import com.springvuegradle.seng302team600.model.User;
-import com.springvuegradle.seng302team600.model.UserRole;
+import com.springvuegradle.seng302team600.model.*;
 import com.springvuegradle.seng302team600.payload.EditPasswordRequest;
 import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import com.springvuegradle.seng302team600.payload.UserResponse;
+import com.springvuegradle.seng302team600.payload.UserSearchResponse;
 import com.springvuegradle.seng302team600.repository.*;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
@@ -364,10 +362,10 @@ public class UserController {
      * @param method the method to use (OR, AND)
      * @return a list of users
      */
-    public List<User> getUsersByActivityType(HttpServletRequest request,
-                                            HttpServletResponse response,
-                                            @RequestParam(value="activity") String activityTypes,
-                                            @RequestParam(value="method") String method) {
+    public List<UserSearchResponse> getUsersByActivityType(HttpServletRequest request,
+                                                           HttpServletResponse response,
+                                                           @RequestParam(value="activity") String activityTypes,
+                                                           @RequestParam(value="method") String method) {
         String token = request.getHeader("Token");
         if (token == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not logged in");
@@ -381,16 +379,31 @@ public class UserController {
         //Need to get the activityTypeIds from the names
         List<Long> activityTypeIds = activityTypeRepository.findActivityTypeIdsByNames(types);
         int numActivityTypes = activityTypeIds.size();
-
+        List<Long> userIds = new ArrayList<>();
         if (method.equals("and")) {
-            List<Long> userIds = userActivityTypeRepository.findByAllActivityTypeIds(activityTypeIds, numActivityTypes); //Gets the userIds
-            return userRepository.getUsersByIds(userIds);
+             userIds = userActivityTypeRepository.findByAllActivityTypeIds(activityTypeIds, numActivityTypes); //Gets the userIds
         } else if (method.equals("or")) {
-            List<Long> userIds = userActivityTypeRepository.findBySomeActivityTypeIds(activityTypeIds); //Gets the userIds
-            return userRepository.getUsersByIds(userIds);
+            userIds = userActivityTypeRepository.findBySomeActivityTypeIds(activityTypeIds); //Gets the userIds
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Method must be specified as either (AND, OR)");
         }
+        //Change the user objects list to a list of userSearchResponse payloads
+        List<User> userList =  userRepository.getUsersByIds(userIds);
+        if (userList.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No users have been found");
+        }
+        List<UserSearchResponse> userSearchList = new ArrayList<>();
+        for (User user : userList) {
+            String email;
+            if (user.getPrimaryEmail() == null) {
+                email = user.getEmails().get(0).getEmail();
+            } else {
+                email = user.getPrimaryEmail();
+            }
+            userSearchList.add(new UserSearchResponse(user.getLastName(), user.getFirstName(),
+                    user.getMiddleName(), user.getNickName(), email, user.getActivityTypes(), user.getUserId()));
+        }
+        return userSearchList;
     }
 }
 
