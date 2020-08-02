@@ -1,4 +1,3 @@
-import Search from '../views/Search';
 import "vue-jest"
 import api from '../Api'
 import {shallowMount} from "@vue/test-utils";
@@ -12,7 +11,7 @@ jest.mock('../Api');
 let searchPage;
 
 beforeEach(() => {
-    searchPage = shallowMount(SearchPage);
+    searchPage = shallowMount(SearchPage, { mocks: {api} });
 });
 
 test('Is a vue instance', () => {
@@ -37,12 +36,6 @@ test('And search operator radio button exists', () => {
 
 test('Or search operator radio button exists', () => {
     expect(searchPage.find('#orRadioButton').exists()).toBeTruthy();
-});
-
-let searchWrapper;
-
-beforeEach(() => {
-    searchWrapper = shallowMount(Search, { mocks: {api} });
 });
 
 
@@ -99,13 +92,13 @@ describe("Searching user based on activity types", () => {
                     status: 200
                 })
             );
-            searchWrapper = shallowMount(Search, {router, mocks: {api}});
-            searchWrapper.setData({
+            searchPage = shallowMount(SearchPage, {router, mocks: {api}});
+            searchPage.setData({
                 selectedActivityTypes: [ "Hiking" ],
                 searchType: "or"
             });
-            return searchWrapper.vm.search("Hiking", "or").then(() => {
-                expect(searchWrapper.vm.api.getUsersByActivityType).toHaveBeenCalledWith("Hiking", "or");
+            return searchPage.vm.search().then(() => {
+                expect(searchPage.vm.api.getUsersByActivityType).toHaveBeenCalledWith("Hiking", "or");
             });
         });
 
@@ -171,14 +164,49 @@ describe("Searching user based on activity types", () => {
                     status: 200
                 })
             );
-            searchWrapper = shallowMount(Search, {router, mocks: {api}});
-            searchWrapper.setData({
+            searchPage = shallowMount(SearchPage, {router, mocks: {api}});
+            searchPage.setData({
                     selectedActivityTypes: [ "Hiking", "Biking" ],
                     searchType: "or"
             });
-            return searchWrapper.vm.search("Hiking Biking", "or").then(() => {
-                expect(searchWrapper.vm.api.getUsersByActivityType).toHaveBeenCalledWith("Hiking Biking", "or");
+            return searchPage.vm.search().then(() => {
+                expect(searchPage.vm.api.getUsersByActivityType).toHaveBeenCalledWith("Hiking Biking", "or");
             });
         });
+    });
+});
+
+test('Fetch list of activity types from back-end', () => {
+    let activityTypes = [
+        {
+            activityTypeId: 1,
+            name: "4×4 Driving Experience"
+        },
+        {
+            activityTypeId: 2,
+            name: "Aeroplane flying and Aerobatics"
+        },
+        {
+            activityTypeId: 3,
+            name: "Airsoft"
+        }
+    ];
+
+    api.getActivityTypes.mockImplementation(() =>
+        Promise.resolve({
+            data: activityTypes,
+            status: 200
+        })
+    );
+    searchPage = shallowMount(SearchPage, {router, mocks: {api}});
+    searchPage.setData({
+        activityTypes: [
+            '4×4 Driving Experience',
+            'Aeroplane flying and Aerobatics',
+            'Airsoft'
+        ],
+    });
+    return searchPage.vm.fetchActivityTypes().then(() => {
+        expect(searchPage.vm.api.getActivityTypes).toHaveBeenCalledWith();
     });
 });
