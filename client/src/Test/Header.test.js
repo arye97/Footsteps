@@ -29,7 +29,7 @@ test('There are 4 possible collapsible links, when logged in', () => {
         }});
     expect(header.vm.isLoggedIn).toBeTruthy();
     const items = header.findAll('b-nav-item');
-    expect(items.length).toEqual(4);
+    expect(items.length).toEqual(5);
 });
 
 test('There are 2 possible collapsible links, when not logged in', () => {
