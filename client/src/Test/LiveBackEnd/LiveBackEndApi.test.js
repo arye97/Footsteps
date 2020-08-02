@@ -30,6 +30,36 @@ const USER1 = {
     activity_types: [ "Archery", "Astronomy", "Rock Climbing" ]
 };
 
+const USER2 = {
+    firstname: "Barry",
+    middlename: "Bora",
+    lastname: "Bora",
+    nickname: "Nancy",
+    primary_email: "nancy@testmail.com",
+    password: "password2",
+    date_of_birth: "1995-05-17",
+    gender: "Non-Binary",
+    bio: "This is my bio",
+    fitness: 2,
+    passports: [ "New Zealand", "Afghanistan" ],
+    activity_types: [ "Archery", "Hiking" ]
+};
+
+const USER3 = {
+    firstname: "Phillip",
+    middlename: "Ellen",
+    lastname: "Wilson",
+    nickname: "Mary",
+    primary_email: "sandy@testmail.com",
+    password: "password3",
+    date_of_birth: "2000-05-17",
+    gender: "Male",
+    bio: "This is my bio",
+    fitness: 2,
+    passports: [ "New Zealand", "Afghanistan" ],
+    activity_types: [ "Hiking", "Rock Climbing", "Astronomy" ]
+};
+
 const NEW_PASSWORD = "password2";
 
 const ADDITIONAL_EMAILS = ["arthur@pendragon.com", "merlin@beard.com"];
@@ -311,6 +341,52 @@ describe("Run tests on new user", () => {
         });
     });
 
+    describe("Searching for users", () => {
+
+        beforeAll(() => {
+            return api.register(USER2).catch(err => console.error(procError(err)));
+        });
+
+        beforeAll(() => {
+            return api.register(USER3).catch(err => console.error(procError(err)));
+        });
+
+        test("Get users by one activity type (OR)", () => {
+            return api.getUsersByActivityType("Archery", "or").then(response => {
+                expect(response.status).toEqual(200);
+                expect(response.data.length === 2).toBeTruthy();
+            }).catch(err => {
+                throw procError(err)
+            });
+        });
+
+        test("Get users by one activity type (AND)", () => {
+            return api.getUsersByActivityType("Hiking", "and").then(response => {
+                expect(response.status).toEqual(200);
+                expect(response.data.length === 2).toBeTruthy();
+            }).catch(err => {
+                throw procError(err)
+            });
+        });
+
+        test("Get users by more than one activity types (OR)", () => {
+            return api.getUsersByActivityType("Archery Hiking", "or").then(response => {
+                expect(response.status).toEqual(200);
+                expect(response.data.length === 3).toBeTruthy();
+            }).catch(err => {
+                throw procError(err)
+            });
+        });
+
+        test("Get users by more than one activity types (AND)", () => {
+            return api.getUsersByActivityType("Archery Hiking", "and").then(response => {
+                expect(response.status).toEqual(200);
+                expect(response.data.length === 1).toBeTruthy();
+            }).catch(err => {
+                throw procError(err)
+            });
+        });
+    });
 });
 
 
@@ -328,6 +404,9 @@ describe("Other miscellaneous tests", () => {
     });
 
 });
+
+
+
 
 
 
