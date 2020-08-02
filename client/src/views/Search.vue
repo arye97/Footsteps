@@ -34,10 +34,10 @@
                         Search</b-button>
                 </b-col>
                 <b-col cols="4" align-self="center">
-                    <b-form-radio id="andRadioButton" v-model="searchType" name="andType" value="and">Search including all</b-form-radio>
+                    <b-form-radio id="andRadioButton" v-model="searchType" name="andType" value="and">Search results match all selections</b-form-radio>
                 </b-col>
                 <b-col cols="4" align-self="center">
-                    <b-form-radio id="orRadioButton" v-model="searchType" name="orType" value="or">Search including some</b-form-radio>
+                    <b-form-radio id="orRadioButton" v-model="searchType" name="orType" value="or">Search results match at least one selection</b-form-radio>
                 </b-col>
             </b-row>
         </div>
@@ -131,13 +131,11 @@
 
             /**
              * Searches a user based on a string of activity types and a method AND or OR
-             * @param searchTerm a string of activity types
-             * @param method a string indicating AND or OR
              */
             async search() {
+                // Converts list of activity types into string
+                // e.g. ["Hiking", "Biking"] into "Hiking Biking"
                 let activityTypes = this.selectedActivityTypes.join(" ");
-                // Endpoint stuff
-
                 api.getUsersByActivityType(activityTypes, this.searchType)
                     .then(response => {
                         if (response.status === 200) {
