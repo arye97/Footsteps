@@ -1,11 +1,11 @@
 import 'vue-jest'
 import {shallowMount} from '@vue/test-utils'
-import CreateActivity from "../views/Activities/CreateActivity";
+import EditActivity from "../views/Activities/CreateActivity";
 import api from "../Api";
 import router from '../index';
 jest.mock("../Api");
 
-let createActivity;
+let editActivity;
 let config;
 const DEFAULT_USER_ID = 1;
 
@@ -15,7 +15,7 @@ beforeAll(() => {
     };
     // This Removes: TypeError: Cannot read property 'then' of undefined
     api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID, status: 200 }));
-    createActivity = shallowMount(CreateActivity, config);
+    editActivity = shallowMount(EditActivity, config);
 });
 
 const ACTIVITY1 = {
@@ -29,47 +29,34 @@ const ACTIVITY1 = {
 };
 
 test('Is a vue instance', () => {
-    expect(createActivity.isVueInstance).toBeTruthy();
-});
-
-test('Catches an http status error of 400 or an invalid activity field when activity form is submitted and gives user an appropriate alert', () => {
-    createActivity.setProps({
-        ACTIVITY1
-    });
-
-    let networkError = new Error("Mocked Network Error");
-    networkError.response = {status: 400};   // Explicitly give the error a response.status
-    api.createActivity.mockImplementation(() => Promise.reject(networkError));  // Mocks errors sent from the server
-
-    return createActivity.vm.submitCreateActivity().catch(
-        error => expect(error).toEqual(new Error("Entered activity field(s) are invalid")));
+    expect(editActivity.isVueInstance).toBeTruthy();
 });
 
 test('Catches an http status error of 401 or user not authenticated when activity form is submitted and takes user to login page', () => {
-    createActivity.setProps({
+    editActivity.setProps({
         ACTIVITY1
     });
 
     let networkError = new Error("Mocked Network Error");
     networkError.response = {status: 401};   // Explicitly give the error a response.status
-    api.createActivity.mockImplementation(() => Promise.reject(networkError));  // Mocks errors sent from the server
+    api.updateActivity.mockImplementation(() => Promise.reject(networkError));  // Mocks errors sent from the server
     let spy = jest.spyOn(router, 'push');
 
-    return createActivity.vm.submitCreateActivity().then(() => {
+    return editActivity.vm.submitEditActivity().then(() => {
         expect(spy).toHaveBeenCalledWith('/login');
     });
-
 });
 
-test('Catches an http status error of 403 or forbidden access when activity form is submitted and gives user an appropriate alert', async () => {
-    createActivity.setProps({
+
+test('Catches an http status error of 403 or forbidden access when activity form is submitted and gives user an appropriate alert', () => {
+    editActivity.setProps({
         ACTIVITY1
     });
 
     let networkError = new Error("Mocked Network Error");
     networkError.response = {status: 403};   // Explicitly give the error a response.status
-    api.createActivity.mockImplementation(() => Promise.reject(networkError));  // Mocks errors sent from the server
+    api.updateActivity.mockImplementation(() => Promise.reject(networkError));  // Mocks errors sent from the server
 
-    return createActivity.vm.submitCreateActivity().catch(
+    return editActivity.vm.submitCreateActivity().catch(
         error => expect(error).toEqual(new Error("Sorry unable to create this activity (forbidden access)")));
 });
