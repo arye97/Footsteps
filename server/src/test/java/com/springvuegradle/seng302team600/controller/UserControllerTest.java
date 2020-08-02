@@ -6,8 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springvuegradle.seng302team600.Utilities.UserValidator;
 import com.springvuegradle.seng302team600.model.*;
 import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
-import com.springvuegradle.seng302team600.payload.UserResponse;
-import com.springvuegradle.seng302team600.payload.UserSearchResponse;
+import com.springvuegradle.seng302team600.payload.LoginResponse;
 import com.springvuegradle.seng302team600.repository.ActivityActivityTypeRepository;
 import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
 import com.springvuegradle.seng302team600.repository.UserActivityTypeRepository;
@@ -32,7 +31,6 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -130,7 +128,7 @@ class UserControllerTest {
         ReflectionTestUtils.setField(dummyUser1, "userId", DEFAULT_USER_ID);
         ReflectionTestUtils.setField(dummyEmail, "emailId", DEFAULT_EMAIL_ID);
         when(userAuthenticationService.login(Mockito.anyString(),Mockito.anyString())).thenAnswer(i -> {
-                if (i.getArgument(0).equals(dummyEmail.getEmail()) && dummyUser1.checkPassword(i.getArgument(1))) return new UserResponse("ValidToken", dummyUser1.getUserId());
+                if (i.getArgument(0).equals(dummyEmail.getEmail()) && dummyUser1.checkPassword(i.getArgument(1))) return new LoginResponse("ValidToken", dummyUser1.getUserId());
                 else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         });
         Mockito.doAnswer(i -> {
