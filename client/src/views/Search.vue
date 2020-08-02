@@ -132,6 +132,11 @@
                     this.activityTypes.sort(function (a, b) {
                         return a.toLowerCase().localeCompare(b.toLowerCase());
                     });
+                }).catch(err => {
+                    // To Code reviewer: I'm not sure if we've defined any errors for
+                    // this function in the back-end
+                    // Only thing I can think of is a 500 error
+                    console.log(err.response.status)
                 });
             }
         }
