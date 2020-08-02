@@ -250,10 +250,10 @@
                 evt.preventDefault();
                 this.isValidFormFlag = true;
                 await this.validateActivityInputs();
+                // There should not be a if (!this.activity.continuous) here.
+                // If there is when merging, take the one without this statement.
                 if (this.isValidFormFlag) {
-                    if (!this.activity.continuous) {
-                        this.formatDurationActivity();
-                    }
+                    this.formatDurationActivity();
                     await this.submitActivityFunc();
                 }
             },
