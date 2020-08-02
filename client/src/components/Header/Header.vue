@@ -22,6 +22,11 @@
                         <router-link :to="{ name: 'allActivities' }"
                                      class="nav-link">My Activities</router-link>
                     </b-nav-item>
+                    <b-nav-item  v-if=this.isLoggedIn>
+                        <router-link
+                                :to="{ name: 'searchPage' }"
+                                class="nav-link">Search</router-link>
+                    </b-nav-item>
                     <b-nav-item v-if=this.isLoggedIn>
                         <router-link
                                 :to="{ name: 'myProfile' }"
