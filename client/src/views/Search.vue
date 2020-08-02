@@ -18,7 +18,7 @@
         <div class="container h-100">
             <b-row>
                 <b-col cols="8">
-                    <multiselect v-model="selectedActivityTypes" id="searchBoxActivities" v-on:select="unDisplayRules"
+                    <multiselect v-model="selectedActivityTypes" id="searchBoxActivities"
                                  :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
                                  placeholder="Select your activity types">
                         <template slot="noResult">Invalid activity type</template>
@@ -47,7 +47,6 @@
                 <b-card-text>{{ selectedActivityTypes }}</b-card-text>
                 <b-card-text>{{ searchType }}</b-card-text>
             </b-card>
-
         </div>
     </b-container>
     </div>
@@ -56,6 +55,7 @@
 <script>
     import Header from '../components/Header/Header.vue';
     import Multiselect from 'vue-multiselect'
+    import api from '../Api';
 
     export default {
         name: "Search",
@@ -76,7 +76,9 @@
                     "Archery",
                     "E-sports",
                     "Fencing",
-                    "Boating"
+                    "Boating",
+                    "Hiking",
+                    "Biking"
                 ],
                 searchType: "and"
             }
@@ -87,9 +89,36 @@
                 this.$router.push(url);
             },
 
-            search() {
-                // called when search button is hit
-                //todo: add functionality
+            /**
+             * Searches a user based on a string of activity types and a method AND or OR
+             */
+            async search() {
+                // Converts list of activity types into string
+                // e.g. ["Hiking", "Biking"] into "Hiking Biking"
+                let activityTypes = this.selectedActivityTypes.join(" ");
+                api.getUsersByActivityType(activityTypes, this.searchType)
+                    .then(response => {
+                        if (response.status === 200) {
+                            console.log(response.data)
+                            // Show users in page
+                        }
+                    }).catch(err => {
+                        if (err.response.status === 401) {
+                            // User is not logged in
+                            // todo redirecting screen message
+                            console.log(err.response.data.message)
+                            this.$router.push('/login');
+                        } else if (err.response.status === 400) {
+                            if (err.response.data.message === "Activity Types must be specified") {
+                                // todo alert activity types must be specified (can't be empty)
+                                console.log(err.response.data.message)
+                            } else if (err.response.data.message === "Method must be specified as either (AND, OR)") {
+                                // todo must specify method, although UI doesn't give you option to do this
+                                // I think we should instead do an "Unknown error occurred" page and then refresh page
+                                console.log(err.response.data.message)
+                            }
+                        }
+                })
             }
         }
     }
