@@ -7,12 +7,10 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.Utilities.UserValidator;
 import com.springvuegradle.seng302team600.Utilities.PasswordValidator;
-import com.springvuegradle.seng302team600.model.ActivityType;
-import com.springvuegradle.seng302team600.model.DefaultAdminUser;
-import com.springvuegradle.seng302team600.model.User;
-import com.springvuegradle.seng302team600.model.UserRole;
+import com.springvuegradle.seng302team600.model.*;
 import com.springvuegradle.seng302team600.payload.EditPasswordRequest;
 import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
+import com.springvuegradle.seng302team600.payload.LoginResponse;
 import com.springvuegradle.seng302team600.payload.UserResponse;
 import com.springvuegradle.seng302team600.repository.*;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
@@ -95,7 +93,7 @@ public class UserController {
      * @return User requested or null
      */
     @GetMapping("/profiles")
-    public User findUserData(HttpServletRequest request,
+    public UserResponse findUserData(HttpServletRequest request,
                              HttpServletResponse response) {
         String token = request.getHeader("Token");
         User user = userService.findByToken(token);
@@ -104,7 +102,7 @@ public class UserController {
         user.setPassword(null);
 //        user.setToken(null);
         response.setStatus(HttpServletResponse.SC_OK); //200
-        return user;
+        return new UserResponse(user);
     }
 
     /**
@@ -115,8 +113,8 @@ public class UserController {
      */
     @GetMapping("/profiles/userId")
     public Long findUserId(HttpServletRequest request, HttpServletResponse response) {
-        User user = findUserData(request, response);
-        return user.getUserId();
+        UserResponse user = findUserData(request, response);
+        return user.getId();
     }
 
     /**
@@ -126,7 +124,7 @@ public class UserController {
      * @return User requested or null
      */
     @GetMapping("/profiles/{profileId}")
-    public User findSpecificUserData(HttpServletRequest request, HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) {
+    public UserResponse findSpecificUserData(HttpServletRequest request, HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) {
         String token = request.getHeader("Token");
         User user = userService.viewUserById(profileId, token);
         user.setTransientEmailStrings();
@@ -134,7 +132,7 @@ public class UserController {
         user.setPassword(null);
 //        user.setToken(null);
         response.setStatus(HttpServletResponse.SC_OK); //200
-        return user;
+        return new UserResponse(user);
     }
 
     /**
@@ -143,7 +141,7 @@ public class UserController {
      * @param response the http response
      */
     @PostMapping("/profiles")
-    public UserResponse newUser(@Validated @RequestBody UserRegisterRequest newUserData, HttpServletResponse response) {
+    public LoginResponse newUser(@Validated @RequestBody UserRegisterRequest newUserData, HttpServletResponse response) {
         if (emailRepository.existsEmailByEmail(newUserData.getPrimaryEmail())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email: " + newUserData.getPrimaryEmail() + " is already registered"); //409. It may be worth consider to a 200 error for security reasons
         }
@@ -164,9 +162,9 @@ public class UserController {
         //If mandatory fields not given, exception in UserRepository.save ends function execution and makes response body
         //Gives request status:400 and specifies needed field if null in required field
         userRepository.save(newUser);
-        UserResponse userResponse = userService.login(newUserData.getPrimaryEmail(), newUserData.getPassword());
+        LoginResponse loginResponse = userService.login(newUserData.getPrimaryEmail(), newUserData.getPassword());
         response.setStatus(HttpServletResponse.SC_CREATED); //201
-        return userResponse;
+        return loginResponse;
     }
 
     /**
@@ -177,16 +175,16 @@ public class UserController {
      * @return token to be stored by the client.
      */
     @PostMapping("/login")
-    public UserResponse logIn(@RequestBody String jsonLogInString, HttpServletResponse response) throws JsonProcessingException {
+    public LoginResponse logIn(@RequestBody String jsonLogInString, HttpServletResponse response) throws JsonProcessingException {
         ObjectNode node = new ObjectMapper().readValue(jsonLogInString, ObjectNode.class);
 
         if (node.has("email") && node.has("password")) {
             String email = node.get("email").toString().replace("\"", "");
             String password = node.get("password").toString().replace("\"", "");
             //ResponseStatusException thrown if email or password incorrect
-            UserResponse userResponse = userService.login(email, password);
+            LoginResponse loginResponse = userService.login(email, password);
             response.setStatus(HttpServletResponse.SC_CREATED); //201
-            return userResponse;
+            return loginResponse;
         }
         //email and/or password fields not given
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
@@ -364,10 +362,10 @@ public class UserController {
      * @param method the method to use (OR, AND)
      * @return a list of users
      */
-    public List<User> getUsersByActivityType(HttpServletRequest request,
-                                            HttpServletResponse response,
-                                            @RequestParam(value="activity") String activityTypes,
-                                            @RequestParam(value="method") String method) {
+    public List<UserResponse> getUsersByActivityType(HttpServletRequest request,
+                                                     HttpServletResponse response,
+                                                     @RequestParam(value="activity") String activityTypes,
+                                                     @RequestParam(value="method") String method) {
         String token = request.getHeader("Token");
         // User validation
         userService.findByToken(token);
@@ -381,16 +379,25 @@ public class UserController {
         //Need to get the activityTypeIds from the names
         List<Long> activityTypeIds = activityTypeRepository.findActivityTypeIdsByNames(types);
         int numActivityTypes = activityTypeIds.size();
-
+        List<Long> userIds = new ArrayList<>();
         if (method.equals("and")) {
-            List<Long> userIds = userActivityTypeRepository.findByAllActivityTypeIds(activityTypeIds, numActivityTypes); //Gets the userIds
-            return userRepository.getUsersByIds(userIds);
+             userIds = userActivityTypeRepository.findByAllActivityTypeIds(activityTypeIds, numActivityTypes); //Gets the userIds
         } else if (method.equals("or")) {
-            List<Long> userIds = userActivityTypeRepository.findBySomeActivityTypeIds(activityTypeIds); //Gets the userIds
-            return userRepository.getUsersByIds(userIds);
+            userIds = userActivityTypeRepository.findBySomeActivityTypeIds(activityTypeIds); //Gets the userIds
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Method must be specified as either (AND, OR)");
         }
+        //Change the user objects list to a list of userResponse payloads
+        List<User> userList =  userRepository.getUsersByIds(userIds);
+        if (userList.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No users have been found");
+        }
+        List<UserResponse> userSearchList = new ArrayList<>();
+        for (User user : userList) {
+            user.setTransientEmailStrings();
+            userSearchList.add(new UserResponse(user));
+        }
+        return userSearchList;
     }
 }
 
