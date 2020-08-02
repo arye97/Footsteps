@@ -367,9 +367,9 @@ public class UserController {
                                                            @RequestParam(value="activity") String activityTypes,
                                                            @RequestParam(value="method") String method) {
         String token = request.getHeader("Token");
-        if (token == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not logged in");
-        }
+        // User validation
+        userService.findByToken(token);
+
         if (activityTypes.length() < 1) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Activity Types must be specified");
         }
