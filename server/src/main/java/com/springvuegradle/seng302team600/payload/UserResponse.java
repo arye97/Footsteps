@@ -1,5 +1,6 @@
 package com.springvuegradle.seng302team600.payload;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springvuegradle.seng302team600.model.ActivityType;
 import com.springvuegradle.seng302team600.model.User;
@@ -51,30 +52,27 @@ public class UserResponse {
     @JsonProperty("gender")
     private User.Gender gender;
 
+    @JsonFormat(pattern="yyyy-MM-dd")
     @JsonProperty("date_of_birth")
     private Date dateOfBirth;
 
     @JsonProperty("bio")
     private String bio;
 
-    public UserResponse(String lastName, String firstName, String middleName,
-                        String nickName, String primaryEmail, List<String> additionalEmails,
-                        Set<ActivityType> activityTypes, Long id,
-                        List<String> passports, int fitnessLevel,
-                        User.Gender gender, Date dateOfBirth, String bio) {
-        this.lastName = lastName;
-        this.firstName = firstName;
-        this.middleName = middleName;
-        this.nickName = nickName;
-        this.primaryEmail = primaryEmail;
-        this.additionalEmails = additionalEmails;
-        this.activityTypes = activityTypes;
-        this.id = id;
-        this.passports = passports;
-        this.fitnessLevel = fitnessLevel;
-        this.gender = gender;
-        this.dateOfBirth = dateOfBirth;
-        this.bio = bio;
+    public UserResponse(User user) {
+        this.lastName = user.getLastName();
+        this.firstName = user.getFirstName();
+        this.middleName = user.getMiddleName();
+        this.nickName = user.getNickName();
+        this.primaryEmail = user.getPrimaryEmail();
+        this.additionalEmails = user.getAdditionalEmails();
+        this.activityTypes = user.getActivityTypes();
+        this.id = user.getUserId();
+        this.passports = user.getPassports();
+        this.fitnessLevel = user.getFitnessLevel();
+        this.gender = user.getGender();
+        this.dateOfBirth = user.getDateOfBirth();
+        this.bio = user.getBio();
     }
 
     public String getLastName() {

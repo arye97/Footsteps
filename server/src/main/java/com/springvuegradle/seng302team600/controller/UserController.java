@@ -93,7 +93,7 @@ public class UserController {
      * @return User requested or null
      */
     @GetMapping("/profiles")
-    public User findUserData(HttpServletRequest request,
+    public UserResponse findUserData(HttpServletRequest request,
                              HttpServletResponse response) {
         String token = request.getHeader("Token");
         User user = userService.findByToken(token);
@@ -102,7 +102,7 @@ public class UserController {
         user.setPassword(null);
 //        user.setToken(null);
         response.setStatus(HttpServletResponse.SC_OK); //200
-        return user;
+        return new UserResponse(user);
     }
 
     /**
@@ -113,8 +113,8 @@ public class UserController {
      */
     @GetMapping("/profiles/userId")
     public Long findUserId(HttpServletRequest request, HttpServletResponse response) {
-        User user = findUserData(request, response);
-        return user.getUserId();
+        UserResponse user = findUserData(request, response);
+        return user.getId();
     }
 
     /**
@@ -124,7 +124,7 @@ public class UserController {
      * @return User requested or null
      */
     @GetMapping("/profiles/{profileId}")
-    public User findSpecificUserData(HttpServletRequest request, HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) {
+    public UserResponse findSpecificUserData(HttpServletRequest request, HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) {
         String token = request.getHeader("Token");
         User user = userService.viewUserById(profileId, token);
         user.setTransientEmailStrings();
@@ -132,7 +132,7 @@ public class UserController {
         user.setPassword(null);
 //        user.setToken(null);
         response.setStatus(HttpServletResponse.SC_OK); //200
-        return user;
+        return new UserResponse(user);
     }
 
     /**
@@ -394,12 +394,8 @@ public class UserController {
         }
         List<UserResponse> userSearchList = new ArrayList<>();
         for (User user : userList) {
-            String email;
             user.setTransientEmailStrings();
-            userSearchList.add(new UserResponse(user.getLastName(), user.getFirstName(),
-                    user.getMiddleName(), user.getNickName(), user.getPrimaryEmail(), user.getAdditionalEmails(),
-                    user.getActivityTypes(), user.getUserId(), user.getPassports(), user.getFitnessLevel(),
-                    user.getGender(), user.getDateOfBirth(), user.getBio()));
+            userSearchList.add(new UserResponse(user));
         }
         return userSearchList;
     }
