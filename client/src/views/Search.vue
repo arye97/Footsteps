@@ -41,7 +41,19 @@
                 </b-col>
             </b-row>
         </div>
-        <section v-for="user in this.userList" :key="user.id">
+
+        <section v-if="errored" class="text-center">
+            <div class="alert alert-danger alert-dismissible fade show text-center" role="alert" id="alert">
+                {{ error_message }}
+            </div>
+        </section>
+        <section v-else-if="loading" class="text-center">
+            <br/>
+            <b-spinner variant="primary" label="Spinning"></b-spinner>
+            <br/>
+            <br/>
+        </section>
+        <section v-else v-for="user in this.userList" :key="user.id">
             <!-- User List -->
             <b-card border-variant="secondary" style="background-color: #f3f3f3">
                 <b-row class="mb-1">
@@ -105,14 +117,17 @@
                 ],
                 selectedActivityTypes : [],
                 activityTypes: [],
-                searchType: "and"
+                searchType: "and",
+                errored: false,
+                error_message: "Something went wrong! Please try again.",
+                loading: false
             }
         },
 
         async mounted() {
             // If not logged in
             if (!sessionStorage.getItem("token")) {
-                this.$router.push('/login'); //Routes to home on logout
+                await this.logout(); //Routes to home on logout
             }
             await this.fetchActivityTypes();
         },
@@ -135,6 +150,8 @@
             async search() {
                 // Converts list of activity types into string
                 // e.g. ["Hiking", "Biking"] into "Hiking Biking"
+                this.errored = false;
+                this.loading = true;
                 let activityTypes = this.selectedActivityTypes.join(" ");
                 api.getUsersByActivityType(activityTypes, this.searchType)
                     .then(response => {
@@ -142,25 +159,41 @@
                             // Show users in page
                             this.userList = response.data;
                         }
+                        this.loading = false;
                     }).catch(err => {
+                        this.loading = false;
+                        this.errored = true;
+                        this.userList = []
                         if (err.response.status === 401) {
-                            // User is not logged in
-                            // todo redirecting screen message
-                            console.log(err.response.data.message)
-                            this.$router.push('/login');
+                            this.error_message = "You aren't logged in! You're being redirected!"
+                            setTimeout(() => {this.logout()}, 3000)
                         } else if (err.response.status === 400) {
-                            if (err.response.data.message === "Activity Types must be specified") {
-                                // todo alert activity types must be specified (can't be empty)
-                                console.log(err.response.data.message)
-                            } else if (err.response.data.message === "Method must be specified as either (AND, OR)") {
-                                // todo must specify method, although UI doesn't give you option to do this
-                                // I think we should instead do an "Unknown error occurred" page and then refresh page
-                                console.log(err.response.data.message)
-                            }
+                            this.error_message = err.response.data.message;
+                        } else if (err.response.status === 404) {
+                            this.error_message = "No users with activity types ".concat(this.selectedActivityTypes) + " have been found!"
+                        } else {
+                            this.error_message = "Something went wrong! Please try again."
                         }
+
                 })
             },
-
+            /**
+             * Logout is used for when an error needs redirection
+             * we must actually log out the user rather than just redirect them
+             */
+            async logout() {
+                await api.logout().then(() => {
+                    sessionStorage.clear();
+                    this.isLoggedIn = (sessionStorage.getItem("token") !== null);
+                    this.$forceUpdate();
+                    this.$router.push('/login'); //Routes to home on logout
+                }).catch(() => {
+                    sessionStorage.clear();
+                    this.isLoggedIn = (sessionStorage.getItem("token") !== null);
+                    this.$forceUpdate();
+                    this.$router.push('/login'); //Routes to home on logout
+                })
+            },
             /**
              * Fetch all possible activity types from the server
              */
@@ -170,11 +203,12 @@
                     this.activityTypes.sort(function (a, b) {
                         return a.toLowerCase().localeCompare(b.toLowerCase());
                     });
-                }).catch(err => {
-                    // To Code reviewer: I'm not sure if we've defined any errors for
-                    // this function in the back-end
-                    // Only thing I can think of is a 500 error
-                    console.log(err.response.status)
+                }).catch(() => {
+                    this.errored = true;
+                    this.error_message = "Unable to connect to server - please try again later"
+                    setTimeout(() => {
+                        this.logout()
+                    }, 3000);
                 });
             }
         }
