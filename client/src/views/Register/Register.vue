@@ -388,7 +388,7 @@
                     if (response.status === 201) {
                         sessionStorage.setItem("token", response.data.Token);
                         // tokenStore.setToken(response.data);
-                        this.$router.push('/profile'); //Routes to profile on successful register
+                        this.$router.push('/'); //Routes to Home page on successful register
                     }
                 }).catch(error => {
                     //Get alert bar element

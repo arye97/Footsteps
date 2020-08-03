@@ -140,7 +140,6 @@
             }
         },
         async mounted() {
-
             await this.init();
         },
         methods: {
@@ -186,7 +185,7 @@
                             this.$router.push("/login");
                         }
                         else if (error.response.status === 500) {
-                            console.log(error.response.data.message);
+                            console.error(error.response.data.message);
                             // Return to root home screen when timeout.
                             this.$router.push('/');
                         }
@@ -229,9 +228,8 @@
              * @param emailIndex index of additional email to be set to primary
              */
             setPrimary(emailIndex) {
-                let additionalEmailId = "additionalEmail" + emailIndex;
                 // Obtain Primary Email Candidate from list of Additional Emails
-                let candidatePrimaryEmail = document.getElementById(additionalEmailId).innerText;
+                let candidatePrimaryEmail = this.additionalEmails[emailIndex];
                 // Replace Primary Email Candidate from list of Additional Emails with Old Primary Email
                 this.additionalEmails.splice(emailIndex, 1, this.primaryEmail);
                 // Set Primary Email Candidate
@@ -247,8 +245,7 @@
              * @param emailIndex index of additional email to be removed
              */
             deleteEmail(emailIndex) {
-                let additionalEmailId = "additionalEmail" + emailIndex;
-                let emailToBeRemoved = document.getElementById(additionalEmailId).innerText;
+                let emailToBeRemoved = this.additionalEmails[emailIndex];
                 // Remove emailToBeRemoved from this.additionalEmails
                 this.additionalEmails = this.additionalEmails.filter(
                     function(email) {
@@ -299,7 +296,7 @@
                             this.duplicateEmailError = null;
                         }).catch(error => {
                             if (error.response.status === 400) {
-                                console.log(error.response.data.message);
+                                console.error(error.response.data.message);
                                 let message = "Bad Request: email " + this.insertedEmail + " is already in use";
                                 // Disable add button if email is in use
                                 if (error.response.data.message === message) {
@@ -307,7 +304,7 @@
                                 }
                             }
                             if (error.response.status === 401) {
-                                console.log(error.response.data.message);
+                                console.error(error.response.data.message);
                             }
 
 
@@ -367,16 +364,16 @@
                         this.checkIfChangesMade();
                     }).catch(error => {
                         if (error.response.status === 400) {
-                            console.log(error.response.data.message);
+                            console.error(error.response.data.message);
                         }
                         else if (error.response.status === 401) {
-                            console.log(error.response.data.message);
+                            console.error(error.response.data.message);
                         }
                         else if (error.response.status === 403) {
-                            console.log(error.response.data.message);
+                            console.error(error.response.data.message);
                         }
                         else if (error.response.status === 404) {
-                            console.log(error.response.data.message);
+                            console.error(error.response.data.message);
                         }
                         this.primaryEmail = this.originalPrimaryEmail;
                         this.additionalEmails = Array.from(this.originalAdditionalEmails);
@@ -398,16 +395,16 @@
                         this.checkIfChangesMade();
                     }).catch(error => {
                         if (error.response.status === 400) {
-                            console.log(error.response.data.message);
+                            console.error(error.response.data.message);
                         }
                         else if (error.response.status === 401) {
-                            console.log(error.response.data.message);
+                            console.error(error.response.data.message);
                         }
                         else if (error.response.status === 403) {
-                            console.log(error.response.data.message);
+                            console.error(error.response.data.message);
                         }
                         else if (error.response.status === 404) {
-                            console.log(error.response.data.message);
+                            console.error(error.response.data.message);
                         }
                         this.primaryEmail = this.originalPrimaryEmail;
                         this.additionalEmails = Array.from(this.originalAdditionalEmails);
