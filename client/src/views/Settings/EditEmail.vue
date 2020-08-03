@@ -505,14 +505,12 @@
                     this.redirectionMessage = "Sorry, you are no longer logged in,\n" +
                         "Redirecting to the login page.";
                     setTimeout(() => {
-                        this.$router.push('/login');
+                        this.logout()
                     }, 4000);
                 } else if (error.response.status === 403) {
                     // If user ever gets to another user's edit email page and makes changes to it
                     this.redirectionMessage = "Sorry, you are not allowed to edit another user's profile,\n" +
                         "Redirecting to your edit emails page.";
-                    // MANUALLY route to own edit email page
-                    // will modify that when task[3692] is done
                     setTimeout(() => {
                         this.$router.push(`/profile/${this.userId}/edit`);
                     }, 4000);
