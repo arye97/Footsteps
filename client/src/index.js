@@ -10,7 +10,7 @@ import CreateActivity from "./views/Activities/CreateActivity";
 import EditActivity from "./views/Activities/EditActivity";
 import AllActivities from "./views/Activities/AllActivities";
 import EditProfile from "./views/Settings/EditProfile";
-import Search from "./views/Search";
+import Search from "./views/Search/Search";
 Vue.use(Router);
 Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
