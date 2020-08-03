@@ -3,7 +3,7 @@
         <h1><br/><br/></h1>
         <b-container class="contents" fluid>
             <div class="container">
-                <Header :userId="this.userId"/>
+                <Header v-if="showHeader" :userId="this.userId"/>
                 <div class="row h-100">
                     <div class="col-12 text-center">
                         <section v-if="errored">
@@ -141,6 +141,12 @@
         name: "ViewUser",
         components: {
             Header
+        },
+        props: {
+            showHeader: {
+                default: true,
+                type: Boolean
+            }
         },
         data() {
             return {
