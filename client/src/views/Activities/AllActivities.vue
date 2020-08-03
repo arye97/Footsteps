@@ -26,6 +26,9 @@
                 </div>
             </div>
         </div>
+        <b-alert variant="success" dismissible fade :show=this.alertCount>
+            {{this.alertMessage}}
+        </b-alert>
         <div style="text-align: center">
             <b-button style="margin-bottom: 1.7em; margin-top: 0.8em" variant="primary" v-on:click="goToPage('/activities/create')">Create New Activity</b-button>
         </div>
@@ -207,6 +210,16 @@
                 noMore: false,
                 activeTab: 0,
                 loading: true
+            }
+        },
+        props: {
+            alertCount: {
+                type: Number,
+                default: 0
+            },
+            alertMessage: {
+                type: String,
+                default: ''
             }
         },
         beforeMount() {
