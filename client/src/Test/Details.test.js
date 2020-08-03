@@ -21,6 +21,16 @@ const testUser = {
   activityTypes:[]
 };
 
+/**
+ * A function to cause a delay before a promise is resolved
+ * @param milliseconds time to delay
+ * @returns {Promise<any>} code to execute after delay
+ */
+const sleep = (milliseconds) => {
+  return new Promise(resolve => setTimeout(resolve, milliseconds))
+};
+
+
 function getChangeableUser() {
   let updatedUser = Object.assign({}, testUser);
   delete updatedUser.id;
@@ -28,12 +38,21 @@ function getChangeableUser() {
 }
 
 beforeEach(() => {
-  api.getActivityTypes.mockImplementation( () => Promise.resolve({data: [{name: 'testing'},{name: 'developing'}], status: 200}));
-  api.getUserData.mockImplementation( () => Promise.resolve({data: testUser, status: 200}));
-  api.checkProfile.mockImplementation( () => Promise.resolve({status:200}));
-  api.editProfile.mockImplementation( () => Promise.resolve({status:200}));
-  api.getCountries.mockImplementation( () => Promise.resolve({data: [{name: 'New Zealand'},{name: 'Australia'}], status:200}));
-  editWrapper = mount(Details, {router, attachToDocument: true, mocks: {api}});
+  return new Promise(resolve => {
+    api.getActivityTypes.mockImplementation(() => Promise.resolve({
+      data: [{name: 'testing'}, {name: 'developing'}],
+      status: 200
+    }));
+    api.getUserData.mockImplementation(() => Promise.resolve({data: testUser, status: 200}));
+    api.checkProfile.mockImplementation(() => Promise.resolve({status: 200}));
+    api.editProfile.mockImplementation(() => Promise.resolve({status: 200}));
+    api.getCountries.mockImplementation(() => Promise.resolve({
+      data: [{name: 'New Zealand'}, {name: 'Australia'}],
+      status: 200
+    }));
+    editWrapper = mount(Details, {router, attachToDocument: true, mocks: {api}});
+    sleep(150).then(() => resolve());
+  })
 });
 
 afterEach(() => {
