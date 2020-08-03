@@ -184,7 +184,6 @@
             async logout() {
                 await api.logout().then(() => {
                     sessionStorage.clear();
-                    // tokenStore.setToken(null);
                     this.isLoggedIn = (sessionStorage.getItem("token") !== null);
                     this.$forceUpdate();
                     this.$router.push('/login'); //Routes to home on logout
@@ -206,7 +205,7 @@
                     });
                 }).catch(() => {
                     this.errored = true;
-                    this.error_message = "500 - Unable to connect to server - please try again later"
+                    this.error_message = "Unable to connect to server - please try again later"
                     setTimeout(() => {
                         this.logout()
                     }, 3000);
