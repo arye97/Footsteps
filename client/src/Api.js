@@ -1,4 +1,5 @@
 import axios from 'axios'
+import {getCountryNames} from "./constants";
 
 // Needed for testing
 require('dotenv').config();
@@ -48,4 +49,5 @@ export default {
   getActivityData: (activityId) => server.get(`/activities/${activityId}`, getTokenHeader()),
   getUserRoles: (userId) => server.get(`/profiles/${userId}/role`, getTokenHeader()),
   getUsersByActivityType: (activityTypes, method) => server.get(`profiles?activity=${activityTypes}&method=${method}`, getTokenHeader()),
+  getCountries: () => server.get(getCountryNames),
 }
