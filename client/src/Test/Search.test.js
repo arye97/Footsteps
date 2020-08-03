@@ -3,7 +3,7 @@ import api from '../Api'
 import {shallowMount} from "@vue/test-utils";
 import router from "../index";
 
-import SearchPage from '../views/Search.vue'
+import SearchPage from '../views/Search/Search.vue'
 import "jest"
 
 jest.mock('../Api');

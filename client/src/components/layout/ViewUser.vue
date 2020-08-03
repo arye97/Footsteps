@@ -136,7 +136,7 @@
     import api from "../../Api";
     import {fitnessLevels} from '../../constants'
     import Header from '../../components/Header/Header';
-    //import {getDateString} from "../../util"
+
     export default {
         name: "ViewUser",
         components: {
