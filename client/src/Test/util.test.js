@@ -75,3 +75,21 @@ describe("Convert ISO8601 into readable date and AM/PM time", () => {
         });
     });
 });
+
+describe("Test current time functions", () => {
+
+    test("currentDateBackend returns a valid date", () => {
+        const dateStr = currentDateBackend();
+        expect(dateStr).not.toBeNull();
+        expect(dateStr).not.toBeUndefined();
+        expect(isNaN((new Date(dateStr)).getTime())).toBeFalsy();
+    });
+
+    test("currentDateFrontend returns a valid date", () => {
+        const dateStr = currentDateFrontend();
+        expect(dateStr).not.toBeNull();
+        expect(dateStr).not.toBeUndefined();
+        expect(isNaN((new Date(dateStr)).getTime())).toBeFalsy();
+    });
+
+});
