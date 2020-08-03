@@ -251,9 +251,7 @@
                 this.isValidFormFlag = true;
                 await this.validateActivityInputs();
                 if (this.isValidFormFlag) {
-                    if (!this.activity.continuous) {
-                        this.formatDurationActivity();
-                    }
+                    this.formatDurationActivity();
                     await this.submitActivityFunc();
                 }
             },
@@ -343,11 +341,19 @@
              * Format the dates correctly for the Backend.
              */
             formatDurationActivity() {
-                if (this.activity.submitStartTime.length === 10) {
+                if (this.activity.submitStartTime && this.activity.submitStartTime.length === 10) {
                     this.activity.submitStartTime = this.activity.submitStartTime.concat('T00:01')
                 }
-                if (this.activity.submitEndTime.length === 10) {
+                if (this.activity.submitEndTime && this.activity.submitEndTime.length === 10) {
                     this.activity.submitEndTime = this.activity.submitEndTime.concat('T00:01')
+                }
+
+                // These are used if a time is set and then the Include starting/ending time box is un-ticked
+                if (!this.has_start_time) {
+                    this.activity.submitStartTime = this.activity.submitStartTime.split('T')[0] + 'T12:00';
+                }
+                if (!this.has_end_time) {
+                    this.activity.submitEndTime = this.activity.submitEndTime.split('T')[0] + 'T12:00';
                 }
 
                 this.activity.submitStartTime = localTimeZoneToBackEndTime(this.activity.submitStartTime);
