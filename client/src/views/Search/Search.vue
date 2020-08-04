@@ -56,7 +56,7 @@
 
         <section v-else v-for="user in this.userList" :key="user.id">
             <!-- User List -->
-            <user-card :user="user"></user-card>
+            <user-card v-bind:user="user" v-bind:selectedActivityTypes="selectedActivityTypes"/>
             <br>
         </section>
     </b-container>

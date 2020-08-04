@@ -57,26 +57,16 @@
             user: {
                 id: Number,
                 firstname: String,
-                listname: String,
+                lastname: String,
                 primary_email: String,
                 bio: String,
                 activityTypes: Array,
-            }
-        },
-
-        data() {
-            return {
-                userList: [],
-                searchMode: 'activityType',
-                searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
-                    { value: 'activityType', text: 'Activity Type'}
-                ],
-                selectedActivityTypes : [],
-                activityTypes: [],
-                searchType: "and",
-                errored: false,
-                error_message: "Something went wrong! Please try again.",
-                loading: false
+            },
+            selectedActivityTypes: {
+                default() {
+                    return [];
+                },
+                type: Array
             }
         },
 
