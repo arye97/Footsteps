@@ -38,6 +38,7 @@ function getChangeableUser() {
 }
 
 beforeEach(() => {
+  //Uses timeout to prevent issues on the server that were occurring due to the wrapper not mounting in time
   return new Promise(resolve => {
     api.getActivityTypes.mockImplementation(() => Promise.resolve({
       data: [{name: 'testing'}, {name: 'developing'}],
@@ -63,106 +64,134 @@ test('Is a vue instance', () => {
   expect(editWrapper.isVueInstance).toBeTruthy();
 });
 
-describe('On first name ', () => {
-  it('change the profile is updated', done => {
+function testInputFieldSuccess(fieldName, updatedUser, done) {
+  //Have to wait for the next tick in the test so that the dom will render properly
+  editWrapper.vm.$nextTick().then(() => {
+    editWrapper.find('#' + fieldName).setValue(updatedUser[fieldName]);
+    editWrapper.find('#saveChanges-btn').trigger('click');
+    expect(editWrapper.vm.api.editProfile).toBeCalledWith(updatedUser, testUser.id);
+    done();
+  });
+}
+function testInputFieldFailure(fieldName, updatedUser, done) {
+  //Have to wait for the next tick in the test so that the dom will render properly
+  editWrapper.vm.$nextTick().then(() => {
+    editWrapper.find('#' + fieldName).setValue(updatedUser[fieldName]);
+    editWrapper.find('#saveChanges-btn').trigger('click');
+    expect(editWrapper.vm.api.editProfile).toBeCalledTimes(0);
+    done();
+  });
+}
+
+describe('Successful changes', () => {
+  it('Mutate first name', done => {
     let updatedUser = getChangeableUser();
     updatedUser.firstname = "Mutate";
-    //Have to wait for the next tick in the test so that the dom will render properly
+    testInputFieldSuccess('firstname', updatedUser, done);
+  });
+
+  it('Names with hyphens and apostrophes', done => {
+    let updatedUser = getChangeableUser();
+    updatedUser.firstname = "Te-st'r";
+    updatedUser.middlename = "Te-st'r";
+    updatedUser.lastname = "Te-st'r";
     editWrapper.vm.$nextTick().then(() => {
-      editWrapper.find('#firstname').setValue("Mutate");
+      editWrapper.find('#firstname').setValue("Te-st'r");
+      editWrapper.find('#middlename').setValue("Te-st'r");
+      editWrapper.find('#lastname').setValue("Te-st'r");
       editWrapper.find('#saveChanges-btn').trigger('click');
       expect(editWrapper.vm.api.editProfile).toBeCalledWith(updatedUser, testUser.id);
       done();
-    });
-  });
+    });  });
 
-  it('deletion an error is thrown', done => {
-    const updatedUser = getChangeableUser();
-    updatedUser.firstname = "";
-    //Have to wait for the next tick in the test so that the dom will render properly
-    editWrapper.vm.$nextTick().then(() => {
-      editWrapper.find('#firstname').setValue("");
-      editWrapper.find('#saveChanges-btn').trigger('click');
-      expect(editWrapper.vm.api.editProfile).toBeCalledTimes(0);
-      done();
-    });
-  });
-});
-
-describe('On middle name ', () => {
-  it('change the profile is updated', done => {
+  it('Mutate middle name', done => {
     let updatedUser = getChangeableUser();
     updatedUser.middlename = "Mutate";
-    //Have to wait for the next tick in the test so that the dom will render properly
-    editWrapper.vm.$nextTick().then(() => {
-      editWrapper.find('#middlename').setValue("Mutate");
-      editWrapper.find('#saveChanges-btn').trigger('click');
-      expect(editWrapper.vm.api.editProfile).toBeCalledWith(updatedUser, testUser.id);
-      done();
-    });
+    testInputFieldSuccess('middlename', updatedUser, done);
   });
 
-  it('deletion the profile is updated', done => {
+  it('Empty middle name', done => {
     let updatedUser = getChangeableUser();
     updatedUser.middlename = "";
-    //Have to wait for the next tick in the test so that the dom will render properly
-    editWrapper.vm.$nextTick().then(() => {
-      editWrapper.find('#middlename').setValue("");
-      editWrapper.find('#saveChanges-btn').trigger('click');
-      expect(editWrapper.vm.api.editProfile).toBeCalledWith(updatedUser, testUser.id);
-      done();
-    });
+    testInputFieldSuccess('middlename', updatedUser, done);
   });
-});
 
-describe('On last name ', () => {
-  it('change the profile is updated', done => {
+  it('Mutate last name', done => {
     let updatedUser = getChangeableUser();
     updatedUser.lastname = "Mutate";
-    //Have to wait for the next tick in the test so that the dom will render properly
-    editWrapper.vm.$nextTick().then(() => {
-      editWrapper.find('#lastname').setValue("Mutate");
-      editWrapper.find('#saveChanges-btn').trigger('click');
-      expect(editWrapper.vm.api.editProfile).toBeCalledWith(updatedUser, testUser.id);
-      done();
-    });
+    testInputFieldSuccess('lastname', updatedUser, done);
   });
 
-  it('deletion an error is thrown', done => {
+  it('Mutate nickname', done => {
+    let updatedUser = getChangeableUser();
+    updatedUser.nickname = "Mutate";
+    testInputFieldSuccess('nickname', updatedUser, done);
+  });
+
+  it('Empty nickname', done => {
+    let updatedUser = getChangeableUser();
+    updatedUser.nickname = "";
+    testInputFieldSuccess('nickname', updatedUser, done);
+  });
+
+  it('Mutate bio', done => {
+    let updatedUser = getChangeableUser();
+    updatedUser.bio = "Mutate";
+    testInputFieldSuccess('bio', updatedUser, done);
+  });
+
+  it('Empty bio', done => {
+    let updatedUser = getChangeableUser();
+    updatedUser.bio = "";
+    testInputFieldSuccess('bio', updatedUser, done);
+  });
+
+});
+
+describe('Unsuccessful changes', () => {
+  it('Empty first name', done => {
+    const updatedUser = getChangeableUser();
+    updatedUser.firstname = "";
+    testInputFieldFailure('firstname', updatedUser, done);
+  });
+  it('Numbered first name', done => {
+    const updatedUser = getChangeableUser();
+    updatedUser.firstname = "1234Tester";
+    testInputFieldFailure('firstname', updatedUser, done);
+  });
+  it('Empty last name', done => {
     const updatedUser = getChangeableUser();
     updatedUser.lastname = "";
-    //Have to wait for the next tick in the test so that the dom will render properly
-    editWrapper.vm.$nextTick().then(() => {
-      editWrapper.find('#lastname').setValue("");
-      editWrapper.find('#saveChanges-btn').trigger('click');
-      expect(editWrapper.vm.api.editProfile).toBeCalledTimes(0);
-      done();
-    });
+    testInputFieldFailure('lastname', updatedUser, done);
+  });
+  it('Numbered last name', done => {
+    const updatedUser = getChangeableUser();
+    updatedUser.lastname = "1234Tester";
+    testInputFieldFailure('lastname', updatedUser, done);
+  });
+  it('Numbered last name', done => {
+    const updatedUser = getChangeableUser();
+    updatedUser.lastname = "1234Tester";
+    testInputFieldFailure('lastname', updatedUser, done);
   });
 });
 
-describe('On nickname ', () => {
-  it('change the profile is updated', done => {
-    let updatedUser = getChangeableUser();
-    updatedUser.nickname = "Mutate";
-    //Have to wait for the next tick in the test so that the dom will render properly
-    editWrapper.vm.$nextTick().then(() => {
-      editWrapper.find('#nickname').setValue("Mutate");
-      editWrapper.find('#saveChanges-btn').trigger('click');
-      expect(editWrapper.vm.api.editProfile).toBeCalledWith(updatedUser, testUser.id);
-      done();
-    });
+describe('Required fields', () => {
+  it('Required fields are marked', done => {
+    expect(editWrapper.find('#firstname').element.required).toBeTruthy();
+    expect(editWrapper.find('#lastname').element.required).toBeTruthy();
+    //Multiselect boxes require a bit of extra work to check
+    expect(editWrapper.find('#genderDiv').find('.multiselect').attributes('required')).toBeTruthy();
+    expect(editWrapper.find('#date_of_birth').element.required).toBeTruthy();
+    done();
   });
-
-  it('deletion the profile is updated', done => {
-    let updatedUser = getChangeableUser();
-    updatedUser.nickname = "";
-    //Have to wait for the next tick in the test so that the dom will render properly
-    editWrapper.vm.$nextTick().then(() => {
-      editWrapper.find('#nickname').setValue("");
-      editWrapper.find('#saveChanges-btn').trigger('click');
-      expect(editWrapper.vm.api.editProfile).toBeCalledWith(updatedUser, testUser.id);
-      done();
-    });
+  it('Not required fields are not marked', done => {
+    expect(editWrapper.find('#middlename').element.required).toBeFalsy();
+    expect(editWrapper.find('#nickname').element.required).toBeFalsy();
+    expect(editWrapper.find('#fitnessDiv').find('.multiselect').attributes('required')).toBeFalsy();
+    expect(editWrapper.find('#passportsDiv').find('.multiselect').attributes('required')).toBeFalsy();
+    expect(editWrapper.find('#activityTypesDiv').find('.multiselect').attributes('required')).toBeFalsy();
+    expect(editWrapper.find('#bio').element.required).toBeFalsy();
+    done();
   });
 });
