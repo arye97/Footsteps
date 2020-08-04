@@ -351,17 +351,19 @@ describe("Run tests on new user", () => {
             return api.register(USER3).catch(err => console.error(procError(err)));
         });
 
+
         test("Get users by one activity type (OR)", () => {
-            return api.getUsersByActivityType("Archery", "or").then(response => {
+            return api.getUsersByActivityType(["Archery"], "or").then(response => {
                 expect(response.status).toEqual(200);
                 expect(response.data.length === 2).toBeTruthy();
             }).catch(err => {
                 throw procError(err)
             });
         });
+
 
         test("Get users by one activity type (AND)", () => {
-            return api.getUsersByActivityType("Hiking", "and").then(response => {
+            return api.getUsersByActivityType(["Hiking"], "and").then(response => {
                 expect(response.status).toEqual(200);
                 expect(response.data.length === 2).toBeTruthy();
             }).catch(err => {
@@ -369,8 +371,9 @@ describe("Run tests on new user", () => {
             });
         });
 
+
         test("Get users by more than one activity types (OR)", () => {
-            return api.getUsersByActivityType("Archery Hiking", "or").then(response => {
+            return api.getUsersByActivityType(["Archery", "Hiking"], "or").then(response => {
                 expect(response.status).toEqual(200);
                 expect(response.data.length === 3).toBeTruthy();
             }).catch(err => {
@@ -378,10 +381,21 @@ describe("Run tests on new user", () => {
             });
         });
 
+
         test("Get users by more than one activity types (AND)", () => {
-            return api.getUsersByActivityType("Archery Hiking", "and").then(response => {
+            return api.getUsersByActivityType(["Archery", "Hiking"], "and").then(response => {
                 expect(response.status).toEqual(200);
                 expect(response.data.length === 1).toBeTruthy();
+            }).catch(err => {
+                throw procError(err)
+            });
+        });
+
+
+        test("Get users with ActivityTypes containing spaces (OR)", () => {
+            return api.getUsersByActivityType(["Rock-Climbing"], "or").then(response => {
+                expect(response.status).toEqual(200);
+                expect(response.data.length).toEqual(2);
             }).catch(err => {
                 throw procError(err)
             });

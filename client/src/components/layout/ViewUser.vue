@@ -3,7 +3,7 @@
         <h1><br/><br/></h1>
         <b-container class="contents" fluid>
             <div class="container">
-                <Header :userId="this.userId"/>
+                <Header v-if="showHeader" :userId="this.userId"/>
                 <div class="row h-100">
                     <div class="col-12 text-center">
                         <section v-if="errored">
@@ -142,6 +142,16 @@
         components: {
             Header
         },
+        props: {
+            showHeader: {
+                default: true,
+                type: Boolean
+            },
+            userId: {
+                default: undefined,
+                type: Number
+            }
+        },
         data() {
             return {
                 user: null,
@@ -150,7 +160,6 @@
                 error: null,
                 fitness: null,
                 formattedDate: "",
-                userId: '',
                 isEditable: true,
                 activityTypes: [],
                 continuousActivities: [],
@@ -166,14 +175,17 @@
                 this.errored = false;
                 this.error = null;
                 this.fitness = null;
-                this.userId = this.$route.params.userId;
+                if (this.userId === undefined || isNaN(this.userId)) {  // Check if the inputted userId prop wasn't used
+                    if (!isNaN(this.$route.params.userId)) {  // If this is a number (could be a string of digits)
+                        this.userId = this.$route.params.userId;
+                    } else {
+                        this.userId = '';
+                    }
+                }
                 this.loading = true;
                 await this.fetchActivityTypes();
                 this.continuousActivities = [];
                 this.discreteActivities = [];
-                if (this.userId === undefined || isNaN(this.userId)) {
-                    this.userId = '';
-                }
                 await this.editable();
                 await this.getProfile();
                 this.loading = false;

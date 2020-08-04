@@ -19,7 +19,7 @@
             <b-row>
                 <b-col cols="8">
                     <multiselect v-model="selectedActivityTypes" id="searchBoxActivities"
-                                 :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
+                                 :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="true"
                                  placeholder="Select your activity types">
                         <template slot="noResult">Invalid activity type</template>
                     </multiselect>
@@ -56,7 +56,7 @@
 
         <section v-else v-for="user in this.userList" :key="user.id">
             <!-- User List -->
-            <user-card :user="user"></user-card>
+            <user-card v-bind:user="user" v-bind:selectedActivityTypes="searchedActivityTypes"/>
             <br>
         </section>
     </b-container>
@@ -85,6 +85,7 @@
                     { value: 'activityType', text: 'Activity Type'}
                 ],
                 selectedActivityTypes : [],
+                searchedActivityTypes : [],
                 activityTypes: [],
                 searchType: "and",
                 errored: false,
@@ -121,8 +122,9 @@
                 // e.g. ["Hiking", "Biking"] into "Hiking Biking"
                 this.errored = false;
                 this.loading = true;
-                let activityTypes = this.selectedActivityTypes.join(" ");
-                api.getUsersByActivityType(activityTypes, this.searchType)
+                // Set is as a copy so the User card is only updated after clicking search
+                this.searchedActivityTypes = this.selectedActivityTypes.slice();
+                api.getUsersByActivityType(this.selectedActivityTypes, this.searchType)
                     .then(response => {
                         if (response.status === 200) {
                             // Show users in page
@@ -139,7 +141,7 @@
                         } else if (err.response.status === 400) {
                             this.error_message = err.response.data.message;
                         } else if (err.response.status === 404) {
-                            this.error_message = "No users with activity types ".concat(this.selectedActivityTypes) + " have been found!"
+                            this.error_message = "No users with activity types ".concat(this.selectedActivityTypes.join(', ')) + " have been found!"
                         } else {
                             this.error_message = "Something went wrong! Please try again."
                         }

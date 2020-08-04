@@ -3,7 +3,7 @@
         <b-card border-variant="secondary" style="background-color: #f3f3f3">
             <b-row class="mb-1">
                 <b-col>
-                    <b-card-text><strong>{{ user.firstname }} {{ user.lastname }}</strong></b-card-text>
+                    <b-card-text id="fullName"><strong>{{ user.firstname }} {{ user.lastname }}</strong></b-card-text>
                 </b-col>
                 <b-col>
                     <!-- View user button -->
@@ -12,7 +12,8 @@
                     <!--View User Details Modal-->
                     <b-modal :id="'modal-view-profile' + user.id" :title="user.firstname + ' ' + user.lastname">
                         <!--The User's Details-->
-                        <view-user></view-user>
+                        <b-button id="goToProfileButton" style="float: right" variant="primary" v-on:click="viewProfile(user.id)">Go To Profile</b-button>
+                        <view-user v-bind:user-id="user.id" v-bind:show-header="false"/>
                         <all-activities></all-activities>
 
                     </b-modal>
@@ -20,7 +21,7 @@
             </b-row>
             <hr style="border-color: inherit">
             <b-row class="mb-1">
-                <b-col>
+                <b-col id="userDetails">
                     <!-- user.primary_email would be better but is null from BE -->
                     <strong>Email: </strong>{{ user.primary_email }}
                     <br/><br/>
@@ -32,7 +33,7 @@
                     </div>
                 </b-col>
                 <b-col v-if="user.activityTypes.length >= 1">
-                    <b-list-group>
+                    <b-list-group id="matchingActivityTypes">
                         <section v-for="activityType in user.activityTypes" v-bind:key="activityType">
                             <!-- Only display queried activity types -->
                             <b-list-group-item v-if="selectedActivityTypes.indexOf(activityType.name) > -1" variant="primary">
@@ -59,26 +60,16 @@
             user: {
                 id: Number,
                 firstname: String,
-                listname: String,
+                lastname: String,
                 primary_email: String,
                 bio: String,
                 activityTypes: Array,
-            }
-        },
-
-        data() {
-            return {
-                userList: [],
-                searchMode: 'activityType',
-                searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
-                    { value: 'activityType', text: 'Activity Type'}
-                ],
-                selectedActivityTypes : [],
-                activityTypes: [],
-                searchType: "and",
-                errored: false,
-                error_message: "Something went wrong! Please try again.",
-                loading: false
+            },
+            selectedActivityTypes: {
+                default() {
+                    return [];
+                },
+                type: Array
             }
         },
 
