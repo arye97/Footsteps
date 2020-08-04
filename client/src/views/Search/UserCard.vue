@@ -10,11 +10,11 @@
                     <b-button id="viewProfileButton" style="float: right" variant="primary" v-b-modal="'modal-view-profile' + user.id">View Profile</b-button>
 
                     <!--View User Details Modal-->
-                    <b-modal :id="'modal-view-profile' + user.id" :title="user.firstname + ' ' + user.lastname">
+                    <b-modal :id="'modal-view-profile' + user.id" :title="user.firstname + ' ' + user.lastname" scrollable>
                         <!--The User's Details-->
                         <b-button id="goToProfileButton" style="float: right" variant="primary" v-on:click="viewProfile(user.id)">Go To Profile</b-button>
                         <view-user v-bind:user-id="user.id" v-bind:show-header="false"/>
-                        <all-activities></all-activities>
+                        <ActivityList  v-bind:user-id="user.id" v-bind:show-header="false"/>
 
                     </b-modal>
                 </b-col>
@@ -50,12 +50,11 @@
 <script>
 
     import ViewUser from "../../components/layout/ViewUser.vue";
-    //import AllActivities from "../../views/Activities/AllActivities.vue";
-    import AllActivities from "../Activities/AllActivities";
+    import ActivityList from "../../components/Activities/ActivityList";
 
     export default {
         name: "UserCard",
-        components: {AllActivities, ViewUser},
+        components: {ActivityList, ViewUser},
         props: {
             user: {
                 id: Number,
