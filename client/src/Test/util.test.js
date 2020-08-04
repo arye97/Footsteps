@@ -1,4 +1,4 @@
-import { backendDateToLocalTimeZone , localTimeZoneToBackEndTime, formatDateTime } from '../util';
+import { backendDateToLocalTimeZone , localTimeZoneToBackEndTime, formatDateTime, currentDateBackend, currentDateFrontend } from '../util';
 import "jest"
 
 
@@ -22,9 +22,13 @@ describe("Timezone conversion functions", () => {
             expect(backendDateToLocalTimeZone(backEndDate)).toBe("1997-02-12T12:00");
         });
 
+        /**
+         * If a date is invalid, expect the current date and time
+         */
         test("Invalid UTC date after midnight", () => {
             const backEndDate = "1997-02-11T24:01:00+0000";
-            expect(() => backendDateToLocalTimeZone(backEndDate)).toThrow(RangeError);
+            let actualDate = new Date(backendDateToLocalTimeZone(backEndDate));
+            expect(actualDate > new Date('2020-01-01')).toBeTruthy();
         });
     });
 
@@ -35,9 +39,13 @@ describe("Timezone conversion functions", () => {
             expect(localTimeZoneToBackEndTime(frontEndDate)).toBe("1997-02-11T21:00:00+1200");
         });
 
+        /**
+         * If a date is invalid, expect the current date and time
+         */
         test("Test invalid UTC date after midnight", () => {
             const frontEndDate = "1997-02-11T24:01";
-            expect(() => localTimeZoneToBackEndTime(frontEndDate)).toThrow(RangeError);
+            let actualDate = new Date(localTimeZoneToBackEndTime(frontEndDate));
+            expect(actualDate > new Date('2020-01-01')).toBeTruthy();
         });
     });
 });
@@ -66,4 +74,22 @@ describe("Convert ISO8601 into readable date and AM/PM time", () => {
             expect(formatDateTime(backEndDate)).toBe("Wed, 12 Feb 1997 12:00 AM");
         });
     });
+});
+
+describe("Test current time functions", () => {
+
+    test("currentDateBackend returns a valid date", () => {
+        const dateStr = currentDateBackend();
+        expect(dateStr).not.toBeNull();
+        expect(dateStr).not.toBeUndefined();
+        expect(isNaN((new Date(dateStr)).getTime())).toBeFalsy();
+    });
+
+    test("currentDateFrontend returns a valid date", () => {
+        const dateStr = currentDateFrontend();
+        expect(dateStr).not.toBeNull();
+        expect(dateStr).not.toBeUndefined();
+        expect(isNaN((new Date(dateStr)).getTime())).toBeFalsy();
+    });
+
 });
