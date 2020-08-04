@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 public class UserController {
@@ -373,16 +374,23 @@ public class UserController {
         if (activityTypes.length() < 1) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Activity Types must be specified");
         }
-        String[] activity_types = activityTypes.split("%");
-        activity_types = activity_types[0].split(" ");
-        List<String> types = new ArrayList<>(Arrays.asList(activity_types));
+
+        // Separate ActivityType names into a List
+        List<String> typesWithDashes = Arrays.asList(activityTypes.split(" "));
+
+        // Replace '-' with ' '
+        List<String> types = typesWithDashes.stream()
+                .map(a -> a.replace('-', ' '))
+                .collect(Collectors.toList());
+
+
         //Need to get the activityTypeIds from the names
         List<Long> activityTypeIds = activityTypeRepository.findActivityTypeIdsByNames(types);
         int numActivityTypes = activityTypeIds.size();
-        List<Long> userIds = new ArrayList<>();
-        if (method.equals("and")) {
+        List<Long> userIds;
+        if (method.toLowerCase().equals("and")) {
              userIds = userActivityTypeRepository.findByAllActivityTypeIds(activityTypeIds, numActivityTypes); //Gets the userIds
-        } else if (method.equals("or")) {
+        } else if (method.toLowerCase().equals("or")) {
             userIds = userActivityTypeRepository.findBySomeActivityTypeIds(activityTypeIds); //Gets the userIds
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Method must be specified as either (AND, OR)");

@@ -132,7 +132,7 @@ describe("Searching user based on activity types", () => {
                 searchType: "or"
             });
             return searchPage.vm.search().then(() => {
-                expect(searchPage.vm.api.getUsersByActivityType).toHaveBeenCalledWith("Hiking", "or");
+                expect(searchPage.vm.api.getUsersByActivityType).toHaveBeenCalledWith(["Hiking"], "or");
             });
         });
 
@@ -151,7 +151,7 @@ describe("Searching user based on activity types", () => {
                     searchType: "or"
             });
             return searchPage.vm.search().then(() => {
-                expect(searchPage.vm.api.getUsersByActivityType).toHaveBeenCalledWith("Hiking Biking", "or");
+                expect(searchPage.vm.api.getUsersByActivityType).toHaveBeenCalledWith(["Hiking", "Biking"], "or");
             });
         });
 
