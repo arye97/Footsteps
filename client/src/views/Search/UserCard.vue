@@ -13,6 +13,7 @@
                     <b-modal :id="'modal-view-profile' + user.id" :title="user.firstname + ' ' + user.lastname">
                         <!--The User's Details-->
                         <view-user></view-user>
+                        <all-activities></all-activities>
 
                     </b-modal>
                 </b-col>
@@ -48,10 +49,12 @@
 <script>
 
     import ViewUser from "../../components/layout/ViewUser.vue";
+    //import AllActivities from "../../views/Activities/AllActivities.vue";
+    import AllActivities from "../Activities/AllActivities";
 
     export default {
         name: "UserCard",
-        components: {ViewUser},
+        components: {AllActivities, ViewUser},
         props: {
             user: {
                 id: Number,
