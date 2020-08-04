@@ -3,7 +3,7 @@
         <b-card border-variant="secondary" style="background-color: #f3f3f3">
             <b-row class="mb-1">
                 <b-col>
-                    <b-card-text><strong>{{ user.firstname }} {{ user.lastname }}</strong></b-card-text>
+                    <b-card-text id="fullName"><strong>{{ user.firstname }} {{ user.lastname }}</strong></b-card-text>
                 </b-col>
                 <b-col>
                     <!-- View user button -->
@@ -20,7 +20,7 @@
             </b-row>
             <hr style="border-color: inherit">
             <b-row class="mb-1">
-                <b-col>
+                <b-col id="userDetails">
                     <!-- user.primary_email would be better but is null from BE -->
                     <strong>Email: </strong>{{ user.primary_email }}
                     <br/><br/>
@@ -32,7 +32,7 @@
                     </div>
                 </b-col>
                 <b-col v-if="user.activityTypes.length >= 1">
-                    <b-list-group>
+                    <b-list-group id="matchingActivityTypes">
                         <section v-for="activityType in user.activityTypes" v-bind:key="activityType">
                             <!-- Only display queried activity types -->
                             <b-list-group-item v-if="selectedActivityTypes.indexOf(activityType.name) > -1" variant="primary">
