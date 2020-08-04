@@ -100,6 +100,11 @@ export default new Router({
             component: EditProfile
         },
         {
+            path: '/profile/edit',
+            name: 'editMyProfile',
+            component: EditProfile
+        },
+        {
             path: '/search/users',
             name: 'searchPage',
             component: Search
