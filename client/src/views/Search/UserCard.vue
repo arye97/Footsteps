@@ -13,7 +13,7 @@
                     <b-modal :id="'modal-view-profile' + user.id" :title="user.firstname + ' ' + user.lastname">
                         <!--The User's Details-->
                         <b-button id="goToProfileButton" style="float: right" variant="primary" v-on:click="viewProfile(user.id)">Go To Profile</b-button>
-                        <view-user v-bind:show-header="false"/>
+                        <view-user v-bind:user-id="user.id" v-bind:show-header="false"/>
 
                     </b-modal>
                 </b-col>
