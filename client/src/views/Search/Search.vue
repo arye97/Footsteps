@@ -56,7 +56,7 @@
 
         <section v-else v-for="user in this.userList" :key="user.id">
             <!-- User List -->
-            <user-card v-bind:user="user" v-bind:selectedActivityTypes="selectedActivityTypes"/>
+            <user-card v-bind:user="user" v-bind:selectedActivityTypes="searchedActivityTypes"/>
             <br>
         </section>
     </b-container>
@@ -85,6 +85,7 @@
                     { value: 'activityType', text: 'Activity Type'}
                 ],
                 selectedActivityTypes : [],
+                searchedActivityTypes : [],
                 activityTypes: [],
                 searchType: "and",
                 errored: false,
@@ -122,6 +123,8 @@
                 this.errored = false;
                 this.loading = true;
                 let activityTypes = this.selectedActivityTypes.join(" ");
+                // Set is as a copy so the User card is only updated after clicking search
+                this.searchedActivityTypes = this.selectedActivityTypes.slice();
                 api.getUsersByActivityType(activityTypes, this.searchType)
                     .then(response => {
                         if (response.status === 200) {
