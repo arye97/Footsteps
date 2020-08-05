@@ -176,6 +176,21 @@
                                                     {{activity.description}}
                                                 </p>
                                             </b-card>
+                                            <template v-slot:modal-footer>
+                                                <div class="w-100">
+                                                    <b-button
+                                                            variant="outline-dark"
+                                                            class="footerButton"
+                                                            @click="followActivity(activity.id)"
+                                                    >
+                                                        Follow Activity
+                                                        <div v-b-hover="footerHover">
+                                                            <img v-if="isHovered" src="../../../assets/png/footsteps_icon.png" class="footSteps" alt="Footsteps Logo">
+                                                            <img v-else src="../../../assets/png/footsteps_icon_hollow.png" class="footSteps" alt="Footsteps Logo">
+                                                        </div>
+                                                    </b-button>
+                                                </div>
+                                            </template>
                                         </b-modal>
                                             <b-button variant="outline-danger" v-on:click="deleteActivity(activity.id)">Delete</b-button>
                                         </b-button-group>
@@ -216,7 +231,8 @@
                 activeTab: 0,
                 loading: true,
                 errored: false,
-                error_message: "Something went wrong! Try again later!"
+                error_message: "Something went wrong! Try again later!",
+                isHovered: false
             }
         },
         props: {
@@ -238,6 +254,15 @@
             await this.getCreatorName();
         },
         methods: {
+            followActivity(id) {
+                console.log(id);
+                //this function will contain the api call to assign a user to follow the activity
+                //is provided the id, no more information should be necessary
+                //waiting for backend endpoint to be written as of 05/08/20
+            },
+            footerHover(hovered) {
+                this.isHovered = hovered;
+            },
             getDateTime: formatDateTime,
             getDays(activity) {
                 return Math.floor(((new Date(activity.end_time) - new Date(activity.start_time))/1000/60/60/24))
@@ -356,5 +381,14 @@
 
     .activity-button-group button {
         width: 200%;
+    }
+
+    .footerButton {
+        width: 100%;
+    }
+
+    .footSteps {
+        width: 7.5%;
+        height: 7.5%;
     }
 </style>
