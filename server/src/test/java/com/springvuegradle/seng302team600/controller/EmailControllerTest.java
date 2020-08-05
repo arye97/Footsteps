@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.model.UserRole;
-import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import com.springvuegradle.seng302team600.payload.LoginResponse;
+import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
@@ -385,7 +385,6 @@ class EmailControllerTest {
         // Get Response as JsonNode
         jsonResponseStr = result.getResponse().getContentAsString();
         jsonNode = objectMapper.readTree(jsonResponseStr);
-        System.out.println(jsonNode);
 
         List<String> additionalEmailsFromJson = new ObjectMapper().convertValue(jsonNode.get("additionalEmails"), ArrayList.class);
         List<String> expectedEmails = new ArrayList<>();
@@ -445,7 +444,6 @@ class EmailControllerTest {
         // Get Response as JsonNode
         jsonResponseStr = result.getResponse().getContentAsString();
         jsonNode = objectMapper.readTree(jsonResponseStr);
-        System.out.println(jsonNode);
 
         List<String> additionalEmailsFromJson = new ObjectMapper().convertValue(jsonNode.get("additionalEmails"), ArrayList.class);
         List<String> expectedEmails = new ArrayList<>();
