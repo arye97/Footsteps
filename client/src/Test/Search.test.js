@@ -210,3 +210,67 @@ test('Fetch list of activity types from back-end', () => {
         expect(searchPage.vm.api.getActivityTypes).toHaveBeenCalledWith();
     });
 });
+
+describe('Pagination limits the user cards displayed to the user', () => {
+    test('Current page user list is limited by setCurrentPageUserList', () => {
+        let response = [
+            {
+                "firstname": "DJ",
+                "lastname": "Roomba",
+                "activityTypes": [
+                    {
+                        "activityTypeId": 12,
+                        "name": "Biking"
+                    },
+                    {
+                        "activityTypeId": 34,
+                        "name": "Hiking"
+                    }
+                ]
+            },
+            {
+                "firstname": "Akira",
+                "lastname": "Kurosawa",
+                "activityTypes": [
+                    {
+                        "activityTypeId": 12,
+                        "name": "Biking"
+                    },
+                    {
+                        "activityTypeId": 34,
+                        "name": "Hiking"
+                    }
+                ]
+            },
+            {
+                "firstname": "Samantha",
+                "lastname": "Saliva",
+                "activityTypes": [
+                    {
+                        "activityTypeId": 7,
+                        "name": "Athletics"
+                    },
+                    {
+                        "activityTypeId": 34,
+                        "name": "Hiking"
+                    }
+                ]
+            },
+            {
+                "firstname": "Manny",
+                "lastname": "Mannamynamo",
+                "activityTypes": [
+                    {
+                        "activityTypeId": 12,
+                        "name": "Biking"
+                    }
+                ]
+            }
+        ];
+        expect(searchPage.vm.$data.currentPageUserList).toEqual([]);
+        searchPage.vm.$data.userList = response;
+        searchPage.vm.$data.usersPerPage = 2;
+        searchPage.vm.setCurrentPageUserList();
+        expect(searchPage.vm.$data.currentPageUserList).toEqual(response.splice(0, 2));
+    });
+});
