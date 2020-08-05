@@ -121,11 +121,11 @@ public class User {
 
         public enum Gender {
             @JsonProperty("Male")
-        MALE,
-        @JsonProperty("Female")
-        FEMALE,
-        @JsonProperty("Non-Binary")
-        NON_BINARY
+                MALE,
+            @JsonProperty("Female")
+                FEMALE,
+            @JsonProperty("Non-Binary")
+                NON_BINARY
     }
 
     //Can implement later, makes more sense in the long run
