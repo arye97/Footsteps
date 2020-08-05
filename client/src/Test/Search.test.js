@@ -3,15 +3,88 @@ import api from '../Api'
 import {shallowMount} from "@vue/test-utils";
 import router from "../index";
 
-import SearchPage from '../views/Search.vue'
+import SearchPage from '../views/Search/Search.vue'
 import "jest"
 
 jest.mock('../Api');
 
+const SEARCH_RESPONSE1 = [
+    {
+        "firstname": "DJ",
+        "lastname": "Roomba",
+        "activityTypes": [
+            {
+                "activityTypeId": 12,
+                "name": "Biking"
+            },
+            {
+                "activityTypeId": 34,
+                "name": "Hiking"
+            }
+        ]
+    },
+    {
+        "firstname": "Akira",
+        "lastname": "Kurosawa",
+        "activityTypes": [
+            {
+                "activityTypeId": 12,
+                "name": "Biking"
+            },
+            {
+                "activityTypeId": 34,
+                "name": "Hiking"
+            }
+        ]
+    },
+    {
+        "firstname": "Samantha",
+        "lastname": "Saliva",
+        "activityTypes": [
+            {
+                "activityTypeId": 7,
+                "name": "Athletics"
+            },
+            {
+                "activityTypeId": 34,
+                "name": "Hiking"
+            }
+        ]
+    },
+    {
+        "firstname": "Manny",
+        "lastname": "Mannamynamo",
+        "activityTypes": [
+            {
+                "activityTypeId": 12,
+                "name": "Biking"
+            }
+        ]
+    }
+];
+
+const ACTIVITY_TYPES = [
+    "Biking", "Hiking", "Athletics"
+];
+
 let searchPage;
 
+
 beforeEach(() => {
-    searchPage = shallowMount(SearchPage, { mocks: {api} });
+    searchPage = shallowMount(SearchPage, {
+        methods: {
+            logout: () => {},
+        },
+        router,
+        mocks: {api}
+    });
+
+    api.getActivityTypes.mockImplementation(() =>
+        Promise.resolve({
+            data: ACTIVITY_TYPES,
+            status: 200
+        })
+    );
 });
 
 test('Is a vue instance', () => {
@@ -40,59 +113,20 @@ test('Or search operator radio button exists', () => {
 
 
 describe("Searching user based on activity types", () => {
+
     describe("With the 'or' method", () => {
+
         test("Search user with one activity type 'hiking'", () => {
-            let response = [
-                {
-                    "firstname": "DJ",
-                    "lastname": "Roomba",
-                    "activityTypes": [
-                        {
-                            "activityTypeId": 12,
-                            "name": "Biking"
-                        },
-                        {
-                            "activityTypeId": 34,
-                            "name": "Hiking"
-                        }
-                    ]
-                },
-                {
-                    "firstname": "Akira",
-                    "lastname": "Kurosawa",
-                    "activityTypes": [
-                        {
-                            "activityTypeId": 12,
-                            "name": "Biking"
-                        },
-                        {
-                            "activityTypeId": 34,
-                            "name": "Hiking"
-                        }
-                    ]
-                },
-                {
-                    "firstname": "Samantha",
-                    "lastname": "Saliva",
-                    "activityTypes": [
-                        {
-                            "activityTypeId": 7,
-                            "name": "Athletics"
-                        },
-                        {
-                            "activityTypeId": 34,
-                            "name": "Hiking"
-                        }
-                    ]
-                }
-            ];
+
             api.getUsersByActivityType.mockImplementation(() =>
                 Promise.resolve({
-                    data: response,
+                    data: SEARCH_RESPONSE1,
                     status: 200
                 })
             );
-            searchPage = shallowMount(SearchPage, {router, mocks: {api}});
+
+
+
             searchPage.setData({
                 selectedActivityTypes: [ "Hiking" ],
                 searchType: "or"
@@ -102,69 +136,16 @@ describe("Searching user based on activity types", () => {
             });
         });
 
+
         test("Search user with two activity types 'hiking' and 'biking'", () => {
-            let response = [
-                {
-                    "firstname": "DJ",
-                    "lastname": "Roomba",
-                    "activityTypes": [
-                        {
-                            "activityTypeId": 12,
-                            "name": "Biking"
-                        },
-                        {
-                            "activityTypeId": 34,
-                            "name": "Hiking"
-                        }
-                    ]
-                },
-                {
-                    "firstname": "Akira",
-                    "lastname": "Kurosawa",
-                    "activityTypes": [
-                        {
-                            "activityTypeId": 12,
-                            "name": "Biking"
-                        },
-                        {
-                            "activityTypeId": 34,
-                            "name": "Hiking"
-                        }
-                    ]
-                },
-                {
-                    "firstname": "Samantha",
-                    "lastname": "Saliva",
-                    "activityTypes": [
-                        {
-                            "activityTypeId": 7,
-                            "name": "Athletics"
-                        },
-                        {
-                            "activityTypeId": 34,
-                            "name": "Hiking"
-                        }
-                    ]
-                },
-                {
-                    "firstname": "Manny",
-                    "lastname": "Mannamynamo",
-                    "activityTypes": [
-                        {
-                            "activityTypeId": 12,
-                            "name": "Biking"
-                        }
-                    ]
-                }
-            ];
 
             api.getUsersByActivityType.mockImplementation(() =>
                 Promise.resolve({
-                    data: response,
+                    data: SEARCH_RESPONSE1,
                     status: 200
                 })
             );
-            searchPage = shallowMount(SearchPage, {router, mocks: {api}});
+
             searchPage.setData({
                     selectedActivityTypes: [ "Hiking", "Biking" ],
                     searchType: "or"
@@ -173,6 +154,7 @@ describe("Searching user based on activity types", () => {
                 expect(searchPage.vm.api.getUsersByActivityType).toHaveBeenCalledWith("Hiking Biking", "or");
             });
         });
+
     });
 });
 
@@ -198,7 +180,7 @@ test('Fetch list of activity types from back-end', () => {
             status: 200
         })
     );
-    searchPage = shallowMount(SearchPage, {router, mocks: {api}});
+
     searchPage.setData({
         activityTypes: [
             '4×4 Driving Experience',

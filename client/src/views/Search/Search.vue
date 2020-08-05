@@ -55,43 +55,10 @@
             <br/>
             <br/>
         </section>
+
         <section v-else v-for="user in this.userList" :key="user.id">
             <!-- User List -->
-            <b-card border-variant="secondary" style="background-color: #f3f3f3">
-                <b-row class="mb-1">
-                    <b-col>
-                        <b-card-text><strong>{{ user.firstname }} {{ user.lastname }}</strong></b-card-text>
-                    </b-col>
-                    <b-col>
-                        <!-- View user button -->
-                        <b-button id="viewProfileButton" style="float: right" variant="primary" v-on:click="viewProfile(user.id)">View Profile</b-button>
-                    </b-col>
-                </b-row>
-                <hr style="border-color: inherit">
-                <b-row class="mb-1">
-                    <b-col>
-                        <!-- user.primary_email would be better but is null from BE -->
-                        <strong>Email: </strong>{{ user.primary_email }}
-                        <br/><br/>
-                        <div v-if="user.bio.length <= 75">
-                            {{ user.bio }}
-                        </div>
-                        <div v-else>
-                            {{ user.bio.substring(0,75)+"...." }}
-                        </div>
-                    </b-col>
-                    <b-col v-if="user.activityTypes.length >= 1">
-                        <b-list-group>
-                            <section v-for="activityType in user.activityTypes" v-bind:key="activityType.name">
-                                <!-- Only display queried activity types -->
-                                <b-list-group-item v-if="selectedActivityTypes.indexOf(activityType.name) > -1" variant="primary">
-                                    {{ activityType.name }}
-                                </b-list-group-item>
-                            </section>
-                        </b-list-group>
-                    </b-col>
-                </b-row>
-            </b-card>
+            <user-card v-bind:user="user" v-bind:selectedActivityTypes="activityTypesSearchedFor"/>
             <br>
         </section>
     </b-container>
@@ -99,13 +66,15 @@
 </template>
 
 <script>
-    import Header from '../components/Header/Header.vue';
-    import Multiselect from 'vue-multiselect'
-    import api from '../Api';
+    import Header from '../../components/Header/Header.vue';
+    import Multiselect from 'vue-multiselect';
+    import UserCard from "./UserCard";
+    import api from '../../Api';
 
     export default {
         name: "Search",
         components: {
+            UserCard,
             Header,
             Multiselect
         },
@@ -117,7 +86,12 @@
                 searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
                     { value: 'activityType', text: 'Activity Type'}
                 ],
+
+                // These are the ActivityTypes selected in the Multiselect
                 selectedActivityTypes : [],
+                // These are a copy of selectedActivityTypes passed to the UserCard (to avoid mutation after clicking search)
+                activityTypesSearchedFor : [],
+
                 activityTypes: [],
                 searchType: "and",
                 errored: false,
@@ -155,6 +129,8 @@
                 this.errored = false;
                 this.loading = true;
                 let activityTypes = this.selectedActivityTypes.join(" ");
+                // Set is as a copy so the User card is only updated after clicking search
+                this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
                 api.getUsersByActivityType(activityTypes, this.searchType)
                     .then(response => {
                         if (response.status === 200) {
