@@ -106,7 +106,7 @@
                                 <h3 class="font-weight-light"><strong>Activity Types: </strong></h3><br/>
 
                                 <b-list-group v-if="this.user.activityTypes.length >= 1">
-                                    <b-card v-for="activityType in this.user.activityTypes" v-bind:key="activityType" class="flex-fill" border-variant="secondary">
+                                    <b-card v-for="activityType in this.user.activityTypes" v-bind:key="activityType.name" class="flex-fill" border-variant="secondary">
                                         <b-card-text class="font-weight-light">
                                             {{activityType.name}}
                                         </b-card-text>
