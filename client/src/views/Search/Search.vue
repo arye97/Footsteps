@@ -29,16 +29,18 @@
                 </b-col>
             </b-row>
             <b-row style="margin-bottom: 1.7em; margin-top: 0.8em">
-                <b-col cols="2" align-self="center">
-                    <b-button id="searchButton" variant="primary" v-on:click="search()">
-                        Search</b-button>
-                </b-col>
-                <b-col cols="4" align-self="center">
+                <b-col cols="6" align-self="center">
                     <b-form-radio id="andRadioButton" v-model="searchType" name="andType" value="and">Search results match all selections</b-form-radio>
                 </b-col>
-                <b-col cols="4" align-self="center">
+                <b-col cols="6" align-self="center">
                     <b-form-radio id="orRadioButton" v-model="searchType" name="orType" value="or">Search results match at least one selection</b-form-radio>
                 </b-col>
+            </b-row>
+            <b-row>
+                <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
+                    Search
+                </b-button>
+                <br/>
             </b-row>
         </div>
 
@@ -56,7 +58,7 @@
 
         <section v-else v-for="user in this.userList" :key="user.id">
             <!-- User List -->
-            <user-card v-bind:user="user" v-bind:selectedActivityTypes="searchedActivityTypes"/>
+            <user-card v-bind:user="user" v-bind:selectedActivityTypes="activityTypesSearchedFor"/>
             <br>
         </section>
     </b-container>
@@ -84,8 +86,12 @@
                 searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
                     { value: 'activityType', text: 'Activity Type'}
                 ],
+
+                // These are the ActivityTypes selected in the Multiselect
                 selectedActivityTypes : [],
-                searchedActivityTypes : [],
+                // These are a copy of selectedActivityTypes passed to the UserCard (to avoid mutation after clicking search)
+                activityTypesSearchedFor : [],
+
                 activityTypes: [],
                 searchType: "and",
                 errored: false,
@@ -123,8 +129,8 @@
                 this.errored = false;
                 this.loading = true;
                 // Set is as a copy so the User card is only updated after clicking search
-                this.searchedActivityTypes = this.selectedActivityTypes.slice();
-                api.getUsersByActivityType(this.selectedActivityTypes, this.searchType)
+                this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
+                api.getUsersByActivityType(this.activityTypesSearchedFor, this.searchType)
                     .then(response => {
                         if (response.status === 200) {
                             // Show users in page
@@ -135,16 +141,22 @@
                         this.loading = false;
                         this.errored = true;
                         this.userList = []
-                        if (err.response.status === 401) {
-                            this.error_message = "You aren't logged in! You're being redirected!"
-                            setTimeout(() => {this.logout()}, 3000)
-                        } else if (err.response.status === 400) {
-                            this.error_message = err.response.data.message;
-                        } else if (err.response.status === 404) {
-                            this.error_message = "No users with activity types ".concat(this.selectedActivityTypes.join(', ')) + " have been found!"
+
+                        if ((err.code === "ECONNREFUSED") || (err.code === "ECONNABORTED")) {
+                            this.error_message = "Cannot connect to server - please try again later!";
                         } else {
-                            this.error_message = "Something went wrong! Please try again."
+                            if (err.response.status === 401) {
+                                this.error_message = "You aren't logged in! You're being redirected!"
+                                setTimeout(() => {this.logout()}, 3000)
+                            } else if (err.response.status === 400) {
+                                this.error_message = err.response.data.message;
+                            } else if (err.response.status === 404) {
+                                this.error_message = "No users with activity types ".concat(this.selectedActivityTypes) + " have been found!"
+                            } else {
+                                this.error_message = "Something went wrong! Please try again."
+                            }
                         }
+
 
                 })
             },
@@ -189,5 +201,7 @@
 </script>
 
 <style scoped>
-
+    .searchButton {
+        width: 200%;
+    }
 </style>

@@ -92,11 +92,17 @@ export default new Router({
         {
             path: '/activities/',
             name: 'allActivities',
-            component: AllActivities
+            component: AllActivities,
+            props: true,
         },
         {
             path: '/profile/:userId/edit',
             name: 'editProfile',
+            component: EditProfile
+        },
+        {
+            path: '/profile/edit',
+            name: 'editMyProfile',
             component: EditProfile
         },
         {
