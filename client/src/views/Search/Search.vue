@@ -128,10 +128,9 @@
                 // e.g. ["Hiking", "Biking"] into "Hiking Biking"
                 this.errored = false;
                 this.loading = true;
-                let activityTypes = this.selectedActivityTypes.join(" ");
                 // Set is as a copy so the User card is only updated after clicking search
                 this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
-                api.getUsersByActivityType(activityTypes, this.searchType)
+                api.getUsersByActivityType(this.activityTypesSearchedFor, this.searchType)
                     .then(response => {
                         if (response.status === 200) {
                             // Show users in page
@@ -142,6 +141,7 @@
                         this.loading = false;
                         this.errored = true;
                         this.userList = []
+
                         if ((err.code === "ECONNREFUSED") || (err.code === "ECONNABORTED")) {
                             this.error_message = "Cannot connect to server - please try again later!";
                         } else {
