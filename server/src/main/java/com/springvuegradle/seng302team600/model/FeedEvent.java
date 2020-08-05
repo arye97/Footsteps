@@ -18,9 +18,35 @@ public class FeedEvent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "feed_event_id", nullable = false)
-    Long eventId;
+    Long feedEventId;
 
     // The timestamp of the feed event generation - ie. when the feed post was triggered
     @Column(name = "time_stamp", nullable = false, columnDefinition = "DATE")
     Date timeStamp;
+
+    /**
+     * Default constructor for feed events
+     * Mandatory for repository actions
+     */
+    public FeedEvent() {
+    }
+
+    public Long getFeedEventId() {
+        return feedEventId;
+    }
+
+    public Date getTimeStamp() {
+        return timeStamp;
+    }
+
+    public void setTimeStamp(Date time) {
+        timeStamp = time;
+    }
+
+    /**
+     * A method to set the time stamp to the time right now
+     */
+    public void setTimeStampNow() {
+        timeStamp = new Date();
+    }
 }
