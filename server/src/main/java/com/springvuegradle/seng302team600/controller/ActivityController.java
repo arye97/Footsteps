@@ -190,5 +190,7 @@ public class ActivityController {
         Activity activity = activityRepository.findByActivityId(activityId);
         activity.getParticipants().add(user);
         activityRepository.save(activity);
+
+        //TODO: Needs to produce an event once the event classes/subclasses have been created
     }
 }
