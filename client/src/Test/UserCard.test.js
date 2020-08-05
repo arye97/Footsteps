@@ -39,7 +39,7 @@ beforeEach(() => {
     userCard = shallowMount(UserCard, {
         propsData: {
             user: USER1,
-            selectedActivityTypes: [ "Archery", "Camping" ]
+            activityTypesSearchedFor: [ "Archery", "Camping" ]
         },
         router,
         mocks: {api}

@@ -58,7 +58,7 @@
 
         <section v-else v-for="user in this.userList" :key="user.id">
             <!-- User List -->
-            <user-card v-bind:user="user" v-bind:selectedActivityTypes="searchedActivityTypes"/>
+            <user-card v-bind:user="user" v-bind:selectedActivityTypes="activityTypesSearchedFor"/>
             <br>
         </section>
     </b-container>
@@ -86,8 +86,12 @@
                 searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
                     { value: 'activityType', text: 'Activity Type'}
                 ],
+
+                // These are the ActivityTypes selected in the Multiselect
                 selectedActivityTypes : [],
-                searchedActivityTypes : [],
+                // These are a copy of selectedActivityTypes passed to the UserCard (to avoid mutation after clicking search)
+                activityTypesSearchedFor : [],
+
                 activityTypes: [],
                 searchType: "and",
                 errored: false,
@@ -126,7 +130,7 @@
                 this.loading = true;
                 let activityTypes = this.selectedActivityTypes.join(" ");
                 // Set is as a copy so the User card is only updated after clicking search
-                this.searchedActivityTypes = this.selectedActivityTypes.slice();
+                this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
                 api.getUsersByActivityType(activityTypes, this.searchType)
                     .then(response => {
                         if (response.status === 200) {

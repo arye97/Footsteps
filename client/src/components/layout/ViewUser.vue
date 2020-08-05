@@ -3,7 +3,7 @@
         <h1><br/><br/></h1>
         <b-container class="contents" fluid>
             <div class="container">
-                <Header v-if="showHeader" :userId="this.userId"/>
+                <Header v-if="!modalView" :userId="this.userId"/>
                 <div class="row h-100">
                     <div class="col-12 text-center">
                         <section v-if="errored">
@@ -143,8 +143,8 @@
             Header
         },
         props: {
-            showHeader: {
-                default: true,
+            modalView: {
+                default: false,
                 type: Boolean
             },
             userId: {
