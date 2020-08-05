@@ -2,6 +2,9 @@
     <div>
         <b-container class="contents" fluid>
         <section v-if="loading">
+            <div v-if="this.isRedirecting">
+                {{ redirectionMessage }}
+            </div>
             <div class="loading text-center">
                 <b-spinner variant="primary" label="Spinning"></b-spinner>
                 <br/>
@@ -149,10 +152,6 @@
                         <b-button type="submit" id="saveChanges-btn" size="lg" variant="success float-right" v-on:click="saveChanges">Save Changes</b-button>
                     </div>
                 </div>
-            </div>
-            <div v-if="this.isRedirecting">
-                {{ redirectionMessage }}
-                <br/><br/><b-spinner variant="primary" label="Spinning"></b-spinner>
             </div>
                 </div>
         </div>
@@ -377,6 +376,7 @@
              * Otherwise unknown error to present to user
              */
             processPutError(error) {
+                let timeoutTime = 3000;
                 if (error.response.data.status === 401) {
                     this.loggedIn = false;
                     this.isRedirecting = true;
@@ -384,23 +384,23 @@
                         "Redirecting to the login page.";
                     setTimeout(() => {
                         this.$router.push('/login');
-                    }, 4000);
+                    }, timeoutTime);
                 } else if (error.response.data.status === 403) {
                     this.isRedirecting = true;
                     this.redirectionMessage = "Sorry, you are not allowed to edit another user's profile,\n" +
                         "Redirecting to your edit profile page.";
                     setTimeout(() => {
-                        this.$router.push({ name: 'detailsNoID' });
+                        this.$router.push({ name: 'editMyProfile' });
                         this.init();
-                    }, 4000);
+                    }, timeoutTime);
                 } else if (error.response.data.status === 404) {
                     this.isRedirecting = true;
                     this.redirectionMessage = "Sorry, the user does not exist,\n" +
                         "Redirecting to your edit profile page.";
                     setTimeout(() => {
-                        this.$router.push({name: 'detailsNoID'});
+                        this.$router.push({name: 'editMyProfile'});
                         this.init();
-                    }, 4000);
+                    }, timeoutTime);
                 } else if (error.response.data.status === 400) {
                     this.message = error.response.data.message.toString();
                     this.showError('overall_message')
@@ -418,6 +418,7 @@
              * Otherwise unknown error so redirect to user's home page
              */
             processGetError(error) {
+                let timeoutTime = 3000;
                 this.loggedIn = true;
                 this.isRedirecting = true;
                 if (error.response.data.status === 401) {
@@ -426,27 +427,27 @@
                         "Redirecting to the login page.";
                     setTimeout(() => {
                         this.$router.push('/login');
-                    }, 4000);
+                    }, timeoutTime);
                 } else if (error.response.data.status === 403) {
                     this.redirectionMessage = "Sorry, you are not allowed to edit another user's profile,\n" +
                         "Redirecting to your edit profile page.";
                     setTimeout(() => {
-                        this.$router.push({ name: 'detailsNoID' });
+                        this.$router.push({ name: 'editMyProfile' });
                         this.init();
-                    }, 4000);
+                    }, timeoutTime);
                 } else if (error.response.data.status === 404) {
                     this.redirectionMessage = "Sorry, the user does not exist,\n" +
                         "Redirecting to your edit profile page.";
                     setTimeout(() => {
-                        this.$router.push({ name: 'detailsNoID' });
+                        this.$router.push({ name: 'editMyProfile' });
                         this.init();
-                    }, 4000);
+                    }, timeoutTime);
                 } else {
                     this.redirectionMessage = "Sorry, an unknown error occurred when retrieving profile info,\n" +
                         "Redirecting to your home page.";
                     setTimeout(() => {
                         this.$router.push({ name: 'myProfile' });
-                    }, 4000);
+                    }, timeoutTime);
                 }
             },
 
