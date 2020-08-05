@@ -142,7 +142,8 @@
                 changesHaveBeenMade: false,
                 isEditable: false,
                 isRedirecting: false,
-                redirectionMessage: ''
+                redirectionMessage: '',
+                timeout: 4000
             }
         },
         async mounted() {
@@ -506,27 +507,27 @@
                         "Redirecting to the login page.";
                     setTimeout(() => {
                         this.logout()
-                    }, 4000);
+                    }, this.timeout);
                 } else if (error.response.status === 403) {
                     // If user ever gets to another user's edit email page and makes changes to it
                     this.redirectionMessage = "Sorry, you are not allowed to edit another user's profile,\n" +
                         "Redirecting to your edit emails page.";
                     setTimeout(() => {
                         this.$router.push({ name: "editMyProfile" });
-                    }, 4000);
+                    }, this.timeout);
                 } else if (error.response.status === 404) {
                     this.redirectionMessage = "Sorry, the user does not exist,\n" +
                         "Redirecting to your edit emails page.";
                     setTimeout(() => {
                         this.$router.push({ name: "editMyProfile" });
                         this.init();
-                    }, 4000);
+                    }, this.timeout);
                 } else {
                     this.redirectionMessage = "Sorry, an unknown error occurred when retrieving profile info,\n" +
                         "Redirecting to your home page.";
                     setTimeout(() => {
                         this.$router.push({ name: "myProfile" });
-                    }, 4000);
+                    }, this.timeout);
                 }
             }
         }
