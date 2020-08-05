@@ -41,6 +41,13 @@ public class Activity {
     @JsonProperty("activity_type")
     private Set<ActivityType> activityTypes;
 
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})  // ALL except REMOVE
+    @JoinTable(
+            name = "activity_participant",
+            joinColumns = @JoinColumn(name = "activity_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private Set<User> participants;
+
     @NotNull(message = "This Activity needs to be either continuous or have a duration")
     @Column(name = "is_continuous", columnDefinition = "boolean", nullable = false)
     @JsonProperty("continuous")

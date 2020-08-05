@@ -116,8 +116,11 @@ public class User {
     @JsonProperty("activityTypes")
     private Set<ActivityType> activityTypes;
 
-    public enum Gender {
-        @JsonProperty("Male")
+        @ManyToMany(mappedBy = "participants")
+        Set<Activity> activitiesParticipatingIn;
+
+        public enum Gender {
+            @JsonProperty("Male")
         MALE,
         @JsonProperty("Female")
         FEMALE,
