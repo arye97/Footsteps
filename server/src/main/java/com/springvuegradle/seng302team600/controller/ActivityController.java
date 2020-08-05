@@ -1,13 +1,8 @@
 package com.springvuegradle.seng302team600.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.springvuegradle.seng302team600.Utilities.ActivityValidator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.model.Activity;
-import com.springvuegradle.seng302team600.model.ActivityType;
 import com.springvuegradle.seng302team600.model.User;
-import com.springvuegradle.seng302team600.model.UserRole;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
@@ -20,8 +15,6 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -181,5 +174,21 @@ public class ActivityController {
         }
         List<Activity> activities = activityRepository.findAllByUserId(profileId);
         return activities;
+    }
+
+
+    /**
+     * POST request endpoint for a user to follow an activity
+     * @param profileId the id of the user to be the follower
+     * @param activityId the id of the activity to be followed
+     */
+    @PostMapping("/profiles/{profileId}/subscriptions/activities/{activityId}")
+    public void followAnActivity(HttpServletRequest request, HttpServletResponse response,
+                                 @PathVariable Long profileId, @PathVariable Long activityId) {
+        String token = request.getHeader("Token");
+        User user = userAuthenticationService.findByUserId(token, profileId);
+        Activity activity = activityRepository.findByActivityId(activityId);
+        activity.getParticipants().add(user);
+        activityRepository.save(activity);
     }
 }
