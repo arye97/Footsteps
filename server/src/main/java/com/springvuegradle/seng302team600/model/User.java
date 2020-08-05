@@ -116,13 +116,16 @@ public class User {
     @JsonProperty("activityTypes")
     private Set<ActivityType> activityTypes;
 
-    public enum Gender {
-        @JsonProperty("Male")
-        MALE,
-        @JsonProperty("Female")
-        FEMALE,
-        @JsonProperty("Non-Binary")
-        NON_BINARY
+        @ManyToMany(mappedBy = "participants")
+        Set<Activity> activitiesParticipatingIn;
+
+        public enum Gender {
+            @JsonProperty("Male")
+                MALE,
+            @JsonProperty("Female")
+                FEMALE,
+            @JsonProperty("Non-Binary")
+                NON_BINARY
     }
 
     //Can implement later, makes more sense in the long run
