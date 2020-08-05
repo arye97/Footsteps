@@ -19,7 +19,7 @@
             <b-row>
                 <b-col cols="8">
                     <multiselect v-model="selectedActivityTypes" id="searchBoxActivities"
-                                 :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="true"
+                                 :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
                                  placeholder="Select your activity types">
                         <template slot="noResult">Invalid activity type</template>
                     </multiselect>

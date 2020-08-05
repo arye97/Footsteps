@@ -915,4 +915,36 @@ class UserControllerTest {
         // Test that response can be deserialized into UserResponse
         assertDoesNotThrow(() -> objectMapper.treeToValue(responseArrayAND.get(0), UserResponse.class));
     }
+
+    private final String newUserWithOneSpacedActivityType = JsonConverter.toJson(true,
+            "lastname", "Someone",
+            "firstname", "Lester",
+            "middlename", "Michelle",
+            "nickname", "Pino",
+            "primary_email", "lester@hotmail.com",
+            "password", "somepwd0",
+            "bio", "Poly Pocket is so tiny.",
+            "activity_types", new Object[]{"Baseball and Softball"},
+            "date_of_birth", "2000-11-11",
+            "gender", "Female",
+            "fitness", 3,
+            "passports", new Object[]{"Australia", "Antarctica"});
+
+    /**
+     * Tests getting a user by activity type with a dash in the name using AND method
+     */
+    @Test
+    void failToGetUserByActivityTypesWithSpacesAND() throws Exception {
+        setupMocking(newUserWithOneSpacedActivityType);
+
+        MockHttpServletRequestBuilder httpReqAND = MockMvcRequestBuilders.get(new URI("/profiles?activity=baseball-and-Softball%20Rock-Climbing&method=and"))
+                .header("Token", validToken);
+
+
+        //---Test-AND-Response----
+        MvcResult requestAND = mvc.perform(httpReqAND).andExpect(status().is4xxClientError()).andReturn();
+
+        // Should be null because this user has ONLY Baseball and Softball, not Rock Climbing
+        assertNull(requestAND.getResponse().getContentType());
+    }
 }
