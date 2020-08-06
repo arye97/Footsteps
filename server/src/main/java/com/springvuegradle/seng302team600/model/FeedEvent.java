@@ -11,7 +11,7 @@ import java.util.Date;
 @Entity
 @Table(name = "feed_event")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name="postType")
+@DiscriminatorColumn(name="postType", discriminatorType = DiscriminatorType.STRING)
 public class FeedEvent {
 
     // The ID of the event, will be auto-set by Spring
