@@ -193,6 +193,11 @@ test('Fetch list of activity types from back-end', () => {
     });
 });
 
+/**
+ * The below tests are setup to assume usersPerPage has a value of 2.
+ * Hence, usersPerPage is set to 2 for these tests.
+ * This variable can be changed in Search.vue and will not effect these tests.
+ */
 describe('Pagination limits the user cards displayed to the user', () => {
     test('First page contains usersPerPage number of users (1st half of users)', () => {
         window.scrollTo = jest.fn();
