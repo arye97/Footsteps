@@ -12,14 +12,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "feed_event")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name="postType", discriminatorType = DiscriminatorType.STRING)
 public class FeedEvent {
-
-    // Allows access to the discriminator column variable (feed_event)
-    @Column(name = "feed_event", nullable = false, insertable = false, updatable = false)
-    @Enumerated(EnumType.STRING)
-    protected FeedPostType feed_event;
 
     // The ID of the event, will be auto-set by Spring
     @Id
@@ -30,6 +23,19 @@ public class FeedEvent {
     // The timestamp of the feed event generation - ie. when the feed post was triggered
     @Column(name = "time_stamp", nullable = false, columnDefinition = "DATE")
     Date timeStamp;
+
+    // The activity related to the feed event
+    @Column(name = "activity_id", nullable = false)
+    Long activityId;
+
+    // The user who caused the feed event
+    @Column(name = "user_id", nullable = false)
+    Long userId;
+
+    // The type of feed post - set by the enum
+    @Column(name = "feed_event_type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    FeedPostType feedEventType;
 
     /**
      * Default constructor for feed events
@@ -47,7 +53,27 @@ public class FeedEvent {
     }
 
     public FeedPostType getFeedEventType() {
-        return feed_event;
+        return feedEventType;
+    }
+
+    public Long getActivityId() {
+        return activityId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setFeedEventType(FeedPostType type) {
+        feedEventType = type;
+    }
+
+    public void setActivityId(Long id) {
+        activityId = id;
+    }
+
+    public void setUserId(Long id) {
+        userId = id;
     }
 
     public void setTimeStamp(Date time) {
