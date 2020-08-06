@@ -13,7 +13,7 @@ import java.util.Date;
 @Entity
 @Table(name = "feed_event")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name="postType")
+@DiscriminatorColumn(name="postType", discriminatorType = DiscriminatorType.STRING)
 public class FeedEvent {
 
     // Allows access to the discriminator column variable (feed_event)
