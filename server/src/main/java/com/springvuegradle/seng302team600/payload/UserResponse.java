@@ -75,6 +75,8 @@ public class UserResponse {
         this.bio = user.getBio();
     }
 
+    public UserResponse() {}
+
     public String getLastName() {
         return lastName;
     }
@@ -112,4 +114,9 @@ public class UserResponse {
     public Date getDateOfBirth() { return dateOfBirth; }
 
     public String getBio() { return bio; }
+
+    @Override
+    public String toString() {
+        return String.format("Resp: %s %s at %s", firstName, lastName, primaryEmail);
+    }
 }

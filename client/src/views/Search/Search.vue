@@ -57,7 +57,7 @@
         </section>
         <section v-else v-for="user in this.currentPageUserList" :key="user.id">
             <!-- User List -->
-            <user-card v-bind:user="user" v-bind:selectedActivityTypes="activityTypesSearchedFor"/>
+            <user-card v-bind:user="user" v-bind:activity-types-searched-for="activityTypesSearchedFor"/>
             <br>
         </section>
         <!-- Pagination Nav Bar -->
@@ -172,10 +172,9 @@
                 // e.g. ["Hiking", "Biking"] into "Hiking Biking"
                 this.errored = false;
                 this.loading = true;
-                let activityTypes = this.selectedActivityTypes.join(" ");
                 // Set is as a copy so the User card is only updated after clicking search
                 this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
-                api.getUsersByActivityType(activityTypes, this.searchType)
+                api.getUsersByActivityType(this.activityTypesSearchedFor, this.searchType)
                     .then(response => {
                         if (response.status === 200) {
                             // Show users in page
