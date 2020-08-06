@@ -26,10 +26,10 @@
                                     trim required>
                             </b-form-input>
                         </div>
+                        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" hidden="true" id="alert_first_name">
+                            {{  "Field is mandatory and can only contain letters, spaces, hyphens, and apostrophes"  }}
+                        </div>
                     </b-form-group>
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_first_name">
-                                {{  "Field is mandatory and can only contain letters, spaces, hyphens, and apostrophes"  }}
-                            </div>
                     <b-form-group label-for="middlename" label="Middle Name:">
                         <!-- middle-name field-->
                         <div class="edit-area">
@@ -41,10 +41,10 @@
                                     trim>
                             </b-form-input>
                         </div>
+                        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" hidden="true" id="alert_middle_name">
+                            {{  "Field can only contain letters, spaces, hyphens, and apostrophes"  }}
+                        </div>
                     </b-form-group>
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_middle_name">
-                                {{  "Field can only contain letters, spaces, hyphens, and apostrophes"  }}
-                            </div>
                     <b-form-group label-for="lastname" label="Last Name: *">
                         <!-- last-name field-->
                         <div class="edit-area">
@@ -56,10 +56,10 @@
                                     trim required>
                             </b-form-input>
                         </div>
+                        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" hidden="true" id="alert_last_name">
+                            {{  "Field is mandatory and can only contain letters, spaces, hyphens, and apostrophes"  }}
+                        </div>
                     </b-form-group>
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_last_name">
-                                {{  "Field is mandatory and can only contain letters, spaces, hyphens, and apostrophes"  }}
-                            </div>
                     <b-form-group label-for="nickname" label="Nickname:">
                         <!-- nickname field-->
                         <div class="edit-area">

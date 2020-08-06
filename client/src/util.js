@@ -199,14 +199,15 @@ export function formatDateTime(dateTime) {
 export function fetchCountries() {
     //Fill Passport countries
     let select = [];
-    api.getCountries().then(() => {
-        let data = JSON.parse(this.response);
-        data.forEach(country => {
+    api.getCountries().then(response => {
+        console.log(response);
+        response.data.forEach(country => {
             let elmt = country.name;
             select.push(elmt)
         });
     }).catch(() => {
         select = 'List is empty'
     });
+    console.log(select);
     return select;
 }

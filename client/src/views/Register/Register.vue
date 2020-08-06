@@ -196,8 +196,8 @@
     import api from '../../Api';
     import Multiselect from 'vue-multiselect'
     import Header from '../../components/Header/Header.vue'
-    import {getCountryNames, fitnessLevels} from '../../constants';
-    import {validateUser} from "../../util";
+    import {fitnessLevels} from '../../constants';
+    import {fetchCountries, validateUser} from "../../util";
 
     function showError(alert_name) {
         let errorAlert = document.getElementById(alert_name);
@@ -291,7 +291,7 @@
         },
 
         mounted () {
-            this.fetchCountries();
+            this.countries = fetchCountries();
             this.fetchActivityTypes();
         },
 
@@ -325,36 +325,6 @@
                     });
                 });
             },
-
-            async fetchCountries() {
-                let select = [];
-                // Create a request variable and assign a new XMLHttpRequest object to it.
-                let request = new window.XMLHttpRequest();
-                //build url
-                let url = new URL(getCountryNames);
-                // Open a new connection, using the GET request on the URL endpoint;
-                request.open('GET', url, true);
-
-                request.onload = function() {
-                    // If the request is successful
-                    if(request.status >= 200 && request.status < 400) {
-                        let data = JSON.parse(this.response);
-                        data.forEach(country => {
-                            let elmt = country.name;
-                            select.push(elmt)
-                        } )
-                    } else {
-                        select = 'List is empty';
-                        let errorAlert = document.getElementById("alert_form");
-                        this.message_form = 'Error fetching countries';
-                        errorAlert.hidden = false;          //Show alert bar
-                    }
-                };
-                // Send request
-                this.countries = select;
-                request.send()
-            },
-
             async registerUser(evt) {
                 evt.preventDefault();
                 // Save the data as a newUser object
