@@ -48,7 +48,7 @@ export default {
   getActivityData: (activityId) => server.get(`/activities/${activityId}`, getTokenHeader()),
   getUserRoles: (userId) => server.get(`/profiles/${userId}/role`, getTokenHeader()),
   getUsersByActivityType: (activityTypes, method) => {
-    let activityTypesStr = activityTypes.map(a => a.replace(' ', '-')).join(' ');  // Escape spaces and convert array to str
+    let activityTypesStr = activityTypes.map(a => a.replace(/\s/g, '-')).join(' ');  // Use RegEx to replace ALL spaces with dashes (because str.replace is stupid)
     return server.get(`profiles?activity=${activityTypesStr}&method=${method}`, getTokenHeader())
   },
 }

@@ -13,7 +13,7 @@
                     <b-modal :id="'modal-view-profile' + user.id" :title="user.firstname + ' ' + user.lastname" scrollable>
                         <!--The User's Details-->
                         <b-button id="goToProfileButton" style="float: right" variant="primary" v-on:click="viewProfile(user.id)">Go To Profile</b-button>
-                        <view-user v-bind:user-id="user.id" v-bind:show-header="false"/>
+                        <view-user v-bind:user-id="user.id" v-bind:modalView="true"/>
 
 
                     </b-modal>
@@ -36,7 +36,7 @@
                     <b-list-group id="matchingActivityTypes">
                         <section v-for="activityType in user.activityTypes" v-bind:key="activityType">
                             <!-- Only display queried activity types -->
-                            <b-list-group-item v-if="selectedActivityTypes.indexOf(activityType.name) > -1" variant="primary">
+                            <b-list-group-item v-if="activityTypesSearchedFor.indexOf(activityType.name) > -1" variant="primary">
                                 {{ activityType.name }}
                             </b-list-group-item>
                         </section>
@@ -63,7 +63,7 @@
                 bio: String,
                 activityTypes: Array,
             },
-            selectedActivityTypes: {
+            activityTypesSearchedFor: {
                 default() {
                     return [];
                 },

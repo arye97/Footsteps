@@ -248,7 +248,7 @@ public class UserValidatorTest {
         addEmails.add("email here");
         testUser.setAdditionalEmails(addEmails);
         Exception exception = assertThrows(ResponseStatusException.class, () -> {userValidator.validate(testUser);});
-        System.out.println(exception.getMessage());
+
         assertTrue(exception.getMessage().startsWith("400 BAD_REQUEST \"Invalid email"));
 
         //email exceeds max length

@@ -57,7 +57,7 @@ const USER3 = {
     bio: "This is my bio",
     fitness: 2,
     passports: [ "New Zealand", "Afghanistan" ],
-    activity_types: [ "Hiking", "Rock Climbing", "Astronomy" ]
+    activity_types: [ "Hiking", "Rock Climbing", "Astronomy", "Baseball and Softball" ]
 };
 
 const NEW_PASSWORD = "password2";
@@ -392,10 +392,19 @@ describe("Run tests on new user", () => {
         });
 
 
-        test("Get users with ActivityTypes containing spaces (OR)", () => {
-            return api.getUsersByActivityType(["Rock-Climbing"], "or").then(response => {
+        test("Get users with ActivityTypes containing a space (OR)", () => {
+            return api.getUsersByActivityType(["Rock Climbing"], "or").then(response => {
                 expect(response.status).toEqual(200);
                 expect(response.data.length).toEqual(2);
+            }).catch(err => {
+                throw procError(err)
+            });
+        });
+
+        test("Get users with ActivityTypes containing >1 spaces (AND)", () => {
+            return api.getUsersByActivityType(["Rock Climbing", "Baseball and Softball"], "and").then(response => {
+                expect(response.status).toEqual(200);
+                expect(response.data.length).toEqual(1);
             }).catch(err => {
                 throw procError(err)
             });

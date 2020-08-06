@@ -3,7 +3,7 @@
         <h1><br/><br/></h1>
         <b-container class="contents" fluid>
             <div class="container">
-                <Header v-if="showHeader" :userId="this.userId"/>
+                <Header v-if="!modalView" :userId="this.userId"/>
                 <div class="row h-100">
                     <div class="col-12 text-center">
                         <section v-if="errored">
@@ -106,7 +106,7 @@
                                 <h3 class="font-weight-light"><strong>Activity Types: </strong></h3><br/>
 
                                 <b-list-group v-if="this.user.activityTypes.length >= 1">
-                                    <b-card v-for="activityType in this.user.activityTypes" v-bind:key="activityType" class="flex-fill" border-variant="secondary">
+                                    <b-card v-for="activityType in this.user.activityTypes" v-bind:key="activityType.name" class="flex-fill" border-variant="secondary">
                                         <b-card-text class="font-weight-light">
                                             {{activityType.name}}
                                         </b-card-text>
@@ -148,8 +148,8 @@
             Header
         },
         props: {
-            showHeader: {
-                default: true,
+            modalView: {
+                default: false,
                 type: Boolean
             },
             userId: {
