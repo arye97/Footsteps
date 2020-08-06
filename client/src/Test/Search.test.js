@@ -192,3 +192,28 @@ test('Fetch list of activity types from back-end', () => {
         expect(searchPage.vm.api.getActivityTypes).toHaveBeenCalledWith();
     });
 });
+
+/**
+ * The below tests are setup to assume usersPerPage has a value of 2.
+ * Hence, usersPerPage is set to 2 for these tests.
+ * This variable can be changed in Search.vue and will not effect these tests.
+ */
+describe('Pagination limits the user cards displayed to the user', () => {
+    test('First page contains usersPerPage number of users (1st half of users)', () => {
+        window.scrollTo = jest.fn();
+        expect(searchPage.vm.$data.currentPageUserList).toEqual([]);
+        searchPage.vm.$data.userList = SEARCH_RESPONSE1;
+        searchPage.vm.$data.usersPerPage = 2;
+        searchPage.vm.setCurrentPageUserList();
+        expect(searchPage.vm.$data.currentPageUserList).toEqual(SEARCH_RESPONSE1.slice(0, 2));
+    });
+    test('Second page contains usersPerPage number of users (2nd half of users)', () => {
+        window.scrollTo = jest.fn();
+        expect(searchPage.vm.$data.currentPageUserList).toEqual([]);
+        searchPage.vm.$data.userList = SEARCH_RESPONSE1;
+        searchPage.vm.$data.usersPerPage = 2;
+        searchPage.vm.$data.currentPage = 2;
+        searchPage.vm.setCurrentPageUserList();
+        expect(searchPage.vm.$data.currentPageUserList).toEqual(SEARCH_RESPONSE1.slice(2, 4));
+    });
+});
