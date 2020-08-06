@@ -51,4 +51,5 @@ export default {
     let activityTypesStr = activityTypes.map(a => a.replace(/\s/g, '-')).join(' ');  // Use RegEx to replace ALL spaces with dashes (because str.replace is stupid)
     return server.get(`profiles?activity=${activityTypesStr}&method=${method}`, getTokenHeader())
   },
+  getUserSubscribed: (activityId, userId) => server.get(`/profiles/${userId}/subscriptions/activities/${activityId}`, getTokenHeader())
 }

@@ -186,10 +186,23 @@
                                             </b-card>
                                             <template v-slot:modal-footer v-if="creatorId!==userId">
                                                 <div class="w-100">
-                                                    <b-button
+                                                    <b-button v-if="activity.following"
                                                             variant="outline-dark"
                                                             class="footerButton"
-                                                            @click="followActivity(activity.id)"
+                                                            @click="unfollowActivity(activity.id)"
+                                                    >
+                                                        <div>
+                                                            Unfollow Activity
+                                                        </div>
+                                                        <div v-b-hover="footerHover">
+                                                            <img v-if="isHovered" src="../../../assets/png/footsteps_icon_hollow.png" class="footSteps" alt="Footsteps Logo">
+                                                            <img v-else src="../../../assets/png/footsteps_icon.png" class="footSteps" alt="Footsteps Logo">
+                                                        </div>
+                                                    </b-button>
+                                                    <b-button v-else
+                                                              variant="outline-dark"
+                                                              class="footerButton"
+                                                              @click="followActivity(activity.id)"
                                                     >
                                                         <div>
                                                             Follow Activity
@@ -262,6 +275,7 @@
             this.userId = await this.getUserId();
             await this.getListOfActivities();
             await this.getCreatorName();
+            await this.updateActivitiesFollowing();
         },
         methods: {
             followActivity(id) {
@@ -370,6 +384,17 @@
               }).catch(() => {
                   this.creatorName = "Could not load creator's name";
               });
+          },
+
+          async updateActivitiesFollowing() {
+                // await this.activityList.forEach(activity =>
+              for (let activity of this.activityList) {
+                    await api.getUserSubscribed(activity, this.userId).then((response) => {
+                        activity.following = `${response.data.subscribed}`;
+                    }).catch(() => {
+                        activity.following = false;
+                    })
+              }
           }
         }
     }
