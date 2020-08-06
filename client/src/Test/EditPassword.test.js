@@ -19,7 +19,7 @@ const testUser = {
     passports:[],
     activityTypes:[]
 };
-const password = "testpassword1234"
+const password = "testpassword1234";
 
 
 
@@ -35,7 +35,7 @@ const sleep = (milliseconds) => {
 beforeEach(() => {
     return new Promise(resolve => {
         api.getUserData.mockImplementation(() => Promise.resolve({data: testUser, status: 200}));
-        api.updatePassword.mockImplementation(() => Promise.resolve({status: 200}))
+        api.updatePassword.mockImplementation(() => Promise.resolve({status: 200}));
         editWrapper = mount(EditPassword, {router, attachToDocument: true, mocks: {api}});
         sleep(150).then(() => resolve());
     });
@@ -60,7 +60,18 @@ describe('Successful changes', () => {
             done();
         });
     });
-})
+    it('Extremely long password', done => {
+        editWrapper.vm.$nextTick().then(() => {
+            const newPass = password.repeat(100);
+            editWrapper.find('#newPass').setValue(newPass);
+            editWrapper.find('#repeatPass').setValue(newPass);
+            editWrapper.find('#oldPass').setValue(password + '5');
+            editWrapper.find('#save').trigger('click');
+            expect(editWrapper.vm.api.updatePassword).toBeCalledWith(testUser.id, password+'5', newPass, newPass);
+            done();
+        });
+    });
+});
 
 describe('Unsuccessful changes', () => {
     it('Blank new password', done => {
@@ -85,7 +96,7 @@ describe('Unsuccessful changes', () => {
     });
     it('Short new password', done => {
         editWrapper.vm.$nextTick().then(() => {
-            const newPassword = "hi123"
+            const newPassword = "hi12345";
             editWrapper.find('#newPass').setValue(newPassword);
             editWrapper.find('#repeatPass').setValue(newPassword);
             editWrapper.find('#oldPass').setValue(password);
@@ -96,7 +107,7 @@ describe('Unsuccessful changes', () => {
     });
     it('Numberless new password', done => {
         editWrapper.vm.$nextTick().then(() => {
-            const newPassword = "hellotherefriends"
+            const newPassword = "hellotherefriends";
             editWrapper.find('#newPass').setValue(newPassword);
             editWrapper.find('#repeatPass').setValue(newPassword);
             editWrapper.find('#oldPass').setValue(password);
@@ -107,7 +118,7 @@ describe('Unsuccessful changes', () => {
     });
     it('Letterless new password', done => {
         editWrapper.vm.$nextTick().then(() => {
-            const newPassword = "123456789"
+            const newPassword = "123456789";
             editWrapper.find('#newPass').setValue(newPassword);
             editWrapper.find('#repeatPass').setValue(newPassword);
             editWrapper.find('#oldPass').setValue(password);
@@ -120,10 +131,20 @@ describe('Unsuccessful changes', () => {
         editWrapper.vm.$nextTick().then(() => {
             editWrapper.find('#newPass').setValue(password + '5');
             editWrapper.find('#repeatPass').setValue(password + '6');
+            editWrapper.find('#oldPass').setValue(password + '7');
+            editWrapper.find('#save').trigger('click');
+            expect(editWrapper.vm.api.updatePassword).toBeCalledTimes(0);
+            done();
+        });
+    });
+    it('No password change', done => {
+        editWrapper.vm.$nextTick().then(() => {
+            editWrapper.find('#newPass').setValue(password + '5');
+            editWrapper.find('#repeatPass').setValue(password + '5');
             editWrapper.find('#oldPass').setValue(password + '5');
             editWrapper.find('#save').trigger('click');
             expect(editWrapper.vm.api.updatePassword).toBeCalledTimes(0);
             done();
         });
     });
-})
+});
