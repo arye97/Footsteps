@@ -70,6 +70,26 @@ export function getDateString(date_of_birth) {
 }
 
 /**
+ * Return the current time in the backend date format
+ * @returns {string} formatted with yyyy-MM-dd'T'HH:mm:ssZ with a timezone designator for the local timezone
+ */
+export function currentDateBackend() {
+    let current = (new Date()).toISOString().substring(0, 16);
+
+    let timeZoneStr = backendTimeZone();
+    return current.concat(timeZoneStr);
+}
+
+/**
+ * Return the current time in the front end date format
+ * @returns {string} front end date formatted with yyyy-MM-dd'T'HH: in local time
+ */
+export function currentDateFrontend() {
+    return (new Date()).toISOString().substring(0, 16);
+}
+
+
+/**
  * Converts a back end date of the form 1997-02-11T09:00:00+0000 (yyyy-MM-dd'T'HH:mm:ssZ) to a front end date of
  * the form 1997-02-11T21:00 (yyyy-MM-dd'T'HH:mm) that is in the local timezone of the browser.
  *
@@ -79,26 +99,26 @@ export function getDateString(date_of_birth) {
  */
 export function backendDateToLocalTimeZone(backEndDateStr) {
     // Check the format
-    if (isNaN((new Date(backEndDateStr)).getTime())) {
-        throw new RangeError("Invalid Back End Date " + backEndDateStr);
+    if (backEndDateStr == null || isNaN((new Date(backEndDateStr)).getTime())) {
+        return currentDateFrontend();
     }
-    let timeZoneOffsetMS = (new Date()).getTimezoneOffset() * 60000;   // Timezone offset in milliseconds
-    let backEndDate = new Date(backEndDateStr);
-    return (new Date(backEndDate - timeZoneOffsetMS)).toISOString().substring(0, 16);
+
+    try {
+        let timeZoneOffsetMS = (new Date()).getTimezoneOffset() * 60000;   // Timezone offset in milliseconds
+        let backEndDate = new Date(backEndDateStr);
+        return (new Date(backEndDate - timeZoneOffsetMS)).toISOString().substring(0, 16);
+
+    } catch (err) {
+        return currentDateFrontend();
+    }
 }
 
-/**
- * Converts a front end date like 1997-02-11T21:00 to a backend date like 1997-02-11T21:00:00+1200.
- * Adds the local time zone onto the end.
- * @param frontEndDate string front end date formatted with yyyy-MM-dd'T'HH: in local time
- * @returns string  formatted with yyyy-MM-dd'T'HH:mm:ssZ with a timezone designator for the local timezone
- */
-export function localTimeZoneToBackEndTime(frontEndDate) {
-    // Check the format
-    if (isNaN((new Date(frontEndDate)).getTime())) {
-        throw new RangeError("Invalid Front End Date " + frontEndDate);
-    }
 
+/**
+ * Get a timezone substring for a backend date of the format :00+0800
+ * @returns {string} timezone substring
+ */
+function backendTimeZone() {
     // Get Timezone offset in minutes
     let timeZoneOffsetMin = -(new Date()).getTimezoneOffset();
 
@@ -112,7 +132,28 @@ export function localTimeZoneToBackEndTime(frontEndDate) {
 
 
     let timeZoneStr = hour + minute;
-    return frontEndDate.concat(":00+" + timeZoneStr);
+    return ":00+" + timeZoneStr;
+}
+
+/**
+ * Converts a front end date like 1997-02-11T21:00 to a backend date like 1997-02-11T21:00:00+1200.
+ * Adds the local time zone onto the end.
+ * @param frontEndDate string front end date formatted with yyyy-MM-dd'T'HH: in local time
+ * @returns string  formatted with yyyy-MM-dd'T'HH:mm:ssZ with a timezone designator for the local timezone
+ */
+export function localTimeZoneToBackEndTime(frontEndDate) {
+    // Check the format
+    if (frontEndDate == null || isNaN((new Date(frontEndDate)).getTime())) {
+        return currentDateBackend();
+    }
+
+    try {
+        let timeZoneStr = backendTimeZone();
+        return frontEndDate.concat(timeZoneStr);
+
+    } catch (err) {
+        return currentDateBackend();
+    }
 }
 
 /**
