@@ -1,5 +1,7 @@
 package com.springvuegradle.seng302team600.model;
 
+import com.springvuegradle.seng302team600.enumeration.FeedPostType;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -13,6 +15,11 @@ import java.util.Date;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="postType")
 public class FeedEvent {
+
+    // Allows access to the discriminator column variable (feed_event)
+    @Column(name = "feed_event", nullable = false, insertable = false, updatable = false)
+    @Enumerated(EnumType.STRING)
+    protected FeedPostType feed_event;
 
     // The ID of the event, will be auto-set by Spring
     @Id
@@ -37,6 +44,10 @@ public class FeedEvent {
 
     public Date getTimeStamp() {
         return timeStamp;
+    }
+
+    public FeedPostType getFeedEventType() {
+        return feed_event;
     }
 
     public void setTimeStamp(Date time) {
