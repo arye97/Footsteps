@@ -110,6 +110,7 @@
                                         <b-button
                                                 variant="outline-primary"
                                                 @click="followActivity(activity.id)"
+                                                v-if="creatorId!==userId"
                                         >
                                             Follow Activity
                                             <img v-if="isHovered" src="../../../assets/png/footsteps_icon.png" class="footStepsSimplified" alt="Footsteps Logo">
@@ -214,6 +215,7 @@
                                             <b-button
                                                     variant="outline-primary"
                                                     @click="followActivity(activity.id)"
+                                                    v-if="creatorId!==userId"
                                             >
                                                 Follow Activity
                                                 <img v-if="isHovered" src="../../../assets/png/footsteps_icon.png" class="footStepsSimplified" alt="Footsteps Logo">
