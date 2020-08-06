@@ -126,6 +126,9 @@
                         </section>
                     </div>
                 </div>
+                <section>
+                    <ActivityList v-bind:user-id="userId"/>
+                </section>
             </div>
         </b-container>
         <br/><br/>
@@ -136,10 +139,12 @@
     import api from "../../Api";
     import {fitnessLevels} from '../../constants'
     import Header from '../../components/Header/Header';
+    import ActivityList from "../Activities/ActivityList";
 
     export default {
         name: "ViewUser",
         components: {
+            ActivityList,
             Header
         },
         props: {
@@ -178,8 +183,6 @@
                 if (this.userId === undefined || isNaN(this.userId)) {  // Check if the inputted userId prop wasn't used
                     if (!isNaN(this.$route.params.userId)) {  // If this is a number (could be a string of digits)
                         this.userId = this.$route.params.userId;
-                    } else {
-                        this.userId = '';
                     }
                 }
                 this.loading = true;

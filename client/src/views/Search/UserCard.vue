@@ -14,7 +14,7 @@
                         <!--The User's Details-->
                         <b-button id="goToProfileButton" style="float: right" variant="primary" v-on:click="viewProfile(user.id)">Go To Profile</b-button>
                         <view-user v-bind:user-id="user.id" v-bind:show-header="false"/>
-                        <ActivityList  v-bind:user-id="user.id" v-bind:show-header="false"/>
+
 
                     </b-modal>
                 </b-col>
@@ -50,11 +50,10 @@
 <script>
 
     import ViewUser from "../../components/layout/ViewUser.vue";
-    import ActivityList from "../../components/Activities/ActivityList";
 
     export default {
         name: "UserCard",
-        components: {ActivityList, ViewUser},
+        components: {ViewUser},
         props: {
             user: {
                 id: Number,
@@ -86,7 +85,8 @@
              */
             viewProfile(userId) {
                 this.goToPage({ name: 'profile', params: {userId: userId} })
-            }
+            },
+
         }
     }
 

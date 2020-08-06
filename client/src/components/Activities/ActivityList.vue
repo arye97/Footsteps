@@ -1,6 +1,8 @@
 <template>
 
     <div id="main">
+<!--        <Header :userId="this.userId"/>-->
+
 
 
 
@@ -8,7 +10,10 @@
         <div v-if="this.loading" style="text-align: center">
             <b-spinner class="margin-bottom: 1.7em; margin-top: 0.8em" variant="primary" label="Spinning"></b-spinner>
         </div>
+
         <b-tabs v-else content-class="mt-4" justified>
+
+
             <b-tab title="Continuous" :active="continuousIsActive(true)">
                 <section v-for="activity in this.activityList" :key="activity.id">
                     <!-- Activity List -->
@@ -187,11 +192,15 @@
 
     export default {
         name: "ActivityList",
-
+        props: {
+            userId: {
+                default: null,
+                type: Number
+            }
+        },
         data() {
             return {
                 activityList : [],
-                userId : null,
                 creatorId: null,
                 creatorName: null,
                 noMore: false,
@@ -203,7 +212,6 @@
             this.checkLoggedIn();
         },
         async mounted() {
-            this.userId = await this.getUserId();
             await this.getListOfActivities();
             await this.getCreatorName();
         },
@@ -220,21 +228,10 @@
                     this.$router.push("/login");
                 }
             },
-            /**
-             * Get the Id of the current Logged in user.
-             * @returns {Promise<*>}
-             */
-            async getUserId() {
-                let userId = null;
-                await api.getUserId().then(response => {
-                    userId = response.data;
-                    this.creatorId = userId;
-                });
-                return userId
-            },
+
             async getListOfActivities() {
-                await api.getUserActivities(this.userId)
-                    .then(response => { //If successfully registered the response will have a status of 201
+                await api.getUserActivities(this.userId).then(
+                    response => { //If successfully registered the response will have a status of 201
                         if (response.data.length === 0) {
                             this.noMore = true;
                         }
