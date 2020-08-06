@@ -32,7 +32,7 @@ test('Is a vue instance', () => {
     expect(createActivity.isVueInstance).toBeTruthy();
 });
 
-test('Catches an http status error of 400 or an invalid activity field when activity form is submitted and gives user an appropriate alert', () => {
+test('Catches an http status error of 400 or an invalid activity field when create activity form is submitted and gives user an appropriate alert', () => {
     createActivity.setProps({
         ACTIVITY1
     });
@@ -45,7 +45,7 @@ test('Catches an http status error of 400 or an invalid activity field when acti
         error => expect(error).toEqual(new Error("Entered activity field(s) are invalid")));
 });
 
-test('Catches an http status error of 401 or user not authenticated when activity form is submitted and takes user to login page', () => {
+test('Catches an http status error of 401 or user not authenticated when create activity form is submitted and takes user to login page', () => {
     createActivity.setProps({
         ACTIVITY1
     });
@@ -61,7 +61,7 @@ test('Catches an http status error of 401 or user not authenticated when activit
 
 });
 
-test('Catches an http status error of 403 or forbidden access when activity form is submitted and gives user an appropriate alert', async () => {
+test('Catches an http status error of 403 or forbidden access when create activity form is submitted and gives user an appropriate alert', async () => {
     createActivity.setProps({
         ACTIVITY1
     });
@@ -72,4 +72,17 @@ test('Catches an http status error of 403 or forbidden access when activity form
 
     return createActivity.vm.submitCreateActivity().catch(
         error => expect(error).toEqual(new Error("Sorry unable to create this activity (forbidden access)")));
+});
+
+test('Catches an http status error that isnt 401, 404, 403 and gives the user an appropriate alert', () => {
+    createActivity.setProps({
+        ACTIVITY1
+    });
+
+    let networkError = new Error("Mocked Network Error");
+    networkError.response = {status: 408};   // Explicitly give the error a response.status
+    api.createActivity.mockImplementation(() => Promise.reject(networkError));  // Mocks errors sent from the server
+
+    return createActivity.vm.submitCreateActivity().catch(
+        error => expect(error).toEqual(new Error("Unknown error has occurred whilst creating this activity")));
 });
