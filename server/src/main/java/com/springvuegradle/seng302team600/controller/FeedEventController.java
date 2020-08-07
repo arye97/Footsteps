@@ -1,6 +1,7 @@
 package com.springvuegradle.seng302team600.controller;
 
 import com.springvuegradle.seng302team600.payload.IsFollowingResponse;
+import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.FeedEventRepository;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.springframework.web.bind.annotation.*;
@@ -16,11 +17,14 @@ import javax.servlet.http.HttpServletResponse;
 public class FeedEventController {
 
     private final UserAuthenticationService userService;
-    private final FeedEventRepository feedEventRepository;
 
-    public FeedEventController(UserAuthenticationService userService, FeedEventRepository feedEventRepository) {
+    private final FeedEventRepository feedEventRepository;
+    private final ActivityRepository activityRepository;
+
+    public FeedEventController(UserAuthenticationService userService, FeedEventRepository feedEventRepository, ActivityRepository activityRepository) {
         this.userService = userService;
         this.feedEventRepository = feedEventRepository;
+        this.activityRepository = activityRepository;
     }
 
     @PostMapping("/profiles/{profileId}/subscriptions/activities/{activityId}")
