@@ -39,7 +39,7 @@ public class FeedEventController {
         //ToDo Implement this method, also add DocString
     }
 
-    @GetMapping()
+    @GetMapping("/profiles/{profileId/subscriptions/activities/{activityId}")
     public IsFollowingResponse isFollowingAnActivity() {
         //ToDo Implement this method, also add DocString
         return null;
