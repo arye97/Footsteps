@@ -55,12 +55,19 @@
             <br/>
             <br/>
         </section>
-
-        <section v-else v-for="user in this.userList" :key="user.id">
+        <section v-else v-for="user in this.currentPageUserList" :key="user.id">
             <!-- User List -->
             <user-card v-bind:user="user" v-bind:activity-types-searched-for="activityTypesSearchedFor"/>
             <br>
         </section>
+        <!-- Pagination Nav Bar -->
+        <b-pagination
+                v-if="!errored && !loading && userList.length >= 1"
+                align="fill"
+                v-model="currentPage"
+                :total-rows="rows"
+                :per-page="usersPerPage"
+        ></b-pagination>
     </b-container>
     </div>
 </template>
@@ -81,6 +88,9 @@
 
         data() {
             return {
+                usersPerPage: 5,
+                currentPage: 1,
+                currentPageUserList: [],
                 userList: [],
                 searchMode: 'activityType',
                 searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
@@ -108,6 +118,25 @@
             await this.fetchActivityTypes();
         },
 
+        watch: {
+            /**
+             * Watcher is called whenever currentPage is changed, via searching new query
+             * or the pagination bar.
+             */
+            currentPage() {
+                this.setCurrentPageUserList();
+            }
+        },
+
+        computed: {
+            /**
+             * Finds the number of users (rows) gained from the search query.
+             */
+            rows() {
+                return this.userList.length;
+            }
+        },
+
         methods: {
             goToPage(url) {
                 this.$router.push(url);
@@ -118,6 +147,21 @@
              */
             viewProfile(userId) {
                 this.goToPage({ name: 'profile', params: {userId: userId} })
+            },
+
+            /**
+             * Calculate the users to be displayed from the current page number.
+             * This function is called when the pagination bar is altered,
+             * changing the currentPage variable.
+             */
+            setCurrentPageUserList() {
+                let leftIndex = (this.currentPage - 1) * this.usersPerPage;
+                let rightIndex = leftIndex + this.usersPerPage;
+                if (rightIndex > this.userList.length) {
+                    rightIndex = this.userList.length;
+                }
+                this.currentPageUserList = this.userList.slice(leftIndex, rightIndex);
+                window.scrollTo(0,0);
             },
 
             /**
@@ -135,13 +179,14 @@
                         if (response.status === 200) {
                             // Show users in page
                             this.userList = response.data;
+                            this.setCurrentPageUserList();
                         }
                         this.loading = false;
                     }).catch(err => {
                         this.loading = false;
                         this.errored = true;
                         this.userList = []
-
+                        this.setCurrentPageUserList();
                         if ((err.code === "ECONNREFUSED") || (err.code === "ECONNABORTED")) {
                             this.error_message = "Cannot connect to server - please try again later!";
                         } else {
@@ -156,9 +201,8 @@
                                 this.error_message = "Something went wrong! Please try again."
                             }
                         }
-
-
-                })
+                });
+                this.currentPage = 1;
             },
             /**
              * Logout is used for when an error needs redirection
