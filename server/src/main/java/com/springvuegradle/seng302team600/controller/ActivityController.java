@@ -174,22 +174,4 @@ public class ActivityController {
         List<Activity> activities = activityRepository.findAllByUserId(profileId);
         return activities;
     }
-
-
-    /**
-     * POST request endpoint for a user to follow an activity
-     * @param profileId the id of the user to be the follower
-     * @param activityId the id of the activity to be followed
-     */
-    @PostMapping("/profiles/{profileId}/subscriptions/activities/{activityId}")
-    public void followAnActivity(HttpServletRequest request, HttpServletResponse response,
-                                 @PathVariable Long profileId, @PathVariable Long activityId) {
-        String token = request.getHeader("Token");
-        User user = userAuthenticationService.findByUserId(token, profileId);
-        Activity activity = activityRepository.findByActivityId(activityId);
-        activity.getParticipants().add(user);
-        activityRepository.save(activity);
-
-        //TODO: Needs to produce an event once the event classes/subclasses have been created
-    }
 }
