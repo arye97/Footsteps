@@ -1,6 +1,7 @@
 package com.springvuegradle.seng302team600.controller;
 
 import com.springvuegradle.seng302team600.model.Activity;
+import com.springvuegradle.seng302team600.model.FeedEvent;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.FeedEventRepository;
@@ -14,6 +15,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.*;
 
 import static org.mockito.Mockito.when;
 
@@ -36,6 +39,7 @@ public class FeedEventControllerTest {
     private final String validToken = "valid";
     private static final Long ACTIVITY_ID_1 = 1L;
     private Activity dummyActivity;
+    private List<FeedEvent> feedEventTable;
 
     @BeforeEach
     void setUp() {
@@ -43,6 +47,7 @@ public class FeedEventControllerTest {
         dummyUser1 = new User();
         dummyUser2 = new User();
         dummyActivity = new Activity();
+        feedEventTable = new ArrayList<>();
 
         // Mocking UserAuthenticationService
         when(userAuthenticationService.findByUserId(Mockito.any(String.class), Mockito.any(Long.class))).thenAnswer(i -> {
@@ -64,7 +69,16 @@ public class FeedEventControllerTest {
                 ((User) i.getArgument(0)).getRole() >= 10);
 
         // Mocking FeedEventRepository
-        //TODO Add mocking here for FeedEventRepository functions
+        when(feedEventRepository.findByUserIdOrderByTimeStamp(Mockito.anyLong())).thenAnswer(i -> {
+            Long id = i.getArgument(0);
+            List<FeedEvent> result = new ArrayList<>();
+            for (FeedEvent feedEvent : feedEventTable) {
+                if (feedEvent.getViewerId().equals(id)) {
+                    result.add(feedEvent);
+                }
+            }
+            return result.isEmpty() ? null : result;
+        });
 
         // Mocking ActivityRepository
         when(activityRepository.findByActivityId(Mockito.anyLong())).thenAnswer(i -> {
