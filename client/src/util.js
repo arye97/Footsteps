@@ -200,7 +200,6 @@ export function fetchCountries() {
     //Fill Passport countries
     let select = [];
     api.getCountries().then(response => {
-        console.log(response);
         response.data.forEach(country => {
             let elmt = country.name;
             select.push(elmt)
@@ -208,6 +207,5 @@ export function fetchCountries() {
     }).catch(() => {
         select = 'List is empty'
     });
-    console.log(select);
     return select;
 }
