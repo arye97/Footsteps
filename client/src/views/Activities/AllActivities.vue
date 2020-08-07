@@ -61,8 +61,6 @@
                             <b-col md="6">
                                 <div class="activity-button-group float-right">
                                     <b-button-group vertical>
-                                        <b-button variant="outline-primary" v-on:click="goToPage(`/activities/edit/${activity.id}`)">Edit</b-button>
-                                        <b-button variant="outline-primary" v-b-modal="'activity' + activity.id + '-continuous-modal'">Details</b-button>
                                         <b-modal :id="'activity' + activity.id + '-continuous-modal'" size="lg" centered ok-only scrollable :title="activity.activity_name">
                                             <b-card class="flex-fill" border-variant="secondary">
                                                 <b-row class="mb-1">
@@ -91,7 +89,7 @@
                                                     {{activity.description}}
                                                 </p>
                                             </b-card>
-                                            <template v-slot:modal-footer>
+                                            <template v-slot:modal-footer v-if="creatorId!==userId">
                                                 <div class="w-100">
                                                     <b-button
                                                             variant="outline-dark"
@@ -107,6 +105,17 @@
                                                 </div>
                                             </template>
                                         </b-modal>
+                                        <b-button variant="outline-primary" v-on:click="goToPage(`/activities/edit/${activity.id}`)">Edit</b-button>
+                                        <b-button variant="outline-primary" v-b-modal="'activity' + activity.id + '-continuous-modal'">Details</b-button>
+                                        <b-button
+                                                variant="outline-primary"
+                                                @click="followActivity(activity.id)"
+                                                v-if="creatorId!==userId"
+                                        >
+                                            Follow Activity
+                                            <img v-if="isHovered" src="../../../assets/png/footsteps_icon.png" class="footStepsSimplified" alt="Footsteps Logo">
+                                            <img v-else src="../../../assets/png/footsteps_icon_hollow.png" class="footStepsSimplified" alt="Footsteps Logo">
+                                        </b-button>
                                         <b-button variant="outline-danger" v-on:click="deleteActivity(activity.id)">Delete</b-button>
                                     </b-button-group>
                                 </div>
@@ -141,8 +150,7 @@
                                 <b-col md="6">
                                     <div class="activity-button-group float-right">
                                         <b-button-group vertical>
-                                            <b-button variant="outline-primary" v-on:click="goToPage(`/activities/edit/${activity.id}`)">Edit</b-button>
-                                            <b-button variant="outline-primary" v-b-modal="'activity' + activity.id + '-duration-modal'">Details</b-button>
+
                                             <b-modal :id="'activity' + activity.id + '-duration-modal'" size="lg" centered ok-only scrollable :title="activity.activity_name">
                                             <b-card class="flex-fill" border-variant="secondary">
                                                 <b-row class="mb-1">
@@ -202,6 +210,17 @@
                                                 </div>
                                             </template>
                                         </b-modal>
+                                            <b-button variant="outline-primary" v-on:click="goToPage(`/activities/edit/${activity.id}`)">Edit</b-button>
+                                            <b-button variant="outline-primary" v-b-modal="'activity' + activity.id + '-duration-modal'">Details</b-button>
+                                            <b-button
+                                                    variant="outline-primary"
+                                                    @click="followActivity(activity.id)"
+                                                    v-if="creatorId!==userId"
+                                            >
+                                                Follow Activity
+                                                <img v-if="isHovered" src="../../../assets/png/footsteps_icon.png" class="footStepsSimplified" alt="Footsteps Logo">
+                                                <img v-else src="../../../assets/png/footsteps_icon_hollow.png" class="footStepsSimplified" alt="Footsteps Logo">
+                                            </b-button>
                                             <b-button variant="outline-danger" v-on:click="deleteActivity(activity.id)">Delete</b-button>
                                         </b-button-group>
                                     </div>
@@ -389,10 +408,12 @@
     .activity-button-group {
         padding-top: 7.5%;
         padding-right: 40%;
+        padding-bottom: 7.5%;
     }
 
     .activity-button-group button {
-        width: 200%;
+        margin-left: 35.5%;
+        width: 110%;
     }
 
     .footerButton {
@@ -402,5 +423,10 @@
     .footSteps {
         width: 7.5%;
         height: 7.5%;
+    }
+
+    .footStepsSimplified {
+        width: 16%;
+        height: 16%;
     }
 </style>
