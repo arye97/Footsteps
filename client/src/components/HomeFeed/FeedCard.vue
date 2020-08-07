@@ -4,7 +4,7 @@
             <b-row no-gutters>
                 <b-col col="12">
                     <!-- Time Stamp -->
-                    <b-card-text id="time">{{event.timeStamp}}</b-card-text>
+                    <b-card-text id="time" class="sm"  style="float: right">{{this.time}}</b-card-text>
                 </b-col>
             </b-row>
             <b-row class="mb-1">
@@ -16,11 +16,11 @@
             <b-row class="mb-1">
                 <b-col>
                     <!-- View Activity button -->
-                    <b-button id="viewActivityButton" style="float: right" variant="primary">View Activity</b-button>
+                    <b-button id="viewActivityButton" variant="primary">View Activity</b-button>
                 </b-col>
                 <b-col v-if="event.feedEventType != 'DELETE'">
                     <!-- Unfollow button -->
-                    <b-button id="unfollowButton" style="float: right" variant="primary">Unfollow Activity</b-button>
+                    <b-button id="unfollowButton" variant="primary">Unfollow Activity</b-button>
                 </b-col>
             </b-row>
         </b-card>
@@ -50,6 +50,7 @@
                 lastName: "",
                 actionText: "",
                 activityTitle: "",
+                time: null,
                 errored: false
             }
         },
@@ -84,7 +85,19 @@
                     this.activityTitle = response.data.title;
                 }).catch(() => {
                     this.errored = true;
-                })
+                });
+                this.time = (new Date().getTime()) - (this.event.timeStamp.getTime());
+                if (this.time >= 86400000) {
+                    this.time = Math.ceil(this.time / (1000 * 60 * 60 * 24)) + ' days ago';
+                } else if (this.time >= 3600000) {
+                    this.time = Math.ceil(this.time / (1000 * 60 * 60)) + ' hours ago';
+                } else if (this.time >= 60000) {
+                    this.time = Math.ceil(this.time / (1000 * 60)) + ' minutes ago';
+                } else if (this.time >= 10000) {
+                    this.time = Math.ceil(this.time / 1000) + ' seconds ago';
+                } else {
+                    this.time = "Just now";
+                }
             }
         }
     }

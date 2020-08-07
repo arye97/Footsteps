@@ -48,6 +48,26 @@
             rows() {
                 return this.feedEventList.length;
             }
+        },
+        mounted() {
+            //TODO - Replace this with an api call when endpoints are generated
+            this.feedEventList = [
+                {
+                    id: 1,
+                    feedEventType: 'FOLLOW',
+                    timeStamp: new Date("November 02, 2017 06:00:00"),
+                    activityId: 1,
+                    userId: 1
+                },
+                {
+                    id: 2,
+                    feedEventType: 'MODIFY',
+                    timeStamp: new Date(),
+                    activityId: 50,
+                    userId: 4
+                }
+            ];
+            this.currentPageEventList = this.feedEventList;
         }
     }
 </script>
