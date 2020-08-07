@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="!errored">
         <b-card border-variant="secondary" style="background-color: #f3f3f3">
             <b-row no-gutters>
                 <b-col col="12">
@@ -25,6 +25,9 @@
             </b-row>
         </b-card>
     </div>
+    <div v-else>
+        <b-card-text id="error">An error occurred, please try again later</b-card-text>
+    </div>
 </template>
 
 <script>
@@ -46,22 +49,20 @@
                 firstName: "",
                 lastName: "",
                 actionText: "",
-                activityTitle: ""
+                activityTitle: "",
+                errored: false
             }
         },
         async mounted () {
             await this.extractData();
         },
         methods: {
-            errorCall: function() {
-
-            },
             extractData: async function() {
                 await api.getUserData(this.event.userId).then((response) => {
                     this.firstName = response.data.firstname;
                     this.lastName = response.data.lastname;
                 }).catch(() => {
-                    this.errorCall();
+                    this.errored = true;
                 });
                 switch (this.event.feedEventType) {
                     case 'DELETE':
@@ -77,12 +78,12 @@
                         this.actionText = "followed";
                         break;
                     default:
-                        this.errorCall();
+                        this.errored = true;
                 }
                 await api.getActivityData(this.event.activityId).then((response) => {
                     this.activityTitle = response.data.title;
                 }).catch(() => {
-                    this.errorCall();
+                    this.errored = true;
                 })
             }
         }
