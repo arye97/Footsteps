@@ -126,7 +126,7 @@
                         </section>
                     </div>
                 </div>
-                <section v-if="pageUrl === '/search/users'">
+                <section v-if="pageUrl === '/search/users' && userDataLoaded">
                     <ActivityList :user_-id="userId"/>
                 </section>
             </div>
@@ -168,7 +168,7 @@
                 activityTypes: [],
                 continuousActivities: [],
                 discreteActivities: [],
-                id: null,
+                userDataLoaded: false,
                 pageUrl: this.$route.fullPath
             }
         },
@@ -181,12 +181,10 @@
                 this.errored = false;
                 this.error = null;
                 this.fitness = null;
-                if (this.userId === undefined || isNaN(this.userId)) {  // Check if the inputted userId prop wasn't used
-                    if (!isNaN(this.$route.params.userId)) {  // If this is a number (could be a string of digits)
-                        this.userId = this.$route.params.userId;
-                    } else {
+                if(this.$route.params.userId) {
+                    this.userId = this.$route.params.userId;
+                } else if (this.userId === undefined || isNaN(this.userId)) {  // Check if the inputted userId prop wasn't used
                         this.userId = this.getUserId();
-                    }
                 }
                 this.loading = true;
                 await this.fetchActivityTypes();
@@ -230,6 +228,7 @@
                       this.fitness = fitnessLevels[i].desc;
                     }
                   }
+                  this.userDataLoaded = true;
                 }
               }).catch(error => {
                 this.errored = true;
