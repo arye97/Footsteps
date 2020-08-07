@@ -28,6 +28,7 @@
 </template>
 
 <script>
+    import api from "../../Api";
 
     export default {
         name: "FeedCard",
@@ -46,6 +47,43 @@
                 lastName: "",
                 actionText: "",
                 activityTitle: ""
+            }
+        },
+        async mounted () {
+            await this.extractData();
+        },
+        methods: {
+            errorCall: function() {
+
+            },
+            extractData: async function() {
+                await api.getUserData(this.event.userId).then((response) => {
+                    this.firstName = response.data.firstname;
+                    this.lastName = response.data.lastname;
+                }).catch(() => {
+                    this.errorCall();
+                });
+                switch (this.event.feedEventType) {
+                    case 'DELETE':
+                        this.actionText = "deleted";
+                        break;
+                    case 'MODIFY':
+                        this.actionText = "modified";
+                        break;
+                    case 'UNFOLLOW':
+                        this.actionText = "unfollowed";
+                        break;
+                    case 'FOLLOW':
+                        this.actionText = "followed";
+                        break;
+                    default:
+                        this.errorCall();
+                }
+                await api.getActivityData(this.event.activityId).then((response) => {
+                    this.activityTitle = response.data.title;
+                }).catch(() => {
+                    this.errorCall();
+                })
             }
         }
     }
