@@ -69,7 +69,7 @@ public class FeedEventControllerTest {
                 ((User) i.getArgument(0)).getRole() >= 10);
 
         // Mocking FeedEventRepository
-        when(feedEventRepository.findByUserIdOrderByTimeStamp(Mockito.anyLong())).thenAnswer(i -> {
+        when(feedEventRepository.findByViewerIdOrderByTimeStamp(Mockito.anyLong())).thenAnswer(i -> {
             Long id = i.getArgument(0);
             List<FeedEvent> result = new ArrayList<>();
             for (FeedEvent feedEvent : feedEventTable) {
