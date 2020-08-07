@@ -1,19 +1,9 @@
 <template>
-
     <div id="main">
-<!--        <Header :userId="this.userId"/>-->
-
-
-
-
-
         <div v-if="this.loading" style="text-align: center">
             <b-spinner class="margin-bottom: 1.7em; margin-top: 0.8em" variant="primary" label="Spinning"></b-spinner>
         </div>
-
         <b-tabs v-else content-class="mt-4" justified>
-
-
             <b-tab title="Continuous" :active="continuousIsActive(true)">
                 <section v-for="activity in this.activityList" :key="activity.id">
                     <!-- Activity List -->
@@ -149,7 +139,7 @@
                                                     <b-col><strong>Activity types: </strong></b-col>
                                                     <b-col>
                                                         <section v-for="activityType in activity.activity_type"
-                                                                 v-bind:key="activityType">
+                                                                 v-bind:key="activityType.name">
                                                             <div>
                                                                 {{activityType.name}}
                                                             </div>
@@ -214,6 +204,7 @@
             this.checkLoggedIn();
         },
         async mounted() {
+            console.log(this.user_Id)
             await this.getListOfActivities();
             await this.getCreatorName();
         },
