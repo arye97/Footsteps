@@ -193,9 +193,10 @@
     export default {
         name: "ActivityList",
         props: {
-            userId: {
-                default: null,
-                type: Number
+            //this is an underscore as props need to be set to a data(){} attribute, not directly assigned
+            // through a prop!!
+            user_Id: {
+                default: null
             }
         },
         data() {
@@ -205,7 +206,8 @@
                 creatorName: null,
                 noMore: false,
                 activeTab: 0,
-                loading: true
+                loading: true,
+                userId: this.user_Id
             }
         },
         beforeMount() {

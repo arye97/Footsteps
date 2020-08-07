@@ -126,7 +126,7 @@
                         </section>
                     </div>
                 </div>
-                <section>
+                <section v-if="pageUrl === '/search/users'">
                     <ActivityList v-bind:user-id="userId"/>
                 </section>
             </div>
@@ -153,8 +153,7 @@
                 type: Boolean
             },
             userId: {
-                default: undefined,
-                type: Number
+                default: ''
             }
         },
         data() {
@@ -168,10 +167,13 @@
                 isEditable: true,
                 activityTypes: [],
                 continuousActivities: [],
-                discreteActivities: []
+                discreteActivities: [],
+                id: null,
+                pageUrl: this.$route.fullPath
             }
         },
         async mounted() {
+            console.log(this.pageUrl);
             await this.init();
         },
         methods: {
@@ -181,8 +183,11 @@
                 this.error = null;
                 this.fitness = null;
                 if (this.userId === undefined || isNaN(this.userId)) {  // Check if the inputted userId prop wasn't used
+                    console.log("we got here");
                     if (!isNaN(this.$route.params.userId)) {  // If this is a number (could be a string of digits)
                         this.userId = this.$route.params.userId;
+                    } else {
+                        this.userId = this.getUserId();
                     }
                 }
                 this.loading = true;
@@ -193,6 +198,15 @@
                 await this.getProfile();
                 this.loading = false;
 
+
+            },
+            getUserId() {
+                let id = null;
+                console.log("we got to the call");
+                api.getUserId().then(response => {
+                    id = response.data;
+                }).catch(()=> {id = '';})
+                return id;
             },
             /**
              * Fetch all possible activity types from the server.
