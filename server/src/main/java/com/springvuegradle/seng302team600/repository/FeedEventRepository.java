@@ -9,5 +9,5 @@ import java.util.List;
 @RepositoryRestResource
 public interface FeedEventRepository extends JpaRepository<FeedEvent, Long> {
 
-    List<FeedEvent> findByUserIdOrderByTimeStamp(Long userId);
+    List<FeedEvent> findByViewerIdOrderByTimeStamp(Long viewerId);
 }
