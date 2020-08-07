@@ -17,7 +17,7 @@
                                     <strong>{{activity.activity_name}} | {{creatorName}}</strong>
                                     <hr/>
                                     <div v-if="activity.description.length <= 100">
-                                        <strong>{{activity.description}}</strong>
+                                        {{activity.description}}
                                     </div>
                                     <div v-else>
                                         {{activity.description.substring(0,100)+"...."}}
@@ -107,7 +107,7 @@
                                     <strong>End Date: </strong>{{getDateTime(activity.end_time)}}
                                     <br/><br/>
                                     <div v-if="activity.description.length <= 100">
-                                        <strong>{{activity.description}}</strong>
+                                        {{activity.description}}
                                     </div>
                                     <div v-else>
                                         {{activity.description.substring(0,100)+"...."}}
