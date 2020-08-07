@@ -393,14 +393,11 @@
     }
 
     .activity-button-group {
-        padding-top: 7.5%;
-        padding-right: 40%;
-        padding-bottom: 7.5%;
+        padding: 7.5% 30px;
     }
 
     .activity-button-group button {
-        margin-left: 35.5%;
-        width: 110%;
+        width: 190px;
     }
 
     .footerButton {
