@@ -166,11 +166,13 @@ public class ActivityController {
         try {
             //attempt to find user by token, don't need to save user discovered
             String token = request.getHeader("Token");
-            userAuthenticationService.findByUserId(token, profileId);
+            userAuthenticationService.viewUserById(profileId, token);
+
         } catch(Exception e) {
             //User wasn't found therefore the user was not logged in.
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authorized - log in to view");
         }
+
         List<Activity> activities = activityRepository.findAllByUserId(profileId);
         return activities;
     }
