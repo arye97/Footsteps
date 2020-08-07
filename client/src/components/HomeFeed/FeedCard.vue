@@ -1,9 +1,15 @@
 <template>
     <div>
         <b-card border-variant="secondary" style="background-color: #f3f3f3">
+            <b-row no-gutters>
+                <b-col col="12">
+                    <!-- Time Stamp -->
+                    <b-card-text id="time">{{event.timeStamp}}</b-card-text>
+                </b-col>
+            </b-row>
             <b-row class="mb-1">
                 <b-col>
-                    <b-card-text id="headers"><strong>{{firstName}} {{lastName}} {{actionText}} the activity {{activityTitle}}</strong></b-card-text>
+                    <b-card-text id="text"><strong>{{firstName}} {{lastName}} {{actionText}} the activity {{activityTitle}}</strong></b-card-text>
                 </b-col>
             </b-row>
             <hr style="border-color: inherit">
