@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -175,5 +176,24 @@ public class ActivityController {
 
         List<Activity> activities = activityRepository.findAllByUserId(profileId);
         return activities;
+    }
+
+
+    /**
+     * Get a list of participants for an activity
+     * @param activityId the Id of the Activity
+     * @return a list of Users
+     */
+    public List<User> getParticipantsOfActivity(@PathVariable Long activityId, HttpServletRequest request) {
+        String token = request.getHeader("Token");
+        userAuthenticationService.findByToken(token);
+
+        List<User> participants = new ArrayList<>();
+
+        Activity activity = activityRepository.findByActivityId(activityId);
+        if (activity == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid activity id");
+        }
+        return participants;
     }
 }
