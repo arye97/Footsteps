@@ -24,7 +24,7 @@
                             placeholder="Your Activity Name..."
                     ></b-form-input>
                     <div class="word-count">
-                        {{ nameCharCount }}/{{ maxNameCharCount }} characters left
+                        {{nameCharCount}}/{{maxNameCharCount}} characters left
                     </div>
                 </b-form-group>
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_activity_name">
@@ -45,11 +45,11 @@
                             placeholder="Description of your activity..."
                     ></b-form-textarea>
                     <div class="word-count">
-                        {{ descriptionCharCount }}/{{ maxDescriptionCharCount }} characters left
+                        {{descriptionCharCount}}/{{maxDescriptionCharCount}} characters left
                     </div>
                 </b-form-group>
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_description">
-                     Field is mandatory and can only contain a maximum of {{ maxDescriptionCharCount }} characters
+                     Field is mandatory and can only contain a maximum of {{maxDescriptionCharCount}} characters
                 </div>
 
                 <b-form-group
@@ -64,7 +64,7 @@
                     </multiselect>
                 </b-form-group>
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_activity_types">
-                    {{ "Field is mandatory and must have at least one activity type" }}
+                    {{"Field is mandatory and must have at least one activity type"}}
                 </div>
 
                 <b-form-group
@@ -108,13 +108,13 @@
                         </b-form-checkbox>
                     </b-form-group>
                     <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_start">
-                        {{ "Field is mandatory, a start date must be set with (optionally) a start time"}}
+                        {{"Field is mandatory, a start date must be set with (optionally) a start time"}}
                     </div>
                     <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_start_after_end">
-                        {{ "A start date cannot be set after the end date" }}
+                        {{"A start date cannot be set after the end date"}}
                     </div>
                     <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_start_before_epoch_date">
-                        {{ "A date cannot be set before 1st Jan, 1970" }}
+                        {{"A date cannot be set before 1st Jan, 1970"}}
                     </div>
 
                     <b-form-group>
@@ -142,13 +142,13 @@
                     </b-form-group>
 
                     <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_end">
-                        {{ "Field is mandatory, an end date must be set with (optionally) an end time" }}
+                        {{"Field is mandatory, an end date must be set with (optionally) an end time"}}
                     </div>
                     <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_end_before_start">
-                        {{ "An end date cannot be set before the start date" }}
+                        {{"An end date cannot be set before the start date"}}
                     </div>
                     <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_end_before_epoch_date">
-                       {{ "A date cannot be set before 1st Jan, 1970" }}
+                       {{"A date cannot be set before 1st Jan, 1970"}}
                     </div>
                 </div>
 

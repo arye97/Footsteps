@@ -37,7 +37,7 @@
         </div>
         <div v-else-if="errored" class="text-center text-align:center">
             <div class="alert alert-danger alert-dismissible fade show text-center" role="alert" id="alert">
-                {{ error_message }}
+                {{error_message}}
             </div>
         </div>
         <b-tabs v-else content-class="mt-4" justified>
@@ -238,7 +238,7 @@
 
     <br/><br/>
         <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="overall_message" hidden>
-            <p id="alert-message">{{ overallMessageText }}</p>
+            <p id="alert-message">{{overallMessageText}}</p>
         </div>
     </div>
 
@@ -247,8 +247,12 @@
 <script>
     import Header from '../../components/Header/Header.vue'
     import api from "../../Api";
-    import { formatDateTime } from "../../util";
+    import {formatDateTime} from "../../util";
 
+    /**
+     * Sets the passed through error message to an alert bar as its message and also sets the timeouts for the alert bar
+     * @param alert_name is the string passed through that is sent on the vue as the alert bar component
+     */
     function showError(alert_name) {
         let errorAlert = document.getElementById(alert_name);
 
