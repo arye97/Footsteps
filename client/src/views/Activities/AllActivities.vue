@@ -91,9 +91,10 @@
                                                     {{activity.description}}
                                                 </p>
                                             </b-card>
+<!--                                            <template v-slot:modal-footer v-if="creatorId!==userId">--> <!-- This line is commented out so the follow button can be seen on own activities for testing -->
                                             <template v-slot:modal-footer>
                                                 <div class="w-100">
-                                                    <b-button v-if="activity.following"
+                                                    <b-button v-if="followingDisplay"
                                                               variant="outline-dark"
                                                               class="footerButton"
                                                               @click="unfollowActivity(activity)"
@@ -157,7 +158,7 @@
                                     <div class="activity-button-group float-right">
                                         <b-button-group vertical>
                                             <b-button variant="outline-primary" v-on:click="goToPage(`/activities/edit/${activity.id}`)">Edit</b-button>
-                                            <b-button variant="outline-primary" v-b-modal="'activity' + activity.id + '-duration-modal'">Details</b-button>
+                                            <b-button variant="outline-primary" v-b-modal="'activity' + activity.id + '-duration-modal'" v-on:click="updateFollowingDisplay(activity.following)">Details</b-button>
                                             <b-modal :id="'activity' + activity.id + '-duration-modal'" size="lg" centered ok-only scrollable :title="activity.activity_name">
                                             <b-card class="flex-fill" border-variant="secondary">
                                                 <b-row class="mb-1">
@@ -201,10 +202,10 @@
                                             </b-card>
                                             <template v-slot:modal-footer v-if="creatorId!==userId">
                                                 <div class="w-100">
-                                                    <b-button v-if="activity.following"
-                                                            variant="outline-dark"
-                                                            class="footerButton"
-                                                            @click="unfollowActivity(activity)"
+                                                    <b-button v-if="followingDisplay"
+                                                              variant="outline-dark"
+                                                              class="footerButton"
+                                                              @click="unfollowActivity(activity)"
                                                     >
                                                         <div>
                                                             Unfollow Activity
@@ -270,7 +271,8 @@
                 loading: true,
                 errored: false,
                 error_message: "Something went wrong! Try again later!",
-                isHovered: false
+                isHovered: false,
+                followingDisplay: false
             }
         },
         props: {
@@ -294,18 +296,25 @@
         },
         methods: {
             followActivity(activity) {
+                console.log('follow');
                 console.log(activity);
                 activity.following = true;
+                this.followingDisplay = true;
                 //this function will contain the api call to assign a user to follow the activity
                 //is provided the id, no more information should be necessary
                 //waiting for backend endpoint to be written as of 05/08/20
             },
             unfollowActivity(activity) {
+                console.log('unfollow');
                 console.log(activity);
                 activity.following = false;
+                this.followingDisplay = false;
                 //this function will contain the api call to assign a user to follow the activity
                 //is provided the id, no more information should be necessary
                 //waiting for backend endpoint to be written as of 05/08/20
+            },
+            updateFollowingDisplay(followState) {
+                this.followingDisplay = followState;
             },
             footerHover(hovered) {
                 this.isHovered = hovered;
