@@ -1,4 +1,5 @@
 import {nameRegex} from "./constants";
+import api from "./Api";
 
 export function validateUser(fieldData, fieldType) {
     const emailRegex = new RegExp(/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/);
@@ -190,4 +191,21 @@ export function formatDateTime(dateTime) {
         }
     }
     return date + AMPMTime;
+}
+
+/**
+ * Fetch the possible passport countries to select from.
+ */
+export function fetchCountries() {
+    //Fill Passport countries
+    let select = [];
+    api.getCountries().then(response => {
+        response.data.forEach(country => {
+            let elmt = country.name;
+            select.push(elmt)
+        });
+    }).catch(() => {
+        select = 'List is empty'
+    });
+    return select;
 }
