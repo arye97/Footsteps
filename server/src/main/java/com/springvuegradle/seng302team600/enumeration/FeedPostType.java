@@ -8,9 +8,21 @@ package com.springvuegradle.seng302team600.enumeration;
  * MODIFY - The creator modified an event you are following
  * DELETE - The creator deleted an event you are following
  */
-enum FeedPostType {
-    FOLLOW,
-    UNFOLLOW,
-    MODIFY,
-    DELETE
+public enum FeedPostType {
+
+    FOLLOW(Values.FOLLOW),
+    UNFOLLOW(Values.UNFOLLOW),
+    MODIFY(Values.MODIFY),
+    DELETE(Values.DELETE);
+
+    FeedPostType(String value) {
+        //pass
+    }
+
+    public static class Values {
+        public static final String FOLLOW = "FOLLOW";
+        public static final String UNFOLLOW = "UNFOLLOW";
+        public static final String MODIFY = "MODIFY";
+        public static final String DELETE = "DELETE";
+    }
 }

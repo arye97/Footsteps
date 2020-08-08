@@ -1,5 +1,7 @@
 package com.springvuegradle.seng302team600.model;
 
+import com.springvuegradle.seng302team600.enumeration.FeedPostType;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -10,8 +12,6 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "feed_event")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name="postType")
 public class FeedEvent {
 
     // The ID of the event, will be auto-set by Spring
@@ -23,6 +23,23 @@ public class FeedEvent {
     // The timestamp of the feed event generation - ie. when the feed post was triggered
     @Column(name = "time_stamp", nullable = false, columnDefinition = "DATE")
     Date timeStamp;
+
+    // The activity related to the feed event
+    @Column(name = "activity_id", nullable = false)
+    Long activityId;
+
+    // The user who caused the feed event
+    @Column(name = "author_id", nullable = false)
+    Long authorId;
+
+    // The user to view this feed event
+    @Column(name = "viewer_id", nullable = false)
+    Long viewerId;
+
+    // The type of feed post - set by the enum
+    @Column(name = "feed_event_type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    FeedPostType feedEventType;
 
     /**
      * Default constructor for feed events
@@ -37,6 +54,38 @@ public class FeedEvent {
 
     public Date getTimeStamp() {
         return timeStamp;
+    }
+
+    public FeedPostType getFeedEventType() {
+        return feedEventType;
+    }
+
+    public Long getActivityId() {
+        return activityId;
+    }
+
+    public Long getAuthorId() {
+        return authorId;
+    }
+
+    public Long getViewerId() {
+        return viewerId;
+    }
+
+    public void setFeedEventType(FeedPostType type) {
+        feedEventType = type;
+    }
+
+    public void setActivityId(Long id) {
+        activityId = id;
+    }
+
+    public void setAuthorId(Long id) {
+        authorId = id;
+    }
+
+    public void setViewerId(Long id) {
+        viewerId = id;
     }
 
     public void setTimeStamp(Date time) {
