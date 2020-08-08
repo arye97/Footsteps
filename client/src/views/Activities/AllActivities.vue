@@ -62,7 +62,7 @@
                                 <div class="activity-button-group float-right">
                                     <b-button-group vertical>
                                         <b-button variant="outline-primary" v-on:click="goToPage(`/activities/edit/${activity.id}`)">Edit</b-button>
-                                        <b-button variant="outline-primary" v-b-modal="'activity' + activity.id + '-continuous-modal'">Details</b-button>
+                                        <b-button variant="outline-primary" v-b-modal="'activity' + activity.id + '-continuous-modal'" v-on:click="updateFollowingDisplay(activity.following)">Details</b-button>
                                         <b-modal :id="'activity' + activity.id + '-continuous-modal'" size="lg" centered ok-only scrollable :title="activity.activity_name">
                                             <b-card class="flex-fill" border-variant="secondary">
                                                 <b-row class="mb-1">
@@ -120,6 +120,11 @@
                                                             <img v-else src="../../../assets/png/footsteps_icon_hollow.png" class="footSteps" alt="Footsteps Logo">
                                                         </div>
                                                     </b-button>
+                                                </div>
+                                                <div v-if="followError" class="text-center text-align:center footer">
+                                                    <div class="alert alert-danger alert-dismissible fade show text-center" role="alert" id="followAlertContinuous">
+                                                        {{ followErrorMessage }}
+                                                    </div>
                                                 </div>
                                             </template>
                                         </b-modal>
@@ -229,6 +234,11 @@
                                                         </div>
                                                     </b-button>
                                                 </div>
+                                                <div v-if="followError" class="text-center text-align:center">
+                                                    <div class="alert alert-danger alert-dismissible fade show text-center" role="alert" id="followAlertDuration">
+                                                        {{ followErrorMessage }}
+                                                    </div>
+                                                </div>
                                             </template>
                                         </b-modal>
                                             <b-button variant="outline-danger" v-on:click="deleteActivity(activity.id)">Delete</b-button>
@@ -272,7 +282,9 @@
                 errored: false,
                 error_message: "Something went wrong! Try again later!",
                 isHovered: false,
-                followingDisplay: false
+                followingDisplay: false,
+                followError: false,
+                followErrorMessage: "Something went wrong! Try again later!"
             }
         },
         props: {
@@ -295,26 +307,30 @@
             await this.updateActivitiesFollowing();
         },
         methods: {
-            followActivity(activity) {
-                console.log('follow');
-                console.log(activity);
-                activity.following = true;
-                this.followingDisplay = true;
-                //this function will contain the api call to assign a user to follow the activity
-                //is provided the id, no more information should be necessary
-                //waiting for backend endpoint to be written as of 05/08/20
+            async followActivity(activity) {
+                this.followError = false;
+                await api.setUserSubscribed(activity.id, this.userId).then(() => {
+                    activity.following = true;
+                    this.followingDisplay = true;
+                }).catch((error) => {
+                    console.log(error);
+                    this.followError = true;
+                })
             },
-            unfollowActivity(activity) {
-                console.log('unfollow');
-                console.log(activity);
-                activity.following = false;
-                this.followingDisplay = false;
-                //this function will contain the api call to assign a user to follow the activity
-                //is provided the id, no more information should be necessary
-                //waiting for backend endpoint to be written as of 05/08/20
+            async unfollowActivity(activity) {
+                this.followError = false;
+                await api.deleteUserSubscribed(activity.id, this.userId).then(() => {
+                    activity.following = false;
+                    this.followingDisplay = false;
+                }).catch((error) => {
+                    console.log(error.body);
+                    this.followError = true;
+                })
             },
             updateFollowingDisplay(followState) {
                 this.followingDisplay = followState;
+                this.followError = false;
+                console.log(this.followError);
             },
             footerHover(hovered) {
                 this.isHovered = hovered;
