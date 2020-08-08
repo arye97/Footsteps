@@ -3,6 +3,7 @@ package com.springvuegradle.seng302team600.controller;
 import com.springvuegradle.seng302team600.Utilities.ActivityValidator;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.User;
+import com.springvuegradle.seng302team600.repository.ActivityParticipantRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
@@ -28,13 +29,15 @@ public class ActivityController {
     private UserAuthenticationService userAuthenticationService;
     private ActivityTypeService activityTypeService;
     private UserRepository userRepository;
+    private ActivityParticipantRepository activityParticipantRepository;
 
     public ActivityController(ActivityRepository activityRepository, UserAuthenticationService userAuthenticationService,
-                              ActivityTypeService activityTypeService, UserRepository userRepository) {
+                              ActivityTypeService activityTypeService, UserRepository userRepository, ActivityParticipantRepository activityParticipantRepository) {
         this.activityRepository = activityRepository;
         this.userAuthenticationService = userAuthenticationService;
         this.activityTypeService = activityTypeService;
         this.userRepository = userRepository;
+        this.activityParticipantRepository = activityParticipantRepository;
     }
 
     /**
@@ -184,15 +187,15 @@ public class ActivityController {
      * @param activityId the Id of the Activity
      * @return a list of Users
      */
+    @GetMapping("/activities/{activityId}/participants")
     public List<User> getParticipantsOfActivity(@PathVariable Long activityId, HttpServletRequest request) {
         String token = request.getHeader("Token");
         userAuthenticationService.findByToken(token);
 
+        List<Long> participantsIds = activityParticipantRepository.findUsersByActivityId(activityId);
         List<User> participants = new ArrayList<>();
-
-        Activity activity = activityRepository.findByActivityId(activityId);
-        if (activity == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid activity id");
+        for (Long id: participantsIds) {
+            participants.add(userRepository.findByUserId(id));
         }
         return participants;
     }
