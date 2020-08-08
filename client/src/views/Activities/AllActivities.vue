@@ -93,12 +93,27 @@
                                             </b-card>
                                             <template v-slot:modal-footer>
                                                 <div class="w-100">
-                                                    <b-button
-                                                            variant="outline-dark"
-                                                            class="footerButton"
-                                                            @click="followActivity(activity.id)"
+                                                    <b-button v-if="activity.following"
+                                                              variant="outline-dark"
+                                                              class="footerButton"
+                                                              @click="unfollowActivity(activity)"
                                                     >
-                                                        Follow Activity
+                                                        <div>
+                                                            Unfollow Activity
+                                                        </div>
+                                                        <div v-b-hover="footerHover">
+                                                            <img v-if="isHovered" src="../../../assets/png/footsteps_icon_hollow.png" class="footSteps" alt="Footsteps Logo">
+                                                            <img v-else src="../../../assets/png/footsteps_icon.png" class="footSteps" alt="Footsteps Logo">
+                                                        </div>
+                                                    </b-button>
+                                                    <b-button v-else
+                                                              variant="outline-dark"
+                                                              class="footerButton"
+                                                              @click="followActivity(activity)"
+                                                    >
+                                                        <div>
+                                                            Follow Activity
+                                                        </div>
                                                         <div v-b-hover="footerHover">
                                                             <img v-if="isHovered" src="../../../assets/png/footsteps_icon.png" class="footSteps" alt="Footsteps Logo">
                                                             <img v-else src="../../../assets/png/footsteps_icon_hollow.png" class="footSteps" alt="Footsteps Logo">
@@ -189,7 +204,7 @@
                                                     <b-button v-if="activity.following"
                                                             variant="outline-dark"
                                                             class="footerButton"
-                                                            @click="unfollowActivity(activity.id)"
+                                                            @click="unfollowActivity(activity)"
                                                     >
                                                         <div>
                                                             Unfollow Activity
@@ -202,7 +217,7 @@
                                                     <b-button v-else
                                                               variant="outline-dark"
                                                               class="footerButton"
-                                                              @click="followActivity(activity.id)"
+                                                              @click="followActivity(activity)"
                                                     >
                                                         <div>
                                                             Follow Activity
@@ -278,8 +293,16 @@
             await this.updateActivitiesFollowing();
         },
         methods: {
-            followActivity(id) {
-                console.log(id);
+            followActivity(activity) {
+                console.log(activity);
+                activity.following = true;
+                //this function will contain the api call to assign a user to follow the activity
+                //is provided the id, no more information should be necessary
+                //waiting for backend endpoint to be written as of 05/08/20
+            },
+            unfollowActivity(activity) {
+                console.log(activity);
+                activity.following = false;
                 //this function will contain the api call to assign a user to follow the activity
                 //is provided the id, no more information should be necessary
                 //waiting for backend endpoint to be written as of 05/08/20
@@ -389,7 +412,7 @@
           async updateActivitiesFollowing() {
                 // await this.activityList.forEach(activity =>
               for (let activity of this.activityList) {
-                    await api.getUserSubscribed(activity, this.userId).then((response) => {
+                    await api.getUserSubscribed(activity.id, this.userId).then((response) => {
                         activity.following = `${response.data.subscribed}`;
                     }).catch(() => {
                         activity.following = false;
