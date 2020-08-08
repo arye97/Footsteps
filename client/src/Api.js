@@ -1,4 +1,5 @@
 import axios from 'axios'
+import {getCountryNames} from "./constants";
 
 // Needed for testing
 require('dotenv').config();
@@ -51,6 +52,7 @@ export default {
     let activityTypesStr = activityTypes.map(a => a.replace(/\s/g, '-')).join(' ');  // Use RegEx to replace ALL spaces with dashes (because str.replace is stupid)
     return server.get(`profiles?activity=${activityTypesStr}&method=${method}`, getTokenHeader())
   },
+  getCountries: () => server.get(getCountryNames),
   getUserSubscribed: (activityId, userId) => server.get(`/profiles/${userId}/subscriptions/activities/${activityId}`, getTokenHeader()),
   setUserSubscribed: (activityId, userId) => server.post( `/profiles/${userId}/subscriptions/activities/${activityId}`, getTokenHeader()),
   deleteUserSubscribed: (activityId, userId) => server.delete(`/profiles/${userId}/subscriptions/activities/${activityId}`, getTokenHeader())
