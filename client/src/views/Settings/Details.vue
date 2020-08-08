@@ -522,4 +522,32 @@
     #activityTypesDiv {
         width: 50em;
     }
+
+    #alert_first_name {
+        margin-top: 20px;
+    }
+
+    #alert_middle_name {
+        margin-top: 20px;
+    }
+
+    #alert_last_name {
+        margin-top: 20px;
+    }
+
+    #alert_nickname {
+        margin-top: 20px;
+    }
+
+    #alert_gender {
+        margin-top: 20px;
+    }
+
+    #alert_dob {
+        margin-top: 20px;
+    }
+
+    #alert_bio {
+        margin-top: 20px;
+    }
 </style>
