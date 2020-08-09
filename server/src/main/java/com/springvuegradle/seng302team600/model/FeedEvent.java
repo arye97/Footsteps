@@ -29,8 +29,12 @@ public class FeedEvent {
     Long activityId;
 
     // The user who caused the feed event
-    @Column(name = "user_id", nullable = false)
-    Long userId;
+    @Column(name = "author_id", nullable = false)
+    Long authorId;
+
+    // The user to view this feed event
+    @Column(name = "viewer_id", nullable = false)
+    Long viewerId;
 
     // The type of feed post - set by the enum
     @Column(name = "feed_event_type", nullable = false)
@@ -60,8 +64,12 @@ public class FeedEvent {
         return activityId;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getAuthorId() {
+        return authorId;
+    }
+
+    public Long getViewerId() {
+        return viewerId;
     }
 
     public void setFeedEventType(FeedPostType type) {
@@ -72,8 +80,12 @@ public class FeedEvent {
         activityId = id;
     }
 
-    public void setUserId(Long id) {
-        userId = id;
+    public void setAuthorId(Long id) {
+        authorId = id;
+    }
+
+    public void setViewerId(Long id) {
+        viewerId = id;
     }
 
     public void setTimeStamp(Date time) {

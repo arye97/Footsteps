@@ -10,16 +10,12 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import java.util.List;
 
 @RepositoryRestResource
-public interface ActivityRepository extends JpaRepository<Activity, Long> {
-    Activity findByActivityId(Long id);
+public interface ActivityParticipantRepository extends JpaRepository<Activity, Long> {
 
-    //If you see that this is highlighted red, it is NOT AN ERROR, please don't delete.
     @Query(value =
-            "SELECT * " +
-            "FROM activity " +
-            "WHERE creator_user_id = ?1 " +
-            "ORDER BY activity_id ASC", nativeQuery = true)
-    List<Activity> findAllByUserId(Long userId);
-
-    List<Activity> findActivityByActivityIdIn(List<Long> activityIds);
+            "SELECT activity_id " +
+            "FROM activity_participant " +
+            "WHERE user_id = :userId " +
+            "GROUP BY activity_id", nativeQuery = true)
+    List<Long> findActivitiesByParticipantId(@Param("userId") Long userId);
 }
