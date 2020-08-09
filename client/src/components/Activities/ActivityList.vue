@@ -282,7 +282,6 @@
                 errored: false,
                 error_message: "Could not load user activities",
                 activeUserId: null,
-                followingDisplay: false,
                 followError: false,
                 followErrorMessage: "Something went wrong! Try again later!",
                 isHovered: false
@@ -300,7 +299,7 @@
         methods: {
             async followActivity(activity) {
                 this.followError = false;
-                await api.setUserSubscribed(activity.id, this.userId).then(() => {
+                await api.setUserSubscribed(activity.id, this.activeUserId).then(() => {
                     activity.following = true;
                     this.followingDisplay = true;
                 }).catch((error) => {
@@ -310,18 +309,13 @@
             },
             async unfollowActivity(activity) {
                 this.followError = false;
-                await api.deleteUserSubscribed(activity.id, this.userId).then(() => {
+                await api.deleteUserSubscribed(activity.id, this.activeUserId).then(() => {
                     activity.following = false;
                     this.followingDisplay = false;
                 }).catch((error) => {
                     console.log(error.body);
                     this.followError = true;
                 })
-            },
-            updateFollowingDisplay(followState) {
-                this.followingDisplay = followState;
-                this.followError = false;
-                console.log(this.followError);
             },
             footerHover(hovered) {
                 this.isHovered = hovered;
@@ -419,9 +413,9 @@
             },
 
             async updateActivitiesFollowing() {
-                // await this.activityList.forEach(activity =>
                 for (let activity of this.activityList) {
-                    await api.getUserSubscribed(activity.id, this.userId).then((response) => {
+                    console.log("activity " + activity.id + "user " + this.activeUserId + "non" + this.userId);
+                    await api.getUserSubscribed(activity.id, this.activeUserId).then((response) => {
                         activity.following = `${response.data.subscribed}`;
                     }).catch(() => {
                         activity.following = false;
