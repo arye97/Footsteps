@@ -18,9 +18,9 @@ function getTokenHeader() {
   }
 }
 
-function getExtendedTokenHeader(extendedHeaders) {
+function getExtendedEmailTokenHeader(extendedHeaders) {
   let header = {
-    headers: {'Token': sessionStorage.getItem("token"), 'email' : extendedHeaders, "Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
+    headers: {'Token': sessionStorage.getItem("token"), 'email' : extendedHeaders.email, "Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
     withCredentials: true
   };
   return header;
@@ -34,7 +34,7 @@ export default {
   getUserData: (profileId) => server.get(`/profiles/${profileId}`, getTokenHeader()),
   checkProfile: (profileId) => server.get(`/check-profile/`.concat(profileId), getTokenHeader()),
   getUserEmails: (profileId) => server.get(`/profiles/${profileId}/emails`, getTokenHeader()),
-  checkUserEmail: (insertedEmail) => server.get(`/email`, getExtendedTokenHeader({'email': insertedEmail})),
+  checkUserEmail: (insertedEmail) => server.get(`/email`, getExtendedEmailTokenHeader({'email': insertedEmail})),
   setAdditionalEmails: (emails, profileId) => server.post(`/profiles/${profileId}/emails`, emails, getTokenHeader()),
   setEmails: (emails, profileId) => server.put(`/profiles/${profileId}/emails`, emails, getTokenHeader()),
   logout: () => server.post('/logout', null, getTokenHeader()),
