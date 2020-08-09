@@ -64,7 +64,7 @@ public class FeedEventServiceTest {
     }
 
     @Test
-    public void createModifyFeedEventWithNoParticipants() {
+    public void createModifyFeedEventWithoutParticipants() {
         assertEquals(0, feedEventTable.size());
         feedEventService.modifyActivityEvent(dummyActivity, USER_ID_1);
         assertEquals(1, feedEventTable.size());
@@ -77,11 +77,43 @@ public class FeedEventServiceTest {
     public void createModifyFeedEventWithParticipants() {
         assertEquals(0, feedEventTable.size());
         // Adding participant to dummy activity
-        //dummyActivity.addP
+        dummyActivity.addParticipant(dummyParticipant);
         feedEventService.modifyActivityEvent(dummyActivity, USER_ID_1);
+        assertEquals(2, feedEventTable.size());
+        // First feed event assigned to the creator
+        assertEquals(ACTIVITY_ID_1, feedEventTable.get(0).getActivityId());
+        assertEquals(USER_ID_1, feedEventTable.get(0).getAuthorId());
+        assertEquals(USER_ID_1, feedEventTable.get(0).getViewerId());
+        // Second feed event assigned to the participant
+        assertEquals(ACTIVITY_ID_1, feedEventTable.get(1).getActivityId());
+        assertEquals(USER_ID_1, feedEventTable.get(1).getAuthorId());
+        assertEquals(USER_ID_2, feedEventTable.get(1).getViewerId());
+    }
+
+    @Test
+    public void createDeleteFeedEventWithoutParticipants() {
+        assertEquals(0, feedEventTable.size());
+        feedEventService.deleteActivityEvent(dummyActivity, USER_ID_1);
         assertEquals(1, feedEventTable.size());
         assertEquals(ACTIVITY_ID_1, feedEventTable.get(0).getActivityId());
         assertEquals(USER_ID_1, feedEventTable.get(0).getAuthorId());
         assertEquals(USER_ID_1, feedEventTable.get(0).getViewerId());
+    }
+
+    @Test
+    public void createDeleteFeedEventWithParticipants() {
+        assertEquals(0, feedEventTable.size());
+        // Adding participant to dummy activity
+        dummyActivity.addParticipant(dummyParticipant);
+        feedEventService.deleteActivityEvent(dummyActivity, USER_ID_1);
+        assertEquals(2, feedEventTable.size());
+        // First feed event assigned to the creator
+        assertEquals(ACTIVITY_ID_1, feedEventTable.get(0).getActivityId());
+        assertEquals(USER_ID_1, feedEventTable.get(0).getAuthorId());
+        assertEquals(USER_ID_1, feedEventTable.get(0).getViewerId());
+        // Second feed event assigned to the participant
+        assertEquals(ACTIVITY_ID_1, feedEventTable.get(1).getActivityId());
+        assertEquals(USER_ID_1, feedEventTable.get(1).getAuthorId());
+        assertEquals(USER_ID_2, feedEventTable.get(1).getViewerId());
     }
 }
