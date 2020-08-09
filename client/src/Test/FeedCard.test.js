@@ -80,3 +80,10 @@ describe("The feed card", () => {
         expect(feedCard.findAll('b-button')).toHaveLength(2);
     });
 });
+
+// describe("The extract data method", () => {
+//     test('Sets the time for events that occurred in the last 10s to just now', () => {
+//         feedCard.vm.extractData();
+//         expect(feedCard.time).toBe("Just now");
+//     })
+// })
