@@ -22,15 +22,12 @@ import javax.servlet.http.HttpServletResponse;
 @RestController
 public class FeedEventController {
 
-    private final UserAuthenticationService userService;
-
     private final FeedEventRepository feedEventRepository;
     private final ActivityRepository activityRepository;
     private final UserAuthenticationService userAuthenticationService;
 
-    public FeedEventController(UserAuthenticationService userService, FeedEventRepository feedEventRepository, 
+    public FeedEventController(FeedEventRepository feedEventRepository,
                                ActivityRepository activityRepository, UserAuthenticationService userAuthenticationService) {
-        this.userService = userService;
         this.feedEventRepository = feedEventRepository;
         this.activityRepository = activityRepository;
         this.userAuthenticationService = userAuthenticationService;
