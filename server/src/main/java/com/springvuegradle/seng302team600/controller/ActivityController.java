@@ -112,8 +112,7 @@ public class ActivityController {
         }
         if ((!oldActivity.getCreatorUserId().equals(profileId)) //check for author
                 && (!userAuthenticationService.hasAdminPrivileges(author))) { //check for admin
-            // ToDo this should be FORBIDDEN, I haven't changed it yet because it may impact FRONT-END
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is unauthorized to edit this activity");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is forbidden from editing activity with ID:" + activityId);
         }
         ActivityValidator.validate(activity);
         oldActivity.setDescription(activity.getDescription());
@@ -129,7 +128,7 @@ public class ActivityController {
         activityRepository.save(oldActivity);
 
         //Create FeedEvents for participants and creator
-        feedEventService.modifyEvent(oldActivity, profileId);
+        feedEventService.modifyActivityEvent(oldActivity, profileId);
 
         response.setStatus(HttpServletResponse.SC_OK); //200
     }
@@ -155,12 +154,15 @@ public class ActivityController {
                otherwise admins can delete/edit others activities.
              */
             if (!authorId.equals(user.getUserId())) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not activity creator");
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is forbidden from deleting activity with ID:" + activityId);
             }
         }
+
+        //Create FeedEvents for participants and creator
+        feedEventService.deleteActivityEvent(activity, profileId);
+
         //Delete the activity
         activityRepository.delete(activity);
-
     }
 
     /**

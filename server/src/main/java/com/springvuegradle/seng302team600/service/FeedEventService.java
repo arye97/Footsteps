@@ -36,6 +36,29 @@ public class FeedEventService {
     }
 
     /**
+     * Helper function for modifyActivityEvent and deleteActivityEvent.
+     */
+    private void activityFeedEvent(Activity activity, FeedEvent masterFeedEvent) {
+        FeedEvent feedEvent = shallowCopy(masterFeedEvent);
+
+        // The following lines set viewerId in FeedEvent for each user requiring notification.
+        // The creator gets notified
+        feedEvent.setViewerId(activity.getCreatorUserId());
+        feedEventRepository.save(feedEvent);
+
+        // feedEvent is reset back to MasterModifyEvent to avoid updating last save during the next save.
+        // In other words, the feedEventId is set back to null, avoiding an update.
+        feedEvent = shallowCopy(masterFeedEvent);
+
+        // The participants get notified
+        for (User user : activity.getParticipants()) {
+            feedEvent.setViewerId(user.getUserId());
+            feedEventRepository.save(feedEvent);
+            feedEvent = shallowCopy(masterFeedEvent);
+        }
+    }
+
+    /**
      * Creates FeedEvent instances for each participant and the creator for the given activity.
      * These FeedEvents have the feed event type MODIFY.
      * All FeedEvents are saved to the FeedEventRepository.
@@ -43,29 +66,33 @@ public class FeedEventService {
      * @param activity the activity being modified
      * @param authorId the user's id who is modifying the activity
      */
-    public void modifyEvent(Activity activity, Long authorId) {
-        FeedEvent MasterModifyEvent = new FeedEvent();
-        MasterModifyEvent.setTimeStampNow();
-        MasterModifyEvent.setFeedEventType(FeedPostType.MODIFY);
-        MasterModifyEvent.setActivityId(activity.getActivityId());
-        MasterModifyEvent.setAuthorId(authorId);
+    public void modifyActivityEvent(Activity activity, Long authorId) {
+        FeedEvent modifyEvent = new FeedEvent();
+        modifyEvent.setTimeStampNow();
+        modifyEvent.setFeedEventType(FeedPostType.MODIFY);
+        modifyEvent.setActivityId(activity.getActivityId());
+        modifyEvent.setAuthorId(authorId);
 
-        FeedEvent modifyEvent = shallowCopy(MasterModifyEvent);
+        // Call helper function to save feed event for each user requiring notification
+        activityFeedEvent(activity, modifyEvent);
+    }
 
-        // The following lines set viewerId in FeedEvent for each user requiring notification.
-        // The creator gets notified
-        modifyEvent.setViewerId(activity.getCreatorUserId());
-        feedEventRepository.save(modifyEvent);
+    /**
+     * Creates FeedEvent instances for each participant and the creator for the given activity.
+     * These FeedEvents have the feed event type DELETE.
+     * All FeedEvents are saved to the FeedEventRepository.
+     * This method assumes activity will be deleted successfully and should be called just before deleting.
+     * @param activity the activity being deleted
+     * @param authorId the user's id who is deleting the activity
+     */
+    public void deleteActivityEvent(Activity activity, Long authorId) {
+        FeedEvent deleteEvent = new FeedEvent();
+        deleteEvent.setTimeStampNow();
+        deleteEvent.setFeedEventType(FeedPostType.DELETE);
+        deleteEvent.setActivityId(activity.getActivityId());
+        deleteEvent.setAuthorId(authorId);
 
-        // modifyEvent is reset back to MasterModifyEvent to avoid updating last save during the next save.
-        // In other words, the feedEventId is set back to null, avoiding an update.
-        modifyEvent = shallowCopy(MasterModifyEvent);
-
-        // The participants get notified
-        for (User user : activity.getParticipants()) {
-            modifyEvent.setViewerId(user.getUserId());
-            feedEventRepository.save(modifyEvent);
-            modifyEvent = shallowCopy(MasterModifyEvent);
-        }
+        // Call helper function to save feed event for each user requiring notification
+        activityFeedEvent(activity, deleteEvent);
     }
 }
