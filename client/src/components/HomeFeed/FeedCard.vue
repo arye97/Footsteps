@@ -10,7 +10,7 @@
             <b-row class="mb-1">
                 <!-- Core Card Text -->
                 <b-col>
-                    <b-card-text id="text"><strong>{{firstName}} {{lastName}} {{actionText}} the activity {{activityTitle}}</strong></b-card-text>
+                    <b-card-text id="description"><strong>{{firstName}} {{lastName}} {{actionText}} the activity {{activityTitle}}</strong></b-card-text>
                 </b-col>
             </b-row>
             <!-- Buttons and seperator not required for delete events -->
