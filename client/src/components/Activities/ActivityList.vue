@@ -57,7 +57,7 @@
                                             </b-card>
                                             <template v-slot:modal-footer v-if="activity.creatorUserId!==activeUserId">
                                                 <div class="w-100">
-                                                    <b-button v-if="followingDisplay"
+                                                    <b-button v-if="activity.following"
                                                               variant="outline-dark"
                                                               class="footerButton"
                                                               @click="unfollowActivity(activity)"
@@ -91,9 +91,9 @@
                                                 </div>
                                             </template>
                                         </b-modal>
-                                        <b-button v-if="creatorId===activeUserId" variant="outline-primary" v-on:click="goToPage(`/activities/edit/${activity.id}`)">Edit</b-button>
+                                        <b-button v-if="activity.creatorUserId===activeUserId" variant="outline-primary" v-on:click="goToPage(`/activities/edit/${activity.id}`)">Edit</b-button>
                                         <b-button variant="outline-primary" v-b-modal="'activity' + activity.id + '-continuous-modal'">Details</b-button>
-                                        <b-button v-if="followingDisplay"
+                                        <b-button v-if="activity.following"
                                                   variant="outline-dark"
                                                   class="footerButton"
                                                   @click="unfollowActivity(activity)"
@@ -115,7 +115,7 @@
                                                 <img v-else src="../../../assets/png/footsteps_icon_hollow.png" class="footSteps" alt="Footsteps Logo">
                                             </div>
                                         </b-button>
-                                        <b-button v-if="creatorId==activeUserId" variant="outline-danger" v-on:click="deleteActivity(activity.id)">Delete</b-button>
+                                        <b-button v-if="activity.creatorUserId==activeUserId" variant="outline-danger" v-on:click="deleteActivity(activity.id)">Delete</b-button>
                                     </b-button-group>
                                 </div>
                             </b-col>
@@ -193,7 +193,7 @@
                                             </b-card>
                                             <template v-slot:modal-footer v-if="activity.creatorUserId !== activeUserId">
                                                 <div class="w-100">
-                                                    <b-button v-if="followingDisplay"
+                                                    <b-button v-if="activity.following"
                                                               variant="outline-dark"
                                                               class="footerButton"
                                                               @click="unfollowActivity(activity)"
@@ -309,7 +309,6 @@
                 this.followError = false;
                 await api.setUserSubscribed(activity.id, this.activeUserId).then(() => {
                     activity.following = true;
-                    this.followingDisplay = true;
                 }).catch((error) => {
                     console.log(error);
                     this.followError = true;
@@ -319,7 +318,6 @@
                 this.followError = false;
                 await api.deleteUserSubscribed(activity.id, this.activeUserId).then(() => {
                     activity.following = false;
-                    this.followingDisplay = false;
                 }).catch((error) => {
                     console.log(error.body);
                     this.followError = true;
@@ -429,7 +427,7 @@
             },
             async updateActivitiesFollowing() {
                 for (let activity of this.activityList) {
-                    console.log("activity " + activity.id + "user " + this.activeUserId + "non" + this.userId);
+                    console.log("activity " + activity.id + "user " + this.activeUserId);
                     await api.getUserSubscribed(activity.id, this.activeUserId).then((response) => {
                         activity.following = `${response.data.subscribed}`;
                     }).catch(() => {
