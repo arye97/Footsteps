@@ -123,6 +123,8 @@ public class Activity {
 
     public void addParticipant(User user) { this.participants.add(user); }
 
+    public void removeParticipant(User user) { this.participants.remove(user); }
+
     public void setParticipants(Set<User> participants) {this.participants = participants;}
 
     public void setContinuous(boolean continuous) {
@@ -155,16 +157,7 @@ public class Activity {
 
     @Override
     public int hashCode() {
-        int result = 43;
-        result = 31 * result + name.hashCode();
-        result = 31 * result + description.hashCode();
-        result = 31 * result + startTime.hashCode();
-        result = 31 * result + endTime.hashCode();
-        result = 31 * result + location.hashCode();
-        result = 31 * result + activityTypes.hashCode();
-        result = 31 * result + (continuous ? 1 : 0);
-
-        return result;
+        return Objects.hash(name, description, startTime, endTime, location, activityTypes, continuous);
     }
 
     @Override
