@@ -8,7 +8,9 @@ import com.springvuegradle.seng302team600.payload.IsFollowingResponse;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.FeedEventRepository;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -46,21 +48,24 @@ public class FeedEventController {
         String token = request.getHeader("Token");
         User user = userAuthenticationService.findByUserId(token, profileId);
         Activity activity = activityRepository.findByActivityId(activityId);
-        activity.getParticipants().add(user);
+        activity.addParticipant(user);
         activityRepository.save(activity);
 
         FeedEvent followEvent = new FeedEvent();
-        /**
-         * May need to change these declarations to be a part of the constructor?
-         * Will talk to the group about this possibility.
-         */
+        //Check that the user isn't ALREADY following this event to prevent adding feedevents over and over again
+        FeedEvent checkUserFollowingFeedEvent = feedEventRepository.findByActivityIdAndViewerIdAndFeedEventType(
+                activityId, profileId, FeedPostType.FOLLOW);
+        if (checkUserFollowingFeedEvent != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User is already following this activity");
+        }
+        //The user is not following the event so continue
         // Create the Follow Feed Event and save it to the db
         followEvent.setActivityId(activityId); // the id of the activity
-        followEvent.setAuthorId(activity.getCreatorUserId()); // the author of the activity to be followed
-        followEvent.setFeedEventType(FeedPostType.FOLLOW); // the type of event: here it should  always be FOLLOW
+        followEvent.setAuthorId(profileId); // the author of the feedEvent to be followed
+        followEvent.setFeedEventType(FeedPostType.FOLLOW); // the type of event: here it should always be FOLLOW
         followEvent.setTimeStampNow(); //set the time as right now
         followEvent.setViewerId(profileId); // the user who this event should appear on their timeline
-        feedEventRepository.save(new FeedEvent()); //save the event!
+        feedEventRepository.save(followEvent); //save the event!
     }
 
     @DeleteMapping("/profiles/{profileId/subscriptions/activities/{activityId}")
