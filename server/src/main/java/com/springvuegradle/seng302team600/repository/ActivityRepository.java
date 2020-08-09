@@ -20,4 +20,6 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
             "WHERE creator_user_id = ?1 " +
             "ORDER BY activity_id ASC", nativeQuery = true)
     List<Activity> findAllByUserId(Long userId);
+
+    List<Activity> findActivityByActivityIdIn(List<Long> activityIds);
 }

@@ -89,7 +89,10 @@
                     this.creatorId = userId;
                 });
                 return userId
-            }
+            },
+            goToPage(url) {
+                this.$router.push(url);
+            },
         }
     }
 </script>

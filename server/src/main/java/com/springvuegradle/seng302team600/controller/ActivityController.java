@@ -1,8 +1,13 @@
 package com.springvuegradle.seng302team600.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.springvuegradle.seng302team600.Utilities.ActivityValidator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.model.Activity;
+import com.springvuegradle.seng302team600.model.ActivityType;
 import com.springvuegradle.seng302team600.model.User;
+import com.springvuegradle.seng302team600.model.UserRole;
 import com.springvuegradle.seng302team600.repository.ActivityParticipantRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
@@ -16,8 +21,11 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Date;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Controller to manage activities and activity type
@@ -32,7 +40,8 @@ public class ActivityController {
     private ActivityParticipantRepository activityParticipantRepository;
 
     public ActivityController(ActivityRepository activityRepository, UserAuthenticationService userAuthenticationService,
-                              ActivityTypeService activityTypeService, UserRepository userRepository, ActivityParticipantRepository activityParticipantRepository) {
+                              ActivityTypeService activityTypeService, UserRepository userRepository,
+                              ActivityParticipantRepository activityParticipantRepository) {
         this.activityRepository = activityRepository;
         this.userAuthenticationService = userAuthenticationService;
         this.activityTypeService = activityTypeService;
@@ -160,24 +169,22 @@ public class ActivityController {
     }
 
     /**
-     * Get all activities by user
+     * Get all activities that a user has created or is currently following
      * @param profileId the id of the user/creator
      * @param request the actual request from the client, containing pertinent data
      */
     @GetMapping("/profiles/{profileId}/activities")
     public List<Activity> getUsersActivities(@PathVariable Long profileId, HttpServletRequest request) {
         //checking for user validation
-        try {
-            //attempt to find user by token, don't need to save user discovered
-            String token = request.getHeader("Token");
-            userAuthenticationService.viewUserById(profileId, token);
-
-        } catch(Exception e) {
-            //User wasn't found therefore the user was not logged in.
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authorized - log in to view");
-        }
+        //attempt to find user by token, don't need to save user discovered
+        String token = request.getHeader("Token");
+        userAuthenticationService.viewUserById(profileId, token);
 
         List<Activity> activities = activityRepository.findAllByUserId(profileId);
+        List<Long> followedActivityIds = this.activityParticipantRepository.findActivitiesByParticipantId(profileId);
+        List<Activity> followedActivities = this.activityRepository.findActivityByActivityIdIn(followedActivityIds);
+        activities.addAll(followedActivities);
+
         return activities;
     }
 
