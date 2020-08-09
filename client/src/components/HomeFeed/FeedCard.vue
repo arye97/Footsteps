@@ -2,9 +2,9 @@
     <div v-if="!errored">
         <b-card border-variant="secondary" style="background-color: #f3f3f3">
             <b-row no-gutters>
-                <b-col>
+                <b-col class="h-25">
                     <!-- Time Stamp -->
-                    <b-card-text id="time" class="sm"  style="float: right">{{this.time}}</b-card-text>
+                    <b-card-text id="time" class="text-secondary"  style="float: right"><small>{{this.time}}</small></b-card-text>
                 </b-col>
             </b-row>
             <b-row class="mb-1">
