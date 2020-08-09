@@ -330,13 +330,7 @@
                 await api.getUserId().then(response => {
                     userId = response.data;
                     this.creatorId = userId;
-                }).catch(error => {
-                    if (error.response.data.status === 401) {
-                        this.$router.push("/login");
-                    } else {
-                        this.$router.push({ name: 'myProfile' });
-                    }
-                });
+                }).catch(error => {this.throwError(error, true)});
                 return userId
             },
             async getListOfActivities() {
@@ -348,16 +342,7 @@
                         }
                         this.loading = false;
                         this.activityList = response.data;
-                    }).catch(error => {
-                        if (error.response.status === 401) {
-                            this.$router.push('/login');
-                        } else if (error.response.status === 403) {
-                            this.overallMessageText = "Sorry unable to get activities (forbidden access)";
-                            showError('overall_message');
-                        } else {
-                            this.$router.push({ name: 'myProfile' });
-                        }
-                    })
+                    }).catch(error => {this.throwError(error, true)})
             },
             goToPage(url) {
                 this.$router.push(url);
@@ -401,20 +386,7 @@
                 this.activityList.splice(this.activityList.findIndex(a => a.id === activityId), 1);
 
                 // Delete from database
-                await api.deleteActivity(this.userId, activityId).catch(error => {
-                    if (error.response.status === 401) {
-                        this.$router.push("/login");
-                    } else if (error.response.status === 403) {
-                        this.overallMessageText = "Sorry unable to create this activity (forbidden access)";
-                        showError('overall_message');
-                    } else if (error.response.status === 404) {
-                        this.overallMessageText = "Activity not found";
-                        showError('overall_message');
-                    } else {
-                        this.overallMessageText = "An unknown error occurred";
-                        showError('overall_message');
-                    }
-                })
+                await api.deleteActivity(this.userId, activityId).catch(error => {this.throwError(error, false)})
             },
           async getCreatorName() {
               await api.getUserData(this.creatorId).then((response) => {
@@ -422,7 +394,45 @@
               }).catch(() => {
                   this.creatorName = "Could not load creator's name";
               });
-          }
+          },
+            /**
+             * Helper function for when errors are thrown by server after hitting an endpoint,
+             * @param servError Error thrown by server endpoint
+             * @param isGet boolean value if the error is from a get endpoint, true if it is, false if it isnt, so that
+             * the function will use the necessary if statements to handle these
+             */
+            throwError(servError, isGet) {
+                if (!isGet) {
+                    switch (servError.response.status) {
+                        case 401:
+                            this.$router.push("/login");
+                            break;
+                        case 404:
+                            this.overallMessageText = "Activity not found";
+                            showError('overall_message');
+                            break;
+                        case 403:
+                            this.overallMessageText = "Sorry unable to delete this activity (forbidden access)";
+                            showError('overall_message');
+                            break;
+                        default:
+                            this.overallMessageText = "An unknown error occurred";
+                            showError('overall_message');
+                    }
+                } else if (isGet) {
+                    switch (servError.response.status) {
+                        case 401:
+                            this.$router.push("/login");
+                            break;
+                        case 403:
+                            this.overallMessageText = "Sorry unable to get activities (forbidden access)";
+                            showError('overall_message');
+                            break;
+                        default:
+                            this.$router.push({name: 'myProfile'});
+                    }
+                }
+            }
         }
     }
 </script>
