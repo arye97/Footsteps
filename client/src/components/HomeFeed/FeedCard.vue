@@ -65,13 +65,20 @@
             await this.extractData();
         },
         methods: {
+            /**
+             * This method converts the event data into what we need to display for the feed events
+             * Async as needs to make some api calls to extract some of the data from IDs
+             * @returns {Promise<void>}
+             */
             extractData: async function() {
+                // Get the details of the person who triggered the event
                 await api.getUserData(this.event.userId).then((response) => {
                     this.firstName = response.data.firstname;
                     this.lastName = response.data.lastname;
                 }).catch(() => {
                     this.errored = true;
                 });
+                // Determine what type of event occurred
                 switch (this.event.feedEventType) {
                     case 'DELETE':
                         this.actionText = "deleted";
@@ -88,11 +95,13 @@
                     default:
                         this.errored = true;
                 }
+                // Get the name of the activity affected
                 await api.getActivityData(this.event.activityId).then((response) => {
                     this.activityTitle = response.data.activity_name;
                 }).catch(() => {
                     this.errored = true;
                 });
+                // Convert the time of event to a useful display time
                 this.time = (new Date().getTime()) - (this.event.timeStamp.getTime());
                 if (this.time >= 86400000) {
                     this.time = Math.ceil(this.time / (1000 * 60 * 60 * 24)) + ' days ago';

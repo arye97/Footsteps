@@ -28,6 +28,7 @@
                                     </p>
                                 </div>
                                 <hr><br/>
+                                <!-- Show recent online actions -->
                                 <HomeFeed></HomeFeed>
                             </div>
                         </div>
