@@ -126,6 +126,9 @@
                         </section>
                     </div>
                 </div>
+                <section v-if="pageUrl === '/search/users' && userDataLoaded">
+                    <ActivityList :user_-id="userId"/>
+                </section>
             </div>
         </b-container>
         <br/><br/>
@@ -136,10 +139,12 @@
     import api from "../../Api";
     import {fitnessLevels} from '../../constants'
     import Header from '../../components/Header/Header';
+    import ActivityList from "../Activities/ActivityList";
 
     export default {
         name: "ViewUser",
         components: {
+            ActivityList,
             Header
         },
         props: {
@@ -148,8 +153,7 @@
                 type: Boolean
             },
             userId: {
-                default: undefined,
-                type: Number
+                default: ''
             }
         },
         data() {
@@ -163,7 +167,9 @@
                 isEditable: true,
                 activityTypes: [],
                 continuousActivities: [],
-                discreteActivities: []
+                discreteActivities: [],
+                userDataLoaded: false,
+                pageUrl: this.$route.fullPath
             }
         },
         async mounted() {
@@ -175,12 +181,10 @@
                 this.errored = false;
                 this.error = null;
                 this.fitness = null;
-                if (this.userId === undefined || isNaN(this.userId)) {  // Check if the inputted userId prop wasn't used
-                    if (!isNaN(this.$route.params.userId)) {  // If this is a number (could be a string of digits)
-                        this.userId = this.$route.params.userId;
-                    } else {
-                        this.userId = '';
-                    }
+                if(this.$route.params.userId) {
+                    this.userId = this.$route.params.userId;
+                } else if (this.userId === undefined || isNaN(this.userId)) {  // Check if the inputted userId prop wasn't used
+                        this.userId = this.getUserId();
                 }
                 this.loading = true;
                 await this.fetchActivityTypes();
@@ -190,6 +194,14 @@
                 await this.getProfile();
                 this.loading = false;
 
+
+            },
+            getUserId() {
+                let id = null;
+                api.getUserId().then(response => {
+                    id = response.data;
+                }).catch(()=> {id = '';})
+                return id;
             },
             /**
              * Fetch all possible activity types from the server.
@@ -216,6 +228,7 @@
                       this.fitness = fitnessLevels[i].desc;
                     }
                   }
+                  this.userDataLoaded = true;
                 }
               }).catch(error => {
                 this.errored = true;

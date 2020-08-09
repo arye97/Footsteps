@@ -26,6 +26,9 @@
                                     trim required>
                             </b-form-input>
                         </div>
+                        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" hidden="true" id="alert_first_name">
+                            {{  "Field is mandatory and can only contain letters, spaces, hyphens, and apostrophes"  }}
+                        </div>
                     </b-form-group>
                     <b-form-group label-for="middlename" label="Middle Name:">
                         <!-- middle-name field-->
@@ -38,6 +41,9 @@
                                     trim>
                             </b-form-input>
                         </div>
+                        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" hidden="true" id="alert_middle_name">
+                            {{  "Field can only contain letters, spaces, hyphens, and apostrophes"  }}
+                        </div>
                     </b-form-group>
                     <b-form-group label-for="lastname" label="Last Name: *">
                         <!-- last-name field-->
@@ -49,6 +55,9 @@
                                     placeholder="Your Last Name..."
                                     trim required>
                             </b-form-input>
+                        </div>
+                        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" hidden="true" id="alert_last_name">
+                            {{  "Field is mandatory and can only contain letters, spaces, hyphens, and apostrophes"  }}
                         </div>
                     </b-form-group>
                     <b-form-group label-for="nickname" label="Nickname:">
@@ -163,8 +172,8 @@
 <script>
     import Multiselect from 'vue-multiselect'
     import api from "../../Api";
-    import {getCountryNames, fitnessLevels} from '../../constants';
-    import {validateUser} from "../../util"
+    import {fitnessLevels} from '../../constants';
+    import {validateUser, fetchCountries} from "../../util"
 
     export default {
         name: "Details.vue",
@@ -209,42 +218,12 @@
                 this.loggedIn = false;
                 this.isRedirecting = false;
                 this.redirectionMessage = '';
-                this.fetchCountries();
+                this.countries = fetchCountries();
                 await this.fetchActivityTypes();
                 if (this.$route.params.userId !== undefined) {
                     await this.validateUserIdWithToken(); // If allowed to edit profileId is set
                 }
                 await this.updateInputs();//Populate input fields with profile data if allowed to edit
-            },
-
-            /**
-             * Fetch the possible passport countries to select from.
-             */
-            fetchCountries: function () {
-                //Fill Passport countries
-                let select = [];
-                // Create a request variable and assign a new XMLHttpRequest object to it.
-                let request = new XMLHttpRequest();
-                //build url
-                let url = new URL(getCountryNames);
-                // Open a new connection, using the GET request on the URL endpoint;
-                request.open('GET', url, true);
-
-                request.onload = function () {
-                    // If the request is successful
-                    if (request.status >= 200 && request.status < 400) {
-                        let data = JSON.parse(this.response);
-                        data.forEach(country => {
-                            let elmt = country.name;
-                            select.push(elmt)
-                        })
-                    } else {
-                        select = 'List is empty'
-                    }
-                };
-                // Send request
-                this.countries = select;
-                request.send();
             },
 
             /**
@@ -269,7 +248,7 @@
             saveChanges() {
                 let errorCount = 0; //count of blank fields
                 if (!validateUser(this.firstname, "firstname").valid) {
-                    this.showError('alert_first_name');
+                  this.showError('alert_first_name');
                     errorCount += 1;
                 }
                 if (!validateUser(this.middlename, "middlename").valid) {
@@ -542,5 +521,33 @@
 
     #activityTypesDiv {
         width: 50em;
+    }
+
+    #alert_first_name {
+        margin-top: 20px;
+    }
+
+    #alert_middle_name {
+        margin-top: 20px;
+    }
+
+    #alert_last_name {
+        margin-top: 20px;
+    }
+
+    #alert_nickname {
+        margin-top: 20px;
+    }
+
+    #alert_gender {
+        margin-top: 20px;
+    }
+
+    #alert_dob {
+        margin-top: 20px;
+    }
+
+    #alert_bio {
+        margin-top: 20px;
     }
 </style>
