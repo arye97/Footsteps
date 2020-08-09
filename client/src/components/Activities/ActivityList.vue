@@ -14,13 +14,13 @@
                         <b-row no-gutters>
                             <b-col md="6">
                                 <b-card-text>
-                                    <strong>{{activity.activity_name}} | {{creatorName}}</strong>
+                                    <strong>{{ activity.activity_name }} | {{ activity.creatorName }}</strong>
                                     <hr/>
                                     <div v-if="activity.description.length <= 100">
-                                        {{activity.description}}
+                                        {{ activity.description }}
                                     </div>
                                     <div v-else>
-                                        {{activity.description.substring(0,100)+"...."}}
+                                        {{ activity.description.substring(0,100)+"...." }}
                                     </div>
                                 </b-card-text>
                             </b-col>
@@ -31,7 +31,7 @@
                                             <b-card class="flex-fill" border-variant="secondary">
                                                 <b-row class="mb-1">
                                                     <b-col><strong>Creator: </strong></b-col>
-                                                    <b-col>{{creatorName}}</b-col>
+                                                    <b-col>{{ activity.creatorName }}</b-col>
                                                 </b-row>
                                                 <b-row class="mb-1">
                                                     <b-col><strong>Location: </strong></b-col>
@@ -55,7 +55,7 @@
                                                     {{activity.description}}
                                                 </p>
                                             </b-card>
-                                            <template v-slot:modal-footer v-if="creatorId===activeUserId">
+                                            <template v-slot:modal-footer v-if="activity.creatorUserId!==activeUserId">
                                                 <div class="w-100">
                                                     <b-button v-if="followingDisplay"
                                                               variant="outline-dark"
@@ -115,15 +115,6 @@
                                                 <img v-else src="../../../assets/png/footsteps_icon_hollow.png" class="footSteps" alt="Footsteps Logo">
                                             </div>
                                         </b-button>
-<!--                                        <b-button-->
-<!--                                                variant="outline-primary"-->
-<!--                                                @click="followActivity(activity.id)"-->
-<!--                                                v-if="creatorId!==activeUserId"-->
-<!--                                        >-->
-<!--                                            Follow Activity-->
-<!--                                            <img v-if="isHovered" src="../../../assets/png/footsteps_icon.png" class="footStepsSimplified" alt="Footsteps Logo">-->
-<!--                                            <img v-else src="../../../assets/png/footsteps_icon_hollow.png" class="footStepsSimplified" alt="Footsteps Logo">-->
-<!--                                        </b-button>-->
                                         <b-button v-if="creatorId==activeUserId" variant="outline-danger" v-on:click="deleteActivity(activity.id)">Delete</b-button>
                                     </b-button-group>
                                 </div>
@@ -142,54 +133,52 @@
                         <b-row no-gutters>
                             <b-col md="6">
                                 <b-card-text>
-                                    <strong>{{activity.activity_name}} | {{creatorName}}</strong>
+                                    <strong>{{ activity.activity_name }} | {{ activity.creatorName }}</strong>
                                     <hr/>
-                                    <strong>Start Date: </strong>{{getDateTime(activity.start_time)}}
+                                    <strong>Start Date: </strong>{{ getDateTime(activity.start_time )}}
                                     <br/>
-                                    <strong>End Date: </strong>{{getDateTime(activity.end_time)}}
+                                    <strong>End Date: </strong>{{ getDateTime(activity.end_time) }}
                                     <br/><br/>
                                     <div v-if="activity.description.length <= 100">
-                                        {{activity.description}}
+                                        {{ activity.description }}
                                     </div>
                                     <div v-else>
-                                        {{activity.description.substring(0,100)+"...."}}
+                                        {{ activity.description.substring(0,100)+"...." }}
                                     </div>
                                 </b-card-text>
                             </b-col>
                             <b-col md="6">
                                 <div class="activity-button-group float-right">
                                     <b-button-group vertical>
-                                        <b-button v-if="creatorId===activeUserId" variant="outline-primary" v-on:click="goToPage(`/activities/edit/${activity.id}`)">Edit</b-button>
-                                        <b-button variant="outline-primary" v-b-modal="'activity' + activity.id + '-duration-modal'">Details</b-button>
                                         <b-modal :id="'activity' + activity.id + '-duration-modal'" size="lg" centered ok-only scrollable :title="activity.activity_name">
                                             <b-card class="flex-fill" border-variant="secondary">
                                                 <b-row class="mb-1">
                                                     <b-col><strong>Creator: </strong></b-col>
-                                                    <b-col>{{creatorName}}</b-col>
+                                                    <b-col>{{ activity.creatorName }}</b-col>
                                                 </b-row>
                                                 <b-row class="mb-1">
                                                     <b-col><strong>Start Date: </strong></b-col>
-                                                    <b-col>{{getDateTime(activity.start_time)}}</b-col>
+                                                    <b-col>{{ getDateTime(activity.start_time) }}</b-col>
                                                 </b-row>
                                                 <b-row class="mb-1">
                                                     <b-col><strong>End Date: </strong></b-col>
-                                                    <b-col>{{getDateTime(activity.end_time)}}</b-col>
+                                                    <b-col>{{ getDateTime(activity.end_time) }}</b-col>
                                                 </b-row>
                                                 <b-row class="mb-1">
                                                     <b-col><strong>Duration: </strong></b-col>
-                                                    <b-col>{{getDays(activity)}} Days
-                                                        {{getHours(activity)}} Hours</b-col>
+                                                    <b-col>{{ getDays(activity) }} Days
+                                                        {{ getHours(activity) }} Hours</b-col>
                                                 </b-row>
                                                 <b-row class="mb-1">
                                                     <b-col><strong>Location: </strong></b-col>
-                                                    <b-col>{{activity.location}}</b-col>
+                                                    <b-col>{{ activity.location }}</b-col>
                                                 </b-row>
                                                 <b-row class="mb-1">
                                                     <b-col><strong>Activity types: </strong></b-col>
                                                     <b-col>
                                                         <section v-for="activityType in activity.activity_type" v-bind:key="activityType.name">
                                                             <div>
-                                                                {{activityType.name}}
+                                                                {{ activityType.name }}
                                                             </div>
                                                         </section>
                                                     </b-col>
@@ -199,10 +188,10 @@
                                             <b-card class="flex-fill" border-variant="secondary">
                                                 <p class="text-justified">
                                                     <strong>Description: </strong><br>
-                                                    {{activity.description}}
+                                                    {{ activity.description }}
                                                 </p>
                                             </b-card>
-                                            <template v-slot:modal-footer v-if="creatorId!==activeUserId">
+                                            <template v-slot:modal-footer v-if="activity.creatorUserId !== activeUserId">
                                                 <div class="w-100">
                                                     <b-button v-if="followingDisplay"
                                                               variant="outline-dark"
@@ -238,7 +227,28 @@
                                                 </div>
                                             </template>
                                         </b-modal>
-                                        <b-button v-if="creatorId===activeUserId" variant="outline-danger" v-on:click="deleteActivity(activity.id)">Delete</b-button>
+                                        <b-button v-if="activity.creatorUserId === activeUserId"
+                                                  variant="outline-primary"
+                                                  v-on:click="goToPage(`/activities/edit/${activity.id}`)">
+                                            Edit
+                                        </b-button>
+                                        <b-button variant="outline-primary"
+                                                  v-b-modal="'activity' + activity.id + '-duration-modal'">
+                                            Details
+                                        </b-button>
+                                        <b-button variant="outline-primary"
+                                                  @click="followActivity(activity.id)"
+                                                  v-if="activity.creatorUserId!==activeUserId"
+                                        >
+                                            Follow Activity
+                                            <img v-if="isHovered" src="../../../assets/png/footsteps_icon.png" class="footStepsSimplified" alt="Footsteps Logo">
+                                            <img v-else src="../../../assets/png/footsteps_icon_hollow.png" class="footStepsSimplified" alt="Footsteps Logo">
+                                        </b-button>
+                                        <b-button v-if="activity.creatorUserId === activeUserId"
+                                                  variant="outline-danger"
+                                                  v-on:click="deleteActivity(activity.id)">
+                                            Delete
+                                        </b-button>
                                     </b-button-group>
                                 </div>
                             </b-col>
@@ -273,8 +283,6 @@
         data() {
             return {
                 activityList : [],
-                creatorId: null,
-                creatorName: null,
                 noMore: false,
                 activeTab: 0,
                 loading: true,
@@ -293,7 +301,7 @@
         async mounted() {
             await this.getActiveUserId();
             await this.getListOfActivities();
-            await this.getCreatorName();
+            await this.getCreatorNamesForActivities();
             await this.updateActivitiesFollowing();
         },
         methods: {
@@ -338,6 +346,10 @@
                 }
             },
 
+            /**
+             * Retrieves a list of activities
+             * that a user is following or has created
+             */
             async getListOfActivities() {
                 this.errored = false;
                 await api.getUserActivities(this.userId).then(
@@ -345,7 +357,6 @@
                         if (response.data.length === 0) {
                             this.noMore = true;
                         }
-                        this.loading = false;
                         this.activityList = response.data;
                     }).catch(() => {
                         this.errored = true;
@@ -401,17 +412,21 @@
                 })
             },
 
-            async getCreatorName() {
-                if (this.creatorId === null) {
-                    this.creatorId = this.userId;
+            /**
+             * Iterates over list of activities
+             * and obtains name of creator of an activity.
+             * Then manually assigns a "creatorName" property to each activity.
+             */
+            async getCreatorNamesForActivities() {
+                for (let i = 0; i < this.activityList.length; i++) {
+                    await api.getUserData(this.activityList[i].creatorUserId).then((response) => {
+                        this.activityList[i]["creatorName"] = `${response.data.firstname} ${response.data.lastname}`;
+                    }).catch(() => {
+                        this.activityList[i]["creatorName"] = "Could not load creator's name";
+                    });
                 }
-                await api.getUserData(this.creatorId).then((response) => {
-                    this.creatorName = `${response.data.firstname} ${response.data.lastname}`;
-                }).catch(() => {
-                    this.creatorName = "Could not load creator's name";
-                });
+                this.loading = false;
             },
-
             async updateActivitiesFollowing() {
                 for (let activity of this.activityList) {
                     console.log("activity " + activity.id + "user " + this.activeUserId + "non" + this.userId);
@@ -446,14 +461,11 @@
     }
 
     .activity-button-group {
-        padding-top: 7.5%;
-        padding-right: 40%;
-        padding-bottom: 7.5%;
+        padding: 7.5% 30px;
     }
 
     .activity-button-group button {
-        margin-left: 35.5%;
-        width: 110%;
+        width: 190px;
     }
 
     .footerButton {
