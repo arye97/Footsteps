@@ -12,15 +12,17 @@ const server = axios.create({
 });
 
 function getTokenHeader() {
-  return {
-    headers: {'Token': sessionStorage.getItem("token"), "Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
+  let token = sessionStorage.getItem("token");
+  let header = {
+    headers: {"Token": token, "Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
     withCredentials: true
-  }
+  };
+  return header;
 }
 
 function getExtendedTokenHeader(extendedHeaders) {
   let header = {
-    headers: {'Token': sessionStorage.getItem("token"), 'email' : extendedHeaders, "Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
+    headers: {"Token": sessionStorage.getItem("token"), 'email' : extendedHeaders, "Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
     withCredentials: true
   };
   return header;
@@ -54,6 +56,6 @@ export default {
   },
   getCountries: () => server.get(getCountryNames),
   getUserSubscribed: (activityId, userId) => server.get(`/profiles/${userId}/subscriptions/activities/${activityId}`, getTokenHeader()),
-  setUserSubscribed: (activityId, userId) => server.post( `/profiles/${userId}/subscriptions/activities/${activityId}`, getTokenHeader()),
+  setUserSubscribed: (activityId, userId) => server.post( `/profiles/${userId}/subscriptions/activities/${activityId}`, null, getTokenHeader()),
   deleteUserSubscribed: (activityId, userId) => server.delete(`/profiles/${userId}/subscriptions/activities/${activityId}`, getTokenHeader())
 }
