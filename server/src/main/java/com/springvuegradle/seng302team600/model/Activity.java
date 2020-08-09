@@ -121,6 +121,8 @@ public class Activity {
 
     public Set<User> getParticipants() {return participants;}
 
+    public void addParticipant(User user) { this.participants.add(user); }
+
     public void setParticipants(Set<User> participants) {this.participants = participants;}
 
     public void setContinuous(boolean continuous) {
