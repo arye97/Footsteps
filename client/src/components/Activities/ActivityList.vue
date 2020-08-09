@@ -115,7 +115,7 @@
                                                 <img v-else src="../../../assets/png/footsteps_icon_hollow.png" class="footSteps" alt="Footsteps Logo">
                                             </div>
                                         </b-button>
-                                        <b-button v-if="activity.creatorUserId==activeUserId" variant="outline-danger" v-on:click="deleteActivity(activity.id)">Delete</b-button>
+                                        <b-button v-if="activity.creatorUserId===activeUserId" variant="outline-danger" v-on:click="deleteActivity(activity.id)">Delete</b-button>
                                     </b-button-group>
                                 </div>
                             </b-col>
@@ -306,20 +306,22 @@
         },
         methods: {
             async followActivity(activity) {
+                console.log(activity);
                 this.followError = false;
                 await api.setUserSubscribed(activity.id, this.activeUserId).then(() => {
                     activity.following = true;
                 }).catch((error) => {
-                    console.log(error);
+                    console.log(error.message);
                     this.followError = true;
                 })
             },
             async unfollowActivity(activity) {
+                console.log(activity);
                 this.followError = false;
                 await api.deleteUserSubscribed(activity.id, this.activeUserId).then(() => {
                     activity.following = false;
                 }).catch((error) => {
-                    console.log(error.body);
+                    console.log(error.message);
                     this.followError = true;
                 })
             },
