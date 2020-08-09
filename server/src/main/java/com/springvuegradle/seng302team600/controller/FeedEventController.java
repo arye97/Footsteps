@@ -58,10 +58,10 @@ public class FeedEventController {
         //The user is not following the event so continue
         // Create the Follow Feed Event and save it to the db
         followEvent.setActivityId(activityId); // the id of the activity
-        followEvent.setAuthorId(profileId); // the author of the feedEvent to be followed
+        followEvent.setAuthorId(profileId); // the user id of user who caused the feed event
         followEvent.setFeedEventType(FeedPostType.FOLLOW); // the type of event: here it should always be FOLLOW
         followEvent.setTimeStampNow(); //set the time as right now
-        followEvent.setViewerId(profileId); // the user who this event should appear on their timeline
+        followEvent.setViewerId(profileId); // the user if that views this feed event
         feedEventRepository.save(followEvent); //save the event!
     }
 
