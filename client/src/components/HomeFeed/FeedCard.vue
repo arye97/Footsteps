@@ -2,7 +2,7 @@
     <div v-if="!errored">
         <b-card border-variant="secondary" style="background-color: #f3f3f3">
             <b-row no-gutters>
-                <b-col col="12">
+                <b-col>
                     <!-- Time Stamp -->
                     <b-card-text id="time" class="sm"  style="float: right">{{this.time}}</b-card-text>
                 </b-col>
@@ -12,15 +12,18 @@
                     <b-card-text id="text"><strong>{{firstName}} {{lastName}} {{actionText}} the activity {{activityTitle}}</strong></b-card-text>
                 </b-col>
             </b-row>
-            <hr style="border-color: inherit">
-            <b-row class="mb-1">
+            <hr style="border-color: inherit" v-if="event.feedEventType != 'DELETE'">
+            <b-row class="mb-1"  v-if="event.feedEventType != 'DELETE'">
                 <b-col>
                     <!-- View Activity button -->
-                    <b-button id="viewActivityButton" variant="primary">View Activity</b-button>
+                    <b-button id="viewActivityButton" variant="success">View Activity</b-button>
                 </b-col>
-                <b-col v-if="event.feedEventType != 'DELETE'">
+                <b-col>
                     <!-- Unfollow button -->
-                    <b-button id="unfollowButton" variant="primary">Unfollow Activity</b-button>
+                    <b-button id="unfollowButton" variant="outline-success">
+                        <img id="follow" src="../../../assets/png/footsteps_icon_hollow.png" width="15%" alt="Footsteps">
+                        Unfollow Activity
+                    </b-button>
                 </b-col>
             </b-row>
         </b-card>
@@ -82,7 +85,7 @@
                         this.errored = true;
                 }
                 await api.getActivityData(this.event.activityId).then((response) => {
-                    this.activityTitle = response.data.title;
+                    this.activityTitle = response.data.activity_name;
                 }).catch(() => {
                     this.errored = true;
                 });
