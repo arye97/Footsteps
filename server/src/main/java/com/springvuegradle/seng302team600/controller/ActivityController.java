@@ -169,7 +169,7 @@ public class ActivityController {
     }
 
     /**
-     * Get all activities by user
+     * Get all activities that a user has created or is currently following
      * @param profileId the id of the user/creator
      * @param request the actual request from the client, containing pertinent data
      */
