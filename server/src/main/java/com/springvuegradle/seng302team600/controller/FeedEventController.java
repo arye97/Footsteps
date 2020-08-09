@@ -68,7 +68,14 @@ public class FeedEventController {
     @DeleteMapping("/profiles/{profileId/subscriptions/activities/{activityId}")
     public void unFollowAnActivity(HttpServletRequest request, HttpServletResponse response,
                                    @PathVariable Long profileId, @PathVariable Long activityId) {
-        //ToDo Implement this method, also add DocString
+        //Remove the user as a participant of the activity
+        String token = request.getHeader("Token");
+        User user = userAuthenticationService.findByUserId(token, profileId);
+        Activity activity = activityRepository.findByActivityId(activityId);
+//        activity.removeParticipant(user);  //ToDo
+        activityRepository.save(activity);
+
+
     }
 
     @GetMapping("/profiles/{profileId/subscriptions/activities/{activityId}")

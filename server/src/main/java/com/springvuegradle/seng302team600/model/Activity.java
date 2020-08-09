@@ -171,7 +171,7 @@ public class Activity {
     public boolean equals(final Object obj) {
         if (obj instanceof Activity) {
             final Activity other = (Activity) obj;
-            // Check that all attributes are not activityId and creatorUserId
+            // Check that all attributes are equal, except activityId and creatorUserId
             return this.getName().equals(other.getName()) && this.getDescription().equals(other.getDescription()) &&
                     this.getStartTime().equals(other.getStartTime()) && this.getEndTime().equals(other.getEndTime()) &&
                     this.getLocation().equals(other.getLocation()) && this.getActivityTypes().equals(other.getActivityTypes()) &&
