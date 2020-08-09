@@ -18,7 +18,7 @@
         </section>
         <!-- Pagination Nav Bar -->
         <b-pagination
-                v-if="!errored && !loading && feedEventList.length >= 1"
+                v-if="!errored && !loading && feedEventList.length >= eventsPerPage"
                 align="fill"
                 v-model="currentPage"
                 :total-rows="rows"

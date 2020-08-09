@@ -8,10 +8,12 @@
                 </b-col>
             </b-row>
             <b-row class="mb-1">
+                <!-- Core Card Text -->
                 <b-col>
                     <b-card-text id="text"><strong>{{firstName}} {{lastName}} {{actionText}} the activity {{activityTitle}}</strong></b-card-text>
                 </b-col>
             </b-row>
+            <!-- Buttons and seperator not required for delete events -->
             <hr style="border-color: inherit" v-if="event.feedEventType != 'DELETE'">
             <b-row class="mb-1"  v-if="event.feedEventType != 'DELETE'">
                 <b-col>
@@ -29,7 +31,9 @@
         </b-card>
     </div>
     <div v-else>
-        <b-card-text id="error">An error occurred, please try again later</b-card-text>
+        <b-card border-variant="secondary" style="background-color: #f3f3f3">
+            <b-card-text id="error">An error occurred, please try again later</b-card-text>
+        </b-card>
     </div>
 </template>
 
