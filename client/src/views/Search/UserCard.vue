@@ -10,10 +10,11 @@
                     <b-button id="viewProfileButton" style="float: right" variant="primary" v-b-modal="'modal-view-profile' + user.id">View Profile</b-button>
 
                     <!--View User Details Modal-->
-                    <b-modal :id="'modal-view-profile' + user.id" :title="user.firstname + ' ' + user.lastname">
+                    <b-modal size="lg" :id="'modal-view-profile' + user.id" :title="user.firstname + ' ' + user.lastname" scrollable>
                         <!--The User's Details-->
                         <b-button id="goToProfileButton" style="float: right" variant="primary" v-on:click="viewProfile(user.id)">Go To Profile</b-button>
                         <view-user v-bind:user-id="user.id" v-bind:modalView="true"/>
+
 
                     </b-modal>
                 </b-col>
@@ -33,7 +34,7 @@
                 </b-col>
                 <b-col v-if="user.activityTypes.length >= 1">
                     <b-list-group id="matchingActivityTypes">
-                        <section v-for="activityType in user.activityTypes" v-bind:key="activityType">
+                        <section v-for="activityType in user.activityTypes" v-bind:key="activityType.name">
                             <!-- Only display queried activity types -->
                             <b-list-group-item v-if="activityTypesSearchedFor.indexOf(activityType.name) > -1" variant="primary">
                                 {{ activityType.name }}
@@ -84,7 +85,8 @@
              */
             viewProfile(userId) {
                 this.goToPage({ name: 'profile', params: {userId: userId} })
-            }
+            },
+
         }
     }
 

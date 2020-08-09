@@ -58,7 +58,7 @@
                                   size="lg" id="back" v-on:click="backToProfile">
                                   Back</b-button>
                         <b-button type="submit" variant="success float-right"
-                                  size="lg" v-on:click="editPassword">
+                                  size="lg" id="save" v-on:click="editPassword">
                                   Submit</b-button>
                     </div>
                 </form>

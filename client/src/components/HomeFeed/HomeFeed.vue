@@ -55,18 +55,27 @@
                 {
                     id: 1,
                     feedEventType: 'FOLLOW',
-                    timeStamp: new Date("November 02, 2017 06:00:00"),
+                    timeStamp: new Date("August 07, 2020 17:00:00"),
                     activityId: 1,
                     userId: 1
                 },
                 {
                     id: 2,
                     feedEventType: 'MODIFY',
+                    timeStamp: new Date("August 09, 2020 14:56:30"),
+                    activityId: 50,
+                    userId: 4
+                },
+                {
+                    id: 3,
+                    feedEventType: 'DELETE',
                     timeStamp: new Date(),
                     activityId: 50,
                     userId: 4
                 }
             ];
+            // Flip the list order so the most recent event shows first
+            this.feedEventList.reverse();
             this.currentPageEventList = this.feedEventList;
         }
     }

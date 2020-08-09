@@ -1,21 +1,22 @@
 import {nameRegex} from "./constants";
+import api from "./Api";
 
 export function validateUser(fieldData, fieldType) {
     const emailRegex = new RegExp(/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/);
     const passwordRegex = new RegExp(/(?=.*[0-9])(?=.*[a-zA-Z])(?=\S+$).{8,}/);
-    const bioPasswordEmailLength = 255;
+    const bioEmailLength = 255;
     const nameLength = 45;
     switch (fieldType) {
         case "bio":
-            return {valid: fieldData.length <= bioPasswordEmailLength};
+            return {valid: fieldData.length <= bioEmailLength};
         case "nickname":
             return {valid: fieldData.length <= nameLength};
         case "gender":
             return {valid: fieldData === "Male" || fieldData === "Female" || fieldData === "Non-Binary"};
         case "email":
-            return {valid: (emailRegex.test(fieldData) && fieldData.length <= bioPasswordEmailLength)};
+            return {valid: (emailRegex.test(fieldData) && fieldData.length <= bioEmailLength)};
         case "password":
-            return {valid: (passwordRegex.test(fieldData) && fieldData.length <= bioPasswordEmailLength)};
+            return {valid: (passwordRegex.test(fieldData))};
         case "middlename":
             return {valid: ((nameRegex.test(fieldData) || fieldData === "" || fieldData == null) && fieldData.length <= nameLength), message: "Middle Name contains numbers or unexpected characters"};
         case "firstname":
@@ -190,4 +191,21 @@ export function formatDateTime(dateTime) {
         }
     }
     return date + AMPMTime;
+}
+
+/**
+ * Fetch the possible passport countries to select from.
+ */
+export function fetchCountries() {
+    //Fill Passport countries
+    let select = [];
+    api.getCountries().then(response => {
+        response.data.forEach(country => {
+            let elmt = country.name;
+            select.push(elmt)
+        });
+    }).catch(() => {
+        select = 'List is empty'
+    });
+    return select;
 }
