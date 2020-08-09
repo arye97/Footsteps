@@ -107,7 +107,7 @@ test('AC9 User is taken to homepage on register', ()=> {
     return registerWrapper.vm.registerUser(new Event("dummy")).then(() => {
         expect(registerWrapper.vm.api.register)
             .toHaveBeenCalledWith({...userdata, ...{primary_email: extraData.primary_email}});
-        expect(spy).toHaveBeenCalledWith("/profile");
+        expect(spy).toHaveBeenCalledWith("/");
     });
 });
 

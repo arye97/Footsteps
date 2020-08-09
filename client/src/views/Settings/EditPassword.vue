@@ -223,7 +223,7 @@
                     if (error.response.data.status === 401) {
                         this.logout();
                     } else {
-                        this.$router.push({ name: 'passwordNoID' });
+                        this.$router.push({ name: 'editMyProfile' });
                         this.init();
                     }
                 });

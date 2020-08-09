@@ -1,5 +1,9 @@
 <template>
-    <div>
+    <div v-if="this.isRedirecting">
+        {{ redirectionMessage }}
+        <br/><br/><b-spinner variant="primary" label="Spinning"></b-spinner>
+    </div>
+    <div v-else>
         <b-container class="contentsExtendedBottom" fluid>
             <section v-if="error">
                 <p>Sorry, looks like we can't get your info! Please try again.</p>
@@ -136,11 +140,13 @@
                 emailMessage: null, //y
                 duplicateEmailError: "", //y
                 changesHaveBeenMade: false,
-                isEditable: false
+                isEditable: false,
+                isRedirecting: false,
+                redirectionMessage: '',
+                timeout: 4000
             }
         },
         async mounted() {
-
             await this.init();
         },
         methods: {
@@ -186,7 +192,7 @@
                             this.$router.push("/login");
                         }
                         else if (error.response.status === 500) {
-                            console.log(error.response.data.message);
+                            console.error(error.response.data.message);
                             // Return to root home screen when timeout.
                             this.$router.push('/');
                         }
@@ -229,9 +235,8 @@
              * @param emailIndex index of additional email to be set to primary
              */
             setPrimary(emailIndex) {
-                let additionalEmailId = "additionalEmail" + emailIndex;
                 // Obtain Primary Email Candidate from list of Additional Emails
-                let candidatePrimaryEmail = document.getElementById(additionalEmailId).innerText;
+                let candidatePrimaryEmail = this.additionalEmails[emailIndex];
                 // Replace Primary Email Candidate from list of Additional Emails with Old Primary Email
                 this.additionalEmails.splice(emailIndex, 1, this.primaryEmail);
                 // Set Primary Email Candidate
@@ -247,8 +252,7 @@
              * @param emailIndex index of additional email to be removed
              */
             deleteEmail(emailIndex) {
-                let additionalEmailId = "additionalEmail" + emailIndex;
-                let emailToBeRemoved = document.getElementById(additionalEmailId).innerText;
+                let emailToBeRemoved = this.additionalEmails[emailIndex];
                 // Remove emailToBeRemoved from this.additionalEmails
                 this.additionalEmails = this.additionalEmails.filter(
                     function(email) {
@@ -299,7 +303,6 @@
                             this.duplicateEmailError = null;
                         }).catch(error => {
                             if (error.response.status === 400) {
-                                console.log(error.response.data.message);
                                 let message = "Bad Request: email " + this.insertedEmail + " is already in use";
                                 // Disable add button if email is in use
                                 if (error.response.data.message === message) {
@@ -307,10 +310,9 @@
                                 }
                             }
                             if (error.response.status === 401) {
-                                console.log(error.response.data.message);
+                                // Not logged in
+                                this.$router.push('/login'); //Routes to home on logout
                             }
-
-
                         })
                     }
                 } else {
@@ -348,7 +350,7 @@
              * Additionally sets up mechanisms associated with the disabling/enabling
              * of the SAVE button.
              */
-            saveChanges() {
+            async saveChanges() {
                 this.checkIfChangesMade();
                 if (!this.changesHaveBeenMade) {
                     return
@@ -365,22 +367,10 @@
                         window.alert("Successfully saved changes!");
                         this.updateOriginalAdditionalEmails();
                         this.checkIfChangesMade();
-                    }).catch(error => {
-                        if (error.response.status === 400) {
-                            console.log(error.response.data.message);
-                        }
-                        else if (error.response.status === 401) {
-                            console.log(error.response.data.message);
-                        }
-                        else if (error.response.status === 403) {
-                            console.log(error.response.data.message);
-                        }
-                        else if (error.response.status === 404) {
-                            console.log(error.response.data.message);
-                        }
+                    }).catch(async error => {
+                        await this.processGetError(error);
                         this.primaryEmail = this.originalPrimaryEmail;
                         this.additionalEmails = Array.from(this.originalAdditionalEmails);
-                        window.alert("Could not save changes! :(");
                     })
                 }
 
@@ -396,22 +386,10 @@
                         this.updateOriginalPrimaryEmail();
                         this.updateOriginalAdditionalEmails();
                         this.checkIfChangesMade();
-                    }).catch(error => {
-                        if (error.response.status === 400) {
-                            console.log(error.response.data.message);
-                        }
-                        else if (error.response.status === 401) {
-                            console.log(error.response.data.message);
-                        }
-                        else if (error.response.status === 403) {
-                            console.log(error.response.data.message);
-                        }
-                        else if (error.response.status === 404) {
-                            console.log(error.response.data.message);
-                        }
+                    }).catch(async error => {
+                        await this.processGetError(error);
                         this.primaryEmail = this.originalPrimaryEmail;
                         this.additionalEmails = Array.from(this.originalAdditionalEmails);
-                        window.alert("Could not save changes! :(");
                     });
                 }
             },
@@ -484,7 +462,7 @@
                     if (error.response.data.status === 401) {
                         this.logout();
                     } else {
-                        this.$router.push({ name: 'emailsNoId' });
+                        this.$router.push({ name: 'editMyProfile' });
                         this.init();
                     }
                 });
@@ -507,11 +485,50 @@
                     this.$router.push('/login'); //Routes to home on logout
                 })
             },
+
             /**
              * Redirect to view user screen
              */
             backToProfile() {
                 this.$router.push({ name: 'profile', params: {userId: this.userId} });
+            },
+
+            /**
+             * This helper function is called when an error is caught when performing a Get request to the server.<br>
+             * Conditions handled are:<br>
+             * 401 (UNAUTHORIZED) redirect to login page,<br>
+             * 403 (FORBIDDEN) and 404 (NOT_FOUND) redirect to this user's edit profile page,<br>
+             * Otherwise unknown error so redirect to user's home page
+             */
+            async processGetError(error) {
+                this.isRedirecting = true;
+                if (error.response.status === 401) {
+                    this.redirectionMessage = "Sorry, you are no longer logged in,\n" +
+                        "Redirecting to the login page.";
+                    setTimeout(() => {
+                        this.logout()
+                    }, this.timeout);
+                } else if (error.response.status === 403) {
+                    // If user ever gets to another user's edit email page and makes changes to it
+                    this.redirectionMessage = "Sorry, you are not allowed to edit another user's profile,\n" +
+                        "Redirecting to your edit emails page.";
+                    setTimeout(() => {
+                        this.$router.push({ name: "editMyProfile" });
+                    }, this.timeout);
+                } else if (error.response.status === 404) {
+                    this.redirectionMessage = "Sorry, the user does not exist,\n" +
+                        "Redirecting to your edit emails page.";
+                    setTimeout(() => {
+                        this.$router.push({ name: "editMyProfile" });
+                        this.init();
+                    }, this.timeout);
+                } else {
+                    this.redirectionMessage = "Sorry, an unknown error occurred when retrieving profile info,\n" +
+                        "Redirecting to your home page.";
+                    setTimeout(() => {
+                        this.$router.push({ name: "myProfile" });
+                    }, this.timeout);
+                }
             }
         }
     }
