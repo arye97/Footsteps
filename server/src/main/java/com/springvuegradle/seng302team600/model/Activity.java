@@ -155,11 +155,20 @@ public class Activity {
         this.location = location;
     }
 
+    /**
+     * Return a unique hash based on attributes.
+     * @return hash code
+     */
     @Override
     public int hashCode() {
         return Objects.hash(name, description, startTime, endTime, location, activityTypes, continuous);
     }
 
+    /**
+     * Compare Activities based on attributes
+     * @param obj other Activity to campare
+     * @return equality
+     */
     @Override
     public boolean equals(final Object obj) {
         if (obj instanceof Activity) {

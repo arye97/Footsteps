@@ -109,7 +109,7 @@ public class FeedEventControllerTest {
     }
 
     /**
-     * Test successful creation of new activity.
+     * Check that you can follow when you are not a participant
      */
     @Test
     void followWhenNotParticipant_succeed() throws Exception {
@@ -127,7 +127,7 @@ public class FeedEventControllerTest {
     }
 
     /**
-     * Test successful creation of new activity.
+     * Check that a 400 error is thrown if you try to follow and are already a participant
      */
     @Test
     void followWhenParticipant_fail() throws Exception {
@@ -150,7 +150,47 @@ public class FeedEventControllerTest {
     }
 
     /**
-     * Test successful creation of new activity.
+     * Check that a 403 error is thrown if you try to use a profileId that doesn't exist
+     */
+    @Test
+    void nonExistentUserFollow_fail() throws Exception {
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post(
+                "/profiles/{profileId}/subscriptions/activities/{activityId}", 100, ACTIVITY_ID_1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isForbidden())
+                .andReturn();
+
+        assertNotNull(result.getResponse());
+    }
+
+    /**
+     * Check that a 400 error is thrown if you try to use a activityId that doesn't exist
+     */
+    @Test
+    void nonExistentActivityFollow_fail() throws Exception {
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post(
+                "/profiles/{profileId}/subscriptions/activities/{activityId}", USER_ID_1, 100)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        assertNotNull(result.getResponse());
+        assertEquals(
+                "Can't find activity from activityId.",
+                result.getResponse().getErrorMessage());
+    }
+
+
+    /**
+     * Check that you can un-follow when you are a participant
      */
     @Test
     void unFollowWhenParticipant_succeed() throws Exception {
@@ -170,7 +210,7 @@ public class FeedEventControllerTest {
     }
 
     /**
-     * Test successful creation of new activity.
+     * Check that a 400 error is thrown if you try to un-follow and are not a participant
      */
     @Test
     void unFollowWhenNotParticipant_fail() throws Exception {
@@ -186,6 +226,45 @@ public class FeedEventControllerTest {
 
         assertEquals(
                 "User can't un-follow an event they're not participating in.",
+                result.getResponse().getErrorMessage());
+    }
+
+    /**
+     * Check that a 403 error is thrown if you try to use a profileId that doesn't exist
+     */
+    @Test
+    void nonExistentUserUnFollow_fail() throws Exception {
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.delete(
+                "/profiles/{profileId}/subscriptions/activities/{activityId}", 100, ACTIVITY_ID_1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isForbidden())
+                .andReturn();
+
+        assertNotNull(result.getResponse());
+    }
+
+    /**
+     * Check that a 400 error is thrown if you try to use a activityId that doesn't exist
+     */
+    @Test
+    void nonExistentActivityUnFollow_fail() throws Exception {
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.delete(
+                "/profiles/{profileId}/subscriptions/activities/{activityId}", USER_ID_1, 100)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        assertNotNull(result.getResponse());
+        assertEquals(
+                "Can't find activity from activityId.",
                 result.getResponse().getErrorMessage());
     }
 
