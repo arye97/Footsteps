@@ -100,10 +100,6 @@ public class FeedEventController {
         activityRepository.save(activity);
     }
 
-    @GetMapping("/profiles/{profileId}/subscriptions/activities/{activityId}")
-    public IsFollowingResponse isFollowingAnActivity() {
-        //ToDo Implement this method, also add DocString
-        return null;
     /**
      * Gets whether or not the user is following an activity
      * @return true if the user is a participant in the activity
