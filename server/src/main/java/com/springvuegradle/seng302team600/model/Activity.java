@@ -185,6 +185,7 @@ public class Activity {
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
                 ", location='" + location + '\'' +
+                ", participants='" + participants + '\'' +
                 '}';
     }
 }

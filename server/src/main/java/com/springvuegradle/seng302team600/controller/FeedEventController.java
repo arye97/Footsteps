@@ -51,13 +51,6 @@ public class FeedEventController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User can't re-follow an event they're currently participating in.");
         }
 
-        //ToDo find out if this is needed
-//        //Check that the user isn't ALREADY following this event to prevent adding feedevents over and over again
-//        FeedEvent checkUserFollowingFeedEvent = feedEventRepository.findByActivityIdAndViewerIdAndFeedEventType(
-//                activityId, profileId, FeedPostType.FOLLOW);
-//        if (checkUserFollowingFeedEvent != null) {
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User is already following this activity");
-//        }
 
         //The user is not following the event so continue
         // Create the Follow Feed Event and save it to the db
@@ -82,13 +75,6 @@ public class FeedEventController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User can't un-follow an event they're not participating in.");
         }
 
-        //ToDo find out if this is needed
-//        //Check that the user hasn't ALREADY un-followed this event to prevent adding feedevents over and over again
-//        FeedEvent checkUserFollowingFeedEvent = feedEventRepository.findByActivityIdAndViewerIdAndFeedEventType(
-//                activityId, profileId, FeedPostType.UNFOLLOW);
-//        if (checkUserFollowingFeedEvent != null) {
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User has already un-followed this activity");
-//        }
 
         //The user has not un-followed the event so continue
         // Create the Follow Feed Event and save it to the db
@@ -100,7 +86,7 @@ public class FeedEventController {
         activityRepository.save(activity);
     }
 
-    @GetMapping("/profiles/{profileId/subscriptions/activities/{activityId}")
+    @GetMapping("/profiles/{profileId}/subscriptions/activities/{activityId}")
     public IsFollowingResponse isFollowingAnActivity() {
         //ToDo Implement this method, also add DocString
         return null;
