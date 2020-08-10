@@ -148,4 +148,8 @@ describe("The extract data method", () => {
     test('Sets the last name of the person who triggered the event', () => {
         expect(feedCard.vm.lastName).toBe('Cucumber');
     });
+
+    test('Sets the activity title of the event concerned', () => {
+        expect(feedCard.vm.activityTitle).toBe('Go to the zoo');
+    });
 })
