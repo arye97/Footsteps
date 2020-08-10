@@ -74,12 +74,9 @@
                 };
 
                 // Send the activityForm to the server to create a new activity
-                await api.createActivity(activityForm, this.activity.profileId)
-                    .then(() => { // If successfully registered the response will have a status of 201
-                        this.$router.push({name: 'allActivities', params: {alertMessage: 'Activity added successfully', alertCount: 5}});
-                    }).catch(err => {
-                        console.error(err);
-                    })
+                await api.createActivity(activityForm, this.activity.profileId).then(() => { // If successfully registered the response will have a status of 201
+                    this.$router.push({name: 'allActivities', params: {alertMessage: 'Activity added successfully', alertCount: 5}});
+                }).catch(error => {this.throwError(error, false)})
             },
 
             /**
@@ -90,10 +87,40 @@
                 let userId = null;
                 await api.getUserId().then(response => {
                     userId = response.data;
-                });
+                }).catch(error => {this.throwError(error, true)});
                 return userId
+            },
+
+            /**
+             * Helper function for when errors are thrown by server after hitting an endpoint,
+             * @param servError Error thrown by server endpoint
+             * @param isGet boolean value if the error is from a get endpoint, true if it is, false if it isnt, so that
+             * the function will use the necessary if statements to handle these
+             */
+            throwError(servError, isGet) {
+                if (!isGet) {
+                    switch (servError.response.status) {
+                        case 401:
+                            this.$router.push("/login");
+                            break;
+                        case 400:
+                            throw new Error("Entered activity field(s) are invalid");
+                        case 403:
+                            throw new Error("Sorry unable to create this activity (forbidden access)");
+                        default:
+                            throw new Error("Unknown error has occurred whilst creating this activity");
+                    }
+                } else if (isGet) {
+                    switch (servError.response.status) {
+                        case 401:
+                            this.$router.push("/login");
+                            break;
+                        default:
+                            this.$router.push({name: 'myProfile'});
+                    }
+                }
             }
-        }
+        },
     }
 
 </script>

@@ -363,11 +363,11 @@
                     };
 
                     api.setAdditionalEmails(savedEmails, this.userId).then(() => {
-                        console.log("Additional Emails updated successfully!");
                         window.alert("Successfully saved changes!");
                         this.updateOriginalAdditionalEmails();
                         this.checkIfChangesMade();
                     }).catch(async error => {
+                        console.log(error)
                         await this.processGetError(error);
                         this.primaryEmail = this.originalPrimaryEmail;
                         this.additionalEmails = Array.from(this.originalAdditionalEmails);
@@ -381,7 +381,6 @@
                         additional_email: this.additionalEmails
                     };
                     api.setEmails(savedEmails, this.userId).then(() => {
-                        console.log('Primary Email and Additional Emails updated successfully!');
                         window.alert("Successfully saved changes!");
                         this.updateOriginalPrimaryEmail();
                         this.updateOriginalAdditionalEmails();
@@ -502,7 +501,14 @@
              */
             async processGetError(error) {
                 this.isRedirecting = true;
-                if (error.response.status === 401) {
+                if (error.response.status === 400) {
+                    this.redirectionMessage = "Sorry, the email you saved is already in use,\n" +
+                        "Redirecting to your edit emails page.";
+                    setTimeout(() => {
+                        this.$router.go();
+                    }, this.timeout);
+                }
+                else if (error.response.status === 401) {
                     this.redirectionMessage = "Sorry, you are no longer logged in,\n" +
                         "Redirecting to the login page.";
                     setTimeout(() => {
@@ -513,13 +519,13 @@
                     this.redirectionMessage = "Sorry, you are not allowed to edit another user's profile,\n" +
                         "Redirecting to your edit emails page.";
                     setTimeout(() => {
-                        this.$router.push({ name: "editMyProfile" });
+                        this.$router.go();
                     }, this.timeout);
                 } else if (error.response.status === 404) {
                     this.redirectionMessage = "Sorry, the user does not exist,\n" +
                         "Redirecting to your edit emails page.";
                     setTimeout(() => {
-                        this.$router.push({ name: "editMyProfile" });
+                        this.$router.go();
                         this.init();
                     }, this.timeout);
                 } else {
