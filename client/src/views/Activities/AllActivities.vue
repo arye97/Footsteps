@@ -63,20 +63,12 @@
                 default: ''
             }
         },
-        beforeMount() {
-            this.checkLoggedIn();
-        },
         async mounted() {
             this.userId = await this.getUserId();
         },
         methods: {
             footerHover(hovered) {
                 this.isHovered = hovered;
-            },
-            checkLoggedIn() {
-                if (!sessionStorage.getItem("token")) {
-                    this.$router.push("/login");
-                }
             },
             /**
              * Get the Id of the current Logged in user.
@@ -86,7 +78,6 @@
                 let userId = null;
                 await api.getUserId().then(response => {
                     userId = response.data;
-                    this.creatorId = userId;
                 }).catch(error => {
                     if (error.response.data.status === 401) {
                         this.$router.push("/login");
