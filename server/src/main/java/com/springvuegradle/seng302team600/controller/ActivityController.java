@@ -16,8 +16,8 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Controller to manage activities and activity type
@@ -74,7 +74,7 @@ public class ActivityController {
     public Activity findUserActivity(@PathVariable Long activityId) {
         Activity activity = activityRepository.findByActivityId(activityId);
         if (activity == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid activity id");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Activity not found");
         }
         return activity;
     }
@@ -144,7 +144,7 @@ public class ActivityController {
         //Check the activity is this specific users activity
         Activity activity = activityRepository.findByActivityId(activityId);
         if (activity == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid activity id");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Activity not found");
         }
         Long authorId = activity.getCreatorUserId();
         String token = request.getHeader("Token");
@@ -193,15 +193,13 @@ public class ActivityController {
      * @return a list of Users
      */
     @GetMapping("/activities/{activityId}/participants")
-    public List<User> getParticipantsOfActivity(@PathVariable Long activityId, HttpServletRequest request) {
+    public Set<User> getParticipantsOfActivity(@PathVariable Long activityId, HttpServletRequest request) {
         String token = request.getHeader("Token");
         userAuthenticationService.findByToken(token);
-
-        List<Long> participantsIds = activityParticipantRepository.findUsersByActivityId(activityId);
-        List<User> participants = new ArrayList<>();
-        for (Long id: participantsIds) {
-            participants.add(userRepository.findByUserId(id));
+        Activity activity = activityRepository.findByActivityId(activityId);
+        if (activity == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Activity not found");
         }
-        return participants;
+        return activity.getParticipants();
     }
 }

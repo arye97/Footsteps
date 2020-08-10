@@ -46,6 +46,11 @@ public class FeedEventController {
         String token = request.getHeader("Token");
         User user = userAuthenticationService.findByUserId(token, profileId);
         Activity activity = activityRepository.findByActivityId(activityId);
+        if (activity == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Activity not found");
+        }
+        activity.addParticipant(user);
+        activityRepository.save(activity);
 
         checkUserActivityNotNull(user, activity);
 
