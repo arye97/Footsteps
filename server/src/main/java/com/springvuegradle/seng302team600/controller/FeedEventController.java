@@ -38,42 +38,84 @@ public class FeedEventController {
      * @param profileId the id of the user to be the follower
      * @param activityId the id of the activity to be followed
      */
+    @SuppressWarnings("Duplicates")  // I don't see a good way of not duplicating the first lines
     @PostMapping("/profiles/{profileId}/subscriptions/activities/{activityId}")
     public void followAnActivity(HttpServletRequest request, HttpServletResponse response,
                                  @PathVariable Long profileId, @PathVariable Long activityId) {
-        //Add the user as a participant of the activity
+
         String token = request.getHeader("Token");
         User user = userAuthenticationService.findByUserId(token, profileId);
         Activity activity = activityRepository.findByActivityId(activityId);
-        activity.addParticipant(user);
-        activityRepository.save(activity);
 
-        FeedEvent followEvent = new FeedEvent();
-        //Check that the user isn't ALREADY following this event to prevent adding feedevents over and over again
-        FeedEvent checkUserFollowingFeedEvent = feedEventRepository.findByActivityIdAndViewerIdAndFeedEventType(
-                activityId, profileId, FeedPostType.FOLLOW);
-        if (checkUserFollowingFeedEvent != null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User is already following this activity");
+        checkUserActivityNotNull(user, activity);
+
+        //Check that the user is participating in the event, before trying to follow.  Throw error if already following.
+        if (activity.getParticipants().contains(user)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User can't re-follow an event they're currently participating in.");
         }
+
+
         //The user is not following the event so continue
         // Create the Follow Feed Event and save it to the db
-        followEvent.setActivityId(activityId); // the id of the activity
-        followEvent.setAuthorId(profileId); // the user id of user who caused the feed event
-        followEvent.setFeedEventType(FeedPostType.FOLLOW); // the type of event: here it should always be FOLLOW
-        followEvent.setTimeStampNow(); //set the time as right now
-        followEvent.setViewerId(profileId); // the user if that views this feed event
+        FeedEvent followEvent = new FeedEvent(activityId, profileId, profileId, FeedPostType.FOLLOW);
         feedEventRepository.save(followEvent); //save the event!
+
+        // Add participant at the end, in case there are errors before then
+        activity.addParticipant(user);
+        activityRepository.save(activity);
     }
 
-    @DeleteMapping("/profiles/{profileId/subscriptions/activities/{activityId}")
+    /**
+     * DELETE request endpoint for a user to un-follow an activity
+     * @param profileId the id of the user to be the follower
+     * @param activityId the id of the activity to be followed
+     */
+    @SuppressWarnings("Duplicates")  // I don't see a good way of not duplicating the first lines
+    @DeleteMapping("/profiles/{profileId}/subscriptions/activities/{activityId}")
     public void unFollowAnActivity(HttpServletRequest request, HttpServletResponse response,
                                    @PathVariable Long profileId, @PathVariable Long activityId) {
-        //ToDo Implement this method, also add DocString
+
+        String token = request.getHeader("Token");
+        User user = userAuthenticationService.findByUserId(token, profileId);
+        Activity activity = activityRepository.findByActivityId(activityId);
+
+        checkUserActivityNotNull(user, activity);
+
+        //Check that the user is participating in the event before trying to un-follow.  Throw error if not following.
+        if (!activity.getParticipants().contains(user)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User can't un-follow an event they're not participating in.");
+        }
+
+
+        //The user has not un-followed the event so continue
+        // Create the Follow Feed Event and save it to the db
+        FeedEvent unFollowEvent = new FeedEvent(activityId, profileId, profileId, FeedPostType.UNFOLLOW);
+        feedEventRepository.save(unFollowEvent); //save the event!
+
+        // Remove participant at the end, in case there are errors before then
+        activity.removeParticipant(user);
+        activityRepository.save(activity);
     }
 
-    @GetMapping("/profiles/{profileId/subscriptions/activities/{activityId}")
+    @GetMapping("/profiles/{profileId}/subscriptions/activities/{activityId}")
     public IsFollowingResponse isFollowingAnActivity() {
         //ToDo Implement this method, also add DocString
         return null;
+    }
+
+    /**
+     * Checks that user and activity are not null.  If either are, throws a 400 error, bad request.
+     * Helper function to reduce duplicate code.
+     * @throws ResponseStatusException 400 error if either id is null
+     */
+    private void checkUserActivityNotNull(User user,  Activity activity) throws ResponseStatusException {
+        // Check that user can be found.  If it isn't, could be that token is bad, or user doesn't exist.
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't find or authenticate user from profileId");
+        }
+        // Check that activity can be found
+        if (activity == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't find activity from activityId.");
+        }
     }
 }

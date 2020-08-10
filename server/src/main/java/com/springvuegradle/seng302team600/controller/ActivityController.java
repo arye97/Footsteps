@@ -184,4 +184,30 @@ public class ActivityController {
 
         return activities;
     }
+
+    /**
+     * Check if the user assigned to this session token
+     * is allowed to edit the given activity.
+     * - 200 OK
+     * - 401 UNAUTHORIZED
+     * - 403 FORBIDDEN
+     * @param activityId the activity's ID which is being checked
+     * @param request the actual request from the client, containing pertinent data
+     */
+    @GetMapping("/check-activity/{activityId}")
+    public void isActivityEditableByUser(@PathVariable(value="activityId") Long activityId, HttpServletRequest request) {
+        String token = request.getHeader("Token");
+        // Checks the authentication of the user, are they logged in, have they timed out, do they exist.
+        // If an error is found this service throws an UNAUTHORIZED error (401)
+        User user = userAuthenticationService.findByToken(token);
+        Activity activity = activityRepository.findByActivityId(activityId);
+        if (activity == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Activity not found");
+        }
+        // Check if the user is the creator or an admin, if not throw a FORBIDDEN error (403).
+        if (!user.getUserId().equals(activity.getCreatorUserId()) && !userAuthenticationService.hasAdminPrivileges(user)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is forbidden from editing activity with ID:" + activityId);
+        }
+        // If this point is reached status code is OK (200)
+    }
 }

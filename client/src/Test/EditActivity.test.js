@@ -15,6 +15,8 @@ beforeAll(() => {
     };
     // This Removes: TypeError: Cannot read property 'then' of undefined
     api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID, status: 200 }));
+    // Mock isActivityEditable endpoint to succeed
+    api.isActivityEditable.mockImplementation(() => Promise.resolve({ data: null, status: 200 }));
     editActivity = shallowMount(EditActivity, config);
 });
 
@@ -71,7 +73,7 @@ test('Checking 200 response status of edit activity function', () => {
     let spy = jest.spyOn(router, 'push');
 
     return editActivity.vm.submitEditActivity().then(() => {
-        expect(spy).toHaveBeenCalledWith({name: 'allActivities', params: {alertMessage: 'Activity added successfully', alertCount: 5}});
+        expect(spy).toHaveBeenCalledWith({name: 'allActivities', params: {alertMessage: 'Activity modified successfully', alertCount: 5}});
     })
 
 });
@@ -94,6 +96,7 @@ test('Catches an http status error of 401 when activity data is coming back from
         ACTIVITY1
     });
 
+
     let networkError = new Error("Mocked Network Error");
     networkError.response = {status: 401};   // Explicitly give the error a response.status
     api.getActivityData.mockImplementation(() => Promise.reject(networkError));  // Mocks errors sent from the server
@@ -105,10 +108,27 @@ test('Catches an http status error of 401 when activity data is coming back from
     });
 });
 
-test('Catches an http status error that isnt 401 when activity data is coming back from the server get endpoint', () => {
+test('Catches an http status error of 403 when checking if activity can be edited by user', () => {
     editActivity.setProps({
         ACTIVITY1
     });
+
+    let networkError = new Error("Mocked Network Error");
+    networkError.response = {status: 403};   // Explicitly give the error a response.status
+    api.isActivityEditable.mockImplementation(() => Promise.reject(networkError));  // Mocks errors sent from the server
+    let spy = jest.spyOn(router, 'push');
+
+
+    return editActivity.vm.getActivityData().then(() => {
+        expect(spy).toHaveBeenCalledWith({name: 'allActivities'});
+    });
+});
+
+test('Catches an http status error that isnt 401 or 403 when activity data is coming back from the server get endpoint', () => {
+    editActivity.setProps({
+        ACTIVITY1
+    });
+
 
     let networkError = new Error("Mocked Network Error");
     networkError.response = {status: 408};   // Explicitly give the error a response.status
