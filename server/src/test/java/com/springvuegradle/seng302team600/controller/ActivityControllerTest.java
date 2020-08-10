@@ -1,8 +1,14 @@
 package com.springvuegradle.seng302team600.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.model.Activity;
+import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
+import com.springvuegradle.seng302team600.model.UserRole;
+import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import com.springvuegradle.seng302team600.repository.ActivityParticipantRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
@@ -23,13 +29,9 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -64,11 +66,16 @@ class ActivityControllerTest {
     private Set<Activity> activityMockTable = new HashSet<>();
     private Set<User> userMockTable = new HashSet<>();
 
+    private boolean defaultAdminIsRegistered;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
         dummyUser1 = new User();
         dummyUser1.setToken(validToken);
+        dummyUser2 = new User();
+        dummyUser2.setToken("validToken");
+        defaultAdminIsRegistered = false;
 
         // Mocking ActivityTypeService
         when(activityTypeService.getMatchingEntitiesFromRepository(Mockito.any())).thenAnswer(i -> i.getArgument(0));
@@ -116,6 +123,53 @@ class ActivityControllerTest {
                 }
             }
             return null;
+        });
+    }
+
+    private final String newUserJson1 = JsonConverter.toJson(true,
+            "lastname", "Cucumber",
+            "firstname", "Larry",
+            "primary_email", "larry@gmail.com",
+            "password", "larrysPassword",
+            "date_of_birth", "2002-1-20",
+            "gender", "Female");
+
+    private final String newUserJson2 = JsonConverter.toJson(true,
+            "lastname", "Pocket",
+            "firstname", "Poly",
+            "middlename", "Michelle",
+            "nickname", "Pino",
+            "primary_email", "poly@pocket.com",
+            "password", "somepwd0",
+            "date_of_birth", "2000-11-11",
+            "gender", "Female");
+
+    private void setupMockingNoEmailDummyUser1(String json) throws JsonProcessingException {
+        UserRegisterRequest regReq;
+        regReq = objectMapper.treeToValue(objectMapper.readTree(json), UserRegisterRequest.class);
+        dummyUser1 = dummyUser1.builder(regReq);
+        Email dummyEmail = new Email(dummyUser1.getPrimaryEmail(), true, dummyUser1);
+        when(userRepository.save(Mockito.any(User.class))).thenAnswer(i -> {
+            User user = i.getArgument(0);
+            if (user.getRole() == UserRole.DEFAULT_ADMIN) {
+                defaultAdminIsRegistered = true;
+            }
+            return dummyUser1;
+        });
+    }
+
+
+    private void setupMockingNoEmailDummyUser2(String json) throws JsonProcessingException {
+        UserRegisterRequest regReq;
+        regReq = objectMapper.treeToValue(objectMapper.readTree(json), UserRegisterRequest.class);
+        dummyUser2 = dummyUser2.builder(regReq);
+        Email dummyEmail = new Email(dummyUser2.getPrimaryEmail(), true, dummyUser2);
+        when(userRepository.save(Mockito.any(User.class))).thenAnswer(i -> {
+            User user = i.getArgument(0);
+            if (user.getRole() == UserRole.DEFAULT_ADMIN) {
+                defaultAdminIsRegistered = true;
+            }
+            return dummyUser2;
         });
     }
 
@@ -176,9 +230,6 @@ class ActivityControllerTest {
             "start_time", "2020-02-20T08:00:00+1300",
             "end_time", "2020-02-20T08:00:00+1300",
             "location", "Kaikoura, NZ");
-
-
-
 
     /**
      * Test successful edit/update of an activity details
@@ -285,4 +336,28 @@ class ActivityControllerTest {
     }
 
 
+    @Test
+    void getParticipantsOfActivitySuccess() throws Exception {
+        Activity activityInRepo = objectMapper.readValue(newActivity2Json, Activity.class);
+        setupMockingNoEmailDummyUser1(newUserJson1);
+        setupMockingNoEmailDummyUser2(newUserJson2);
+        activityInRepo.addParticipant(dummyUser1);
+        activityInRepo.addParticipant(dummyUser2);
+        activityRepository.save(activityInRepo);
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get("/activities/{activityId}/participants", DEFAULT_ACTIVITY_ID)
+                .accept(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isOk())
+                .andReturn();
+        String jsonResponseStr = result.getResponse().getContentAsString();
+        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
+        List<User> expectedParticipants = new ArrayList<>(activityRepository.findByActivityId(DEFAULT_ACTIVITY_ID).getParticipants());
+        for (int i = 0; i < jsonNode.size(); i++) {
+            ((ObjectNode) jsonNode.get(i)).remove("timedOut");
+            User participant = objectMapper.treeToValue(jsonNode.get(i), User.class);
+            assertEquals(participant.toString(), expectedParticipants.get(i).toString());
+        }
+    }
 }
