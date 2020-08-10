@@ -24,11 +24,11 @@
                             placeholder="Your Activity Name..."
                     ></b-form-input>
                     <div class="word-count">
-                        {{ nameCharCount }}/{{ maxNameCharCount }} characters left
+                        {{nameCharCount}}/{{maxNameCharCount}} characters left
                     </div>
                 </b-form-group>
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_activity_name">
-                    Field is mandatory and can only contain a maximum of {{ maxNameCharCount }} characters
+                    Field is mandatory and can only contain a maximum of {{maxNameCharCount}} characters
                 </div>
 
                 <b-form-group
@@ -45,11 +45,11 @@
                             placeholder="Description of your activity..."
                     ></b-form-textarea>
                     <div class="word-count">
-                        {{ descriptionCharCount }}/{{ maxDescriptionCharCount }} characters left
+                        {{descriptionCharCount}}/{{maxDescriptionCharCount}} characters left
                     </div>
                 </b-form-group>
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_description">
-                    Field is mandatory and can only contain a maximum of {{ maxDescriptionCharCount }} characters
+                     Field is mandatory and can only contain a maximum of {{maxDescriptionCharCount}} characters
                 </div>
 
                 <b-form-group
@@ -64,7 +64,7 @@
                     </multiselect>
                 </b-form-group>
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_activity_types">
-                    Field is mandatory and must have at least one activity type
+                    {{"Field is mandatory and must have at least one activity type"}}
                 </div>
 
                 <b-form-group
@@ -108,13 +108,13 @@
                         </b-form-checkbox>
                     </b-form-group>
                     <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_start">
-                        Field is mandatory, a start date must be set with (optionally) a start time
+                        {{"Field is mandatory, a start date must be set with (optionally) a start time"}}
                     </div>
                     <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_start_after_end">
-                        A start date cannot be set after the end date
+                        {{"A start date cannot be set after the end date"}}
                     </div>
                     <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_start_before_epoch_date">
-                        A date cannot be set before 1st Jan, 1970
+                        {{"A date cannot be set before 1st Jan, 1970"}}
                     </div>
 
                     <b-form-group>
@@ -142,13 +142,13 @@
                     </b-form-group>
 
                     <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_end">
-                        Field is mandatory, an end date must be set with (optionally) an end time
+                        {{"Field is mandatory, an end date must be set with (optionally) an end time"}}
                     </div>
                     <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_end_before_start">
-                        An end date cannot be set before the start date
+                        {{"An end date cannot be set before the start date"}}
                     </div>
                     <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_end_before_epoch_date">
-                        A date cannot be set before 1st Jan, 1970
+                       {{"A date cannot be set before 1st Jan, 1970"}}
                     </div>
                 </div>
 
@@ -169,7 +169,10 @@
                     ></b-form-input>
                 </b-form-group>
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_location">
-                    Field is mandatory and a location must be set
+                    {{ "Field is mandatory and a location must be set" }}
+                </div>
+                <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="overall_message" hidden>
+                    <p id="alert-message">{{ overallMessageText }}</p>
                 </div>
                 <div>
                     <b-button variant="secondary" v-on:click="$router.back()">Back</b-button>
@@ -225,7 +228,6 @@
         data() {
             return {
                 activityTypes: [],
-
                 nameCharCount: 0,
                 maxNameCharCount: 75,
                 descriptionCharCount: 0,
@@ -236,6 +238,7 @@
                 has_end_time: true,
 
                 isValidFormFlag: true,
+                overallMessageText: ""
             }
         },
         async created() {
@@ -252,7 +255,12 @@
                 await this.validateActivityInputs();
                 if (this.isValidFormFlag) {
                     this.formatDurationActivity();
-                    await this.submitActivityFunc();
+                    try {
+                        await this.submitActivityFunc();
+                    } catch(err) {
+                        this.overallMessageText = err.message;
+                        showError('overall_message');
+                    }
                 }
             },
 
@@ -311,7 +319,6 @@
                         showError('alert_start_after_end');
                         this.isValidFormFlag = false;
                     }
-                    //ToDo this currently doesn't work. Should check if start date isn't before 1970
                     else if (startTime < new Date(0)) {
                         showError('alert_start_before_epoch_date');
                         this.isValidFormFlag = false;
@@ -324,8 +331,7 @@
                         showError('alert_end_before_start');
                         this.isValidFormFlag = false;
                     }
-                    //ToDo this currently doesn't work. Should check if end date isn't before 1970
-                    else if (startTime < new Date(0)) {
+                    else if (endTime < new Date(0)) {
                         showError('alert_end_before_epoch_date');
                         this.isValidFormFlag = false;
                     }

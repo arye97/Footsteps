@@ -5,8 +5,8 @@ import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.repository.ActivityParticipantRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
-import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
+import com.springvuegradle.seng302team600.service.FeedEventService;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -25,18 +25,18 @@ import java.util.List;
 @RestController
 public class ActivityController {
 
-    private ActivityRepository activityRepository;
-    private UserAuthenticationService userAuthenticationService;
-    private ActivityTypeService activityTypeService;
-    private UserRepository userRepository;
-    private ActivityParticipantRepository activityParticipantRepository;
+    private final ActivityRepository activityRepository;
+    private final UserAuthenticationService userAuthenticationService;
+    private final ActivityTypeService activityTypeService;
+    private final FeedEventService feedEventService;
+    private final ActivityParticipantRepository activityParticipantRepository;
 
     public ActivityController(ActivityRepository activityRepository, UserAuthenticationService userAuthenticationService,
-                              ActivityTypeService activityTypeService, UserRepository userRepository, ActivityParticipantRepository activityParticipantRepository) {
+                              ActivityTypeService activityTypeService, FeedEventService feedEventService, ActivityParticipantRepository activityParticipantRepository) {
         this.activityRepository = activityRepository;
         this.userAuthenticationService = userAuthenticationService;
         this.activityTypeService = activityTypeService;
-        this.userRepository = userRepository;
+        this.feedEventService = feedEventService;
         this.activityParticipantRepository = activityParticipantRepository;
     }
 
@@ -113,7 +113,7 @@ public class ActivityController {
         }
         if ((!oldActivity.getCreatorUserId().equals(profileId)) //check for author
                 && (!userAuthenticationService.hasAdminPrivileges(author))) { //check for admin
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is unauthorized to edit this activity");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is forbidden from editing activity with ID:" + activityId);
         }
         ActivityValidator.validate(activity);
         oldActivity.setDescription(activity.getDescription());
@@ -127,6 +127,10 @@ public class ActivityController {
         oldActivity.setActivityTypes(activityTypeService.getMatchingEntitiesFromRepository(activity.getActivityTypes()));
         //save this updated activity
         activityRepository.save(oldActivity);
+
+        //Create FeedEvents for participants and creator
+        feedEventService.modifyActivityEvent(oldActivity, profileId);
+
         response.setStatus(HttpServletResponse.SC_OK); //200
     }
 
@@ -151,33 +155,34 @@ public class ActivityController {
                otherwise admins can delete/edit others activities.
              */
             if (!authorId.equals(user.getUserId())) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not activity creator");
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is forbidden from deleting activity with ID:" + activityId);
             }
         }
+
+        //Create FeedEvents for participants and creator
+        feedEventService.deleteActivityEvent(activity, profileId);
+
         //Delete the activity
         activityRepository.delete(activity);
-
     }
 
     /**
-     * Get all activities by user
+     * Get all activities that a user has created or is currently following
      * @param profileId the id of the user/creator
      * @param request the actual request from the client, containing pertinent data
      */
     @GetMapping("/profiles/{profileId}/activities")
     public List<Activity> getUsersActivities(@PathVariable Long profileId, HttpServletRequest request) {
         //checking for user validation
-        try {
-            //attempt to find user by token, don't need to save user discovered
-            String token = request.getHeader("Token");
-            userAuthenticationService.viewUserById(profileId, token);
-
-        } catch(Exception e) {
-            //User wasn't found therefore the user was not logged in.
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authorized - log in to view");
-        }
+        //attempt to find user by token, don't need to save user discovered
+        String token = request.getHeader("Token");
+        userAuthenticationService.viewUserById(profileId, token);
 
         List<Activity> activities = activityRepository.findAllByUserId(profileId);
+        List<Long> followedActivityIds = this.activityParticipantRepository.findActivitiesByParticipantId(profileId);
+        List<Activity> followedActivities = this.activityRepository.findActivityByActivityIdIn(followedActivityIds);
+        activities.addAll(followedActivities);
+
         return activities;
     }
 
