@@ -87,7 +87,13 @@
                 await api.getUserId().then(response => {
                     userId = response.data;
                     this.creatorId = userId;
-                }).catch(error => {this.throwError(error, true)});
+                }).catch(error => {
+                    if (error.response.data.status === 401) {
+                        this.$router.push("/login");
+                    } else {
+                        throw new Error("Unknown error has occurred")
+                    }
+                });
                 return userId
             },
             goToPage(url) {
