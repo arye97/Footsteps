@@ -7,18 +7,29 @@ import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.FeedEventRepository;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(FeedEventController.class)
 public class FeedEventControllerTest {
@@ -41,28 +52,34 @@ public class FeedEventControllerTest {
     private Activity dummyActivity;
     private List<FeedEvent> feedEventTable;
 
+
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
         dummyUser1 = new User();
+        dummyUser1.setFirstName("John");
+        ReflectionTestUtils.setField(dummyUser1, "userId", USER_ID_1);
         dummyUser2 = new User();
+        dummyUser2.setFirstName("Douglas");
+        ReflectionTestUtils.setField(dummyUser2, "userId", USER_ID_2);
+
         dummyActivity = new Activity();
+        dummyActivity.setParticipants(new HashSet<>());
+        ReflectionTestUtils.setField(dummyActivity, "activityId", ACTIVITY_ID_1);
+
         feedEventTable = new ArrayList<>();
 
+
         // Mocking UserAuthenticationService
-        when(userAuthenticationService.findByUserId(Mockito.any(String.class), Mockito.any(Long.class))).thenAnswer(i -> {
-            String token = i.getArgument(0);
+        when(userAuthenticationService.findByUserId(Mockito.any(), Mockito.any(Long.class))).thenAnswer(i -> {
             Long id = i.getArgument(1);
-            if (token.equals(validToken)) {
-                if (id.equals(USER_ID_1)) {
-                    return dummyUser1;
-                } else if (id.equals(USER_ID_2)) {
-                    return dummyUser2;
-                } else {
-                    throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-                }
+            if (id.equals(USER_ID_1)) {
+                return dummyUser1;
+            } else if (id.equals(USER_ID_2)) {
+                return dummyUser2;
             } else {
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
             }
         });
         when(userAuthenticationService.hasAdminPrivileges(Mockito.any())).thenAnswer(i ->
@@ -89,6 +106,166 @@ public class FeedEventControllerTest {
                 return null;
             }
         });
+    }
+
+    /**
+     * Check that you can follow when you are not a participant
+     */
+    @Test
+    void followWhenNotParticipant_succeed() throws Exception {
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post(
+                "/profiles/{profileId}/subscriptions/activities/{activityId}", USER_ID_1, ACTIVITY_ID_1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        assertNotNull(result.getResponse());
+    }
+
+    /**
+     * Check that a 400 error is thrown if you try to follow and are already a participant
+     */
+    @Test
+    void followWhenParticipant_fail() throws Exception {
+
+        dummyActivity.addParticipant(dummyUser1);
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post(
+                "/profiles/{profileId}/subscriptions/activities/{activityId}", USER_ID_1, ACTIVITY_ID_1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        assertNotNull(result.getResponse());
+        assertEquals(
+                "User can't re-follow an event they're currently participating in.",
+                result.getResponse().getErrorMessage());
+    }
+
+    /**
+     * Check that a 403 error is thrown if you try to use a profileId that doesn't exist
+     */
+    @Test
+    void nonExistentUserFollow_fail() throws Exception {
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post(
+                "/profiles/{profileId}/subscriptions/activities/{activityId}", 100, ACTIVITY_ID_1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isForbidden())
+                .andReturn();
+
+        assertNotNull(result.getResponse());
+    }
+
+    /**
+     * Check that a 400 error is thrown if you try to use a activityId that doesn't exist
+     */
+    @Test
+    void nonExistentActivityFollow_fail() throws Exception {
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post(
+                "/profiles/{profileId}/subscriptions/activities/{activityId}", USER_ID_1, 100)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        assertNotNull(result.getResponse());
+        assertEquals(
+                "Can't find activity from activityId.",
+                result.getResponse().getErrorMessage());
+    }
+
+
+    /**
+     * Check that you can un-follow when you are a participant
+     */
+    @Test
+    void unFollowWhenParticipant_succeed() throws Exception {
+
+        dummyActivity.addParticipant(dummyUser1);
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.delete(
+                "/profiles/{profileId}/subscriptions/activities/{activityId}", USER_ID_1, ACTIVITY_ID_1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        assertNotNull(result.getResponse());
+    }
+
+    /**
+     * Check that a 400 error is thrown if you try to un-follow and are not a participant
+     */
+    @Test
+    void unFollowWhenNotParticipant_fail() throws Exception {
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.delete(
+                "/profiles/{profileId}/subscriptions/activities/{activityId}", USER_ID_1, ACTIVITY_ID_1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        assertEquals(
+                "User can't un-follow an event they're not participating in.",
+                result.getResponse().getErrorMessage());
+    }
+
+    /**
+     * Check that a 403 error is thrown if you try to use a profileId that doesn't exist
+     */
+    @Test
+    void nonExistentUserUnFollow_fail() throws Exception {
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.delete(
+                "/profiles/{profileId}/subscriptions/activities/{activityId}", 100, ACTIVITY_ID_1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isForbidden())
+                .andReturn();
+
+        assertNotNull(result.getResponse());
+    }
+
+    /**
+     * Check that a 400 error is thrown if you try to use a activityId that doesn't exist
+     */
+    @Test
+    void nonExistentActivityUnFollow_fail() throws Exception {
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.delete(
+                "/profiles/{profileId}/subscriptions/activities/{activityId}", USER_ID_1, 100)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        assertNotNull(result.getResponse());
+        assertEquals(
+                "Can't find activity from activityId.",
+                result.getResponse().getErrorMessage());
     }
 
 }
