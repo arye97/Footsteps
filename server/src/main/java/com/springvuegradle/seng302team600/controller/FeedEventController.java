@@ -5,6 +5,7 @@ import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.FeedEvent;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.IsFollowingResponse;
+import com.springvuegradle.seng302team600.repository.ActivityParticipantRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.FeedEventRepository;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
@@ -25,12 +26,14 @@ public class FeedEventController {
     private final FeedEventRepository feedEventRepository;
     private final ActivityRepository activityRepository;
     private final UserAuthenticationService userAuthenticationService;
+    private final ActivityParticipantRepository activityParticipantRepository;
 
-    public FeedEventController(FeedEventRepository feedEventRepository,
-                               ActivityRepository activityRepository, UserAuthenticationService userAuthenticationService) {
+    public FeedEventController(FeedEventRepository feedEventRepository, ActivityRepository activityRepository,
+                               UserAuthenticationService userAuthenticationService, ActivityParticipantRepository activityParticipantRepository) {
         this.feedEventRepository = feedEventRepository;
         this.activityRepository = activityRepository;
         this.userAuthenticationService = userAuthenticationService;
+        this.activityParticipantRepository = activityParticipantRepository;
     }
 
     /**
@@ -71,9 +74,17 @@ public class FeedEventController {
         //ToDo Implement this method, also add DocString
     }
 
-    @GetMapping("/profiles/{profileId/subscriptions/activities/{activityId}")
-    public IsFollowingResponse isFollowingAnActivity() {
-        //ToDo Implement this method, also add DocString
-        return null;
+    /**
+     * Gets whether or not the user is following an activity
+     * @return true if the user is a participant in the activity
+     */
+    @GetMapping("/profiles/{profileId}/subscriptions/activities/{activityId}")
+    public IsFollowingResponse isFollowingAnActivity(HttpServletRequest request, HttpServletResponse response,
+                                                     @PathVariable Long profileId, @PathVariable Long activityId) {
+        String token = request.getHeader("Token");
+        User user = userAuthenticationService.findByUserId(token, profileId);
+        Long followingCount = activityParticipantRepository.existsByActivityIdAndUserId(activityId, profileId);
+        IsFollowingResponse isFollowing = new IsFollowingResponse(followingCount > 0);
+        return isFollowing;
     }
 }
