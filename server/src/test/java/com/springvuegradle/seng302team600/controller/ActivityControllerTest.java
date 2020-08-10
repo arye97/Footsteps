@@ -353,9 +353,12 @@ class ActivityControllerTest {
                 .andReturn();
         String jsonResponseStr = result.getResponse().getContentAsString();
         JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
+        // Convert set to list for indexing each user
         List<User> expectedParticipants = new ArrayList<>(activityRepository.findByActivityId(DEFAULT_ACTIVITY_ID).getParticipants());
         for (int i = 0; i < jsonNode.size(); i++) {
+            // Removes "timedOut" property from User json received as timedOut is not a property within the User object
             ((ObjectNode) jsonNode.get(i)).remove("timedOut");
+            // Converts user JsonNode node into User object
             User participant = objectMapper.treeToValue(jsonNode.get(i), User.class);
             assertEquals(participant.toString(), expectedParticipants.get(i).toString());
         }
