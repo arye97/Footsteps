@@ -331,6 +331,9 @@ public class UserTest {
         return dummyUser;
     }
 
+    /**
+     * Two users with the same id should be equal
+     */
     @Test
     void equals() {
         User user1 = createDummyUser(true);
@@ -338,6 +341,9 @@ public class UserTest {
         assertEquals(user2, user1);
     }
 
+    /**
+     * Two separate user instances with null ids should not be equal.
+     */
     @Test
     void notEquals() {
         User user1 = createDummyUser(false);
@@ -345,6 +351,9 @@ public class UserTest {
         assertNotEquals(user2, user1);
     }
 
+    /**
+     * Two users with the same id should have equal hash codes
+     */
     @Test
     void hashCodeEqualsWithId() {
         User user1 = createDummyUser(true);
@@ -352,6 +361,9 @@ public class UserTest {
         assertEquals(user2.hashCode(), user1.hashCode());
     }
 
+    /**
+     * Two separate user instances with null ids should have different hash codes.
+     */
     @Test
     void hashCodeNotEqualsNoId() {
         User user1 = createDummyUser(false);

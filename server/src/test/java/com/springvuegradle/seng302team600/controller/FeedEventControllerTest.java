@@ -87,7 +87,6 @@ public class FeedEventControllerTest {
 
         // Mocking FeedEventRepository
         when(feedEventRepository.findByViewerIdOrderByTimeStamp(Mockito.anyLong())).thenAnswer(i -> {
-            // Is it ordered by TimeStamp?
             Long id = i.getArgument(0);
             List<FeedEvent> result = new ArrayList<>();
             for (FeedEvent feedEvent : feedEventTable) {
