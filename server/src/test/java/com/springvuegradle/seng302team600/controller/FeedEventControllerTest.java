@@ -1,11 +1,16 @@
 package com.springvuegradle.seng302team600.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.FeedEvent;
 import com.springvuegradle.seng302team600.model.User;
+import com.springvuegradle.seng302team600.payload.IsFollowingResponse;
+import com.springvuegradle.seng302team600.repository.ActivityParticipantRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.FeedEventRepository;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
+import org.junit.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -14,11 +19,16 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(FeedEventController.class)
 public class FeedEventControllerTest {
@@ -29,6 +39,8 @@ public class FeedEventControllerTest {
     private FeedEventRepository feedEventRepository;
     @MockBean
     private ActivityRepository activityRepository;
+    @MockBean
+    private ActivityParticipantRepository activityParticipantRepository;
     @Autowired
     private MockMvc mvc;
 
@@ -89,6 +101,61 @@ public class FeedEventControllerTest {
                 return null;
             }
         });
+        // Mocking ActivityParticipantRepository
+        when(activityParticipantRepository.existsByActivityIdAndUserId(Mockito.anyLong(),Mockito.anyLong())).thenAnswer(i -> {
+            Long activityId = i.getArgument(0);
+            Long userId = i.getArgument(1);
+            if (activityId.equals(USER_ID_1)) {
+                return true;
+            } else {
+                return false;
+            }
+        });
+    }
+
+    @Test
+    public void userIsFollowing() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        MockHttpServletRequestBuilder userFollowingRequest = MockMvcRequestBuilders
+                .get("/profiles/{profileId}/subscriptions/activities/{activityId}", USER_ID_1, ACTIVITY_ID_1)
+                .header("Token", validToken);
+        MvcResult result = mvc.perform(userFollowingRequest)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String jsonResponseStr = result.getResponse().getContentAsString();
+        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
+        assertTrue(jsonNode.get("subscribed").asBoolean());
+    }
+
+    @Test
+    public void userIsNotFollowing() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        MockHttpServletRequestBuilder userFollowingRequest = MockMvcRequestBuilders
+                .get("/profiles/{profileId}/subscriptions/activities/{activityId}", USER_ID_2, ACTIVITY_ID_1)
+                .header("Token", validToken);
+        MvcResult result = mvc.perform(userFollowingRequest)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String jsonResponseStr = result.getResponse().getContentAsString();
+        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
+        assertTrue(!jsonNode.get("subscribed").asBoolean());
+    }
+
+    @Test
+    public void userIsFollowingInvalidToken() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        MockHttpServletRequestBuilder userFollowingRequest = MockMvcRequestBuilders
+                .get("/profiles/{profileId}/subscriptions/activities/{activityId}", USER_ID_1, ACTIVITY_ID_1)
+                .header("Token", "NotAValidToken");
+        MvcResult result = mvc.perform(userFollowingRequest)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String jsonResponseStr = result.getResponse().getContentAsString();
+        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
+        assertTrue(!jsonNode.get("subscribed").asBoolean());
     }
 
 }
