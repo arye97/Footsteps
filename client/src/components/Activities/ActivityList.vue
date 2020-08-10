@@ -70,6 +70,46 @@
                                                     </b-button>
                                                 </div>
                                             </template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                            <!--  Here for participants-->
+                                            <b-card class="flex-fill" border-variant="secondary">
+                                                <p class="text-justified">
+                                                    <strong>Participants: </strong><br>
+<!--                                                    {{activity.participants}}-->
+                                                    <b-pagination
+                                                            v-if="!errored && !loading && participantList.length >= 1"
+                                                            align="fill"
+                                                            v-model="currentPage"
+                                                            :total-rows="rows"
+                                                            :per-page="participantsPerPage"
+                                                    ></b-pagination>
+                                                </p>
+                                            </b-card>
+
+
+
+
+
+
+
+
+
+
+
+
+
                                         </b-modal>
                                         <b-button v-if="creatorId===activeUserId" variant="outline-primary" v-on:click="goToPage(`/activities/edit/${activity.id}`)">Edit</b-button>
                                         <b-button variant="outline-primary" v-b-modal="'activity' + activity.id + '-continuous-modal'">Details</b-button>
@@ -212,6 +252,12 @@
         },
         data() {
             return {
+                participantsPerPage: 5,
+                currentPage: 1,
+                currentPageParticipantList: [],
+                participantList: [],
+
+
                 activityList : [],
                 creatorId: null,
                 creatorName: null,
@@ -225,15 +271,85 @@
                 isHovered: false
             }
         },
+
         beforeMount() {
             this.checkLoggedIn();
         },
+
         async mounted() {
             await this.getActiveUserId();
             await this.getListOfActivities();
             await this.getCreatorName();
+            await this.fetchActivityTypes();
+            await this.fetchParticipants();
         },
+
+        watch: {
+            /**
+             * Watcher is called whenever currentPage is changed,
+             * thanks to the pagination bar.
+             */
+            currentPage() {
+                this.setCurrentPageParticipantList();
+            }
+        },
+
+        computed: {
+            /**
+             * Gets the total amount of participants (AKA no. of rows) for an activity
+             */
+            rows(){
+                return this.participantList.length;
+            }
+        },
+
+
         methods: {
+            /**
+             * Calculate the participants to be displayed from the current page number.
+             * This function is called when the pagination bar is altered,
+             * changing the currentPage variable.
+             */
+            setCurrentPageParticipantList() {
+                let leftIndex = (this.currentPage - 1) * this.participantsPerPage;
+                let rightIndex = leftIndex + this.participantsPerPage;
+                if (rightIndex > this.participantList.length) {
+                    rightIndex = this.participantList.length;
+                }
+                this.currentPageParticipantList = this.participantList.slice(leftIndex, rightIndex);
+                window.scrollTo(0,0);
+
+            },
+
+            async fetchParticipants() {
+                console.log('MADE IT INSIDE fetchParticipants()')
+                //get("/activities/{activityId}/participants")
+                await api.getParticipants(this.activityId).then(response => {
+
+
+                    this.participantList = response.data.map( participant => participant['user_id']);
+
+                    console.log('we have success, response is: ' + response);
+
+
+                    // this.activityTypes = response.data.map(activity => activity['name']);
+                    // this.activityTypes.sort(function (a, b) {
+                    //     return a.toLowerCase().localeCompare(b.toLowerCase());
+
+
+                    // });
+                }).catch(() => {
+                    console.log('error inside fetchparticipants')
+                    this.errored = true;
+                    this.error_message = "Unable to connect to server - please try again later"
+                    setTimeout(() => {
+                        this.logout()
+                    }, 3000);
+                });
+
+
+            },
+
             followActivity(id) {
                 console.log(id);
                 //this function will contain the api call to assign a user to follow the activity

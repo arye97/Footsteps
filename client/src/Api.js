@@ -30,6 +30,7 @@ export default {
   login: (loginData) => server.post('/login', loginData),
   register: (userData) => server.post('/profiles', userData),
   getActivityTypes: () => server.get('/activity-types', getTokenHeader()),
+  getParticipants: (activityId) => server.get(`/activities/${activityId}/participants`, getTokenHeader()),
   editProfile: (userData, profileId) => server.put(`profiles/${profileId}`, userData, getTokenHeader()),
   getUserData: (profileId) => server.get(`/profiles/${profileId}`, getTokenHeader()),
   checkProfile: (profileId) => server.get(`/check-profile/`.concat(profileId), getTokenHeader()),
