@@ -254,9 +254,7 @@
                 this.isValidFormFlag = true;
                 await this.validateActivityInputs();
                 if (this.isValidFormFlag) {
-                    if (!this.activity.continuous) {
-                        this.formatDurationActivity();
-                    }
+                    this.formatDurationActivity();
                     try {
                         await this.submitActivityFunc();
                     } catch(err) {

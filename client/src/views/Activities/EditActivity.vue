@@ -93,17 +93,7 @@
                             this.$router.push("/activities");
                         }
                     }
-                ).catch(error => {
-                        if (error.response.status === 401) {
-                            this.$router.push("/login");
-                        } else if (error.response.status === 404) {
-                            throw new Error("Activity not found");
-                        } else if (error.response.status === 403) {
-                            throw new Error("Sorry unable to edit this activity (forbidden access)");
-                        } else {
-                            throw new Error("Unknown error has occurred whilst editing this activity");
-                        }
-                    });
+                ).catch(error => {this.throwError(error, false)});
             },
 
             /**
@@ -121,13 +111,7 @@
                     for (let i = 0; i < response.data.activity_type.length; i++) {
                         this.activity.selectedActivityTypes.push(response.data.activity_type[i].name);
                     }
-                }).catch(error => {
-                    if (error.response.status === 401) {
-                        this.$router.push('/login');
-                    } else {
-                        this.$router.push({ name: 'myProfile' });
-                    }
-                })
+                }).catch(error => {this.throwError(error, true)});
             },
 
             /**
@@ -154,14 +138,38 @@
                 let userId = null;
                 await api.getUserId().then(response => {
                     userId = response.data;
-                }).catch(error => {
-                    if (error.response.data.status === 401) {
-                        this.$router.push("/login");
-                    } else {
-                        this.$router.push({ name: 'myProfile' });
-                    }
-                });
+                }).catch(error => {this.throwError(error, true)});
                 return userId
+            },
+
+            /**
+             * Helper function for when errors are thrown by server after hitting an endpoint,
+             * @param servError Error thrown by server endpoint
+             * @param isGet boolean value if the error is from a get endpoint, true if it is, false if it isnt, so that
+             * the function will use the necessary if statements to handle these
+             */
+             throwError(servError, isGet) {
+                 if (!isGet) {
+                    switch (servError.response.status) {
+                        case 401:
+                            this.$router.push("/login");
+                            break;
+                        case 404:
+                            throw new Error("Activity not found");
+                        case 403:
+                            throw new Error("Sorry unable to edit this activity (forbidden access)");
+                        default:
+                            throw new Error("Unknown error has occurred whilst editing this activity");
+                    }
+                } else if (isGet) {
+                    switch (servError.response.status) {
+                        case 401:
+                            this.$router.push("/login");
+                            break;
+                        default:
+                            this.$router.push({name: 'myProfile'});
+                    }
+                }
             }
         }
     }

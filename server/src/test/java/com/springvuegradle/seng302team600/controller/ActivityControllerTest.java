@@ -3,6 +3,7 @@ package com.springvuegradle.seng302team600.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.User;
+import com.springvuegradle.seng302team600.repository.ActivityParticipantRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
@@ -45,6 +46,8 @@ class ActivityControllerTest {
     private UserAuthenticationService userAuthenticationService;
     @MockBean
     private ActivityTypeService activityTypeService;
+    @MockBean
+    private ActivityParticipantRepository activityParticipantRepository;
     @Autowired
     private MockMvc mvc;
 
