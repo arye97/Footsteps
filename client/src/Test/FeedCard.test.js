@@ -1,5 +1,5 @@
 import 'vue-jest'
-import {shallowMount} from "@vue/test-utils";
+import {mount} from "@vue/test-utils";
 import FeedCard from "../components/HomeFeed/FeedCard";
 import "jest"
 import api from "../Api";
@@ -7,6 +7,7 @@ import api from "../Api";
 jest.mock('../Api');
 
 let feedCard;
+let now;
 const EVENT_DELETE = {
   id: 1,
   feedEventType: 'DELETE',
@@ -14,7 +15,8 @@ const EVENT_DELETE = {
   activityId: 1,
   userId: 1
 };
-const EVENT_FOLLOW = {
+// Follow event has the date set as 10m ago
+let EVENT_FOLLOW = {
     id: 1,
     feedEventType: 'FOLLOW',
     timeStamp: new Date(),
@@ -33,7 +35,7 @@ const EVENT1_DATA = {
 }
 
 beforeEach(() => {
-   feedCard = shallowMount(FeedCard, {
+   feedCard = mount(FeedCard, {
        propsData: {
            event: EVENT_DELETE
        },
@@ -41,13 +43,13 @@ beforeEach(() => {
    });
 
    api.getUserData.mockImplementation(() => {
-       Promise.resolve({
+       return Promise.resolve({
            data: USER1_DATA,
            status: 200
        })
    });
    api.getActivityData.mockImplementation(() => {
-       Promise.resolve({
+       return Promise.resolve({
            data: EVENT1_DATA,
            status: 200
        })
@@ -72,7 +74,7 @@ describe("The feed card", () => {
     });
 
     test('Has 2 buttons for a follow event', () => {
-        feedCard = shallowMount(FeedCard, {
+        feedCard = mount(FeedCard, {
             propsData: {
                 event: EVENT_FOLLOW
             }
@@ -81,9 +83,63 @@ describe("The feed card", () => {
     });
 });
 
-// describe("The extract data method", () => {
-//     test('Sets the time for events that occurred in the last 10s to just now', () => {
-//         feedCard.vm.extractData();
-//         expect(feedCard.time).toBe("Just now");
-//     })
-// })
+describe("The extract data method", () => {
+    test('Sets the time for events that occurred in the last 10s to "Just now"', async () => {
+        //EVENT_DELETE set up with the timestamp as now
+        await feedCard.vm.extractData();
+        expect(feedCard.vm.time).toBe("Just now");
+    });
+
+    test.each([
+        [1],
+        [10],
+        [37],
+        [59]
+    ])('Sets the time for events that occurred %s minutes ago to "%s minutes ago"', async (value) => {
+        now = new Date();
+        EVENT_FOLLOW.timeStamp = new Date(now - value * 60000);
+        feedCard = mount(FeedCard, {
+            propsData: {
+                event: EVENT_FOLLOW
+            }
+        });
+        await feedCard.vm.extractData();
+        expect(feedCard.vm.time).toBe(value + " minutes ago");
+    });
+
+    test.each([
+        [1],
+        [9],
+        [17],
+        [23]
+    ])('Sets the time for events that occurred %s hours ago to "%s hours ago"', async (value) => {
+        now = new Date();
+        EVENT_FOLLOW.timeStamp = new Date(now - value * 3600000);
+        feedCard = mount(FeedCard, {
+            propsData: {
+                event: EVENT_FOLLOW
+            }
+        });
+        await feedCard.vm.extractData();
+        expect(feedCard.vm.time).toBe(value + " hours ago");
+    });
+
+    test.each([
+        [1],
+        [31],
+        [157],
+        [76543]
+    ])('Sets the time for events that occurred %s days ago to "%s days ago"', async (value) => {
+        now = new Date();
+        now.setDate(now.getDate() - value)
+        EVENT_FOLLOW.timeStamp = now;
+        feedCard = mount(FeedCard, {
+            propsData: {
+                event: EVENT_FOLLOW
+            }
+        });
+        await feedCard.vm.extractData();
+        expect(feedCard.vm.time).toBe(value + " days ago");
+    })
+
+})

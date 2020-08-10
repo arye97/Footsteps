@@ -57,12 +57,12 @@
                 lastName: "",
                 actionText: "",
                 activityTitle: "",
-                time: null,
+                time: "BOB",
                 errored: false
             }
         },
         async mounted () {
-            await this.extractData();
+            this.extractData();
         },
         methods: {
             /**
@@ -104,13 +104,13 @@
                 // Convert the time of event to a useful display time
                 this.time = (new Date().getTime()) - (this.event.timeStamp.getTime());
                 if (this.time >= 86400000) {
-                    this.time = Math.ceil(this.time / (1000 * 60 * 60 * 24)) + ' days ago';
+                    this.time = Math.round(this.time / (1000 * 60 * 60 * 24)) + ' days ago';
                 } else if (this.time >= 3600000) {
-                    this.time = Math.ceil(this.time / (1000 * 60 * 60)) + ' hours ago';
+                    this.time = Math.round(this.time / (1000 * 60 * 60)) + ' hours ago';
                 } else if (this.time >= 60000) {
-                    this.time = Math.ceil(this.time / (1000 * 60)) + ' minutes ago';
+                    this.time = Math.round(this.time / (1000 * 60)) + ' minutes ago';
                 } else if (this.time >= 10000) {
-                    this.time = Math.ceil(this.time / 1000) + ' seconds ago';
+                    this.time = Math.round(this.time / 1000) + ' seconds ago';
                 } else {
                     this.time = "Just now";
                 }

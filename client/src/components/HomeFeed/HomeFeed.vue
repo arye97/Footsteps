@@ -62,7 +62,7 @@
                 {
                     id: 2,
                     feedEventType: 'MODIFY',
-                    timeStamp: new Date("August 09, 2020 15af:50:30"),
+                    timeStamp: new Date("August 09, 2020 15:50:30"),
                     activityId: 113,
                     userId: 113
                 },
