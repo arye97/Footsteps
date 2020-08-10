@@ -1,17 +1,12 @@
 package com.springvuegradle.seng302team600.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.springvuegradle.seng302team600.Utilities.ActivityValidator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.model.Activity;
-import com.springvuegradle.seng302team600.model.ActivityType;
 import com.springvuegradle.seng302team600.model.User;
-import com.springvuegradle.seng302team600.model.UserRole;
 import com.springvuegradle.seng302team600.repository.ActivityParticipantRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
-import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
+import com.springvuegradle.seng302team600.service.FeedEventService;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -21,11 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.Date;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Controller to manage activities and activity type
@@ -33,19 +24,18 @@ import java.util.Set;
 @RestController
 public class ActivityController {
 
-    private ActivityRepository activityRepository;
-    private UserAuthenticationService userAuthenticationService;
-    private ActivityTypeService activityTypeService;
-    private UserRepository userRepository;
-    private ActivityParticipantRepository activityParticipantRepository;
+    private final ActivityRepository activityRepository;
+    private final UserAuthenticationService userAuthenticationService;
+    private final ActivityTypeService activityTypeService;
+    private final FeedEventService feedEventService;
+    private final ActivityParticipantRepository activityParticipantRepository;
 
     public ActivityController(ActivityRepository activityRepository, UserAuthenticationService userAuthenticationService,
-                              ActivityTypeService activityTypeService, UserRepository userRepository,
-                              ActivityParticipantRepository activityParticipantRepository) {
+                              ActivityTypeService activityTypeService, FeedEventService feedEventService, ActivityParticipantRepository activityParticipantRepository) {
         this.activityRepository = activityRepository;
         this.userAuthenticationService = userAuthenticationService;
         this.activityTypeService = activityTypeService;
-        this.userRepository = userRepository;
+        this.feedEventService = feedEventService;
         this.activityParticipantRepository = activityParticipantRepository;
     }
 
@@ -122,7 +112,7 @@ public class ActivityController {
         }
         if ((!oldActivity.getCreatorUserId().equals(profileId)) //check for author
                 && (!userAuthenticationService.hasAdminPrivileges(author))) { //check for admin
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is unauthorized to edit this activity");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is forbidden from editing activity with ID:" + activityId);
         }
         ActivityValidator.validate(activity);
         oldActivity.setDescription(activity.getDescription());
@@ -136,6 +126,10 @@ public class ActivityController {
         oldActivity.setActivityTypes(activityTypeService.getMatchingEntitiesFromRepository(activity.getActivityTypes()));
         //save this updated activity
         activityRepository.save(oldActivity);
+
+        //Create FeedEvents for participants and creator
+        feedEventService.modifyActivityEvent(oldActivity, profileId);
+
         response.setStatus(HttpServletResponse.SC_OK); //200
     }
 
@@ -160,12 +154,15 @@ public class ActivityController {
                otherwise admins can delete/edit others activities.
              */
             if (!authorId.equals(user.getUserId())) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not activity creator");
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is forbidden from deleting activity with ID:" + activityId);
             }
         }
+
+        //Create FeedEvents for participants and creator
+        feedEventService.deleteActivityEvent(activity, profileId);
+
         //Delete the activity
         activityRepository.delete(activity);
-
     }
 
     /**
