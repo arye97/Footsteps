@@ -292,6 +292,7 @@
                 activeUserId: null,
                 followError: false,
                 followErrorMessage: "Something went wrong! Try again later!",
+                followingList: {},
                 isHovered: false
             }
         },
@@ -306,24 +307,24 @@
         },
         methods: {
             async followActivity(activity) {
-                console.log(activity);
                 this.followError = false;
-                await api.setUserSubscribed(activity.id, this.activeUserId).then(() => {
-                    activity.following = true;
-                }).catch((error) => {
-                    console.log(error.message);
-                    this.followError = true;
-                })
+                activity.following = true;
+                // await api.setUserSubscribed(activity.id, this.activeUserId).then(() => {
+                //     activity.following = true;
+                // }).catch((error) => {
+                //     console.log(error.message);
+                //     this.followError = true;
+                // })
             },
             async unfollowActivity(activity) {
-                console.log(activity);
                 this.followError = false;
-                await api.deleteUserSubscribed(activity.id, this.activeUserId).then(() => {
-                    activity.following = false;
-                }).catch((error) => {
-                    console.log(error.message);
-                    this.followError = true;
-                })
+                activity.following = false;
+                // await api.deleteUserSubscribed(activity.id, this.activeUserId).then(() => {
+                //     activity.following = false;
+                // }).catch((error) => {
+                //     console.log(error.message);
+                //     this.followError = true;
+                // })
             },
             footerHover(hovered) {
                 this.isHovered = hovered;
@@ -429,7 +430,7 @@
             },
             async updateActivitiesFollowing() {
                 for (let activity of this.activityList) {
-                    console.log("activity " + activity.id + "user " + this.activeUserId);
+                    // console.log("activity " + activity.id + "user " + this.activeUserId);
                     await api.getUserSubscribed(activity.id, this.activeUserId).then((response) => {
                         activity.following = `${response.data.subscribed}`;
                     }).catch(() => {
