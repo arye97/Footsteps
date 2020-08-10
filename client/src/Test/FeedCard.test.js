@@ -31,28 +31,45 @@ const USER1_DATA = {
 const EVENT1_DATA = {
     id: 1,
     activity_name: "Go to the zoo"
-}
+};
+
+/**
+ * A function to cause a delay before a promise is resolved
+ * @param milliseconds time to delay
+ * @returns {Promise<any>} code to execute after delay
+ */
+const sleep = (milliseconds) => {
+    return new Promise(resolve => setTimeout(resolve, milliseconds))
+};
 
 beforeEach(() => {
-   feedCard = mount(FeedCard, {
-       propsData: {
-           event: EVENT_DELETE
-       },
-       mocks: {api}
-   });
+    return new Promise(resolve => {
+        api.getUserData.mockImplementation(() => {
+            return Promise.resolve({
+                data: USER1_DATA,
+                status: 200
+            })
+        });
+        api.getActivityData.mockImplementation(() => {
+            return Promise.resolve({
+                data: EVENT1_DATA,
+                status: 200
+            })
+        });
 
-   api.getUserData.mockImplementation(() => {
-       return Promise.resolve({
-           data: USER1_DATA,
-           status: 200
-       })
-   });
-   api.getActivityData.mockImplementation(() => {
-       return Promise.resolve({
-           data: EVENT1_DATA,
-           status: 200
-       })
-   });
+        feedCard = mount(FeedCard, {
+            propsData: {
+                event: EVENT_DELETE
+            },
+            mocks: {api}
+        });
+
+        // This causes a delay between beforeEach finishing, and the tests being run.
+        // This isn't at all good practice, but its the only way I am able
+        // to get EditEmail to fully mount before the tests are run.
+        // resolve() signals the above promise to complete
+        sleep(150).then(() => resolve());
+    });
 });
 
 test('Is a vue instance', () => {
@@ -150,6 +167,6 @@ describe("The extract data method", () => {
     });
 
     test('Sets the activity title of the event concerned', () => {
-        expect(feedCard.vm.activityTitle).toBe('Go to the zoo');
+        expect(feedCard.vm.activityTitle).toBe("Go to the zoo");
     });
 })
