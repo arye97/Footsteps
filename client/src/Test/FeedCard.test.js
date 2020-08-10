@@ -26,7 +26,6 @@ let EVENT_FOLLOW = {
 const USER1_DATA = {
     id: 1,
     firstname: "Bob",
-    middlename: "The",
     lastname: "Cucumber"
 };
 const EVENT1_DATA = {
@@ -140,6 +139,13 @@ describe("The extract data method", () => {
         });
         await feedCard.vm.extractData();
         expect(feedCard.vm.time).toBe(value + " days ago");
-    })
+    });
 
+    test('Sets the first name of the person who triggered the event', () => {
+        expect(feedCard.vm.firstName).toBe('Bob');
+    });
+
+    test('Sets the last name of the person who triggered the event', () => {
+        expect(feedCard.vm.lastName).toBe('Cucumber');
+    });
 })

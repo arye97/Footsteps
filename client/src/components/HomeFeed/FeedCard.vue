@@ -57,7 +57,7 @@
                 lastName: "",
                 actionText: "",
                 activityTitle: "",
-                time: "BOB",
+                time: null,
                 errored: false
             }
         },
