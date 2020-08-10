@@ -22,7 +22,7 @@ function getTokenHeader() {
 
 function getExtendedEmailTokenHeader(extendedHeaders) {
   let header = {
-    headers: {"Token": sessionStorage.getItem("token"), 'email' : extendedHeaders, "Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
+    headers: {"Token": sessionStorage.getItem("token"), 'email' :  extendedHeaders.email, "Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
     withCredentials: true
   };
   return header;
