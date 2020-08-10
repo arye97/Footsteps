@@ -71,7 +71,7 @@ test('Checking 200 response status of edit activity function', () => {
     let spy = jest.spyOn(router, 'push');
 
     return editActivity.vm.submitEditActivity().then(() => {
-        expect(spy).toHaveBeenCalledWith('/activities');
+        expect(spy).toHaveBeenCalledWith({name: 'allActivities', params: {alertMessage: 'Activity added successfully', alertCount: 5}});
     })
 
 });
