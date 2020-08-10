@@ -306,10 +306,10 @@
         async mounted() {
             await this.getActiveUserId();
             await this.getListOfActivities();
-            await this.fetchActivityTypes();
+            //await this.fetchActivityTypes();
             await this.fetchParticipants();
             await this.getCreatorNamesForActivities();
-            await this.getCreatorName();
+            //await this.getCreatorName();
         },
 
         watch: {
@@ -349,15 +349,28 @@
 
             },
 
+            /**
+            * Get the list of participants for an activity
+            *
+            */
             async fetchParticipants() {
-                console.log('MADE IT INSIDE fetchParticipants()')
+                console.log('MADE IT TO fetchParticipants()')
+
                 //get("/activities/{activityId}/participants")
-                await api.getParticipants(this.activityId).then(response => {
+
+
+                //TODO: pull through correct id for which activity is being looked at
+                //activity id 138 has two participants which is good for testing purposes.
+                await api.getParticipants(138).then(response => {
+
+                    console.log('we have success, response is:  ' + response);
+
+                    //TODO: Parse & return this properly
 
 
                     this.participantList = response.data.map( participant => participant['user_id']);
 
-                    console.log('we have success, response is: ' + response);
+
 
 
                     // this.activityTypes = response.data.map(activity => activity['name']);
@@ -369,7 +382,7 @@
                 }).catch(() => {
                     console.log('error inside fetchparticipants')
                     this.errored = true;
-                    this.error_message = "Unable to connect to server - please try again later"
+                    this.error_message = "Unable to get participants - please try again later"
                     setTimeout(() => {
                         this.logout()
                     }, 3000);
