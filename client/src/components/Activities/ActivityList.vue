@@ -279,7 +279,6 @@
             async followActivity(activity) {
                 this.followError = false;
                 this.followingDisplay = true;  //This is done before the API call so the UI is more responsive
-                console.log('follow: ' + activity.id);
                 await api.setUserSubscribed(activity.id, this.activeUserId).then(() => {
                     this.followingDisplay = true;
                 }).catch((error) => {
@@ -292,7 +291,6 @@
             async unfollowActivity(activity) {
                 this.followError = false;
                 this.followingDisplay = false;  //This is done before the API call so the UI is more responsive
-                console.log('unfollow: ' + activity.id);
                 await api.deleteUserSubscribed(activity.id, this.activeUserId).then(() => {
                     this.followingDisplay = false;
                 }).catch((error) => {
@@ -300,7 +298,6 @@
                     this.followingDisplay = true;
                     this.followError = true;
                 })
-                console.log(this.followingDisplay);
             },
             getActiveUserId() {
                 api.getUserId().then(response => {
@@ -405,12 +402,10 @@
             async updateFollowingDisplay(activity) {
                 await api.getUserSubscribed(activity.id, this.activeUserId).then((response) => {
                     this.followingDisplay = `${response.data.subscribed}`;
-                    console.log(response);
                 }).catch(() => {
                     this.followingDisplay = false;
                 })
                 this.followError = false;
-                console.log(this.followingDisplay + ' id ' + activity.id);
             }
         }
     }
