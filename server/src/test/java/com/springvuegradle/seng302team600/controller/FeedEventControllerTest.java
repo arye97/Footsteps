@@ -349,4 +349,49 @@ public class FeedEventControllerTest {
                 result.getResponse().getErrorMessage());
     }
 
+
+    /**
+     * Checks that the endpoint returns the correct feed events on success
+     */
+    @Test
+    void getFilledEventFeedSuccessful() throws Exception {
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(
+                "/profiles/{profileId}/subscriptions/", USER_ID_1)
+                .header("Token", validToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isOk())
+                .andReturn();
+
+
+        String jsonResponseStr = result.getResponse().getContentAsString();
+        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
+        assertEquals(1, jsonNode.size());
+        assertEquals("MODIFY", jsonNode.get(0).get("feedEventType").asText());
+    }
+
+    /**
+     * Checks that the endpoint returns the correct feed events on success
+     */
+    @Test
+    void getEmptyEventFeedSuccessful() throws Exception {
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(
+                "/profiles/{profileId}/subscriptions/", USER_ID_2)
+                .header("Token", validToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isOk())
+                .andReturn();
+
+
+        String jsonResponseStr = result.getResponse().getContentAsString();
+        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
+        assertEquals(0, jsonNode.size());
+    }
 }
