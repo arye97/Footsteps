@@ -32,7 +32,7 @@
                             <br/>
                             <!-- Edit Activity Button -->
                             <div v-if="this.creatorId==this.activeUserId">
-                                <b-button type="submit" variant="success" size="med" v-on:click="editProfile">Edit Activity</b-button>
+                                <b-button type="submit" variant="success" size="med" v-on:click="goToPage(`/activities/edit/${activityId}`)">Edit Activity</b-button>
                                 <br/><br/>
                             </div>
                             <!-- Creator -->
@@ -215,6 +215,9 @@
                 if (hours > 0) {
                     this.duration += hours + " Hours";
                 }
+            },
+            goToPage(url) {
+                this.$router.push(url);
             },
         }
     }
