@@ -1,7 +1,5 @@
 package com.springvuegradle.seng302team600.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -23,6 +21,8 @@ public class Outcome {
     @Column(name = "description", nullable = false)
     private String description;
 
-    
+    @NotNull(message = "This outcome needs an activity ID")
+    @Column(name = "activity_id", nullable = false)
+    private Long activityId;
 
 }

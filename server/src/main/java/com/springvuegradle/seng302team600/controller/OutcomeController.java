@@ -2,6 +2,8 @@ package com.springvuegradle.seng302team600.controller;
 
 
 import com.springvuegradle.seng302team600.model.Outcome;
+import com.springvuegradle.seng302team600.repository.OutcomeRepository;
+import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -10,14 +12,15 @@ import java.util.List;
 @RestController
 public class OutcomeController {
 
-    /*
-        Set the repositories and services you will need here
-        eg:
-        private final userAuthenticationService = new UserAuthenticationService();
-        and remember to put it in the constructor as a parameter!
-     */
+    private final UserAuthenticationService userAuthenticationService;
+    private final OutcomeRepository outcomeRepository;
+    // TODO uncomment the below attribute when ResultRepository exists
+//    private final ResultRepository resultRepository;
 
-    public OutcomeController() {}
+    public OutcomeController(UserAuthenticationService userAuthenticationService, OutcomeRepository outcomeRepository) {
+        this.userAuthenticationService = userAuthenticationService;
+        this.outcomeRepository = outcomeRepository;
+    }
 
 
     @GetMapping("/activities/{activityId}/outcomes")
