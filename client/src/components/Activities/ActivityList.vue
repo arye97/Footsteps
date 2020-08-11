@@ -307,90 +307,33 @@
             await this.getActiveUserId();
             await this.getListOfActivities();
             //await this.fetchActivityTypes();
-            await this.fetchParticipants();
+            // await this.fetchParticipants();
+            await this.fetchParticipantsForActivities();
             await this.getCreatorNamesForActivities();
             //await this.getCreatorName();
         },
-
-        watch: {
-            /**
-             * Watcher is called whenever currentPage is changed,
-             * thanks to the pagination bar.
-             */
-            currentPage() {
-                this.setCurrentPageParticipantList();
-            }
-        },
-
-        computed: {
-            /**
-             * Gets the total amount of participants (AKA no. of rows) for an activity
-             */
-            rows(){
-                return this.participantList.length;
-            }
-        },
+        //
+        // watch: {
+        //     /**
+        //      * Watcher is called whenever currentPage is changed,
+        //      * thanks to the pagination bar.
+        //      */
+        //     currentPage() {
+        //         this.setCurrentPageParticipantList();
+        //     }
+        // },
+        //
+        // computed: {
+        //     /**
+        //      * Gets the total amount of participants (AKA no. of rows) for an activity
+        //      */
+        //     rows(){
+        //         return this.participantList.length;
+        //     }
+        // },
 
 
         methods: {
-            /**
-             * Calculate the participants to be displayed from the current page number.
-             * This function is called when the pagination bar is altered,
-             * changing the currentPage variable.
-             */
-            setCurrentPageParticipantList() {
-                let leftIndex = (this.currentPage - 1) * this.participantsPerPage;
-                let rightIndex = leftIndex + this.participantsPerPage;
-                if (rightIndex > this.participantList.length) {
-                    rightIndex = this.participantList.length;
-                }
-                this.currentPageParticipantList = this.participantList.slice(leftIndex, rightIndex);
-                window.scrollTo(0,0);
-
-            },
-
-            /**
-            * Get the list of participants for an activity
-            *
-            */
-            async fetchParticipants() {
-                console.log('MADE IT TO fetchParticipants()')
-
-                //get("/activities/{activityId}/participants")
-
-
-                //TODO: pull through correct id for which activity is being looked at
-                //activity id 138 has two participants which is good for testing purposes.
-                await api.getParticipants(138).then(response => {
-
-                    console.log('we have success, response is:  ' + response);
-
-                    //TODO: Parse & return this properly
-
-
-                    this.participantList = response.data.map( participant => participant['user_id']);
-
-
-
-
-                    // this.activityTypes = response.data.map(activity => activity['name']);
-                    // this.activityTypes.sort(function (a, b) {
-                    //     return a.toLowerCase().localeCompare(b.toLowerCase());
-
-
-                    // });
-                }).catch(() => {
-                    console.log('error inside fetchparticipants')
-                    this.errored = true;
-                    this.error_message = "Unable to get participants - please try again later"
-                    setTimeout(() => {
-                        this.logout()
-                    }, 3000);
-                });
-
-
-            },
-
             followActivity(id) {
                 console.log(id);
                 //this function will contain the api call to assign a user to follow the activity
@@ -489,6 +432,38 @@
              * and obtains name of creator of an activity.
              * Then manually assigns a "creatorName" property to each activity.
              */
+            async fetchParticipantsForActivities() {
+                for (let i = 0; i < this.activityList.length; i++) {
+                    await api.getParticipants(this.activityList[i].id).then(response => {
+                        let participants = [];
+                        for (let i = 0; i < response.data.length; i++) {
+                            participants.push(response.data[i]);
+                            console.log(response.data[i])
+                        }
+                        this.activityList[i][participants] = participants;
+                        // console.log('we have success, response is:  ' + response.data);
+                        //TODO: Parse the response properly (and then return list of participants)
+                        console.log(participants)
+                        //this.participantList = response.data.map( participant => participant['user_id']);
+                        // this.participantList.sort(function (a, b) {
+                        //     return a.toLowerCase().localeCompare(b.toLowerCase());
+                        // });
+                    }).catch(() => {
+                        console.log('error inside fetchparticipants')
+                        this.errored = true;
+                        this.error_message = "Unable to get participants - please try again later"
+                        setTimeout(() => {
+                            this.logout()
+                        }, 3000);
+                    });
+                }
+            },
+
+            /**
+             * Iterates over list of activities
+             * and obtains name of creator of an activity.
+             * Then manually assigns a "creatorName" property to each activity.
+             */
             async getCreatorNamesForActivities() {
                 for (let i = 0; i < this.activityList.length; i++) {
                     await api.getUserData(this.activityList[i].creatorUserId).then((response) => {
@@ -498,7 +473,25 @@
                     });
                 }
                 this.loading = false;
-            }
+            },
+
+
+
+            // /**
+            //  * Calculate the participants to be displayed from the current page number.
+            //  * This function is called when the pagination bar is altered,
+            //  * changing the currentPage variable.
+            //  */
+            // setCurrentPageParticipantList() {
+            //     let leftIndex = (this.currentPage - 1) * this.participantsPerPage;
+            //     let rightIndex = leftIndex + this.participantsPerPage;
+            //     if (rightIndex > this.participantList.length) {
+            //         rightIndex = this.participantList.length;
+            //     }
+            //     this.currentPageParticipantList = this.participantList.slice(leftIndex, rightIndex);
+            //     window.scrollTo(0,0);
+            //
+            // },
         }
     }
 
