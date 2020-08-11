@@ -185,8 +185,6 @@ public class ActivityController {
         activities.addAll(followedActivities);
         Set<Activity> distinctActivities = new HashSet<>(activities);
 
-
-
         return new ArrayList<Activity>(distinctActivities);
     }
 

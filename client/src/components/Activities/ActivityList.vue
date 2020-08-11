@@ -55,6 +55,7 @@
                                                     {{activity.description}}
                                                 </p>
                                             </b-card>
+                                            <br>
                                             <template v-slot:modal-footer v-if="activity.creatorUserId!==activeUserId">
                                                 <div class="w-100">
                                                     <b-button
@@ -72,18 +73,15 @@
                                             </template>
 
 
-
-
                                             <!--  Here for participants-->
                                             <b-card class="flex-fill" border-variant="secondary">
-                                                <p class="text-justified">
                                                     <strong>Participants: </strong><br>
-                                                    hi
 
-                                             <section v-for="participant in activityList.participants" :key="participant.userId">
-                                                {{participant}}
-                                            </section>
-                                                </p>
+                                                
+                                                    <section v-for="participant in activityList[0].participants" :key="participant.firstname">
+                                                        {{participant.firstname}} {{participant.lastname}}
+                                                    </section>
+
 <!--                                                    {{activity.participants}}-->
 <!--                                                    <b-pagination-->
 <!--                                                            v-if="!errored && !loading && participantList.length >= 1"-->
@@ -171,7 +169,7 @@
                                                     <b-col>{{ activity.creatorName }}</b-col>
                                                 </b-row>
                                                 <b-row class="mb-1">
-                                                    <b-col><strong>Start Date: </strong></b-col>
+                                                    <b-col><strong>Start bs Date: </strong></b-col>
                                                     <b-col>{{ getDateTime(activity.start_time) }}</b-col>
                                                 </b-row>
                                                 <b-row class="mb-1">
@@ -205,6 +203,21 @@
                                                     {{ activity.description }}
                                                 </p>
                                             </b-card>
+                                            <br>
+
+
+                                            <!--  Card for displaying the participants-->
+                                            <b-card class="flex-fill" border-variant="secondary">
+
+                                                    <strong>Participants: </strong><br>
+                                                    <section v-for="participant in activityList[0].participants" :key="participant.firstname">
+                                                        {{participant.firstname}} {{participant.lastname}}
+                                                    </section>
+
+                                            </b-card>
+
+
+
                                             <template v-slot:modal-footer v-if="activity.creatorUserId !== activeUserId">
                                                 <div class="w-100">
                                                     <b-button
@@ -431,14 +444,15 @@
              * Then manually assigns a "creatorName" property to each activity.
              */
             async fetchParticipantsForActivities() {
-                console.log(this.activityList)
+                console.log('activityList = ' + this.activityList)
+                console.log('activityList length = ' + this.activityList.length)
                 for (let i = 0; i < this.activityList.length; i++) {
                     await api.getParticipants(this.activityList[i].id).then(response => {
                         let participants = [];
                         for (let j = 0; j < response.data.length; j++) {
                             participants.push(response.data[j]);
-                            //console.log('response.data[i]' + response.data[i])
-                            //console.log(participants)
+                            // console.log('response.data[i]' + response.data[i])
+                            // console.log(participants)
                         }
                         this.activityList[i].participants = participants;
                         //console.log(this.activityList[i]);
@@ -450,13 +464,15 @@
                         // this.participantList.sort(function (a, b) {
                         //     return a.toLowerCase().localeCompare(b.toLowerCase());
                         // });
-                    }).catch(() => {
-                        console.log('error inside fetchparticipants')
-                        this.errored = true;
-                        this.error_message = "Unable to get participants - please try again later"
-                        setTimeout(() => {
-                            this.logout()
-                        }, 3000);
+                    }).catch(error => {
+                        //Log out if error
+                        if(error.response.status === 401) {
+                            sessionStorage.clear();
+                            this.$router.push('/login');
+                        }else{
+                            this.errored = true;
+                            this.error_message = "Unable to get participants - please try again later";
+                        }
                     });
                 }
             },
