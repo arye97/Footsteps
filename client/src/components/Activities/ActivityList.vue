@@ -77,9 +77,9 @@
                                             <b-card class="flex-fill" border-variant="secondary">
                                                     <strong>Participants: </strong><br>
 
-                                                
-                                                    <section v-for="participant in activityList[0].participants" :key="participant.firstname">
-                                                        {{participant.firstname}} {{participant.lastname}}
+
+                                                    <section v-for="participant in activity.participants" :key="participant">
+                                                        {{participant}}
                                                     </section>
 
 <!--                                                    {{activity.participants}}-->
@@ -210,8 +210,8 @@
                                             <b-card class="flex-fill" border-variant="secondary">
 
                                                     <strong>Participants: </strong><br>
-                                                    <section v-for="participant in activityList[0].participants" :key="participant.firstname">
-                                                        {{participant.firstname}} {{participant.lastname}}
+                                                    <section v-for="participant in activity.participants" :key="participant">
+                                                        {{participant}}
                                                     </section>
 
                                             </b-card>
@@ -440,8 +440,7 @@
 
             /**
              * Iterates over list of activities
-             * and obtains name of creator of an activity.
-             * Then manually assigns a "creatorName" property to each activity.
+             * and gets list of participants for each activity
              */
             async fetchParticipantsForActivities() {
                 console.log('activityList = ' + this.activityList)
@@ -449,21 +448,17 @@
                 for (let i = 0; i < this.activityList.length; i++) {
                     await api.getParticipants(this.activityList[i].id).then(response => {
                         let participants = [];
+                        console.log(response);
+                        let user;
                         for (let j = 0; j < response.data.length; j++) {
-                            participants.push(response.data[j]);
-                            // console.log('response.data[i]' + response.data[i])
-                            // console.log(participants)
+                            user = response.data[j];
+                            participants.push(user.firstname + ' ' + user.lastname);
                         }
                         this.activityList[i].participants = participants;
                         //console.log(this.activityList[i]);
                         //console.log('here' + this.activityList[i][participants])
                         // console.log('we have success, response is:  ' + response.data);
-                        //TODO: Parse the response properly (and then return list of participants)
-                        //console.log(participants)
-                        //this.participantList = response.data.map( participant => participant['user_id']);
-                        // this.participantList.sort(function (a, b) {
-                        //     return a.toLowerCase().localeCompare(b.toLowerCase());
-                        // });
+
                     }).catch(error => {
                         //Log out if error
                         if(error.response.status === 401) {
