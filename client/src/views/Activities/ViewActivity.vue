@@ -48,7 +48,35 @@
                             <br/>
                             <!-- Time details -> only relevant for duration activities -->
                             <div v-if="!continuous">
-                                TIME DETAILS
+                                <b-row class="mb-1">
+                                    <b-col>
+                                        <!--Start Time-->
+                                        <h3 class="font-weight-light"><strong>Start Date:</strong></h3><br/>
+                                        <b-card class="flex-fill" border-variant="secondary">
+                                            <b-card-text class="font-weight-light">
+                                                {{getDateTime(startTime)}}
+                                            </b-card-text>
+                                        </b-card>
+                                    </b-col>
+                                    <b-col>
+                                        <!--End Time-->
+                                        <h3 class="font-weight-light"><strong>End Date:</strong></h3><br/>
+                                        <b-card class="flex-fill" border-variant="secondary">
+                                            <b-card-text class="font-weight-light">
+                                                {{getDateTime(endTime)}}
+                                            </b-card-text>
+                                        </b-card>
+                                    </b-col>
+                                </b-row>
+                                <br/>
+                                <!--Total Duration-->
+                                <!--End Time-->
+                                <h3 class="font-weight-light"><strong>Total Duration:</strong></h3><br/>
+                                <b-card class="flex-fill" border-variant="secondary">
+                                    <b-card-text class="font-weight-light">
+                                        {{duration}}
+                                    </b-card-text>
+                                </b-card>
                             </div>
                             <br/>
                             <!-- Activity Types -->
@@ -79,6 +107,7 @@
 <script>
     import Header from "../../components/Header/Header";
     import api from "../../Api";
+    import {formatDateTime} from "../../util";
 
     export default {
         name: "ViewActivity",
@@ -98,7 +127,8 @@
                 endTime: null,
                 activityTypes: [],
                 activeUserId: null,
-                continuous: false
+                continuous: false,
+                duration: ""
             }
         },
         async mounted () {
@@ -113,7 +143,7 @@
                     this.errorMessage = "Invalid Activity ID, must be a number";
                 }
                 await this.getActivityDetails();
-                // CALCULATE DURATION
+                this.getTime();
                 await this.getActiveUserId();
                 await this.getCreatorUserDetails();
                 this.loading = false;
@@ -148,7 +178,18 @@
                     this.errored = true;
                     this.errorMessage = err.response.message;
                 })
-            }
+            },
+            getDateTime: formatDateTime,
+            getTime() {
+                let days = Math.floor(((new Date(this.endTime) - new Date(this.startTime))/1000/60/60/24));
+                let hours =  Math.ceil(((new Date(this.endTime) - new Date(this.startTime))/1000/60/60)) % 24;
+                if (days > 0) {
+                    this.duration += days + " Days";
+                }
+                if (hours > 0) {
+                    this.duration += hours + " Hours";
+                }
+            },
         }
     }
 </script>
