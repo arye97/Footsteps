@@ -9,4 +9,6 @@ import java.util.List;
 public interface OutcomeRepository extends JpaRepository<Outcome, Long> {
     
     List<Outcome> findByActivityId(Long activityId);
+
+    Outcome findByOutcomeId(Long outcomeId);
 }
