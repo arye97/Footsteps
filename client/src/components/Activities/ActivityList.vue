@@ -74,28 +74,25 @@
 
 
 
-
-
-
-
-
-
-
-
-
                                             <!--  Here for participants-->
                                             <b-card class="flex-fill" border-variant="secondary">
                                                 <p class="text-justified">
                                                     <strong>Participants: </strong><br>
-<!--                                                    {{activity.participants}}-->
-                                                    <b-pagination
-                                                            v-if="!errored && !loading && participantList.length >= 1"
-                                                            align="fill"
-                                                            v-model="currentPage"
-                                                            :total-rows="rows"
-                                                            :per-page="participantsPerPage"
-                                                    ></b-pagination>
+                                                    hi
+
+                                             <section v-for="participant in activityList.participants" :key="participant.userId">
+                                                {{participant}}
+                                            </section>
                                                 </p>
+<!--                                                    {{activity.participants}}-->
+<!--                                                    <b-pagination-->
+<!--                                                            v-if="!errored && !loading && participantList.length >= 1"-->
+<!--                                                            align="fill"-->
+<!--                                                            v-model="currentPage"-->
+<!--                                                            :total-rows="rows"-->
+<!--                                                            :per-page="participantsPerPage"-->
+<!--                                                    ></b-pagination>-->
+
                                             </b-card>
 
 
@@ -372,6 +369,7 @@
                         if (response.data.length === 0) {
                             this.noMore = true;
                         }
+                        console.log(response.data)
                         this.activityList = response.data;
                     }).catch(() => {
                         this.errored = true;
@@ -433,17 +431,21 @@
              * Then manually assigns a "creatorName" property to each activity.
              */
             async fetchParticipantsForActivities() {
+                console.log(this.activityList)
                 for (let i = 0; i < this.activityList.length; i++) {
                     await api.getParticipants(this.activityList[i].id).then(response => {
                         let participants = [];
-                        for (let i = 0; i < response.data.length; i++) {
-                            participants.push(response.data[i]);
-                            console.log(response.data[i])
+                        for (let j = 0; j < response.data.length; j++) {
+                            participants.push(response.data[j]);
+                            //console.log('response.data[i]' + response.data[i])
+                            //console.log(participants)
                         }
-                        this.activityList[i][participants] = participants;
+                        this.activityList[i].participants = participants;
+                        //console.log(this.activityList[i]);
+                        //console.log('here' + this.activityList[i][participants])
                         // console.log('we have success, response is:  ' + response.data);
                         //TODO: Parse the response properly (and then return list of participants)
-                        console.log(participants)
+                        //console.log(participants)
                         //this.participantList = response.data.map( participant => participant['user_id']);
                         // this.participantList.sort(function (a, b) {
                         //     return a.toLowerCase().localeCompare(b.toLowerCase());
