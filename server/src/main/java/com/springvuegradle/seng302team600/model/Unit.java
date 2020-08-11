@@ -50,6 +50,8 @@ public class Unit {
         return unitType;
     }
 
-    public void setUnitType(UnitType unitType) { this.unitType = unitType; }
+    public void setUnitType(UnitType unitType) {
+        this.unitType = unitType;
+    }
 }
 
