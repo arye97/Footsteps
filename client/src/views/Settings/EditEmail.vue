@@ -189,6 +189,7 @@
                         }
                     }).catch(function(error) {
                         if (error.response.status === 401) {
+                            sessionStorage.clear();
                             this.$router.push("/login");
                         }
                         else if (error.response.status === 500) {
@@ -311,6 +312,7 @@
                             }
                             if (error.response.status === 401) {
                                 // Not logged in
+                                sessionStorage.clear();
                                 this.$router.push('/login'); //Routes to home on logout
                             }
                         })

@@ -80,6 +80,7 @@
                     userId = response.data;
                 }).catch(error => {
                     if (error.response.data.status === 401) {
+                        sessionStorage.clear();
                         this.$router.push("/login");
                     } else {
                         throw new Error("Unknown error has occurred")
