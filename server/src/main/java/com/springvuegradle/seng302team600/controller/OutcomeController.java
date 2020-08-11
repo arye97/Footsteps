@@ -22,17 +22,19 @@ public class OutcomeController {
         this.outcomeRepository = outcomeRepository;
     }
 
+    @PostMapping("/activities/{activityId}/outcomes")
+    public void createNewActivityOutcome(HttpServletRequest request, @PathVariable Long activityId) {
+        //ToDo: Implement this method, and add a DocString please
+    }
 
     @GetMapping("/activities/{activityId}/outcomes")
-    public List<Outcome> getActivityOutcomes(HttpServletRequest request,
-                                             @PathVariable Long activityId) {
+    public List<Outcome> getActivityOutcomes(HttpServletRequest request, @PathVariable Long activityId) {
         //ToDo: Implement this method, and add a DocString please
         return null;
     }
 
-    @PutMapping("/profile/{profileId}/activities/{activityId}/outcomes")
-    public void updateActivityOutcomes(HttpServletRequest request,
-                                       @PathVariable Long profileId, @PathVariable Long activityId) {
+    @PutMapping("/activities/{activityId}/outcomes")
+    public void updateActivityOutcomes(HttpServletRequest request, @PathVariable Long activityId) {
         //ToDo: Implement this method, and add a DocString please
     }
 }

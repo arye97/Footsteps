@@ -25,4 +25,31 @@ public class Outcome {
     @Column(name = "activity_id", nullable = false)
     private Long activityId;
 
+    public Long getOutcomeId() {
+        return outcomeId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Long getActivityId() {
+        return activityId;
+    }
+
+    public void setActivityId(Long activityId) {
+        this.activityId = activityId;
+    }
 }
