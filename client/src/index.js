@@ -7,6 +7,7 @@ import AdminDashboard from './views/AdminDashboard';
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import ViewUser from "./components/layout/ViewUser.vue";
 import CreateActivity from "./views/Activities/CreateActivity";
+import ViewActivity from "./views/Activities/ViewActivity";
 import EditActivity from "./views/Activities/EditActivity";
 import AllActivities from "./views/Activities/AllActivities";
 import EditProfile from "./views/Settings/EditProfile";
@@ -109,6 +110,11 @@ export default new Router({
             path: '/search/users',
             name: 'searchPage',
             component: Search
+        },
+        {
+            path: '/activity/:activityId',
+            name: 'viewActivity',
+            component: ViewActivity
         },
         // otherwise redirect to home
         { path: '/*', redirect: '/login' }
