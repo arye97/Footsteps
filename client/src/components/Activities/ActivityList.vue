@@ -57,28 +57,30 @@
                                                 </b-card>
                                                 <template v-slot:modal-footer v-if="activity.creatorUserId!==activeUserId">
                                                     <div class="w-100">
-                                                        <b-button v-if="followingDisplay"
-                                                                  variant="outline-dark"
-                                                                  class="footerButton"
-                                                                  @click="unfollowActivity(activity)"
-                                                        >
-                                                            <div>
-                                                                Unfollow Activity
-                                                            </div>
-                                                            <div>
-                                                                <img src="../../../assets/png/footsteps_icon.png" class="footSteps" alt="Footsteps Logo">
-                                                            </div>
-                                                        </b-button>
-                                                        <b-button v-else
+                                                        <b-button v-if="!followingDisplay"
                                                                   variant="outline-dark"
                                                                   class="footerButton"
                                                                   @click="followActivity(activity)"
+                                                                  v-bind:key="activity.id"
                                                         >
                                                             <div>
                                                                 Follow Activity
                                                             </div>
                                                             <div>
                                                                 <img src="../../../assets/png/footsteps_icon_hollow.png" class="footSteps" alt="Footsteps Logo">
+                                                            </div>
+                                                        </b-button>
+                                                        <b-button v-else
+                                                                  variant="outline-dark"
+                                                                  class="footerButton"
+                                                                  @click="unfollowActivity(activity)"
+                                                                  v-bind:key="activity.id"
+                                                        >
+                                                            <div>
+                                                                Unfollow Activity
+                                                            </div>
+                                                            <div>
+                                                                <img src="../../../assets/png/footsteps_icon.png" class="footSteps" alt="Footsteps Logo">
                                                             </div>
                                                         </b-button>
                                                     </div>
@@ -107,7 +109,6 @@
                 <footer class="noMore">No more activities to show</footer>
             </b-tab>
             <b-tab title="Duration" :active="continuousIsActive(false)">
-                <div v-if="!this.updated">
                     <section v-for="activity in this.activityList" :key="activity.id">
                         <!-- Activity List -->
                         <b-card border-variant="secondary" style="background-color: #f3f3f3" v-if="!activity.continuous">
@@ -174,30 +175,30 @@
                                                 </b-card>
                                                 <template v-slot:modal-footer v-if="activity.creatorUserId !== activeUserId">
                                                     <div class="w-100">
-                                                        <b-button v-if="followingDisplay"
-                                                                  variant="outline-dark"
-                                                                  class="footerButton"
-                                                                  @click="unfollowActivity(activity)"
-                                                                  v-b-modal="'activity' + activity.id + '-duration-unfollow'"
-                                                        >
-                                                            <div>
-                                                                Unfollow Activity
-                                                            </div>
-                                                            <div>
-                                                                <img src="../../../assets/png/footsteps_icon.png" class="footSteps" alt="Footsteps Logo">
-                                                            </div>
-                                                        </b-button>
-                                                        <b-button v-else
+                                                        <b-button v-if="!followingDisplay"
                                                                   variant="outline-dark"
                                                                   class="footerButton"
                                                                   @click="followActivity(activity)"
-                                                                  v-b-modal="'activity' + activity.id + '-duration-follow'"
+                                                                  v-bind:key="activity.id"
                                                         >
                                                             <div>
                                                                 Follow Activity
                                                             </div>
                                                             <div>
                                                                 <img src="../../../assets/png/footsteps_icon_hollow.png" class="footSteps" alt="Footsteps Logo">
+                                                            </div>
+                                                        </b-button>
+                                                        <b-button v-else
+                                                                  variant="outline-dark"
+                                                                  class="footerButton"
+                                                                  @click="unfollowActivity(activity)"
+                                                                  v-bind:key="activity.id"
+                                                        >
+                                                            <div>
+                                                                Unfollow Activity
+                                                            </div>
+                                                            <div>
+                                                                <img src="../../../assets/png/footsteps_icon.png" class="footSteps" alt="Footsteps Logo">
                                                             </div>
                                                         </b-button>
                                                     </div>
@@ -230,7 +231,6 @@
                             <br/>
                         </b-card>
                     </section>
-                </div>
                 <hr/>
                 <footer class="noMore">No more activities to show</footer>
             </b-tab>
@@ -282,11 +282,14 @@
                 await api.setUserSubscribed(activity.id, this.activeUserId).then(() => {
                     this.followingDisplay = true;
                 }).catch((error) => {
-                    console.log(error.response);
-                    this.followingDisplay = false;
-                    this.followError = true;
-                })
-                console.log(this.followingDisplay);
+                    if (error.response.data.message === "User can't re-follow an event they're currently participating in.") {
+                        this.followingDisplay = true;
+                    } else {
+                        this.followErrorMessage = "Something went wrong! Try again later!";
+                        this.followingDisplay = false;
+                        this.followError = true;
+                    }
+                });
             },
             async unfollowActivity(activity) {
                 this.followError = false;
@@ -294,10 +297,14 @@
                 await api.deleteUserSubscribed(activity.id, this.activeUserId).then(() => {
                     this.followingDisplay = false;
                 }).catch((error) => {
-                    console.log(error.response);
-                    this.followingDisplay = true;
-                    this.followError = true;
-                })
+                    if (error.response.data.message === "User can't un-follow an event they're not participating in.") {
+                        this.followingDisplay = false;
+                    } else {
+                        this.followErrorMessage = "Something went wrong! Try again later!";
+                        this.followingDisplay = true;
+                        this.followError = true;
+                    }
+                });
             },
             getActiveUserId() {
                 api.getUserId().then(response => {
@@ -404,8 +411,10 @@
                     this.followingDisplay = `${response.data.subscribed}`;
                 }).catch(() => {
                     this.followingDisplay = false;
-                })
+                });
                 this.followError = false;
+                console.log('updated');
+                console.log(this.followingDisplay);
             }
         }
     }
