@@ -30,6 +30,11 @@
                             <!-- Activity Descirption -->
                             <h5 class="font-weight-light" v-if="this.description">"{{this.description}}"<br/></h5>
                             <br/>
+                            <!-- Edit Activity Button -->
+                            <div v-if="this.creatorId==this.activeUserId">
+                                <b-button type="submit" variant="success" size="med" v-on:click="editProfile">Edit Activity</b-button>
+                                <br/><br/>
+                            </div>
                             <!-- Creator -->
                             <h3 class="font-weight-light"><strong>Creator:</strong></h3><br/>
                             <b-card class="flex-fill" border-variant="secondary">
