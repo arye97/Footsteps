@@ -1,16 +1,15 @@
 package com.springvuegradle.seng302team600.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 /**
  * A class that represents the Value inputs
  * that a participant enters to a Result.
  */
+@Entity
 public class Value {
 
     @Id
@@ -30,6 +29,11 @@ public class Value {
     @Column(name = "did_not_finish", nullable = false)
     @JsonProperty("did_not_finish")
     private boolean didNotFinish;
+
+    @JsonBackReference
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "result_id", nullable = false)
+    private Result result;
 
     public Value() {
 
@@ -61,5 +65,13 @@ public class Value {
 
     public void setDidNotFinish(boolean didNotFinish) {
         this.didNotFinish = didNotFinish;
+    }
+
+    public Result getResult() {
+        return result;
+    }
+
+    public void setResult(Result result) {
+        this.result = result;
     }
 }
