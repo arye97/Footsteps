@@ -14,6 +14,6 @@ import java.util.List;
 @RepositoryRestResource
 public interface ResultRepository extends JpaRepository<Result, Long> {
 
-    @Query(value = "SELECT * FROM result WHERE outcome_id in ?1", nativeQuery=true)
+    @Query(value = "SELECT * FROM result WHERE outcome_id = ?1", nativeQuery=true)
     List<Result> findAllResultsByOutcomeId(@Param("outcome_id") Long outcome_id);
 }
