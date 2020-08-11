@@ -101,6 +101,7 @@
                 if (!isGet) {
                     switch (servError.response.status) {
                         case 401:
+                            sessionStorage.clear();
                             this.$router.push("/login");
                             break;
                         case 400:
@@ -113,6 +114,7 @@
                 } else if (isGet) {
                     switch (servError.response.status) {
                         case 401:
+                            sessionStorage.clear();
                             this.$router.push("/login");
                             break;
                         default:

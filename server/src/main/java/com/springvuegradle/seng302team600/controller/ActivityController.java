@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Controller to manage activities and activity type
@@ -184,6 +185,24 @@ public class ActivityController {
 
         return activities;
     }
+
+
+    /**
+     * Get a list of participants for an activity
+     * @param activityId the Id of the Activity
+     * @return a list of Users
+     */
+    @GetMapping("/activities/{activityId}/participants")
+    public Set<User> getParticipantsOfActivity(@PathVariable Long activityId, HttpServletRequest request) {
+        String token = request.getHeader("Token");
+        userAuthenticationService.findByToken(token);
+        Activity activity = activityRepository.findByActivityId(activityId);
+        if (activity == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Activity not found");
+        }
+        return activity.getParticipants();
+    }
+
 
     /**
      * Check if the user assigned to this session token
