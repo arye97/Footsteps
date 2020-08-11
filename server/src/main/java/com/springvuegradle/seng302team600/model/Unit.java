@@ -16,15 +16,22 @@ public class Unit {
     private Long id;
 
     @Column(name = "name", nullable = false)
-    String name;
+    private String name;
 
     @Column(name = "unit_type", nullable = false)
+<<<<<<< Updated upstream
     @JsonProperty("unit_type")
     UnitType unitType;
 
     @Column(name = "measurement_unit")
     @JsonProperty("measurement_unit")
     String measurementUnit;
+=======
+    private UnitType unitType;
+
+    @Column(name = "measurement_unit")
+    private String measurementUnit;
+>>>>>>> Stashed changes
 
     public Unit() {}
 
