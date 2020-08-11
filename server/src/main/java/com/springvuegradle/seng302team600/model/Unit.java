@@ -16,6 +16,7 @@ public class Unit {
     private Long id;
 
     @Column(name = "name", nullable = false)
+    @JsonProperty("name")
     private String name;
 
     @Column(name = "unit_type", nullable = false)

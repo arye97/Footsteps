@@ -3,6 +3,7 @@ package com.springvuegradle.seng302team600.controller;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.Outcome;
 import com.springvuegradle.seng302team600.model.User;
+import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.OutcomeRepository;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +30,8 @@ public class OutcomeControllerTest {
     private UserAuthenticationService userAuthenticationService;
     @MockBean
     private OutcomeRepository outcomeRepository;
+    @MockBean
+    private ActivityRepository activityRepository;
     @Autowired
     private MockMvc mvc;
 
@@ -112,6 +115,15 @@ public class OutcomeControllerTest {
             }
             outcomeTable.add(outcome);
             return outcome;
+        });
+
+        // Mocking ActivityRepository
+        when(activityRepository.findByActivityId(Mockito.any())).thenAnswer(i -> {
+            Long activityId = i.getArgument(0);
+            if (activityId.equals(ACTIVITY_ID_1)) {
+                return dummyActivity;
+            }
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         });
     }
 
