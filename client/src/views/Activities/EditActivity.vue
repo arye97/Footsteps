@@ -60,7 +60,6 @@
             let activityId = url.substring(url.lastIndexOf('/') + 1);
             this.activityId = url.substring(url.lastIndexOf('/') + 1);
 
-
             // Inserts the received activity data into the activity object
             await this.getActivityData(activityId);
             this.dateFormatToString();
@@ -90,16 +89,24 @@
                 await api.updateActivity(activityForm, this.activity.profileId, this.activityId)
                   .then(response => { // If successfully registered the response will have a status of 201
                         if (response.status === 200) {
-                            this.$router.push("/activities");
+                            this.$router.push({name: 'allActivities', params: {alertMessage: 'Activity modified successfully', alertCount: 5}});
                         }
                     }
-                )
+                ).catch(error => {this.throwError(error, false)});
+            },
+
+            /**
+             * Get OK if the user can edit the given activity. Otherwise redirect to AllActivities.vue
+             */
+            async isActivityEditable(activityId) {
+                await api.isActivityEditable(activityId).catch(error => {this.throwError(error, true)});
             },
 
             /**
              * Get the data of the selected activity from the backend.  Load it into the activity object
              */
             async getActivityData(activityId) {
+                await this.isActivityEditable(activityId);
                 await api.getActivityData(activityId).then(response => {
                     this.activity.activityName = response.data.activity_name;
                     this.activity.profileId = response.data.creatorUserId;
@@ -111,14 +118,7 @@
                     for (let i = 0; i < response.data.activity_type.length; i++) {
                         this.activity.selectedActivityTypes.push(response.data.activity_type[i].name);
                     }
-                    //need to also add in the activities activity types
-                }).catch(error => {
-                    if (error.response.data.status === 401) {
-                        this.$router.push('/login');
-                    } else {
-                        this.$router.push({ name: 'myProfile' });
-                    }
-                })
+                }).catch(error => {this.throwError(error, true)});
             },
 
             /**
@@ -145,8 +145,41 @@
                 let userId = null;
                 await api.getUserId().then(response => {
                     userId = response.data;
-                });
+                }).catch(error => {this.throwError(error, true)});
                 return userId
+            },
+
+            /**
+             * Helper function for when errors are thrown by server after hitting an endpoint,
+             * @param servError Error thrown by server endpoint
+             * @param isGet boolean value if the error is from a get endpoint, true if it is, false if it isnt, so that
+             * the function will use the necessary if statements to handle these
+             */
+             throwError(servError, isGet) {
+                 if (!isGet) {
+                    switch (servError.response.status) {
+                        case 401:
+                            this.$router.push("/login");
+                            break;
+                        case 404:
+                            throw new Error("Activity not found");
+                        case 403:
+                            throw new Error("Sorry unable to edit this activity (forbidden access)");
+                        default:
+                            throw new Error("Unknown error has occurred whilst editing this activity");
+                    }
+                } else if (isGet) {
+                    switch (servError.response.status) {
+                        case 401:
+                            this.$router.push("/login");
+                            break;
+                        case 403:
+                            this.$router.push({name: 'allActivities'});
+                            break;
+                        default:
+                            this.$router.push({name: 'myProfile'});
+                    }
+                }
             }
         }
     }
