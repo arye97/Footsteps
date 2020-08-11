@@ -1,6 +1,7 @@
 package com.springvuegradle.seng302team600.model;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
@@ -28,6 +29,9 @@ public class Result {
     @JsonProperty("outcome_id")
     private Long outcomeId;
 
+    @JsonManagedReference
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "result", cascade = CascadeType.ALL, orphanRemoval = true)
+    //orphan removal removes 'child' when 'parent' is deleted
     @Column(name = "values", nullable = false)
     private Set<Value> values;
 
