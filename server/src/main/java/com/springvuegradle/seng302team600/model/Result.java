@@ -6,6 +6,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.persistence.*;
 import java.util.Set;
 
+/**
+ * This class is to link User to Value. The Outcome will reference this class to get the result for a user.
+ * Results contains the users values specific to an activity's outcome.
+ */
+
 @Entity
 public class Result {
 
@@ -30,13 +35,6 @@ public class Result {
     private String comment;
 
     public Result() {}
-
-    public Result(Long userId, Long outcomeId, Set<Value> values, String comment) {
-        this.userId = userId;
-        this.outcomeId = outcomeId;
-        this.values = values;
-        this.comment = comment;
-    }
 
     public Long getOutcomeId() {
         return outcomeId;
