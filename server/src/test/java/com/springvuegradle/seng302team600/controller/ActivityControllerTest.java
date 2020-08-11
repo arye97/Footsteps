@@ -3,6 +3,7 @@ package com.springvuegradle.seng302team600.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.User;
+import com.springvuegradle.seng302team600.model.UserRole;
 import com.springvuegradle.seng302team600.repository.ActivityParticipantRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
@@ -17,12 +18,14 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -57,6 +60,7 @@ class ActivityControllerTest {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     private static final Long DEFAULT_USER_ID = 1L;
+    private static final Long DEFAULT_USER_ID_2 = 2L;
     private static final Long DEFAULT_EMAIL_ID = 1L;
     private static final Long DEFAULT_ACTIVITY_ID = 1L;
     private static Long activityCount = 0L;
@@ -64,6 +68,7 @@ class ActivityControllerTest {
     private User dummyUser1;
     private User dummyUser2; // Used when a second user is required
     private final String validToken = "valid";
+    private final String forbiddenToken = "forbidden";
     private Set<Activity> activityMockTable = new HashSet<>();
     private Set<User> userMockTable = new HashSet<>();
 
@@ -72,6 +77,10 @@ class ActivityControllerTest {
         MockitoAnnotations.initMocks(this);
         dummyUser1 = new User();
         dummyUser1.setToken(validToken);
+        ReflectionTestUtils.setField(dummyUser1, "userId", DEFAULT_USER_ID);
+        dummyUser2 = new User();
+        dummyUser2.setToken(forbiddenToken);
+        ReflectionTestUtils.setField(dummyUser2, "userId", DEFAULT_USER_ID_2);
 
         // Mocking ActivityTypeService
         when(activityTypeService.getMatchingEntitiesFromRepository(Mockito.any())).thenAnswer(i -> i.getArgument(0));
@@ -83,9 +92,41 @@ class ActivityControllerTest {
             return activities;
         });
         // Mocking userAuthenticationService
-        when(userAuthenticationService.findByUserId(Mockito.any(String.class), Mockito.any(Long.class))).thenAnswer(i -> dummyUser1);
+        when(userAuthenticationService.findByUserId(Mockito.any(String.class), Mockito.any(Long.class))).thenAnswer(i -> {
+            String token = i.getArgument(0);
+            Long userId = i.getArgument(1);
+            if (token.equals(validToken)) {
+                if (userId.equals(DEFAULT_USER_ID)) {
+                    return dummyUser1;
+                } else if (userId.equals(DEFAULT_USER_ID_2)) {
+                    return dummyUser2;
+                } else {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+                }
+            } else if (token.equals(forbiddenToken)) {
+                if (userId.equals(DEFAULT_USER_ID)) {
+                    throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+                } else if (userId.equals(DEFAULT_USER_ID_2)) {
+                    return dummyUser2;
+                } else {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+                }
+            } else {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            }
+        });
         when(userAuthenticationService.hasAdminPrivileges(Mockito.any())).thenAnswer(i ->
-                ((User) i.getArgument(0)).getToken().equals(validToken));
+                ((User) i.getArgument(0)).getRole() >= UserRole.ADMIN);
+        when(userAuthenticationService.findByToken(Mockito.any())).thenAnswer(i -> {
+            String token = i.getArgument(0);
+            if (token.equals(validToken)) {
+                return dummyUser1;
+            } else if (token.equals(forbiddenToken)) {
+                return dummyUser2;
+            } else {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            }
+        });
     }
 
     /**
@@ -243,7 +284,6 @@ class ActivityControllerTest {
             "end_time", "2020-02-20T08:00:00+1300",
             "location", "Kaikoura, NZ");
 
-
     /**
      * Test successful get request of activities created by specific user
      */
@@ -264,7 +304,6 @@ class ActivityControllerTest {
         //int contentLength = result.getResponse().getContentLength();
         assertNotNull(result); //should have one item in this list as saved above
     }
-
 
     /**
      * Test successful get request of activity.
@@ -287,5 +326,27 @@ class ActivityControllerTest {
         assertEquals(activityRepository.findByActivityId(DEFAULT_ACTIVITY_ID), activityReceived);
     }
 
+    @Test
+    void checkActivityIsEditable() throws Exception {
+        Activity activityInRepo = objectMapper.readValue(newActivity2Json, Activity.class);
+        activityRepository.save(activityInRepo);
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get("/check-activity/{activityId}", DEFAULT_ACTIVITY_ID)
+                .header("Token", validToken)
+                .accept(MediaType.APPLICATION_JSON);
 
+        mvc.perform(httpReq)
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void checkActivityIsNotEditable() throws Exception {
+        Activity activityInRepo = objectMapper.readValue(newActivity2Json, Activity.class);
+        activityRepository.save(activityInRepo);
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get("/check-activity/{activityId}", DEFAULT_ACTIVITY_ID)
+                .header("Token", forbiddenToken)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mvc.perform(httpReq)
+                .andExpect(status().isForbidden());
+    }
 }

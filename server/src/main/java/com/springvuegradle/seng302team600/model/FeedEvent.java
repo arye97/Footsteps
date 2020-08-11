@@ -48,6 +48,21 @@ public class FeedEvent {
     public FeedEvent() {
     }
 
+    /**
+     * Create a FeedEvent with timeStamp now
+     * @param activityId The activity related to the feed event
+     * @param authorId The user who caused the feed event
+     * @param viewerId The user to view this feed event
+     * @param feedEventType The type of feed post - set by the enum
+     */
+    public FeedEvent(Long activityId, Long authorId, Long viewerId, FeedPostType feedEventType) {
+        setTimeStampNow();
+        this.activityId = activityId;
+        this.authorId = authorId;
+        this.viewerId = viewerId;
+        this.feedEventType = feedEventType;
+    }
+
     public Long getFeedEventId() {
         return feedEventId;
     }
