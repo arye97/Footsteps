@@ -4,14 +4,12 @@ import com.springvuegradle.seng302team600.Utilities.UserValidator;
 import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -312,5 +310,64 @@ public class UserTest {
         //Use reflection to access the stored password and compare it to the actual password
         //This is admittedly kind of dirty, but the passwords are intentionally hard to access
         assertNotEquals(password, ReflectionUtils.getField(passwordField, userTest));
+    }
+
+    /**
+     * Helper function to create instances of a test user
+     * @param hasId if true generate a userId of 1
+     * @return test user
+     */
+    private User createDummyUser(boolean hasId) {
+        User dummyUser;
+        dummyUser = new User();
+        if (hasId) {
+            ReflectionTestUtils.setField(dummyUser, "userId", 1L);
+        }
+        dummyUser.setFirstName("Sarah");
+        dummyUser.setLastName("Jones");
+        dummyUser.setDateOfBirth(getAgeDate(50));
+        dummyUser.setFitnessLevel(3);
+        dummyUser.setPrimaryEmail("sarahjones@gmail.com");
+        return dummyUser;
+    }
+
+    /**
+     * Two users with the same id should be equal
+     */
+    @Test
+    void equals() {
+        User user1 = createDummyUser(true);
+        User user2 = createDummyUser(true);
+        assertEquals(user2, user1);
+    }
+
+    /**
+     * Two separate user instances with null ids should not be equal.
+     */
+    @Test
+    void notEquals() {
+        User user1 = createDummyUser(false);
+        User user2 = createDummyUser(false);
+        assertNotEquals(user2, user1);
+    }
+
+    /**
+     * Two users with the same id should have equal hash codes
+     */
+    @Test
+    void hashCodeEqualsWithId() {
+        User user1 = createDummyUser(true);
+        User user2 = createDummyUser(true);
+        assertEquals(user2.hashCode(), user1.hashCode());
+    }
+
+    /**
+     * Two separate user instances with null ids should have different hash codes.
+     */
+    @Test
+    void hashCodeNotEqualsNoId() {
+        User user1 = createDummyUser(false);
+        User user2 = createDummyUser(false);
+        assertNotEquals(user2.hashCode(), user1.hashCode());
     }
 }

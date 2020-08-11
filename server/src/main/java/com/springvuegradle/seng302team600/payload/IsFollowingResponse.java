@@ -1,5 +1,6 @@
 package com.springvuegradle.seng302team600.payload;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class IsFollowingResponse {
@@ -11,6 +12,7 @@ public class IsFollowingResponse {
         this.isFollowing = isFollowing;
     }
 
+    @JsonIgnore
     public boolean isFollowing() {
         return isFollowing;
     }

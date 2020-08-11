@@ -123,6 +123,8 @@ public class Activity {
 
     public void addParticipant(User user) { this.participants.add(user); }
 
+    public void removeParticipant(User user) { this.participants.remove(user); }
+
     public void setParticipants(Set<User> participants) {this.participants = participants;}
 
     public void setContinuous(boolean continuous) {
@@ -153,25 +155,25 @@ public class Activity {
         this.location = location;
     }
 
+    /**
+     * Return a unique hash based on attributes.
+     * @return hash code
+     */
     @Override
     public int hashCode() {
-        int result = 43;
-        result = 31 * result + name.hashCode();
-        result = 31 * result + description.hashCode();
-        result = 31 * result + startTime.hashCode();
-        result = 31 * result + endTime.hashCode();
-        result = 31 * result + location.hashCode();
-        result = 31 * result + activityTypes.hashCode();
-        result = 31 * result + (continuous ? 1 : 0);
-
-        return result;
+        return Objects.hash(name, description, startTime, endTime, location, activityTypes, continuous);
     }
 
+    /**
+     * Compare Activities based on attributes
+     * @param obj other Activity to campare
+     * @return equality
+     */
     @Override
     public boolean equals(final Object obj) {
         if (obj instanceof Activity) {
             final Activity other = (Activity) obj;
-            // Check that all attributes are not activityId and creatorUserId
+            // Check that all attributes are equal, except activityId and creatorUserId
             return this.getName().equals(other.getName()) && this.getDescription().equals(other.getDescription()) &&
                     this.getStartTime().equals(other.getStartTime()) && this.getEndTime().equals(other.getEndTime()) &&
                     this.getLocation().equals(other.getLocation()) && this.getActivityTypes().equals(other.getActivityTypes()) &&
@@ -192,6 +194,7 @@ public class Activity {
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
                 ", location='" + location + '\'' +
+                ", participants='" + participants + '\'' +
                 '}';
     }
 }
