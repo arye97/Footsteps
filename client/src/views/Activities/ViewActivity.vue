@@ -24,10 +24,50 @@
                         <div v-if="loading"> Loading... <br/><br/><b-spinner variant="primary" label="Spinning"></b-spinner></div>
                         <div v-else class="font-weight-light">
                             <br/>
+                            <!-- Title -->
                             <h1 class="font-weight-light"><strong>{{this.activityTitle}}</strong></h1>
                             <br/>
+                            <!-- Activity Descirption -->
                             <h5 class="font-weight-light" v-if="this.description">"{{this.description}}"<br/></h5>
                             <br/>
+                            <!-- Creator -->
+                            <h3 class="font-weight-light"><strong>Creator:</strong></h3><br/>
+                            <b-card class="flex-fill" border-variant="secondary">
+                                <b-card-text class="font-weight-light">
+                                    {{this.creatorName}}
+                                </b-card-text>
+                            </b-card>
+                            <br/>
+                            <!-- Location -->
+                            <h3 class="font-weight-light"><strong>Location:</strong></h3><br/>
+                            <b-card class="flex-fill" border-variant="secondary">
+                                <b-card-text class="font-weight-light">
+                                    {{this.location}}
+                                </b-card-text>
+                            </b-card>
+                            <br/>
+                            <!-- Time details -> only relevant for duration activities -->
+                            <div v-if="!continuous">
+                                TIME DETAILS
+                            </div>
+                            <br/>
+                            <!-- Activity Types -->
+                            <h3 class="font-weight-light"><strong>Activity Types:</strong></h3><br/>
+                            <b-list-group v-if="this.activityTypes.length >= 1">
+                                <b-card v-for="activityType in this.activityTypes" v-bind:key="activityType.name" class="flex-fill" border-variant="secondary">
+                                    <b-card-text class="font-weight-light">
+                                        {{activityType.name}}
+                                    </b-card-text>
+                                </b-card>
+                            </b-list-group>
+                            <b-list-group v-else>
+                                <b-card class="flex-fill" border-variant="secondary">
+                                    <b-card-text class="font-weight-light">
+                                        No activity types selected
+                                    </b-card-text>
+                                </b-card>
+                            </b-list-group>
+                            <!--Buttons-->
                         </div>
                     </div>
                 </div>
@@ -38,6 +78,8 @@
 
 <script>
     import Header from "../../components/Header/Header";
+    import api from "../../Api";
+
     export default {
         name: "ViewActivity",
         components: {Header},
@@ -46,8 +88,66 @@
                 errored: false,
                 errorMessage: "",
                 loading: false,
-                activityTitle: "TITLE",
-                description: "DESCRIPTION"
+                activityId: null,
+                activityTitle: "",
+                description: "",
+                creatorId: null,
+                creatorName: "",
+                location: "",
+                startTime: null,
+                endTime: null,
+                activityTypes: [],
+                activeUserId: null,
+                continuous: false
+            }
+        },
+        async mounted () {
+            await this.init();
+        },
+        methods: {
+            async init() {
+                this.loading = true;
+                this.activityId = this.$route.params.activityId;
+                if (isNaN(this.activityId)) {
+                    this.errored = true;
+                    this.errorMessage = "Invalid Activity ID, must be a number";
+                }
+                await this.getActivityDetails();
+                // CALCULATE DURATION
+                await this.getActiveUserId();
+                await this.getCreatorUserDetails();
+                this.loading = false;
+            },
+            async getActivityDetails() {
+                await api.getActivityData(this.activityId).then(response => {
+                    this.activityTitle = response.data.activity_name;
+                    this.description = response.data.description;
+                    this.creatorId = response.data.creatorUserId;
+                    this.location = response.data.location;
+                    this.startTime = response.data.start_time;
+                    this.endTime = response.data.end_time;
+                    this.activityTypes = response.data.activity_type;
+                    this.continuous = response.data.continuous;
+                }).catch(err => {
+                    this.errored = true;
+                    this.errorMessage = err.response.message;
+                });
+            },
+            async getActiveUserId() {
+                await api.getUserId().then(response => {
+                    this.activeUserId = response.data;
+                }).catch(err => {
+                    this.errored = true;
+                    this.errorMessage = err.response.message;
+                })
+            },
+            async getCreatorUserDetails() {
+                await api.getUserData(this.creatorId).then(response => {
+                    this.creatorName = response.data.firstname + " " + response.data.lastname;
+                }).catch(err => {
+                    this.errored = true;
+                    this.errorMessage = err.response.message;
+                })
             }
         }
     }
