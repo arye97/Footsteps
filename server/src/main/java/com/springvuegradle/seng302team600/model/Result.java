@@ -1,6 +1,7 @@
 package com.springvuegradle.seng302team600.model;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -25,9 +26,10 @@ public class Result {
     @JsonProperty("user_id")
     private Long userId;
 
-    @Column(name = "outcome_id", nullable = false)
-    @JsonProperty("outcome_id")
-    private Long outcomeId;
+    @JsonBackReference
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "outcome_id", nullable = false)
+    private Outcome outcome;
 
     @JsonManagedReference
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "result", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -40,8 +42,8 @@ public class Result {
 
     public Result() {}
 
-    public Long getOutcomeId() {
-        return outcomeId;
+    public Outcome getOutcome() {
+        return outcome;
     }
 
     public Long getResultId() {
@@ -64,8 +66,8 @@ public class Result {
         this.comment = comment;
     }
 
-    public void setOutcomeId(Long outcomeId) {
-        this.outcomeId = outcomeId;
+    public void setOutcome(Outcome outcome) {
+        this.outcome = outcome;
     }
 
     public void setUserId(Long userId) {
