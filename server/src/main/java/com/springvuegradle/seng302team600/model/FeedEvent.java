@@ -18,28 +18,28 @@ public class FeedEvent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "feed_event_id", nullable = false)
-    Long feedEventId;
+    private Long feedEventId;
 
     // The timestamp of the feed event generation - ie. when the feed post was triggered
     @Column(name = "time_stamp", nullable = false, columnDefinition = "DATE")
-    Date timeStamp;
+    private Date timeStamp;
 
     // The activity related to the feed event
     @Column(name = "activity_id", nullable = false)
-    Long activityId;
+    private Long activityId;
 
     // The user who caused the feed event
     @Column(name = "author_id", nullable = false)
-    Long authorId;
+    private Long authorId;
 
     // The user to view this feed event
     @Column(name = "viewer_id", nullable = false)
-    Long viewerId;
+    private Long viewerId;
 
     // The type of feed post - set by the enum
     @Column(name = "feed_event_type", nullable = false)
     @Enumerated(EnumType.STRING)
-    FeedPostType feedEventType;
+    private FeedPostType feedEventType;
 
     /**
      * Default constructor for feed events
