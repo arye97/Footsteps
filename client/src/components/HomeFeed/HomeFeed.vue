@@ -12,13 +12,13 @@
             <br/>
         </section>
         <section v-else v-for="event in this.currentPageEventList" :key="event.id">
-            <!-- User List -->
+            <!-- Feed Event List -->
             <feed-card v-bind:event="event"/>
             <br>
         </section>
         <!-- Pagination Nav Bar -->
         <b-pagination
-                v-if="!errored && !loading && feedEventList.length >= 1"
+                v-if="!errored && !loading && feedEventList.length >= eventsPerPage"
                 align="fill"
                 v-model="currentPage"
                 :total-rows="rows"
@@ -40,7 +40,7 @@
                 loading: false,
                 feedEventList: [],
                 currentPage: 1,
-                eventsPerPage:10,
+                eventsPerPage: 5,
                 currentPageEventList: []
             }
         },
@@ -56,26 +56,27 @@
                     id: 1,
                     feedEventType: 'FOLLOW',
                     timeStamp: new Date("August 07, 2020 17:00:00"),
-                    activityId: 1,
+                    activityId: 145,
                     userId: 1
                 },
                 {
                     id: 2,
                     feedEventType: 'MODIFY',
-                    timeStamp: new Date("August 09, 2020 14:56:30"),
-                    activityId: 50,
-                    userId: 4
+                    timeStamp: new Date("August 09, 2020 15:50:30"),
+                    activityId: 113,
+                    userId: 113
                 },
                 {
                     id: 3,
                     feedEventType: 'DELETE',
                     timeStamp: new Date(),
-                    activityId: 50,
-                    userId: 4
+                    activityId: 72,
+                    userId: 54
                 }
             ];
             // Flip the list order so the most recent event shows first
             this.feedEventList.reverse();
+            // Update what is shown on this page of the pagination
             this.currentPageEventList = this.feedEventList;
         }
     }
