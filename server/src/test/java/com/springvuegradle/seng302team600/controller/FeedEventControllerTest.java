@@ -6,7 +6,6 @@ import com.springvuegradle.seng302team600.enumeration.FeedPostType;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.FeedEvent;
 import com.springvuegradle.seng302team600.model.User;
-import com.springvuegradle.seng302team600.payload.IsFollowingResponse;
 import com.springvuegradle.seng302team600.repository.ActivityParticipantRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.FeedEventRepository;
@@ -81,7 +80,6 @@ public class FeedEventControllerTest {
         ReflectionTestUtils.setField(dummyActivity, "activityId", ACTIVITY_ID_1);
 
         feedEventTable = new ArrayList<>();
-        //Long activityId, Long authorId, Long viewerId, FeedPostType feedEventType
         dummyEvent = new FeedEvent(ACTIVITY_ID_1, USER_ID_1, USER_ID_1, FeedPostType.MODIFY);
         ReflectionTestUtils.setField(dummyEvent, "feedEventId", EVENT_ID_1);
         feedEventTable.add(dummyEvent);
@@ -393,5 +391,21 @@ public class FeedEventControllerTest {
         String jsonResponseStr = result.getResponse().getContentAsString();
         JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
         assertEquals(0, jsonNode.size());
+    }
+
+    /**
+     * Checks that the endpoint returns an error when an invalid token is used
+     */
+    @Test
+    void getEventFeedInvalidToken() throws Exception {
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(
+                "/profiles/{profileId}/subscriptions/", USER_ID_1)
+                .header("Token", "NotAValidToken")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mvc.perform(httpReq)
+                .andExpect(status().isForbidden());
     }
 }
