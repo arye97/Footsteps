@@ -100,7 +100,26 @@
                                     </b-card-text>
                                 </b-card>
                             </b-list-group>
-                            <!--Buttons-->
+                            <br/>
+                            <!-- Add Results/Following Button Group -->
+                            <b-button block v-if="this.isFollowing || this.creatorId == this.activeUserId" variant="success">Add My Results</b-button>
+                            <br/>
+                            <div v-if="this.creatorId != this.activeUserId">
+                                <b-button block v-if="!this.isFollowing" variant="outline-success">Follow</b-button>
+                                <b-button block v-if="this.isFollowing" variant="outline-success">Unfollow</b-button>
+                                <br/>
+                            </div>
+                            <!--View Participants and Results Buttons-->
+                            <b-row class="mb-1">
+                                <b-col>
+                                    <!--View Participants-->
+                                    <b-button type="submit" variant="success" size="med" v-on:click="viewParticipants">View Participants</b-button>
+                                </b-col>
+                                <b-col>
+                                    <!--View Results-->
+                                    <b-button type="submit" variant="success" size="med" v-on:click="viewResults">View Results</b-button>
+                                </b-col>
+                            </b-row>
                         </div>
                     </div>
                 </div>
@@ -133,7 +152,8 @@
                 activityTypes: [],
                 activeUserId: null,
                 continuous: false,
-                duration: ""
+                duration: "",
+                isFollowing: true
             }
         },
         async mounted () {
