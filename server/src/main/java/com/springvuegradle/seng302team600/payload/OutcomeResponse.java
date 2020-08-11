@@ -41,7 +41,6 @@ public class OutcomeResponse {
         title = outcome.getTitle();
         description = outcome.getDescription();
         activityId = outcome.getActivityId();
-        // TODO uncomment the below code when Unit class is linked to Outcome class
-        //units = outcome.getUnits();
+        units = outcome.getUnits();
     }
 }

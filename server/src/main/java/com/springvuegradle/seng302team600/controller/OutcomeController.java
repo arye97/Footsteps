@@ -5,6 +5,7 @@ import com.springvuegradle.seng302team600.model.Outcome;
 import com.springvuegradle.seng302team600.payload.OutcomeResponse;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.OutcomeRepository;
+import com.springvuegradle.seng302team600.repository.ResultRepository;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -19,13 +20,13 @@ public class OutcomeController {
     private final UserAuthenticationService userAuthenticationService;
     private final OutcomeRepository outcomeRepository;
     private final ActivityRepository activityRepository;
-    // TODO uncomment the below attribute when ResultRepository exists
-//    private final ResultRepository resultRepository;
+    private final ResultRepository resultRepository;
 
-    public OutcomeController(UserAuthenticationService userAuthenticationService, OutcomeRepository outcomeRepository, ActivityRepository activityRepository) {
+    public OutcomeController(UserAuthenticationService userAuthenticationService, OutcomeRepository outcomeRepository, ActivityRepository activityRepository, ResultRepository resultRepository) {
         this.userAuthenticationService = userAuthenticationService;
         this.outcomeRepository = outcomeRepository;
         this.activityRepository = activityRepository;
+        this.resultRepository = resultRepository;
     }
 
     @PostMapping("/activities/outcomes")
