@@ -105,8 +105,22 @@
                             <b-button block v-if="this.isFollowing || this.creatorId == this.activeUserId" variant="success">Add My Results</b-button>
                             <br/>
                             <div v-if="this.creatorId != this.activeUserId">
-                                <b-button block v-if="!this.isFollowing" variant="outline-success">Follow</b-button>
-                                <b-button block v-if="this.isFollowing" variant="outline-success">Unfollow</b-button>
+                                <b-button block v-if="!this.isFollowing"
+                                          variant="outline-dark"
+                                          class="footerButton"
+                                          @click="followActivity"
+                                >
+                                    Follow Activity
+                                    <img src="../../../assets/png/footsteps_icon_hollow.png" class="footSteps" alt="Footsteps Logo">
+                                </b-button>
+                                <b-button block v-else
+                                          variant="outline-dark"
+                                          class="footerButton"
+                                          @click="unfollowActivity"
+                                >
+                                    Unfollow Activity
+                                    <img src="../../../assets/png/footsteps_icon.png" class="footSteps" alt="Footsteps Logo">
+                                </b-button>
                                 <br/>
                             </div>
                             <!--View Participants and Results Buttons-->
@@ -154,7 +168,7 @@
                 activeUserId: null,
                 continuous: false,
                 duration: "",
-                isFollowing: true
+                isFollowing: false
             }
         },
         async mounted () {
@@ -171,6 +185,7 @@
                 await this.getActivityDetails();
                 this.getTime();
                 await this.getActiveUserId();
+                await this.getFollowingDetails();
                 await this.getCreatorUserDetails();
                 this.loading = false;
             },
@@ -219,6 +234,62 @@
             goToPage(url) {
                 this.$router.push(url);
             },
+            async getFollowingDetails() {
+                await api.getUserSubscribed(this.activityId, this.activeUserId).then((response) => {
+                    this.isFollowing = response.data.subscribed;
+                }).catch((err) => {
+                    this.errored = true;
+                    this.errorMessage = err.response.message;
+                });
+
+            },
+            async followActivity() {
+                await api.setUserSubscribed(this.activityId, this.activeUserId).then(() => {
+                    this.isFollowing = true;
+                }).catch((error) => {
+                    this.errored = true;
+                    this.errorMessage = error.response.message;
+                });
+            },
+            async unfollowActivity() {
+                await api.deleteUserSubscribed(this.activityId, this.activeUserId).then(() => {
+                    this.isFollowing = false;
+                }).catch((error) => {
+                    this.errored = true;
+                    this.errorMessage = error.response.message;
+                });
+            },
+
         }
     }
 </script>
+
+<style scoped>
+    .footSteps {
+        width: 7.5%;
+        height: 7.5%;
+    }
+    .footStepsSimplified {
+        width: 16%;
+        height: 16%;
+    }
+    .noMore {
+        text-align: center;
+
+    }
+    .text-justified {
+        text-align: justify;
+    }
+
+    .activity-button-group {
+        padding: 7.5% 30px;
+    }
+
+    .activity-button-group button {
+        width: 190px;
+    }
+
+    .footerButton {
+        width: 100%;
+    }
+</style>

@@ -54,4 +54,8 @@ export default {
     return server.get(`profiles?activity=${activityTypesStr}&method=${method}`, getTokenHeader())
   },
   getCountries: () => server.get(getCountryNames),
+  getUserSubscribed: (activityId, userId) => server.get(`/profiles/${userId}/subscriptions/activities/${activityId}`, getTokenHeader()),
+  setUserSubscribed: (activityId, userId) => server.post( `/profiles/${userId}/subscriptions/activities/${activityId}`, null, getTokenHeader()),
+  deleteUserSubscribed: (activityId, userId) => server.delete(`/profiles/${userId}/subscriptions/activities/${activityId}`, getTokenHeader())
+
 }
