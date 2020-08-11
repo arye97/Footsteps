@@ -27,6 +27,9 @@
 
                                     </p>
                                 </div>
+                                <hr><br/>
+                                <!-- Show recent online actions -->
+                                <HomeFeed></HomeFeed>
                             </div>
                         </div>
                     </div>
@@ -38,8 +41,10 @@
 
 
 <script>
+    import HomeFeed from "../HomeFeed/HomeFeed";
     export default {
         name: "HomeLayout",
+        components: {HomeFeed},
         isLoggedIn: false,
         data: function () {
             return {
