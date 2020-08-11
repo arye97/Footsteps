@@ -64,7 +64,7 @@ class ActivityControllerTest {
     private static Long activityCount = 0L;
 
     private User dummyUser1;
-    private User dummyUser2; // Used when a second user is required
+    private User dummyUser3; // Used when a second user is required
     private final String validToken = "valid";
     private Set<Activity> activityMockTable = new HashSet<>();
     private Set<User> userMockTable = new HashSet<>();
@@ -76,8 +76,8 @@ class ActivityControllerTest {
         MockitoAnnotations.initMocks(this);
         dummyUser1 = new User();
         dummyUser1.setToken(validToken);
-        dummyUser2 = new User();
-        dummyUser2.setToken("validToken");
+        dummyUser3 = new User();
+        dummyUser3.setToken("validToken");
         defaultAdminIsRegistered = false;
 
         // Mocking ActivityTypeService
@@ -162,17 +162,17 @@ class ActivityControllerTest {
     }
 
 
-    private void setupMockingNoEmailDummyUser2(String json) throws JsonProcessingException {
+    private void setupMockingNoEmailDummyUser3(String json) throws JsonProcessingException {
         UserRegisterRequest regReq;
         regReq = objectMapper.treeToValue(objectMapper.readTree(json), UserRegisterRequest.class);
-        dummyUser2 = dummyUser2.builder(regReq);
-        Email dummyEmail = new Email(dummyUser2.getPrimaryEmail(), true, dummyUser2);
+        dummyUser3 = dummyUser3.builder(regReq);
+        Email dummyEmail = new Email(dummyUser3.getPrimaryEmail(), true, dummyUser3);
         when(userRepository.save(Mockito.any(User.class))).thenAnswer(i -> {
             User user = i.getArgument(0);
             if (user.getRole() == UserRole.DEFAULT_ADMIN) {
                 defaultAdminIsRegistered = true;
             }
-            return dummyUser2;
+            return dummyUser3;
         });
     }
 
@@ -343,9 +343,9 @@ class ActivityControllerTest {
     void getParticipantsOfActivitySuccess() throws Exception {
         Activity activityInRepo = objectMapper.readValue(newActivity2Json, Activity.class);
         setupMockingNoEmailDummyUser1(newUserJson1);
-        setupMockingNoEmailDummyUser2(newUserJson2);
+        setupMockingNoEmailDummyUser3(newUserJson2);
         activityInRepo.addParticipant(dummyUser1);
-        activityInRepo.addParticipant(dummyUser2);
+        activityInRepo.addParticipant(dummyUser3);
         activityRepository.save(activityInRepo);
 
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get("/activities/{activityId}/participants", DEFAULT_ACTIVITY_ID)
