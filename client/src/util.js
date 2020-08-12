@@ -210,15 +210,3 @@ export function fetchCountries() {
     });
     return select;
 }
-
-/**
- * Get the Id of the current Logged in user.
- * @returns {Promise<*>}
- */
-export async function getUserId() {
-    let userId = null;
-    await api.getUserId().then(response => {
-        userId = response.data;
-    }).catch(error => {this.throwError(error, true)});
-    return userId
-}

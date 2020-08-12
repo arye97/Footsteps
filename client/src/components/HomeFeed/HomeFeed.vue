@@ -30,7 +30,6 @@
 <script>
     import FeedCard from "./FeedCard";
     import api from '../../Api.js'
-    import {getUserId} from "../../util";
     export default {
         name: "HomeFeed",
         components: {
@@ -54,20 +53,27 @@
             }
         },
         async mounted() {
-            this.userId = await getUserId();
-            console.log(this.userId);
+            this.userId = await this.getUserId();
             api.getFeedEvents(this.userId).then(response => {
                 this.feedEventList = response.data;
                 // Flip the list order so the most recent event shows first
                 // Update what is shown on this page of the pagination
                 this.feedEventList.reverse();
                 this.currentPageEventList = this.feedEventList;
-                console.log(this.currentPageEventList);
                 this.loading = false;
             }).catch(() => {
                 this.errored = true;
                 this.error_message = ""
             });
         },
+      methods: {
+        async getUserId() {
+          let userId = null;
+          await api.getUserId().then(response => {
+            userId = response.data;
+          }).catch(error => {this.throwError(error, true)});
+          return userId
+        }
+      }
     }
 </script>
