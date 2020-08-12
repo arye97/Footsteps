@@ -9,6 +9,14 @@ import org.springframework.web.server.ResponseStatusException;
 import java.net.HttpRetryException;
 import java.util.Set;
 
+/**
+ *  Validates the activities Outcome created by the activity author
+ *  Checks that the title both exists and is less than 75 chars long
+ *  Checks that the description both exists and is less than 1500 chars long
+ *  Checks that the activity id exists, so as to be associated with one
+ *  Checks that if this outcome has associated units exist then they will
+ *      both exist and have titles of length between 0 and 75 chars long
+ */
 public class OutcomeValidator {
 
     private static final int TITLE_LENGTH = 75;
@@ -22,6 +30,9 @@ public class OutcomeValidator {
         return true;
     }
 
+    /**
+     * @param title must be 1 >= x <= 75 chars long
+     */
     public static void validateTitle(String title) {
         if (title.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Title must be filled in");
@@ -31,6 +42,9 @@ public class OutcomeValidator {
         }
     }
 
+    /**
+     * @param description must be 1 >= x <= 1500 chars long
+     */
     public static void validateDescription(String description) {
         if (description.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Description must be filled in");
@@ -40,12 +54,19 @@ public class OutcomeValidator {
         }
     }
 
+    /**
+     * @param activityId must not be null
+     */
     public static void validateActivityId(Long activityId) {
         if (activityId == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ActivityId must be set");
         }
     }
 
+
+    /**
+     * @param units if this outcome has units, then they must have a unit type and name which cannot be null
+     */
     public static void validateUnits(Set<Unit> units) {
         if (!units.isEmpty()) {
             for (Unit unit : units) {
