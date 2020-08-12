@@ -61,9 +61,6 @@
                                                         {{activity.description}}
                                                     </p>
                                                 </b-card>
-
-
-
                                                 <template v-slot:modal-footer v-if="activity.creatorUserId!==activeUserId">
                                                     <div class="w-100">
                                                         <b-button v-if="activity.subscribed"
@@ -98,15 +95,6 @@
                                                       v-b-modal="'activity' + activity.id + '-continuous-modal'">
                                                 Details
                                             </b-button>
-                                            <!--                                            <b-button variant="outline-primary"-->
-                                            <!--                                                      @click="followActivity(activity.id)"-->
-                                            <!--                                                      v-if="activity.creatorUserId!==activeUserId"-->
-                                            <!--                                            >-->
-                                            <!--                                                Follow Activity-->
-                                            <!--                                                <img v-if="isHovered" src="../../../assets/png/footsteps_icon.png" class="footStepsSimplified" alt="Footsteps Logo">-->
-                                            <!--                                                <img v-else src="../../../assets/png/footsteps_icon_hollow.png" class="footStepsSimplified" alt="Footsteps Logo">-->
-                                            <!--                                            </b-button>-->
-
                                             <b-button v-if="activity.creatorUserId===activeUserId" variant="outline-danger" v-on:click="deleteActivity(activity.id)">Delete</b-button>
                                         </b-button-group>
                                     </div>
@@ -186,9 +174,6 @@
                                                     {{ activity.description }}
                                                 </p>
                                             </b-card>
-
-
-
                                             <template v-slot:modal-footer v-if="activity.creatorUserId!==activeUserId">
                                                 <div class="w-100">
                                                     <b-button v-if="activity.subscribed"
@@ -217,38 +202,16 @@
                                                     </b-button>
                                                 </div>
                                             </template>
-
-
-
-
-
                                         </b-modal>
                                         <b-button v-if="activity.creatorUserId === activeUserId"
                                                   variant="outline-primary"
                                                   v-on:click="goToPage(`/activities/edit/${activity.id}`)">
                                             Edit
                                         </b-button>
-
-
-
-
                                         <b-button variant="outline-primary"
                                                   v-b-modal="'activity' + activity.id + '-duration-modal'">
-                                            <!--                                                      v-on:click="updateFollowingDisplay(activity)">-->
                                             Details
                                         </b-button>
-
-                                        <!--                                            <b-button variant="outline-primary"-->
-                                        <!--                                                      @click="followActivity(activity.id)"-->
-                                        <!--                                                      v-if="activity.creatorUserId!==activeUserId"-->
-                                        <!--                                            >-->
-                                        <!--                                                Follow Activity-->
-                                        <!--                                                <img v-if="isHovered" src="../../../assets/png/footsteps_icon.png" class="footStepsSimplified" alt="Footsteps Logo">-->
-                                        <!--                                                <img v-else src="../../../assets/png/footsteps_icon_hollow.png" class="footStepsSimplified" alt="Footsteps Logo">-->
-                                        <!--                                            </b-button>-->
-
-
-
                                         <b-button v-if="activity.creatorUserId === activeUserId"
                                                   variant="outline-danger"
                                                   v-on:click="deleteActivity(activity.id)">
@@ -294,11 +257,6 @@
                 isRedirecting: false,
                 redirectionMessage: '',
                 timeout: 3200
-
-                // followError: false,
-                // followErrorMessage: "Something went wrong! Try again later!",
-                // followingList: {},
-                // followingDisplay: false
             }
         },
         beforeMount() {
