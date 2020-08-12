@@ -13,14 +13,12 @@ public class OutcomeValidator {
 
     private static final int TITLE_LENGTH = 75;
     private static final int DESCRIPTION_LEN = 1500;
-    private static final int COMMENT_LENGTH = 75;
 
     public static boolean validate(Outcome outcome) {
         validateTitle(outcome.getTitle());
         validateDescription(outcome.getDescription());
         validateActivityId(outcome.getActivityId());
         validateUnits(outcome.getUnits());
-        validateResults(outcome.getResults());
         return true;
     }
 
@@ -62,24 +60,6 @@ public class OutcomeValidator {
                     }
                 }
             }
-        }
-    }
-
-    public static void validateResults(Set<Result> results) {
-        if (!results.isEmpty()) {
-            for (Result result : results) {
-                if (result.getUserId() == null) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Result must be attached to a user");
-                }
-                if (result.getComment().isBlank()) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Result comment must be set");
-                } else {
-                    if (result.getComment().length() > COMMENT_LENGTH) {
-                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Result comment must be less than 75 characters long");
-                    }
-                }
-            }
-
         }
     }
 }

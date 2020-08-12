@@ -5,6 +5,7 @@ import com.springvuegradle.seng302team600.Utilities.OutcomeValidator;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.Outcome;
 import com.springvuegradle.seng302team600.model.User;
+import com.springvuegradle.seng302team600.payload.OutcomeRequest;
 import com.springvuegradle.seng302team600.payload.OutcomeResponse;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.OutcomeRepository;
@@ -40,11 +41,13 @@ public class OutcomeController {
      * Create an outcome for an activity.
      * This method checks that the user from token and the creator of the activity are the same
      * else it will throw a 403 forbidden exception
-     * @param outcome the outcome to be saved to the activity (in the outcomeRepository)
+     * @param outcomeRequest the outcomeResponse payload to be converted to an Outcome object
+     *                       to be saved to the activity (in the outcomeRepository)
      * @param request the request packet, where we will check the user Token
      */
     @PostMapping("/activities/outcomes")
-    public void createNewActivityOutcomes(@Validated @RequestBody Outcome outcome, HttpServletRequest request) {
+    public void createNewActivityOutcomes(@Validated @RequestBody OutcomeRequest outcomeRequest, HttpServletRequest request) {
+        Outcome outcome = new Outcome(outcomeRequest);
         OutcomeValidator.validate(outcome);
         String token = request.getHeader("Token");
         User user = userAuthenticationService.findByToken(token);
