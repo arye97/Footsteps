@@ -56,4 +56,5 @@ export default {
   getCountries: () => server.get(getCountryNames),
   //uncomment when implementing
   //createOutcome: (outcome) => server.post(`/activities/outcomes`, outcome, getTokenHeader());
+  getFeedEvents: (userId) => server.get(`/profiles/${userId}/subscriptions/`, getTokenHeader()),
 }
