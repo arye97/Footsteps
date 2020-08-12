@@ -14,6 +14,7 @@ import api from "../../Api";
 
 // User Id of the user that is being tested.
 let USER1_ID = null;
+let USER2_ID = null;
 
 const USER1 = {
     firstname: "John",
@@ -348,6 +349,77 @@ describe("Run tests on new user", () => {
         });
     });
 
+
+    // ---- Activity Participant Follow/Unfollow Related Tests ----
+
+    describe("Checking user feed event endpoints", () => {
+        let activityCreatedByUser1 = null;
+
+        function fetchActivities() {  // Helper function to prevent duplicate code
+            return api.getUserActivities(USER1_ID).then(response => {
+                activityCreatedByUser1 = response.data[0];
+            }).catch(err => console.error(procError(err)));
+        }
+
+        // Add one activity associated with user 1
+        beforeEach(() => {
+            return api.createActivity(ACTIVITY1, USER1_ID).catch(err => console.error(procError(err)));
+        });
+        // Gather activities created by by user 1
+        beforeEach(() => {
+            return fetchActivities();
+        });
+        // Register user 2
+        beforeAll(() => {
+            return api.register(USER2).catch(err => console.error(procError(err)));
+        });
+        // Login as user 2
+        beforeEach(() => {
+            return api.login({email: USER2.primary_email, password: USER2.password}).then(response => {
+                // Store Token
+                sessionStorage.setItem("token", response.data.Token);
+                // Store User Id
+                USER2_ID = response.data.userId;
+            })
+        });
+
+        // test following status of user 2 to user 1's activity before activity is followed
+        test("Get following status for an unsubscribed activity", () => {
+            return api.getUserSubscribed(activityCreatedByUser1.creatorUserId, USER2_ID).then(response => {
+                expect(response.status).toEqual(200);
+                expect(response.data.subscribed).toEqual(false); // User cannot follow their own activity
+            }).catch(err => {throw procError(err)});
+        });
+
+        // test user 2 following user 1's activity
+        test("Follow an unsubscribed activity", () => {
+            return api.setUserSubscribed(activityCreatedByUser1.id, USER2_ID).then(response => {
+                expect(response.status).toEqual(200);
+            }).catch(err => {throw procError(err)});
+        });
+
+
+        // describe("Start with user already subscribed", () => {
+        //     // Add one activity associated with user 1
+        //     beforeAll(() => {
+        //         return api.setUserSubscribed(activityCreatedByUser1.id, USER2_ID).then(response => {
+        //             expect(response.status).toEqual(200);
+        //         });
+        //     });
+        //
+        //     // test following status of user 2 to user 1's activity after activity is followed
+        //     test("Get following status for an subscribed activity", () => {
+        //         return api.getUserSubscribed(activityCreatedByUser1.creatorUserId, USER2_ID).then(response => {
+        //             expect(response.status).toEqual(200);
+        //             expect(response.data.subscribed).toEqual(true); // User cannot follow their own activity
+        //         }).catch(err => {throw procError(err)});
+        //     });
+        // });
+    });
+
+
+    // ---- User Searching Related Tests ----
+
     describe("Searching for users", () => {
 
         beforeAll(() => {
@@ -423,7 +495,6 @@ describe("Run tests on new user", () => {
 // ---- Other Tests ----
 
 describe("Other miscellaneous tests", () => {
-
     test("Get all activity types in the database", () => {
         return api.getActivityTypes().then(response => {
             expect(response.status).toEqual(200);
