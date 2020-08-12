@@ -156,7 +156,6 @@
 
 
 
-
                 <b-form-group
                         id="input-group-location"
                         label="Location: *"
@@ -168,6 +167,52 @@
                             placeholder="Location of your activity..."
                     ></b-form-input>
                 </b-form-group>
+
+
+
+                <b-form-group
+                        id="input-group-outcome-title"
+                        label="Outcomes: "
+                        label-for="input-outcome-title"
+                >
+                    <b-form-input
+                            id="input-outcome-title"
+                            v-model="activeOutcome.title"
+                            placeholder="Title of your outcome..."
+                            trim
+                            v-on:input="updateOutcomeTitleWordCount"
+                    ></b-form-input>
+                    <div class="word-count">
+                        {{outcomeTitleCharCount}}/{{maxOutcomeTitleCharCount}} characters left
+                    </div>
+                </b-form-group>
+                <b-form-group
+                        id="input-group-outcome-unit"
+                >
+                    <b-form-input
+                            id="input-outcome-unit"
+                            v-model="activeOutcome.unit"
+                            placeholder="Unit of your outcome..."
+                    ></b-form-input>
+                </b-form-group>
+                <b-form-group
+                        id="input-group-outcome-description"
+                >
+                    <b-form-textarea
+                            id="input-outcome-description"
+                            v-model="activeOutcome.description"
+                            rows="5"
+                            trim
+                            v-on:input="updateOutcomeDescriptionWordCount"
+                            placeholder="Description of your outcome..."
+                    ></b-form-textarea>
+                    <div class="word-count">
+                        {{outcomeDescriptionCharCount}}/{{maxOutcomeDescriptionCharCount}} characters left
+                    </div>
+                </b-form-group>
+
+
+
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_location">
                     {{ "Field is mandatory and a location must be set" }}
                 </div>
@@ -238,7 +283,15 @@
                 has_end_time: true,
 
                 isValidFormFlag: true,
-                overallMessageText: ""
+                overallMessageText: "",
+
+                activeOutcome: {},
+                outcomeList: [],
+
+                outcomeTitleCharCount: 0,
+                maxOutcomeTitleCharCount: 75,
+                outcomeDescriptionCharCount: 0,
+                maxOutcomeDescriptionCharCount: 1500
             }
         },
         async created() {
@@ -378,6 +431,20 @@
              */
             updateDescriptionWordCount() {
                 this.descriptionCharCount = this.activity.description.length;
+            },
+
+            /**
+             * Updates word count for outcome title
+             */
+            updateOutcomeTitleWordCount() {
+                this.outcomeTitleCharCount = this.activeOutcome.title.length;
+            },
+
+            /**
+             * Updates word count for outcome description
+             */
+            updateOutcomeDescriptionWordCount() {
+                this.outcomeDescriptionCharCount = this.activeOutcome.description.length;
             },
 
             /**
