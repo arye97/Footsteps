@@ -6,11 +6,14 @@
         <div v-else-if="this.errored" class="alert alert-danger alert-dismissible fade show " role="alert" id="alert">
             {{  error_message  }}
         </div>
+        <div v-else-if="this.isRedirecting" class="alert alert-danger alert-dismissible fade show ">
+            {{ redirectionMessage }}
+        </div>
         <b-tabs v-else content-class="mt-4" justified>
             <b-tab title="Continuous" :active="continuousIsActive(true)">
-                    <section v-for="activity in this.activityList" :key="activity.id">
-                        <!-- Activity List -->
-                        <b-card border-variant="secondary" style="background-color: #f3f3f3" v-if="activity.continuous">
+                <section v-for="(activity, index) in this.activityList.filter(i => i.continuous)" :key="activity.id">
+                    <!-- Activity List -->
+                        <b-card border-variant="secondary" style="background-color: #f3f3f3" class="continuousCard">
                             <b-row no-gutters>
                                 <b-col md="6">
                                     <b-card-text>
@@ -27,7 +30,10 @@
                                 <b-col md="6">
                                     <div class="activity-button-group float-right">
                                         <b-button-group vertical>
-                                            <b-modal :id="'activity' + activity.id + '-continuous-modal'" size="lg" centered ok-only scrollable :title="activity.activity_name">
+                                            <b-modal :id="'activity' + activity.id + '-continuous-modal'"
+                                                     size="lg" centered ok-only scrollable
+                                                     :title="activity.activity_name"
+                                                     @hidden="onHidden(index, activity.continuous)">
                                                 <b-card class="flex-fill" border-variant="secondary">
                                                     <b-row class="mb-1">
                                                         <b-col><strong>Creator: </strong></b-col>
@@ -55,26 +61,15 @@
                                                         {{activity.description}}
                                                     </p>
                                                 </b-card>
+
+
+
                                                 <template v-slot:modal-footer v-if="activity.creatorUserId!==activeUserId">
                                                     <div class="w-100">
-                                                        <b-button v-if="!followingDisplay"
+                                                        <b-button v-if="activity.subscribed"
                                                                   variant="outline-dark"
                                                                   class="footerButton"
-                                                                  @click="followActivity(activity)"
-                                                                  v-bind:key="activity.id"
-                                                        >
-                                                            <div>
-                                                                Follow Activity
-                                                            </div>
-                                                            <div>
-                                                                <img src="../../../assets/png/footsteps_icon_hollow.png" class="footSteps" alt="Footsteps Logo">
-                                                            </div>
-                                                        </b-button>
-                                                        <b-button v-else
-                                                                  variant="outline-dark"
-                                                                  class="footerButton"
-                                                                  @click="unfollowActivity(activity)"
-                                                                  v-bind:key="activity.id"
+                                                                  @click="unfollowActivity(activity.id, index, activity.continuous)"
                                                         >
                                                             <div>
                                                                 Unfollow Activity
@@ -83,154 +78,189 @@
                                                                 <img src="../../../assets/png/footsteps_icon.png" class="footSteps" alt="Footsteps Logo">
                                                             </div>
                                                         </b-button>
-                                                    </div>
-                                                    <div v-if="followError" class="text-center text-align:center w-100">
-                                                        <div class="alert alert-danger alert-dismissible fade show text-center" role="alert" id="followAlertContinuous">
-                                                            {{ followErrorMessage }}
-                                                        </div>
+                                                        <b-button v-else
+                                                                  variant="outline-dark"
+                                                                  class="footerButton"
+                                                                  @click="followActivity(activity.id, index, activity.continuous)"
+                                                        >
+                                                            <div>
+                                                                Follow Activity
+                                                            </div>
+                                                            <div>
+                                                                <img src="../../../assets/png/footsteps_icon_hollow.png" class="footSteps" alt="Footsteps Logo">
+                                                            </div>
+                                                        </b-button>
                                                     </div>
                                                 </template>
                                             </b-modal>
                                             <b-button v-if="activity.creatorUserId===activeUserId" variant="outline-primary" v-on:click="goToPage(`/activities/edit/${activity.id}`)">Edit</b-button>
                                             <b-button variant="outline-primary"
-                                                      v-b-modal="'activity' + activity.id + '-continuous-modal'"
-                                                      v-on:click="updateFollowingDisplay(activity)">
+                                                      v-b-modal="'activity' + activity.id + '-continuous-modal'">
                                                 Details
                                             </b-button>
+                                            <!--                                            <b-button variant="outline-primary"-->
+                                            <!--                                                      @click="followActivity(activity.id)"-->
+                                            <!--                                                      v-if="activity.creatorUserId!==activeUserId"-->
+                                            <!--                                            >-->
+                                            <!--                                                Follow Activity-->
+                                            <!--                                                <img v-if="isHovered" src="../../../assets/png/footsteps_icon.png" class="footStepsSimplified" alt="Footsteps Logo">-->
+                                            <!--                                                <img v-else src="../../../assets/png/footsteps_icon_hollow.png" class="footStepsSimplified" alt="Footsteps Logo">-->
+                                            <!--                                            </b-button>-->
+
                                             <b-button v-if="activity.creatorUserId===activeUserId" variant="outline-danger" v-on:click="deleteActivity(activity.id)">Delete</b-button>
                                         </b-button-group>
                                     </div>
                                 </b-col>
                             </b-row>
                         </b-card>
-                        <br/>
-                    </section>
+                    <br/>
+                </section>
                 <hr/>
                 <footer class="noMore">No more activities to show</footer>
             </b-tab>
             <b-tab title="Duration" :active="continuousIsActive(false)">
-                    <section v-for="activity in this.activityList" :key="activity.id">
-                        <!-- Activity List -->
-                        <b-card border-variant="secondary" style="background-color: #f3f3f3" v-if="!activity.continuous">
-                            <b-row no-gutters>
-                                <b-col md="6">
-                                    <b-card-text>
-                                        <strong>{{ activity.activity_name }} | {{ activity.creatorName }}</strong>
-                                        <hr/>
-                                        <strong>Start Date: </strong>{{ getDateTime(activity.start_time )}}
-                                        <br/>
-                                        <strong>End Date: </strong>{{ getDateTime(activity.end_time) }}
-                                        <br/><br/>
-                                        <div v-if="activity.description.length <= 100">
-                                            {{ activity.description }}
-                                        </div>
-                                        <div v-else>
-                                            {{ activity.description.substring(0,100)+"...." }}
-                                        </div>
-                                    </b-card-text>
-                                </b-col>
-                                <b-col md="6">
-                                    <div class="activity-button-group float-right">
-                                        <b-button-group vertical>
-                                            <b-modal :id="'activity' + activity.id + '-duration-modal'" size="lg" centered ok-only scrollable :title="activity.activity_name">
-                                                <b-card class="flex-fill" border-variant="secondary">
-                                                    <b-row class="mb-1">
-                                                        <b-col><strong>Creator: </strong></b-col>
-                                                        <b-col>{{ activity.creatorName }}</b-col>
-                                                    </b-row>
-                                                    <b-row class="mb-1">
-                                                        <b-col><strong>Start Date: </strong></b-col>
-                                                        <b-col>{{ getDateTime(activity.start_time) }}</b-col>
-                                                    </b-row>
-                                                    <b-row class="mb-1">
-                                                        <b-col><strong>End Date: </strong></b-col>
-                                                        <b-col>{{ getDateTime(activity.end_time) }}</b-col>
-                                                    </b-row>
-                                                    <b-row class="mb-1">
-                                                        <b-col><strong>Duration: </strong></b-col>
-                                                        <b-col>{{ getDays(activity) }} Days
-                                                            {{ getHours(activity) }} Hours</b-col>
-                                                    </b-row>
-                                                    <b-row class="mb-1">
-                                                        <b-col><strong>Location: </strong></b-col>
-                                                        <b-col>{{ activity.location }}</b-col>
-                                                    </b-row>
-                                                    <b-row class="mb-1">
-                                                        <b-col><strong>Activity types: </strong></b-col>
-                                                        <b-col>
-                                                            <section v-for="activityType in activity.activity_type" v-bind:key="activityType.name">
-                                                                <div>
-                                                                    {{ activityType.name }}
-                                                                </div>
-                                                            </section>
-                                                        </b-col>
-                                                    </b-row>
-                                                </b-card>
-                                                <br>
-                                                <b-card class="flex-fill" border-variant="secondary">
-                                                    <p class="text-justified">
-                                                        <strong>Description: </strong><br>
-                                                        {{ activity.description }}
-                                                    </p>
-                                                </b-card>
-                                                <template v-slot:modal-footer v-if="activity.creatorUserId !== activeUserId">
-                                                    <div class="w-100">
-                                                        <b-button v-if="!followingDisplay"
-                                                                  variant="outline-dark"
-                                                                  class="footerButton"
-                                                                  @click="followActivity(activity)"
-                                                                  v-bind:key="activity.id"
-                                                        >
-                                                            <div>
-                                                                Follow Activity
-                                                            </div>
-                                                            <div>
-                                                                <img src="../../../assets/png/footsteps_icon_hollow.png" class="footSteps" alt="Footsteps Logo">
-                                                            </div>
-                                                        </b-button>
-                                                        <b-button v-else
-                                                                  variant="outline-dark"
-                                                                  class="footerButton"
-                                                                  @click="unfollowActivity(activity)"
-                                                                  v-bind:key="activity.id"
-                                                        >
-                                                            <div>
-                                                                Unfollow Activity
-                                                            </div>
-                                                            <div>
-                                                                <img src="../../../assets/png/footsteps_icon.png" class="footSteps" alt="Footsteps Logo">
-                                                            </div>
-                                                        </b-button>
-                                                    </div>
-                                                    <div v-if="followError" class="text-center text-align:center w-100">
-                                                        <div class="alert alert-danger alert-dismissible fade show text-center" role="alert" id="followAlertDuration">
-                                                            {{ followErrorMessage }}
-                                                        </div>
-                                                    </div>
-                                                </template>
-                                            </b-modal>
-                                            <b-button v-if="activity.creatorUserId === activeUserId"
-                                                      variant="outline-primary"
-                                                      v-on:click="goToPage(`/activities/edit/${activity.id}`)">
-                                                Edit
-                                            </b-button>
-                                            <b-button variant="outline-primary"
-                                                      v-b-modal="'activity' + activity.id + '-duration-modal'"
-                                                      v-on:click="updateFollowingDisplay(activity)">
-                                                Details
-                                            </b-button>
-                                            <b-button v-if="activity.creatorUserId === activeUserId"
-                                                      variant="outline-danger"
-                                                      v-on:click="deleteActivity(activity.id)">
-                                                Delete
-                                            </b-button>
-                                        </b-button-group>
+                <section v-for="(activity, index) in this.activityList.filter(i => !i.continuous)" :key="activity.id">
+                    <!-- Activity List -->
+                    <b-card border-variant="secondary" style="background-color: #f3f3f3" class="durationCard">
+                        <b-row no-gutters>
+                            <b-col md="6">
+                                <b-card-text>
+                                    <strong>{{ activity.activity_name }} | {{ activity.creatorName }}</strong>
+                                    <hr/>
+                                    <strong>Start Date: </strong>{{ getDateTime(activity.start_time )}}
+                                    <br/>
+                                    <strong>End Date: </strong>{{ getDateTime(activity.end_time) }}
+                                    <br/><br/>
+                                    <div v-if="activity.description.length <= 100">
+                                        {{ activity.description }}
                                     </div>
-                                </b-col>
-                            </b-row>
-                            <br/>
-                        </b-card>
-                    </section>
+                                    <div v-else>
+                                        {{ activity.description.substring(0,100)+"...." }}
+                                    </div>
+                                </b-card-text>
+                            </b-col>
+                            <b-col md="6">
+                                <div class="activity-button-group float-right">
+                                    <b-button-group vertical>
+                                        <b-modal :id="'activity' + activity.id + '-duration-modal'"
+                                                 size="lg" centered ok-only scrollable
+                                                 :title="activity.activity_name"
+                                                 @hidden="onHidden(index, activity.continuous)">
+                                        <b-card class="flex-fill" border-variant="secondary">
+                                                <b-row class="mb-1">
+                                                    <b-col><strong>Creator: </strong></b-col>
+                                                    <b-col>{{ activity.creatorName }}</b-col>
+                                                </b-row>
+                                                <b-row class="mb-1">
+                                                    <b-col><strong>Start Date: </strong></b-col>
+                                                    <b-col>{{ getDateTime(activity.start_time) }}</b-col>
+                                                </b-row>
+                                                <b-row class="mb-1">
+                                                    <b-col><strong>End Date: </strong></b-col>
+                                                    <b-col>{{ getDateTime(activity.end_time) }}</b-col>
+                                                </b-row>
+                                                <b-row class="mb-1">
+                                                    <b-col><strong>Duration: </strong></b-col>
+                                                    <b-col>{{ getDays(activity) }} Days
+                                                        {{ getHours(activity) }} Hours</b-col>
+                                                </b-row>
+                                                <b-row class="mb-1">
+                                                    <b-col><strong>Location: </strong></b-col>
+                                                    <b-col>{{ activity.location }}</b-col>
+                                                </b-row>
+                                                <b-row class="mb-1">
+                                                    <b-col><strong>Activity types: </strong></b-col>
+                                                    <b-col>
+                                                        <section v-for="activityType in activity.activity_type" v-bind:key="activityType.name">
+                                                            <div>
+                                                                {{ activityType.name }}
+                                                            </div>
+                                                        </section>
+                                                    </b-col>
+                                                </b-row>
+                                            </b-card>
+                                            <br>
+                                            <b-card class="flex-fill" border-variant="secondary">
+                                                <p class="text-justified">
+                                                    <strong>Description: </strong><br>
+                                                    {{ activity.description }}
+                                                </p>
+                                            </b-card>
+
+
+
+                                            <template v-slot:modal-footer v-if="activity.creatorUserId!==activeUserId">
+                                                <div class="w-100">
+                                                    <b-button v-if="activity.subscribed"
+                                                              variant="outline-dark"
+                                                              class="footerButton"
+                                                              @click="unfollowActivity(activity.id, index, activity.continuous)"
+                                                    >
+                                                        <div>
+                                                            Unfollow Activity
+                                                        </div>
+                                                        <div>
+                                                            <img src="../../../assets/png/footsteps_icon.png" class="footSteps" alt="Footsteps Logo">
+                                                        </div>
+                                                    </b-button>
+                                                    <b-button v-else
+                                                              variant="outline-dark"
+                                                              class="footerButton"
+                                                              @click="followActivity(activity.id, index, activity.continuous)"
+                                                    >
+                                                        <div>
+                                                            Follow Activity
+                                                        </div>
+                                                        <div>
+                                                            <img src="../../../assets/png/footsteps_icon_hollow.png" class="footSteps" alt="Footsteps Logo">
+                                                        </div>
+                                                    </b-button>
+                                                </div>
+                                            </template>
+
+
+
+
+
+                                        </b-modal>
+                                        <b-button v-if="activity.creatorUserId === activeUserId"
+                                                  variant="outline-primary"
+                                                  v-on:click="goToPage(`/activities/edit/${activity.id}`)">
+                                            Edit
+                                        </b-button>
+
+
+
+
+                                        <b-button variant="outline-primary"
+                                                  v-b-modal="'activity' + activity.id + '-duration-modal'">
+                                            <!--                                                      v-on:click="updateFollowingDisplay(activity)">-->
+                                            Details
+                                        </b-button>
+
+                                        <!--                                            <b-button variant="outline-primary"-->
+                                        <!--                                                      @click="followActivity(activity.id)"-->
+                                        <!--                                                      v-if="activity.creatorUserId!==activeUserId"-->
+                                        <!--                                            >-->
+                                        <!--                                                Follow Activity-->
+                                        <!--                                                <img v-if="isHovered" src="../../../assets/png/footsteps_icon.png" class="footStepsSimplified" alt="Footsteps Logo">-->
+                                        <!--                                                <img v-else src="../../../assets/png/footsteps_icon_hollow.png" class="footStepsSimplified" alt="Footsteps Logo">-->
+                                        <!--                                            </b-button>-->
+
+
+
+                                        <b-button v-if="activity.creatorUserId === activeUserId"
+                                                  variant="outline-danger"
+                                                  v-on:click="deleteActivity(activity.id)">
+                                            Delete
+                                        </b-button>
+                                    </b-button-group>
+                                </div>
+                            </b-col>
+                        </b-row>
+                        <br/>
+                    </b-card>
+                </section>
                 <hr/>
                 <footer class="noMore">No more activities to show</footer>
             </b-tab>
@@ -257,14 +287,13 @@
                 noMore: false,
                 activeTab: 0,
                 loading: true,
-                userId: this.user_Id,
+                userId: this.user_Id, // user_Id derived from profile being viewed
                 errored: false,
                 error_message: "Could not load user activities",
                 activeUserId: null,
-                followError: false,
-                followErrorMessage: "Something went wrong! Try again later!",
-                followingList: {},
-                followingDisplay: false
+                isRedirecting: false,
+                redirectionMessage: '',
+                timeout: 3200
             }
         },
         beforeMount() {
@@ -274,43 +303,69 @@
             await this.getActiveUserId();
             await this.getListOfActivities();
             await this.getCreatorNamesForActivities();
+            await this.getFollowingStatusForActivity();
         },
         methods: {
-            async followActivity(activity) {
-                this.followError = false;
-                this.followingDisplay = true;  //This is done before the API call so the UI is more responsive
-                await api.setUserSubscribed(activity.id, this.activeUserId).then(() => {
-                    this.followingDisplay = true;
+
+            async followActivity(activityId, filteredIndex, isContinuous) {
+                await api.setUserSubscribed(activityId, this.activeUserId).then(() => {
+                    let activity = this.activityList.filter(activity => activity.continuous === isContinuous)[filteredIndex];
+                    let index = this.activityList.indexOf(activity);
+                    this.activityList[index].subscribed = true;
+                    console.log(this.activityList)
+                    this.$forceUpdate();  // Notice we have to use a $ here
                 }).catch((error) => {
-                    if (error.response.data.message === "User can't re-follow an event they're currently participating in.") {
-                        this.followingDisplay = true;
-                    } else {
-                        this.followErrorMessage = "Something went wrong! Try again later!";
-                        this.followingDisplay = false;
-                        this.followError = true;
-                    }
+                    this.processGetError(error, "FOLLOW");
                 });
             },
-            async unfollowActivity(activity) {
-                this.followError = false;
-                this.followingDisplay = false;  //This is done before the API call so the UI is more responsive
-                await api.deleteUserSubscribed(activity.id, this.activeUserId).then(() => {
-                    this.followingDisplay = false;
+
+
+
+            async unfollowActivity(activityId, filteredIndex, isContinuous) {
+                await api.deleteUserSubscribed(activityId, this.activeUserId).then(() => {
+                    let activity = this.activityList.filter(activity => activity.continuous === isContinuous)[filteredIndex];
+                    let index = this.activityList.indexOf(activity);
+                    this.activityList[index].subscribed = false;
+                    console.log(this.activityList)
+                    this.$forceUpdate();  // Notice we have to use a $ here
                 }).catch((error) => {
-                    if (error.response.data.message === "User can't un-follow an event they're not participating in.") {
-                        this.followingDisplay = false;
-                    } else {
-                        this.followErrorMessage = "Something went wrong! Try again later!";
-                        this.followingDisplay = true;
-                        this.followError = true;
-                    }
+                    this.processGetError(error, "UNFOLLOW");
                 });
             },
+
+
+
+            async processGetError(error, feed) {
+                this.isRedirecting = true;
+                if (error.response.status === 400) {
+                    if (feed === "FOLLOW") {
+                        this.redirectionMessage = "User can't follow an event they're already participating in, \n" +
+                            "Refreshing page.";
+                        setTimeout(() => {
+                            this.$router.go();
+                        }, this.timeout);
+                    } else if (feed === "UNFOLLOW") {
+                        this.redirectionMessage = "User can't unfollow an event they're not participating in, \n" +
+                            "Refreshing page.";
+                        setTimeout(() => {
+                            this.$router.go();
+                        }, this.timeout);
+                    }
+                }
+                // TODO
+            },
+
+
+            /**
+             * Obtains user id of person currently logged in.
+             */
             getActiveUserId() {
                 api.getUserId().then(response => {
                     this.activeUserId = response.data;
                 }).catch()
             },
+
+
             getDateTime: formatDateTime,
             getDays(activity) {
                 return Math.floor(((new Date(activity.end_time) - new Date(activity.start_time))/1000/60/60/24))
@@ -323,6 +378,7 @@
                     this.$router.push("/login");
                 }
             },
+
 
             /**
              * Retrieves a list of activities
@@ -337,12 +393,16 @@
                         }
                         this.activityList = response.data;
                     }).catch(() => {
-                        this.errored = true;
-                    })
+                    this.errored = true;
+                })
             },
+
+
             goToPage(url) {
                 this.$router.push(url);
             },
+
+
             /**
              * When the page is loaded, make the tab active that has activities.  If the non-continuous tab has
              * activities, but the continuous tab doesn't, make the non-continuous tab active.
@@ -357,6 +417,8 @@
                     return isContinuousTab;
                 }
             },
+
+
             /**
              * Opens a dialog box (modal) to confirm deletion.  If Ok is pressed, then it removes the activity from the
              * database.
@@ -390,6 +452,7 @@
                 })
             },
 
+
             /**
              * Iterates over list of activities
              * and obtains name of creator of an activity.
@@ -399,23 +462,63 @@
                 for (let i = 0; i < this.activityList.length; i++) {
                     await api.getUserData(this.activityList[i].creatorUserId).then((response) => {
                         this.activityList[i]["creatorName"] = `${response.data.firstname} ${response.data.lastname}`;
-                    }).catch(() => {
-                        this.activityList[i]["creatorName"] = "Could not load creator's name";
+                    }).catch((error) => {
+                        this.processGetError(error, "UNKNOWN")
                     });
+                }
+            },
+
+
+            /**
+             * Iterates over list of activities
+             * and obtains a follow status
+             * for an activity that a user is following
+             */
+            async getFollowingStatusForActivity() {
+                for (let i = 0; i < this.activityList.length; i++) {
+                    if (this.activeUserId !== this.activityList[i].creatorUserId) {
+                        await api.getUserSubscribed(this.activityList[i].id, this.activeUserId).then((response) => {
+                            this.activityList[i]["subscribed"] = response.data.subscribed;
+                        }).catch((error) => {
+                            this.processGetError(error, "UNKNOWN")
+                        });
+                    }
                 }
                 this.loading = false;
             },
 
-            async updateFollowingDisplay(activity) {
-                await api.getUserSubscribed(activity.id, this.activeUserId).then((response) => {
-                    this.followingDisplay = `${response.data.subscribed}`;
+
+
+            async onHidden (filteredIndex, isContinuous) {
+                if (this.user_Id === this.activeUserId) {
+                    // if this is my login page
+                    let activity = this.activityList.filter(activity => activity.continuous === isContinuous)[filteredIndex];
+                    let index = this.activityList.indexOf(activity);
+                    if (this.activityList[index].subscribed === false) {
+                        this.activityList.splice(index, 1);
+                    }
+                }
+                this.$forceUpdate();  // Notice we have to use a $ here
+            },
+
+
+            /**
+             * Logs the user out and clears session token
+             */
+            logout () {
+                api.logout().then(() => {
+                    sessionStorage.clear();
+                    // tokenStore.setToken(null);
+                    this.isLoggedIn = (sessionStorage.getItem("token") !== null);
+                    this.$forceUpdate();
+                    this.$router.push('/login'); //Routes to home on logout
                 }).catch(() => {
-                    this.followingDisplay = false;
-                });
-                this.followError = false;
-                console.log('updated');
-                console.log(this.followingDisplay);
-            }
+                    sessionStorage.clear();
+                    this.isLoggedIn = (sessionStorage.getItem("token") !== null);
+                    this.$forceUpdate();
+                    this.$router.push('/login'); //Routes to home on logout
+                })
+            },
         }
     }
 
@@ -426,10 +529,6 @@
     .footSteps {
         width: 7.5%;
         height: 7.5%;
-    }
-    .footStepsSimplified {
-        width: 16%;
-        height: 16%;
     }
     .noMore {
         text-align: center;
@@ -449,5 +548,13 @@
 
     .footerButton {
         width: 100%;
+    }
+
+    .continuousCard {
+        margin-bottom: -5px;
+    }
+
+    .durationCard {
+        margin-bottom: 20px;
     }
 </style>
