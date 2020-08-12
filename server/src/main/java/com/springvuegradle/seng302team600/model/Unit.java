@@ -13,7 +13,7 @@ public class Unit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "unit_id", nullable = false)
     @JsonProperty("unit_id")
-    private Long id;
+    private Long unitId;
 
     @Column(name = "name", nullable = false)
     @JsonProperty("name")
@@ -29,10 +29,8 @@ public class Unit {
 
     public Unit() {}
 
-    public Unit(String name, UnitType unitType, String measurementUnit) {
-        this.name = name;
-        this.unitType = unitType;
-        this.measurementUnit = measurementUnit;
+    public Long getUnitId() {
+        return unitId;
     }
 
     public String getName() {

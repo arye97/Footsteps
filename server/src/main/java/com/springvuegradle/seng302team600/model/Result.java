@@ -15,7 +15,7 @@ import java.util.Set;
  * This is also the payload to be returned to the front-end for the GET Result endpoint.
  * Json should be formatted as follows:
  * - result_id
- * - user_id
+ * - user_id (You don't need to add this when POST/creating a result. Will default to your own ID)
  * - values (This is a set of Value objects. Look at model.Value.java for its Json params)
  * - comment
  */

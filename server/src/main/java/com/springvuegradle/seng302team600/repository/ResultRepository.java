@@ -10,5 +10,7 @@ import java.util.List;
 @RepositoryRestResource
 public interface ResultRepository extends JpaRepository<Result, Long> {
 
-    List<Result> findAllByOutcome(Outcome outcome);
+    List<Result> findByOutcome(Outcome outcome);
+
+    boolean existsByOutcomeAndUserId(Outcome outcome, Long userId);
 }
