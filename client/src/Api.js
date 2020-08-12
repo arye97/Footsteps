@@ -54,4 +54,6 @@ export default {
     return server.get(`profiles?activity=${activityTypesStr}&method=${method}`, getTokenHeader())
   },
   getCountries: () => server.get(getCountryNames),
+  //uncomment when implementing
+  //createOutcome: (outcome) => server.post(`/activities/outcomes`, outcome, getTokenHeader());
 }
