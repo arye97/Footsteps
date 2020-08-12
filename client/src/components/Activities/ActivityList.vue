@@ -73,14 +73,23 @@
                                             </template>
 
 
-                                            <!--  Here for participants-->
+                                            <!--Participants view for when an activity is continuous-->
                                             <b-card class="flex-fill" border-variant="secondary">
-                                                    <strong>Participants: </strong><br>
+                                                <strong>Participants: </strong><br>
+
+                                                <div style="max-width:100px">
 
 
-                                                    <section v-for="participant in activity.participants" :key="participant">
-                                                        {{participant}}
-                                                    </section>
+
+                                                    <b-button-group>
+                                                        <section v-for="participant in activity.participants" :key="participant" >
+                                                            <b-button
+                                                            style="margin:3px"
+                                                            v-on:click="toUserProfile(participant.id)">{{participant.name}}</b-button>
+                                                        </section>
+                                                    </b-button-group>
+
+                                                </div>
 
 <!--                                                    {{activity.participants}}-->
 <!--                                                    <b-pagination-->
@@ -206,13 +215,16 @@
                                             <br>
 
 
-                                            <!--  Card for displaying the participants-->
+                                            <!--Participants view for when an activity is non-continuous/duration-->
                                             <b-card class="flex-fill" border-variant="secondary">
 
-                                                    <strong>Participants: </strong><br>
-                                                    <section v-for="participant in activity.participants" :key="participant">
-                                                        {{participant}}
-                                                    </section>
+                                                <strong>Participants: </strong><br>
+                                                <b-button-group>
+                                                <section v-for="participant in activity.participants" :key="participant"><b-button
+                                                            style="margin:3px"
+                                                            v-on:click="toUserProfile(participant.id)">{{participant.name}}</b-button>
+                                                </section>
+                                            </b-button-group>
 
                                             </b-card>
 
@@ -452,12 +464,10 @@
                         let user;
                         for (let j = 0; j < response.data.length; j++) {
                             user = response.data[j];
-                            participants.push(user.firstname + ' ' + user.lastname);
+                            participants.push({"name":user.firstname + ' ' + user.lastname,
+                                                "id":user.id});
                         }
                         this.activityList[i].participants = participants;
-                        //console.log(this.activityList[i]);
-                        //console.log('here' + this.activityList[i][participants])
-                        // console.log('we have success, response is:  ' + response.data);
 
                     }).catch(error => {
                         //Log out if error
@@ -470,6 +480,10 @@
                         }
                     });
                 }
+            },
+
+            toUserProfile(id) {
+                this.$router.push('/profile/'+id);
             },
 
             /**
