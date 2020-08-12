@@ -294,6 +294,11 @@
                 isRedirecting: false,
                 redirectionMessage: '',
                 timeout: 3200
+
+                // followError: false,
+                // followErrorMessage: "Something went wrong! Try again later!",
+                // followingList: {},
+                // followingDisplay: false
             }
         },
         beforeMount() {
@@ -306,7 +311,14 @@
             await this.getFollowingStatusForActivity();
         },
         methods: {
-
+            /**
+             * Makes a request to the back-end to FOLLOW an activity.
+             *
+             * @param activityId Id of the activity to follow
+             * @param filteredIndex Index of activity to follow
+             * @param isContinuous Type of Activity to follow
+             * @returns {Promise<void>}
+             */
             async followActivity(activityId, filteredIndex, isContinuous) {
                 await api.setUserSubscribed(activityId, this.activeUserId).then(() => {
                     let activity = this.activityList.filter(activity => activity.continuous === isContinuous)[filteredIndex];
@@ -320,7 +332,14 @@
             },
 
 
-
+            /**
+             * Makes a request to the back-end to UNFOLLOW an activity.
+             *
+             * @param activityId Id of the activity to unfollow
+             * @param filteredIndex Index of activity to unfollow
+             * @param isContinuous Type of Activity to follow
+             * @returns {Promise<void>}
+             */
             async unfollowActivity(activityId, filteredIndex, isContinuous) {
                 await api.deleteUserSubscribed(activityId, this.activeUserId).then(() => {
                     let activity = this.activityList.filter(activity => activity.continuous === isContinuous)[filteredIndex];
@@ -334,7 +353,18 @@
             },
 
 
-
+            /**
+             * This helper function is called when an error is caught
+             * when performing a FOLLOW/UNFOLLOW requests to the server.<br>
+             * Conditions handled are:<br>
+             * 400 (BAD REQUEST) refreshes page,<br>
+             * 401 (UNAUTHORIZED) redirect to login page,<br>
+             * 403 (FORBIDDEN) and refreshes page,<br>
+             * Otherwise unknown error so refreshes page
+             *
+             * @param error error to be processed
+             * @param feed String that indicates if it is an UNFOLLOW/FOLLOW/UNKNOWN feed
+             */
             async processGetError(error, feed) {
                 this.isRedirecting = true;
                 if (error.response.status === 400) {
@@ -352,7 +382,6 @@
                         }, this.timeout);
                     }
                 }
-                // TODO
             },
 
 
@@ -488,7 +517,15 @@
             },
 
 
-
+            /**
+             * Called when activity modal is triggered to close (x button in modal).
+             * If the ActivityList component belongs to a User
+             * and the activity in question has been UNFOLLOWED,
+             * then the activity is removed from activityList.
+             * @param filteredIndex of activity in modal
+             * @param isContinuous Type of Activity to follow
+             * @returns {Promise<void>}
+             */
             async onHidden (filteredIndex, isContinuous) {
                 if (this.user_Id === this.activeUserId) {
                     // if this is my login page
