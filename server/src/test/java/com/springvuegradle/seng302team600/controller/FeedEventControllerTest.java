@@ -80,7 +80,7 @@ public class FeedEventControllerTest {
         ReflectionTestUtils.setField(dummyActivity, "activityId", ACTIVITY_ID_1);
 
         feedEventTable = new ArrayList<>();
-        dummyEvent = new FeedEvent(ACTIVITY_ID_1, USER_ID_1, USER_ID_1, FeedPostType.MODIFY);
+        dummyEvent = new FeedEvent(ACTIVITY_ID_1, "DummyActivity", USER_ID_1, USER_ID_1, FeedPostType.MODIFY);
         ReflectionTestUtils.setField(dummyEvent, "feedEventId", EVENT_ID_1);
         feedEventTable.add(dummyEvent);
 
