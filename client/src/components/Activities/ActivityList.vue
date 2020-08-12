@@ -382,6 +382,26 @@
                         }, this.timeout);
                     }
                 }
+                else if (error.response.status === 401) {
+                    this.redirectionMessage = "Sorry, you are no longer logged in,\n" +
+                        "Redirecting to the login page.";
+                    setTimeout(() => {
+                        this.logout()
+                    }, this.timeout);
+                } else if (error.response.status === 403) {
+                    // If user ever gets to another user's activity page and follows/unfollows their activity
+                    this.redirectionMessage = "Sorry, you are not allowed to access another user's activites,\n" +
+                        "Refreshing page.";
+                    setTimeout(() => {
+                        this.$router.go();
+                    }, this.timeout);
+                } else {
+                    this.redirectionMessage = "Something went wrong!,\n" +
+                        "Refreshing page.";
+                    setTimeout(() => {
+                        this.$router.go();
+                    }, this.timeout);
+                }
             },
 
 
