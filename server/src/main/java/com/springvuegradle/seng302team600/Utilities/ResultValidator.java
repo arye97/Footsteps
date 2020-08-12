@@ -60,13 +60,13 @@ public class ResultValidator {
                 // Will always be a String
                 break;
             case NUMBER:
-                if (value.getValue().matches(NUMBER_REGEX)) {
+                if (!value.getValue().matches(NUMBER_REGEX)) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                             "Value does not convert to an integer");
                 }
                 break;
             case BOOLEAN:
-                if (value.getValue().matches(BOOLEAN_REGEX)) {
+                if (!value.getValue().matches(BOOLEAN_REGEX)) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                             "Value does not convert to a boolean");
                 }
