@@ -11,6 +11,13 @@ import java.util.Set;
 /**
  * This class is to link User to Value. The Outcome will reference this class to get the result for a user.
  * Results contains the users values specific to an activity's outcome.
+ *
+ * This is also the payload to be returned to the front-end for the GET Result endpoint.
+ * Json should be formatted as follows:
+ * - result_id
+ * - user_id
+ * - values (This is a set of Value objects. Look at model.Value.java for its Json params)
+ * - comment
  */
 
 @Entity
