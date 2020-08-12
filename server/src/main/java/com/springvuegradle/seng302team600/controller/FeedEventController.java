@@ -61,7 +61,7 @@ public class FeedEventController {
 
         //The user is not following the event so continue
         // Create the Follow Feed Event and save it to the db
-        FeedEvent followEvent = new FeedEvent(activityId, profileId, profileId, FeedPostType.FOLLOW);
+        FeedEvent followEvent = new FeedEvent(activityId, activity.getName(), profileId, profileId, FeedPostType.FOLLOW);
         feedEventRepository.save(followEvent); //save the event!
 
         // Add participant at the end, in case there are errors before then
@@ -93,7 +93,7 @@ public class FeedEventController {
 
         //The user has not un-followed the event so continue
         // Create the Follow Feed Event and save it to the db
-        FeedEvent unFollowEvent = new FeedEvent(activityId, profileId, profileId, FeedPostType.UNFOLLOW);
+        FeedEvent unFollowEvent = new FeedEvent(activityId, activity.getName(), profileId, profileId, FeedPostType.UNFOLLOW);
         feedEventRepository.save(unFollowEvent); //save the event!
 
         // Remove participant at the end, in case there are errors before then

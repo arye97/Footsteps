@@ -54,4 +54,5 @@ export default {
     return server.get(`profiles?activity=${activityTypesStr}&method=${method}`, getTokenHeader())
   },
   getCountries: () => server.get(getCountryNames),
+  getFeedEvents: (userId) => server.get(`/profiles/${userId}/subscriptions/`, getTokenHeader()),
 }
