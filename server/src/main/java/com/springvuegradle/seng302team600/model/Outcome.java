@@ -3,6 +3,7 @@ package com.springvuegradle.seng302team600.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.springvuegradle.seng302team600.payload.OutcomeRequest;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -55,7 +56,13 @@ public class Outcome {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "outcome", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Result> results;
 
-    public Outcome() {
+    public Outcome() {}
+
+    public Outcome(OutcomeRequest outcomeRequest) {
+        this.title = outcomeRequest.getTitle();
+        this.activityId = outcomeRequest.getActivityId();
+        this.units = outcomeRequest.getUnits();
+        this.description = outcomeRequest.getDescription();
     }
 
     public Long getOutcomeId() {

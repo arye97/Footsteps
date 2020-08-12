@@ -10,7 +10,7 @@
             <b-row class="mb-1">
                 <!-- Core Card Text -->
                 <b-col>
-                    <b-card-text id="description"><strong>{{firstName}} {{lastName}} {{actionText}} the activity {{activityTitle}}</strong></b-card-text>
+                    <b-card-text id="description"><strong>{{firstName}} {{lastName}} {{actionText}} the activity {{event.activityName}}</strong></b-card-text>
                 </b-col>
             </b-row>
             <!-- Buttons and seperator not required for delete events -->
@@ -48,7 +48,8 @@
                 feedEventType: String,
                 timeStamp: Date,
                 activityId: Number,
-                userId: Number
+                userId: Number,
+                activityName: String,
             }
         },
         data: function() {
@@ -95,14 +96,9 @@
                     default:
                         this.errored = true;
                 }
-                // Get the name of the activity affected
-                await api.getActivityData(this.event.activityId).then((response) => {
-                    this.activityTitle = response.data.activity_name;
-                }).catch(() => {
-                    this.errored = true;
-                });
                 // Convert the time of event to a useful display time
-                this.time = (new Date().getTime()) - (this.event.timeStamp.getTime());
+                const timestamp = new Date(this.event.timeStamp);
+                this.time = (new Date().getTime()) - (timestamp.getTime());
                 if (this.time >= 86400000) {
                     this.time = Math.round(this.time / (1000 * 60 * 60 * 24)) + ' days ago';
                 } else if (this.time >= 3600000) {

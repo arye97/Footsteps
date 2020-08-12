@@ -10,7 +10,6 @@ import javax.persistence.*;
 public class Unit {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "unit_id", nullable = false)
     @JsonProperty("unit_id")
     private Long unitId;
