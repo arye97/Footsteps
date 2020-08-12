@@ -5,25 +5,33 @@
                 {{ error_message }}
             </div>
         </section>
+
         <section v-else-if="loading" class="text-center">
             <br/>
             <b-spinner variant="primary" label="Spinning"></b-spinner>
             <br/>
             <br/>
         </section>
-        <section v-else v-for="event in this.currentPageEventList" :key="event.id">
-            <!-- Feed Event List -->
-            <feed-card v-bind:event="event"/>
-            <br>
+        <section v-else-if="this.rows > 0">
+            <section v-for="event in this.currentPageEventList" :key="event.id">
+                <!-- Feed Event List -->
+                <feed-card v-bind:event="event"/>
+                <br>
+            </section>
+            <!-- Pagination Nav Bar -->
+            <b-pagination
+                    v-if="!errored && !loading && feedEventList.length >= eventsPerPage"
+                    align="fill"
+                    v-model="currentPage"
+                    :total-rows="rows"
+                    :per-page="eventsPerPage"
+            ></b-pagination>
         </section>
-        <!-- Pagination Nav Bar -->
-        <b-pagination
-                v-if="!errored && !loading && feedEventList.length >= eventsPerPage"
-                align="fill"
-                v-model="currentPage"
-                :total-rows="rows"
-                :per-page="eventsPerPage"
-        ></b-pagination>
+        <section v-else>
+            <b-card border-variant="secondary" style="background-color: #f3f3f3">
+                Could not find any events to display
+            </b-card>
+        </section>
     </div>
 </template>
 
@@ -63,7 +71,7 @@
                 this.loading = false;
             }).catch(() => {
                 this.errored = true;
-                this.error_message = ""
+                this.error_message = "There was an error when fetching your event feed"
             });
         },
       methods: {
