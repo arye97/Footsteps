@@ -25,19 +25,21 @@
                         <div v-else class="font-weight-light">
                             <br/>
                             <!-- Title -->
-                            <h1 class="font-weight-light"><strong>{{this.activityTitle}}</strong></h1>
+                            <h1 class="font-weight-light" id="activityTitle"><strong>{{this.activityTitle}}</strong></h1>
                             <br/>
                             <!-- Activity Descirption -->
-                            <h5 class="font-weight-light" v-if="this.description">"{{this.description}}"<br/></h5>
+                            <h5 class="font-weight-light" v-if="this.description" id="description">"{{this.description}}"<br/></h5>
                             <br/>
                             <!-- Edit Activity Button -->
                             <div v-if="this.creatorId==this.activeUserId">
-                                <b-button type="submit" variant="success" size="med" v-on:click="goToPage(`/activities/edit/${activityId}`)">Edit Activity</b-button>
+                                <b-button type="submit" variant="success"
+                                          size="med" v-on:click="goToPage(`/activities/edit/${activityId}`)"
+                                          id="editActivity">Edit Activity</b-button>
                                 <br/><br/>
                             </div>
                             <!-- Creator -->
                             <h3 class="font-weight-light"><strong>Creator:</strong></h3><br/>
-                            <b-card class="flex-fill" border-variant="secondary">
+                            <b-card class="flex-fill" border-variant="secondary" id="creatorName">
                                 <b-card-text class="font-weight-light">
                                     {{this.creatorName}}
                                 </b-card-text>
@@ -45,7 +47,7 @@
                             <br/>
                             <!-- Location -->
                             <h3 class="font-weight-light"><strong>Location:</strong></h3><br/>
-                            <b-card class="flex-fill" border-variant="secondary">
+                            <b-card class="flex-fill" border-variant="secondary" id="location">
                                 <b-card-text class="font-weight-light">
                                     {{this.location}}
                                 </b-card-text>
@@ -57,7 +59,7 @@
                                     <b-col>
                                         <!--Start Time-->
                                         <h3 class="font-weight-light"><strong>Start Date:</strong></h3><br/>
-                                        <b-card class="flex-fill" border-variant="secondary">
+                                        <b-card class="flex-fill" border-variant="secondary" id="startTime">
                                             <b-card-text class="font-weight-light">
                                                 {{getDateTime(startTime)}}
                                             </b-card-text>
@@ -66,7 +68,7 @@
                                     <b-col>
                                         <!--End Time-->
                                         <h3 class="font-weight-light"><strong>End Date:</strong></h3><br/>
-                                        <b-card class="flex-fill" border-variant="secondary">
+                                        <b-card class="flex-fill" border-variant="secondary" id="endTime">
                                             <b-card-text class="font-weight-light">
                                                 {{getDateTime(endTime)}}
                                             </b-card-text>
@@ -77,7 +79,7 @@
                                 <!--Total Duration-->
                                 <!--End Time-->
                                 <h3 class="font-weight-light"><strong>Total Duration:</strong></h3><br/>
-                                <b-card class="flex-fill" border-variant="secondary">
+                                <b-card class="flex-fill" border-variant="secondary" id="totalDuration">
                                     <b-card-text class="font-weight-light">
                                         {{duration}}
                                     </b-card-text>
@@ -87,14 +89,15 @@
                             <!-- Activity Types -->
                             <h3 class="font-weight-light"><strong>Activity Types:</strong></h3><br/>
                             <b-list-group v-if="this.activityTypes.length >= 1">
-                                <b-card v-for="activityType in this.activityTypes" v-bind:key="activityType.name" class="flex-fill" border-variant="secondary">
+                                <b-card v-for="activityType in this.activityTypes" v-bind:key="activityType.name"
+                                        class="flex-fill" border-variant="secondary" id="activityType">
                                     <b-card-text class="font-weight-light">
                                         {{activityType.name}}
                                     </b-card-text>
                                 </b-card>
                             </b-list-group>
                             <b-list-group v-else>
-                                <b-card class="flex-fill" border-variant="secondary">
+                                <b-card class="flex-fill" border-variant="secondary" id="noActivityType">
                                     <b-card-text class="font-weight-light">
                                         No activity types selected
                                     </b-card-text>
@@ -102,13 +105,15 @@
                             </b-list-group>
                             <br/>
                             <!-- Add Results/Following Button Group -->
-                            <b-button block v-if="this.isFollowing || this.creatorId == this.activeUserId" variant="success">Add My Results</b-button>
+                            <b-button block v-if="this.isFollowing || this.creatorId == this.activeUserId"
+                                      variant="success" id="addResults">Add My Results</b-button>
                             <br/>
                             <div v-if="this.creatorId != this.activeUserId">
                                 <b-button block v-if="!this.isFollowing"
                                           variant="outline-dark"
                                           class="footerButton"
                                           @click="followActivity"
+                                          id="followButton"
                                 >
                                     Follow Activity
                                     <img src="../../../assets/png/footsteps_icon_hollow.png" class="footSteps" alt="Footsteps Logo">
@@ -117,6 +122,7 @@
                                           variant="outline-dark"
                                           class="footerButton"
                                           @click="unfollowActivity"
+                                          id="unfollowButton"
                                 >
                                     Unfollow Activity
                                     <img src="../../../assets/png/footsteps_icon.png" class="footSteps" alt="Footsteps Logo">
@@ -127,11 +133,15 @@
                             <b-row class="mb-1">
                                 <b-col>
                                     <!--View Participants-->
-                                    <b-button type="submit" variant="success" size="med" v-on:click="viewParticipants">View Participants</b-button>
+                                    <b-button type="submit" variant="success" size="med"
+                                              v-on:click="viewParticipants" id="viewParticipants">
+                                        View Participants</b-button>
                                 </b-col>
                                 <b-col>
                                     <!--View Results-->
-                                    <b-button type="submit" variant="success" size="med" v-on:click="viewResults">View Results</b-button>
+                                    <b-button type="submit" variant="success" size="med"
+                                              v-on:click="viewResults" id="viewResults">
+                                        View Results</b-button>
                                 </b-col>
                             </b-row>
                         </div>
