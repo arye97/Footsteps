@@ -385,9 +385,9 @@ describe("Run tests on new user", () => {
 
         // test following status of user 2 to user 1's activity before activity is followed
         test("Get following status for an unsubscribed activity", () => {
-            return api.getUserSubscribed(activityCreatedByUser1.creatorUserId, USER2_ID).then(response => {
+            return api.getUserSubscribed(activityCreatedByUser1.id, USER2_ID).then(response => {
                 expect(response.status).toEqual(200);
-                expect(response.data.subscribed).toEqual(false); // User cannot follow their own activity
+                expect(response.data.subscribed).toEqual(false);
             }).catch(err => {throw procError(err)});
         });
 
@@ -398,23 +398,50 @@ describe("Run tests on new user", () => {
             }).catch(err => {throw procError(err)});
         });
 
+        // testing error thrown when user 2 following user 1's activity that they've already followed
+        test("Follow an already subscribed activity", () => {
+            return api.setUserSubscribed(activityCreatedByUser1.id, USER2_ID)
+                .then(() => {
+                    fail("API should have thrown a 400 error")
+                }).catch(err => {
+                    expect(err.response.data.status).toEqual(400);
+                    expect(err.response.data.message).toEqual(
+                    "User can't re-follow an event they're currently participating in."
+                    );
+                    procError(err)
+                });
+        });
 
-        // describe("Start with user already subscribed", () => {
-        //     // Add one activity associated with user 1
-        //     beforeAll(() => {
-        //         return api.setUserSubscribed(activityCreatedByUser1.id, USER2_ID).then(response => {
-        //             expect(response.status).toEqual(200);
-        //         });
-        //     });
-        //
-        //     // test following status of user 2 to user 1's activity after activity is followed
-        //     test("Get following status for an subscribed activity", () => {
-        //         return api.getUserSubscribed(activityCreatedByUser1.creatorUserId, USER2_ID).then(response => {
-        //             expect(response.status).toEqual(200);
-        //             expect(response.data.subscribed).toEqual(true); // User cannot follow their own activity
-        //         }).catch(err => {throw procError(err)});
-        //     });
-        // });
+        // test following status of user 2 to user 1's activity after activity is followed
+        test("Get following status for a subscribed activity", () => {
+            return api.getUserSubscribed(activityCreatedByUser1.id, USER2_ID)
+                .then(response => {
+                    expect(response.status).toEqual(200);
+                    expect(response.data.subscribed).toEqual(true);
+                }).catch(err => {throw procError(err)});
+        });
+
+        // test user 2 unfollowing user 1's activity
+        test("Unfollow a subscribed activity", () => {
+            return api.deleteUserSubscribed(activityCreatedByUser1.id, USER2_ID)
+                .then(response => {
+                    expect(response.status).toEqual(200);
+                }).catch(err => {throw procError(err)});
+        });
+
+        // testing error thrown when user 2 unfollowing user 1's activity that they're not even following
+        test("Unfollow an already unsubscribed activity", () => {
+            return api.deleteUserSubscribed(activityCreatedByUser1.id, USER2_ID)
+                .then(() => {
+                    fail("API should have thrown a 400 error")
+                }).catch(err => {
+                    expect(err.response.data.status).toEqual(400);
+                    expect(err.response.data.message).toEqual(
+                        "User can't un-follow an event they're not participating in."
+                    );
+                    procError(err)
+                });
+        });
     });
 
 
