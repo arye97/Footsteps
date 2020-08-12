@@ -1,6 +1,6 @@
 package com.springvuegradle.seng302team600.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
@@ -30,7 +30,7 @@ public class Value {
     @JsonProperty("did_not_finish")
     private boolean didNotFinish;
 
-    @JsonBackReference
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "result_id", nullable = false)
     private Result result;

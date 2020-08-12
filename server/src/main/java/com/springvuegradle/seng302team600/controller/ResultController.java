@@ -4,8 +4,8 @@ import com.springvuegradle.seng302team600.Utilities.ResultValidator;
 import com.springvuegradle.seng302team600.model.Outcome;
 import com.springvuegradle.seng302team600.model.Result;
 import com.springvuegradle.seng302team600.model.User;
+import com.springvuegradle.seng302team600.payload.ResultRequest;
 import com.springvuegradle.seng302team600.repository.ActivityParticipantRepository;
-import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.OutcomeRepository;
 import com.springvuegradle.seng302team600.repository.ResultRepository;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
@@ -25,27 +25,25 @@ public class ResultController {
     private final OutcomeRepository outcomeRepository;
     private final ResultRepository resultRepository;
     private final ActivityParticipantRepository participantRepository;
-    private final ActivityRepository activityRepository;
 
 
     public ResultController(UserAuthenticationService userAuthenticationService, OutcomeRepository outcomeRepository,
-                            ResultRepository resultRepository, ActivityParticipantRepository participantRepository, ActivityRepository activityRepository) {
+                            ResultRepository resultRepository, ActivityParticipantRepository participantRepository) {
         this.userAuthenticationService = userAuthenticationService;
         this.outcomeRepository = outcomeRepository;
         this.resultRepository = resultRepository;
         this.participantRepository = participantRepository;
-        this.activityRepository = activityRepository;
     }
 
     /**
      * POST request for generating a new Result for the given Outcome.
-     * @param result the Result to be saved
+     * @param resultRequest the Result to be saved
      * @param outcomeId the Outcome ID being referenced
      * @param request the Http request from front-end
      * @param response the Http response to front-end
      */
     @PostMapping("/outcomes/{outcomeId}/results")
-    public void createNewOutcomeResult(@Validated @RequestBody Result result, @PathVariable Long outcomeId,
+    public void createNewOutcomeResult(@Validated @RequestBody ResultRequest resultRequest, @PathVariable Long outcomeId,
                                        HttpServletRequest request, HttpServletResponse response) {
         // Authentication for session User
         String token = request.getHeader("Token");
@@ -56,6 +54,8 @@ public class ResultController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "Outcome not found");
         }
+
+        Result result = new Result(resultRequest);
 
         // Validate the submitted Result. This includes validating the Value objects too.
         ResultValidator.validate(result, outcome);
@@ -86,6 +86,7 @@ public class ResultController {
         // Result table will be updated when saving this Outcome
         outcome.addResult(result);
         outcomeRepository.save(outcome);
+        response.setStatus(HttpServletResponse.SC_CREATED); //201
     }
 
     @GetMapping("/outcomes/{outcomeId}/results")
