@@ -1,17 +1,17 @@
 package com.springvuegradle.seng302team600.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.springvuegradle.seng302team600.enumeration.UnitType;
 import com.springvuegradle.seng302team600.model.Activity;
-import com.springvuegradle.seng302team600.model.ActivityType;
 import com.springvuegradle.seng302team600.model.Outcome;
+import com.springvuegradle.seng302team600.model.Unit;
 import com.springvuegradle.seng302team600.model.User;
-import com.springvuegradle.seng302team600.payload.OutcomeResponse;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.OutcomeRepository;
+import com.springvuegradle.seng302team600.repository.ResultRepository;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +26,15 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 
 @WebMvcTest(OutcomeController.class)
 public class OutcomeControllerTest {
@@ -41,6 +45,8 @@ public class OutcomeControllerTest {
     private OutcomeRepository outcomeRepository;
     @MockBean
     private ActivityRepository activityRepository;
+    @MockBean
+    private ResultRepository resultRepository;
     @Autowired
     private MockMvc mvc;
 
@@ -55,6 +61,7 @@ public class OutcomeControllerTest {
 
     private Outcome dummyOutcome1;
     private Outcome dummyOutcome2;
+    private Outcome dummyOutcome3;
     private List<Outcome> outcomeTable;
     private Long nextOutcomeId;
 
@@ -82,7 +89,21 @@ public class OutcomeControllerTest {
         dummyOutcome2.setDescription("Finished the swim in a certain amount of time.");
         dummyOutcome2.setActivityId(ACTIVITY_ID_1);
 
+        dummyOutcome3 = new Outcome();
+        ReflectionTestUtils.setField(dummyOutcome3, "outcomeId", 1L);
+        dummyOutcome3.setActivityId(ACTIVITY_ID_1);
+        dummyOutcome3.setDescription("These are my outcome results");
+        dummyOutcome3.setTitle("This is my outcome");
+        Set<Unit> units = new HashSet<>();
+        Unit unit = new Unit();
+        unit.setName("Unit name");
+        unit.setUnitType(UnitType.NUMBER);
+        unit.setMeasurementUnit("km");
+        units.add(unit);
+        dummyOutcome3.setUnits(units);
+
         dummyActivity = new Activity();
+        dummyActivity.setCreatorUserId(USER_ID_1);
         dummyActivity.setParticipants(new HashSet<>());
         ReflectionTestUtils.setField(dummyActivity, "activityId", ACTIVITY_ID_1);
 
@@ -176,4 +197,33 @@ public class OutcomeControllerTest {
         assertEquals(outcomeTable.size(), objectMapper.readTree(jsonResponseStr).size());
     }
 
+
+    private final String outcomeJson = JsonConverter.toJson(true,
+            "title", "This is my outcome",
+            "description", "This is my outcome, it does outcome things.",
+            "activity_id", ACTIVITY_ID_1
+            );
+    @Test
+    void saveOutcome() throws Exception {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String outcomeJson = objectMapper.writeValueAsString(dummyOutcome3);
+        MockHttpServletRequestBuilder createOutcome = MockMvcRequestBuilders
+                .post("/activities/outcomes")
+                .header("Token", validToken)
+                .content(outcomeJson)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mvc.perform(createOutcome)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        //Check the title of the saved outcome is the same as the original one
+        assertTrue(outcomeTable.get(0).getTitle().equals(dummyOutcome3.getTitle()));
+
+        //make sure the response is null as a post request is <void>
+        assertNull(result.getResponse().getContentType());
+        
+    }
 }
