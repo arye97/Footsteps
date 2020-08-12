@@ -185,6 +185,11 @@
             await this.init();
         },
         methods: {
+            /**
+             * The initialisation function.
+             * Gets all of the data required for the page
+             * @returns {Promise<void>}
+             */
             async init() {
                 this.loading = true;
                 this.activityId = this.$route.params.activityId;
@@ -199,6 +204,10 @@
                 await this.getCreatorUserDetails();
                 this.loading = false;
             },
+            /**
+             * Gets and set the details about the activity
+             * @returns {Promise<void>}
+             */
             async getActivityDetails() {
                 await api.getActivityData(this.activityId).then(response => {
                     this.activityTitle = response.data.activity_name;
@@ -214,6 +223,10 @@
                     this.errorMessage = err.response.message;
                 });
             },
+            /**
+             * Get the ID of the user who is viewing the activity
+             * @returns {Promise<void>}
+             */
             async getActiveUserId() {
                 await api.getUserId().then(response => {
                     this.activeUserId = response.data;
@@ -222,6 +235,10 @@
                     this.errorMessage = err.response.message;
                 })
             },
+            /**
+             * Get the name of the activity creator
+             * @returns {Promise<void>}
+             */
             async getCreatorUserDetails() {
                 await api.getUserData(this.creatorId).then(response => {
                     this.creatorName = response.data.firstname + " " + response.data.lastname;
@@ -230,7 +247,13 @@
                     this.errorMessage = err.response.message;
                 })
             },
+            /**
+             * Utilises the formatDateTime utility function
+             */
             getDateTime: formatDateTime,
+            /**
+             * Gets the duration of the activity
+             */
             getTime() {
                 let days = Math.floor(((new Date(this.endTime) - new Date(this.startTime))/1000/60/60/24));
                 let hours =  Math.ceil(((new Date(this.endTime) - new Date(this.startTime))/1000/60/60)) % 24;
@@ -241,9 +264,17 @@
                     this.duration += hours + " Hours";
                 }
             },
+            /**
+             * Routes to a given url
+             * @param url
+             */
             goToPage(url) {
                 this.$router.push(url);
             },
+            /**
+             * Determines whether the viewer of the page is currently following this activity
+             * @returns {Promise<void>}
+             */
             async getFollowingDetails() {
                 await api.getUserSubscribed(this.activityId, this.activeUserId).then((response) => {
                     this.isFollowing = response.data.subscribed;
@@ -253,6 +284,10 @@
                 });
 
             },
+            /**
+             * Sends the post request so a user can follow the activity
+             * @returns {Promise<void>}
+             */
             async followActivity() {
                 await api.setUserSubscribed(this.activityId, this.activeUserId).then(() => {
                     this.isFollowing = true;
@@ -261,6 +296,10 @@
                     this.errorMessage = error.response.message;
                 });
             },
+            /**
+             * Sends the delete request so the user can unfollow the activity
+             * @returns {Promise<void>}
+             */
             async unfollowActivity() {
                 await api.deleteUserSubscribed(this.activityId, this.activeUserId).then(() => {
                     this.isFollowing = false;
@@ -269,7 +308,6 @@
                     this.errorMessage = error.response.message;
                 });
             },
-
         }
     }
 </script>
