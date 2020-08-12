@@ -1,3 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
+  <file path="/home/cosc/student/hoo42/Documents/SENG302/team-600/client/src/Test/FeedCard.test.js">
+    <testCase name="Is a vue instance" duration="177"/>
+    <testCase name="The feed card Displays a description of what happened" duration="169"/>
+    <testCase name="The feed card Displays a timestamp" duration="158"/>
+    <testCase name="The feed card Does not have any buttons for a delete event" duration="163"/>
+    <testCase name="The feed card Has 2 buttons for a follow event" duration="173"/>
+    <testCase name="The extract data method Sets the time for events that occurred in the last 10s to &quot;Just now&quot;" duration="156"/>
+    <testCase name="The extract data method Sets the time for events that occurred 1 minutes ago to &quot;%s minutes ago&quot;" duration="178"/>
+    <testCase name="The extract data method Sets the time for events that occurred 10 minutes ago to &quot;%s minutes ago&quot;" duration="164"/>
+    <testCase name="The extract data method Sets the time for events that occurred 37 minutes ago to &quot;%s minutes ago&quot;" duration="165"/>
+    <testCase name="The extract data method Sets the time for events that occurred 59 minutes ago to &quot;%s minutes ago&quot;" duration="164"/>
+    <testCase name="The extract data method Sets the time for events that occurred 1 hours ago to &quot;%s hours ago&quot;" duration="166"/>
+    <testCase name="The extract data method Sets the time for events that occurred 9 hours ago to &quot;%s hours ago&quot;" duration="167"/>
+    <testCase name="The extract data method Sets the time for events that occurred 17 hours ago to &quot;%s hours ago&quot;" duration="166"/>
+    <testCase name="The extract data method Sets the time for events that occurred 23 hours ago to &quot;%s hours ago&quot;" duration="164"/>
+    <testCase name="The extract data method Sets the time for events that occurred 1 days ago to &quot;%s days ago&quot;" duration="163"/>
+    <testCase name="The extract data method Sets the time for events that occurred 31 days ago to &quot;%s days ago&quot;" duration="170"/>
+    <testCase name="The extract data method Sets the time for events that occurred 157 days ago to &quot;%s days ago&quot;" duration="168"/>
+    <testCase name="The extract data method Sets the time for events that occurred 76543 days ago to &quot;%s days ago&quot;" duration="166"/>
+    <testCase name="The extract data method Sets the first name of the person who triggered the event" duration="155"/>
+    <testCase name="The extract data method Sets the last name of the person who triggered the event" duration="160"/>
+    <testCase name="The extract data method Sets the activity title of the event concerned" duration="162"/>
+  </file>
 </testExecutions>

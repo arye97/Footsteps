@@ -29,6 +29,8 @@
 
 <script>
     import FeedCard from "./FeedCard";
+    import api from '../../Api.js'
+    import {getUserId} from "../../util";
     export default {
         name: "HomeFeed",
         components: {
@@ -37,11 +39,13 @@
         data: function() {
             return {
                 errored: false,
-                loading: false,
+                loading: true,
                 feedEventList: [],
                 currentPage: 1,
                 eventsPerPage: 5,
-                currentPageEventList: []
+                currentPageEventList: [],
+                error_message: "",
+                userId: null
             }
         },
         computed: {
@@ -49,35 +53,21 @@
                 return this.feedEventList.length;
             }
         },
-        mounted() {
-            //TODO - Replace this with an api call when endpoints are generated
-            this.feedEventList = [
-                {
-                    id: 1,
-                    feedEventType: 'FOLLOW',
-                    timeStamp: new Date("August 07, 2020 17:00:00"),
-                    activityId: 145,
-                    userId: 1
-                },
-                {
-                    id: 2,
-                    feedEventType: 'MODIFY',
-                    timeStamp: new Date("August 09, 2020 15:50:30"),
-                    activityId: 113,
-                    userId: 113
-                },
-                {
-                    id: 3,
-                    feedEventType: 'DELETE',
-                    timeStamp: new Date(),
-                    activityId: 72,
-                    userId: 54
-                }
-            ];
-            // Flip the list order so the most recent event shows first
-            this.feedEventList.reverse();
-            // Update what is shown on this page of the pagination
-            this.currentPageEventList = this.feedEventList;
-        }
+        async mounted() {
+            this.userId = await getUserId();
+            console.log(this.userId);
+            api.getFeedEvents(this.userId).then(response => {
+                this.feedEventList = response.data;
+                // Flip the list order so the most recent event shows first
+                // Update what is shown on this page of the pagination
+                this.feedEventList.reverse();
+                this.currentPageEventList = this.feedEventList;
+                console.log(this.currentPageEventList);
+                this.loading = false;
+            }).catch(() => {
+                this.errored = true;
+                this.error_message = ""
+            });
+        },
     }
 </script>
