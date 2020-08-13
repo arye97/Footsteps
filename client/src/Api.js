@@ -60,5 +60,6 @@ export default {
   //uncomment when implementing
   //createOutcome: (outcome) => server.post(`/activities/outcomes`, outcome, getTokenHeader());
   getFeedEvents: (userId) => server.get(`/profiles/${userId}/subscriptions/`, getTokenHeader()),
-  getActivityOutcomes: (activityId) => server.get(`/activities/${activityId}/outcomes`, getTokenHeader())
+  getActivityOutcomes: (activityId) => server.get(`/activities/${activityId}/outcomes`, getTokenHeader()),
+  getOutcomeResults: (outcomeId) => server.get(`/outcomes/${outcomeId}/results`, getTokenHeader()),
 }

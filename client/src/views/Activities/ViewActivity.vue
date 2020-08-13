@@ -142,6 +142,25 @@
                                     <b-button type="submit" variant="success" size="med"
                                               v-on:click="viewResults" id="viewResults">
                                         View Results</b-button>
+
+                                    <b-modal id="resultsModal">
+                                        <div v-if="this.loadingResults"> Loading... <br/><br/><b-spinner variant="primary" label="Spinning"></b-spinner></div>
+                                        <div v-else-if="this.resultsErrored"><br/>{{this.errorMessage}}</div>
+                                        <div v-else>
+
+                                            <div v-for="result in this.userResults" :key="result.userId">
+                                                <!-- Will need to be changed to the user's name once the endpoint is fully implemented -->
+                                                <b-button v-b-toggle.collapse variant="primary">{{result.userId}}</b-button>
+                                                <b-collapse id="collapse">
+                                                    <b-card v-for="outcome in result.outcome" :key="outcome.outcome_id">
+                                                        <div v-if="result.did_not_finish">User {{result.user_id}}: Did not finish ({{result.comment}})</div>
+                                                        <div v-else>User {{result.user_id}}: Did not finish ({{result.comment}})</div>
+                                                    </b-card>
+                                                </b-collapse>
+                                            </div>
+
+                                        </div>
+                                    </b-modal>
                                 </b-col>
                             </b-row>
                         </div>
@@ -178,7 +197,10 @@
                 activeUserId: null,
                 continuous: false,
                 duration: "",
-                isFollowing: false
+                isFollowing: false,
+                userResults: [],
+                resultsErrored: false,
+                loadingResults: true,
             }
         },
         async mounted () {
@@ -309,6 +331,34 @@
                     this.errored = true;
                     this.errorMessage = error.response.message;
                 });
+            },
+          /**
+           * Gets the results for the activity
+           * @returns {Promise<void>}
+           */
+            async getResults() {
+              //TODO: Fix this once the endpoint is implemented, since it likely won't work like this
+                this.loadingResults = true;
+                await api.getActivityOutcomes(this.activityId).then(async response =>  {
+                    let outcome = null;
+                    for (outcome in response.data) {
+                        const results = [];
+                        await api.getOutcomeResults(outcome.outcome_id).then(response => {
+                            results.push(response.data);
+                        }).catch(() => {
+                            this.resultsErrored = true;
+                            this.errorMessage = "An error occurred when fetching the activity results"
+                        });
+                        outcome.results = results;
+                        this.outcomes.push(outcome);
+                    }
+                    console.log(this.outcomes);
+                    this.loadingResults = false;
+                }).catch(() => {
+                    this.resultsErrored = true;
+                    this.errorMessage = "An error occurred when fetching the activity outcomes";
+                    this.loadingResults = false;
+                })
             },
         }
     }
