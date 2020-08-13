@@ -11,103 +11,57 @@
         </div>
         <b-tabs v-else content-class="mt-4" justified>
             <b-tab title="Continuous" :active="continuousIsActive(true)">
-                <section v-for="(activity, index) in this.activityList.filter(i => i.continuous)" :key="activity.id">
+                <section v-for="activity in this.activityList.filter(i => i.continuous)" :key="activity.id">
                     <!-- Activity List -->
-                        <b-card border-variant="secondary" style="background-color: #f3f3f3" class="continuousCard">
-                            <b-row no-gutters>
-                                <b-col md="6">
-                                    <b-card-text :id="'activity' + activity.id + '-continuous-card'">
-                                        <strong>{{ activity.activity_name }} | {{ activity.creatorName }}</strong>
-                                        <hr/>
-                                        <div v-if="activity.description.length <= 100">
-                                            {{ activity.description }}
-                                        </div>
-                                        <div v-else>
-                                            {{ activity.description.substring(0,100)+"...." }}
-                                        </div>
-                                    </b-card-text>
-                                </b-col>
-                                <b-col md="6">
-                                    <div class="activity-button-group float-right">
-                                        <b-button-group vertical>
-                                            <b-modal :id="'activity' + activity.id + '-continuous-modal'"
-                                                     size="lg" centered ok-only scrollable
-                                                     :title="activity.activity_name"
-                                                     @hidden="onHidden(index, activity.continuous)">
-                                                <b-card class="flex-fill" border-variant="secondary">
-                                                    <b-row class="mb-1">
-                                                        <b-col><strong>Creator: </strong></b-col>
-                                                        <b-col>{{ activity.creatorName }}</b-col>
-                                                    </b-row>
-                                                    <b-row class="mb-1">
-                                                        <b-col><strong>Location: </strong></b-col>
-                                                        <b-col>{{activity.location}}</b-col>
-                                                    </b-row>
-                                                    <b-row class="mb-1">
-                                                        <b-col><strong>Activity types: </strong></b-col>
-                                                        <b-col>
-                                                            <section v-for="activityType in activity.activity_type" v-bind:key="activityType.name">
-                                                                <div>
-                                                                    {{activityType.name}}
-                                                                </div>
-                                                            </section>
-                                                        </b-col>
-                                                    </b-row>
-                                                </b-card>
-                                                <br>
-                                                <b-card class="flex-fill" border-variant="secondary">
-                                                    <p class="text-justified">
-                                                        <strong>Description: </strong><br>
-                                                        {{activity.description}}
-                                                    </p>
-                                                </b-card>
-                                                <template v-slot:modal-footer v-if="activity.creatorUserId!==activeUserId">
-                                                    <div class="w-100">
-                                                        <b-button v-if="activity.subscribed"
-                                                                  variant="outline-dark"
-                                                                  class="footerButton"
-                                                                  @click="unfollowActivity(activity.id, index, activity.continuous)"
-                                                        >
-                                                            <div>
-                                                                Unfollow Activity
-                                                            </div>
-                                                            <div>
-                                                                <img src="../../../assets/png/footsteps_icon.png" class="footSteps" alt="Footsteps Logo">
-                                                            </div>
-                                                        </b-button>
-                                                        <b-button v-else
-                                                                  variant="outline-dark"
-                                                                  class="footerButton"
-                                                                  @click="followActivity(activity.id, index, activity.continuous)"
-                                                        >
-                                                            <div>
-                                                                Follow Activity
-                                                            </div>
-                                                            <div>
-                                                                <img src="../../../assets/png/footsteps_icon_hollow.png" class="footSteps" alt="Footsteps Logo">
-                                                            </div>
-                                                        </b-button>
-                                                    </div>
-                                                </template>
-                                            </b-modal>
-                                            <b-button v-if="activity.creatorUserId===activeUserId" variant="outline-primary" v-on:click="goToPage(`/activities/edit/${activity.id}`)">Edit</b-button>
-                                            <b-button variant="outline-primary"
-                                                      v-b-modal="'activity' + activity.id + '-continuous-modal'">
-                                                Details
-                                            </b-button>
-                                            <b-button v-if="activity.creatorUserId===activeUserId" variant="outline-danger" v-on:click="deleteActivity(activity.id)">Delete</b-button>
-                                        </b-button-group>
+                    <b-card border-variant="secondary" style="background-color: #f3f3f3" class="continuousCard">
+                        <b-row no-gutters>
+                            <b-col md="6">
+                                <b-card-text>
+                                    <strong>{{ activity.activity_name }} | {{ activity.creatorName }}</strong>
+                                    <hr/>
+                                    <div v-if="activity.description.length <= 100">
+                                        {{ activity.description }}
                                     </div>
-                                </b-col>
-                            </b-row>
-                        </b-card>
+                                    <div v-else>
+                                        {{ activity.description.substring(0,100)+"...." }}
+                                    </div>
+                                </b-card-text>
+                            </b-col>
+                            <b-col md="6">
+                                <div class="activity-button-group float-right">
+                                        <b-button v-if="activity.creatorUserId === activeUserId"
+                                                  variant="outline-primary"
+                                                  v-on:click="goToPage(`/activities/edit/${activity.id}`)">
+                                            Edit
+                                        </b-button>
+                                        <b-button variant="outline-primary"
+                                                  v-on:click="goToPage(`/activity/${activity.id}`)">
+                                            Details
+                                        </b-button>
+                                        <b-button variant="outline-primary"
+                                                  @click="followActivity(activity.id)"
+                                                  v-if="activity.creatorUserId!==activeUserId"
+                                        >
+                                            Follow Activity
+                                            <img v-if="isHovered" src="../../../assets/png/footsteps_icon.png" class="footStepsSimplified" alt="Footsteps Logo">
+                                            <img v-else src="../../../assets/png/footsteps_icon_hollow.png" class="footStepsSimplified" alt="Footsteps Logo">
+                                        </b-button>
+                                        <b-button v-if="activity.creatorUserId === activeUserId"
+                                                  variant="outline-danger"
+                                                  v-on:click="deleteActivity(activity.id)">
+                                            Delete
+                                        </b-button>
+                                </div>
+                            </b-col>
+                        </b-row>
+                    </b-card>
                     <br/>
                 </section>
                 <hr/>
                 <footer class="noMore">No more activities to show</footer>
             </b-tab>
             <b-tab title="Duration" :active="continuousIsActive(false)">
-                <section v-for="(activity, index) in this.activityList.filter(i => !i.continuous)" :key="activity.id">
+                <section v-for="activity in this.activityList.filter(i => !i.continuous)" :key="activity.id">
                     <!-- Activity List -->
                     <b-card border-variant="secondary" style="background-color: #f3f3f3" class="durationCard">
                         <b-row no-gutters>
@@ -130,86 +84,13 @@
                             <b-col md="6">
                                 <div class="activity-button-group float-right">
                                     <b-button-group vertical>
-                                        <b-modal :id="'activity' + activity.id + '-duration-modal'"
-                                                 size="lg" centered ok-only scrollable
-                                                 :title="activity.activity_name"
-                                                 @hidden="onHidden(index, activity.continuous)">
-                                        <b-card class="flex-fill" border-variant="secondary">
-                                                <b-row class="mb-1">
-                                                    <b-col><strong>Creator: </strong></b-col>
-                                                    <b-col>{{ activity.creatorName }}</b-col>
-                                                </b-row>
-                                                <b-row class="mb-1">
-                                                    <b-col><strong>Start Date: </strong></b-col>
-                                                    <b-col>{{ getDateTime(activity.start_time) }}</b-col>
-                                                </b-row>
-                                                <b-row class="mb-1">
-                                                    <b-col><strong>End Date: </strong></b-col>
-                                                    <b-col>{{ getDateTime(activity.end_time) }}</b-col>
-                                                </b-row>
-                                                <b-row class="mb-1">
-                                                    <b-col><strong>Duration: </strong></b-col>
-                                                    <b-col>{{ getDays(activity) }} Days
-                                                        {{ getHours(activity) }} Hours</b-col>
-                                                </b-row>
-                                                <b-row class="mb-1">
-                                                    <b-col><strong>Location: </strong></b-col>
-                                                    <b-col>{{ activity.location }}</b-col>
-                                                </b-row>
-                                                <b-row class="mb-1">
-                                                    <b-col><strong>Activity types: </strong></b-col>
-                                                    <b-col>
-                                                        <section v-for="activityType in activity.activity_type" v-bind:key="activityType.name">
-                                                            <div>
-                                                                {{ activityType.name }}
-                                                            </div>
-                                                        </section>
-                                                    </b-col>
-                                                </b-row>
-                                            </b-card>
-                                            <br>
-                                            <b-card class="flex-fill" border-variant="secondary">
-                                                <p class="text-justified">
-                                                    <strong>Description: </strong><br>
-                                                    {{ activity.description }}
-                                                </p>
-                                            </b-card>
-                                            <template v-slot:modal-footer v-if="activity.creatorUserId!==activeUserId">
-                                                <div class="w-100">
-                                                    <b-button v-if="activity.subscribed"
-                                                              variant="outline-dark"
-                                                              class="footerButton"
-                                                              @click="unfollowActivity(activity.id, index, activity.continuous)"
-                                                    >
-                                                        <div>
-                                                            Unfollow Activity
-                                                        </div>
-                                                        <div>
-                                                            <img src="../../../assets/png/footsteps_icon.png" class="footSteps" alt="Footsteps Logo">
-                                                        </div>
-                                                    </b-button>
-                                                    <b-button v-else
-                                                              variant="outline-dark"
-                                                              class="footerButton"
-                                                              @click="followActivity(activity.id, index, activity.continuous)"
-                                                    >
-                                                        <div>
-                                                            Follow Activity
-                                                        </div>
-                                                        <div>
-                                                            <img src="../../../assets/png/footsteps_icon_hollow.png" class="footSteps" alt="Footsteps Logo">
-                                                        </div>
-                                                    </b-button>
-                                                </div>
-                                            </template>
-                                        </b-modal>
                                         <b-button v-if="activity.creatorUserId === activeUserId"
                                                   variant="outline-primary"
                                                   v-on:click="goToPage(`/activities/edit/${activity.id}`)">
                                             Edit
                                         </b-button>
                                         <b-button variant="outline-primary"
-                                                  v-b-modal="'activity' + activity.id + '-duration-modal'">
+                                                  v-on:click="goToPage(`/activity/${activity.id}`)">
                                             Details
                                         </b-button>
                                         <b-button v-if="activity.creatorUserId === activeUserId"
@@ -485,7 +366,17 @@
                     });
                 }
             },
-
+            async getActivityOutcomes() {
+                for (let i = 0; i < this.activityList.length; i++) {
+                  await api.getActivityOutcomes(this.activityList[i].id)
+                    .then((response) => {
+                        this.activityList[i]["outcomes"] = response.data;
+                    })
+                    .catch(() => {
+                        this.activityList[i]["outcomes"] = [];
+                  });
+                }
+            },
 
             /**
              * Iterates over list of activities
@@ -569,10 +460,6 @@
 
     .activity-button-group button {
         width: 190px;
-    }
-
-    .footerButton {
-        width: 100%;
     }
 
     .continuousCard {
