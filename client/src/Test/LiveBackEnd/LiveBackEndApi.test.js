@@ -389,7 +389,6 @@ describe("Run tests on new user", () => {
             })
         });
 
-        // test following status of user 2 to user 1's activity before activity is followed
         test("Get following status for an unsubscribed activity", () => {
             return api.getUserSubscribed(activityCreatedByUser1.id, USER2_ID).then(response => {
                 expect(response.status).toEqual(200);
@@ -397,15 +396,13 @@ describe("Run tests on new user", () => {
             }).catch(err => {throw procError(err)});
         });
 
-        // test user 2 following user 1's activity
         test("Follow an unsubscribed activity", () => {
             return api.setUserSubscribed(activityCreatedByUser1.id, USER2_ID).then(response => {
                 expect(response.status).toEqual(200);
             }).catch(err => {throw procError(err)});
         });
 
-        // testing error thrown when user 2 following user 1's activity that they've already followed
-        test("Follow an already subscribed activity", () => {
+        test("Follow an already subscribed activity throws a 400 error", () => {
             return api.setUserSubscribed(activityCreatedByUser1.id, USER2_ID)
                 .then(() => {
                     fail("API should have thrown a 400 error")
@@ -418,7 +415,6 @@ describe("Run tests on new user", () => {
                 });
         });
 
-        // test following status of user 2 to user 1's activity after activity is followed
         test("Get following status for a subscribed activity", () => {
             return api.getUserSubscribed(activityCreatedByUser1.id, USER2_ID)
                 .then(response => {
@@ -427,7 +423,6 @@ describe("Run tests on new user", () => {
                 }).catch(err => {throw procError(err)});
         });
 
-        // test user 2 unfollowing user 1's activity
         test("Unfollow a subscribed activity", () => {
             return api.deleteUserSubscribed(activityCreatedByUser1.id, USER2_ID)
                 .then(response => {
@@ -435,8 +430,7 @@ describe("Run tests on new user", () => {
                 }).catch(err => {throw procError(err)});
         });
 
-        // testing error thrown when user 2 unfollowing user 1's activity that they're not even following
-        test("Unfollow an already unsubscribed activity", () => {
+        test("Unfollow an already unsubscribed activity throws a 400 error", () => {
             return api.deleteUserSubscribed(activityCreatedByUser1.id, USER2_ID)
                 .then(() => {
                     fail("API should have thrown a 400 error")

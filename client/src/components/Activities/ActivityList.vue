@@ -250,7 +250,7 @@
                 noMore: false,
                 activeTab: 0,
                 loading: true,
-                userId: this.user_Id, // user_Id derived from profile being viewed
+                userId: this.user_Id,
                 errored: false,
                 error_message: "Could not load user activities",
                 activeUserId: null,
@@ -315,7 +315,8 @@
              * Conditions handled are:<br>
              * 400 (BAD REQUEST) refreshes page,<br>
              * 401 (UNAUTHORIZED) redirect to login page,<br>
-             * 403 (FORBIDDEN) and refreshes page,<br>
+             * 403 (FORBIDDEN) and refreshes page,
+             * - If user ever gets to another user's activity page and follows/unfollows their activity
              * Otherwise unknown error so refreshes page
              *
              * @param error error to be processed
@@ -345,7 +346,6 @@
                         this.logout()
                     }, this.timeout);
                 } else if (error.response.status === 403) {
-                    // If user ever gets to another user's activity page and follows/unfollows their activity
                     this.redirectionMessage = "Sorry, you are not allowed to access another user's activites,\n" +
                         "Refreshing page.";
                     setTimeout(() => {
@@ -370,14 +370,28 @@
                 }).catch()
             },
 
-
+            /**
+             * Imports formatDateTime function from util.js
+             */
             getDateTime: formatDateTime,
+
+            /**
+             * Returns the starting/ending days associated with an duration activity
+             */
             getDays(activity) {
                 return Math.floor(((new Date(activity.end_time) - new Date(activity.start_time))/1000/60/60/24))
             },
+
+            /**
+             * Returns the starting/ending hours associated with an duration activity
+             */
             getHours(activity) {
                 return Math.ceil(((new Date(activity.end_time) - new Date(activity.start_time))/1000/60/60)) % 24
             },
+
+            /**
+             * Checks if a user is logged in
+             */
             checkLoggedIn() {
                 if (!sessionStorage.getItem("token")) {
                     this.$router.push("/login");
@@ -520,15 +534,14 @@
             logout () {
                 api.logout().then(() => {
                     sessionStorage.clear();
-                    // tokenStore.setToken(null);
                     this.isLoggedIn = (sessionStorage.getItem("token") !== null);
                     this.$forceUpdate();
-                    this.$router.push('/login'); //Routes to home on logout
+                    this.$router.push('/login');
                 }).catch(() => {
                     sessionStorage.clear();
                     this.isLoggedIn = (sessionStorage.getItem("token") !== null);
                     this.$forceUpdate();
-                    this.$router.push('/login'); //Routes to home on logout
+                    this.$router.push('/login');
                 })
             },
         }
