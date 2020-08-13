@@ -106,7 +106,7 @@ describe('The view activity page', () => {
             // This isn't at all good practice, but its the only way I am able
             // to get ViewActivity to fully mount before the tests are run.
             // resolve() signals the above promise to complete
-            sleep(300).then(() => resolve());
+            sleep(150).then(() => resolve());
         });
     });
 
@@ -193,7 +193,7 @@ describe("If I'm following an activity", () => {
             // This isn't at all good practice, but its the only way I am able
             // to get ViewActivity to fully mount before the tests are run.
             // resolve() signals the above promise to complete
-            sleep(300).then(() => resolve());
+            sleep(150).then(() => resolve());
         });
     });
 
@@ -254,7 +254,7 @@ describe('If I am not following the activity', () => {
             // This isn't at all good practice, but its the only way I am able
             // to get ViewActivity to fully mount before the tests are run.
             // resolve() signals the above promise to complete
-            sleep(300).then(() => resolve());
+            sleep(150).then(() => resolve());
         });
     });
 
