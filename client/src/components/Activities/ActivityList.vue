@@ -377,7 +377,7 @@
                         this.activityList[i]["outcomes"] = response.data;
                     })
                     .catch(() => {
-                        this.activityList[i]["outcomes"] = response.data;
+                        this.activityList[i]["outcomes"] = [];
                   });
                 }
             }
