@@ -422,6 +422,7 @@ describe("Run tests on new user", () => {
                 throw procError(err)
             });
         });
+
     });
 });
 
@@ -437,6 +438,15 @@ describe("Other miscellaneous tests", () => {
         }).catch(err => {
             throw procError(err)
         });
+    });
+
+    test("Get list of participants for an activity", () => {
+        return api.getParticipants(138).then(response => {
+            expect(response.status).toEqual(200);
+            expect(response.data.length).toEqual(1);
+        }).catch(err => {
+            throw procError(err);
+        })
     });
 
 });
