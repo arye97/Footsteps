@@ -30,6 +30,7 @@ export default {
   login: (loginData) => server.post('/login', loginData),
   register: (userData) => server.post('/profiles', userData),
   getActivityTypes: () => server.get('/activity-types', getTokenHeader()),
+  getParticipants: (activityId) => server.get(`/activities/${activityId}/participants`, getTokenHeader()),
   editProfile: (userData, profileId) => server.put(`profiles/${profileId}`, userData, getTokenHeader()),
   getUserData: (profileId) => server.get(`/profiles/${profileId}`, getTokenHeader()),
   checkProfile: (profileId) => server.get(`/check-profile/`.concat(profileId), getTokenHeader()),
@@ -54,7 +55,11 @@ export default {
     return server.get(`profiles?activity=${activityTypesStr}&method=${method}`, getTokenHeader())
   },
   getCountries: () => server.get(getCountryNames),
+  getUserSubscribed: (activityId, userId) => server.get(`/profiles/${userId}/subscriptions/activities/${activityId}`, getTokenHeader()),
+  setUserSubscribed: (activityId, userId) => server.post( `/profiles/${userId}/subscriptions/activities/${activityId}`, null, getTokenHeader()),
+  deleteUserSubscribed: (activityId, userId) => server.delete(`/profiles/${userId}/subscriptions/activities/${activityId}`, getTokenHeader()),
   //uncomment when implementing
   //createOutcome: (outcome) => server.post(`/activities/outcomes`, outcome, getTokenHeader());
   getFeedEvents: (userId) => server.get(`/profiles/${userId}/subscriptions/`, getTokenHeader()),
+  getActivityOutcomes: (activityId) => server.get(`/activities/${activityId}/outcomes`, getTokenHeader())
 }

@@ -324,6 +324,12 @@ describe("Run tests on new user", () => {
         });
 
 
+        test("Get an activities outcomes", () => {
+            return api.getActivityOutcomes(ACTIVITY_IDS.values().next().value).then(response => {
+                expect(response.status).toEqual(200);
+            }).catch(err => {throw procError(err)});
+        });
+
         test("Check if user can edit activity", () => {
             return api.isActivityEditable(ACTIVITY_IDS.values().next().value).then(response => {
                 expect(response.status).toEqual(200);
@@ -416,6 +422,7 @@ describe("Run tests on new user", () => {
                 throw procError(err)
             });
         });
+
     });
 });
 
@@ -433,7 +440,17 @@ describe("Other miscellaneous tests", () => {
         });
     });
 
+    test("Get list of participants for an activity", () => {
+        return api.getParticipants(138).then(response => {
+            expect(response.status).toEqual(200);
+            expect(response.data.length).toEqual(1);
+        }).catch(err => {
+            throw procError(err);
+        })
+    });
+
 });
+
 
 
 

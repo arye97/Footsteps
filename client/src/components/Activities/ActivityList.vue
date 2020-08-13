@@ -26,7 +26,6 @@
                             </b-col>
                             <b-col md="6">
                                 <div class="activity-button-group float-right">
-                                    <b-button-group vertical>
                                         <b-modal :id="'activity' + activity.id + '-continuous-modal'" size="lg" centered ok-only scrollable :title="activity.activity_name">
                                             <b-card class="flex-fill" border-variant="secondary">
                                                 <b-row class="mb-1">
@@ -55,6 +54,7 @@
                                                     {{activity.description}}
                                                 </p>
                                             </b-card>
+                                            <br>
                                             <template v-slot:modal-footer v-if="activity.creatorUserId!==activeUserId">
                                                 <div class="w-100">
                                                     <b-button
@@ -70,6 +70,17 @@
                                                     </b-button>
                                                 </div>
                                             </template>
+
+
+                                            <!--Participants view for when an activity is continuous-->
+                                            <b-card border-variant="secondary">
+                                                <strong>Participants: </strong><br>
+                                                    <b-button-group v-for="participant in activity.participants" :key="participant.id">
+                                                        <b-button
+                                                        class="participantButton" pill variant="success"
+                                                        v-on:click="toUserProfile(participant.id)">{{participant.name}}</b-button>
+                                                    </b-button-group>
+                                            </b-card>
                                         </b-modal>
                                         <b-button v-if="activity.creatorUserId === activeUserId"
                                                   variant="outline-primary"
@@ -93,7 +104,6 @@
                                                   v-on:click="deleteActivity(activity.id)">
                                             Delete
                                         </b-button>
-                                    </b-button-group>
                                 </div>
                             </b-col>
                         </b-row>
@@ -169,6 +179,18 @@
                                                     {{ activity.description }}
                                                 </p>
                                             </b-card>
+                                            <br>
+
+                                            <!--Participants view for when an activity is non-continuous/duration-->
+                                            <b-card class="flex-fill" border-variant="secondary">
+                                                <strong>Participants: </strong><br>
+                                                <b-button-group v-for="participant in activity.participants" :key="participant.id">
+                                                    <b-button
+                                                            class="participantButton" pill variant="success"
+                                                            v-on:click="toUserProfile(participant.id)">{{participant.name}}</b-button>
+                                                </b-button-group>
+                                            </b-card>
+
                                             <template v-slot:modal-footer v-if="activity.creatorUserId !== activeUserId">
                                                 <div class="w-100">
                                                     <b-button
@@ -253,14 +275,19 @@
                 isHovered: false
             }
         },
+
         beforeMount() {
             this.checkLoggedIn();
         },
+
         async mounted() {
             await this.getActiveUserId();
             await this.getListOfActivities();
+            await this.fetchParticipantsForActivities();
             await this.getCreatorNamesForActivities();
         },
+
+
         methods: {
             followActivity(id) {
                 console.log(id);
@@ -357,6 +384,39 @@
 
             /**
              * Iterates over list of activities
+             * and gets list of participants for each activity
+             */
+            async fetchParticipantsForActivities() {
+                for (let i = 0; i < this.activityList.length; i++) {
+                    await api.getParticipants(this.activityList[i].id).then(response => {
+                        let participants = [];
+                        let user;
+                        for (let j = 0; j < response.data.length; j++) {
+                            user = response.data[j];
+                            participants.push({"name":user.firstname + ' ' + user.lastname,
+                                                "id":user.id});
+                        }
+                        this.activityList[i].participants = participants;
+
+                    }).catch(error => {
+                        //Log out if error
+                        if(error.response.status === 401) {
+                            sessionStorage.clear();
+                            this.$router.push('/login');
+                        }else{
+                            this.errored = true;
+                            this.error_message = "Unable to get participants - please try again later";
+                        }
+                    });
+                }
+            },
+
+            toUserProfile(id) {
+                this.$router.push('/profile/'+id);
+            },
+
+            /**
+             * Iterates over list of activities
              * and obtains name of creator of an activity.
              * Then manually assigns a "creatorName" property to each activity.
              */
@@ -369,6 +429,17 @@
                     });
                 }
                 this.loading = false;
+            },
+            async getActivityOutcomes() {
+                for (let i = 0; i < this.activityList.length; i++) {
+                  await api.getActivityOutcomes(this.activityList[i].id)
+                    .then((response) => {
+                        this.activityList[i]["outcomes"] = response.data;
+                    })
+                    .catch(() => {
+                        this.activityList[i]["outcomes"] = [];
+                  });
+                }
             }
         }
     }
@@ -403,5 +474,10 @@
 
     .footerButton {
         width: 100%;
+    }
+
+    .participantButton {
+        margin: 3px;
+        display: inline-block;
     }
 </style>
