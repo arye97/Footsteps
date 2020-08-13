@@ -56,6 +56,7 @@
                         }
                     }).catch(error => {
                         if (error.status === 401 || error.status === 404) {
+                            sessionStorage.clear();
                             this.$router.push("/login");
                         } else {
                             this.message = "An error has occurred, please try again later";

@@ -17,6 +17,15 @@
         <br/>
         <div class="container h-100">
             <b-row>
+                <b-col cols="5" class="floatLeft">
+                    <h3>Search for:</h3>
+                </b-col>
+                <b-col class="floatRight">
+                    <b-form-select id="searchModeSelect" v-model="searchOption" :options="searchOptions"></b-form-select>
+                </b-col>
+            </b-row>
+            <br/>
+            <b-row>
                 <b-col cols="8">
                     <multiselect v-model="selectedActivityTypes" id="searchBoxActivities"
                                  :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
@@ -96,7 +105,11 @@
                 searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
                     { value: 'activityType', text: 'Activity Type'}
                 ],
-
+                searchOption: 'users',
+                searchOptions: [
+                    //{value: 'activities', text: 'Activities'},
+                    {value: 'users', text: 'Users'}
+                ],
                 // These are the ActivityTypes selected in the Multiselect
                 selectedActivityTypes : [],
                 // These are a copy of selectedActivityTypes passed to the UserCard (to avoid mutation after clicking search)
@@ -248,4 +261,5 @@
     .searchButton {
         width: 200%;
     }
+
 </style>
