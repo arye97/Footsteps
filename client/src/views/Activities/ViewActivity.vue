@@ -255,14 +255,16 @@
              * Gets the duration of the activity
              */
             getTime() {
+                let timeUnits = []
                 let days = Math.floor(((new Date(this.endTime) - new Date(this.startTime))/1000/60/60/24));
                 let hours =  Math.ceil(((new Date(this.endTime) - new Date(this.startTime))/1000/60/60)) % 24;
                 if (days > 0) {
-                    this.duration += days + " Days";
+                    timeUnits.push(days + " Days");
                 }
                 if (hours > 0) {
-                    this.duration += hours + " Hours";
+                    timeUnits.push(hours + " Hours");
                 }
+                this.duration = timeUnits.join(", ")
             },
             /**
              * Routes to a given url
