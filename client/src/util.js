@@ -195,6 +195,7 @@ export function formatDateTime(dateTime) {
 
 /**
  * Fetch the possible passport countries to select from.
+ * @returns {(Array|string)} an array of the fetched passport countries, or a string error message
  */
 export function fetchCountries() {
     //Fill Passport countries

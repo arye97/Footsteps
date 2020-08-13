@@ -14,28 +14,28 @@
   },
   "dependencies": {
     "axios": "^0.19.2",
-    "bootstrap-vue": "^2.13.1",
-    "core-js": "^3.6.4",
-    "jquery": "^3.4.1",
-    "serve": "^11.3.0",
+    "bootstrap-vue": "^2.16.0",
+    "core-js": "^3.6.5",
+    "jquery": "^3.5.1",
+    "serve": "^11.3.2",
     "vue": "^2.6.11",
     "vue-multiselect": "^2.1.6",
-    "vue-router": "^3.1.5",
+    "vue-router": "^3.4.2",
     "vuejs-logger": "^1.5.4"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "~4.2.0",
-    "@vue/cli-plugin-eslint": "~4.2.0",
-    "@vue/cli-service": "~4.2.0",
-    "@vue/test-utils": "^1.0.0-beta.32",
+    "@vue/cli-plugin-babel": "^4.2.3",
+    "@vue/cli-plugin-eslint": "^4.2.3",
+    "@vue/cli-service": "^4.2.3",
+    "@vue/test-utils": "^1.0.3",
     "babel-core": "^7.0.0-bridge.0",
-    "babel-eslint": "^10.0.3",
+    "babel-eslint": "^10.1.0",
     "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^6.1.2",
+    "eslint-plugin-vue": "^6.2.2",
     "jest": "^25.5.4",
     "jest-sonar-reporter": "^2.0.0",
-    "sonarqube-scanner": "^2.6.0",
-    "vue-jest": "^3.0.5",
+    "sonarqube-scanner": "^2.7.0",
+    "vue-jest": "^3.0.6",
     "vue-template-compiler": "^2.6.11"
   },
   "eslintConfig": {
@@ -66,6 +66,11 @@
     "transform": {
       "^.+\\.vue$": "vue-jest",
       "^.+\\.js$": "babel-jest"
+    },
+    "jestSonar": {
+      "reportPath": "coverage",
+      "reportFile": "test-report.xml",
+      "indent": 4
     },
     "moduleNameMapper": {
       "\\.(css|less)$": "<rootDir>/assets/css/__mocks__/styleMock.js"

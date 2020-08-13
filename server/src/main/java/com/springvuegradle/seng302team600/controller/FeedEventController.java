@@ -5,6 +5,7 @@ import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.FeedEvent;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.IsFollowingResponse;
+import com.springvuegradle.seng302team600.repository.ActivityParticipantRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.FeedEventRepository;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
@@ -14,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * FeedEventController Contains the endpoints for GET, POST and DELETE request for the client.
@@ -25,12 +27,14 @@ public class FeedEventController {
     private final FeedEventRepository feedEventRepository;
     private final ActivityRepository activityRepository;
     private final UserAuthenticationService userAuthenticationService;
+    private final ActivityParticipantRepository activityParticipantRepository;
 
-    public FeedEventController(FeedEventRepository feedEventRepository,
-                               ActivityRepository activityRepository, UserAuthenticationService userAuthenticationService) {
+    public FeedEventController(FeedEventRepository feedEventRepository, ActivityRepository activityRepository,
+                               UserAuthenticationService userAuthenticationService, ActivityParticipantRepository activityParticipantRepository) {
         this.feedEventRepository = feedEventRepository;
         this.activityRepository = activityRepository;
         this.userAuthenticationService = userAuthenticationService;
+        this.activityParticipantRepository = activityParticipantRepository;
     }
 
     /**
@@ -46,11 +50,6 @@ public class FeedEventController {
         String token = request.getHeader("Token");
         User user = userAuthenticationService.findByUserId(token, profileId);
         Activity activity = activityRepository.findByActivityId(activityId);
-        if (activity == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Activity not found");
-        }
-        activity.addParticipant(user);
-        activityRepository.save(activity);
 
         checkUserActivityNotNull(user, activity);
 
@@ -62,7 +61,7 @@ public class FeedEventController {
 
         //The user is not following the event so continue
         // Create the Follow Feed Event and save it to the db
-        FeedEvent followEvent = new FeedEvent(activityId, profileId, profileId, FeedPostType.FOLLOW);
+        FeedEvent followEvent = new FeedEvent(activityId, activity.getName(), profileId, profileId, FeedPostType.FOLLOW);
         feedEventRepository.save(followEvent); //save the event!
 
         // Add participant at the end, in case there are errors before then
@@ -94,7 +93,7 @@ public class FeedEventController {
 
         //The user has not un-followed the event so continue
         // Create the Follow Feed Event and save it to the db
-        FeedEvent unFollowEvent = new FeedEvent(activityId, profileId, profileId, FeedPostType.UNFOLLOW);
+        FeedEvent unFollowEvent = new FeedEvent(activityId, activity.getName(), profileId, profileId, FeedPostType.UNFOLLOW);
         feedEventRepository.save(unFollowEvent); //save the event!
 
         // Remove participant at the end, in case there are errors before then
@@ -102,10 +101,20 @@ public class FeedEventController {
         activityRepository.save(activity);
     }
 
+    /**
+     * Gets whether or not the user is following an activity
+     * @param profileId the id of the user to check
+     * @param activityId the id of the activity to check
+     * @return true if the user is a participant in the activity
+     */
     @GetMapping("/profiles/{profileId}/subscriptions/activities/{activityId}")
-    public IsFollowingResponse isFollowingAnActivity() {
-        //ToDo Implement this method, also add DocString
-        return null;
+    public IsFollowingResponse isFollowingAnActivity(HttpServletRequest request, HttpServletResponse response,
+                                                     @PathVariable Long profileId, @PathVariable Long activityId) {
+        String token = request.getHeader("Token");
+        User user = userAuthenticationService.findByUserId(token, profileId);
+        Long followingCount = activityParticipantRepository.existsByActivityIdAndUserId(activityId, profileId);
+        IsFollowingResponse isFollowing = new IsFollowingResponse(followingCount > 0);
+        return isFollowing;
     }
 
     /**
@@ -122,5 +131,19 @@ public class FeedEventController {
         if (activity == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't find activity from activityId.");
         }
+    }
+
+    /**
+     * Gets the list of feed events the user is subscribed to in chronological order
+     * @param profileId the id of the user to check
+     * @return the list of feed events
+     */
+    @GetMapping("/profiles/{profileId}/subscriptions")
+    public List<FeedEvent> getFeedEvents(HttpServletRequest request, HttpServletResponse response,
+                                         @PathVariable Long profileId) {
+        String token = request.getHeader("Token");
+        User user = userAuthenticationService.findByUserId(token, profileId);
+        List<FeedEvent> responseData = feedEventRepository.findByViewerIdOrderByTimeStamp(profileId);
+        return responseData;
     }
 }

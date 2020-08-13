@@ -248,7 +248,7 @@ describe("Run tests on new user", () => {
 
 
         test("Check if email is in the database", () => {
-            return api.checkUserEmail(USER1.primary_email).then(response => expect(response.status).toEqual(200)).catch(
+            return api.checkUserEmail("euanwidjaja@yahoo.com").then(response => expect(response.status).toEqual(200)).catch(
                 err => {throw procError(err)});
         });
 
@@ -320,6 +320,13 @@ describe("Run tests on new user", () => {
                     if (propName === "activity_type") continue;  // Because they're stored a different way
                     expect(response.data[propName]).toEqual(ACTIVITY1[propName]);
                 }
+            }).catch(err => {throw procError(err)});
+        });
+
+
+        test("Check if user can edit activity", () => {
+            return api.isActivityEditable(ACTIVITY_IDS.values().next().value).then(response => {
+                expect(response.status).toEqual(200);
             }).catch(err => {throw procError(err)});
         });
 

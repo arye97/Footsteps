@@ -356,15 +356,15 @@
              */
             processPutError(error) {
                 let timeoutTime = 3000;
-                if (error.response.data.status === 401) {
+                if (error.response.status === 401) {
                     this.loggedIn = false;
                     this.isRedirecting = true;
                     this.redirectionMessage = "Sorry, you are no longer logged in,\n" +
                         "Redirecting to the login page.";
                     setTimeout(() => {
-                        this.$router.push('/login');
+                        this.logout()
                     }, timeoutTime);
-                } else if (error.response.data.status === 403) {
+                } else if (error.response.status === 403) {
                     this.isRedirecting = true;
                     this.redirectionMessage = "Sorry, you are not allowed to edit another user's profile,\n" +
                         "Redirecting to your edit profile page.";
@@ -372,7 +372,7 @@
                         this.$router.push({ name: 'editMyProfile' });
                         this.init();
                     }, timeoutTime);
-                } else if (error.response.data.status === 404) {
+                } else if (error.response.status === 404) {
                     this.isRedirecting = true;
                     this.redirectionMessage = "Sorry, the user does not exist,\n" +
                         "Redirecting to your edit profile page.";
@@ -380,13 +380,20 @@
                         this.$router.push({name: 'editMyProfile'});
                         this.init();
                     }, timeoutTime);
-                } else if (error.response.data.status === 400) {
-                    this.message = error.response.data.message.toString();
+                } else if (error.response.status === 400) {
+                    this.message = error.response.message.toString();
                     this.showError('overall_message')
                 } else {
                     this.message = "An unknown error has occurred";
                     this.showError('overall_message')
                 }
+            },
+            /**
+             * Removes token from session storage and navigates to login page
+             */
+            logout() {
+                sessionStorage.clear();
+                this.$router.push('/login');
             },
 
             /**
@@ -400,21 +407,22 @@
                 let timeoutTime = 3000;
                 this.loggedIn = true;
                 this.isRedirecting = true;
-                if (error.response.data.status === 401) {
+                if (error.response.status === 401) {
                     this.loggedIn = false;
                     this.redirectionMessage = "Sorry, you are no longer logged in,\n" +
                         "Redirecting to the login page.";
                     setTimeout(() => {
+                        sessionStorage.clear();
                         this.$router.push('/login');
                     }, timeoutTime);
-                } else if (error.response.data.status === 403) {
+                } else if (error.response.status === 403) {
                     this.redirectionMessage = "Sorry, you are not allowed to edit another user's profile,\n" +
                         "Redirecting to your edit profile page.";
                     setTimeout(() => {
                         this.$router.push({ name: 'editMyProfile' });
                         this.init();
                     }, timeoutTime);
-                } else if (error.response.data.status === 404) {
+                } else if (error.response.status === 404) {
                     this.redirectionMessage = "Sorry, the user does not exist,\n" +
                         "Redirecting to your edit profile page.";
                     setTimeout(() => {

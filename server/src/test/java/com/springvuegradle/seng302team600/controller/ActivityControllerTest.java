@@ -8,6 +8,7 @@ import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.model.UserRole;
+import com.springvuegradle.seng302team600.model.UserRole;
 import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import com.springvuegradle.seng302team600.repository.ActivityParticipantRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
@@ -23,16 +24,22 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -59,40 +66,86 @@ class ActivityControllerTest {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     private static final Long DEFAULT_USER_ID = 1L;
+    private static final Long DEFAULT_USER_ID_2 = 2L;
+    private static final Long DEFAULT_USER_ID_3 = 3L;
     private static final Long DEFAULT_EMAIL_ID = 1L;
     private static final Long DEFAULT_ACTIVITY_ID = 1L;
     private static Long activityCount = 0L;
 
     private User dummyUser1;
     private User dummyUser2; // Used when a second user is required
+    private User dummyUser3;
     private final String validToken = "valid";
+    private final String forbiddenToken = "forbidden";
+    private final String anotherValidToken = "alsovalid";
     private Set<Activity> activityMockTable = new HashSet<>();
     private Set<User> userMockTable = new HashSet<>();
-
-    private boolean defaultAdminIsRegistered;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
         dummyUser1 = new User();
         dummyUser1.setToken(validToken);
+        ReflectionTestUtils.setField(dummyUser1, "userId", DEFAULT_USER_ID);
+
         dummyUser2 = new User();
-        dummyUser2.setToken("validToken");
-        defaultAdminIsRegistered = false;
+        dummyUser2.setToken(forbiddenToken);
+        ReflectionTestUtils.setField(dummyUser2, "userId", DEFAULT_USER_ID_2);
+
+        dummyUser3 = new User();
+        dummyUser3.setToken(anotherValidToken);
+        ReflectionTestUtils.setField(dummyUser3, "userId", DEFAULT_USER_ID_3);
 
         // Mocking ActivityTypeService
         when(activityTypeService.getMatchingEntitiesFromRepository(Mockito.any())).thenAnswer(i -> i.getArgument(0));
-        when(activityRepository.findAllByUserId(Mockito.any(Long.class))).thenAnswer(i -> {
-            List<Activity> activities = new ArrayList<>();
-            for (Activity activity : activityMockTable) {
-                activities.add(activity);
-            }
-            return activities;
-        });
+        when(activityRepository.findAllByUserId(Mockito.any(Long.class))).thenAnswer(i -> new ArrayList<>(activityMockTable));
         // Mocking userAuthenticationService
-        when(userAuthenticationService.findByUserId(Mockito.any(String.class), Mockito.any(Long.class))).thenAnswer(i -> dummyUser1);
+        when(userAuthenticationService.findByUserId(Mockito.any(String.class), Mockito.any(Long.class))).thenAnswer(i -> {
+            String token = i.getArgument(0);
+            Long userId = i.getArgument(1);
+            switch (token) {
+                case validToken:
+                    if (userId.equals(DEFAULT_USER_ID)) {
+                        return dummyUser1;
+                    } else if (userId.equals(DEFAULT_USER_ID_2) || userId.equals(DEFAULT_USER_ID_3)) {
+                        throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+                    } else {
+                        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+                    }
+                case forbiddenToken:
+                    if (userId.equals(DEFAULT_USER_ID_2)) {
+                        return dummyUser2;
+                    } else if (userId.equals(DEFAULT_USER_ID) || userId.equals(DEFAULT_USER_ID_3)) {
+                        throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+                    } else {
+                        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+                    }
+                case anotherValidToken:
+                    if (userId.equals(DEFAULT_USER_ID_3)) {
+                        return dummyUser3;
+                    } else if (userId.equals(DEFAULT_USER_ID) || userId.equals(DEFAULT_USER_ID_2)) {
+                        throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+                    } else {
+                        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+                    }
+                default:
+                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            }
+        });
         when(userAuthenticationService.hasAdminPrivileges(Mockito.any())).thenAnswer(i ->
-                ((User) i.getArgument(0)).getToken().equals(validToken));
+                ((User) i.getArgument(0)).getRole() >= UserRole.ADMIN);
+        when(userAuthenticationService.findByToken(Mockito.any())).thenAnswer(i -> {
+            String token = i.getArgument(0);
+            if (token.equals(validToken)) {
+                return dummyUser1;
+            } else if (token.equals(forbiddenToken)) {
+                return dummyUser2;
+            } else if (token.equals(anotherValidToken)) {
+                return dummyUser3;
+            } else {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            }
+        });
     }
 
     /**
@@ -129,6 +182,11 @@ class ActivityControllerTest {
         });
     }
 
+
+
+
+
+
     private final String newUserJson1 = JsonConverter.toJson(true,
             "lastname", "Cucumber",
             "firstname", "Larry",
@@ -151,30 +209,19 @@ class ActivityControllerTest {
         UserRegisterRequest regReq;
         regReq = objectMapper.treeToValue(objectMapper.readTree(json), UserRegisterRequest.class);
         dummyUser1 = dummyUser1.builder(regReq);
-        Email dummyEmail = new Email(dummyUser1.getPrimaryEmail(), true, dummyUser1);
-        when(userRepository.save(Mockito.any(User.class))).thenAnswer(i -> {
-            User user = i.getArgument(0);
-            if (user.getRole() == UserRole.DEFAULT_ADMIN) {
-                defaultAdminIsRegistered = true;
-            }
-            return dummyUser1;
-        });
+        when(userRepository.save(Mockito.any(User.class))).thenAnswer(i -> dummyUser1);
     }
 
 
-    private void setupMockingNoEmailDummyUser2(String json) throws JsonProcessingException {
+    private void setupMockingNoEmailDummyUser3(String json) throws JsonProcessingException {
         UserRegisterRequest regReq;
         regReq = objectMapper.treeToValue(objectMapper.readTree(json), UserRegisterRequest.class);
-        dummyUser2 = dummyUser2.builder(regReq);
-        Email dummyEmail = new Email(dummyUser2.getPrimaryEmail(), true, dummyUser2);
-        when(userRepository.save(Mockito.any(User.class))).thenAnswer(i -> {
-            User user = i.getArgument(0);
-            if (user.getRole() == UserRole.DEFAULT_ADMIN) {
-                defaultAdminIsRegistered = true;
-            }
-            return dummyUser2;
-        });
+        dummyUser3 = dummyUser3.builder(regReq);
+        when(userRepository.save(Mockito.any(User.class))).thenAnswer(i -> dummyUser3);
     }
+
+
+
 
 
 
@@ -233,6 +280,9 @@ class ActivityControllerTest {
             "start_time", "2020-02-20T08:00:00+1300",
             "end_time", "2020-02-20T08:00:00+1300",
             "location", "Kaikoura, NZ");
+
+
+
 
     /**
      * Test successful edit/update of an activity details
@@ -340,20 +390,49 @@ class ActivityControllerTest {
 
 
     @Test
+    void checkActivityIsEditable() throws Exception {
+        Activity activityInRepo = objectMapper.readValue(newActivity2Json, Activity.class);
+        activityRepository.save(activityInRepo);
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get("/check-activity/{activityId}", DEFAULT_ACTIVITY_ID)
+                .header("Token", validToken)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mvc.perform(httpReq)
+                .andExpect(status().isOk());
+    }
+
+
+    @Test
+    void checkActivityIsNotEditable() throws Exception {
+        Activity activityInRepo = objectMapper.readValue(newActivity2Json, Activity.class);
+        activityRepository.save(activityInRepo);
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get("/check-activity/{activityId}", DEFAULT_ACTIVITY_ID)
+                .header("Token", forbiddenToken)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mvc.perform(httpReq)
+                .andExpect(status().isForbidden());
+    }
+
+
+    @Test
     void getParticipantsOfActivitySuccess() throws Exception {
         Activity activityInRepo = objectMapper.readValue(newActivity2Json, Activity.class);
         setupMockingNoEmailDummyUser1(newUserJson1);
-        setupMockingNoEmailDummyUser2(newUserJson2);
+        setupMockingNoEmailDummyUser3(newUserJson2);
         activityInRepo.addParticipant(dummyUser1);
-        activityInRepo.addParticipant(dummyUser2);
+        activityInRepo.addParticipant(dummyUser3);
         activityRepository.save(activityInRepo);
 
-        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get("/activities/{activityId}/participants", DEFAULT_ACTIVITY_ID)
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get("/check-activity/{activityId}", DEFAULT_ACTIVITY_ID)
+                .header("Token", validToken)
                 .accept(MediaType.APPLICATION_JSON);
 
         MvcResult result = mvc.perform(httpReq)
                 .andExpect(status().isOk())
                 .andReturn();
+
         String jsonResponseStr = result.getResponse().getContentAsString();
         JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
         // Convert set to list for indexing each user

@@ -31,6 +31,7 @@ public class FeedEventService {
         feedEvent.setTimeStamp(masterFeedEvent.getTimeStamp());
         feedEvent.setFeedEventType(masterFeedEvent.getFeedEventType());
         feedEvent.setActivityId(masterFeedEvent.getActivityId());
+        feedEvent.setActivityName(masterFeedEvent.getActivityName());
         feedEvent.setAuthorId(masterFeedEvent.getAuthorId());
         return feedEvent;
     }
@@ -71,6 +72,7 @@ public class FeedEventService {
         modifyEvent.setTimeStampNow();
         modifyEvent.setFeedEventType(FeedPostType.MODIFY);
         modifyEvent.setActivityId(activity.getActivityId());
+        modifyEvent.setActivityName(activity.getName());
         modifyEvent.setAuthorId(authorId);
 
         // Call helper function to save feed event for each user requiring notification
@@ -90,6 +92,7 @@ public class FeedEventService {
         deleteEvent.setTimeStampNow();
         deleteEvent.setFeedEventType(FeedPostType.DELETE);
         deleteEvent.setActivityId(activity.getActivityId());
+        deleteEvent.setActivityName(activity.getName());
         deleteEvent.setAuthorId(authorId);
 
         // Call helper function to save feed event for each user requiring notification

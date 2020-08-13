@@ -1,13 +1,17 @@
 package com.springvuegradle.seng302team600.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.springvuegradle.seng302team600.enumeration.FeedPostType;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.FeedEvent;
 import com.springvuegradle.seng302team600.model.User;
+import com.springvuegradle.seng302team600.repository.ActivityParticipantRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.FeedEventRepository;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +32,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -40,8 +45,12 @@ public class FeedEventControllerTest {
     private FeedEventRepository feedEventRepository;
     @MockBean
     private ActivityRepository activityRepository;
+    @MockBean
+    private ActivityParticipantRepository activityParticipantRepository;
     @Autowired
     private MockMvc mvc;
+
+    ObjectMapper objectMapper = new ObjectMapper();
 
     private static final Long USER_ID_1 = 1L;
     private static final Long USER_ID_2 = 2L;
@@ -51,6 +60,8 @@ public class FeedEventControllerTest {
     private static final Long ACTIVITY_ID_1 = 1L;
     private Activity dummyActivity;
     private List<FeedEvent> feedEventTable;
+    private FeedEvent dummyEvent;
+    private static final long EVENT_ID_1 = 1L;
 
 
 
@@ -69,14 +80,19 @@ public class FeedEventControllerTest {
         ReflectionTestUtils.setField(dummyActivity, "activityId", ACTIVITY_ID_1);
 
         feedEventTable = new ArrayList<>();
+        dummyEvent = new FeedEvent(ACTIVITY_ID_1, "DummyActivity", USER_ID_1, USER_ID_1, FeedPostType.MODIFY);
+        ReflectionTestUtils.setField(dummyEvent, "feedEventId", EVENT_ID_1);
+        feedEventTable.add(dummyEvent);
+
 
 
         // Mocking UserAuthenticationService
-        when(userAuthenticationService.findByUserId(Mockito.any(), Mockito.any(Long.class))).thenAnswer(i -> {
+        when(userAuthenticationService.findByUserId(Mockito.any(String.class), Mockito.any(Long.class))).thenAnswer(i -> {
+            String token = i.getArgument(0);
             Long id = i.getArgument(1);
-            if (id.equals(USER_ID_1)) {
+            if (id.equals(USER_ID_1) && token.equals(validToken)) {
                 return dummyUser1;
-            } else if (id.equals(USER_ID_2)) {
+            } else if (id.equals(USER_ID_2) && token.equals(validToken)) {
                 return dummyUser2;
             } else {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN);
@@ -106,6 +122,61 @@ public class FeedEventControllerTest {
                 return null;
             }
         });
+        // Mocking ActivityParticipantRepository
+        when(activityParticipantRepository.existsByActivityIdAndUserId(Mockito.anyLong(),Mockito.anyLong())).thenAnswer(i -> {
+            Long activityId = i.getArgument(0);
+            Long userId = i.getArgument(1);
+            if (activityId.equals(ACTIVITY_ID_1) && userId.equals(USER_ID_1)) {
+                return 1L;
+            } else {
+                return 0L;
+            }
+        });
+    }
+
+    @Test
+    public void userIsFollowing() throws Exception {
+        MockHttpServletRequestBuilder userFollowingRequest = MockMvcRequestBuilders
+                .get("/profiles/{profileId}/subscriptions/activities/{activityId}", USER_ID_1, ACTIVITY_ID_1)
+                .header("Token", validToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mvc.perform(userFollowingRequest)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String jsonResponseStr = result.getResponse().getContentAsString();
+        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
+        assertTrue(jsonNode.get("subscribed").asBoolean());
+    }
+
+    @Test
+    public void userIsNotFollowing() throws Exception {
+        MockHttpServletRequestBuilder userFollowingRequest = MockMvcRequestBuilders
+                .get("/profiles/{profileId}/subscriptions/activities/{activityId}", USER_ID_2, ACTIVITY_ID_1)
+                .header("Token", validToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+        MvcResult result = mvc.perform(userFollowingRequest)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String jsonResponseStr = result.getResponse().getContentAsString();
+        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
+        assertTrue(!jsonNode.get("subscribed").asBoolean());
+    }
+
+    @Test
+    public void userIsFollowingInvalidToken() throws Exception {
+        MockHttpServletRequestBuilder userFollowingRequest = MockMvcRequestBuilders
+                .get("/profiles/{profileId}/subscriptions/activities/{activityId}", USER_ID_1, ACTIVITY_ID_1)
+                .header("Token", "NotAValidToken")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+        MvcResult result = mvc.perform(userFollowingRequest)
+                .andExpect(status().isForbidden())
+                .andReturn();
     }
 
     /**
@@ -116,6 +187,7 @@ public class FeedEventControllerTest {
 
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post(
                 "/profiles/{profileId}/subscriptions/activities/{activityId}", USER_ID_1, ACTIVITY_ID_1)
+                .header("Token", validToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
 
@@ -136,6 +208,7 @@ public class FeedEventControllerTest {
 
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post(
                 "/profiles/{profileId}/subscriptions/activities/{activityId}", USER_ID_1, ACTIVITY_ID_1)
+                .header("Token", validToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
 
@@ -157,6 +230,7 @@ public class FeedEventControllerTest {
 
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post(
                 "/profiles/{profileId}/subscriptions/activities/{activityId}", 100, ACTIVITY_ID_1)
+                .header("Token", validToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
 
@@ -175,6 +249,7 @@ public class FeedEventControllerTest {
 
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post(
                 "/profiles/{profileId}/subscriptions/activities/{activityId}", USER_ID_1, 100)
+                .header("Token", validToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
 
@@ -199,6 +274,7 @@ public class FeedEventControllerTest {
 
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.delete(
                 "/profiles/{profileId}/subscriptions/activities/{activityId}", USER_ID_1, ACTIVITY_ID_1)
+                .header("Token", validToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
 
@@ -217,6 +293,7 @@ public class FeedEventControllerTest {
 
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.delete(
                 "/profiles/{profileId}/subscriptions/activities/{activityId}", USER_ID_1, ACTIVITY_ID_1)
+                .header("Token", validToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
 
@@ -237,6 +314,7 @@ public class FeedEventControllerTest {
 
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.delete(
                 "/profiles/{profileId}/subscriptions/activities/{activityId}", 100, ACTIVITY_ID_1)
+                .header("Token", validToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
 
@@ -255,6 +333,7 @@ public class FeedEventControllerTest {
 
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.delete(
                 "/profiles/{profileId}/subscriptions/activities/{activityId}", USER_ID_1, 100)
+                .header("Token", validToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
 
@@ -268,4 +347,65 @@ public class FeedEventControllerTest {
                 result.getResponse().getErrorMessage());
     }
 
+
+    /**
+     * Checks that the endpoint returns the correct feed events on success
+     */
+    @Test
+    void getFilledEventFeedSuccessful() throws Exception {
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(
+                "/profiles/{profileId}/subscriptions/", USER_ID_1)
+                .header("Token", validToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isOk())
+                .andReturn();
+
+
+        String jsonResponseStr = result.getResponse().getContentAsString();
+        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
+        assertEquals(1, jsonNode.size());
+        assertEquals("MODIFY", jsonNode.get(0).get("feedEventType").asText());
+    }
+
+    /**
+     * Checks that the endpoint returns the correct feed events on success
+     */
+    @Test
+    void getEmptyEventFeedSuccessful() throws Exception {
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(
+                "/profiles/{profileId}/subscriptions/", USER_ID_2)
+                .header("Token", validToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isOk())
+                .andReturn();
+
+
+        String jsonResponseStr = result.getResponse().getContentAsString();
+        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
+        assertEquals(0, jsonNode.size());
+    }
+
+    /**
+     * Checks that the endpoint returns an error when an invalid token is used
+     */
+    @Test
+    void getEventFeedInvalidToken() throws Exception {
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(
+                "/profiles/{profileId}/subscriptions/", USER_ID_1)
+                .header("Token", "NotAValidToken")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mvc.perform(httpReq)
+                .andExpect(status().isForbidden());
+    }
 }

@@ -48,10 +48,14 @@ export default {
   createActivity: (activityData, profileId) => server.post(`/profiles/${profileId}/activities`, activityData, getTokenHeader()),
   updateActivity: (activityData, profileId, activityId) => server.put(`/profiles/${profileId}/activities/${activityId}`, activityData, getTokenHeader()),
   getActivityData: (activityId) => server.get(`/activities/${activityId}`, getTokenHeader()),
+  isActivityEditable: (activityId) => server.get(`/check-activity/${activityId}`, getTokenHeader()),
   getUserRoles: (userId) => server.get(`/profiles/${userId}/role`, getTokenHeader()),
   getUsersByActivityType: (activityTypes, method) => {
     let activityTypesStr = activityTypes.map(a => a.replace(/\s/g, '-')).join(' ');  // Use RegEx to replace ALL spaces with dashes (because str.replace is stupid)
     return server.get(`profiles?activity=${activityTypesStr}&method=${method}`, getTokenHeader())
   },
   getCountries: () => server.get(getCountryNames),
+  //uncomment when implementing
+  //createOutcome: (outcome) => server.post(`/activities/outcomes`, outcome, getTokenHeader());
+  getFeedEvents: (userId) => server.get(`/profiles/${userId}/subscriptions/`, getTokenHeader()),
 }
