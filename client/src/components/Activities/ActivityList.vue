@@ -369,6 +369,17 @@
                     });
                 }
                 this.loading = false;
+            },
+            async getActivityOutcomes() {
+                for (let i = 0; i < this.activityList.length; i++) {
+                  await api.getActivityOutcomes(this.activityList[i].id)
+                    .then((response) => {
+                        this.activityList[i]["outcomes"] = response.data;
+                    })
+                    .catch(() => {
+                        this.activityList[i]["outcomes"] = "This activity has no set outcomes";
+                  });
+                }
             }
         }
     }
