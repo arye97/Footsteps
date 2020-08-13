@@ -167,8 +167,12 @@
                             placeholder="Location of your activity..."
                     ></b-form-input>
                 </b-form-group>
+                <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_location">
+                    {{ "Field is mandatory and a location must be set" }}
+                </div>
 
 
+                <hr>
 
                 <b-form-group
                         id="input-group-outcome-title"
@@ -201,7 +205,7 @@
                     <b-form-textarea
                             id="input-outcome-description"
                             v-model="activeOutcome.description"
-                            rows="5"
+                            rows="3"
                             trim
                             v-on:input="updateOutcomeDescriptionWordCount"
                             placeholder="Description of your outcome..."
@@ -210,12 +214,48 @@
                         {{outcomeDescriptionCharCount}}/{{maxOutcomeDescriptionCharCount}} characters left
                     </div>
                 </b-form-group>
+                <b-button variant="primary" id="addOutcome" v-on:click="addOutcome">Add</b-button>
+
+                <section class="outcomesDisplay">
+                    <table id="additionalEmailsTable" class="table table-bordered"
+                    padding="3px 3px 3px 3px">
+                        <tr v-for="(outcome, index) in this.outcomeList"
+                            v-bind:key="outcome">
+                            <b-row>
+                                <b-col col="8">
+                                    <p :id="'outcome' + index">
+                                        {{ outcome.title }}
+                                    </p>
+                                </b-col>
+                                <b-col col="4">
+                                    <p :id="'unit' + index">
+                                        {{ outcome.unit }}
+                                    </p>
+                                </b-col>
+                            </b-row>
+                            <b-row>
+                                <b-col col="10">
+                                    <p :id="'description' + index">
+                                        {{ outcome.description }}
+                                    </p>
+                                </b-col>
+                                <b-col col="2">
+                                    <b-row>
+                                        <b-button variant="danger" id="deleteButton" v-on:click="deleteOutcome(index)">
+                                            <b-icon-trash-fill></b-icon-trash-fill>
+                                        </b-button>
+                                    </b-row>
+                                    <b-row>
+                                        <b-button variant="primary" id="editButton" v-on:click="editOutcome(index)">Edit</b-button>
+                                    </b-row>
+                                </b-col>
+                            </b-row>
+                        </tr>
+                    </table>
+                </section>
 
 
 
-                <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_location">
-                    {{ "Field is mandatory and a location must be set" }}
-                </div>
                 <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="overall_message" hidden>
                     <p id="alert-message">{{ overallMessageText }}</p>
                 </div>
@@ -457,6 +497,25 @@
                         return a.toLowerCase().localeCompare(b.toLowerCase());
                     });
                 });
+            },
+
+            addOutcome() {
+                this.outcomeList.push(this.activeOutcome);
+                this.activeOutcome = {};
+            },
+
+            deleteOutcome (index) {
+                let outcomeToBeRemoved = this.outcomeList[index];
+                // Remove outcomeToBeRemoved from this.outcomeList
+                this.outcomeList = this.outcomeList.filter(
+                    function(outcome) {
+                        return outcome !== outcomeToBeRemoved
+                    });
+            },
+
+            editOutcome(index) {
+                this.activeOutcome = this.outcomeList[index];
+                this.deleteOutcome(index);
             }
         }
     }
