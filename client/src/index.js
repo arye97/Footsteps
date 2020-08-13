@@ -31,7 +31,8 @@ Vue.use(IconsPlugin);
 function guardMyroute(to, from, next)
 {
     //Boolean variable for authenticated user
-    let isAuthenticated = false;
+    let isAuthenticated = true;
+
     //uses sessionstorage to figure out if a user is logged in or not, goes through
     //if not assigns false to boolean variable to show that user is not logged in
     if(sessionStorage.getItem("token"))
@@ -61,7 +62,7 @@ export default new Router({
         {   path: '/login',
             name: 'login',
             beforeEnter: guardMyroute,
-            component: Login
+            component: Login,
         },
         {   path: '/register',
             name: 'register',
