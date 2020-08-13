@@ -409,6 +409,15 @@ describe("Run tests on new user", () => {
                 ACTIVITY_IDS.delete(nextActivityId)
             }).catch(err => {throw procError(err)});
         });
+
+        test("Get list of participants for an activity", () => {
+            return api.getParticipants(ACTIVITY_IDS.values().next().value).then(response => {
+                expect(response.status).toEqual(200);
+                expect(response.data.length).toEqual(0);  // There are no participants, but it will get an empty collection
+            }).catch(err => {
+                throw procError(err);
+            })
+        });
     });
 
     describe("Searching for users", () => {
@@ -496,16 +505,6 @@ describe("Other miscellaneous tests", () => {
             throw procError(err)
         });
     });
-
-    test("Get list of participants for an activity", () => {
-        return api.getParticipants(138).then(response => {
-            expect(response.status).toEqual(200);
-            expect(response.data.length).toEqual(1);
-        }).catch(err => {
-            throw procError(err);
-        })
-    });
-
 });
 
 
