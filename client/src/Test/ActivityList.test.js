@@ -40,14 +40,8 @@ const ACTIVITIES = [
 ];
 
 
-const sleep = (milliseconds) => {
-    return new Promise(resolve => setTimeout(resolve, milliseconds))
-};
-
 /**
- *
- * @param activities list of activities to return by getUserActivities
- * @returns {Promise<void>}
+ * Mock ActivityList.vue in a separate function to simplify process
  */
 async function mockActivities() {  // Helper function to prevent duplicate code
     api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID_1, status: 200 }));
@@ -81,78 +75,15 @@ async function mockActivities() {  // Helper function to prevent duplicate code
     });
 }
 
+
 /**
  * Before each test, mock the necessary properties and methods.
  */
 beforeEach(() => {
     return mockActivities();
-
-    //     api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID_1, status: 200 }));
-    //     api.getUserActivities.mockImplementation(
-    //         () => Promise.resolve({
-    //             data: ACTIVITIES,
-    //             status: 200
-    //         })
-    //     );
-    //     api.getUserData.mockImplementation(
-    //         () => Promise.resolve( {
-    //             data: {
-    //                 firstname: "CreatorName",
-    //                 lastname: "Barbara"
-    //             },
-    //             status: 200
-    //         })
-    //     );
-    //     api.getUserSubscribed.mockImplementation(
-    //         () => Promise.resolve( {
-    //             data: {
-    //                 subscribed: true
-    //             }, status: 200
-    //         })
-    //     );
-    //
-    //
-    //
-    //     activityListWrapper = shallowMount(ActivityList, {
-    //         methods: {
-    //             checkLoggedIn: () => {},
-    //         },
-    //     });
-    //
-    //     sleep(500).then(() => resolve());
-
 });
+
 
 test('Is a vue instance', () => {
     expect(activityListWrapper.isVueInstance).toBeTruthy();
 });
-//
-// // Components actually display list of activities, initially none
-// // But then follow activities, then show activities
-//
-// test('Displays activities I am following', () => {
-//     let durationActivities = ACTIVITIES.filter(i => !i.continuous);
-//     let tagId;
-//     let tag;
-//     // console.log(durationActivities)
-//
-//     console.log("HAHAHAHAHHA")
-//     let main = activityListWrapper.find('#slug');
-//     console.log(main)
-//     for (let index in durationActivities) {
-//         tagId = '#activity' + durationActivities[index].id + '-duration-card';
-//
-//         console.log(tag)
-//     }
-//     // setTimeout(function async () {    //Hide alert bar after ~9000ms
-//     //     for (let index in durationActivities) {
-//     //         tagId = '#activity' + durationActivities[index].id + '-duration-modal';
-//     //         console.log("HYYHYHYHYHYHY")
-//     //         console.log(activityListWrapper.find(tagId).text())
-//     //         console.log("HYYHYHYHYHYHY")
-//     //         // expect(activityListWrapper.find(id).text()).toBe("johntester@tester.com");
-//     //     }
-//     // }, 1000);
-//
-//
-// });
