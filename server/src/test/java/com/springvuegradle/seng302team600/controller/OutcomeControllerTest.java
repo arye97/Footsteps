@@ -216,7 +216,7 @@ public class OutcomeControllerTest {
                 .accept(MediaType.APPLICATION_JSON);
 
         MvcResult result = mvc.perform(createOutcome)
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andReturn();
 
         //Check the title of the saved outcome is the same as the original one
