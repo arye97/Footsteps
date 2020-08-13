@@ -1,5 +1,6 @@
 package com.springvuegradle.seng302team600.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springvuegradle.seng302team600.payload.OutcomeRequest;
@@ -106,5 +107,9 @@ public class Outcome {
 
     public void setResults(Set<Result> results) {
         this.results = results;
+    }
+
+    public void addResult(Result result) {
+        results.add(result);
     }
 }

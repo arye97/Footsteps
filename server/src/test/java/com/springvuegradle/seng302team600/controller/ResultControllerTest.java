@@ -1,30 +1,35 @@
 package com.springvuegradle.seng302team600.controller;
 
-import com.springvuegradle.seng302team600.model.Activity;
-import com.springvuegradle.seng302team600.model.Outcome;
-import com.springvuegradle.seng302team600.model.Result;
-import com.springvuegradle.seng302team600.model.User;
+import com.springvuegradle.seng302team600.enumeration.UnitType;
+import com.springvuegradle.seng302team600.model.*;
 import com.springvuegradle.seng302team600.repository.ActivityParticipantRepository;
-import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.OutcomeRepository;
 import com.springvuegradle.seng302team600.repository.ResultRepository;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ResultController.class)
 public class ResultControllerTest {
@@ -37,8 +42,6 @@ public class ResultControllerTest {
     private ResultRepository resultRepository;
     @MockBean
     private ActivityParticipantRepository participantRepository;
-    @MockBean
-    private ActivityRepository activityRepository;
     @Autowired
     private MockMvc mvc;
 
@@ -50,8 +53,10 @@ public class ResultControllerTest {
     private final String validToken2 = "valid2";
     private static final Long ACTIVITY_ID_1 = 1L;
     private Activity dummyActivity;
-    private List<Outcome> outcomeTable;
-    private Long nextOutcomeId;
+    private static final Long OUTCOME_ID_1 = 1L;
+    private Outcome dummyOutcome;
+    private static final Long UNIT_ID_1 = 1L;
+    private Unit dummyUnit;
     private List<Result> resultTable;
     private Long nextResultId;
 
@@ -71,9 +76,30 @@ public class ResultControllerTest {
         dummyActivity.setParticipants(new HashSet<>());
         ReflectionTestUtils.setField(dummyActivity, "activityId", ACTIVITY_ID_1);
 
-        outcomeTable = new ArrayList<>();
-        nextOutcomeId = 1L;
+        dummyUnit = new Unit();
+        ReflectionTestUtils.setField(dummyUnit, "unitId", UNIT_ID_1);
+        dummyUnit.setUnitType(UnitType.TEXT);
+        Set<Unit> units = new HashSet<>();
+        units.add(dummyUnit);
 
+        dummyOutcome = new Outcome();
+        ReflectionTestUtils.setField(dummyOutcome, "outcomeId", OUTCOME_ID_1);
+        dummyOutcome.setActivityId(ACTIVITY_ID_1);
+        dummyOutcome.setResults(new HashSet<>());
+        dummyOutcome.setUnits(units);
+
+        resultTable = new ArrayList<>();
+        nextResultId = 1L;
+
+        //Mocking OutcomeRepository
+        when(outcomeRepository.findByOutcomeId(Mockito.anyLong())).thenAnswer(i -> {
+            Long outcomeId = i.getArgument(0);
+            if (outcomeId.equals(OUTCOME_ID_1)) {
+                return dummyOutcome;
+            } else {
+                return null;
+            }
+        });
 
         // Mocking UserAuthenticationService
         when(userAuthenticationService.findByUserId(Mockito.any(), Mockito.any(Long.class))).thenAnswer(i -> {
@@ -96,43 +122,142 @@ public class ResultControllerTest {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
             }
         });
+        when(userAuthenticationService.hasAdminPrivileges(Mockito.any())).thenAnswer(i ->
+                ((User) i.getArgument(0)).getRole() >= 10);
 
         // Mocking OutcomeRepository
-        when(outcomeRepository.findByActivityId(Mockito.any())).thenAnswer(i -> {
-            Long activityId = i.getArgument(0);
-            List<Outcome> result = new ArrayList<>();
-            for (Outcome outcome : outcomeTable) {
-                if (activityId.equals(outcome.getActivityId())) {
-                    result.add(outcome);
-                }
-            }
-            return result;
-        });
         when(outcomeRepository.save(Mockito.any())).thenAnswer(i -> {
             Outcome outcome = i.getArgument(0);
-            if (outcome.getOutcomeId() == null) {
-                ReflectionTestUtils.setField(outcome, "outcomeId", nextOutcomeId);
-                nextOutcomeId++;
-            } else {
-                int index = 0;
-                for (Outcome oldOutcome : outcomeTable) {
-                    if (oldOutcome.getOutcomeId().equals(outcome.getOutcomeId())) {
-                        outcomeTable.remove(index);
+            for (Result result : outcome.getResults()) {
+                if (result.getResultId() == null) {
+                    ReflectionTestUtils.setField(result, "resultId", nextResultId);
+                    nextResultId++;
+                } else {
+                    int index = 0;
+                    for (Result oldResult : resultTable) {
+                        if (oldResult.getResultId().equals(result.getResultId())) {
+                            resultTable.remove(index);
+                        }
+                        index++;
                     }
-                    index++;
                 }
+                result.setOutcome(outcome);
+                resultTable.add(result);
             }
-            outcomeTable.add(outcome);
             return outcome;
         });
 
-        // Mocking ActivityRepository
-        when(activityRepository.findByActivityId(Mockito.any())).thenAnswer(i -> {
+        // Mocking ActivityParticipantRepository
+        when(participantRepository.existsByActivityIdAndUserId(Mockito.anyLong(),Mockito.anyLong())).thenAnswer(i -> {
             Long activityId = i.getArgument(0);
-            if (activityId.equals(ACTIVITY_ID_1)) {
-                return dummyActivity;
+            Long userId = i.getArgument(1);
+            if (activityId.equals(ACTIVITY_ID_1) && userId.equals(USER_ID_1)) {
+                return 1L;
+            } else {
+                return 0L;
             }
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         });
+
+        // Mocking ResultRepository
+        when(resultRepository.existsByOutcomeAndUserId(Mockito.any(), Mockito.any())).thenAnswer(i -> {
+            Outcome outcome = i.getArgument(0);
+            Long userId = i.getArgument(1);
+            for (Result result : resultTable) {
+                if (result.getUserId().equals(userId)
+                        && result.getOutcome().getOutcomeId().equals(outcome.getOutcomeId())) {
+                    return true;
+                }
+            }
+            return false;
+        });
+    }
+
+    private final String newResultJson = JsonConverter.toJson(true,
+            "user_id", USER_ID_1,
+            "values", new Object[]{
+                    JsonConverter.toMap(
+                            "unit_id", UNIT_ID_1,
+                            "value", "someValue",
+                            "did_not_finish", "false")});
+
+    @Test
+    public void resultCreationSuccess() throws Exception {
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post("/outcomes/{outcomeId}/results", 1L)
+                .content(newResultJson)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("Token", validToken);
+
+        mvc.perform(httpReq)
+                .andExpect(status().isCreated());
+        assertNotNull(resultTable.get(0));
+    }
+
+    private final String resultAlreadySubmittedJson = JsonConverter.toJson(true,
+            "comment", "Some type of comment",
+            "values", new Object[]{
+                    JsonConverter.toMap(
+                            "unit_id", UNIT_ID_1,
+                            "value", "someValue",
+                            "did_not_finish", "false")});
+
+    @Test
+    public void resultAlreadySubmittedBadRequest() throws Exception {
+        assertEquals(0, resultTable.size());
+        Result result = new Result();
+        result.setUserId(USER_ID_1);
+        dummyOutcome.addResult(result);
+        outcomeRepository.save(dummyOutcome);
+
+        assertEquals(1, resultTable.size());
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post("/outcomes/{outcomeId}/results", 1L)
+                .content(resultAlreadySubmittedJson)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("Token", validToken);
+
+        mvc.perform(httpReq)
+                .andExpect(status().isBadRequest());
+        assertEquals(1, resultTable.size());
+    }
+
+    private final String resultNotParticipantJson = JsonConverter.toJson(true,
+            "user_id", USER_ID_2,
+            "values", new Object[]{
+                    JsonConverter.toMap(
+                            "unit_id", UNIT_ID_1,
+                            "value", "someValue",
+                            "did_not_finish", "false")});
+
+    @Test
+    public void newResultByNotParticipantForbidden() throws Exception {
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post("/outcomes/{outcomeId}/results", 1L)
+                .content(resultNotParticipantJson)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("Token", validToken2);
+
+        mvc.perform(httpReq)
+                .andExpect(status().isForbidden());
+    }
+
+    private final String resultForbiddenJson = JsonConverter.toJson(true,
+            "user_id", USER_ID_1,
+            "values", new Object[]{
+                    JsonConverter.toMap(
+                            "unit_id", UNIT_ID_1,
+                            "value", "someValue",
+                            "did_not_finish", "false")});
+
+    @Test
+    public void newResultByNotAdminForbidden() throws Exception {
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.post("/outcomes/{outcomeId}/results", 1L)
+                .content(resultForbiddenJson)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("Token", validToken2);
+
+        mvc.perform(httpReq)
+                .andExpect(status().isForbidden());
     }
 }
