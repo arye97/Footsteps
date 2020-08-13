@@ -331,7 +331,7 @@
              * @param id
              */
             toUserProfile(id) {
-                this.$router.push('/profile/'+id);
+                this.$router.push({ name: 'profile', params: {userId: id} });
             },
             /**
              * Gets list of participants for the activity
