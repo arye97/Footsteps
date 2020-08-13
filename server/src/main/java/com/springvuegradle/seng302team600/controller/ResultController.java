@@ -16,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -89,10 +90,26 @@ public class ResultController {
         response.setStatus(HttpServletResponse.SC_CREATED); //201
     }
 
+
     @GetMapping("/outcomes/{outcomeId}/results")
     public List<Result> getOutcomeResults(@PathVariable Long outcomeId, HttpServletRequest request,
                                           HttpServletResponse response) {
-        //TODO Implement this method, and add a DocString please
-        return null;
+        // Authentication for session User
+        String token = request.getHeader("Token");
+        userAuthenticationService.findByToken(token);
+
+        Outcome outcome = outcomeRepository.findByOutcomeId(outcomeId);
+
+        List<Result> results = resultRepository.findByOutcome(outcome);
+
+        if (outcome == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Outcome not found");
+        }
+
+        if (results == null) {
+            return new ArrayList<>();
+        }
+        response.setStatus(HttpServletResponse.SC_OK); //201
+        return results;
     }
 }
