@@ -11,7 +11,7 @@
         </div>
         <b-tabs v-else content-class="mt-4" justified>
             <b-tab title="Continuous" :active="continuousIsActive(true)">
-                <section v-for="(activity, index) in this.activityList.filter(i => i.continuous)" :key="activity.id">
+                <section v-for="activity in this.activityList.filter(i => i.continuous)" :key="activity.id">
                     <!-- Activity List -->
                     <b-card border-variant="secondary" style="background-color: #f3f3f3" class="continuousCard">
                         <b-row no-gutters>
@@ -61,7 +61,7 @@
                 <footer class="noMore">No more activities to show</footer>
             </b-tab>
             <b-tab title="Duration" :active="continuousIsActive(false)">
-                <section v-for="(activity, index) in this.activityList.filter(i => !i.continuous)" :key="activity.id">
+                <section v-for="activity in this.activityList.filter(i => !i.continuous)" :key="activity.id">
                     <!-- Activity List -->
                     <b-card border-variant="secondary" style="background-color: #f3f3f3" class="durationCard">
                         <b-row no-gutters>
@@ -146,7 +146,6 @@
         async mounted() {
             await this.getActiveUserId();
             await this.getListOfActivities();
-            await this.fetchParticipantsForActivities();
             await this.getCreatorNamesForActivities();
             await this.getFollowingStatusForActivity();
         },

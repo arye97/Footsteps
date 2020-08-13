@@ -327,6 +327,13 @@
                 await this.fetchParticipantsForActivities();
             },
             /**
+             * Sends you to the profile page of a specific user
+             * @param id
+             */
+            toUserProfile(id) {
+                this.$router.push('/profile/'+id);
+            },
+            /**
              * Gets list of participants for the activity
              */
             async fetchParticipantsForActivities() {
@@ -349,13 +356,6 @@
                         this.error_message = "Unable to get participants - please try again later";
                     }
                 });
-            },
-            /**
-             * Sends you to the profile page of a specific user
-             * @param id
-             */
-            toUserProfile(id) {
-                this.$router.push('/profile/'+id);
             },
         }
     }
