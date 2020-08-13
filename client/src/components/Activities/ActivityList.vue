@@ -106,6 +106,7 @@
             <b-tab title="Duration" :active="continuousIsActive(false)">
                 <section v-for="activity in this.activityList" :key="activity.id">
                     <!-- Activity List -->
+                    <br/>
                     <b-card border-variant="secondary" style="background-color: #f3f3f3" v-if="!activity.continuous">
                         <b-row no-gutters>
                             <b-col md="6">
@@ -368,6 +369,17 @@
                     });
                 }
                 this.loading = false;
+            },
+            async getActivityOutcomes() {
+                for (let i = 0; i < this.activityList.length; i++) {
+                  await api.getActivityOutcomes(this.activityList[i].id)
+                    .then((response) => {
+                        this.activityList[i]["outcomes"] = response.data;
+                    })
+                    .catch(() => {
+                        this.activityList[i]["outcomes"] = [];
+                  });
+                }
             }
         }
     }
@@ -393,7 +405,7 @@
     }
 
     .activity-button-group {
-        padding: 7.5% 30px;
+        padding: 7.5% 7.5% 15.5% 7.5%;
     }
 
     .activity-button-group button {

@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * FeedEventController Contains the endpoints for GET, POST and DELETE request for the client.
@@ -60,7 +61,7 @@ public class FeedEventController {
 
         //The user is not following the event so continue
         // Create the Follow Feed Event and save it to the db
-        FeedEvent followEvent = new FeedEvent(activityId, profileId, profileId, FeedPostType.FOLLOW);
+        FeedEvent followEvent = new FeedEvent(activityId, activity.getName(), profileId, profileId, FeedPostType.FOLLOW);
         feedEventRepository.save(followEvent); //save the event!
 
         // Add participant at the end, in case there are errors before then
@@ -92,7 +93,7 @@ public class FeedEventController {
 
         //The user has not un-followed the event so continue
         // Create the Follow Feed Event and save it to the db
-        FeedEvent unFollowEvent = new FeedEvent(activityId, profileId, profileId, FeedPostType.UNFOLLOW);
+        FeedEvent unFollowEvent = new FeedEvent(activityId, activity.getName(), profileId, profileId, FeedPostType.UNFOLLOW);
         feedEventRepository.save(unFollowEvent); //save the event!
 
         // Remove participant at the end, in case there are errors before then
@@ -102,6 +103,8 @@ public class FeedEventController {
 
     /**
      * Gets whether or not the user is following an activity
+     * @param profileId the id of the user to check
+     * @param activityId the id of the activity to check
      * @return true if the user is a participant in the activity
      */
     @GetMapping("/profiles/{profileId}/subscriptions/activities/{activityId}")
@@ -128,5 +131,19 @@ public class FeedEventController {
         if (activity == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't find activity from activityId.");
         }
+    }
+
+    /**
+     * Gets the list of feed events the user is subscribed to in chronological order
+     * @param profileId the id of the user to check
+     * @return the list of feed events
+     */
+    @GetMapping("/profiles/{profileId}/subscriptions")
+    public List<FeedEvent> getFeedEvents(HttpServletRequest request, HttpServletResponse response,
+                                         @PathVariable Long profileId) {
+        String token = request.getHeader("Token");
+        User user = userAuthenticationService.findByUserId(token, profileId);
+        List<FeedEvent> responseData = feedEventRepository.findByViewerIdOrderByTimeStamp(profileId);
+        return responseData;
     }
 }
