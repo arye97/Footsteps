@@ -1,7 +1,7 @@
 <template>
     <div id="main">
         <div v-if="this.loading" style="text-align: center">
-            <b-spinner class="margin-bottom: 1.7em; margin-top: 0.8em" variant="primary" label="Spinning"></b-spinner>
+            <b-spinner id="spinner" class="margin-bottom: 1.7em; margin-top: 0.8em" variant="primary" label="Spinning"></b-spinner>
         </div>
         <div v-else-if="this.errored" class="alert alert-danger alert-dismissible fade show " role="alert" id="alert">
             {{  error_message  }}
@@ -16,7 +16,7 @@
                         <b-card border-variant="secondary" style="background-color: #f3f3f3" class="continuousCard">
                             <b-row no-gutters>
                                 <b-col md="6">
-                                    <b-card-text>
+                                    <b-card-text :id="'activity' + activity.id + '-continuous-card'">
                                         <strong>{{ activity.activity_name }} | {{ activity.creatorName }}</strong>
                                         <hr/>
                                         <div v-if="activity.description.length <= 100">
@@ -112,7 +112,7 @@
                     <b-card border-variant="secondary" style="background-color: #f3f3f3" class="durationCard">
                         <b-row no-gutters>
                             <b-col md="6">
-                                <b-card-text>
+                                <b-card-text :id="'activity' + activity.id + '-duration-card'">
                                     <strong>{{ activity.activity_name }} | {{ activity.creatorName }}</strong>
                                     <hr/>
                                     <strong>Start Date: </strong>{{ getDateTime(activity.start_time )}}
@@ -282,7 +282,6 @@
                     let activity = this.activityList.filter(activity => activity.continuous === isContinuous)[filteredIndex];
                     let index = this.activityList.indexOf(activity);
                     this.activityList[index].subscribed = true;
-                    console.log(this.activityList)
                     this.$forceUpdate();  // Notice we have to use a $ here
                 }).catch((error) => {
                     this.processGetError(error, "FOLLOW");
@@ -303,7 +302,6 @@
                     let activity = this.activityList.filter(activity => activity.continuous === isContinuous)[filteredIndex];
                     let index = this.activityList.indexOf(activity);
                     this.activityList[index].subscribed = false;
-                    console.log(this.activityList)
                     this.$forceUpdate();  // Notice we have to use a $ here
                 }).catch((error) => {
                     this.processGetError(error, "UNFOLLOW");
@@ -417,7 +415,6 @@
              * @param isContinuousTab true if called by continuous tab, false of non-continuous tab.
              */
             continuousIsActive(isContinuousTab) {
-
                 if (this.activityList.filter(a => !a.continuous).length > 0 && this.activityList.filter(a => a.continuous).length === 0) {
                     return !isContinuousTab;
                 } else {

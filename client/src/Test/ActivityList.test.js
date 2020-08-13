@@ -2,20 +2,21 @@ import 'vue-jest'
 import {shallowMount} from '@vue/test-utils'
 import ActivityList from "../components/Activities/ActivityList";
 import api from "../Api";
-import router from '../index';
-import EditEmail from "../views/Settings/EditEmail";
+
+// Import bootstrap vue so html that uses bootstrap vue components don't throw error
+import Vue from "vue";
+import {BootstrapVue} from "bootstrap-vue";
+Vue.use(BootstrapVue);
+
 jest.mock("../Api");
 
-let activityList;
-let push;
+let activityListWrapper = null;
 
-let config;
-const PAUSE = 150;
-const SUBSCRIBED_STATUS = false;
 const DEFAULT_USER_ID_1 = 1;
 const DEFAULT_USER_ID_2 = 2;
 const ACTIVITIES = [
     {
+        id: 1,
         activity_name: "Trail Run Arthur's Pass",
         description: "A trail run of Mingha - Deception Route in Arthur's pass.  South to north.",
         activity_type: ["Astronomy", "Hiking"],
@@ -26,6 +27,7 @@ const ACTIVITIES = [
         creatorUserId: DEFAULT_USER_ID_2
     },
     {
+        id: 2,
         activity_name: "Cancelling Marmite",
         description: "I hate marmite. I'd rather go on a juice cleanse with debra and bob.",
         activity_type: ["Archery"],
@@ -37,70 +39,120 @@ const ACTIVITIES = [
     }
 ];
 
-// beforeAll(() => {
-//     config = {
-//         router
-//     };
-//     // This Removes: TypeError: Cannot read property 'then' of undefined
-//     api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID, status: 200 }));
-//     // api.getUserSubscribed.mockImplementation(() => Promise.resolve( { data: SUBSCRIBED_STATUS, status: 200 }));
-//     // api.setUserSubscribed.mockImplementation(() => Promise.resolve( { status: 200 }));
-//     // api.deleteUserSubscribed.mockImplementation(() => Promise.resolve( { status: 200}));
-//     activityList = shallowMount(ActivityList, config);
-// });
 
-/**
- * A function to cause a delay before a promise is resolved
- * @param milliseconds time to delay
- * @returns {Promise<any>} code to execute after delay
- */
 const sleep = (milliseconds) => {
     return new Promise(resolve => setTimeout(resolve, milliseconds))
 };
 
 /**
+ *
+ * @param activities list of activities to return by getUserActivities
+ * @returns {Promise<void>}
+ */
+async function mockActivities() {  // Helper function to prevent duplicate code
+    api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID_1, status: 200 }));
+    api.getUserActivities.mockImplementation(
+        () => Promise.resolve({
+            data: ACTIVITIES,
+            status: 200
+        })
+    );
+    api.getUserData.mockImplementation(
+        () => Promise.resolve( {
+            data: {
+                firstname: "CreatorName",
+                lastname: "Barbara"
+            },
+            status: 200
+        })
+    );
+    api.getUserSubscribed.mockImplementation(
+        () => Promise.resolve( {
+            data: {
+                subscribed: true
+            }, status: 200
+        })
+    );
+
+    activityListWrapper = shallowMount(ActivityList, {
+        methods: {
+            checkLoggedIn: () => {},
+        },
+    });
+}
+
+/**
  * Before each test, mock the necessary properties and methods.
  */
 beforeEach(() => {
-    return new Promise(resolve => {
-        // push = jest.fn();
-        // const $router = {
-        //     push: jest.fn()
-        // };
-        // const $route = {
-        //     params: {activityList : undefined},
-        // };
+    return mockActivities();
 
-        api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID_1, status: 200 }));
-        api.getUserActivities.mockImplementation(
-            () => Promise.resolve({
-                data: {
-                    ACTIVITIES
-                },
-                status: 200
-            }));
+    //     api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID_1, status: 200 }));
+    //     api.getUserActivities.mockImplementation(
+    //         () => Promise.resolve({
+    //             data: ACTIVITIES,
+    //             status: 200
+    //         })
+    //     );
+    //     api.getUserData.mockImplementation(
+    //         () => Promise.resolve( {
+    //             data: {
+    //                 firstname: "CreatorName",
+    //                 lastname: "Barbara"
+    //             },
+    //             status: 200
+    //         })
+    //     );
+    //     api.getUserSubscribed.mockImplementation(
+    //         () => Promise.resolve( {
+    //             data: {
+    //                 subscribed: true
+    //             }, status: 200
+    //         })
+    //     );
+    //
+    //
+    //
+    //     activityListWrapper = shallowMount(ActivityList, {
+    //         methods: {
+    //             checkLoggedIn: () => {},
+    //         },
+    //     });
+    //
+    //     sleep(500).then(() => resolve());
 
-
-        activityList = shallowMount(ActivityList, {
-            data() {
-                return {
-                    activityList: ACTIVITIES
-                }
-            }
-        });
-        console.log(activityList);
-
-        // This causes a delay between beforeEach finishing, and the tests being run.
-        // This isn't at all good practice, but its the only way I am able
-        // to get EditEmail to fully mount before the tests are run.
-        // resolve() signals the above promise to complete
-        sleep(PAUSE).then(() => resolve());
-    });
 });
-
 
 test('Is a vue instance', () => {
-    expect(activityList.isVueInstance).toBeTruthy();
+    expect(activityListWrapper.isVueInstance).toBeTruthy();
 });
-
-
+//
+// // Components actually display list of activities, initially none
+// // But then follow activities, then show activities
+//
+// test('Displays activities I am following', () => {
+//     let durationActivities = ACTIVITIES.filter(i => !i.continuous);
+//     let tagId;
+//     let tag;
+//     // console.log(durationActivities)
+//
+//     console.log("HAHAHAHAHHA")
+//     let main = activityListWrapper.find('#slug');
+//     console.log(main)
+//     for (let index in durationActivities) {
+//         tagId = '#activity' + durationActivities[index].id + '-duration-card';
+//
+//         console.log(tag)
+//     }
+//     // setTimeout(function async () {    //Hide alert bar after ~9000ms
+//     //     for (let index in durationActivities) {
+//     //         tagId = '#activity' + durationActivities[index].id + '-duration-modal';
+//     //         console.log("HYYHYHYHYHYHY")
+//     //         console.log(activityListWrapper.find(tagId).text())
+//     //         console.log("HYYHYHYHYHYHY")
+//     //         // expect(activityListWrapper.find(id).text()).toBe("johntester@tester.com");
+//     //     }
+//     // }, 1000);
+//
+//
+// });
