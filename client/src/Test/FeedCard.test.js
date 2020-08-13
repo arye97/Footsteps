@@ -9,11 +9,12 @@ jest.mock('../Api');
 let feedCard;
 let now;
 const EVENT_DELETE = {
-  id: 1,
-  feedEventType: 'DELETE',
-  timeStamp: new Date(),
-  activityId: 1,
-  userId: 1
+    id: 1,
+    feedEventType: 'DELETE',
+    timeStamp: new Date(),
+    activityId: 1,
+    activityName: "Go to the zoo",
+    userId: 1
 };
 // Follow event has the date set as 10m ago
 let EVENT_FOLLOW = {
@@ -21,16 +22,13 @@ let EVENT_FOLLOW = {
     feedEventType: 'FOLLOW',
     timeStamp: new Date(),
     activityId: 1,
+    activityName: "The First Activity",
     userId: 1
 };
 const USER1_DATA = {
     id: 1,
     firstname: "Bob",
     lastname: "Cucumber"
-};
-const EVENT1_DATA = {
-    id: 1,
-    activity_name: "Go to the zoo"
 };
 
 /**
@@ -47,12 +45,6 @@ beforeEach(() => {
         api.getUserData.mockImplementation(() => {
             return Promise.resolve({
                 data: USER1_DATA,
-                status: 200
-            })
-        });
-        api.getActivityData.mockImplementation(() => {
-            return Promise.resolve({
-                data: EVENT1_DATA,
                 status: 200
             })
         });
@@ -167,6 +159,6 @@ describe("The extract data method", () => {
     });
 
     test('Sets the activity title of the event concerned', () => {
-        expect(feedCard.vm.activityTitle).toBe("Go to the zoo");
+        expect(feedCard.vm.event.activityName).toBe("Go to the zoo");
     });
 })

@@ -1,6 +1,7 @@
 package com.springvuegradle.seng302team600.model;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springvuegradle.seng302team600.enumeration.UnitType;
 
 import javax.persistence.*;
@@ -9,25 +10,26 @@ import javax.persistence.*;
 public class Unit {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "unit_id", nullable = false)
-    private Long id;
+    @JsonProperty("unit_id")
+    private Long unitId;
 
     @Column(name = "name", nullable = false)
-    String name;
+    @JsonProperty("name")
+    private String name;
 
     @Column(name = "unit_type", nullable = false)
-    UnitType unitType;
+    @JsonProperty("unit_type")
+    private UnitType unitType;
 
     @Column(name = "measurement_unit")
-    String measurementUnit;
+    @JsonProperty("measurement_unit")
+    private String measurementUnit;
 
     public Unit() {}
 
-    public Unit(String name, UnitType unitType, String measurementUnit) {
-        this.name = name;
-        this.unitType = unitType;
-        this.measurementUnit = measurementUnit;
+    public Long getUnitId() {
+        return unitId;
     }
 
     public String getName() {

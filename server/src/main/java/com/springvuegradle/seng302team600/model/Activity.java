@@ -46,21 +46,21 @@ public class Activity {
             name = "activity_participant",
             joinColumns = @JoinColumn(name = "activity_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private Set<User> participants;
+    private Set<User> participants = new HashSet<>();
 
     @NotNull(message = "This Activity needs to be either continuous or have a duration")
     @Column(name = "is_continuous", columnDefinition = "boolean", nullable = false)
     @JsonProperty("continuous")
     private boolean continuous;
 
-    @Column(name = "start_time", columnDefinition = "TIMESTAMP")
+    @Column(name = "start_time", columnDefinition = "DATETIME")
     // See here for format pattern: https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
     @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ")
     @Temporal(TemporalType.TIMESTAMP)
     @JsonProperty("start_time")
     private Date startTime;
 
-    @Column(name = "end_time", columnDefinition = "TIMESTAMP")
+    @Column(name = "end_time", columnDefinition = "DATETIME")
     @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ")
     @Temporal(TemporalType.TIMESTAMP)
     @JsonProperty("end_time")
