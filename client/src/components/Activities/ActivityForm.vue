@@ -173,6 +173,8 @@
 
 
                 <hr>
+
+
                 <label>Outcomes: </label>
                 <b-row>
                     <b-col>
@@ -189,12 +191,6 @@
                             <div class="word-count">
                                 {{outcomeTitleCharCount}}/{{maxOutcomeTitleCharCount}} characters left
                             </div>
-                        </b-form-group>
-                    </b-col>
-                    <b-col>
-                        <b-form-group
-                                id="input-group-outcome-unit"
-                        >
                             <b-form-input
                                     id="input-outcome-unit"
                                     v-model="activeOutcome.unit"
@@ -207,67 +203,43 @@
                             </div>
                         </b-form-group>
                     </b-col>
-                    <b-col cols="1" align-self="start">
-                        <b-button v-bind:disabled="!validOutcome" variant="primary" id="addOutcome" v-on:click="addOutcome">Add</b-button>
+                </b-row>
+                <b-row>
+                    <b-col align-self="center">
+                        <b-button
+                                v-bind:disabled="!validOutcome"
+                                variant="primary"
+                                id="addOutcome"
+                                v-on:click="addOutcome"
+                                class="addOutcomesButton"
+                        >
+                            Add outcome
+                        </b-button>
                     </b-col>
                 </b-row>
-<!--                <b-form-group-->
-<!--                        id="input-group-outcome-description"-->
-<!--                >-->
-<!--                    <b-form-textarea-->
-<!--                            id="input-outcome-description"-->
-<!--                            v-model="activeOutcome.description"-->
-<!--                            rows="3"-->
-<!--                            trim-->
-<!--                            v-on:input="updateOutcomeDescriptionWordCount"-->
-<!--                            placeholder="Description of your outcome..."-->
-<!--                    ></b-form-textarea>-->
-<!--                    <div class="word-count">-->
-<!--                        {{outcomeDescriptionCharCount}}/{{maxOutcomeDescriptionCharCount}} characters left-->
-<!--                    </div>-->
-<!--                </b-form-group>-->
 
                 <section class="outcomesDisplay">
                     <table id="additionalEmailsTable" class="table table-hover">
-                        <tr v-for="(outcome, index) in this.outcomeList"
-                            v-bind:key="outcome">
-                            <b-row margin-="15px">
-                                <b-col cols="4">
+                        <tr class="outcomesTable" v-for="(outcome, index) in this.outcomeList"
+                            v-bind:key="'outcome' + index">
+                            <td>
                                     <p :id="'outcome' + index">
                                         {{ outcome.title }}
                                     </p>
-                                </b-col>
-                                <b-col cols="4">
+                            </td>
+                                <td>
                                     <p :id="'unit' + index">
                                         {{ outcome.unit }}
                                     </p>
-                                </b-col>
-                                <b-col cols="1">
+                                </td>
+                                <td class="tableButtonTd">
                                     <b-button variant="danger" :id="'deleteButton' + index" v-on:click="deleteOutcome(index)">
                                         <b-icon-trash-fill></b-icon-trash-fill>
                                     </b-button>
-                                </b-col>
-                                <b-col cols="1">
+                                </td>
+                                <td class="tableButtonTd">
                                     <b-button variant="primary" :id="'editButton' + index" v-on:click="editOutcome(index)">Edit</b-button>
-                                </b-col>
-                            </b-row>
-<!--                            <b-row>-->
-<!--                                <b-col col="10">-->
-<!--                                    <p :id="'description' + index">-->
-<!--                                        {{ outcome.description }}-->
-<!--                                    </p>-->
-<!--                                </b-col>-->
-<!--                                <b-col col="2">-->
-<!--                                    <b-row>-->
-<!--                                        <b-button variant="danger" id="deleteButton" v-on:click="deleteOutcome(index)">-->
-<!--                                            <b-icon-trash-fill></b-icon-trash-fill>-->
-<!--                                        </b-button>-->
-<!--                                    </b-row>-->
-<!--                                    <b-row>-->
-<!--                                        <b-button variant="primary" id="editButton" v-on:click="editOutcome(index)">Edit</b-button>-->
-<!--                                    </b-row>-->
-<!--                                </b-col>-->
-<!--                            </b-row>-->
+                                </td>
                         </tr>
                     </table>
                 </section>
@@ -351,8 +323,6 @@
                 maxOutcomeTitleCharCount: 75,
                 outcomeUnitCharCount: 0,
                 maxOutcomeUnitCharCount: 75,
-                outcomeDescriptionCharCount: 0,
-                maxOutcomeDescriptionCharCount: 1500
             }
         },
         async created() {
@@ -502,13 +472,14 @@
                 this.outcomeTitleCharCount = this.activeOutcome.title.length;
                 this.outcomeUnitCharCount = this.activeOutcome.unit.length;
                 this.validOutcome = this.outcomeTitleCharCount > 0 && this.outcomeUnitCharCount > 0;
-            },
-
-            /**
-             * Updates word count for outcome description
-             */
-            updateOutcomeDescriptionWordCount() {
-                this.outcomeDescriptionCharCount = this.activeOutcome.description.length;
+                if (this.validOutcome) {
+                    for (let i = 0; i < this.outcomeList.length; i++) {
+                        if (this.activeOutcome.title === this.outcomeList[i].title) {
+                            this.validOutcome = false;
+                            return;
+                        }
+                    }
+                }
             },
 
             /**
@@ -561,5 +532,18 @@
 
     .checkbox-time {
         padding-top: 10px;
+    }
+
+    .tableButtonTd {
+        float: right;
+    }
+
+    .outcomesTable p {
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+
+    .addOutcomesButton {
+        margin-bottom: 5px;
     }
 </style>
