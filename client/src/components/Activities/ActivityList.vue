@@ -75,7 +75,7 @@
                                             <!--Participants view for when an activity is continuous-->
                                             <b-card border-variant="secondary">
                                                 <strong>Participants: </strong><br>
-                                                    <b-button-group v-for="participant in activity.participants" :key="participant.id" class="participantViewer">
+                                                    <b-button-group v-for="participant in activity.participants" :key="participant.id">
                                                         <b-button
                                                         class="participantButton" pill variant="success"
                                                         v-on:click="toUserProfile(participant.id)">{{participant.name}}</b-button>
@@ -184,7 +184,7 @@
                                             <!--Participants view for when an activity is non-continuous/duration-->
                                             <b-card class="flex-fill" border-variant="secondary">
                                                 <strong>Participants: </strong><br>
-                                                <b-button-group v-for="participant in activity.participants" :key="participant.id" class="participantViewer">
+                                                <b-button-group v-for="participant in activity.participants" :key="participant.id">
                                                     <b-button
                                                             class="participantButton" pill variant="success"
                                                             v-on:click="toUserProfile(participant.id)">{{participant.name}}</b-button>
@@ -264,12 +264,6 @@
         },
         data() {
             return {
-                participantsPerPage: 5,
-                currentPage: 1,
-                currentPageParticipantList: [],
-                participantList: [],
-
-
                 activityList : [],
                 noMore: false,
                 activeTab: 0,
