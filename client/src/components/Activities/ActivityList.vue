@@ -26,7 +26,7 @@
                             </b-col>
                             <b-col md="6">
                                 <div class="activity-button-group float-right">
-                                    <b-button-group vertical>
+<!--                                    <b-button-group vertical>-->
                                         <b-modal :id="'activity' + activity.id + '-continuous-modal'" size="lg" centered ok-only scrollable :title="activity.activity_name">
                                             <b-card class="flex-fill" border-variant="secondary">
                                                 <b-row class="mb-1">
@@ -74,22 +74,16 @@
 
 
                                             <!--Participants view for when an activity is continuous-->
-                                            <b-card class="flex-fill" border-variant="secondary">
+                                            <b-card border-variant="secondary">
                                                 <strong>Participants: </strong><br>
 
-                                                <div style="max-width:100px">
 
 
-
-                                                    <b-button-group>
-                                                        <section v-for="participant in activity.participants" :key="participant" >
-                                                            <b-button
-                                                            style="margin:3px"
-                                                            v-on:click="toUserProfile(participant.id)">{{participant.name}}</b-button>
-                                                        </section>
+                                                    <b-button-group v-for="participant in activity.participants" :key="participant.id" class="participantViewer">
+                                                        <b-button
+                                                        class="participantButton" pill variant="success"
+                                                        v-on:click="toUserProfile(participant.id)">{{participant.name}}</b-button>
                                                     </b-button-group>
-
-                                                </div>
 
 <!--                                                    {{activity.participants}}-->
 <!--                                                    <b-pagination-->
@@ -137,7 +131,7 @@
                                                   v-on:click="deleteActivity(activity.id)">
                                             Delete
                                         </b-button>
-                                    </b-button-group>
+<!--                                    </b-button-group>-->
                                 </div>
                             </b-col>
                         </b-row>
@@ -553,5 +547,10 @@
 
     .footerButton {
         width: 100%;
+    }
+
+    .participantButton {
+        margin: 3px;
+        display: inline-block;
     }
 </style>
