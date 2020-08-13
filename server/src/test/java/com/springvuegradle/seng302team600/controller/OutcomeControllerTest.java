@@ -11,6 +11,7 @@ import com.springvuegradle.seng302team600.repository.OutcomeRepository;
 import com.springvuegradle.seng302team600.repository.ResultRepository;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,17 +26,15 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 
 @WebMvcTest(OutcomeController.class)
 public class OutcomeControllerTest {
@@ -59,9 +58,14 @@ public class OutcomeControllerTest {
     private final String validToken2 = "valid2";
     private static final Long ACTIVITY_ID_1 = 1L;
     private Activity dummyActivity;
-    private Outcome dummyOutcome;
+
+    private Outcome dummyOutcome1;
+    private Outcome dummyOutcome2;
+    private Outcome dummyOutcome3;
     private List<Outcome> outcomeTable;
     private Long nextOutcomeId;
+
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     public void setUp() {
@@ -75,6 +79,29 @@ public class OutcomeControllerTest {
         dummyUser2.setToken(validToken2);
         ReflectionTestUtils.setField(dummyUser2, "userId", USER_ID_2);
 
+        dummyOutcome1 = new Outcome();
+        dummyOutcome1.setTitle("Run Marathon");
+        dummyOutcome1.setDescription("Finished the marathon in a certain amount of time.");
+        dummyOutcome1.setActivityId(ACTIVITY_ID_1);
+
+        dummyOutcome2 = new Outcome();
+        dummyOutcome2.setTitle("Swam a kilometre");
+        dummyOutcome2.setDescription("Finished the swim in a certain amount of time.");
+        dummyOutcome2.setActivityId(ACTIVITY_ID_1);
+
+        dummyOutcome3 = new Outcome();
+        ReflectionTestUtils.setField(dummyOutcome3, "outcomeId", 1L);
+        dummyOutcome3.setActivityId(ACTIVITY_ID_1);
+        dummyOutcome3.setDescription("These are my outcome results");
+        dummyOutcome3.setTitle("This is my outcome");
+        Set<Unit> units = new HashSet<>();
+        Unit unit = new Unit();
+        unit.setName("Unit name");
+        unit.setUnitType(UnitType.NUMBER);
+        unit.setMeasurementUnit("km");
+        units.add(unit);
+        dummyOutcome3.setUnits(units);
+
         dummyActivity = new Activity();
         dummyActivity.setCreatorUserId(USER_ID_1);
         dummyActivity.setParticipants(new HashSet<>());
@@ -83,18 +110,6 @@ public class OutcomeControllerTest {
         outcomeTable = new ArrayList<>();
         nextOutcomeId = 1L;
 
-        dummyOutcome = new Outcome();
-        ReflectionTestUtils.setField(dummyOutcome, "outcomeId", 1L);
-        dummyOutcome.setActivityId(ACTIVITY_ID_1);
-        dummyOutcome.setDescription("These are my outcome results");
-        dummyOutcome.setTitle("This is my outcome");
-        Set<Unit> units = new HashSet<>();
-        Unit unit = new Unit();
-        unit.setName("Unit name");
-        unit.setUnitType(UnitType.NUMBER);
-        unit.setMeasurementUnit("km");
-        units.add(unit);
-        dummyOutcome.setUnits(units);
 
         // Mocking UserAuthenticationService
         when(userAuthenticationService.findByUserId(Mockito.any(), Mockito.any(Long.class))).thenAnswer(i -> {
@@ -157,16 +172,42 @@ public class OutcomeControllerTest {
         });
     }
 
+    /**
+     * Check that Activity Outcomes can be retrieved.
+     */
+    @Test
+    void getAllOutcomes() throws Exception {
+
+        outcomeTable.add(dummyOutcome1);
+        outcomeTable.add(dummyOutcome2);
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(
+                "/activities/{activityId}/outcomes", ACTIVITY_ID_1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        assertNotNull(result.getResponse());
+
+        // Check that there are the same number of OutcomeResponses as Outcomes in the mock repository
+        String jsonResponseStr = result.getResponse().getContentAsString();
+        assertEquals(outcomeTable.size(), objectMapper.readTree(jsonResponseStr).size());
+    }
+
+
     private final String outcomeJson = JsonConverter.toJson(true,
             "title", "This is my outcome",
             "description", "This is my outcome, it does outcome things.",
             "activity_id", ACTIVITY_ID_1
             );
     @Test
-    public void saveOutcome() throws Exception {
+    void saveOutcome() throws Exception {
 
         ObjectMapper objectMapper = new ObjectMapper();
-        String outcomeJson = objectMapper.writeValueAsString(dummyOutcome);
+        String outcomeJson = objectMapper.writeValueAsString(dummyOutcome3);
         MockHttpServletRequestBuilder createOutcome = MockMvcRequestBuilders
                 .post("/activities/outcomes")
                 .header("Token", validToken)
@@ -179,7 +220,7 @@ public class OutcomeControllerTest {
                 .andReturn();
 
         //Check the title of the saved outcome is the same as the original one
-        assertTrue(outcomeTable.get(0).getTitle().equals(dummyOutcome.getTitle()));
+        assertTrue(outcomeTable.get(0).getTitle().equals(dummyOutcome3.getTitle()));
 
         //make sure the response is null as a post request is <void>
         assertNull(result.getResponse().getContentType());
