@@ -76,38 +76,12 @@
                                             <!--Participants view for when an activity is continuous-->
                                             <b-card border-variant="secondary">
                                                 <strong>Participants: </strong><br>
-
-
-
                                                     <b-button-group v-for="participant in activity.participants" :key="participant.id" class="participantViewer">
                                                         <b-button
                                                         class="participantButton" pill variant="success"
                                                         v-on:click="toUserProfile(participant.id)">{{participant.name}}</b-button>
                                                     </b-button-group>
-
-<!--                                                    {{activity.participants}}-->
-<!--                                                    <b-pagination-->
-<!--                                                            v-if="!errored && !loading && participantList.length >= 1"-->
-<!--                                                            align="fill"-->
-<!--                                                            v-model="currentPage"-->
-<!--                                                            :total-rows="rows"-->
-<!--                                                            :per-page="participantsPerPage"-->
-<!--                                                    ></b-pagination>-->
-
                                             </b-card>
-
-
-
-
-
-
-
-
-
-
-
-
-
                                         </b-modal>
                                         <b-button v-if="activity.creatorUserId === activeUserId"
                                                   variant="outline-primary"
@@ -209,21 +183,15 @@
                                             </b-card>
                                             <br>
 
-
                                             <!--Participants view for when an activity is non-continuous/duration-->
                                             <b-card class="flex-fill" border-variant="secondary">
-
                                                 <strong>Participants: </strong><br>
-                                                <b-button-group>
-                                                <section v-for="participant in activity.participants" :key="participant"><b-button
-                                                            style="margin:3px"
+                                                <b-button-group v-for="participant in activity.participants" :key="participant.id" class="participantViewer">
+                                                    <b-button
+                                                            class="participantButton" pill variant="success"
                                                             v-on:click="toUserProfile(participant.id)">{{participant.name}}</b-button>
-                                                </section>
-                                            </b-button-group>
-
+                                                </b-button-group>
                                             </b-card>
-
-
 
                                             <template v-slot:modal-footer v-if="activity.creatorUserId !== activeUserId">
                                                 <div class="w-100">
@@ -450,12 +418,9 @@
              * and gets list of participants for each activity
              */
             async fetchParticipantsForActivities() {
-                console.log('activityList = ' + this.activityList)
-                console.log('activityList length = ' + this.activityList.length)
                 for (let i = 0; i < this.activityList.length; i++) {
                     await api.getParticipants(this.activityList[i].id).then(response => {
                         let participants = [];
-                        console.log(response);
                         let user;
                         for (let j = 0; j < response.data.length; j++) {
                             user = response.data[j];
