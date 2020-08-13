@@ -136,9 +136,9 @@
                                     <b-button-group v-for="participant in participants" :key="participant.id">
                                         <b-button
                                                 class="participantButton" pill variant="success"
-                                                v-on:click="toUserProfile(participant.id)">{{participant.name}}</b-button>
+                                                v-on:click="toUserProfile(participant.id)" id="participant">{{participant.name}}</b-button>
                                     </b-button-group>
-                                    <p v-if="participants.length == 0">No participants to show</p>
+                                    <p v-if="participants.length == 0" id="noParticipants">No participants to show</p>
                                 </b-card>
                             </b-modal>
                             <!--View Participants and Results Buttons-->
