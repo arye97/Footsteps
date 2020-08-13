@@ -324,6 +324,12 @@ describe("Run tests on new user", () => {
         });
 
 
+        test("Get an activities outcomes", () => {
+            return api.getActivityOutcomes(ACTIVITY_IDS.values().next().value).then(response => {
+                expect(response.status).toEqual(200);
+            }).catch(err => {throw procError(err)});
+        });
+
         test("Check if user can edit activity", () => {
             return api.isActivityEditable(ACTIVITY_IDS.values().next().value).then(response => {
                 expect(response.status).toEqual(200);
@@ -444,6 +450,7 @@ describe("Other miscellaneous tests", () => {
     });
 
 });
+
 
 
 

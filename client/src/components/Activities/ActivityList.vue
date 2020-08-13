@@ -461,24 +461,17 @@
                 }
                 this.loading = false;
             },
-
-
-
-            // /**
-            //  * Calculate the participants to be displayed from the current page number.
-            //  * This function is called when the pagination bar is altered,
-            //  * changing the currentPage variable.
-            //  */
-            // setCurrentPageParticipantList() {
-            //     let leftIndex = (this.currentPage - 1) * this.participantsPerPage;
-            //     let rightIndex = leftIndex + this.participantsPerPage;
-            //     if (rightIndex > this.participantList.length) {
-            //         rightIndex = this.participantList.length;
-            //     }
-            //     this.currentPageParticipantList = this.participantList.slice(leftIndex, rightIndex);
-            //     window.scrollTo(0,0);
-            //
-            // },
+            async getActivityOutcomes() {
+                for (let i = 0; i < this.activityList.length; i++) {
+                  await api.getActivityOutcomes(this.activityList[i].id)
+                    .then((response) => {
+                        this.activityList[i]["outcomes"] = response.data;
+                    })
+                    .catch(() => {
+                        this.activityList[i]["outcomes"] = [];
+                  });
+                }
+            }
         }
     }
 
