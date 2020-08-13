@@ -26,7 +26,6 @@
                             </b-col>
                             <b-col md="6">
                                 <div class="activity-button-group float-right">
-<!--                                    <b-button-group vertical>-->
                                         <b-modal :id="'activity' + activity.id + '-continuous-modal'" size="lg" centered ok-only scrollable :title="activity.activity_name">
                                             <b-card class="flex-fill" border-variant="secondary">
                                                 <b-row class="mb-1">
@@ -105,7 +104,6 @@
                                                   v-on:click="deleteActivity(activity.id)">
                                             Delete
                                         </b-button>
-<!--                                    </b-button-group>-->
                                 </div>
                             </b-col>
                         </b-row>
@@ -147,7 +145,7 @@
                                                     <b-col>{{ activity.creatorName }}</b-col>
                                                 </b-row>
                                                 <b-row class="mb-1">
-                                                    <b-col><strong>Start bs Date: </strong></b-col>
+                                                    <b-col><strong>Start Date: </strong></b-col>
                                                     <b-col>{{ getDateTime(activity.start_time) }}</b-col>
                                                 </b-row>
                                                 <b-row class="mb-1">
@@ -291,31 +289,9 @@
         async mounted() {
             await this.getActiveUserId();
             await this.getListOfActivities();
-            //await this.fetchActivityTypes();
-            // await this.fetchParticipants();
             await this.fetchParticipantsForActivities();
             await this.getCreatorNamesForActivities();
-            //await this.getCreatorName();
         },
-        //
-        // watch: {
-        //     /**
-        //      * Watcher is called whenever currentPage is changed,
-        //      * thanks to the pagination bar.
-        //      */
-        //     currentPage() {
-        //         this.setCurrentPageParticipantList();
-        //     }
-        // },
-        //
-        // computed: {
-        //     /**
-        //      * Gets the total amount of participants (AKA no. of rows) for an activity
-        //      */
-        //     rows(){
-        //         return this.participantList.length;
-        //     }
-        // },
 
 
         methods: {
@@ -357,7 +333,6 @@
                         if (response.data.length === 0) {
                             this.noMore = true;
                         }
-                        console.log(response.data)
                         this.activityList = response.data;
                     }).catch(() => {
                         this.errored = true;
