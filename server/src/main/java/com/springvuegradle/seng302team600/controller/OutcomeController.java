@@ -39,9 +39,10 @@ public class OutcomeController {
      * Create an outcome for an activity.
      * This method checks that the user from token and the creator of the activity are the same
      * else it will throw a 403 forbidden exception
+     *
      * @param outcomeRequest the outcomeResponse payload to be converted to an Outcome object
      *                       to be saved to the activity (in the outcomeRepository)
-     * @param request the request packet, where we will check the user Token
+     * @param request        the request packet, where we will check the user Token
      */
     @PostMapping("/activities/outcomes")
     public void createNewActivityOutcomes(@Validated @RequestBody OutcomeRequest outcomeRequest, HttpServletRequest request) {
@@ -63,27 +64,39 @@ public class OutcomeController {
 
     /**
      * Return a list of all OutcomeResponse objects that are associated with an activityId
+     *
      * @param activityId id of the activity you want Outcomes from
      * @return list of OutcomeResponse objects
      */
     @GetMapping("/activities/{activityId}/outcomes")
-    public List<OutcomeResponse> getActivityOutcomes(@PathVariable Long activityId) {  // ToDo can we remove request
-        //ToDo: add a DocString please
+    public List<OutcomeResponse> getActivityOutcomes(@PathVariable Long activityId) {
+
         List<Outcome> outcomes = outcomeRepository.findByActivityId(activityId);
 
         // Return an empty list of OutcomeResponses if null
-        // Should it throw an error?  If there are no outcomes it seems that it would return an empty List, not null
         if (outcomes == null) {
             return new ArrayList<>();
         }
 
         // Convert Outcomes to OutcomeResponse
         List<OutcomeResponse> outcomeResponses = new ArrayList<>(outcomes.size());
-        for (Outcome outcome: outcomes) {
+        for (Outcome outcome : outcomes) {
             outcomeResponses.add(new OutcomeResponse(outcome));
         }
 
         return outcomeResponses;
+    }
+
+
+    @PutMapping("/activities/outcomes")
+    public void updateActivityOutcomes(@Validated @RequestBody Outcome outcome, HttpServletRequest request) {
+        //ToDo: Implement this method, and add a DocString please
+    }
+
+
+    @DeleteMapping("/activities/{outcomeId}/outcomes")
+    public void deleteActivityOutcomes(@PathVariable Long outcomeId, HttpServletRequest request) {
+        //ToDo: Implement this method, and add a DocString please
     }
 
 }
