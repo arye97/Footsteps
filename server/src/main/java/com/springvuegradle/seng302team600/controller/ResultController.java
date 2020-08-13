@@ -91,6 +91,14 @@ public class ResultController {
     }
 
 
+    /**
+     * Return a list of all Result objects that are associated with an outcome
+     *
+     * @param outcomeId id of the outcome you want Result from
+     * @param request the Http request from front-end
+     * @param response the Http response to front-end
+     * @return list of Result objects
+     */
     @GetMapping("/outcomes/{outcomeId}/results")
     public List<Result> getOutcomeResults(@PathVariable Long outcomeId, HttpServletRequest request,
                                           HttpServletResponse response) {
@@ -109,7 +117,6 @@ public class ResultController {
         if (results == null) {
             return new ArrayList<>();
         }
-        response.setStatus(HttpServletResponse.SC_OK); //201
         return results;
     }
 }
