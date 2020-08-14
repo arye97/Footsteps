@@ -188,7 +188,7 @@
                                     trim
                                     v-on:input="updateOutcomeWordCount"
                             ></b-form-input>
-                            <div class="word-count">
+                            <div class="word-count" id="title-word-count">
                                 {{outcomeTitleCharCount}}/{{maxOutcomeTitleCharCount}} characters left
                             </div>
                             <b-form-input
@@ -198,7 +198,7 @@
                                     trim
                                     v-on:input="updateOutcomeWordCount"
                             ></b-form-input>
-                            <div class="word-count">
+                            <div class="word-count" id="unit-word-count">
                                 {{outcomeUnitCharCount}}/{{maxOutcomeUnitCharCount}} characters left
                             </div>
                         </b-form-group>
@@ -221,9 +221,10 @@
                 <section class="outcomesDisplay">
                     <table id="additionalEmailsTable" class="table table-hover">
                         <tr class="outcomesTable" v-for="(outcome, index) in this.outcomeList"
-                            v-bind:key="'outcome' + index">
+                            v-bind:key="'outcome' + index"
+                            :id="'outcome' + index">
                             <td>
-                                    <p :id="'outcome' + index">
+                                    <p :id="'title' + index">
                                         {{ outcome.title }}
                                     </p>
                             </td>
