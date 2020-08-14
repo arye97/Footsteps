@@ -505,7 +505,7 @@
 
             addOutcome() {
                 this.outcomeList.push(this.activeOutcome);
-                this.activeOutcome = {title:"", unit:""};
+                this.activeOutcome = {title:"", unit_name:""};
                 this.updateOutcomeWordCount();
             },
 

@@ -1,2 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
+  <file path="/Users/Ben/Desktop/SENG302/project/team-600/client/src/Test/ActivityForm.test.js">
+    <testCase name="Is a vue instance" duration="110"/>
+    <testCase name="Outcome title input exists" duration="44"/>
+    <testCase name="Outcome unit_name input exists" duration="42">
+      <failure message="Error: expect(received).toBeTruthy()"><![CDATA[Error: expect(received).toBeTruthy()
+
+Received: false
+    at Object.<anonymous> (/Users/Ben/Desktop/SENG302/project/team-600/client/src/Test/ActivityForm.test.js:46:68)
+    at Object.asyncJestTest (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:100:37)
+    at /Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:45:12
+    at new Promise (<anonymous>)
+    at mapper (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:28:19)
+    at /Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:75:41]]></failure>
+    </testCase>
+    <testCase name="Outcome title word count exists" duration="36"/>
+    <testCase name="Outcome unit_name word count exists" duration="44">
+      <failure message="Error: expect(received).toBeTruthy()"><![CDATA[Error: expect(received).toBeTruthy()
+
+Received: false
+    at Object.<anonymous> (/Users/Ben/Desktop/SENG302/project/team-600/client/src/Test/ActivityForm.test.js:54:65)
+    at Object.asyncJestTest (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:100:37)
+    at /Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:45:12
+    at new Promise (<anonymous>)
+    at mapper (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:28:19)
+    at /Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:75:41]]></failure>
+    </testCase>
+    <testCase name="Add outcome button exists" duration="34"/>
+    <testCase name="Outcomes table exists" duration="38"/>
+  </file>
 </testExecutions>

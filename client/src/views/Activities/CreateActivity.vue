@@ -84,7 +84,7 @@
                 // Send the outcomes to the server.  Adds the activityId to the outcomes.
                 await this.createAllOutcomes(this.outcomeList, activityId).then(() => {
                     this.$router.push({name: 'allActivities', params: {alertMessage: 'Activity added successfully', alertCount: 5}});
-                }).catch(error => {this.throwError(error, false)});
+                });
             },
 
             /**
@@ -101,15 +101,14 @@
                     const outcomeRequest = {
                         activity_id: isNaN(outcome.activity_id) ? activityId : outcome.activity_id,
                         title: outcome.title,
-                        unit_name: outcomes[i].unit_name,
+                        unit_name: outcome.unit_name,
                         unit_type: Object.keys(UnitType).includes(outcome.unit_type) ? outcome.unit_type : UnitType.TEXT,
                     };
                     console.log("This ia an outcome request");
                     console.log(outcomeRequest)
 
-                    await api.createOutcome(outcomeRequest).catch(err => {
-                        console.error(err.message);
-                        // throw new Error(err.message);
+                    await api.createOutcome(outcomeRequest).catch(serverError => {
+                        this.throwError(serverError, false);
                     });
                 }
 
