@@ -84,6 +84,7 @@ public class ResultController {
         }
 
         // Result table will be updated when saving this Outcome
+        result.setOutcome(outcome);
         outcome.addResult(result);
         outcomeRepository.save(outcome);
         response.setStatus(HttpServletResponse.SC_CREATED); //201

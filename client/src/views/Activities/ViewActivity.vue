@@ -418,7 +418,6 @@
             async fetchOutcomesForActivity() {
                 await api.getActivityOutcomes(this.activityId).then(response => {
                     this.outcomeList = response.data;
-                    console.log(this.outcomeList)
                 }).catch(error => {
                     if (error.response.status === 401) {
                         sessionStorage.clear();
@@ -461,7 +460,6 @@
              * @param outcomeId the outcome ID
              */
             async submitOutcomeResult(outcomeId) {
-                console.log(outcomeId)
                 // Finds the active user's result for the given outcome
                 let outcomes = this.outcomeList.filter(i => i.outcome_id === outcomeId);
                 if (outcomes.length < 1) return;
