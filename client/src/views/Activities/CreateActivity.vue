@@ -25,6 +25,7 @@
     import Header from '../../components/Header/Header.vue'
     import api from "../../Api";
     import ActivityForm from "../../components/Activities/ActivityForm.vue";
+    import { UNIT_TYPE } from "../../util";
 
     /**
      * A view used to create an activity
@@ -83,7 +84,6 @@
             },
 
             /**
-             * Wrote createAllOutcomes method that save Outcomes to the database that are
              * Sends all Outcomes to the backend.  Should be used when submitting ac Activity.
              * @param newOutcomes Array of outcomes to save to the database
              * @param activityId the id of the associated activity, added to each Outcome
@@ -96,8 +96,8 @@
                     const outcomeRequest = {
                         activity_id: isNaN(outcomes[i].activity_id) ? activityId : outcomes[i].activity_id,
                         title: outcomes[i].title,
-                        description: outcomes[i].description !== undefined ? outcomes[i].description : "Test Description",
                         unit_name: outcomes[i].unit_name,
+                        unit_type: outcomes[i].unit_type in Object.values(UNIT_TYPE) ? outcomes[i].unit_type : UNIT_TYPE.text,
                     };
                     console.log("This ia an outcome request");
                     console.log(outcomeRequest)
