@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springvuegradle.seng302team600.enumeration.UnitType;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.Outcome;
-import com.springvuegradle.seng302team600.model.Unit;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.OutcomeRepository;
@@ -34,7 +33,6 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 
 @WebMvcTest(OutcomeController.class)
 public class OutcomeControllerTest {
@@ -81,26 +79,18 @@ public class OutcomeControllerTest {
 
         dummyOutcome1 = new Outcome();
         dummyOutcome1.setTitle("Run Marathon");
-        dummyOutcome1.setDescription("Finished the marathon in a certain amount of time.");
         dummyOutcome1.setActivityId(ACTIVITY_ID_1);
 
         dummyOutcome2 = new Outcome();
         dummyOutcome2.setTitle("Swam a kilometre");
-        dummyOutcome2.setDescription("Finished the swim in a certain amount of time.");
         dummyOutcome2.setActivityId(ACTIVITY_ID_1);
 
         dummyOutcome3 = new Outcome();
         ReflectionTestUtils.setField(dummyOutcome3, "outcomeId", 1L);
         dummyOutcome3.setActivityId(ACTIVITY_ID_1);
-        dummyOutcome3.setDescription("These are my outcome results");
+        dummyOutcome3.setUnitName("Unit name");
+        dummyOutcome3.setUnitType(UnitType.NUMBER);
         dummyOutcome3.setTitle("This is my outcome");
-        Set<Unit> units = new HashSet<>();
-        Unit unit = new Unit();
-        unit.setName("Unit name");
-        unit.setUnitType(UnitType.NUMBER);
-        unit.setMeasurementUnit("km");
-        units.add(unit);
-        dummyOutcome3.setUnits(units);
 
         dummyActivity = new Activity();
         dummyActivity.setCreatorUserId(USER_ID_1);
@@ -109,6 +99,7 @@ public class OutcomeControllerTest {
 
         outcomeTable = new ArrayList<>();
         nextOutcomeId = 1L;
+
 
 
         // Mocking UserAuthenticationService
@@ -200,14 +191,15 @@ public class OutcomeControllerTest {
 
     private final String outcomeJson = JsonConverter.toJson(true,
             "title", "This is my outcome",
-            "description", "This is my outcome, it does outcome things.",
-            "activity_id", ACTIVITY_ID_1
+            "activity_id", ACTIVITY_ID_1,
+            "unit_name", "Test Name",
+            "unit_type", "TEXT"
             );
     @Test
     void saveOutcome() throws Exception {
-
         ObjectMapper objectMapper = new ObjectMapper();
         String outcomeJson = objectMapper.writeValueAsString(dummyOutcome3);
+        System.out.println(outcomeJson);
         MockHttpServletRequestBuilder createOutcome = MockMvcRequestBuilders
                 .post("/activities/outcomes")
                 .header("Token", validToken)

@@ -38,10 +38,13 @@ public class Result {
     @JoinColumn(name = "outcome_id", nullable = false)
     private Outcome outcome;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "result", cascade = CascadeType.ALL, orphanRemoval = true)
-    //orphan removal removes 'child' when 'parent' is deleted
-    @Column(name = "values", nullable = false)
-    private Set<Value> values;
+    // Actual value of a Value object, represented as a string.
+    @Column(name = "value")
+    private String value;
+
+    @Column(name = "did_not_finish", nullable = false)
+    @JsonProperty("did_not_finish")
+    private boolean didNotFinish;
 
     @Column(name = "comment")
     private String comment;
@@ -50,8 +53,9 @@ public class Result {
 
     public Result(ResultRequest resultRequest) {
         userId = resultRequest.getUserId();
-        values = resultRequest.getValues();
+        value = resultRequest.getValue();
         comment = resultRequest.getComment();
+        didNotFinish = resultRequest.getDidNotFinish();
     }
 
     public Outcome getOutcome() {
@@ -62,8 +66,8 @@ public class Result {
         return resultId;
     }
 
-    public Set<Value> getValues() {
-        return values;
+    public String getValue() {
+        return value;
     }
 
     public Long getUserId() {
@@ -86,7 +90,16 @@ public class Result {
         this.userId = userId;
     }
 
-    public void setValues(Set<Value> values) {
-        this.values = values;
+    public void setValue(String value) {
+        this.value = value;
     }
+
+    public boolean isDidNotFinish() {
+        return didNotFinish;
+    }
+
+    public void setDidNotFinish(boolean didNotFinish) {
+        this.didNotFinish = didNotFinish;
+    }
+
 }

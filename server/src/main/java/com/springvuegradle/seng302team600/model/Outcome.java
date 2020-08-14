@@ -3,6 +3,7 @@ package com.springvuegradle.seng302team600.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.springvuegradle.seng302team600.enumeration.UnitType;
 import com.springvuegradle.seng302team600.payload.OutcomeRequest;
 
 import javax.persistence.*;
@@ -38,19 +39,18 @@ public class Outcome {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @NotNull(message = "This outcome needs a description")
-    @Column(name = "description", nullable = false)
-    private String description;
-
     @NotNull(message = "This outcome needs an activity ID")
     @Column(name = "activity_id", nullable = false)
     @JsonProperty("activity_id")
     private Long activityId;
 
-    @JsonManagedReference
-    @NotNull(message = "An outcome requires a set of unit(s)")
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Unit> units;
+    @Column(name = "unit_name", nullable = false)
+    @JsonProperty("unit_name")
+    private String unitName;
+
+    @Column(name = "unit_type", nullable = false)
+    @JsonProperty("unit_type")
+    private UnitType unitType;
 
     @JsonManagedReference
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "outcome", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -61,8 +61,8 @@ public class Outcome {
     public Outcome(OutcomeRequest outcomeRequest) {
         this.title = outcomeRequest.getTitle();
         this.activityId = outcomeRequest.getActivityId();
-        this.units = outcomeRequest.getUnits();
-        this.description = outcomeRequest.getDescription();
+        this.unitName = outcomeRequest.getUnitName();
+        this.unitType = outcomeRequest.getUnitType();
     }
 
     public Long getOutcomeId() {
@@ -77,14 +77,6 @@ public class Outcome {
         this.title = title;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public Long getActivityId() {
         return activityId;
     }
@@ -93,12 +85,20 @@ public class Outcome {
         this.activityId = activityId;
     }
 
-    public Set<Unit> getUnits() {
-        return units;
+    public String getUnitName() {
+        return unitName;
     }
 
-    public void setUnits(Set<Unit> units) {
-        this.units = units;
+    public void setUnitName(String name) {
+        this.unitName = name;
+    }
+
+    public UnitType getUnitType() {
+        return unitType;
+    }
+
+    public void setUnitType(UnitType type) {
+        this.unitType = type;
     }
 
     public Set<Result> getResults() {
