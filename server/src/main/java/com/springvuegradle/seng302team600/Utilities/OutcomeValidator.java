@@ -2,12 +2,9 @@ package com.springvuegradle.seng302team600.Utilities;
 
 import com.springvuegradle.seng302team600.enumeration.UnitType;
 import com.springvuegradle.seng302team600.model.Outcome;
-import com.springvuegradle.seng302team600.model.Result;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.net.HttpRetryException;
-import java.util.Set;
 
 /**
  *  Validates the activities Outcome created by the activity author
@@ -20,7 +17,6 @@ import java.util.Set;
 public class OutcomeValidator {
 
     private static final int TITLE_LENGTH = 75;
-    private static final int DESCRIPTION_LEN = 1500;
 
     public static boolean validate(Outcome outcome) {
         validateTitle(outcome.getTitle());
@@ -33,7 +29,7 @@ public class OutcomeValidator {
      * @param title must be 1 >= x <= 75 chars long
      */
     public static void validateTitle(String title) {
-        if (title.isBlank()) {
+        if (title == null || title.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Title must be filled in");
         }
         if (title.length() > TITLE_LENGTH) {
@@ -59,7 +55,7 @@ public class OutcomeValidator {
         if (unitType == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unit must have a unit type set");
         }
-        if (unitName.isBlank()) {
+        if (unitName == null || unitName.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unit name must be set");
         } else {
             if (unitName.length() > TITLE_LENGTH) {
