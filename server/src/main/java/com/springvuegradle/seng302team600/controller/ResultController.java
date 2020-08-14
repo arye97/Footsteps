@@ -80,7 +80,7 @@ public class ResultController {
 
         if (!userAuthenticationService.hasAdminPrivileges(user) && !user.getUserId().equals(result.getUserId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "User is Forbidden from added a result for this user ID");
+                    "User is Forbidden from adding a result for this user ID");
         }
 
         // Result table will be updated when saving this Outcome

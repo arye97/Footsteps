@@ -104,9 +104,32 @@
                                 </b-card>
                             </b-list-group>
                             <br/>
+                            <!--Add results Modal-->
+                            <b-modal id="addResultsModel">
+                                <h3 class="font-weight-light"><strong>Outcomes</strong></h3><br/>
+                                <section v-for="outcome in this.outcomeList" :key="outcome.outcome_id">
+                                    <b-card>
+                                        {{ outcome.title }}
+                                        <div v-if="outcome.activeUsersResult.submitted">
+                                            {{ outcome.activeUsersResult }}
+                                        </div>
+                                        <div v-else>
+                                            <b-form-input
+                                                    id="input-value"
+                                                    v-model="outcome.activeUsersResult.value"
+                                                    placeholder="Input your result here..."
+                                            ></b-form-input>
+                                            <b-button block :id="'addResultOutcome' + outcome.outcome_id"
+                                                      @click="submitOutcomeResult(outcome.outcome_id)" variant="success">
+                                                Submit
+                                            </b-button>
+                                        </div>
+                                    </b-card>
+                                </section>
+                            </b-modal>
                             <!-- Add Results/Following Button Group -->
                             <b-button block v-if="this.isFollowing || this.creatorId == this.activeUserId"
-                                      variant="success" id="addResults">Add My Results</b-button>
+                                      variant="success" id="addResults" v-b-modal="'addResultsModel'">Add My Results</b-button>
                             <br/>
                             <div v-if="this.creatorId != this.activeUserId">
                                 <b-button block v-if="!this.isFollowing"
@@ -191,7 +214,37 @@
                 continuous: false,
                 duration: "",
                 isFollowing: false,
-                participants: []
+                participants: [],
+                outcomeList: [
+                    { // Outcome object
+                        outcome_id: null,
+                        title: "",
+                        activity_id: null,
+                        unit_name: "",
+                        unit_type: "",
+                        activeUsersResult:
+                            {
+                            result_id: null,
+                            user_id: null,
+                            outcome_id: null,
+                            value: "",
+                            did_not_finish: false,
+                            comment: "",
+                            submitted: false
+                            },
+                        results: [
+                            { // Result object
+                                result_id: null,
+                                user_id: null,
+                                outcome_id: null,
+                                value: "",
+                                did_not_finish: false,
+                                comment: "",
+                                submitted: false
+                            }
+                        ]
+                    }
+                ],
             }
         },
         async mounted () {
@@ -216,6 +269,8 @@
                 await this.getFollowingDetails();
                 await this.getCreatorUserDetails();
                 await this.fetchParticipantsForActivities();
+                await this.fetchOutcomesForActivity();
+                await this.fetchResultsForOutcomes();
                 this.loading = false;
             },
             /**
@@ -357,6 +412,89 @@
                     }
                 });
             },
+            /**
+             * Gets the list of outcomes for the activity
+             */
+            async fetchOutcomesForActivity() {
+                await api.getActivityOutcomes(this.activityId).then(response => {
+                    this.outcomeList = response.data;
+                    console.log(this.outcomeList)
+                }).catch(error => {
+                    if (error.response.status === 401) {
+                        sessionStorage.clear();
+                        this.goToPage('/login');
+                    } else {
+                        this.errored = true;
+                        this.error_message = "Unable to get outcomes - please try again later";
+                    }
+                });
+            },
+            /**
+             * Gets a list of results for each outcome
+             */
+            async fetchResultsForOutcomes() {
+                for (let i = 0; i < this.outcomeList.length; i++) {
+                    let outcomeId = this.outcomeList[i].outcome_id;
+                    // TODO: Add api call getOutcomeResults here. Add data from response to outcome, like below
+                    // this.outcomeList[i].results = response.data;
+
+                    // If the active user's result is not returned create one
+                    this.outcomeList[i].results = []; //TODO remove this line when getOutcomeResults is implemented
+                    let activeUsersResults = this.outcomeList[i].results.filter(i => i.user_id === this.activeUserId);
+                    if (activeUsersResults.length < 1) {
+                        this.outcomeList[i].activeUsersResult = {
+                                user_id: this.activeUserId,
+                                outcome_id: outcomeId,
+                                value: "",
+                                did_not_finish: false,
+                                comment: "",
+                                submitted: false
+                        };
+                    } else {
+                        this.outcomeList[i].activeUsersResult = activeUsersResults[0];
+                        this.outcomeList[i].activeUsersResult.submitted = true;
+                    }
+                }
+            },
+            /**
+             * Submit result to back-end for an outcome
+             * @param outcomeId the outcome ID
+             */
+            async submitOutcomeResult(outcomeId) {
+                console.log(outcomeId)
+                // Finds the active user's result for the given outcome
+                let outcomes = this.outcomeList.filter(i => i.outcome_id === outcomeId);
+                if (outcomes.length < 1) return;
+
+                await api.createResult(outcomes[0].activeUsersResult, outcomeId).catch(error => {
+                    this.processPostError(error);
+                });
+            },
+            /**
+             * Process the error in terms of status codes returned
+             * @param error being processed
+             */
+            processPostError(error) {
+                this.errored = true;
+                switch (error.response.status) {
+                    case 401:
+                        sessionStorage.clear();
+                        this.goToPage('/login');
+                        break;
+                    case 400:
+                        this.error_message = error.response.data.message;
+                        break;
+                    case 403:
+                        this.error_message = "User is not a participant of this outcome's activity";
+                        break;
+                    case 404:
+                        this.error_message = "Outcome not found";
+                        break;
+                    default:
+                        this.error_message = "Unable to get outcomes - please try again later";
+                        break;
+                }
+            }
         }
     }
 </script>
