@@ -28,7 +28,7 @@ public class FeedEvent {
     @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ")
     @Temporal(TemporalType.TIMESTAMP)
     @JsonProperty("timeStamp")
-    @Column(name = "time_stamp", nullable = false, columnDefinition = "DATE")
+    @Column(name = "time_stamp", nullable = false, columnDefinition = "DATETIME")
     private Date timeStamp;
 
     // The id of the activity related to the feed event

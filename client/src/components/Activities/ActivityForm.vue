@@ -156,7 +156,6 @@
 
 
 
-
                 <b-form-group
                         id="input-group-location"
                         label="Location: *"
@@ -171,6 +170,83 @@
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_location">
                     {{ "Field is mandatory and a location must be set" }}
                 </div>
+
+
+                <hr>
+
+
+                <label>Outcomes: </label>
+                <b-row>
+                    <b-col>
+                        <b-form-group
+                                id="input-group-outcome-title"
+                        >
+                            <b-form-input
+                                    id="input-outcome-title"
+                                    v-model="activeOutcome.title"
+                                    placeholder="Title of your outcome..."
+                                    trim
+                                    v-on:input="updateOutcomeWordCount"
+                            ></b-form-input>
+                            <div class="word-count" id="title-word-count">
+                                {{outcomeTitleCharCount}}/{{maxOutcomeTitleCharCount}} characters left
+                            </div>
+                            <b-form-input
+                                    id="input-outcome-unit"
+                                    v-model="activeOutcome.unit"
+                                    placeholder="Unit of your outcome..."
+                                    trim
+                                    v-on:input="updateOutcomeWordCount"
+                            ></b-form-input>
+                            <div class="word-count" id="unit-word-count">
+                                {{outcomeUnitCharCount}}/{{maxOutcomeUnitCharCount}} characters left
+                            </div>
+                        </b-form-group>
+                    </b-col>
+                </b-row>
+                <b-row>
+                    <b-col align-self="center">
+                        <b-button
+                                v-bind:disabled="!validOutcome"
+                                variant="primary"
+                                id="addOutcome"
+                                v-on:click="addOutcome"
+                                class="addOutcomesButton"
+                        >
+                            Add outcome
+                        </b-button>
+                    </b-col>
+                </b-row>
+
+                <section class="outcomesDisplay">
+                    <table id="additionalEmailsTable" class="table table-hover">
+                        <tr class="outcomesTable" v-for="(outcome, index) in this.outcomeList"
+                            v-bind:key="'outcome' + index"
+                            :id="'outcome' + index">
+                            <td>
+                                    <p :id="'title' + index">
+                                        {{ outcome.title }}
+                                    </p>
+                            </td>
+                                <td>
+                                    <p :id="'unit' + index">
+                                        {{ outcome.unit }}
+                                    </p>
+                                </td>
+                                <td class="tableButtonTd">
+                                    <b-button variant="danger" :id="'deleteButton' + index" v-on:click="deleteOutcome(index)">
+                                        <b-icon-trash-fill></b-icon-trash-fill>
+                                    </b-button>
+                                </td>
+                                <td class="tableButtonTd">
+                                    <b-button variant="primary" :id="'editButton' + index" v-on:click="editOutcome(index)">Edit</b-button>
+                                </td>
+                        </tr>
+                    </table>
+                </section>
+
+
+
                 <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="overall_message" hidden>
                     <p id="alert-message">{{ overallMessageText }}</p>
                 </div>
@@ -241,7 +317,16 @@
                 has_end_time: true,
 
                 isValidFormFlag: true,
-                overallMessageText: ""
+                overallMessageText: "",
+
+                activeOutcome: {title:"", unit:""},
+                validOutcome: false,
+                outcomeList: [],
+
+                outcomeTitleCharCount: 0,
+                maxOutcomeTitleCharCount: 75,
+                outcomeUnitCharCount: 0,
+                maxOutcomeUnitCharCount: 75,
             }
         },
         async created() {
@@ -260,6 +345,7 @@
                     this.formatDurationActivity();
                     try {
                         await this.submitActivityFunc();
+                        //todo: add submission of outcomes here (should just need to send outcomesList
                     } catch(err) {
                         this.overallMessageText = err.message;
                         showError('overall_message');
@@ -401,6 +487,7 @@
             },
 
             /**
+             * Wrote saveAllOutcomes method that save Outcomes to the database that are
              * Sends all Outcomes to the backend.  Should be used when submitting the form.
              * ToDo in future stories this method could edit and delete Outcomes
              * @param newOutcomes Array of outcomes to save to the database
@@ -417,7 +504,6 @@
             },
 
             /**
-             * Wrote saveAllOutcomes method that save Outcomes to the database that are
              * Fetch all possible activity types from the server
              */
             async fetchActivityTypes() {
@@ -427,6 +513,27 @@
                         return a.toLowerCase().localeCompare(b.toLowerCase());
                     });
                 });
+            },
+
+            addOutcome() {
+                this.outcomeList.push(this.activeOutcome);
+                this.activeOutcome = {title:"", unit:""};
+                this.updateOutcomeWordCount();
+            },
+
+            deleteOutcome (index) {
+                let outcomeToBeRemoved = this.outcomeList[index];
+                // Remove outcomeToBeRemoved from this.outcomeList
+                this.outcomeList = this.outcomeList.filter(
+                    function(outcome) {
+                        return outcome !== outcomeToBeRemoved
+                    });
+            },
+
+            editOutcome(index) {
+                this.activeOutcome = this.outcomeList[index];
+                this.deleteOutcome(index);
+                this.updateOutcomeWordCount();
             }
         }
     }
@@ -446,5 +553,18 @@
 
     .checkbox-time {
         padding-top: 10px;
+    }
+
+    .tableButtonTd {
+        float: right;
+    }
+
+    .outcomesTable p {
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+
+    .addOutcomesButton {
+        margin-bottom: 5px;
     }
 </style>

@@ -129,18 +129,30 @@
                                 </b-button>
                                 <br/>
                             </div>
+                            <!--View Participants Modal-->
+                            <b-modal id="viewParticipantsModal" size="lg" centered ok-only scrollable :title="activityTitle + ' Participants'">
+                                <b-card class="flex-fill" border-variant="secondary">
+                                    <strong>Participants: </strong><br>
+                                    <b-button-group v-for="participant in participants" :key="participant.id">
+                                        <b-button
+                                                class="participantButton" pill variant="success"
+                                                v-on:click="toUserProfile(participant.id)" id="participant">{{participant.name}}</b-button>
+                                    </b-button-group>
+                                    <p v-if="participants.length == 0" id="noParticipants">No participants to show</p>
+                                </b-card>
+                            </b-modal>
                             <!--View Participants and Results Buttons-->
                             <b-row class="mb-1">
                                 <b-col>
                                     <!--View Participants-->
                                     <b-button type="submit" variant="success" size="med"
-                                              v-on:click="viewParticipants" id="viewParticipants">
+                                              v-b-modal="'viewParticipantsModal'" id="viewParticipants">
                                         View Participants</b-button>
                                 </b-col>
                                 <b-col>
                                     <!--View Results-->
                                     <b-button type="submit" variant="success" size="med"
-                                              v-on:click="viewResults" id="viewResults">
+                                              id="viewResults">
                                         View Results</b-button>
                                 </b-col>
                             </b-row>
@@ -178,7 +190,8 @@
                 activeUserId: null,
                 continuous: false,
                 duration: "",
-                isFollowing: false
+                isFollowing: false,
+                participants: []
             }
         },
         async mounted () {
@@ -202,6 +215,7 @@
                 await this.getActiveUserId();
                 await this.getFollowingDetails();
                 await this.getCreatorUserDetails();
+                await this.fetchParticipantsForActivities();
                 this.loading = false;
             },
             /**
@@ -297,6 +311,7 @@
                     this.errored = true;
                     this.errorMessage = error.response.message;
                 });
+                await this.fetchParticipantsForActivities();
             },
             /**
              * Sends the delete request so the user can unfollow the activity
@@ -308,6 +323,38 @@
                 }).catch((error) => {
                     this.errored = true;
                     this.errorMessage = error.response.message;
+                });
+                await this.fetchParticipantsForActivities();
+            },
+            /**
+             * Sends you to the profile page of a specific user
+             * @param id
+             */
+            toUserProfile(id) {
+                this.$router.push({ name: 'profile', params: {userId: id} });
+            },
+            /**
+             * Gets list of participants for the activity
+             */
+            async fetchParticipantsForActivities() {
+                await api.getParticipants(this.activityId).then(response => {
+                    let participants = [];
+                    let user;
+                    for (let j = 0; j < response.data.length; j++) {
+                        user = response.data[j];
+                        participants.push({"name":user.firstname + ' ' + user.lastname,
+                            "id":user.id});
+                    }
+                    this.participants = participants;
+                }).catch(error => {
+                    //Log out if error
+                    if(error.response.status === 401) {
+                        sessionStorage.clear();
+                        this.$router.push('/login');
+                    }else{
+                        this.errored = true;
+                        this.error_message = "Unable to get participants - please try again later";
+                    }
                 });
             },
         }
@@ -341,5 +388,10 @@
 
     .footerButton {
         width: 100%;
+    }
+
+    .participantButton {
+        margin: 3px;
+        display: inline-block;
     }
 </style>
