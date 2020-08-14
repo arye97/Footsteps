@@ -56,7 +56,6 @@ public class ResultControllerTest {
     private static final Long OUTCOME_ID_1 = 1L;
     private Outcome dummyOutcome;
     private static final Long UNIT_ID_1 = 1L;
-    private Unit dummyUnit;
     private List<Result> resultTable;
     private Long nextResultId;
 
@@ -76,17 +75,11 @@ public class ResultControllerTest {
         dummyActivity.setParticipants(new HashSet<>());
         ReflectionTestUtils.setField(dummyActivity, "activityId", ACTIVITY_ID_1);
 
-        dummyUnit = new Unit();
-        ReflectionTestUtils.setField(dummyUnit, "unitId", UNIT_ID_1);
-        dummyUnit.setUnitType(UnitType.TEXT);
-        Set<Unit> units = new HashSet<>();
-        units.add(dummyUnit);
-
         dummyOutcome = new Outcome();
         ReflectionTestUtils.setField(dummyOutcome, "outcomeId", OUTCOME_ID_1);
         dummyOutcome.setActivityId(ACTIVITY_ID_1);
         dummyOutcome.setResults(new HashSet<>());
-        dummyOutcome.setUnits(units);
+        dummyOutcome.setUnitType(UnitType.TEXT);
 
         resultTable = new ArrayList<>();
         nextResultId = 1L;
@@ -174,11 +167,8 @@ public class ResultControllerTest {
 
     private final String newResultJson = JsonConverter.toJson(true,
             "user_id", USER_ID_1,
-            "values", new Object[]{
-                    JsonConverter.toMap(
-                            "unit_id", UNIT_ID_1,
-                            "value", "someValue",
-                            "did_not_finish", "false")});
+            "value", "someValue",
+            "did_not_finish", "false");
 
     @Test
     public void resultCreationSuccess() throws Exception {
@@ -223,11 +213,8 @@ public class ResultControllerTest {
 
     private final String resultNotParticipantJson = JsonConverter.toJson(true,
             "user_id", USER_ID_2,
-            "values", new Object[]{
-                    JsonConverter.toMap(
-                            "unit_id", UNIT_ID_1,
-                            "value", "someValue",
-                            "did_not_finish", "false")});
+            "value", "someValue",
+            "did_not_finish", "false");
 
     @Test
     public void newResultByNotParticipantForbidden() throws Exception {
@@ -243,11 +230,8 @@ public class ResultControllerTest {
 
     private final String resultForbiddenJson = JsonConverter.toJson(true,
             "user_id", USER_ID_1,
-            "values", new Object[]{
-                    JsonConverter.toMap(
-                            "unit_id", UNIT_ID_1,
-                            "value", "someValue",
-                            "did_not_finish", "false")});
+            "value", "someValue",
+            "did_not_finish", "false");
 
     @Test
     public void newResultByNotAdminForbidden() throws Exception {

@@ -97,13 +97,7 @@
                         activity_id: isNaN(outcomes[i].activity_id) ? activityId : outcomes[i].activity_id,
                         title: outcomes[i].title,
                         description: outcomes[i].description !== undefined ? outcomes[i].description : "Test Description",
-                        units: [
-                            {
-                                // ToDo would this be changed later?
-                                name: outcomes[i].unit,
-                                unit_type: "TEXT"
-                            }
-                        ]
+                        unit_name: outcomes[i].unit_name,
                     };
                     console.log("This ia an outcome request");
                     console.log(outcomeRequest)

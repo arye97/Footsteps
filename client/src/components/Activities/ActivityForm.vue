@@ -193,7 +193,7 @@
                             </div>
                             <b-form-input
                                     id="input-outcome-unit"
-                                    v-model="activeOutcome.unit"
+                                    v-model="activeOutcome.unit_name"
                                     placeholder="Unit of your outcome..."
                                     trim
                                     v-on:input="updateOutcomeWordCount"
@@ -229,8 +229,8 @@
                                     </p>
                             </td>
                                 <td>
-                                    <p :id="'unit' + index">
-                                        {{ outcome.unit }}
+                                    <p :id="'unit_name' + index">
+                                        {{ outcome.unit_name }}
                                     </p>
                                 </td>
                                 <td class="tableButtonTd">
@@ -325,7 +325,7 @@
                 isValidFormFlag: true,
                 overallMessageText: "",
 
-                activeOutcome: {title:"", unit:""},
+                activeOutcome: {title:"", unit_name:""},
                 validOutcome: false,
 
                 outcomeTitleCharCount: 0,
@@ -479,7 +479,7 @@
              */
             updateOutcomeWordCount() {
                 this.outcomeTitleCharCount = this.activeOutcome.title.length;
-                this.outcomeUnitCharCount = this.activeOutcome.unit.length;
+                this.outcomeUnitCharCount = this.activeOutcome.unit_name.length;
                 this.validOutcome = this.outcomeTitleCharCount > 0 && this.outcomeUnitCharCount > 0;
                 if (this.validOutcome) {
                     for (let i = 0; i < this.outcomeList.length; i++) {
