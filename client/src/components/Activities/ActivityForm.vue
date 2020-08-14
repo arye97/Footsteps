@@ -191,6 +191,9 @@
     import api from "../../Api";
     import {localTimeZoneToBackEndTime} from "../../util";
 
+    /**
+     * Displays an error on the element with id equal to alert_name
+     */
     function showError(alert_name) {
         let errorAlert = document.getElementById(alert_name);
 
@@ -381,6 +384,40 @@
             },
 
             /**
+             * Updates word count for outcome title
+             */
+            updateOutcomeWordCount() {
+                this.outcomeTitleCharCount = this.activeOutcome.title.length;
+                this.outcomeUnitCharCount = this.activeOutcome.unit.length;
+                this.validOutcome = this.outcomeTitleCharCount > 0 && this.outcomeUnitCharCount > 0;
+                if (this.validOutcome) {
+                    for (let i = 0; i < this.outcomeList.length; i++) {
+                        if (this.activeOutcome.title === this.outcomeList[i].title) {
+                            this.validOutcome = false;
+                            return;
+                        }
+                    }
+                }
+            },
+
+            /**
+             * Sends all Outcomes to the backend.  Should be used when submitting the form.
+             * ToDo in future stories this method could edit and delete Outcomes
+             * @param newOutcomes Array of outcomes to save to the database
+             */
+            async saveAllOutcomes(newOutcomes, activityId) {
+                activityId;
+                for (let outcome in newOutcomes) {
+                    await api.createOutcome(outcome).catch(err => {
+                        console.error(err)
+                        this.overallMessageText = err.message;
+                        showError('overall_message');
+                    });
+                }
+            },
+
+            /**
+             * Wrote saveAllOutcomes method that save Outcomes to the database that are
              * Fetch all possible activity types from the server
              */
             async fetchActivityTypes() {
