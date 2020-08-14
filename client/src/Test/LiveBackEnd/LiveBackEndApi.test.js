@@ -15,7 +15,6 @@ import api from "../../Api";
 
 // User Id of the user that is being tested.
 let USER1_ID = null;
-let USER2_ID = null;
 
 let USER2_ID = null;
 
@@ -83,14 +82,10 @@ const ACTIVITY1 = {
 let OUTCOME1_ID = null;
 let UNIT1_ID = null;
 
-let OUTCOME1 = {
-    title: "Some Title",
-    description: "Some Description",
-    units: [
-        {
-            name: "Distance",
-            unit_type: "TEXT"
-        }]
+const OUTCOME1 = {
+    title: "My Awesome Outcome",
+    unit_name: "Distance",
+    unit_type: "TEXT"
 };
 
 /**
