@@ -1,8 +1,8 @@
 package com.springvuegradle.seng302team600.Utilities;
 
+import com.springvuegradle.seng302team600.enumeration.UnitType;
 import com.springvuegradle.seng302team600.model.Outcome;
 import com.springvuegradle.seng302team600.model.Result;
-import com.springvuegradle.seng302team600.model.Unit;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -24,9 +24,8 @@ public class OutcomeValidator {
 
     public static boolean validate(Outcome outcome) {
         validateTitle(outcome.getTitle());
-        validateDescription(outcome.getDescription());
         validateActivityId(outcome.getActivityId());
-        validateUnits(outcome.getUnits());
+        validateUnits(outcome.getUnitType(), outcome.getUnitName());
         return true;
     }
 
@@ -43,18 +42,6 @@ public class OutcomeValidator {
     }
 
     /**
-     * @param description must be 1 >= x <= 1500 chars long
-     */
-    public static void validateDescription(String description) {
-        if (description.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Description must be filled in");
-        }
-        if (description.length() > DESCRIPTION_LEN) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Description must be less than 45 characters long");
-        }
-    }
-
-    /**
      * @param activityId must not be null
      */
     public static void validateActivityId(Long activityId) {
@@ -65,21 +52,18 @@ public class OutcomeValidator {
 
 
     /**
-     * @param units if this outcome has units, then they must have a unit type and name which cannot be null
+     * @param unitType the type of the outcome unit
+     * @param unitName the type of the outcome unit
      */
-    public static void validateUnits(Set<Unit> units) {
-        if (!units.isEmpty()) {
-            for (Unit unit : units) {
-                if (unit.getUnitType() == null) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unit must have a unit type set");
-                }
-                if (unit.getName().isBlank()) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unit name must be set");
-                } else {
-                    if (unit.getName().length() > TITLE_LENGTH) {
-                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unit name must be less than 75 characters long");
-                    }
-                }
+    public static void validateUnits(UnitType unitType, String unitName) {
+        if (unitType == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unit must have a unit type set");
+        }
+        if (unitName.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unit name must be set");
+        } else {
+            if (unitName.length() > TITLE_LENGTH) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unit name must be less than 75 characters long");
             }
         }
     }
