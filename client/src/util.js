@@ -213,13 +213,13 @@ export function fetchCountries() {
 
 /**
  * A collection of constants.  The same types as UnitType enumeration on the back end.
- * @type {{date: string, number: string, dateAndTime: string, boolean: string, text: string, time: string}}
+ * @type {{DATE: string, NUMBER: string, DATE_AND_TIME: string, TEXT: string, TIME: string, BOOLEAN: string}}
  */
-export const UNIT_TYPE = {
-    text: "TEXT",
-    number: "NUMBER",
-    date: "DATE",
-    dateAndTime: "DATE_AND_TIME",
-    time: "TIME",
-    boolean: "BOOLEAN"
+export const UnitType = {
+    TEXT: "TEXT",
+    NUMBER: "NUMBER",
+    DATE: "DATE",
+    DATE_AND_TIME: "DATE_AND_TIME",
+    TIME: "TIME",
+    BOOLEAN: "BOOLEAN"
 };

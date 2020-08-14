@@ -25,7 +25,7 @@
     import Header from '../../components/Header/Header.vue'
     import api from "../../Api";
     import ActivityForm from "../../components/Activities/ActivityForm.vue";
-    import { UNIT_TYPE } from "../../util";
+    import { UnitType } from "../../util";
 
     /**
      * A view used to create an activity
@@ -64,6 +64,7 @@
              * Makes a POST request to the back-end to create an activity
              */
             async submitCreateActivity() {
+                let activityId;
                 // Create an activity object to be sent as a json to the server
                 const activityForm = {
                     activity_name: this.activity.activityName,
@@ -75,12 +76,15 @@
                     end_time: this.activity.submitEndTime
                 };
 
-                // Send the activityForm to the server to create a new activity
-                await api.createActivity(activityForm, this.activity.profileId).then(() => { // If successfully registered the response will have a status of 201
-                    this.$router.push({name: 'allActivities', params: {alertMessage: 'Activity added successfully', alertCount: 5}});
+                // Send the activityForm to the server to create a new activity, and get it's id
+                await api.createActivity(activityForm, this.activity.profileId).then(response => { // If successfully registered the response will have a status of 201
+                    activityId = response.data;
                 }).catch(error => {this.throwError(error, false)});
 
-                await this.createAllOutcomes(this.outcomeList, 104);
+                // Send the outcomes to the server.  Adds the activityId to the outcomes.
+                await this.createAllOutcomes(this.outcomeList, activityId).then(() => {
+                    this.$router.push({name: 'allActivities', params: {alertMessage: 'Activity added successfully', alertCount: 5}});
+                }).catch(error => {this.throwError(error, false)});
             },
 
             /**
@@ -91,13 +95,14 @@
             async createAllOutcomes(newOutcomes, activityId) {
                 let outcomes = [...newOutcomes];  // Convert to an array (if needed)
 
-                for (let i=0; i < outcomes.length; i++) {
+                for (let i=0, outcome; i < outcomes.length; i++) {  // Seems to need this type of loop for some reason
+                    outcome = outcomes[i];
 
                     const outcomeRequest = {
-                        activity_id: isNaN(outcomes[i].activity_id) ? activityId : outcomes[i].activity_id,
-                        title: outcomes[i].title,
+                        activity_id: isNaN(outcome.activity_id) ? activityId : outcome.activity_id,
+                        title: outcome.title,
                         unit_name: outcomes[i].unit_name,
-                        unit_type: outcomes[i].unit_type in Object.values(UNIT_TYPE) ? outcomes[i].unit_type : UNIT_TYPE.text,
+                        unit_type: Object.keys(UnitType).includes(outcome.unit_type) ? outcome.unit_type : UnitType.TEXT,
                     };
                     console.log("This ia an outcome request");
                     console.log(outcomeRequest)
