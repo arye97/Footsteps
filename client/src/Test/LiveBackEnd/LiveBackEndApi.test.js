@@ -2,6 +2,7 @@
  * This tests that all the functions in Api.js can communicate correctly with the backend.
  * It is an end to end test using a live backend (not using mocking).
  * To run this test, start the backend using an in memory database by calling './gradlew bootRun -PspringProfile=local'
+ * Call 'npm run rest-test' (rest-test and not unit-test)
  * On subsequent runs of the test, the "Register a new user" test will fail because the user is already in the database
  * (not exactly a stateless test).  For all tests to pass you must restart the server.
  *
