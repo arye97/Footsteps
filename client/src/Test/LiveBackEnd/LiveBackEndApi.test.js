@@ -14,6 +14,7 @@ import api from "../../Api";
 
 // User Id of the user that is being tested.
 let USER1_ID = null;
+let USER2_ID = null;
 
 const USER1 = {
     firstname: "John",
@@ -324,6 +325,12 @@ describe("Run tests on new user", () => {
         });
 
 
+        test("Get an activities outcomes", () => {
+            return api.getActivityOutcomes(ACTIVITY_IDS.values().next().value).then(response => {
+                expect(response.status).toEqual(200);
+            }).catch(err => {throw procError(err)});
+        });
+
         test("Check if user can edit activity", () => {
             return api.isActivityEditable(ACTIVITY_IDS.values().next().value).then(response => {
                 expect(response.status).toEqual(200);
@@ -346,7 +353,108 @@ describe("Run tests on new user", () => {
                 ACTIVITY_IDS.delete(nextActivityId)
             }).catch(err => {throw procError(err)});
         });
+
+        test("Get list of participants for an activity", () => {
+            return api.getParticipants(ACTIVITY_IDS.values().next().value).then(response => {
+                expect(response.status).toEqual(200);
+                expect(response.data.length).toEqual(0);  // There are no participants, but it will get an empty collection
+            }).catch(err => {
+                throw procError(err);
+            })
+        });
     });
+
+
+    // ---- Activity Participant Follow/Unfollow Related Tests ----
+
+    describe("Checking user feed event endpoints", () => {
+        let activityCreatedByUser1 = null;
+
+        function fetchActivities() {  // Helper function to prevent duplicate code
+            return api.getUserActivities(USER1_ID).then(response => {
+                activityCreatedByUser1 = response.data[0];
+            }).catch(err => console.error(procError(err)));
+        }
+
+        // Add one activity associated with user 1
+        beforeEach(() => {
+            return api.createActivity(ACTIVITY1, USER1_ID).catch(err => console.error(procError(err)));
+        });
+        // Gather activities created by by user 1
+        beforeEach(() => {
+            return fetchActivities();
+        });
+        // Register user 2
+        beforeAll(() => {
+            return api.register(USER2).catch(err => console.error(procError(err)));
+        });
+        // Login as user 2
+        beforeEach(() => {
+            return api.login({email: USER2.primary_email, password: USER2.password}).then(response => {
+                // Store Token
+                sessionStorage.setItem("token", response.data.Token);
+                // Store User Id
+                USER2_ID = response.data.userId;
+            })
+        });
+
+        test("Get following status for an unsubscribed activity", () => {
+            return api.getUserSubscribed(activityCreatedByUser1.id, USER2_ID).then(response => {
+                expect(response.status).toEqual(200);
+                expect(response.data.subscribed).toEqual(false);
+            }).catch(err => {throw procError(err)});
+        });
+
+        test("Follow an unsubscribed activity", () => {
+            return api.setUserSubscribed(activityCreatedByUser1.id, USER2_ID).then(response => {
+                expect(response.status).toEqual(200);
+            }).catch(err => {throw procError(err)});
+        });
+
+        test("Follow an already subscribed activity throws a 400 error", () => {
+            return api.setUserSubscribed(activityCreatedByUser1.id, USER2_ID)
+                .then(() => {
+                    fail("API should have thrown a 400 error")
+                }).catch(err => {
+                    expect(err.response.data.status).toEqual(400);
+                    expect(err.response.data.message).toEqual(
+                    "User can't re-follow an event they're currently participating in."
+                    );
+                    procError(err)
+                });
+        });
+
+        test("Get following status for a subscribed activity", () => {
+            return api.getUserSubscribed(activityCreatedByUser1.id, USER2_ID)
+                .then(response => {
+                    expect(response.status).toEqual(200);
+                    expect(response.data.subscribed).toEqual(true);
+                }).catch(err => {throw procError(err)});
+        });
+
+        test("Unfollow a subscribed activity", () => {
+            return api.deleteUserSubscribed(activityCreatedByUser1.id, USER2_ID)
+                .then(response => {
+                    expect(response.status).toEqual(200);
+                }).catch(err => {throw procError(err)});
+        });
+
+        test("Unfollow an already unsubscribed activity throws a 400 error", () => {
+            return api.deleteUserSubscribed(activityCreatedByUser1.id, USER2_ID)
+                .then(() => {
+                    fail("API should have thrown a 400 error")
+                }).catch(err => {
+                    expect(err.response.data.status).toEqual(400);
+                    expect(err.response.data.message).toEqual(
+                        "User can't un-follow an event they're not participating in."
+                    );
+                    procError(err)
+                });
+        });
+    });
+
+
+    // ---- User Searching Related Tests ----
 
     describe("Searching for users", () => {
 
@@ -416,6 +524,7 @@ describe("Run tests on new user", () => {
                 throw procError(err)
             });
         });
+
     });
 });
 
@@ -423,7 +532,6 @@ describe("Run tests on new user", () => {
 // ---- Other Tests ----
 
 describe("Other miscellaneous tests", () => {
-
     test("Get all activity types in the database", () => {
         return api.getActivityTypes().then(response => {
             expect(response.status).toEqual(200);
@@ -432,8 +540,8 @@ describe("Other miscellaneous tests", () => {
             throw procError(err)
         });
     });
-
 });
+
 
 
 

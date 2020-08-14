@@ -2,8 +2,8 @@ package com.springvuegradle.seng302team600.model;
 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.springvuegradle.seng302team600.payload.ResultRequest;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -15,7 +15,7 @@ import java.util.Set;
  * This is also the payload to be returned to the front-end for the GET Result endpoint.
  * Json should be formatted as follows:
  * - result_id
- * - user_id
+ * - user_id (You don't need to add this when POST/creating a result. Will default to your own ID)
  * - values (This is a set of Value objects. Look at model.Value.java for its Json params)
  * - comment
  */
@@ -38,7 +38,6 @@ public class Result {
     @JoinColumn(name = "outcome_id", nullable = false)
     private Outcome outcome;
 
-    @JsonManagedReference
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "result", cascade = CascadeType.ALL, orphanRemoval = true)
     //orphan removal removes 'child' when 'parent' is deleted
     @Column(name = "values", nullable = false)
@@ -48,6 +47,12 @@ public class Result {
     private String comment;
 
     public Result() {}
+
+    public Result(ResultRequest resultRequest) {
+        userId = resultRequest.getUserId();
+        values = resultRequest.getValues();
+        comment = resultRequest.getComment();
+    }
 
     public Outcome getOutcome() {
         return outcome;
