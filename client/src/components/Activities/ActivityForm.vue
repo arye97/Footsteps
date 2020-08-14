@@ -192,13 +192,13 @@
                                 {{outcomeTitleCharCount}}/{{maxOutcomeTitleCharCount}} characters left
                             </div>
                             <b-form-input
-                                    id="input-outcome-unit"
+                                    id="input-outcome-unit-name"
                                     v-model="activeOutcome.unit_name"
                                     placeholder="Unit of your outcome..."
                                     trim
                                     v-on:input="updateOutcomeWordCount"
                             ></b-form-input>
-                            <div class="word-count" id="unit-word-count">
+                            <div class="word-count" id="unit-name-word-count">
                                 {{outcomeUnitCharCount}}/{{maxOutcomeUnitCharCount}} characters left
                             </div>
                         </b-form-group>

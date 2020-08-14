@@ -43,7 +43,7 @@ test('Outcome title input exists', () => {
 });
 
 test('Outcome unit_name input exists', () => {
-    expect(activityForm.find('#input-outcome-unit_name').exists()).toBeTruthy();
+    expect(activityForm.find('#input-outcome-unit-name').exists()).toBeTruthy();
 });
 
 test('Outcome title word count exists', () => {
@@ -51,7 +51,7 @@ test('Outcome title word count exists', () => {
 });
 
 test('Outcome unit_name word count exists', () => {
-    expect(activityForm.find('#unit_name-word-count').exists()).toBeTruthy();
+    expect(activityForm.find('#unit-name-word-count').exists()).toBeTruthy();
 });
 
 test('Add outcome button exists', () => {
