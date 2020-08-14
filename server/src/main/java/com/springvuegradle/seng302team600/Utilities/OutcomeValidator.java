@@ -46,7 +46,7 @@ public class OutcomeValidator {
      * @param description must be 1 >= x <= 1500 chars long
      */
     public static void validateDescription(String description) {
-        if (description.isBlank()) {
+        if (description == null | description.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Description must be filled in");
         }
         if (description.length() > DESCRIPTION_LEN) {

@@ -15,7 +15,7 @@
                     </div>
                 </div>
             </header>
-            <activity-form :submit-activity-func="submitCreateActivity" :activity="activity"></activity-form>
+            <activity-form :submit-activity-func="submitCreateActivity" :activity="activity" :outcome-list="outcomeList"/>
         </b-container>
         <br/><br/>
     </div>
@@ -45,7 +45,8 @@
                     startTime: null,
                     endTime: null,
                     location: null
-                }
+                },
+                outcomeList: []
             }
         },
         async mounted() {
@@ -76,7 +77,45 @@
                 // Send the activityForm to the server to create a new activity
                 await api.createActivity(activityForm, this.activity.profileId).then(() => { // If successfully registered the response will have a status of 201
                     this.$router.push({name: 'allActivities', params: {alertMessage: 'Activity added successfully', alertCount: 5}});
-                }).catch(error => {this.throwError(error, false)})
+                }).catch(error => {this.throwError(error, false)});
+
+                await this.createAllOutcomes(this.outcomeList, 104);
+            },
+
+            /**
+             * Wrote createAllOutcomes method that save Outcomes to the database that are
+             * Sends all Outcomes to the backend.  Should be used when submitting ac Activity.
+             * @param newOutcomes Array of outcomes to save to the database
+             * @param activityId the id of the associated activity, added to each Outcome
+             */
+            async createAllOutcomes(newOutcomes, activityId) {
+                let outcomes = [...newOutcomes];  // Convert to an array (if needed)
+
+                for (let i=0; i < outcomes.length; i++) {
+
+                    const outcomeRequest = {
+                        activity_id: isNaN(outcomes[i].activity_id) ? activityId : outcomes[i].activity_id,
+                        title: outcomes[i].title,
+                        description: outcomes[i].description !== undefined ? outcomes[i].description : "Test Description",
+                        units: [
+                            {
+                                // ToDo would this be changed later?
+                                name: outcomes[i].unit,
+                                unit_type: "TEXT"
+                            }
+                        ]
+                    };
+                    console.log("This ia an outcome request");
+                    console.log(outcomeRequest)
+
+                    await api.createOutcome(outcomeRequest).catch(err => {
+                        console.error(err.message);
+                        // throw new Error(err.message);
+                    });
+                }
+
+                console.log("Outcomes")
+                console.log(outcomes);
             },
 
             /**

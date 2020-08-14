@@ -47,6 +47,7 @@ public class OutcomeController {
     @PostMapping("/activities/outcomes")
     public void createNewActivityOutcomes(@Validated @RequestBody OutcomeRequest outcomeRequest, HttpServletResponse response, HttpServletRequest request) {
         Outcome outcome = new Outcome(outcomeRequest);
+        System.out.println(outcome);
         OutcomeValidator.validate(outcome);
         String token = request.getHeader("Token");
         User user = userAuthenticationService.findByToken(token);

@@ -300,6 +300,12 @@
                 startTime: String,
                 endTime: String,
             },
+            outcomeList: {
+                default() {
+                    return [];
+                },
+                type: Array
+            },
             submitActivityFunc: Function,
             startTime: String,
             endTime: String
@@ -321,7 +327,6 @@
 
                 activeOutcome: {title:"", unit:""},
                 validOutcome: false,
-                outcomeList: [],
 
                 outcomeTitleCharCount: 0,
                 maxOutcomeTitleCharCount: 75,
@@ -345,9 +350,9 @@
                     this.formatDurationActivity();
                     try {
                         await this.submitActivityFunc();
-                        //todo: add submission of outcomes here (should just need to send outcomesList
                     } catch(err) {
                         this.overallMessageText = err.message;
+                        console.error(err.message)
                         showError('overall_message');
                     }
                 }
@@ -483,23 +488,6 @@
                             return;
                         }
                     }
-                }
-            },
-
-            /**
-             * Wrote saveAllOutcomes method that save Outcomes to the database that are
-             * Sends all Outcomes to the backend.  Should be used when submitting the form.
-             * ToDo in future stories this method could edit and delete Outcomes
-             * @param newOutcomes Array of outcomes to save to the database
-             */
-            async saveAllOutcomes(newOutcomes, activityId) {
-                activityId;
-                for (let outcome in newOutcomes) {
-                    await api.createOutcome(outcome).catch(err => {
-                        console.error(err)
-                        this.overallMessageText = err.message;
-                        showError('overall_message');
-                    });
                 }
             },
 
