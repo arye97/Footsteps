@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import com.springvuegradle.seng302team600.payload.ParticipantResponse;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -195,14 +196,20 @@ public class ActivityController {
      * @return a list of Users
      */
     @GetMapping("/activities/{activityId}/participants")
-    public Set<User> getParticipantsOfActivity(@PathVariable Long activityId, HttpServletRequest request) {
+    public Set<ParticipantResponse> getParticipantsOfActivity(@PathVariable Long activityId, HttpServletRequest request) {
+        Set<User> participantList;
+        Set<ParticipantResponse> returnedParticipantData = new HashSet<>();
         String token = request.getHeader("Token");
         userAuthenticationService.findByToken(token);
         Activity activity = activityRepository.findByActivityId(activityId);
         if (activity == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Activity not found");
         }
-        return activity.getParticipants();
+        participantList = activity.getParticipants();
+        for(User user : participantList){
+            returnedParticipantData.add(new ParticipantResponse(user));
+        }
+        return returnedParticipantData;
     }
 
 
