@@ -31,7 +31,7 @@
                             <h5 class="font-weight-light" v-if="this.description" id="description">"{{this.description}}"<br/></h5>
                             <br/>
                             <!-- Edit Activity Button -->
-                            <div v-if="this.creatorId==this.activeUserId">
+                            <div v-if="this.creatorId===this.activeUserId">
                                 <b-button type="submit" variant="success"
                                           size="med" v-on:click="goToPage(`/activities/edit/${activityId}`)"
                                           id="editActivity">Edit Activity</b-button>
@@ -106,9 +106,9 @@
                             <br/>
                             <!--Add results Modal-->
                             <b-modal id="addResultsModel">
-                                <h3 class="font-weight-light"><strong>Outcomes</strong></h3><br/>
+                                <h3 class="font-weight-light"><strong>Here are your results</strong></h3><br/>
                                 <section v-for="outcome in this.outcomeList" :key="outcome.outcome_id">
-                                    <b-card>
+                                    <b-card id="outcomeAddResultCard">
                                         {{ outcome.title }}
                                         <div v-if="outcome.activeUsersResult.submitted">
                                             {{ outcome.activeUsersResult }}
@@ -119,8 +119,8 @@
                                                     v-model="outcome.activeUsersResult.value"
                                                     placeholder="Input your result here..."
                                             ></b-form-input>
-                                            <b-button block :id="'addResultOutcome' + outcome.outcome_id"
-                                                      @click="submitOutcomeResult(outcome.outcome_id)" variant="success">
+                                            <b-button block id="submitResult" variant="success"
+                                                      @click="submitOutcomeResult(outcome.outcome_id)">
                                                 Submit
                                             </b-button>
                                         </div>
@@ -128,10 +128,10 @@
                                 </section>
                             </b-modal>
                             <!-- Add Results/Following Button Group -->
-                            <b-button block v-if="this.isFollowing || this.creatorId == this.activeUserId"
+                            <b-button block v-if="this.isFollowing || this.creatorId === this.activeUserId"
                                       variant="success" id="addResults" v-b-modal="'addResultsModel'">Add My Results</b-button>
                             <br/>
-                            <div v-if="this.creatorId != this.activeUserId">
+                            <div v-if="this.creatorId !== this.activeUserId">
                                 <b-button block v-if="!this.isFollowing"
                                           variant="outline-dark"
                                           class="footerButton"
@@ -154,14 +154,14 @@
                             </div>
                             <!--View Participants Modal-->
                             <b-modal id="viewParticipantsModal" size="lg" centered ok-only scrollable :title="activityTitle + ' Participants'">
-                                <b-card class="flex-fill" border-variant="secondary">
+                                <b-card class="flex-fill" border-variant="secondary" id="viewParticipantsCard">
                                     <strong>Participants: </strong><br>
-                                    <b-button-group v-for="participant in participants" :key="participant.id">
+                                    <b-button-group v-for="participant in participants" :key="participant.id" id="viewParticipantsButtonGroup">
                                         <b-button
                                                 class="participantButton" pill variant="success"
                                                 v-on:click="toUserProfile(participant.id)" id="participant">{{participant.name}}</b-button>
                                     </b-button-group>
-                                    <p v-if="participants.length == 0" id="noParticipants">No participants to show</p>
+                                    <p v-if="participants.length === 0" id="noParticipants">No participants to show</p>
                                 </b-card>
                             </b-modal>
                             <!--View Participants and Results Buttons-->

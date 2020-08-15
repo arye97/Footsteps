@@ -1,168 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
   <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/ViewActivity.test.js">
-    <testCase name="Is a vue instance" duration="270"/>
-    <testCase name="The view activity page displays the activity title" duration="382">
-      <failure message="Error: expect(received).toBeTruthy()"><![CDATA[Error: expect(received).toBeTruthy()
-
-Received: false
-    at Object.<anonymous> (/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/ViewActivity.test.js:125:62)
-    at Object.asyncJestTest (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:100:37)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:45:12
-    at new Promise (<anonymous>)
-    at mapper (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:28:19)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:75:41]]></failure>
-    </testCase>
-    <testCase name="The view activity page displays the activity description" duration="360">
-      <failure message="Error: expect(received).toBeTruthy()"><![CDATA[Error: expect(received).toBeTruthy()
-
-Received: false
-    at Object.<anonymous> (/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/ViewActivity.test.js:129:60)
-    at Object.asyncJestTest (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:100:37)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:45:12
-    at new Promise (<anonymous>)
-    at mapper (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:28:19)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:75:41]]></failure>
-    </testCase>
-    <testCase name="The view activity page displays the activity location" duration="291">
-      <failure message="Error: expect(received).toBeTruthy()"><![CDATA[Error: expect(received).toBeTruthy()
-
-Received: false
-    at Object.<anonymous> (/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/ViewActivity.test.js:133:57)
-    at Object.asyncJestTest (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:100:37)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:45:12
-    at new Promise (<anonymous>)
-    at mapper (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:28:19)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:75:41]]></failure>
-    </testCase>
-    <testCase name="The view activity page has a view participants button" duration="279">
-      <failure message="Error: expect(received).toBeTruthy()"><![CDATA[Error: expect(received).toBeTruthy()
-
-Received: false
-    at Object.<anonymous> (/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/ViewActivity.test.js:137:65)
-    at Object.asyncJestTest (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:100:37)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:45:12
-    at new Promise (<anonymous>)
-    at mapper (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:28:19)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:75:41]]></failure>
-    </testCase>
-    <testCase name="The view activity page has a view results button" duration="249">
-      <failure message="Error: expect(received).toBeTruthy()"><![CDATA[Error: expect(received).toBeTruthy()
-
-Received: false
-    at Object.<anonymous> (/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/ViewActivity.test.js:141:60)
-    at Object.asyncJestTest (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:100:37)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:45:12
-    at new Promise (<anonymous>)
-    at mapper (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:28:19)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:75:41]]></failure>
-    </testCase>
-    <testCase name="The view activity page shows the activity type" duration="242">
-      <failure message="Error: expect(received).toBeTruthy()"><![CDATA[Error: expect(received).toBeTruthy()
-
-Received: false
-    at Object.<anonymous> (/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/ViewActivity.test.js:145:61)
-    at Object.asyncJestTest (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:100:37)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:45:12
-    at new Promise (<anonymous>)
-    at mapper (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:28:19)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:75:41]]></failure>
-    </testCase>
-    <testCase name="The view activity page has a view participants modal" duration="235">
-      <failure message="Error: expect(received).toBeTruthy()"><![CDATA[Error: expect(received).toBeTruthy()
-
-Received: false
-    at Object.<anonymous> (/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/ViewActivity.test.js:149:70)
-    at Object.asyncJestTest (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:100:37)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:45:12
-    at new Promise (<anonymous>)
-    at mapper (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:28:19)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:75:41]]></failure>
-    </testCase>
-    <testCase name="The view activity page displays 2 participants" duration="228">
-      <failure message="Error: expect(received).toBe(expected) // Object.is equality"><![CDATA[Error: expect(received).toBe(expected) // Object.is equality
-
-Expected: 2
-Received: 0
-    at Object.<anonymous> (/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/ViewActivity.test.js:154:61)
-    at Object.asyncJestTest (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:100:37)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:45:12
-    at new Promise (<anonymous>)
-    at mapper (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:28:19)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:75:41]]></failure>
-    </testCase>
-    <testCase name="As an activity creator I cannot see the follow button" duration="1"/>
-    <testCase name="As an activity creator I cannot see the unfollow button" duration="1"/>
-    <testCase name="As an activity creator I can see the edit activity button" duration="1">
-      <failure message="Error: expect(received).toBeTruthy()"><![CDATA[Error: expect(received).toBeTruthy()
-
-Received: false
-    at Object.<anonymous> (/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/ViewActivity.test.js:168:61)
-    at Object.asyncJestTest (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:100:37)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:45:12
-    at new Promise (<anonymous>)
-    at mapper (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:28:19)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:75:41]]></failure>
-    </testCase>
-    <testCase name="As an activity creator I can see the add results button" duration="2">
-      <failure message="Error: expect(received).toBeTruthy()"><![CDATA[Error: expect(received).toBeTruthy()
-
-Received: false
-    at Object.<anonymous> (/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/ViewActivity.test.js:172:59)
-    at Object.asyncJestTest (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:100:37)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:45:12
-    at new Promise (<anonymous>)
-    at mapper (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:28:19)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:75:41]]></failure>
-    </testCase>
-    <testCase name="If I&apos;m following an activity I can see the unfollow button" duration="239">
-      <failure message="Error: expect(received).toBeTruthy()"><![CDATA[Error: expect(received).toBeTruthy()
-
-Received: false
-    at Object.<anonymous> (/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/ViewActivity.test.js:221:63)
-    at Object.asyncJestTest (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:100:37)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:45:12
-    at new Promise (<anonymous>)
-    at mapper (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:28:19)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:75:41]]></failure>
-    </testCase>
-    <testCase name="If I&apos;m following an activity I can&apos;t see the follow button" duration="236"/>
-    <testCase name="If I&apos;m following an activity I can&apos;t see the edit activity button" duration="228"/>
-    <testCase name="If I&apos;m following an activity I can see the add results button" duration="292">
-      <failure message="Error: expect(received).toBeTruthy()"><![CDATA[Error: expect(received).toBeTruthy()
-
-Received: false
-    at Object.<anonymous> (/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/ViewActivity.test.js:233:59)
-    at Object.asyncJestTest (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:100:37)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:45:12
-    at new Promise (<anonymous>)
-    at mapper (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:28:19)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:75:41]]></failure>
-    </testCase>
-    <testCase name="If I am not following the activity I can&apos;t see the unfollow button" duration="279"/>
-    <testCase name="If I am not following the activity I can see the follow button" duration="328">
-      <failure message="Error: expect(received).toBeTruthy()"><![CDATA[Error: expect(received).toBeTruthy()
-
-Received: false
-    at Object.<anonymous> (/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/ViewActivity.test.js:286:61)
-    at Object.asyncJestTest (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:100:37)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:45:12
-    at new Promise (<anonymous>)
-    at mapper (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:28:19)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:75:41]]></failure>
-    </testCase>
-    <testCase name="If I am not following the activity I can&apos;t see the edit activity button" duration="238"/>
-    <testCase name="If I am not following the activity I can&apos;t see the add results button" duration="263"/>
-    <testCase name="When there are no participants When there are no participants, it displays &apos;No participants to show&apos;" duration="269">
-      <failure message="Error: [vue-test-utils]: find did not return #noParticipants, cannot call text() on empty Wrapper"><![CDATA[Error: [vue-test-utils]: find did not return #noParticipants, cannot call text() on empty Wrapper
-    at throwError (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/@vue/test-utils/dist/vue-test-utils.js:1709:9)
-    at ErrorWrapper.text (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/@vue/test-utils/dist/vue-test-utils.js:8772:3)
-    at Object.<anonymous> (/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/ViewActivity.test.js:342:53)
-    at Object.asyncJestTest (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:100:37)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:45:12
-    at new Promise (<anonymous>)
-    at mapper (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:28:19)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:75:41]]></failure>
-    </testCase>
+    <testCase name="Is a vue instance" duration="326"/>
+    <testCase name="The view activity page displays the activity title" duration="326"/>
+    <testCase name="The view activity page displays the activity description" duration="399"/>
+    <testCase name="The view activity page displays the activity location" duration="313"/>
+    <testCase name="The view activity page has a view participants button" duration="313"/>
+    <testCase name="The view activity page has a view results button" duration="354"/>
+    <testCase name="The view activity page shows the activity type" duration="309"/>
+    <testCase name="The view activity page has a view participants modal" duration="304"/>
+    <testCase name="The view activity page displays 2 participants" duration="328"/>
+    <testCase name="The view activity page has add result model" duration="327"/>
+    <testCase name="The view activity page displays 1 outcome card" duration="258"/>
+    <testCase name="The view activity page displays 1 input for the result" duration="295"/>
+    <testCase name="The view activity page displays 1 submit result button" duration="324"/>
+    <testCase name="As an activity creator I cannot see the follow button" duration="8"/>
+    <testCase name="As an activity creator I cannot see the unfollow button" duration="2"/>
+    <testCase name="As an activity creator I can see the edit activity button" duration="1"/>
+    <testCase name="As an activity creator I can see the add results button" duration="1"/>
+    <testCase name="If I&apos;m following an activity I can see the unfollow button" duration="399"/>
+    <testCase name="If I&apos;m following an activity I can&apos;t see the follow button" duration="310"/>
+    <testCase name="If I&apos;m following an activity I can&apos;t see the edit activity button" duration="285"/>
+    <testCase name="If I&apos;m following an activity I can see the add results button" duration="292"/>
+    <testCase name="If I am not following the activity I can&apos;t see the unfollow button" duration="292"/>
+    <testCase name="If I am not following the activity I can see the follow button" duration="276"/>
+    <testCase name="If I am not following the activity I can&apos;t see the edit activity button" duration="252"/>
+    <testCase name="If I am not following the activity I can&apos;t see the add results button" duration="391"/>
+    <testCase name="When there are no participants When there are no participants, it displays &apos;No participants to show&apos;" duration="289"/>
   </file>
 </testExecutions>

@@ -12,6 +12,8 @@ let ACTIVE_USER_DATA;
 let SUBSCRIBED_DATA;
 let CREATOR_USER_DATA;
 let PARTICIPANTS_DATA;
+let OUTCOMES_DATA;
+let RESULTS_DATA;
 
 const $route = {
     params: {
@@ -65,6 +67,20 @@ const setValues = () => {
         {"firstname":"S","middlename":"","lastname":"M", "id": 1},
         {"firstname":"Larry", "middlename":"the", "lastname":"Cucumber", "id":2}
     ];
+    OUTCOMES_DATA = [{
+        "outcome_id": 1,
+        "title": "The outcome title",
+        "activity_id": 1,
+        "unit_name": "The unit name",
+        "unit_type": "TEXT"
+    }];
+    RESULTS_DATA = [{
+        "user_id": 1,
+        "outcome_id": 1,
+        "value": "Some value",
+        "did_not_finish": false,
+        "comment": "Some comment"
+    }];
 };
 
 test('Is a vue instance', () => {
@@ -105,7 +121,25 @@ describe('The view activity page', () => {
                     data: PARTICIPANTS_DATA,
                     status: 200
                 });
-            })
+            });
+            api.getActivityOutcomes.mockImplementation(() => {
+                return Promise.resolve({
+                    data: OUTCOMES_DATA,
+                    status: 200
+                });
+            });
+            // TODO uncomment this when getOutcomeResults is implemented
+            // api.getOutcomeResults.mockImplementation(() => {
+            //     return Promise.resolve({
+            //         data: RESULTS_DATA,
+            //         status: 200
+            //     });
+            // });
+            api.createResult.mockImplementation(() => {
+                return Promise.resolve({
+                    status: 201
+                });
+            });
             viewActivity = mount(ViewActivity, {
                 mocks: {
                     api,
@@ -152,7 +186,24 @@ describe('The view activity page', () => {
     test('displays 2 participants', () => {
         // The set up data is set with 2 people participating in this activity
         expect(viewActivity.findAll('#participant').length).toBe(2);
-    })
+    });
+
+    test('has add result model', () => {
+        expect(viewActivity.find('#addResultsModel').exists()).toBeTruthy();
+    });
+
+    test('displays 1 outcome card', () => {
+        expect(viewActivity.findAll('#outcomeAddResultCard').length).toBe(1);
+    });
+
+    test('displays 1 input for the result', () => {
+        expect(viewActivity.findAll('#input-value').length).toBe(1);
+    });
+
+    test('displays 1 submit result button', () => {
+        expect(viewActivity.findAll('#submitResult').length).toBe(1);
+    });
+
 });
 
 describe('As an activity creator', () => {
