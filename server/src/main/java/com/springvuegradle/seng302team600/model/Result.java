@@ -34,9 +34,8 @@ public class Result {
     @JsonProperty("user_id")
     private Long userId;
 
-    @NotNull(message = "This result needs an outcome id")
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "outcome_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "outcome_id")
     private Outcome outcome;
 
     @NotNull(message = "This result needs a value")
