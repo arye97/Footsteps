@@ -8,14 +8,21 @@ jest.mock("../Api");
 let editActivity;
 let config;
 const DEFAULT_USER_ID = 1;
+const DEFAULT_ACTIVITY_ID = 1;
 
+let receivedOutcomeRequests = [];
 
 const OUTCOME1 = {
     title: "My Awesome Outcome",
     unit_name: "Distance",
     unit_type: "TEXT"
 };
-const OUTCOME_LIST = [OUTCOME1];
+const OUTCOME2 = {
+    title: "Another Awesome Outcome",
+    unit_name: "Time",
+    unit_type: "TEXT"
+};
+const ORIGINAL_OUTCOME_LIST = [OUTCOME1];
 
 beforeAll(() => {
     config = {
@@ -25,8 +32,16 @@ beforeAll(() => {
     api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID, status: 200 }));
     // Mock isActivityEditable endpoint to succeed
     api.isActivityEditable.mockImplementation(() => Promise.resolve({ data: null, status: 200 }));
-    api.getActivityOutcomes.mockImplementation(() => Promise.resolve({ data: OUTCOME_LIST, status: 200 }));
+    api.getActivityOutcomes.mockImplementation(() => Promise.resolve({ data: ORIGINAL_OUTCOME_LIST, status: 200 }));
+    api.createOutcome.mockImplementation(outcomeRequest => {
+        receivedOutcomeRequests.push(outcomeRequest);
+        Promise.resolve({ data: DEFAULT_USER_ID, status: 200 })
+    });
     editActivity = shallowMount(EditActivity, config);
+});
+
+beforeEach(() => {
+    receivedOutcomeRequests = [];
 });
 
 const ACTIVITY1 = {
@@ -148,5 +163,27 @@ test('Catches an http status error that isnt 401 or 403 when activity data is co
     return editActivity.vm.getActivityData().then(() => {
         expect(spy).toHaveBeenCalledWith({ name: 'myProfile' });
     });
+});
+
+
+test('Creates the correct Outcome payload and creates only new Outcomes', () => {
+    editActivity.vm.editAllOutcomes([OUTCOME1, OUTCOME2], [OUTCOME1], DEFAULT_ACTIVITY_ID);
+    expect(receivedOutcomeRequests.length).toBe(1);  // Should only make a request for the new Outcome
+    let outcomeRequest = receivedOutcomeRequests[0];
+
+    expect(outcomeRequest.title).toEqual(OUTCOME2.title);  // Should request OUTCOME2
+
+    expect(outcomeRequest.activity_id).toBeDefined();
+    expect(outcomeRequest.title).toBeDefined();
+    expect(outcomeRequest.unit_name).toBeDefined();
+    expect(outcomeRequest.unit_type).toBeDefined();
+
+    expect(Object.keys(outcomeRequest).length).toBe(4);
+
+});
+
+test('Creates no requests when no new Outcomes', () => {
+    editActivity.vm.editAllOutcomes([OUTCOME1, OUTCOME2], [OUTCOME1, OUTCOME2], DEFAULT_ACTIVITY_ID);
+    expect(receivedOutcomeRequests.length).toBe(0);  // Should only make a request for the new Outcome
 });
 

@@ -10,7 +10,7 @@ let config;
 const DEFAULT_USER_ID = 1;
 const DEFAULT_ACTIVITY_ID = 1;
 
-let receivedOutcomeRequest;
+let receivedOutcomeRequests = [];
 
 beforeAll(() => {
     config = {
@@ -19,10 +19,14 @@ beforeAll(() => {
     // This Removes: TypeError: Cannot read property 'then' of undefined
     api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID, status: 200 }));
     api.createOutcome.mockImplementation(outcomeRequest => {
-        receivedOutcomeRequest = outcomeRequest;
+        receivedOutcomeRequests.push(outcomeRequest);
         Promise.resolve({ data: DEFAULT_USER_ID, status: 200 })
     });
     createActivity = shallowMount(CreateActivity, config);
+});
+
+beforeEach(() => {
+    receivedOutcomeRequests = [];
 });
 
 const ACTIVITY1 = {
@@ -105,12 +109,15 @@ test('Catches an http status error that isnt 401, 404, 403 and gives the user an
  */
 test('Creates the correct Outcome payload', () => {
     createActivity.vm.createAllOutcomes([OUTCOME1], DEFAULT_ACTIVITY_ID);
-    expect(receivedOutcomeRequest.activity_id).toBeDefined();
-    expect(receivedOutcomeRequest.title).toBeDefined();
-    expect(receivedOutcomeRequest.unit_name).toBeDefined();
-    expect(receivedOutcomeRequest.unit_type).toBeDefined();
+    expect(receivedOutcomeRequests.length).toBe(1);
+    let outcomeRequest = receivedOutcomeRequests[0];
 
-    expect(Object.keys(receivedOutcomeRequest).length).toBe(4);
+    expect(outcomeRequest.activity_id).toBeDefined();
+    expect(outcomeRequest.title).toBeDefined();
+    expect(outcomeRequest.unit_name).toBeDefined();
+    expect(outcomeRequest.unit_type).toBeDefined();
+
+    expect(Object.keys(outcomeRequest).length).toBe(4);
 
 });
 

@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
-  <file path="/Users/Ben/Desktop/SENG302/project/team-600/client/src/Test/EditActivity.test.js">
-    <testCase name="Is a vue instance" duration="29"/>
-    <testCase name="Catches an http status error of 401 or user not authenticated when edit activity form is submitted and takes user to login page" duration="5"/>
-    <testCase name="Catches an http status error of 403 or forbidden access when edit activity form is submitted and gives user an appropriate alert" duration="2"/>
-    <testCase name="Checking 200 response status of edit activity function" duration="2"/>
-    <testCase name="Catches an http status error that isnt 401, 404, 403 and gives the user an appropriate alert" duration="1"/>
-    <testCase name="Catches an http status error of 401 when activity data is coming back from the server get endpoint" duration="4"/>
-    <testCase name="Catches an http status error of 403 when checking if activity can be edited by user" duration="3"/>
-    <testCase name="Catches an http status error that isnt 401 or 403 when activity data is coming back from the server get endpoint" duration="2"/>
+  <file path="/Users/Ben/Desktop/SENG302/project/team-600/client/src/Test/CreateActivity.test.js">
+    <testCase name="Is a vue instance" duration="3"/>
+    <testCase name="Catches an http status error of 400 or an invalid activity field when create activity form is submitted and gives user an appropriate alert" duration="4"/>
+    <testCase name="Catches an http status error of 401 or user not authenticated when create activity form is submitted and takes user to login page" duration="4"/>
+    <testCase name="Catches an http status error of 403 or forbidden access when create activity form is submitted and gives user an appropriate alert" duration="1"/>
+    <testCase name="Catches an http status error that isnt 401, 404, 403 and gives the user an appropriate alert" duration="2"/>
+    <testCase name="Creates the correct Outcome payload" duration="1"/>
   </file>
 </testExecutions>
