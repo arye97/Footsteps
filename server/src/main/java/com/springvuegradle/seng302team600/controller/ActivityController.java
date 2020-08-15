@@ -193,7 +193,7 @@ public class ActivityController {
     /**
      * Get a list of participants for an activity
      * @param activityId the Id of the Activity
-     * @return a list of Users
+     * @return a HashSet of Users with firstname, lastname and id
      */
     @GetMapping("/activities/{activityId}/participants")
     public Set<ParticipantResponse> getParticipantsOfActivity(@PathVariable Long activityId, HttpServletRequest request) {

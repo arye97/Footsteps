@@ -7,6 +7,13 @@ import com.springvuegradle.seng302team600.model.User;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * The payload to be returned to the front-end for the GET participants endpoint.
+ * Json should be formatted as follows:
+ * - lastname
+ * - firstname
+ * - id
+ */
 public class ParticipantResponse {
 
     @JsonProperty("lastname")
