@@ -21,7 +21,7 @@ public class OutcomeValidator {
     public static boolean validate(Outcome outcome) {
         validateTitle(outcome.getTitle());
         validateActivityId(outcome.getActivityId());
-        validateUnits(outcome.getUnitType(), outcome.getUnitName());
+        validateUnit(outcome.getUnitType(), outcome.getUnitName());
         return true;
     }
 
@@ -51,7 +51,7 @@ public class OutcomeValidator {
      * @param unitType the type of the outcome unit
      * @param unitName the type of the outcome unit
      */
-    public static void validateUnits(UnitType unitType, String unitName) {
+    public static void validateUnit(UnitType unitType, String unitName) {
         if (unitType == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unit must have a unit type set");
         }
