@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springvuegradle.seng302team600.payload.ResultRequest;
 
 import javax.persistence.*;
-import java.util.Set;
+import javax.validation.constraints.NotNull;
 
 /**
  * This class is to link User to Value. The Outcome will reference this class to get the result for a user.
@@ -29,29 +29,34 @@ public class Result {
     @JsonProperty("result_id")
     private Long resultId;
 
+    @NotNull(message = "This result needs a user id")
     @Column(name = "userId", nullable = false)
     @JsonProperty("user_id")
     private Long userId;
 
-    @JsonBackReference
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "outcome_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "outcome_id")
     private Outcome outcome;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "result", cascade = CascadeType.ALL, orphanRemoval = true)
-    //orphan removal removes 'child' when 'parent' is deleted
-    @Column(name = "values", nullable = false)
-    private Set<Value> values;
+    @NotNull(message = "This result needs a value")
+    @Column(name = "value")
+    private String value;
+
+    @Column(name = "did_not_finish", nullable = false)
+    @JsonProperty("did_not_finish")
+    private boolean didNotFinish;
 
     @Column(name = "comment")
     private String comment;
 
     public Result() {}
 
-    public Result(ResultRequest resultRequest) {
+    public Result(ResultRequest resultRequest, Outcome outcome) {
         userId = resultRequest.getUserId();
-        values = resultRequest.getValues();
+        this.outcome = outcome;
+        value = resultRequest.getValue();
         comment = resultRequest.getComment();
+        didNotFinish = resultRequest.getDidNotFinish();
     }
 
     public Outcome getOutcome() {
@@ -62,8 +67,8 @@ public class Result {
         return resultId;
     }
 
-    public Set<Value> getValues() {
-        return values;
+    public String getValue() {
+        return value;
     }
 
     public Long getUserId() {
@@ -86,7 +91,16 @@ public class Result {
         this.userId = userId;
     }
 
-    public void setValues(Set<Value> values) {
-        this.values = values;
+    public void setValue(String value) {
+        this.value = value;
     }
+
+    public boolean isDidNotFinish() {
+        return didNotFinish;
+    }
+
+    public void setDidNotFinish(boolean didNotFinish) {
+        this.didNotFinish = didNotFinish;
+    }
+
 }

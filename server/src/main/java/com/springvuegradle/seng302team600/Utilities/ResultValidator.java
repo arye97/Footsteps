@@ -1,9 +1,8 @@
 package com.springvuegradle.seng302team600.Utilities;
 
+import com.springvuegradle.seng302team600.enumeration.UnitType;
 import com.springvuegradle.seng302team600.model.Outcome;
 import com.springvuegradle.seng302team600.model.Result;
-import com.springvuegradle.seng302team600.model.Unit;
-import com.springvuegradle.seng302team600.model.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -28,7 +27,7 @@ public class ResultValidator {
     public static boolean validate(Result result, Outcome outcome) {
         result.setOutcome(null);
         validateComment(result.getComment());
-        validateValues(result.getValues(), outcome.getUnits());
+        validateValue(result.getValue(), outcome.getUnitType());
         return true;
     }
 
@@ -46,27 +45,27 @@ public class ResultValidator {
 
     /**
      * Validates a single Value.
-     * @param value the Value to be validated
-     * @param unit the Unit the Value should follow
+     * @param value the value to be validated
+     * @param unitType the unit type the value should follow
      */
-    private static void validateValue(Value value, Unit unit) {
-        if (value.getValue() == null) return;
-        if (value.getValue().length() > VALUE_LEN) {
+    private static void validateValue(String value, UnitType unitType) {
+        if (value == null) return;
+        if (value.length() > VALUE_LEN) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "At least one input value is too large");
         }
-        switch (unit.getUnitType()) {
+        switch (unitType) {
             case TEXT:
                 // Will always be a String
                 break;
             case NUMBER:
-                if (!value.getValue().matches(NUMBER_REGEX)) {
+                if (!value.matches(NUMBER_REGEX)) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                             "Value does not convert to an integer");
                 }
                 break;
             case BOOLEAN:
-                if (!value.getValue().matches(BOOLEAN_REGEX)) {
+                if (!value.matches(BOOLEAN_REGEX)) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                             "Value does not convert to a boolean");
                 }
@@ -80,33 +79,6 @@ public class ResultValidator {
             case DATE_AND_TIME:
                 // TODO implement when doing feature to use different unit data types
                 break;
-        }
-    }
-
-    /**
-     * Validate the Value objects.
-     * @param values the Values to be validated
-     * @param units the Units, to check they use them
-     */
-    private static void validateValues(Set<Value> values, Set<Unit> units) {
-        if (values.size() != units.size()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "The number of values does not equal the number of units for the outcome");
-        }
-
-        boolean looking;
-        for (Unit unit : units) {
-            looking = true;
-            for (Value value : values) {
-                if (value.getUnitId().equals(unit.getUnitId())) {
-                    looking = false;
-                    validateValue(value, unit);
-                }
-            }
-            if (looking) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "Multiple values have been submitted for the same unit");
-            }
         }
     }
 }
