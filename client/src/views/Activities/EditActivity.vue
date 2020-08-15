@@ -9,6 +9,8 @@
                     <div class="row h-100 align-items-center">
                         <div class="col-12 text-center">
                             <h1 class="font-weight-light">Edit your activity</h1>
+                            <p class="lead">Plan your route with the best</p>
+                            <hr>
                         </div>
                     </div>
                 </div>
