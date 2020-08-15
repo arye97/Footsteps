@@ -35,7 +35,6 @@ public class Result {
     private Long userId;
 
     @NotNull(message = "This result needs an outcome id")
-    @JsonBackReference
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "outcome_id", nullable = false)
     private Outcome outcome;
@@ -53,8 +52,9 @@ public class Result {
 
     public Result() {}
 
-    public Result(ResultRequest resultRequest) {
+    public Result(ResultRequest resultRequest, Outcome outcome) {
         userId = resultRequest.getUserId();
+        this.outcome = outcome;
         value = resultRequest.getValue();
         comment = resultRequest.getComment();
         didNotFinish = resultRequest.getDidNotFinish();
