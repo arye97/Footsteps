@@ -99,7 +99,7 @@
                     outcome = outcomes[i];
 
                     const outcomeRequest = {
-                        activity_id: isNaN(outcome.activity_id) ? activityId : outcome.activity_id,
+                        activity_id: activityId,
                         title: outcome.title,
                         unit_name: outcome.unit_name,
                         unit_type: Object.keys(UnitType).includes(outcome.unit_type) ? outcome.unit_type : UnitType.TEXT,
