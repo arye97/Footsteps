@@ -183,21 +183,14 @@
                                         View Results</b-button>
 
                                     <b-modal id="resultsModal">
-                                        <div v-if="this.loadingResults"> Loading... <br/><br/><b-spinner variant="primary" label="Spinning"></b-spinner></div>
-                                        <div v-else-if="this.resultsErrored"><br/>{{this.errorMessage}}</div>
-                                        <div v-else>
-
-                                            <div v-for="result in this.userResults" :key="result.userId">
-                                                <!-- Will need to be changed to the user's name once the endpoint is fully implemented -->
-                                                <b-button v-b-toggle.collapse variant="primary">{{result.userId}}</b-button>
-                                                <b-collapse id="collapse">
-                                                    <b-card v-for="outcome in result.outcome" :key="outcome.outcome_id">
-                                                        <div v-if="result.did_not_finish">User {{result.user_id}}: Did not finish ({{result.comment}})</div>
-                                                        <div v-else>User {{result.user_id}}: Did not finish ({{result.comment}})</div>
-                                                    </b-card>
-                                                </b-collapse>
-                                            </div>
-
+                                        <div v-for="outcome in this.outcomeList" :key="outcome.outcome_id">
+                                            <b-button v-b-toggle.collapse variant="primary">{{outcome.title}}</b-button>
+                                            <b-collapse id="collapse">
+                                                <b-card v-for="result in outcome.results" :key="result.result_id">
+                                                    <div v-if="result.did_not_finish">User {{result.user_id}}: Did not finish ({{result.comment}})</div>
+                                                    <div v-else>User {{result.user_id}}: {{result.value}} {{outcome.unit_name}}} ({{result.comment}})</div>
+                                                </b-card>
+                                            </b-collapse>
                                         </div>
                                     </b-modal>
                                 </b-col>
@@ -237,9 +230,6 @@
                 continuous: false,
                 duration: "",
                 isFollowing: false,
-                userResults: [],
-                resultsErrored: false,
-                loadingResults: true,
                 participants: [],
                 outcomeList: [
                     { // Outcome object
