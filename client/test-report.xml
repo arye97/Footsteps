@@ -1,2 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/ViewActivity.test.js">
+    <testCase name="Is a vue instance" duration="225"/>
+    <testCase name="The view activity page displays the activity title" duration="353"/>
+    <testCase name="The view activity page displays the activity description" duration="352"/>
+    <testCase name="The view activity page displays the activity location" duration="318"/>
+    <testCase name="The view activity page has a view participants button" duration="329"/>
+    <testCase name="The view activity page has a view results button" duration="308"/>
+    <testCase name="The view activity page shows the activity type" duration="292"/>
+    <testCase name="The view activity page has a view participants modal" duration="298"/>
+    <testCase name="The view activity page displays 2 participants" duration="315"/>
+    <testCase name="The view activity page has add result model" duration="312"/>
+    <testCase name="The view activity page displays 1 outcome card" duration="307"/>
+    <testCase name="The view activity page displays 1 input for the result" duration="346"/>
+    <testCase name="The view activity page displays 1 submit result button" duration="379"/>
+    <testCase name="As an activity creator I cannot see the follow button" duration="3"/>
+    <testCase name="As an activity creator I cannot see the unfollow button" duration="4"/>
+    <testCase name="As an activity creator I can see the edit activity button" duration="8"/>
+    <testCase name="As an activity creator I can see the add results button" duration="1"/>
+    <testCase name="If I&apos;m following an activity I can see the unfollow button" duration="347"/>
+    <testCase name="If I&apos;m following an activity I can&apos;t see the follow button" duration="325"/>
+    <testCase name="If I&apos;m following an activity I can&apos;t see the edit activity button" duration="246"/>
+    <testCase name="If I&apos;m following an activity I can see the add results button" duration="254"/>
+    <testCase name="If I am not following the activity I can&apos;t see the unfollow button" duration="248"/>
+    <testCase name="If I am not following the activity I can see the follow button" duration="277"/>
+    <testCase name="If I am not following the activity I can&apos;t see the edit activity button" duration="290"/>
+    <testCase name="If I am not following the activity I can&apos;t see the add results button" duration="322"/>
+    <testCase name="When there are no participants When there are no participants, it displays &apos;No participants to show&apos;" duration="280"/>
+  </file>
 </testExecutions>

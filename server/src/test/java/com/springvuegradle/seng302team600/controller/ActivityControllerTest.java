@@ -38,8 +38,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -253,6 +252,7 @@ class ActivityControllerTest {
                 .andExpect(status().isCreated())
                 .andReturn();
         assertNotNull(result.getResponse());
+        assertDoesNotThrow(() -> {Long.valueOf(result.getResponse().getContentAsString());});
     }
 
     /**

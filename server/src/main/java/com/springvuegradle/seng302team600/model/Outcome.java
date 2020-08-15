@@ -114,4 +114,13 @@ public class Outcome {
     public void addResult(Result result) {
         results.add(result);
     }
+
+    @Override
+    public String toString() {
+        return String.format("%d %s, with %s units, %d results",
+                outcomeId,
+                title,
+                unitName,
+                results == null ? null : results.size());
+    }
 }

@@ -104,11 +104,38 @@
                                 </b-card>
                             </b-list-group>
                             <br/>
+                            <!--Add results Modal-->
+                            <b-modal id="addResultsModel" centered ok-only ok-variant="secondary" ok-title="Back"
+                                     scrollable title="Here are your results">
+                                <section v-for="outcome in this.outcomeList" :key="outcome.outcome_id">
+                                    <b-card id="outcomeAddResultCard">
+                                        <strong>{{ outcome.title }}</strong>
+                                        <div v-if="outcome.activeUsersResult.submitted">
+                                            <b-input-group
+                                                    :prepend="outcome.unit_name">
+                                                <b-input id="submitted-input-value" v-model="outcome.activeUsersResult.value"
+                                                         disabled></b-input>
+                                            </b-input-group>
+                                        </div>
+                                        <div v-else>
+                                            <b-input-group
+                                                    :prepend="outcome.unit_name">
+                                                <b-input id="NotSubmitted-input-value" v-model="outcome.activeUsersResult.value"
+                                                         placeholder="Input your result here..."></b-input>
+                                            </b-input-group>
+                                            <b-button block id="submitResult" variant="success"
+                                                      @click="submitOutcomeResult(outcome.outcome_id)">
+                                                Submit
+                                            </b-button>
+                                        </div>
+                                    </b-card>
+                                </section>
+                            </b-modal>
                             <!-- Add Results/Following Button Group -->
-                            <b-button block v-if="this.isFollowing || this.creatorId == this.activeUserId"
-                                      variant="success" id="addResults">Add My Results</b-button>
+                            <b-button block v-if="this.isFollowing || this.creatorId === this.activeUserId"
+                                      variant="success" id="addResults" v-b-modal="'addResultsModel'">Add My Results</b-button>
                             <br/>
-                            <div v-if="this.creatorId != this.activeUserId">
+                            <div v-if="this.creatorId !== this.activeUserId">
                                 <b-button block v-if="!this.isFollowing"
                                           variant="outline-dark"
                                           class="footerButton"
@@ -131,14 +158,14 @@
                             </div>
                             <!--View Participants Modal-->
                             <b-modal id="viewParticipantsModal" size="lg" centered ok-only scrollable :title="activityTitle + ' Participants'">
-                                <b-card class="flex-fill" border-variant="secondary">
+                                <b-card class="flex-fill" border-variant="secondary" id="viewParticipantsCard">
                                     <strong>Participants: </strong><br>
-                                    <b-button-group v-for="participant in participants" :key="participant.id">
+                                    <b-button-group v-for="participant in participants" :key="participant.id" id="viewParticipantsButtonGroup">
                                         <b-button
                                                 class="participantButton" pill variant="success"
                                                 v-on:click="toUserProfile(participant.id)" id="participant">{{participant.name}}</b-button>
                                     </b-button-group>
-                                    <p v-if="participants.length == 0" id="noParticipants">No participants to show</p>
+                                    <p v-if="participants.length === 0" id="noParticipants">No participants to show</p>
                                 </b-card>
                             </b-modal>
                             <!--View Participants and Results Buttons-->
@@ -210,10 +237,40 @@
                 continuous: false,
                 duration: "",
                 isFollowing: false,
-                participants: [],
                 userResults: [],
                 resultsErrored: false,
                 loadingResults: true,
+                participants: [],
+                outcomeList: [
+                    { // Outcome object
+                        outcome_id: null,
+                        title: "",
+                        activity_id: null,
+                        unit_name: "",
+                        unit_type: "",
+                        activeUsersResult:
+                            {
+                            result_id: null,
+                            user_id: null,
+                            outcome_id: null,
+                            value: "",
+                            did_not_finish: false,
+                            comment: "",
+                            submitted: false
+                            },
+                        results: [
+                            { // Result object
+                                result_id: null,
+                                user_id: null,
+                                outcome_id: null,
+                                value: "",
+                                did_not_finish: false,
+                                comment: "",
+                                submitted: false
+                            }
+                        ]
+                    }
+                ],
             }
         },
         async mounted () {
@@ -238,6 +295,8 @@
                 await this.getFollowingDetails();
                 await this.getCreatorUserDetails();
                 await this.fetchParticipantsForActivities();
+                await this.fetchOutcomesForActivity();
+                await this.fetchResultsForOutcomes();
                 this.loading = false;
             },
             /**
@@ -379,34 +438,92 @@
                     }
                 });
             },
-          /**
-           * Gets the results for the activity
-           * @returns {Promise<void>}
-           */
-            async getResults() {
-              //TODO: Fix this once the endpoint is implemented, since it likely won't work like this
-                this.loadingResults = true;
-                await api.getActivityOutcomes(this.activityId).then(async response =>  {
-                    let outcome = null;
-                    for (outcome in response.data) {
-                        const results = [];
-                        await api.getOutcomeResults(outcome.outcome_id).then(response => {
-                            results.push(response.data);
-                        }).catch(() => {
-                            this.resultsErrored = true;
-                            this.errorMessage = "An error occurred when fetching the activity results"
-                        });
-                        outcome.results = results;
-                        this.outcomes.push(outcome);
+            /**
+             * Gets the list of outcomes for the activity
+             */
+            async fetchOutcomesForActivity() {
+                await api.getActivityOutcomes(this.activityId).then(response => {
+                    this.outcomeList = response.data;
+                }).catch(error => {
+                    if (error.response.status === 401) {
+                        sessionStorage.clear();
+                        this.goToPage('/login');
+                    } else {
+                        this.errored = true;
+                        this.error_message = "Unable to get outcomes - please try again later";
                     }
-                    console.log(this.outcomes);
-                    this.loadingResults = false;
-                }).catch(() => {
-                    this.resultsErrored = true;
-                    this.errorMessage = "An error occurred when fetching the activity outcomes";
-                    this.loadingResults = false;
-                })
+                });
             },
+            /**
+             * Gets a list of results for each outcome
+             */
+            async fetchResultsForOutcomes() {
+                for (let i = 0; i < this.outcomeList.length; i++) {
+                    let outcomeId = this.outcomeList[i].outcome_id;
+                    // TODO: Add api call getOutcomeResults here. Add data from response to outcome, like below
+                    // this.outcomeList[i].results = response.data;
+
+                    // If the active user's result is not returned create one
+                    this.outcomeList[i].results = []; //TODO remove this line when getOutcomeResults is implemented
+                    let activeUsersResults = this.outcomeList[i].results.filter(i => i.user_id === this.activeUserId);
+                    if (activeUsersResults.length < 1) {
+                        this.outcomeList[i].activeUsersResult = {
+                                user_id: this.activeUserId,
+                                outcome_id: outcomeId,
+                                value: "",
+                                did_not_finish: false,
+                                comment: "",
+                                submitted: false
+                        };
+                    } else {
+                        this.outcomeList[i].activeUsersResult = activeUsersResults[0];
+                        this.outcomeList[i].activeUsersResult.submitted = true;
+                    }
+                }
+            },
+            /**
+             * Submit result to back-end for an outcome
+             * @param outcomeId the outcome ID
+             */
+            async submitOutcomeResult(outcomeId) {
+                // Finds the active user's result for the given outcome
+                let outcomes = this.outcomeList.filter(i => i.outcome_id === outcomeId);
+                if (outcomes.length < 1) return;
+
+                await api.createResult(outcomes[0].activeUsersResult, outcomeId).then(() => {
+                    outcomes[0].activeUsersResult.submitted = true;
+                    // this.props['addResultsModel'].refresh();
+                    this.$forceUpdate();
+                }).catch(error => {
+                    this.processPostError(error);
+                });
+            },
+            /**
+             * Process the error in terms of status codes returned
+             * @param error being processed
+             */
+            processPostError(error) {
+                console.log(error)
+                this.errored = true;
+                switch (error.response.status) {
+                    case 401:
+                        sessionStorage.clear();
+                        this.goToPage('/login');
+                        break;
+                    case 400:
+                        this.error_message = error.response.data.message;
+                        break;
+                    case 403:
+                        this.error_message = "User is not a participant of this outcome's activity";
+                        break;
+                    case 404:
+                        this.error_message = "Outcome not found";
+                        break;
+                    default:
+                        this.error_message = "Unable to get outcomes - please try again later";
+                        break;
+                }
+            }
         }
     }
 </script>
