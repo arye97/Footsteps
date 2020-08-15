@@ -352,7 +352,6 @@
                         await this.submitActivityFunc();
                     } catch(err) {
                         this.overallMessageText = err.message;
-                        console.error(err.message)
                         showError('overall_message');
                     }
                 }

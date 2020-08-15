@@ -104,16 +104,12 @@
                         unit_name: outcome.unit_name,
                         unit_type: Object.keys(UnitType).includes(outcome.unit_type) ? outcome.unit_type : UnitType.TEXT,
                     };
-                    console.log("This ia an outcome request");
-                    console.log(outcomeRequest)
 
                     await api.createOutcome(outcomeRequest).catch(serverError => {
                         this.throwError(serverError, false);
                     });
                 }
 
-                console.log("Outcomes")
-                console.log(outcomes);
             },
 
             /**
