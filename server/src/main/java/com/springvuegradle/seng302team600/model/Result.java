@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springvuegradle.seng302team600.payload.ResultRequest;
 
 import javax.persistence.*;
-import java.util.Set;
+import javax.validation.constraints.NotNull;
 
 /**
  * This class is to link User to Value. The Outcome will reference this class to get the result for a user.
@@ -29,16 +29,19 @@ public class Result {
     @JsonProperty("result_id")
     private Long resultId;
 
+    @NotNull(message = "This result needs a user id")
     @Column(name = "userId", nullable = false)
     @JsonProperty("user_id")
     private Long userId;
 
+    @NotNull(message = "This result needs an outcome id")
     @JsonBackReference
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "outcome_id", nullable = false)
     private Outcome outcome;
 
     // Actual value of a Value object, represented as a string.
+    @NotNull(message = "This result needs a value")
     @Column(name = "value")
     private String value;
 

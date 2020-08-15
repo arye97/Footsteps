@@ -44,10 +44,12 @@ public class Outcome {
     @JsonProperty("activity_id")
     private Long activityId;
 
+    @NotNull(message = "This outcome needs a unit name")
     @Column(name = "unit_name", nullable = false)
     @JsonProperty("unit_name")
     private String unitName;
 
+    @NotNull(message = "This outcome needs a unit type")
     @Column(name = "unit_type", nullable = false)
     @JsonProperty("unit_type")
     private UnitType unitType;
@@ -111,5 +113,14 @@ public class Outcome {
 
     public void addResult(Result result) {
         results.add(result);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%d %s, with %s units, %d results",
+                outcomeId,
+                title,
+                unitName,
+                results == null ? null : results.size());
     }
 }
