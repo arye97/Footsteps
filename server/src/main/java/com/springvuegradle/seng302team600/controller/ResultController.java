@@ -59,7 +59,7 @@ public class ResultController {
                     "Outcome not found");
         }
 
-        Result result = new Result(resultRequest);
+        Result result = new Result(resultRequest, outcome);
 
         // Validate the submitted Result. This includes validating the Value objects too.
         ResultValidator.validate(result, outcome);

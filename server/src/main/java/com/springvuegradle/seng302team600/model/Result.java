@@ -34,10 +34,8 @@ public class Result {
     @JsonProperty("user_id")
     private Long userId;
 
-    @NotNull(message = "This result needs an outcome id")
-    @JsonBackReference
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "outcome_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "outcome_id")
     private Outcome outcome;
 
     @NotNull(message = "This result needs a value")
@@ -53,8 +51,9 @@ public class Result {
 
     public Result() {}
 
-    public Result(ResultRequest resultRequest) {
+    public Result(ResultRequest resultRequest, Outcome outcome) {
         userId = resultRequest.getUserId();
+        this.outcome = outcome;
         value = resultRequest.getValue();
         comment = resultRequest.getComment();
         didNotFinish = resultRequest.getDidNotFinish();

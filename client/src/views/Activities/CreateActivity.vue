@@ -88,7 +88,7 @@
             },
 
             /**
-             * Sends all Outcomes to the backend.  Should be used when submitting ac Activity.
+             * Sends all Outcomes to the backend.  Should be used when submitting an Activity.
              * @param newOutcomes Array of outcomes to save to the database
              * @param activityId the id of the associated activity, added to each Outcome
              */
@@ -99,7 +99,7 @@
                     outcome = outcomes[i];
 
                     const outcomeRequest = {
-                        activity_id: isNaN(outcome.activity_id) ? activityId : outcome.activity_id,
+                        activity_id: activityId,
                         title: outcome.title,
                         unit_name: outcome.unit_name,
                         unit_type: Object.keys(UnitType).includes(outcome.unit_type) ? outcome.unit_type : UnitType.TEXT,
