@@ -29,6 +29,7 @@
                             </b-col>
                             <b-col md="6">
                                 <div class="activity-button-group float-right">
+                                    <b-button-group vertical>
                                         <b-button v-if="activity.creatorUserId === activeUserId"
                                                   variant="outline-primary"
                                                   v-on:click="goToPage(`/activities/edit/${activity.id}`)">
@@ -38,19 +39,12 @@
                                                   v-on:click="goToPage(`/activity/${activity.id}`)">
                                             Details
                                         </b-button>
-                                        <b-button variant="outline-primary"
-                                                  @click="followActivity(activity.id)"
-                                                  v-if="activity.creatorUserId!==activeUserId"
-                                        >
-                                            Follow Activity
-                                            <img v-if="isHovered" src="../../../assets/png/footsteps_icon.png" class="footStepsSimplified" alt="Footsteps Logo">
-                                            <img v-else src="../../../assets/png/footsteps_icon_hollow.png" class="footStepsSimplified" alt="Footsteps Logo">
-                                        </b-button>
                                         <b-button v-if="activity.creatorUserId === activeUserId"
                                                   variant="outline-danger"
                                                   v-on:click="deleteActivity(activity.id)">
                                             Delete
                                         </b-button>
+                                    </b-button-group>
                                 </div>
                             </b-col>
                         </b-row>
@@ -368,13 +362,13 @@
             },
             async getActivityOutcomes() {
                 for (let i = 0; i < this.activityList.length; i++) {
-                  await api.getActivityOutcomes(this.activityList[i].id)
-                    .then((response) => {
-                        this.activityList[i]["outcomes"] = response.data;
-                    })
-                    .catch(() => {
-                        this.activityList[i]["outcomes"] = [];
-                  });
+                    await api.getActivityOutcomes(this.activityList[i].id)
+                        .then((response) => {
+                            this.activityList[i]["outcomes"] = response.data;
+                        })
+                        .catch(() => {
+                            this.activityList[i]["outcomes"] = [];
+                        });
                 }
             },
 

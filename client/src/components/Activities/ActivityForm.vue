@@ -502,12 +502,21 @@
                 });
             },
 
+            /**
+             * Adds the current outcome to the outcomeList and clears the outcome input fields
+             * (current outcome is the outcome in the input boxes)
+             */
             addOutcome() {
                 this.outcomeList.push(this.activeOutcome);
                 this.activeOutcome = {title:"", unit_name:""};
                 this.updateOutcomeWordCount();
             },
 
+            /**
+             * Removes a specified outcome from the list of outcomes
+             * (Active outcome is not part of this list)
+             * @param index The index of the outcome, to be deleted, in the outcomeList
+             */
             deleteOutcome (index) {
                 let outcomeToBeRemoved = this.outcomeList[index];
                 // Remove outcomeToBeRemoved from this.outcomeList
@@ -517,6 +526,12 @@
                     });
             },
 
+            /**
+             * Sets the active outcome to the selected outcome
+             * Deletes the to be edited outcome from the outcomeList
+             * Updates the outcome input boxes and their respective word counts
+             * @param index The index of the outcome, to be edited, in the outcomeList
+             */
             editOutcome(index) {
                 this.activeOutcome = this.outcomeList[index];
                 this.deleteOutcome(index);
