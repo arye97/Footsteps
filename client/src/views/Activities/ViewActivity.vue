@@ -105,20 +105,24 @@
                             </b-list-group>
                             <br/>
                             <!--Add results Modal-->
-                            <b-modal id="addResultsModel">
-                                <h3 class="font-weight-light"><strong>Here are your results</strong></h3><br/>
+                            <b-modal id="addResultsModel" centered ok-only ok-variant="secondary" ok-title="Back"
+                                     scrollable title="Here are your results">
                                 <section v-for="outcome in this.outcomeList" :key="outcome.outcome_id">
                                     <b-card id="outcomeAddResultCard">
-                                        {{ outcome.title }}
+                                        <strong>{{ outcome.title }}</strong>
                                         <div v-if="outcome.activeUsersResult.submitted">
-                                            {{ outcome.activeUsersResult }}
+                                            <b-input-group
+                                                    :prepend="outcome.unit_name">
+                                                <b-input id="submitted-input-value" v-model="outcome.activeUsersResult.value"
+                                                         disabled></b-input>
+                                            </b-input-group>
                                         </div>
                                         <div v-else>
-                                            <b-form-input
-                                                    id="input-value"
-                                                    v-model="outcome.activeUsersResult.value"
-                                                    placeholder="Input your result here..."
-                                            ></b-form-input>
+                                            <b-input-group
+                                                    :prepend="outcome.unit_name">
+                                                <b-input id="NotSubmitted-input-value" v-model="outcome.activeUsersResult.value"
+                                                         placeholder="Input your result here..."></b-input>
+                                            </b-input-group>
                                             <b-button block id="submitResult" variant="success"
                                                       @click="submitOutcomeResult(outcome.outcome_id)">
                                                 Submit
@@ -464,7 +468,11 @@
                 let outcomes = this.outcomeList.filter(i => i.outcome_id === outcomeId);
                 if (outcomes.length < 1) return;
 
-                await api.createResult(outcomes[0].activeUsersResult, outcomeId).catch(error => {
+                await api.createResult(outcomes[0].activeUsersResult, outcomeId).then(() => {
+                    outcomes[0].activeUsersResult.submitted = true;
+                    // this.props['addResultsModel'].refresh();
+                    this.$forceUpdate();
+                }).catch(error => {
                     this.processPostError(error);
                 });
             },
@@ -473,6 +481,7 @@
              * @param error being processed
              */
             processPostError(error) {
+                console.log(error)
                 this.errored = true;
                 switch (error.response.status) {
                     case 401:
