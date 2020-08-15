@@ -47,9 +47,10 @@ public class ActivityController {
      * @param newActivity the new Activity
      * @param response Used to set status of operation
      * @param profileId the Id of the User who created the activity
+     * @return the id of the activity
      */
     @PostMapping("/profiles/{profileId}/activities")
-    public void newActivity(@Validated @RequestBody Activity newActivity,
+    public Long newActivity(@Validated @RequestBody Activity newActivity,
                             HttpServletRequest request,
                             HttpServletResponse response,
                             @PathVariable(value = "profileId") Long profileId) {
@@ -63,8 +64,10 @@ public class ActivityController {
         newActivity.setCreatorUserId(profileId);
         // Check the user input and throw ResponseStatusException if invalid stopping execution
         ActivityValidator.validate(newActivity);
-        activityRepository.save(newActivity);
+        Activity createdActivity = activityRepository.save(newActivity);
         response.setStatus(HttpServletResponse.SC_CREATED); //201
+
+        return createdActivity != null ? createdActivity.getActivityId() : null;
     }
 
     /**

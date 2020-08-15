@@ -42,16 +42,16 @@ test('Outcome title input exists', () => {
     expect(activityForm.find('#input-outcome-title').exists()).toBeTruthy();
 });
 
-test('Outcome unit input exists', () => {
-    expect(activityForm.find('#input-outcome-unit').exists()).toBeTruthy();
+test('Outcome unit_name input exists', () => {
+    expect(activityForm.find('#input-outcome-unit-name').exists()).toBeTruthy();
 });
 
 test('Outcome title word count exists', () => {
     expect(activityForm.find('#title-word-count').exists()).toBeTruthy();
 });
 
-test('Outcome unit word count exists', () => {
-    expect(activityForm.find('#unit-word-count').exists()).toBeTruthy();
+test('Outcome unit_name word count exists', () => {
+    expect(activityForm.find('#unit-name-word-count').exists()).toBeTruthy();
 });
 
 test('Add outcome button exists', () => {

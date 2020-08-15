@@ -192,13 +192,13 @@
                                 {{outcomeTitleCharCount}}/{{maxOutcomeTitleCharCount}} characters left
                             </div>
                             <b-form-input
-                                    id="input-outcome-unit"
-                                    v-model="activeOutcome.unit"
+                                    id="input-outcome-unit-name"
+                                    v-model="activeOutcome.unit_name"
                                     placeholder="Unit of your outcome..."
                                     trim
                                     v-on:input="updateOutcomeWordCount"
                             ></b-form-input>
-                            <div class="word-count" id="unit-word-count">
+                            <div class="word-count" id="unit-name-word-count">
                                 {{outcomeUnitCharCount}}/{{maxOutcomeUnitCharCount}} characters left
                             </div>
                         </b-form-group>
@@ -229,8 +229,8 @@
                                     </p>
                             </td>
                                 <td>
-                                    <p :id="'unit' + index">
-                                        {{ outcome.unit }}
+                                    <p :id="'unit_name' + index">
+                                        {{ outcome.unit_name }}
                                     </p>
                                 </td>
                                 <td class="tableButtonTd">
@@ -267,6 +267,9 @@
     import api from "../../Api";
     import {localTimeZoneToBackEndTime} from "../../util";
 
+    /**
+     * Displays an error on the element with id equal to alert_name
+     */
     function showError(alert_name) {
         let errorAlert = document.getElementById(alert_name);
 
@@ -297,6 +300,12 @@
                 startTime: String,
                 endTime: String,
             },
+            outcomeList: {
+                default() {
+                    return [];
+                },
+                type: Array
+            },
             submitActivityFunc: Function,
             startTime: String,
             endTime: String
@@ -316,9 +325,8 @@
                 isValidFormFlag: true,
                 overallMessageText: "",
 
-                activeOutcome: {title:"", unit:""},
+                activeOutcome: {title:"", unit_name:""},
                 validOutcome: false,
-                outcomeList: [],
 
                 outcomeTitleCharCount: 0,
                 maxOutcomeTitleCharCount: 75,
@@ -342,7 +350,6 @@
                     this.formatDurationActivity();
                     try {
                         await this.submitActivityFunc();
-                        //todo: add submission of outcomes here (should just need to send outcomesList
                     } catch(err) {
                         this.overallMessageText = err.message;
                         showError('overall_message');
@@ -471,7 +478,7 @@
              */
             updateOutcomeWordCount() {
                 this.outcomeTitleCharCount = this.activeOutcome.title.length;
-                this.outcomeUnitCharCount = this.activeOutcome.unit.length;
+                this.outcomeUnitCharCount = this.activeOutcome.unit_name.length;
                 this.validOutcome = this.outcomeTitleCharCount > 0 && this.outcomeUnitCharCount > 0;
                 if (this.validOutcome) {
                     for (let i = 0; i < this.outcomeList.length; i++) {
@@ -501,7 +508,7 @@
              */
             addOutcome() {
                 this.outcomeList.push(this.activeOutcome);
-                this.activeOutcome = {title:"", unit:""};
+                this.activeOutcome = {title:"", unit_name:""};
                 this.updateOutcomeWordCount();
             },
 
