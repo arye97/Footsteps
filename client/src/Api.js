@@ -8,7 +8,7 @@ const SERVER_URL = process.env.VUE_APP_SERVER_ADD;
 
 const server = axios.create({
   baseURL: SERVER_URL,
-  timeout: 3000
+  timeout: 5000
 });
 
 function getTokenHeader() {
