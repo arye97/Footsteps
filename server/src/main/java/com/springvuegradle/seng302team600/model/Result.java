@@ -40,7 +40,6 @@ public class Result {
     @JoinColumn(name = "outcome_id", nullable = false)
     private Outcome outcome;
 
-    // Actual value of a Value object, represented as a string.
     @NotNull(message = "This result needs a value")
     @Column(name = "value")
     private String value;
