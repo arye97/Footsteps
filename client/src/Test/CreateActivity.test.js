@@ -8,6 +8,9 @@ jest.mock("../Api");
 let createActivity;
 let config;
 const DEFAULT_USER_ID = 1;
+const DEFAULT_ACTIVITY_ID = 1;
+
+let receivedOutcomeRequest;
 
 beforeAll(() => {
     config = {
@@ -15,6 +18,10 @@ beforeAll(() => {
     };
     // This Removes: TypeError: Cannot read property 'then' of undefined
     api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID, status: 200 }));
+    api.createOutcome.mockImplementation(outcomeRequest => {
+        receivedOutcomeRequest = outcomeRequest;
+        Promise.resolve({ data: DEFAULT_USER_ID, status: 200 })
+    });
     createActivity = shallowMount(CreateActivity, config);
 });
 
@@ -26,6 +33,12 @@ const ACTIVITY1 = {
     location: "Arthur's Pass National Park",
     start_time: "2020-12-16T09:00:00+0000",
     end_time: "2020-12-17T17:00:00+0000"
+};
+
+const OUTCOME1 = {
+    title: "My Awesome Outcome",
+    unit_name: "Distance",
+    unit_type: "TEXT"
 };
 
 test('Is a vue instance', () => {
@@ -86,3 +99,19 @@ test('Catches an http status error that isnt 401, 404, 403 and gives the user an
     return createActivity.vm.submitCreateActivity().catch(
         error => expect(error).toEqual(new Error("Unknown error has occurred whilst creating this activity")));
 });
+
+/**
+ * Tests whether a the payload sent to the backend has the required correct fields.
+ */
+test('Creates the correct Outcome payload', () => {
+    createActivity.vm.createAllOutcomes([OUTCOME1], DEFAULT_ACTIVITY_ID);
+    expect(receivedOutcomeRequest.activity_id).toBeDefined();
+    expect(receivedOutcomeRequest.title).toBeDefined();
+    expect(receivedOutcomeRequest.unit_name).toBeDefined();
+    expect(receivedOutcomeRequest.unit_type).toBeDefined();
+
+    expect(Object.keys(receivedOutcomeRequest).length).toBe(4);
+
+});
+
+

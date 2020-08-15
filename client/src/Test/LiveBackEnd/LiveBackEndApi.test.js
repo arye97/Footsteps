@@ -2,6 +2,7 @@
  * This tests that all the functions in Api.js can communicate correctly with the backend.
  * It is an end to end test using a live backend (not using mocking).
  * To run this test, start the backend using an in memory database by calling './gradlew bootRun -PspringProfile=local'
+ * Call 'npm run rest-test' (rest-test and not unit_name-test)
  * On subsequent runs of the test, the "Register a new user" test will fail because the user is already in the database
  * (not exactly a stateless test).  For all tests to pass you must restart the server.
  *
@@ -14,6 +15,7 @@ import api from "../../Api";
 
 // User Id of the user that is being tested.
 let USER1_ID = null;
+
 let USER2_ID = null;
 
 const USER1 = {
@@ -75,6 +77,15 @@ const ACTIVITY1 = {
     location: "Arthur's Pass National Park",
     start_time: "2020-12-16T09:00:00+0000",
     end_time: "2020-12-17T17:00:00+0000"
+};
+
+let OUTCOME1_ID = null;
+let UNIT1_ID = null;
+
+const OUTCOME1 = {
+    title: "My Awesome Outcome",
+    unit_name: "Distance",
+    unit_type: "TEXT"
 };
 
 /**
@@ -271,6 +282,7 @@ describe("Run tests on new user", () => {
         function fetchActivities() {  // Helper function to prevent duplicate code
             return api.getUserActivities(USER1_ID).then(response => {
                 ACTIVITY_IDS = new Set(response.data.map(activity => activity.id));
+                OUTCOME1.activity_id = ACTIVITY_IDS.values().next().value;
             }).catch(err => console.error(procError(err)));
         }
 
@@ -281,6 +293,16 @@ describe("Run tests on new user", () => {
         beforeEach(() => {
             return fetchActivities();
         });
+        beforeEach(() => {
+            return api.createOutcome(OUTCOME1).catch(err => console.error(procError(err)));
+        });
+        beforeEach(() => {
+            return api.getActivityOutcomes(ACTIVITY_IDS.values().next().value).then(response => {
+                OUTCOME1_ID = response.data[0].outcome_id;
+                UNIT1_ID = response.data[0].units[0].unit_id;
+            }).catch(err => console.error(procError(err)));
+        });
+
 
         // Remove all Activities at the end of each test
         afterEach(() => {
@@ -313,6 +335,7 @@ describe("Run tests on new user", () => {
 
 
         test("Get data from activity", () => {
+
             return api.getActivityData(ACTIVITY_IDS.values().next().value).then(response => {
                 expect(response.status).toEqual(200);
 
@@ -325,18 +348,48 @@ describe("Run tests on new user", () => {
         });
 
 
-        test("Get an activities outcomes", () => {
-            return api.getActivityOutcomes(ACTIVITY_IDS.values().next().value).then(response => {
-                expect(response.status).toEqual(200);
-            }).catch(err => {throw procError(err)});
-        });
-
         test("Check if user can edit activity", () => {
             return api.isActivityEditable(ACTIVITY_IDS.values().next().value).then(response => {
                 expect(response.status).toEqual(200);
             }).catch(err => {throw procError(err)});
         });
 
+        test("Create activity outcome", () => {
+            OUTCOME1.activity_id = ACTIVITY_IDS.values().next().value;  // Create attribute
+            return api.createOutcome(OUTCOME1).then(response => {
+                expect(response.status).toEqual(201);
+            }).catch(err => {throw procError(err)});
+        });
+
+        test("Get an activities outcomes", () => {
+            return api.getActivityOutcomes(ACTIVITY_IDS.values().next().value).then(response => {
+                expect(response.status).toEqual(200);
+            }).catch(err => {throw procError(err)});
+        });
+
+        describe("Logout USER1, Login USER2, make USER2 a participant of activity, create results", () => {
+
+            beforeAll(() => {
+                // Login as USER2
+                api.logout();
+                api.login(USER2).then(response => {
+                    USER2_ID = response.data.userId;
+                });
+            });
+
+
+            //Todo Add Result tests
+
+
+            afterAll(() => {
+                // Login as USER2
+                api.logout();
+                api.login(USER1).then(response => {
+                    USER1_ID = response.data.userId;
+                });
+            });
+
+        });
 
         test("Get all activities from a user", () => {
             return api.getUserActivities(USER1_ID).then(response => {

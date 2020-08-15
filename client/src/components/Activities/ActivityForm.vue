@@ -156,7 +156,6 @@
 
 
 
-
                 <b-form-group
                         id="input-group-location"
                         label="Location: *"
@@ -171,6 +170,83 @@
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_location">
                     {{ "Field is mandatory and a location must be set" }}
                 </div>
+
+
+                <hr>
+
+
+                <label>Outcomes: </label>
+                <b-row>
+                    <b-col>
+                        <b-form-group
+                                id="input-group-outcome-title"
+                        >
+                            <b-form-input
+                                    id="input-outcome-title"
+                                    v-model="activeOutcome.title"
+                                    placeholder="Title of your outcome..."
+                                    trim
+                                    v-on:input="updateOutcomeWordCount"
+                            ></b-form-input>
+                            <div class="word-count" id="title-word-count">
+                                {{outcomeTitleCharCount}}/{{maxOutcomeTitleCharCount}} characters left
+                            </div>
+                            <b-form-input
+                                    id="input-outcome-unit-name"
+                                    v-model="activeOutcome.unit_name"
+                                    placeholder="Unit of your outcome..."
+                                    trim
+                                    v-on:input="updateOutcomeWordCount"
+                            ></b-form-input>
+                            <div class="word-count" id="unit-name-word-count">
+                                {{outcomeUnitCharCount}}/{{maxOutcomeUnitCharCount}} characters left
+                            </div>
+                        </b-form-group>
+                    </b-col>
+                </b-row>
+                <b-row>
+                    <b-col align-self="center">
+                        <b-button
+                                v-bind:disabled="!validOutcome"
+                                variant="primary"
+                                id="addOutcome"
+                                v-on:click="addOutcome"
+                                class="addOutcomesButton"
+                        >
+                            Add outcome
+                        </b-button>
+                    </b-col>
+                </b-row>
+
+                <section class="outcomesDisplay">
+                    <table id="additionalEmailsTable" class="table table-hover">
+                        <tr class="outcomesTable" v-for="(outcome, index) in this.outcomeList"
+                            v-bind:key="'outcome' + index"
+                            :id="'outcome' + index">
+                            <td>
+                                    <p :id="'title' + index">
+                                        {{ outcome.title }}
+                                    </p>
+                            </td>
+                                <td>
+                                    <p :id="'unit_name' + index">
+                                        {{ outcome.unit_name }}
+                                    </p>
+                                </td>
+                                <td class="tableButtonTd">
+                                    <b-button variant="danger" :id="'deleteButton' + index" v-on:click="deleteOutcome(index)">
+                                        <b-icon-trash-fill></b-icon-trash-fill>
+                                    </b-button>
+                                </td>
+                                <td class="tableButtonTd">
+                                    <b-button variant="primary" :id="'editButton' + index" v-on:click="editOutcome(index)">Edit</b-button>
+                                </td>
+                        </tr>
+                    </table>
+                </section>
+
+
+
                 <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="overall_message" hidden>
                     <p id="alert-message">{{ overallMessageText }}</p>
                 </div>
@@ -191,6 +267,9 @@
     import api from "../../Api";
     import {localTimeZoneToBackEndTime} from "../../util";
 
+    /**
+     * Displays an error on the element with id equal to alert_name
+     */
     function showError(alert_name) {
         let errorAlert = document.getElementById(alert_name);
 
@@ -221,6 +300,12 @@
                 startTime: String,
                 endTime: String,
             },
+            outcomeList: {
+                default() {
+                    return [];
+                },
+                type: Array
+            },
             submitActivityFunc: Function,
             startTime: String,
             endTime: String
@@ -238,7 +323,15 @@
                 has_end_time: true,
 
                 isValidFormFlag: true,
-                overallMessageText: ""
+                overallMessageText: "",
+
+                activeOutcome: {title:"", unit_name:""},
+                validOutcome: false,
+
+                outcomeTitleCharCount: 0,
+                maxOutcomeTitleCharCount: 75,
+                outcomeUnitCharCount: 0,
+                maxOutcomeUnitCharCount: 75,
             }
         },
         async created() {
@@ -381,6 +474,23 @@
             },
 
             /**
+             * Updates word count for outcome title
+             */
+            updateOutcomeWordCount() {
+                this.outcomeTitleCharCount = this.activeOutcome.title.length;
+                this.outcomeUnitCharCount = this.activeOutcome.unit_name.length;
+                this.validOutcome = this.outcomeTitleCharCount > 0 && this.outcomeUnitCharCount > 0;
+                if (this.validOutcome) {
+                    for (let i = 0; i < this.outcomeList.length; i++) {
+                        if (this.activeOutcome.title === this.outcomeList[i].title) {
+                            this.validOutcome = false;
+                            return;
+                        }
+                    }
+                }
+            },
+
+            /**
              * Fetch all possible activity types from the server
              */
             async fetchActivityTypes() {
@@ -390,6 +500,42 @@
                         return a.toLowerCase().localeCompare(b.toLowerCase());
                     });
                 });
+            },
+
+            /**
+             * Adds the current outcome to the outcomeList and clears the outcome input fields
+             * (current outcome is the outcome in the input boxes)
+             */
+            addOutcome() {
+                this.outcomeList.push(this.activeOutcome);
+                this.activeOutcome = {title:"", unit_name:""};
+                this.updateOutcomeWordCount();
+            },
+
+            /**
+             * Removes a specified outcome from the list of outcomes
+             * (Active outcome is not part of this list)
+             * @param index The index of the outcome, to be deleted, in the outcomeList
+             */
+            deleteOutcome (index) {
+                let outcomeToBeRemoved = this.outcomeList[index];
+                // Remove outcomeToBeRemoved from this.outcomeList
+                this.outcomeList = this.outcomeList.filter(
+                    function(outcome) {
+                        return outcome !== outcomeToBeRemoved
+                    });
+            },
+
+            /**
+             * Sets the active outcome to the selected outcome
+             * Deletes the to be edited outcome from the outcomeList
+             * Updates the outcome input boxes and their respective word counts
+             * @param index The index of the outcome, to be edited, in the outcomeList
+             */
+            editOutcome(index) {
+                this.activeOutcome = this.outcomeList[index];
+                this.deleteOutcome(index);
+                this.updateOutcomeWordCount();
             }
         }
     }
@@ -409,5 +555,18 @@
 
     .checkbox-time {
         padding-top: 10px;
+    }
+
+    .tableButtonTd {
+        float: right;
+    }
+
+    .outcomesTable p {
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+
+    .addOutcomesButton {
+        margin-bottom: 5px;
     }
 </style>

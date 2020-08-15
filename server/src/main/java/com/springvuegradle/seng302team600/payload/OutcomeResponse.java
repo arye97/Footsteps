@@ -1,8 +1,8 @@
 package com.springvuegradle.seng302team600.payload;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.springvuegradle.seng302team600.enumeration.UnitType;
 import com.springvuegradle.seng302team600.model.Outcome;
-import com.springvuegradle.seng302team600.model.Unit;
 
 import java.util.Set;
 
@@ -23,14 +23,14 @@ public class OutcomeResponse {
     @JsonProperty("title")
     private String title;
 
-    @JsonProperty("description")
-    private String description;
-
     @JsonProperty("activity_id")
     private Long activityId;
 
-    @JsonProperty("units")
-    private Set<Unit> units;
+    @JsonProperty("unit_name")
+    private String unitName;
+
+    @JsonProperty("unit_type")
+    private UnitType unitType;
 
     /**
      * The constructor does not include results. Results are gotten via their own endpoint and ResultResponse.
@@ -39,8 +39,8 @@ public class OutcomeResponse {
     public OutcomeResponse(Outcome outcome) {
         outcomeId = outcome.getOutcomeId();
         title = outcome.getTitle();
-        description = outcome.getDescription();
         activityId = outcome.getActivityId();
-        units = outcome.getUnits();
+        unitName = outcome.getUnitName();
+        unitType = outcome.getUnitType();
     }
 }
