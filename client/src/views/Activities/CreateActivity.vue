@@ -88,7 +88,7 @@
             },
 
             /**
-             * Sends all Outcomes to the backend.  Should be used when submitting ac Activity.
+             * Sends all Outcomes to the backend.  Should be used when submitting an Activity.
              * @param newOutcomes Array of outcomes to save to the database
              * @param activityId the id of the associated activity, added to each Outcome
              */
