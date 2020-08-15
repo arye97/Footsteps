@@ -15,7 +15,10 @@
                     </div>
                 </div>
             </header>
-            <activity-form :submit-activity-func="submitEditActivity" :activity="activity" :outcome-list="outcomeList"></activity-form>
+            <activity-form :submit-activity-func="submitEditActivity"
+                           :activity="activity"
+                           :outcome-list="outcomeList"
+                           :original-outcome-list="originalOutcomeList"/>
         </b-container>
         <br/><br/>
     </div>

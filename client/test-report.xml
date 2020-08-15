@@ -1,41 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
-  <file path="/Users/Ben/Desktop/SENG302/project/team-600/client/src/Test/LiveBackEnd/LiveBackEndApi.test.js">
-    <testCase name="Register a new user" duration="450"/>
-    <testCase name="Logout user" duration="15"/>
-    <testCase name="Login user" duration="135"/>
-    <testCase name="Run tests on new user Get user role" duration="186"/>
-    <testCase name="Run tests on new user Get user id using token" duration="154"/>
-    <testCase name="Run tests on new user Modify password" duration="460"/>
-    <testCase name="Run tests on new user Edit profile" duration="159"/>
-    <testCase name="Run tests on new user Get user data by Id" duration="156"/>
-    <testCase name="Run tests on new user Get user data by Token" duration="145"/>
-    <testCase name="Run tests on new user Test the /check-profile end point" duration="145"/>
-    <testCase name="Run tests on new user Checking user email endpoints Set additional emails for the user" duration="170"/>
-    <testCase name="Run tests on new user Checking user email endpoints Edit primary and additional emails for the user" duration="160"/>
-    <testCase name="Run tests on new user Checking user email endpoints Check if email is in the database" duration="154"/>
-    <testCase name="Run tests on new user Checking user email endpoints Get all emails from user" duration="155"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Create activity" duration="288"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Edit activity" duration="208"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Get data from activity" duration="201"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Check if user can edit activity" duration="192"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Create activity outcome" duration="199"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Get an activities outcomes" duration="184"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Get all activities from a user" duration="185"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Delete an activity" duration="185"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Get list of participants for an activity" duration="182"/>
-    <testCase name="Run tests on new user Checking user feed event endpoints Get following status for an unsubscribed activity" duration="165"/>
-    <testCase name="Run tests on new user Checking user feed event endpoints Follow an unsubscribed activity" duration="168"/>
-    <testCase name="Run tests on new user Checking user feed event endpoints Follow an already subscribed activity throws a 400 error" duration="164"/>
-    <testCase name="Run tests on new user Checking user feed event endpoints Get following status for a subscribed activity" duration="167"/>
-    <testCase name="Run tests on new user Checking user feed event endpoints Unfollow a subscribed activity" duration="167"/>
-    <testCase name="Run tests on new user Checking user feed event endpoints Unfollow an already unsubscribed activity throws a 400 error" duration="167"/>
-    <testCase name="Run tests on new user Searching for users Get users by one activity type (OR)" duration="39"/>
-    <testCase name="Run tests on new user Searching for users Get users by one activity type (AND)" duration="34"/>
-    <testCase name="Run tests on new user Searching for users Get users by more than one activity types (OR)" duration="31"/>
-    <testCase name="Run tests on new user Searching for users Get users by more than one activity types (AND)" duration="34"/>
-    <testCase name="Run tests on new user Searching for users Get users with ActivityTypes containing a space (OR)" duration="35"/>
-    <testCase name="Run tests on new user Searching for users Get users with ActivityTypes containing &gt;1 spaces (AND)" duration="31"/>
-    <testCase name="Other miscellaneous tests Get all activity types in the database" duration="7"/>
+  <file path="/Users/Ben/Desktop/SENG302/project/team-600/client/src/Test/EditActivity.test.js">
+    <testCase name="Is a vue instance" duration="29"/>
+    <testCase name="Catches an http status error of 401 or user not authenticated when edit activity form is submitted and takes user to login page" duration="5"/>
+    <testCase name="Catches an http status error of 403 or forbidden access when edit activity form is submitted and gives user an appropriate alert" duration="2"/>
+    <testCase name="Checking 200 response status of edit activity function" duration="2"/>
+    <testCase name="Catches an http status error that isnt 401, 404, 403 and gives the user an appropriate alert" duration="1"/>
+    <testCase name="Catches an http status error of 401 when activity data is coming back from the server get endpoint" duration="4"/>
+    <testCase name="Catches an http status error of 403 when checking if activity can be edited by user" duration="3"/>
+    <testCase name="Catches an http status error that isnt 401 or 403 when activity data is coming back from the server get endpoint" duration="2"/>
   </file>
 </testExecutions>

@@ -9,6 +9,14 @@ let editActivity;
 let config;
 const DEFAULT_USER_ID = 1;
 
+
+const OUTCOME1 = {
+    title: "My Awesome Outcome",
+    unit_name: "Distance",
+    unit_type: "TEXT"
+};
+const OUTCOME_LIST = [OUTCOME1];
+
 beforeAll(() => {
     config = {
         router
@@ -17,6 +25,7 @@ beforeAll(() => {
     api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID, status: 200 }));
     // Mock isActivityEditable endpoint to succeed
     api.isActivityEditable.mockImplementation(() => Promise.resolve({ data: null, status: 200 }));
+    api.getActivityOutcomes.mockImplementation(() => Promise.resolve({ data: OUTCOME_LIST, status: 200 }));
     editActivity = shallowMount(EditActivity, config);
 });
 
