@@ -12,15 +12,17 @@ const server = axios.create({
 });
 
 function getTokenHeader() {
-  return {
-    headers: {'Token': sessionStorage.getItem("token"), "Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
+  let token = sessionStorage.getItem("token");
+  let header = {
+    headers: {"Token": token, "Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
     withCredentials: true
-  }
+  };
+  return header;
 }
 
 function getExtendedEmailTokenHeader(extendedHeaders) {
   let header = {
-    headers: {'Token': sessionStorage.getItem("token"), 'email' : extendedHeaders.email, "Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
+    headers: {"Token": sessionStorage.getItem("token"), 'email' :  extendedHeaders.email, "Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
     withCredentials: true
   };
   return header;
@@ -30,6 +32,7 @@ export default {
   login: (loginData) => server.post('/login', loginData),
   register: (userData) => server.post('/profiles', userData),
   getActivityTypes: () => server.get('/activity-types', getTokenHeader()),
+  getParticipants: (activityId) => server.get(`/activities/${activityId}/participants`, getTokenHeader()),
   editProfile: (userData, profileId) => server.put(`profiles/${profileId}`, userData, getTokenHeader()),
   getUserData: (profileId) => server.get(`/profiles/${profileId}`, getTokenHeader()),
   checkProfile: (profileId) => server.get(`/check-profile/`.concat(profileId), getTokenHeader()),

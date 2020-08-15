@@ -17,6 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Set;
 
 /**
@@ -177,13 +179,13 @@ public class ActivityController {
         //attempt to find user by token, don't need to save user discovered
         String token = request.getHeader("Token");
         userAuthenticationService.viewUserById(profileId, token);
-
         List<Activity> activities = activityRepository.findAllByUserId(profileId);
         List<Long> followedActivityIds = this.activityParticipantRepository.findActivitiesByParticipantId(profileId);
         List<Activity> followedActivities = this.activityRepository.findActivityByActivityIdIn(followedActivityIds);
         activities.addAll(followedActivities);
+        Set<Activity> distinctActivities = new HashSet<>(activities);
 
-        return activities;
+        return new ArrayList<Activity>(distinctActivities);
     }
 
 
