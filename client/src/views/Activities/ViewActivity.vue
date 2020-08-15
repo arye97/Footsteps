@@ -17,7 +17,6 @@
             <div class="row h-100">
                 <div class="col-12 text-center">
                     <div v-if="errored">
-                        <p class="font-weight-light">{{this.error}}</p>
                         <p class="font-weight-light">{{this.errorMessage}}</p>
                     </div>
                     <div v-else>
@@ -107,22 +106,38 @@
                             <!--Add results Modal-->
                             <b-modal id="addResultsModel" centered ok-only ok-variant="secondary" ok-title="Back"
                                      scrollable title="Here are your results">
+                                <b-alert dismissible variant="danger" id="addResultAlert"
+                                         :show="dismissCountDown"
+                                         @dismissed="dismissCountDown=0"
+                                         @dismiss-count-down="countDownChanged">
+                                    {{ this.errorMessage }}
+                                </b-alert>
                                 <section v-for="outcome in this.outcomeList" :key="outcome.outcome_id">
-                                    <b-card id="outcomeAddResultCard">
-                                        <strong>{{ outcome.title }}</strong>
+                                    <b-card id="outcomeAddResultCard" :title="outcome.title">
                                         <div v-if="outcome.activeUsersResult.submitted">
+                                            <div style="color:red" v-if="outcome.activeUsersResult.did_not_finish" >
+                                                Did not Finish
+                                            </div>
                                             <b-input-group
-                                                    :prepend="outcome.unit_name">
-                                                <b-input id="submitted-input-value" v-model="outcome.activeUsersResult.value"
+                                                    :append="outcome.unit_name">
+                                                <b-input :id="'submittedInputValue' + outcome.outcome_id"
+                                                         v-model="outcome.activeUsersResult.value"
                                                          disabled></b-input>
                                             </b-input-group>
                                         </div>
                                         <div v-else>
                                             <b-input-group
-                                                    :prepend="outcome.unit_name">
-                                                <b-input id="NotSubmitted-input-value" v-model="outcome.activeUsersResult.value"
+                                                    :append="outcome.unit_name">
+                                                <b-input :id="'NotSubmittedInputValue' + outcome.outcome_id" v-model="outcome.activeUsersResult.value"
                                                          placeholder="Input your result here..."></b-input>
                                             </b-input-group>
+                                            <b-form-checkbox
+                                                    :id="'checkboxDNF' + outcome.outcome_id"
+                                                    v-model="outcome.activeUsersResult.did_not_finish"
+                                                    name="checkboxDNF"
+                                            >
+                                                I did not finish
+                                            </b-form-checkbox>
                                             <b-button block id="submitResult" variant="success"
                                                       @click="submitOutcomeResult(outcome.outcome_id)">
                                                 Submit
@@ -204,6 +219,8 @@
             return {
                 errored: false,
                 errorMessage: "",
+                dismissSecs: 5,
+                dismissCountDown: 0,
                 loading: false,
                 activityId: null,
                 activityTitle: "",
@@ -256,6 +273,19 @@
         },
         methods: {
             /**
+             * Update dismissCountDown
+             */
+            countDownChanged(dismissCountDown) {
+                this.dismissCountDown = dismissCountDown;
+            },
+            /**
+             * Display add result error alert
+             */
+            showAlert() {
+                this.dismissCountDown = this.dismissSecs
+                window.scrollTo(0,0);
+            },
+            /**
              * The initialisation function.
              * Gets all of the data required for the page
              * @returns {Promise<void>}
@@ -293,7 +323,7 @@
                     this.continuous = response.data.continuous;
                 }).catch(err => {
                     this.errored = true;
-                    this.errorMessage = err.response.message;
+                    this.errorMessage = err.response.data.message;
                 });
             },
             /**
@@ -305,7 +335,7 @@
                     this.activeUserId = response.data;
                 }).catch(err => {
                     this.errored = true;
-                    this.errorMessage = err.response.message;
+                    this.errorMessage = err.response.data.message;
                 })
             },
             /**
@@ -317,7 +347,7 @@
                     this.creatorName = response.data.firstname + " " + response.data.lastname;
                 }).catch(err => {
                     this.errored = true;
-                    this.errorMessage = err.response.message;
+                    this.errorMessage = err.response.data.message;
                 })
             },
             /**
@@ -355,7 +385,7 @@
                     this.isFollowing = response.data.subscribed;
                 }).catch((err) => {
                     this.errored = true;
-                    this.errorMessage = err.response.message;
+                    this.errorMessage = err.response.data.message;
                 });
 
             },
@@ -368,7 +398,7 @@
                     this.isFollowing = true;
                 }).catch((error) => {
                     this.errored = true;
-                    this.errorMessage = error.response.message;
+                    this.errorMessage = error.response.data.message;
                 });
                 await this.fetchParticipantsForActivities();
             },
@@ -381,7 +411,7 @@
                     this.isFollowing = false;
                 }).catch((error) => {
                     this.errored = true;
-                    this.errorMessage = error.response.message;
+                    this.errorMessage = error.response.data.message;
                 });
                 await this.fetchParticipantsForActivities();
             },
@@ -412,7 +442,7 @@
                         this.$router.push('/login');
                     }else{
                         this.errored = true;
-                        this.error_message = "Unable to get participants - please try again later";
+                        this.errorMessage = "Unable to get participants - please try again later";
                     }
                 });
             },
@@ -428,7 +458,7 @@
                         this.goToPage('/login');
                     } else {
                         this.errored = true;
-                        this.error_message = "Unable to get outcomes - please try again later";
+                        this.errorMessage = "Unable to get outcomes - please try again later";
                     }
                 });
             },
@@ -470,7 +500,7 @@
 
                 await api.createResult(outcomes[0].activeUsersResult, outcomeId).then(() => {
                     outcomes[0].activeUsersResult.submitted = true;
-                    // this.props['addResultsModel'].refresh();
+                    outcomes[0].results.push(outcomes[0].activeUsersResult);
                     this.$forceUpdate();
                 }).catch(error => {
                     this.processPostError(error);
@@ -481,7 +511,6 @@
              * @param error being processed
              */
             processPostError(error) {
-                console.log(error)
                 this.errored = true;
                 switch (error.response.status) {
                     case 401:
@@ -489,16 +518,18 @@
                         this.goToPage('/login');
                         break;
                     case 400:
-                        this.error_message = error.response.data.message;
+                        this.errored = false;
+                        this.errorMessage = error.response.data.message;
+                        this.showAlert();
                         break;
                     case 403:
-                        this.error_message = "User is not a participant of this outcome's activity";
+                        this.errorMessage = "User is not a participant of this outcome's activity";
                         break;
                     case 404:
-                        this.error_message = "Outcome not found";
+                        this.errorMessage = "Outcome not found - please try again later";
                         break;
                     default:
-                        this.error_message = "Unable to get outcomes - please try again later";
+                        this.errorMessage = "Unable to get outcomes - please try again later";
                         break;
                 }
             }
@@ -538,5 +569,11 @@
     .participantButton {
         margin: 3px;
         display: inline-block;
+    }
+
+    .word-count {
+        padding-top: 7px;
+        color: #707070;
+        font-size: 0.8em;
     }
 </style>

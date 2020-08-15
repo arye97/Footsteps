@@ -197,7 +197,7 @@ describe('The view activity page', () => {
     });
 
     test('displays 1 input for the result', () => {
-        expect(viewActivity.findAll('#NotSubmitted-input-value').length).toBe(1);
+        expect(viewActivity.findAll('#NotSubmittedInputValue1').length).toBe(1);
     });
 
     test('displays 1 submit result button', () => {
