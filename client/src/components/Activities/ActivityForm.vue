@@ -1,5 +1,15 @@
 <template>
+
     <div>
+        <section v-if="loading">
+            <div v-if="this.isRedirecting">
+                {{ redirectionMessage }}
+            </div>
+            <div class="loading text-center">
+                <b-spinner variant="primary" label="Spinning"></b-spinner>
+                <br/>
+            </div>
+        </section>
         <header class="masthead">
             <div class="container h-100">
                 <div class="row h-100 align-items-center">
@@ -314,7 +324,7 @@
             return {
                 activityTypes: [],
                 nameCharCount: 0,
-                maxNameCharCount: 15,
+                maxNameCharCount: 75,
                 descriptionCharCount: 0,
                 maxDescriptionCharCount: 1500,
                 defaultTime: "12:00",
@@ -331,7 +341,11 @@
                 outcomeTitleCharCount: 0,
                 maxOutcomeTitleCharCount: 75,
                 outcomeUnitCharCount: 0,
-                maxOutcomeUnitCharCount: 75,
+                maxOutcomeUnitCharCount: 15,
+
+                loading: false,
+                isRedirecting: false,
+                redirectionMessage: ''
             }
         },
         async created() {
@@ -351,10 +365,62 @@
                     try {
                         await this.submitActivityFunc();
                     } catch(err) {
-                        this.overallMessageText = err.message;
-                        showError('overall_message');
+                        console.log(err);
+                        this.processPostError(err);
                     }
                 }
+            },
+
+            processPostError(error) {
+                console.log(error.status);
+                let timeoutTime = 3000;
+                this.isRedirecting = true;
+                if (error.response.status === 401) {
+                    this.redirectionMessage = "Sorry, you are no longer logged in,\n" +
+                        "Redirecting to the login page.";
+                    setTimeout(() => {
+                        console.log("before");
+                    }, timeoutTime);
+                    console.log("after");
+                    this.logout();
+                } else if (error.response.status === 403) {
+                    this.redirectionMessage = "Sorry, you do not have permission to edit or create and user's activity,\n" +
+                        "Redirecting to your activity list.";
+                    setTimeout(() => {
+                        this.$router.push({ name: 'allActivities' });
+                    }, timeoutTime);
+
+                } else if (error.response.status === 404) {
+                    this.redirectionMessage = "Sorry, we couldn't find this activity,\n" +
+                        "Redirecting to your activity list.";
+                    setTimeout(() => {
+                        this.$router.push({ name: 'allActivities' });
+                    }, timeoutTime);
+
+                } else {
+                    this.redirectionMessage = "Sorry, an unknown error occurred while creating this activity,\n" +
+                        "Redirecting to your activity list.";
+                    setTimeout(() => {
+                        this.$router.push({ name: 'allActivities' });
+                    }, timeoutTime);
+                }
+            },
+
+            /**
+             * Logs the user out and clears session token
+             */
+            logout () {
+                api.logout().then(() => {
+                    sessionStorage.clear();
+                    this.isLoggedIn = (sessionStorage.getItem("token") !== null);
+                    this.$forceUpdate();
+                    this.$router.push('/login');
+                }).catch(() => {
+                    sessionStorage.clear();
+                    this.isLoggedIn = (sessionStorage.getItem("token") !== null);
+                    this.$forceUpdate();
+                    this.$router.push('/login');
+                })
             },
 
             /**
@@ -479,7 +545,9 @@
             updateOutcomeWordCount() {
                 this.outcomeTitleCharCount = this.activeOutcome.title.length;
                 this.outcomeUnitCharCount = this.activeOutcome.unit_name.length;
-                this.validOutcome = this.outcomeTitleCharCount > 0 && this.outcomeUnitCharCount > 0;
+                this.validOutcome = this.outcomeTitleCharCount > 0 && this.outcomeUnitCharCount > 0
+                                    && this.outcomeTitleCharCount <= this.maxOutcomeTitleCharCount
+                                    && this.outcomeUnitCharCount <= this.maxOutcomeUnitCharCount;
                 if (this.validOutcome) {
                     for (let i = 0; i < this.outcomeList.length; i++) {
                         if (this.activeOutcome.title === this.outcomeList[i].title) {
