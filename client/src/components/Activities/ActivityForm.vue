@@ -107,6 +107,9 @@
                             Include starting time
                         </b-form-checkbox>
                     </b-form-group>
+                    <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_start_valid">
+                        {{"Please enter a valid date"}}
+                    </div>
                     <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_start">
                         {{"Field is mandatory, a start date must be set with (optionally) a start time"}}
                     </div>
@@ -140,7 +143,9 @@
                             Include ending time
                         </b-form-checkbox>
                     </b-form-group>
-
+                    <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_end_valid">
+                        {{"Please enter a valid date"}}
+                    </div>
                     <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_end">
                         {{"Field is mandatory, an end date must be set with (optionally) an end time"}}
                     </div>
@@ -414,7 +419,11 @@
 
                 // If duration is chosen
                 if (!this.activity.continuous) {
-                    if (!this.activity.submitStartTime) {
+                    if (isNaN(startTime.getTime())) {
+                        showError('alert_start_valid');
+                        this.isValidFormFlag = false;
+                    }
+                    else if (!this.activity.submitStartTime) {
                         showError('alert_start');
                         this.isValidFormFlag = false;
                     }
@@ -426,7 +435,12 @@
                         showError('alert_start_before_epoch_date');
                         this.isValidFormFlag = false;
                     }
-                    if (!this.activity.submitEndTime) {
+
+                    if (isNaN(endTime.getTime())) {
+                        showError('alert_end_valid');
+                        this.isValidFormFlag = false;
+                    }
+                    else if (!this.activity.submitEndTime) {
                         showError('alert_end');
                         this.isValidFormFlag = false;
                     }
