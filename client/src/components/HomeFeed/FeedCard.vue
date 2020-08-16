@@ -13,19 +13,12 @@
                     <b-card-text id="description"><strong>{{firstName}} {{lastName}} {{actionText}} the activity {{event.activityName}}</strong></b-card-text>
                 </b-col>
             </b-row>
-            <!-- Buttons and seperator not required for delete events -->
-            <hr style="border-color: inherit" v-if="event.feedEventType != 'DELETE'">
-            <b-row class="mb-1"  v-if="event.feedEventType != 'DELETE'">
+            <!-- Buttons and separator not required for delete events -->
+            <hr style="border-color: inherit" v-if="event.feedEventType !== 'DELETE'">
+            <b-row class="mb-1"  v-if="event.feedEventType !== 'DELETE'">
                 <b-col>
                     <!-- View Activity button -->
-                    <b-button id="viewActivityButton" variant="success">View Activity</b-button>
-                </b-col>
-                <b-col>
-                    <!-- Unfollow button -->
-                    <b-button id="unfollowButton" variant="outline-success">
-                        <img id="follow" src="../../../assets/png/footsteps_icon_hollow.png" width="15%" alt="Footsteps">
-                        Unfollow Activity
-                    </b-button>
+                    <b-button @click="goToViewActivityPage" block id="viewActivityButton" variant="success">View Activity</b-button>
                 </b-col>
             </b-row>
         </b-card>
@@ -63,7 +56,7 @@
             }
         },
         async mounted () {
-            this.extractData();
+            await this.extractData();
         },
         methods: {
             /**
@@ -110,6 +103,12 @@
                 } else {
                     this.time = "Just now";
                 }
+            },
+            /**
+             * Redirect to the given activities page.
+             */
+            goToViewActivityPage() {
+                this.$router.push({name: 'viewActivity', params: {activityId: this.event.activityId}});
             }
         }
     }
