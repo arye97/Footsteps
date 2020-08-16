@@ -33,6 +33,7 @@ public class FeedEventService {
         feedEvent.setActivityId(masterFeedEvent.getActivityId());
         feedEvent.setActivityName(masterFeedEvent.getActivityName());
         feedEvent.setAuthorId(masterFeedEvent.getAuthorId());
+        feedEvent.setOutcomeTitle(masterFeedEvent.getOutcomeTitle());
         return feedEvent;
     }
 
@@ -97,5 +98,27 @@ public class FeedEventService {
 
         // Call helper function to save feed event for each user requiring notification
         activityFeedEvent(activity, deleteEvent);
+    }
+
+    /**
+     * Creates FeedEvent instances for each participant and the creator for the given activity.
+     * These FeedEvents have the feed event type ADD_RESULT.
+     * All FeedEvents are saved to the FeedEventRepository.
+     * This method assumes activity result will be added successfully and should be called just before result is added.
+     * @param activity the activity being deleted
+     * @param authorId the user's id who is deleting the activity
+     * @param outcomeTitle title of outcome that the result correlates to
+     */
+    public void addResultToActivityEvent(Activity activity, Long authorId, String outcomeTitle) {
+        FeedEvent addResultEvent = new FeedEvent();
+        addResultEvent.setTimeStampNow();
+        addResultEvent.setFeedEventType(FeedPostType.ADD_RESULT);
+        addResultEvent.setActivityId(activity.getActivityId());
+        addResultEvent.setActivityName(activity.getName());
+        addResultEvent.setAuthorId(authorId);
+        addResultEvent.setOutcomeTitle(outcomeTitle);
+
+        // Call helper function to save feed event for each user requiring notification
+        activityFeedEvent(activity, addResultEvent);
     }
 }

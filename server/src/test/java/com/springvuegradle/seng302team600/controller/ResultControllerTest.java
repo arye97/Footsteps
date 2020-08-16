@@ -3,6 +3,7 @@ package com.springvuegradle.seng302team600.controller;
 import com.springvuegradle.seng302team600.enumeration.UnitType;
 import com.springvuegradle.seng302team600.model.*;
 import com.springvuegradle.seng302team600.repository.ActivityParticipantRepository;
+import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.OutcomeRepository;
 import com.springvuegradle.seng302team600.repository.ResultRepository;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
@@ -42,11 +43,14 @@ public class ResultControllerTest {
     private ResultRepository resultRepository;
     @MockBean
     private ActivityParticipantRepository participantRepository;
+    @MockBean
+    private ActivityRepository activityRepository;
     @Autowired
     private MockMvc mvc;
 
     private static final Long USER_ID_1 = 1L;
     private static final Long USER_ID_2 = 2L;
+    private static final Long USER_ID_3 = 3L;
     private User dummyUser1;
     private User dummyUser2;
     private final String validToken = "valid";
@@ -73,6 +77,7 @@ public class ResultControllerTest {
 
         dummyActivity = new Activity();
         dummyActivity.setParticipants(new HashSet<>());
+        dummyActivity.setCreatorUserId(USER_ID_3);
         ReflectionTestUtils.setField(dummyActivity, "activityId", ACTIVITY_ID_1);
 
         dummyOutcome = new Outcome();
@@ -83,6 +88,9 @@ public class ResultControllerTest {
 
         resultTable = new ArrayList<>();
         nextResultId = 1L;
+
+        //Mocking ActivityRepository
+        when(activityRepository.findByActivityId(Mockito.any())).thenAnswer(i -> dummyActivity);
 
         //Mocking OutcomeRepository
         when(outcomeRepository.findByOutcomeId(Mockito.anyLong())).thenAnswer(i -> {

@@ -80,12 +80,17 @@ const ACTIVITY1 = {
 };
 
 let OUTCOME1_ID = null;
-let UNIT1_ID = null;
 
 const OUTCOME1 = {
     title: "My Awesome Outcome",
     unit_name: "Distance",
     unit_type: "TEXT"
+};
+
+const RESULT1 = {
+    value: "Some value",
+    did_not_finish: false,
+    comment: "Some comment"
 };
 
 /**
@@ -299,7 +304,6 @@ describe("Run tests on new user", () => {
         beforeEach(() => {
             return api.getActivityOutcomes(ACTIVITY_IDS.values().next().value).then(response => {
                 OUTCOME1_ID = response.data[0].outcome_id;
-                UNIT1_ID = response.data[0].units[0].unit_id;
             }).catch(err => console.error(procError(err)));
         });
 
@@ -367,28 +371,12 @@ describe("Run tests on new user", () => {
             }).catch(err => {throw procError(err)});
         });
 
-        describe("Logout USER1, Login USER2, make USER2 a participant of activity, create results", () => {
-
-            beforeAll(() => {
-                // Login as USER2
-                api.logout();
-                api.login(USER2).then(response => {
-                    USER2_ID = response.data.userId;
-                });
-            });
-
-
-            //Todo Add Result tests
-
-
-            afterAll(() => {
-                // Login as USER2
-                api.logout();
-                api.login(USER1).then(response => {
-                    USER1_ID = response.data.userId;
-                });
-            });
-
+        test("Create new result for an outcome", () => {
+            api.setUserSubscribed(ACTIVITY_IDS.values().next().value, USER1_ID).catch(err => {
+                throw procError(err)});
+            return api.createResult(RESULT1, OUTCOME1_ID).then(response => {
+                expect(response.status).toEqual(201);
+            }).catch(err => {throw procError(err)});
         });
 
         test("Get all activities from a user", () => {
