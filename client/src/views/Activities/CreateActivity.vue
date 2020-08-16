@@ -136,7 +136,6 @@
              * the function will use the necessary if statements to handle these
              */
             throwError(servError, isGet) {
-
                 if (!isGet) {
                     switch (servError.status) {
                         case 401:

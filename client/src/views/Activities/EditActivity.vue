@@ -101,7 +101,9 @@
              * Get OK if the user can edit the given activity. Otherwise redirect to AllActivities.vue
              */
             async isActivityEditable(activityId) {
-                await api.isActivityEditable(activityId).catch(error => {this.throwError(error, true)});
+                await api.isActivityEditable(activityId).catch(() => {
+                    this.$router.push({name: 'allActivities', params: {alertMessage: 'Activity is not editable', alertCount: 5}});
+                });
             },
 
             /**
@@ -120,7 +122,9 @@
                     for (let i = 0; i < response.data.activity_type.length; i++) {
                         this.activity.selectedActivityTypes.push(response.data.activity_type[i].name);
                     }
-                }).catch(error => {this.throwError(error, true)});
+                }).catch(() => {
+                    this.$router.push({name: 'allActivities', params: {alertMessage: "Can't get Activity data", alertCount: 5}});
+                });
             },
 
             /**
