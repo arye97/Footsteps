@@ -86,13 +86,13 @@ describe("The feed card", () => {
         expect(feedCard.findAll('b-button')).toHaveLength(0);
     });
 
-    test('Has 2 buttons for a follow event', () => {
+    test('Has 1 buttons for a follow event', () => {
         feedCard = mount(FeedCard, {
             propsData: {
                 event: EVENT_FOLLOW
             }
         });
-        expect(feedCard.findAll('b-button')).toHaveLength(2);
+        expect(feedCard.findAll('b-button')).toHaveLength(1);
     });
 });
 
