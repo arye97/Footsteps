@@ -79,7 +79,10 @@
                 // Send the activityForm to the server to create a new activity, and get it's id
                 await api.createActivity(activityForm, this.activity.profileId).then(response => { // If successfully registered the response will have a status of 201
                     activityId = response.data;
-                }).catch(error => {this.throwError(error, false)});
+                }).catch(error => {
+                    this.throwError(error.response, false)
+                    return;
+                });
 
                 // Send the outcomes to the server.  Adds the activityId to the outcomes.
                 await this.createAllOutcomes(this.outcomeList, activityId).then(() => {

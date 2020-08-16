@@ -364,42 +364,40 @@
                     this.formatDurationActivity();
                     try {
                         await this.submitActivityFunc();
-                    } catch(err) {
-                        console.log(err);
-                        this.processPostError(err);
+                    } catch(errResponse) {
+                        this.processPostError(errResponse);
                     }
                 }
             },
 
-            processPostError(error) {
-                console.log(error.status);
+            processPostError(errResponse) {
                 let timeoutTime = 3000;
                 this.isRedirecting = true;
-                if (error.response.status === 401) {
-                    this.redirectionMessage = "Sorry, you are no longer logged in,\n" +
-                        "Redirecting to the login page.";
+                if (errResponse.status === 401) {
+                    showError("Sorry, you are no longer logged in,\n" +
+                        "Redirecting to the login page.");
                     setTimeout(() => {
                         console.log("before");
                     }, timeoutTime);
                     console.log("after");
                     this.logout();
-                } else if (error.response.status === 403) {
-                    this.redirectionMessage = "Sorry, you do not have permission to edit or create and user's activity,\n" +
-                        "Redirecting to your activity list.";
+                } else if (errResponse.status === 403) {
+                    showError("Sorry, you do not have permission to edit or create and user's activity,\n" +
+                        "Redirecting to your activity list.");
                     setTimeout(() => {
                         this.$router.push({ name: 'allActivities' });
                     }, timeoutTime);
 
-                } else if (error.response.status === 404) {
-                    this.redirectionMessage = "Sorry, we couldn't find this activity,\n" +
-                        "Redirecting to your activity list.";
+                } else if (errResponse.status === 404) {
+                    showError("Sorry, we couldn't find this activity,\n" +
+                        "Redirecting to your activity list.");
                     setTimeout(() => {
                         this.$router.push({ name: 'allActivities' });
                     }, timeoutTime);
 
                 } else {
-                    this.redirectionMessage = "Sorry, an unknown error occurred while creating this activity,\n" +
-                        "Redirecting to your activity list.";
+                    showError("Sorry, an unknown error occurred while creating this activity,\n" +
+                        "Redirecting to your activity list.");
                     setTimeout(() => {
                         this.$router.push({ name: 'allActivities' });
                     }, timeoutTime);
