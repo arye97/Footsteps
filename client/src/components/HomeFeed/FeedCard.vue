@@ -50,6 +50,7 @@
                 activityId: Number,
                 userId: Number,
                 activityName: String,
+                outcomeTitle: String,
             }
         },
         data: function() {
@@ -64,6 +65,7 @@
         },
         async mounted () {
             this.extractData();
+            console.log(this.event)
         },
         methods: {
             /**
@@ -76,6 +78,7 @@
                 await api.getUserData(this.event.userId).then((response) => {
                     this.firstName = response.data.firstname;
                     this.lastName = response.data.lastname;
+                    this.outcomeTitle = response.data.outcomeTitle;
                 }).catch(() => {
                     this.errored = true;
                 });
@@ -92,6 +95,9 @@
                         break;
                     case 'FOLLOW':
                         this.actionText = "followed";
+                        break;
+                    case 'ADD_RESULT':
+                        this.actionText = "added a " + this.event.outcomeTitle + " result to";
                         break;
                     default:
                         this.errored = true;
