@@ -233,6 +233,9 @@
                                         {{ outcome.unit_name }}
                                     </p>
                                 </td>
+                            <!--Only show edit and delete buttons if this is a newly added Outcome. Uhg O(n^2)-->
+                            <!--This v-if should be removed when we add functionality for editing existing Outcomes-->
+                            <div v-if="!originalOutcomeList.includes(outcome)">
                                 <td class="tableButtonTd">
                                     <b-button variant="danger" :id="'deleteButton' + index" v-on:click="deleteOutcome(index)">
                                         <b-icon-trash-fill></b-icon-trash-fill>
@@ -241,6 +244,7 @@
                                 <td class="tableButtonTd">
                                     <b-button variant="primary" :id="'editButton' + index" v-on:click="editOutcome(index)">Edit</b-button>
                                 </td>
+                            </div>
                         </tr>
                     </table>
                 </section>
@@ -306,6 +310,12 @@
                 },
                 type: Array
             },
+            originalOutcomeList: {
+                default() {
+                    return [...this.outcomeList];
+                },
+                type: Array
+            },
             submitActivityFunc: Function,
             startTime: String,
             endTime: String
@@ -314,7 +324,7 @@
             return {
                 activityTypes: [],
                 nameCharCount: 0,
-                maxNameCharCount: 75,
+                maxNameCharCount: 15,
                 descriptionCharCount: 0,
                 maxDescriptionCharCount: 1500,
                 defaultTime: "12:00",
@@ -502,12 +512,21 @@
                 });
             },
 
+            /**
+             * Adds the current outcome to the outcomeList and clears the outcome input fields
+             * (current outcome is the outcome in the input boxes)
+             */
             addOutcome() {
                 this.outcomeList.push(this.activeOutcome);
                 this.activeOutcome = {title:"", unit_name:""};
                 this.updateOutcomeWordCount();
             },
 
+            /**
+             * Removes a specified outcome from the list of outcomes
+             * (Active outcome is not part of this list)
+             * @param index The index of the outcome, to be deleted, in the outcomeList
+             */
             deleteOutcome (index) {
                 let outcomeToBeRemoved = this.outcomeList[index];
                 // Remove outcomeToBeRemoved from this.outcomeList
@@ -517,6 +536,12 @@
                     });
             },
 
+            /**
+             * Sets the active outcome to the selected outcome
+             * Deletes the to be edited outcome from the outcomeList
+             * Updates the outcome input boxes and their respective word counts
+             * @param index The index of the outcome, to be edited, in the outcomeList
+             */
             editOutcome(index) {
                 this.activeOutcome = this.outcomeList[index];
                 this.deleteOutcome(index);

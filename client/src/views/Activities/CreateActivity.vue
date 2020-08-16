@@ -77,18 +77,18 @@
                 };
 
                 // Send the activityForm to the server to create a new activity, and get it's id
-                await api.createActivity(activityForm, this.activity.profileId).then(response => { // If successfully registered the response will have a status of 201
+                await api.createActivity(activityForm, this.activity.profileId).then(response => {
                     activityId = response.data;
                 }).catch(error => {this.throwError(error, false)});
 
                 // Send the outcomes to the server.  Adds the activityId to the outcomes.
-                await this.createAllOutcomes(this.outcomeList, activityId).then(() => {
-                    this.$router.push({name: 'allActivities', params: {alertMessage: 'Activity added successfully', alertCount: 5}});
-                });
+                await this.createAllOutcomes(this.outcomeList, activityId);
+
+                this.$router.push({name: 'allActivities', params: {alertMessage: 'Activity added successfully', alertCount: 5}});
             },
 
             /**
-             * Sends all Outcomes to the backend.  Should be used when submitting ac Activity.
+             * Sends all Outcomes to the backend.  Should be used when submitting an Activity.
              * @param newOutcomes Array of outcomes to save to the database
              * @param activityId the id of the associated activity, added to each Outcome
              */
@@ -99,7 +99,7 @@
                     outcome = outcomes[i];
 
                     const outcomeRequest = {
-                        activity_id: isNaN(outcome.activity_id) ? activityId : outcome.activity_id,
+                        activity_id: activityId,
                         title: outcome.title,
                         unit_name: outcome.unit_name,
                         unit_type: Object.keys(UnitType).includes(outcome.unit_type) ? outcome.unit_type : UnitType.TEXT,

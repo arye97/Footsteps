@@ -6,8 +6,6 @@ import com.springvuegradle.seng302team600.model.Result;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Set;
-
 /**
  * Validator for Result and the Value objects it contains.
  */
