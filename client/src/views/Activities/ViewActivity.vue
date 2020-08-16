@@ -193,19 +193,28 @@
                                 </b-col>
                                 <b-col v-if="this.hasOutcomes">
                                     <!--View Results-->
+                                    <b-button type="submit" variant="success" size="med" disabled
+                                              id="viewResultsError" v-if="resultError">
+                                        There was an error fetching results</b-button>
                                     <b-button type="submit" variant="success" size="med"
-                                              id="viewResults">
+                                              id="viewResults" v-b-modal="'resultsModal'" v-else>
                                         View Results</b-button>
 
                                     <b-modal id="resultsModal">
                                         <div v-for="outcome in this.outcomeList" :key="outcome.outcome_id">
-                                            <b-button v-b-toggle.collapse variant="primary">{{outcome.title}}</b-button>
-                                            <b-collapse id="collapse">
-                                                <b-card v-for="result in outcome.results" :key="result.result_id">
-                                                    <div v-if="result.did_not_finish">User {{result.user_id}}: Did not finish ({{result.comment}})</div>
-                                                    <div v-else>User {{result.user_id}}: {{result.value}} {{outcome.unit_name}}} ({{result.comment}})</div>
+                                            <b-button v-b-toggle="'collapse' + outcome.outcome_id" variant="primary" block>{{outcome.title}}</b-button>
+                                            <b-collapse :id="'collapse' + outcome.outcome_id">
+                                                <div v-if="outcome.results.length > 0">
+                                                    <b-card v-for="result in outcome.results" :key="result.result_id">
+                                                        <div v-if="result.did_not_finish">{{result.user_name}}: Did not finish</div>
+                                                        <div v-else>{{result.user_name}}: {{result.value}} {{outcome.unit_name}}</div>
+                                                        <div v-if="result.comment"> ({{result.comment}})</div>
+                                                    </b-card>
+                                                </div>
+                                                <b-card v-else>
+                                                    This outcome currently has no registered results
                                                 </b-card>
-                                            </b-collapse>
+                                            </b-collapse><br/>
                                         </div>
                                     </b-modal>
                                 </b-col>
@@ -246,7 +255,9 @@
                 activityTypes: [],
                 activeUserId: null,
                 continuous: false,
+                resultError: false,
                 duration: "",
+                activeUserName: "",
                 isFollowing: false,
                 participants: [],
                 hasOutcomes: false,
@@ -261,6 +272,7 @@
                             {
                             result_id: null,
                             user_id: null,
+                            user_name: null,
                             outcome_id: null,
                             value: "",
                             did_not_finish: false,
@@ -271,6 +283,7 @@
                             { // Result object
                                 result_id: null,
                                 user_id: null,
+                                user_name: null,
                                 outcome_id: null,
                                 value: "",
                                 did_not_finish: false,
@@ -314,6 +327,7 @@
                 await this.getActivityDetails();
                 this.getTime();
                 await this.getActiveUserId();
+                await this.getActiveUserName();
                 await this.getFollowingDetails();
                 await this.getCreatorUserDetails();
                 await this.fetchParticipantsForActivities();
@@ -353,6 +367,18 @@
                 })
             },
             /**
+             * Get the name of the user who is viewing the activity
+             * @returns {Promise<void>}
+             */
+            async getActiveUserName() {
+                await api.getUserData(this.activeUserId).then(response => {
+                    this.activeUserName = response.data.firstname + " " + response.data.lastname;
+                }).catch(err => {
+                    this.errored = true;
+                    this.errorMessage = err.response.data.message;
+                })
+            },
+            /**
              * Get the name of the activity creator
              * @returns {Promise<void>}
              */
@@ -372,7 +398,7 @@
              * Gets the duration of the activity
              */
             getTime() {
-                let timeUnits = []
+                let timeUnits = [];
                 let days = Math.floor(((new Date(this.endTime) - new Date(this.startTime))/1000/60/60/24));
                 let hours =  Math.ceil(((new Date(this.endTime) - new Date(this.startTime))/1000/60/60)) % 24;
                 if (days > 0) {
@@ -469,7 +495,6 @@
                     if (this.outcomeList.length > 0) {
                         this.hasOutcomes = true;
                     }
-                  console.log(this.hasOutcomes);
                 }).catch(error => {
                     if (error.response.status === 401) {
                         sessionStorage.clear();
@@ -486,16 +511,18 @@
             async fetchResultsForOutcomes() {
                   for (let i = 0; i < this.outcomeList.length; i++) {
                     let outcomeId = this.outcomeList[i].outcome_id;
-                    // TODO: Add api call getOutcomeResults here. Add data from response to outcome, like below
-                    // this.outcomeList[i].results = response.data;
-
+                    await api.getOutcomeResults(outcomeId).then(response => {
+                        this.outcomeList[i].results = response.data;
+                    }).catch(() => {
+                        this.resultError = true;
+                    });
                     // If the active user's result is not returned create one
-                    this.outcomeList[i].results = []; //TODO remove this line when getOutcomeResults is implemented
                     let activeUsersResults = this.outcomeList[i].results.filter(i => i.user_id === this.activeUserId);
                     if (activeUsersResults.length < 1) {
                       this.outcomeList[i].activeUsersResult = {
                         user_id: this.activeUserId,
                         outcome_id: outcomeId,
+                        user_name: this.activeUserName,
                         value: "",
                         did_not_finish: false,
                         comment: "",
