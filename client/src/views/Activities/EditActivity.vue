@@ -164,8 +164,10 @@
              * the function will use the necessary if statements to handle these
              */
              throwError(servError, isGet) {
+                // Prevents "can't read status of undefined" error
+                servError = 'response' in servError ? servError.response : servError;
                  if (!isGet) {
-                    switch (servError.response.status) {
+                    switch (servError.status) {
                         case 401:
                             sessionStorage.clear();
                             this.$router.push("/login");
@@ -178,7 +180,7 @@
                             throw new Error("Unknown error has occurred whilst editing this activity");
                     }
                 } else if (isGet) {
-                    switch (servError.response.status) {
+                    switch (servError.status) {
                         case 401:
                             sessionStorage.clear();
                             this.$router.push("/login");

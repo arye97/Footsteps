@@ -136,6 +136,8 @@
              * the function will use the necessary if statements to handle these
              */
             throwError(servError, isGet) {
+                // Prevents "can't read status of undefined" error
+                servError = 'response' in servError ? servError.response : servError;
                 if (!isGet) {
                     switch (servError.status) {
                         case 401:
