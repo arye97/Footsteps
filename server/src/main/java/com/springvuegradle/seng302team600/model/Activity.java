@@ -27,7 +27,7 @@ public class Activity {
     @Column(name = "activity_name", length = NAME_LEN, nullable = false)
     @JsonProperty("activity_name")
     private String name;
-    
+
     @Column(name = "description", length = DESCRIPTION_LEN)
     @JsonProperty("description")
     private String description;
@@ -161,7 +161,7 @@ public class Activity {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(name, description, startTime, endTime, location, activityTypes, continuous);
+        return activityId.hashCode();
     }
 
     /**
@@ -174,10 +174,7 @@ public class Activity {
         if (obj instanceof Activity) {
             final Activity other = (Activity) obj;
             // Check that all attributes are equal, except activityId and creatorUserId
-            return this.getName().equals(other.getName()) && this.getDescription().equals(other.getDescription()) &&
-                    this.getStartTime().equals(other.getStartTime()) && this.getEndTime().equals(other.getEndTime()) &&
-                    this.getLocation().equals(other.getLocation()) && this.getActivityTypes().equals(other.getActivityTypes()) &&
-                    this.isContinuous() == other.isContinuous();
+            return this.getActivityId().equals(other.getActivityId());
         }
         return false;
     }
