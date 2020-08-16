@@ -277,17 +277,7 @@
     import api from "../../Api";
     import {localTimeZoneToBackEndTime} from "../../util";
 
-    /**
-     * Displays an error on the element with id equal to alert_name
-     */
-    function showError(alert_name) {
-        let errorAlert = document.getElementById(alert_name);
 
-        errorAlert.hidden = false;          //Show alert bar
-        setTimeout(function () {    //Hide alert bar after ~9000ms
-            errorAlert.hidden = true;
-        }, 9000);
-    }
 
     /**
      * This component is a form for activity fields with a back button and submit button.  Only performs validation
@@ -352,6 +342,19 @@
             await this.fetchActivityTypes();
         },
         methods: {
+
+            /**
+             * Displays an error on the element with id equal to alert_name
+             */
+            showError(alert_name) {
+                let errorAlert = document.getElementsByName(alert_name);
+
+                errorAlert.hidden = false;          //Show alert bar
+                setTimeout(function () {    //Hide alert bar after ~9000ms
+                    errorAlert.hidden = true;
+                }, 9000);
+            },
+
             /**
              * Called when submit button is pressed.  Validates the form input, then calls the function passed in
              * through props.  This way the form can be used to edit and create activities.
@@ -371,36 +374,18 @@
             },
 
             processPostError(errResponse) {
-                let timeoutTime = 3000;
                 this.isRedirecting = true;
                 if (errResponse.status === 401) {
-                    showError("Sorry, you are no longer logged in,\n" +
-                        "Redirecting to the login page.");
-                    setTimeout(() => {
-                        console.log("before");
-                    }, timeoutTime);
-                    console.log("after");
                     this.logout();
                 } else if (errResponse.status === 403) {
-                    showError("Sorry, you do not have permission to edit or create and user's activity,\n" +
-                        "Redirecting to your activity list.");
-                    setTimeout(() => {
-                        this.$router.push({ name: 'allActivities' });
-                    }, timeoutTime);
-
+                    this.$router.push({name: 'allActivities', params:
+                            {alertMessage: "Sorry, you do not have permission to edit or create another user's activity", alertCount: 5}});
                 } else if (errResponse.status === 404) {
-                    showError("Sorry, we couldn't find this activity,\n" +
-                        "Redirecting to your activity list.");
-                    setTimeout(() => {
-                        this.$router.push({ name: 'allActivities' });
-                    }, timeoutTime);
-
+                    this.$router.push({name: 'allActivities', params:
+                            {alertMessage: "Sorry, we couldn't find this activity", alertCount: 5}});
                 } else {
-                    showError("Sorry, an unknown error occurred while creating this activity,\n" +
-                        "Redirecting to your activity list.");
-                    setTimeout(() => {
-                        this.$router.push({ name: 'allActivities' });
-                    }, timeoutTime);
+                    this.$router.push({name: 'allActivities', params:
+                            {alertMessage: "Sorry, an unknown error occurred while creating this activity", alertCount: 5}});
                 }
             },
 
@@ -452,50 +437,50 @@
                 let endTime = new Date(this.activity.endTime);
 
                 if (!this.activity.activityName || this.nameCharCount > this.maxNameCharCount) {
-                    showError('alert_activity_name');
+                    this.showError('alert_activity_name');
                     this.isValidFormFlag = false;
                 }
 
                 if (!this.activity.description || this.descriptionCharCount > this.maxDescriptionCharCount) {
-                    showError('alert_description');
+                    this.showError('alert_description');
                     this.isValidFormFlag = false;
                 }
 
                 if (this.activity.selectedActivityTypes.length < 1) {
-                    showError('alert_activity_types');
+                    this.showError('alert_activity_types');
                     this.isValidFormFlag = false;
                 }
 
                 // If duration is chosen
                 if (!this.activity.continuous) {
                     if (!this.activity.submitStartTime) {
-                        showError('alert_start');
+                        this.showError('alert_start');
                         this.isValidFormFlag = false;
                     }
                     else if (startTime > endTime) {
-                        showError('alert_start_after_end');
+                        this.showError('alert_start_after_end');
                         this.isValidFormFlag = false;
                     }
                     else if (startTime < new Date(0)) {
-                        showError('alert_start_before_epoch_date');
+                        this.showError('alert_start_before_epoch_date');
                         this.isValidFormFlag = false;
                     }
                     if (!this.activity.submitEndTime) {
-                        showError('alert_end');
+                        this.showError('alert_end');
                         this.isValidFormFlag = false;
                     }
                     else if (endTime < startTime) {
-                        showError('alert_end_before_start');
+                        this.showError('alert_end_before_start');
                         this.isValidFormFlag = false;
                     }
                     else if (endTime < new Date(0)) {
-                        showError('alert_end_before_epoch_date');
+                        this.showError('alert_end_before_epoch_date');
                         this.isValidFormFlag = false;
                     }
                 }
 
                 if (!this.activity.location) {
-                    showError('alert_location');
+                    this.showError('alert_location');
                     this.isValidFormFlag = false;
                 }
             },
