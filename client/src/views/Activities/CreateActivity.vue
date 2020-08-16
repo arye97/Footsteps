@@ -134,8 +134,9 @@
              * the function will use the necessary if statements to handle these
              */
             throwError(servError, isGet) {
+
                 if (!isGet) {
-                    switch (servError.response.status) {
+                    switch (servError.status) {
                         case 401:
                             sessionStorage.clear();
                             this.$router.push("/login");
@@ -148,7 +149,7 @@
                             throw new Error("Unknown error has occurred whilst creating this activity");
                     }
                 } else if (isGet) {
-                    switch (servError.response.status) {
+                    switch (servError.status) {
                         case 401:
                             sessionStorage.clear();
                             this.$router.push("/login");
