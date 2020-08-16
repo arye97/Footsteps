@@ -206,7 +206,11 @@
                 </b-row>
                 <b-row>
                     <b-col align-self="center">
+                        <div v-if="errored" class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert">
+                            {{  error_message  }}
+                        </div>
                         <b-button
+                                v-else
                                 v-bind:disabled="!validOutcome"
                                 variant="primary"
                                 id="addOutcome"
@@ -215,8 +219,10 @@
                         >
                             Add outcome
                         </b-button>
+
                     </b-col>
                 </b-row>
+
 
                 <section class="outcomesDisplay">
                     <table id="additionalEmailsTable" class="table table-hover">
@@ -318,7 +324,7 @@
             },
             submitActivityFunc: Function,
             startTime: String,
-            endTime: String
+            endTime: String,
         },
         data() {
             return {
@@ -342,6 +348,9 @@
                 maxOutcomeTitleCharCount: 75,
                 outcomeUnitCharCount: 0,
                 maxOutcomeUnitCharCount: 75,
+
+                errored: false,
+                error_message: "Something went wrong"
             }
         },
         async created() {
@@ -487,6 +496,7 @@
              * Updates word count for outcome title
              */
             updateOutcomeWordCount() {
+                this.errored = false;
                 this.outcomeTitleCharCount = this.activeOutcome.title.length;
                 this.outcomeUnitCharCount = this.activeOutcome.unit_name.length;
                 this.validOutcome = this.outcomeTitleCharCount > 0 && this.outcomeUnitCharCount > 0;
@@ -494,6 +504,8 @@
                     for (let i = 0; i < this.outcomeList.length; i++) {
                         if (this.activeOutcome.title === this.outcomeList[i].title) {
                             this.validOutcome = false;
+                            this.errored = true;
+                            this.error_message = "That outcome title already exists!";
                             return;
                         }
                     }
