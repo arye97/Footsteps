@@ -30,6 +30,10 @@ const USER1_DATA = {
     firstname: "Bob",
     lastname: "Cucumber"
 };
+const OUTCOME_DATA = {
+    id: 1,
+    outcomeTitle: "Distance Travelled"
+}
 
 /**
  * A function to cause a delay before a promise is resolved
@@ -160,5 +164,9 @@ describe("The extract data method", () => {
 
     test('Sets the activity title of the event concerned', () => {
         expect(feedCard.vm.event.activityName).toBe("Go to the zoo");
+    });
+
+    test('Sets the outcome title of an outcome', () => {
+        expect(feedCard.vm.outcome.outcomeTitle).toBe("Distance Travelled");
     });
 })
