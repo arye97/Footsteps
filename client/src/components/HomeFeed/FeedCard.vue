@@ -74,6 +74,7 @@
                     this.errored = true;
                 });
                 // Determine what type of event occurred
+                const vowelRegex = '^[aieouAIEOU].*';
                 switch (this.event.feedEventType) {
                     case 'DELETE':
                         this.actionText = "deleted";
@@ -88,7 +89,11 @@
                         this.actionText = "followed";
                         break;
                     case 'ADD_RESULT':
-                        this.actionText = "added a " + this.event.outcomeTitle + " result to";
+                        if (this.event.outcomeTitle.match(vowelRegex)) {  // Use 'an' or 'a'?
+                            this.actionText = 'added an "' + this.event.outcomeTitle + '" result to';
+                        } else {
+                            this.actionText = 'added a "' + this.event.outcomeTitle + '" result to';
+                        }
                         break;
                     default:
                         this.errored = true;
