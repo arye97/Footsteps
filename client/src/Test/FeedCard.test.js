@@ -14,7 +14,8 @@ const EVENT_DELETE = {
     timeStamp: new Date(),
     activityId: 1,
     activityName: "Go to the zoo",
-    userId: 1
+    userId: 1,
+    outcomeTitle: "Distance Travelled"
 };
 // Follow event has the date set as 10m ago
 let EVENT_FOLLOW = {
@@ -25,11 +26,14 @@ let EVENT_FOLLOW = {
     activityName: "The First Activity",
     userId: 1
 };
+
+
 const USER1_DATA = {
     id: 1,
     firstname: "Bob",
     lastname: "Cucumber"
 };
+
 
 /**
  * A function to cause a delay before a promise is resolved
@@ -48,6 +52,7 @@ beforeEach(() => {
                 status: 200
             })
         });
+
 
         feedCard = mount(FeedCard, {
             propsData: {
@@ -161,4 +166,9 @@ describe("The extract data method", () => {
     test('Sets the activity title of the event concerned', () => {
         expect(feedCard.vm.event.activityName).toBe("Go to the zoo");
     });
+
+    test('Sets the outcome title of an outcome', () => {
+        expect(feedCard.vm.event.outcomeTitle).toBe("Distance Travelled");
+    });
+
 })

@@ -46,6 +46,7 @@
                 activityId: Number,
                 userId: Number,
                 activityName: String,
+                outcomeTitle: String
             },
             viewerId: {
                 default: null,
@@ -80,6 +81,7 @@
                     this.errored = true;
                 });
                 // Determine what type of event occurred
+                const vowelRegex = '^[aieouAIEOU].*';
                 switch (this.event.feedEventType) {
                     case 'DELETE':
                         this.actionText = "deleted";
@@ -92,6 +94,13 @@
                         break;
                     case 'FOLLOW':
                         this.actionText = "followed";
+                        break;
+                    case 'ADD_RESULT':
+                        if (this.event.outcomeTitle.match(vowelRegex)) {  // Use 'an' or 'a'?
+                            this.actionText = 'added an "' + this.event.outcomeTitle + '" result to';
+                        } else {
+                            this.actionText = 'added a "' + this.event.outcomeTitle + '" result to';
+                        }
                         break;
                     default:
                         this.errored = true;
