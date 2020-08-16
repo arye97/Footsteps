@@ -53,7 +53,7 @@
                 activityId: null,
                 show: true,
                 outcomeList: [],
-                originalOutcomeList: [],  // This is compared to outcomeList to avoid creating duplicate Outcomes
+                originalOutcomeList: [],
             }
         },
         async created() {

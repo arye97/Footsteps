@@ -77,7 +77,7 @@
                 };
 
                 // Send the activityForm to the server to create a new activity, and get it's id
-                await api.createActivity(activityForm, this.activity.profileId).then(response => { // If successfully registered the response will have a status of 201
+                await api.createActivity(activityForm, this.activity.profileId).then(response => {
                     activityId = response.data;
                 }).catch(error => {this.throwError(error, false)});
 
