@@ -108,8 +108,8 @@
                         unit_type: Object.keys(UnitType).includes(outcome.unit_type) ? outcome.unit_type : UnitType.TEXT,
                     };
 
-                    await api.createOutcome(outcomeRequest).catch(serverError => {
-                        this.throwError(serverError, false);
+                    await api.createOutcome(outcomeRequest).catch(error => {
+                        this.throwError(error.response, false);
                     });
                 }
 
@@ -123,7 +123,7 @@
                 let userId = null;
                 await api.getUserId().then(response => {
                     userId = response.data;
-                }).catch(error => {this.throwError(error, true)});
+                }).catch(error => {this.throwError(error.response, true)});
                 return userId
             },
 
