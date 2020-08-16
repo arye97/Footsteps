@@ -30,7 +30,7 @@
                             <h5 class="font-weight-light" v-if="this.description" id="description">"{{this.description}}"<br/></h5>
                             <br/>
                             <!-- Edit Activity Button -->
-                            <div v-if="this.creatorId==this.activeUserId">
+                            <div v-if="this.creatorId===this.activeUserId">
                                 <b-button type="submit" variant="success"
                                           size="med" v-on:click="goToPage(`/activities/edit/${activityId}`)"
                                           id="editActivity">Edit Activity</b-button>
