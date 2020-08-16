@@ -314,7 +314,7 @@
             return {
                 activityTypes: [],
                 nameCharCount: 0,
-                maxNameCharCount: 75,
+                maxNameCharCount: 15,
                 descriptionCharCount: 0,
                 maxDescriptionCharCount: 1500,
                 defaultTime: "12:00",
