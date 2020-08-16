@@ -76,6 +76,7 @@ const setValues = () => {
     }];
     RESULTS_DATA = [{
         "user_id": 1,
+        "user_name": "BobbyNot CloneEm",
         "outcome_id": 1,
         "value": "Some value",
         "did_not_finish": false,
@@ -128,13 +129,12 @@ describe('The view activity page', () => {
                     status: 200
                 });
             });
-            // TODO uncomment this when getOutcomeResults is implemented
-            // api.getOutcomeResults.mockImplementation(() => {
-            //     return Promise.resolve({
-            //         data: RESULTS_DATA,
-            //         status: 200
-            //     });
-            // });
+            api.getOutcomeResults.mockImplementation(() => {
+                return Promise.resolve({
+                    data: RESULTS_DATA,
+                    status: 200
+                });
+            });
             api.createResult.mockImplementation(() => {
                 return Promise.resolve({
                     status: 201
@@ -253,6 +253,12 @@ describe("If I'm following an activity", () => {
                     status: 200
                 });
             });
+            api.getOutcomeResults.mockImplementation(() => {
+                return Promise.resolve({
+                    data: RESULTS_DATA,
+                    status: 200
+                });
+            });
             viewActivity = mount(ViewActivity, {
                 mocks: {
                     api,
@@ -314,6 +320,12 @@ describe('If I am not following the activity', () => {
                     status: 200
                 });
             });
+            api.getOutcomeResults.mockImplementation(() => {
+                return Promise.resolve({
+                    data: RESULTS_DATA,
+                    status: 200
+                });
+            });
             viewActivity = mount(ViewActivity, {
                 mocks: {
                     api,
@@ -371,6 +383,12 @@ describe('When there are no participants', () => {
             api.getUserData.mockImplementation(() => {
                 return Promise.resolve({
                     data: CREATOR_USER_DATA,
+                    status: 200
+                });
+            });
+            api.getOutcomeResults.mockImplementation(() => {
+                return Promise.resolve({
+                    data: RESULTS_DATA,
                     status: 200
                 });
             });

@@ -200,7 +200,7 @@
                                               id="viewResults" v-b-modal="'resultsModal'" v-else>
                                         View Results</b-button>
 
-                                    <b-modal id="resultsModal">
+                                    <b-modal id="resultsModal" title="Activity Results">
                                         <div v-for="outcome in this.outcomeList" :key="outcome.outcome_id">
                                             <b-button v-b-toggle="'collapse' + outcome.outcome_id" variant="primary" block>{{outcome.title}}</b-button>
                                             <b-collapse :id="'collapse' + outcome.outcome_id">
