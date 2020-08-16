@@ -3,8 +3,10 @@ package com.springvuegradle.seng302team600.controller;
 import com.springvuegradle.seng302team600.enumeration.UnitType;
 import com.springvuegradle.seng302team600.model.*;
 import com.springvuegradle.seng302team600.repository.ActivityParticipantRepository;
+import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.OutcomeRepository;
 import com.springvuegradle.seng302team600.repository.ResultRepository;
+import com.springvuegradle.seng302team600.service.FeedEventService;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,6 +44,10 @@ public class ResultControllerTest {
     private ResultRepository resultRepository;
     @MockBean
     private ActivityParticipantRepository participantRepository;
+    @MockBean
+    private FeedEventService feedEventService;
+    @MockBean
+    private ActivityRepository activityRepository;
     @Autowired
     private MockMvc mvc;
 

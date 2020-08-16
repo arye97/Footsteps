@@ -1,13 +1,16 @@
 package com.springvuegradle.seng302team600.controller;
 
 import com.springvuegradle.seng302team600.Utilities.ResultValidator;
+import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.Outcome;
 import com.springvuegradle.seng302team600.model.Result;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.ResultRequest;
 import com.springvuegradle.seng302team600.repository.ActivityParticipantRepository;
+import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.OutcomeRepository;
 import com.springvuegradle.seng302team600.repository.ResultRepository;
+import com.springvuegradle.seng302team600.service.FeedEventService;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -25,14 +28,19 @@ public class ResultController {
     private final OutcomeRepository outcomeRepository;
     private final ResultRepository resultRepository;
     private final ActivityParticipantRepository participantRepository;
+    private final FeedEventService feedEventService;
+    private final ActivityRepository activityRepository;
 
 
     public ResultController(UserAuthenticationService userAuthenticationService, OutcomeRepository outcomeRepository,
-                            ResultRepository resultRepository, ActivityParticipantRepository participantRepository) {
+                            ResultRepository resultRepository, ActivityParticipantRepository participantRepository,
+                            FeedEventService feedEventService, ActivityRepository activityRepository) {
         this.userAuthenticationService = userAuthenticationService;
         this.outcomeRepository = outcomeRepository;
         this.resultRepository = resultRepository;
         this.participantRepository = participantRepository;
+        this.feedEventService = feedEventService;
+        this.activityRepository = activityRepository;
     }
 
     /**
@@ -86,6 +94,11 @@ public class ResultController {
         // Result table will be updated when saving this Outcome
         outcome.addResult(result);
         outcomeRepository.save(outcome);
+
+        Activity activity = activityRepository.findByActivityId(outcome.getActivityId());
+        //Create FeedEvent to add result for both participants and creator
+        feedEventService.addResultToActivityEvent(activity, result.getUserId(), outcome.getTitle());
+
         response.setStatus(HttpServletResponse.SC_CREATED); //201
     }
 
