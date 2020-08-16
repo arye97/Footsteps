@@ -6,6 +6,7 @@ import com.springvuegradle.seng302team600.model.Outcome;
 import com.springvuegradle.seng302team600.model.Result;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.ResultRequest;
+import com.springvuegradle.seng302team600.payload.ResultResponse;
 import com.springvuegradle.seng302team600.repository.ActivityParticipantRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.OutcomeRepository;
@@ -115,8 +116,8 @@ public class ResultController {
      * @return list of Result objects
      */
     @GetMapping("/outcomes/{outcomeId}/results")
-    public List<Result> getOutcomeResults(@PathVariable Long outcomeId, HttpServletRequest request,
-                                          HttpServletResponse response) {
+    public List<ResultResponse> getOutcomeResults(@PathVariable Long outcomeId, HttpServletRequest request,
+                                                  HttpServletResponse response) {
         // Authentication for session User
         String token = request.getHeader("Token");
         userAuthenticationService.findByToken(token);
@@ -125,6 +126,8 @@ public class ResultController {
 
         List<Result> results = resultRepository.findByOutcome(outcome);
 
+
+
         if (outcome == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Outcome not found");
         }
@@ -132,6 +135,14 @@ public class ResultController {
         if (results == null) {
             return new ArrayList<>();
         }
-        return results;
+
+        List<ResultResponse> resultResponses = new ArrayList<>();
+
+        for (Result result : results) {
+            User user = userAuthenticationService.viewUserById(result.getUserId(), token);
+
+            resultResponses.add(new ResultResponse(result, user));
+        }
+        return resultResponses;
     }
 }
