@@ -15,7 +15,7 @@
         <section v-else-if="this.rows > 0">
             <section v-for="event in this.currentPageEventList" :key="event.id">
                 <!-- Feed Event List -->
-                <feed-card v-bind:event="event"/>
+                <feed-card v-bind:event="event" v-bind:viewer-id="userId"/>
                 <br>
             </section>
             <!-- Pagination Nav Bar -->
