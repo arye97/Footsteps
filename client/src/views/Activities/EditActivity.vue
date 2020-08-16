@@ -147,7 +147,10 @@
                 let userId = null;
                 await api.getUserId().then(response => {
                     userId = response.data;
-                }).catch(error => {this.throwError(error, true)});
+                }).catch(() => {
+                    this.$router.push({name: 'allActivities', params:
+                            {alertMessage: "Couldn't get your information", alertCount: 5}});
+                });
                 return userId
             },
 
