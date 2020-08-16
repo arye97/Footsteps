@@ -50,6 +50,7 @@
                 activityId: Number,
                 userId: Number,
                 activityName: String,
+                outcomeTitle: String
             }
         },
         data: function() {
