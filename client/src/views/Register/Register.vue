@@ -208,51 +208,6 @@
         }, 9000);
     }
 
-    async function validUser(newUser, passwordCheck) {
-        let count = 0; //count of blank fields
-        if(!validateUser(newUser.password, "password").valid) {
-            showError('alert_password_check');
-            count += 1;
-        }
-        if (newUser.password !== passwordCheck) {
-            showError('alert_password_match');
-            return 'password';
-        }
-        if(!validateUser(newUser.firstname, "firstname").valid) {
-            showError('alert_first_name');
-            count += 1;
-        }
-        if(!validateUser(newUser.middlename, "middlename").valid) {
-            showError('alert_middle_name');
-            count += 1;
-        }
-        if(!validateUser(newUser.lastname, "lastname").valid) {
-            showError('alert_last_name');
-            count += 1;
-        }
-        if(!validateUser(newUser.date_of_birth, "date_of_birth").valid) {
-            showError('alert_dob');
-            count += 1;
-        }
-        if(!validateUser(newUser.gender, "gender").valid) {
-            showError('alert_gender');
-            count += 1;
-        }
-        if(!validateUser(newUser.primary_email, "email").valid) {
-            showError('alert_email');
-            count += 1;
-        }
-        if(!validateUser(newUser.bio, "bio")) {
-            showError('alert_bio');
-            count += 1;
-        }
-        if(!validateUser(newUser.nickname, "nickname")) {
-            showError('alert_nickname');
-            count += 1;
-        }
-        return count;
-    }
-
     export default {
         components: { Multiselect, Header },
         name: "NewUser",
@@ -343,7 +298,7 @@
                     activity_types: this.selectedActivityTypes
                 };
                 if (newUser.fitness === undefined) newUser.fitness = -1;
-                let validCount = await validUser(newUser, this.passwordCheck);
+                let validCount = await this.validUser(newUser, this.passwordCheck);
                 if (validCount === 'password') {
                     this.message_form = "Password and re-typed password do not match. Please try again"
                     showError('alert_form');
@@ -382,6 +337,50 @@
               this.nicknameCharCount = this.nickname.length;
               this.emailCharCount = this.email.length;
               this.bioCharCount = this.bio.length;
+            },
+            async validUser(newUser, passwordCheck) {
+                let count = 0; //count of blank fields
+                if(!validateUser(newUser.password, "password").valid) {
+                    showError('alert_password_check');
+                    count += 1;
+                }
+                if (newUser.password !== passwordCheck) {
+                    showError('alert_password_match');
+                    return 'password';
+                }
+                if(!validateUser(newUser.firstname, "firstname").valid) {
+                    showError('alert_first_name');
+                    count += 1;
+                }
+                if(!validateUser(newUser.middlename, "middlename").valid) {
+                    showError('alert_middle_name');
+                    count += 1;
+                }
+                if(!validateUser(newUser.lastname, "lastname").valid) {
+                    showError('alert_last_name');
+                    count += 1;
+                }
+                if(!validateUser(newUser.date_of_birth, "date_of_birth").valid) {
+                    showError('alert_dob');
+                    count += 1;
+                }
+                if(!validateUser(newUser.gender, "gender").valid) {
+                    showError('alert_gender');
+                    count += 1;
+                }
+                if(!validateUser(newUser.primary_email, "email").valid) {
+                    showError('alert_email');
+                    count += 1;
+                }
+                if(!validateUser(newUser.bio, "bio")) {
+                    showError('alert_bio');
+                    count += 1;
+                }
+                if(!validateUser(newUser.nickname, "nickname")) {
+                    showError('alert_nickname');
+                    count += 1;
+                }
+                return count;
             }
         },
 
