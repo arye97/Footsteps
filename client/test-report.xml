@@ -182,7 +182,7 @@
     <testCase name="Timezone conversion functions From Back End to Front End UTC date at exactly midnight" duration="1"/>
     <testCase name="Timezone conversion functions From Back End to Front End Invalid UTC date after midnight" duration="1"/>
     <testCase name="Timezone conversion functions From Front End to Back End Front end date 9pm" duration="1"/>
-    <testCase name="Timezone conversion functions From Front End to Back End Test invalid UTC date after midnight" duration="1"/>
+    <testCase name="Timezone conversion functions From Front End to Back End Test invalid UTC date after midnight" duration="0"/>
     <testCase name="Convert ISO8601 into readable date and AM/PM time Receive UTC time from back-end Test UTC date formatted with correct single digit AM time" duration="1"/>
     <testCase name="Convert ISO8601 into readable date and AM/PM time Receive UTC time from back-end Test UTC date formatted with correct single digit PM time" duration="1"/>
     <testCase name="Convert ISO8601 into readable date and AM/PM time Receive UTC time from back-end Test UTC date formatted with correct double digit 12:00 AM time" duration="1"/>
