@@ -10,7 +10,10 @@
             <b-row class="mb-1">
                 <!-- Core Card Text -->
                 <b-col>
-                    <b-card-text id="description"><strong>{{firstName}} {{lastName}} {{actionText}} the activity {{event.activityName}}</strong></b-card-text>
+                    <!--Display You subscribed etc. if you initiated the event-->
+                    <b-card-text v-if="event.userId === viewerId && !isNaN(viewerId)"
+                                 id="description"><strong>You {{actionText}} the activity {{event.activityName}}</strong></b-card-text>
+                    <b-card-text v-else id="description"><strong>{{firstName}} {{lastName}} {{actionText}} the activity {{event.activityName}}</strong></b-card-text>
                 </b-col>
             </b-row>
             <!-- Buttons and separator not required for delete events -->
@@ -44,6 +47,10 @@
                 userId: Number,
                 activityName: String,
                 outcomeTitle: String
+            },
+            viewerId: {
+                default: null,
+                type: Number,
             }
         },
         data: function() {

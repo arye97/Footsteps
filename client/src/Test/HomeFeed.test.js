@@ -69,5 +69,5 @@ beforeEach(() => {
 });
 
 test('Check that feed event data is fetched and rendered properly', () => {
-    expect(homeFeed.find('#description').text()).toBe('Testing Vue modified the activity The First Activity')
+    expect(homeFeed.find('#description').text()).toBe('You modified the activity The First Activity')
 });
