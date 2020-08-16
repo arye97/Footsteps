@@ -3,6 +3,7 @@ package com.springvuegradle.seng302team600.controller;
 import com.springvuegradle.seng302team600.Utilities.ActivityValidator;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.User;
+import com.springvuegradle.seng302team600.payload.ActivityResponse;
 import com.springvuegradle.seng302team600.repository.ActivityParticipantRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
@@ -77,12 +78,12 @@ public class ActivityController {
      * @return the found activity
      */
     @GetMapping("/activities/{activityId}")
-    public Activity findUserActivity(@PathVariable Long activityId) {
+    public ActivityResponse findUserActivity(@PathVariable Long activityId) {
         Activity activity = activityRepository.findByActivityId(activityId);
         if (activity == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid activity id");
         }
-        return activity;
+        return new ActivityResponse(activity);
     }
 
     /**
@@ -90,8 +91,11 @@ public class ActivityController {
      * @return List of all Activities
      */
     @GetMapping("/activities")
-    public List<Activity> findAllActivities() {
-        return activityRepository.findAll();
+    public List<ActivityResponse> findAllActivities() {
+        List<Activity> activities = activityRepository.findAll();
+        List<ActivityResponse> activityResponses = new ArrayList<>();
+        activities.forEach(i -> activityResponses.add(new ActivityResponse(i)));
+        return activityResponses;
     }
 
 
@@ -178,7 +182,7 @@ public class ActivityController {
      * @param request the actual request from the client, containing pertinent data
      */
     @GetMapping("/profiles/{profileId}/activities")
-    public List<Activity> getUsersActivities(@PathVariable Long profileId, HttpServletRequest request) {
+    public List<ActivityResponse> getUsersActivities(@PathVariable Long profileId, HttpServletRequest request) {
         //checking for user validation
         //attempt to find user by token, don't need to save user discovered
         String token = request.getHeader("Token");
@@ -189,7 +193,9 @@ public class ActivityController {
         activities.addAll(followedActivities);
         Set<Activity> distinctActivities = new HashSet<>(activities);
 
-        return new ArrayList<Activity>(distinctActivities);
+        List<ActivityResponse> activityResponses = new ArrayList<>();
+        distinctActivities.forEach(i -> activityResponses.add(new ActivityResponse(i)));
+        return activityResponses;
     }
 
 
