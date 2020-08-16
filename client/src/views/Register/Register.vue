@@ -142,7 +142,7 @@
                 <b-input type="date" name="date_of_birth" class="form-control" v-model="date_of_birth" id="date_of_birth" />
             </b-form-group>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_dob">
-                {{  "Field is mandatory, can not be blank and user must be within 13 - 150 years"  }}
+                {{  "Field is mandatory and can not be blank. User must be within 13 - 150 years (ie. the date must be in the past)"  }}
             </div>
 
             <b-form-group label-for="passportCountries" label="Passport Country:">
