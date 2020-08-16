@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testExecutions version="1">
+  <file path="/Users/Ben/Desktop/SENG302/project/team-600/client/src/Test/CreateActivity.test.js">
+    <testCase name="Is a vue instance" duration="3"/>
+    <testCase name="Catches an http status error of 400 or an invalid activity field when create activity form is submitted and gives user an appropriate alert" duration="4"/>
+    <testCase name="Catches an http status error of 401 or user not authenticated when create activity form is submitted and takes user to login page" duration="4"/>
+    <testCase name="Catches an http status error of 403 or forbidden access when create activity form is submitted and gives user an appropriate alert" duration="1"/>
+    <testCase name="Catches an http status error that isnt 401, 404, 403 and gives the user an appropriate alert" duration="2"/>
+    <testCase name="Creates the correct Outcome payload" duration="1"/>
+  </file>
+</testExecutions>

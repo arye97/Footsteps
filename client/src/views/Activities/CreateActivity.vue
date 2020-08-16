@@ -15,7 +15,7 @@
                     </div>
                 </div>
             </header>
-            <activity-form :submit-activity-func="submitCreateActivity" :activity="activity"></activity-form>
+            <activity-form :submit-activity-func="submitCreateActivity" :activity="activity" :outcome-list="outcomeList"/>
         </b-container>
         <br/><br/>
     </div>
@@ -25,6 +25,7 @@
     import Header from '../../components/Header/Header.vue'
     import api from "../../Api";
     import ActivityForm from "../../components/Activities/ActivityForm.vue";
+    import { UnitType } from "../../util";
 
     /**
      * A view used to create an activity
@@ -45,7 +46,8 @@
                     startTime: null,
                     endTime: null,
                     location: null
-                }
+                },
+                outcomeList: []
             }
         },
         async mounted() {
@@ -62,6 +64,7 @@
              * Makes a POST request to the back-end to create an activity
              */
             async submitCreateActivity() {
+                let activityId;
                 // Create an activity object to be sent as a json to the server
                 const activityForm = {
                     activity_name: this.activity.activityName,
@@ -73,10 +76,40 @@
                     end_time: this.activity.submitEndTime
                 };
 
-                // Send the activityForm to the server to create a new activity
-                await api.createActivity(activityForm, this.activity.profileId).then(() => { // If successfully registered the response will have a status of 201
-                    this.$router.push({name: 'allActivities', params: {alertMessage: 'Activity added successfully', alertCount: 5}});
-                }).catch(error => {this.throwError(error, false)})
+                // Send the activityForm to the server to create a new activity, and get it's id
+                await api.createActivity(activityForm, this.activity.profileId).then(response => {
+                    activityId = response.data;
+                }).catch(error => {this.throwError(error, false)});
+
+                // Send the outcomes to the server.  Adds the activityId to the outcomes.
+                await this.createAllOutcomes(this.outcomeList, activityId);
+
+                this.$router.push({name: 'allActivities', params: {alertMessage: 'Activity added successfully', alertCount: 5}});
+            },
+
+            /**
+             * Sends all Outcomes to the backend.  Should be used when submitting an Activity.
+             * @param newOutcomes Array of outcomes to save to the database
+             * @param activityId the id of the associated activity, added to each Outcome
+             */
+            async createAllOutcomes(newOutcomes, activityId) {
+                let outcomes = [...newOutcomes];  // Convert to an array (if needed)
+
+                for (let i=0, outcome; i < outcomes.length; i++) {  // Seems to need this type of loop for some reason
+                    outcome = outcomes[i];
+
+                    const outcomeRequest = {
+                        activity_id: activityId,
+                        title: outcome.title,
+                        unit_name: outcome.unit_name,
+                        unit_type: Object.keys(UnitType).includes(outcome.unit_type) ? outcome.unit_type : UnitType.TEXT,
+                    };
+
+                    await api.createOutcome(outcomeRequest).catch(serverError => {
+                        this.throwError(serverError, false);
+                    });
+                }
+
             },
 
             /**

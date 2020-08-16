@@ -45,7 +45,7 @@ public class OutcomeController {
      * @param request        the request packet, where we will check the user Token
      */
     @PostMapping("/activities/outcomes")
-    public void createNewActivityOutcomes(@Validated @RequestBody OutcomeRequest outcomeRequest, HttpServletRequest request) {
+    public void createNewActivityOutcomes(@Validated @RequestBody OutcomeRequest outcomeRequest, HttpServletResponse response, HttpServletRequest request) {
         Outcome outcome = new Outcome(outcomeRequest);
         OutcomeValidator.validate(outcome);
         String token = request.getHeader("Token");
@@ -59,6 +59,7 @@ public class OutcomeController {
                     HttpStatus.FORBIDDEN, "User is forbidden from creating outcomes for this activity");
         }
         outcomeRepository.save(outcome);
+        response.setStatus(HttpServletResponse.SC_CREATED); //201
     }
 
 

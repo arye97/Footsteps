@@ -210,3 +210,16 @@ export function fetchCountries() {
     });
     return select;
 }
+
+/**
+ * A collection of constants.  The same types as UnitType enumeration on the back end.
+ * @type {{DATE: string, NUMBER: string, DATE_AND_TIME: string, TEXT: string, TIME: string, BOOLEAN: string}}
+ */
+export const UnitType = {
+    TEXT: "TEXT",
+    NUMBER: "NUMBER",
+    DATE: "DATE",
+    DATE_AND_TIME: "DATE_AND_TIME",
+    TIME: "TIME",
+    BOOLEAN: "BOOLEAN"
+};

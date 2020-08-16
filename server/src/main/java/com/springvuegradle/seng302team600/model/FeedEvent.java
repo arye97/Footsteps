@@ -28,7 +28,7 @@ public class FeedEvent {
     @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ")
     @Temporal(TemporalType.TIMESTAMP)
     @JsonProperty("timeStamp")
-    @Column(name = "time_stamp", nullable = false, columnDefinition = "DATE")
+    @Column(name = "time_stamp", nullable = false, columnDefinition = "DATETIME")
     private Date timeStamp;
 
     // The id of the activity related to the feed event
@@ -46,7 +46,6 @@ public class FeedEvent {
     @Column(name = "author_id", nullable = false)
     private Long authorId;
 
-
     // The user to view this feed event
     @JsonIgnore
     @Column(name = "viewer_id", nullable = false)
@@ -57,6 +56,10 @@ public class FeedEvent {
     @Column(name = "feed_event_type", nullable = false)
     @Enumerated(EnumType.STRING)
     private FeedPostType feedEventType;
+
+    // The type of feed post - set by the enum
+    @Column(name = "outcome_title")
+    private String outcomeTitle;
 
     /**
      * Default constructor for feed events
@@ -139,5 +142,13 @@ public class FeedEvent {
      */
     public void setTimeStampNow() {
         timeStamp = new Date();
+    }
+
+    public String getOutcomeTitle() {
+        return outcomeTitle;
+    }
+
+    public void setOutcomeTitle(String outcomeTitle) {
+        this.outcomeTitle = outcomeTitle;
     }
 }

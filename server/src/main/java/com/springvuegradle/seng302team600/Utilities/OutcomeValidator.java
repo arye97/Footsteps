@@ -1,13 +1,10 @@
 package com.springvuegradle.seng302team600.Utilities;
 
+import com.springvuegradle.seng302team600.enumeration.UnitType;
 import com.springvuegradle.seng302team600.model.Outcome;
-import com.springvuegradle.seng302team600.model.Result;
-import com.springvuegradle.seng302team600.model.Unit;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.net.HttpRetryException;
-import java.util.Set;
 
 /**
  *  Validates the activities Outcome created by the activity author
@@ -20,13 +17,12 @@ import java.util.Set;
 public class OutcomeValidator {
 
     private static final int TITLE_LENGTH = 75;
-    private static final int DESCRIPTION_LEN = 1500;
+    private static final int UNIT_LENGTH = 15;
 
     public static boolean validate(Outcome outcome) {
         validateTitle(outcome.getTitle());
-        validateDescription(outcome.getDescription());
         validateActivityId(outcome.getActivityId());
-        validateUnits(outcome.getUnits());
+        validateUnit(outcome.getUnitType(), outcome.getUnitName());
         return true;
     }
 
@@ -34,23 +30,11 @@ public class OutcomeValidator {
      * @param title must be 1 >= x <= 75 chars long
      */
     public static void validateTitle(String title) {
-        if (title.isBlank()) {
+        if (title == null || title.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Title must be filled in");
         }
         if (title.length() > TITLE_LENGTH) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Title must be less than 45 characters long");
-        }
-    }
-
-    /**
-     * @param description must be 1 >= x <= 1500 chars long
-     */
-    public static void validateDescription(String description) {
-        if (description.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Description must be filled in");
-        }
-        if (description.length() > DESCRIPTION_LEN) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Description must be less than 45 characters long");
         }
     }
 
@@ -65,21 +49,18 @@ public class OutcomeValidator {
 
 
     /**
-     * @param units if this outcome has units, then they must have a unit type and name which cannot be null
+     * @param unitType the type of the outcome unit
+     * @param unitName the type of the outcome unit
      */
-    public static void validateUnits(Set<Unit> units) {
-        if (!units.isEmpty()) {
-            for (Unit unit : units) {
-                if (unit.getUnitType() == null) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unit must have a unit type set");
-                }
-                if (unit.getName().isBlank()) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unit name must be set");
-                } else {
-                    if (unit.getName().length() > TITLE_LENGTH) {
-                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unit name must be less than 75 characters long");
-                    }
-                }
+    public static void validateUnit(UnitType unitType, String unitName) {
+        if (unitType == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unit must have a unit type set");
+        }
+        if (unitName == null || unitName.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unit name must be set");
+        } else {
+            if (unitName.length() > UNIT_LENGTH) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unit name must be less than 15 characters long");
             }
         }
     }

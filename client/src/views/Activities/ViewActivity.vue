@@ -17,7 +17,6 @@
             <div class="row h-100">
                 <div class="col-12 text-center">
                     <div v-if="errored">
-                        <p class="font-weight-light">{{this.error}}</p>
                         <p class="font-weight-light">{{this.errorMessage}}</p>
                     </div>
                     <div v-else>
@@ -31,7 +30,7 @@
                             <h5 class="font-weight-light" v-if="this.description" id="description">"{{this.description}}"<br/></h5>
                             <br/>
                             <!-- Edit Activity Button -->
-                            <div v-if="this.creatorId==this.activeUserId">
+                            <div v-if="this.creatorId===this.activeUserId">
                                 <b-button type="submit" variant="success"
                                           size="med" v-on:click="goToPage(`/activities/edit/${activityId}`)"
                                           id="editActivity">Edit Activity</b-button>
@@ -104,11 +103,54 @@
                                 </b-card>
                             </b-list-group>
                             <br/>
+                            <!--Add results Modal-->
+                            <b-modal id="addResultsModel" centered ok-only ok-variant="secondary" ok-title="Back"
+                                     scrollable title="Here are your results">
+                                <b-alert dismissible variant="danger" id="addResultAlert"
+                                         :show="dismissCountDown"
+                                         @dismissed="dismissCountDown=0"
+                                         @dismiss-count-down="countDownChanged">
+                                    {{ this.errorMessage }}
+                                </b-alert>
+                                <section v-for="outcome in this.outcomeList" :key="outcome.outcome_id">
+                                    <b-card id="outcomeAddResultCard" :title="outcome.title">
+                                        <div v-if="outcome.activeUsersResult.submitted">
+                                            <div style="color:red" v-if="outcome.activeUsersResult.did_not_finish" >
+                                                Did not Finish
+                                            </div>
+                                            <b-input-group
+                                                    :append="outcome.unit_name">
+                                                <b-input :id="'submittedInputValue' + outcome.outcome_id"
+                                                         v-model="outcome.activeUsersResult.value"
+                                                         disabled></b-input>
+                                            </b-input-group>
+                                        </div>
+                                        <div v-else>
+                                            <b-input-group
+                                                    :append="outcome.unit_name">
+                                                <b-input :id="'NotSubmittedInputValue' + outcome.outcome_id" v-model="outcome.activeUsersResult.value"
+                                                         placeholder="Input your result here..."></b-input>
+                                            </b-input-group>
+                                            <b-form-checkbox
+                                                    :id="'checkboxDNF' + outcome.outcome_id"
+                                                    v-model="outcome.activeUsersResult.did_not_finish"
+                                                    name="checkboxDNF"
+                                            >
+                                                I did not finish
+                                            </b-form-checkbox>
+                                            <b-button block id="submitResult" variant="success"
+                                                      @click="submitOutcomeResult(outcome.outcome_id)">
+                                                Submit
+                                            </b-button>
+                                        </div>
+                                    </b-card>
+                                </section>
+                            </b-modal>
                             <!-- Add Results/Following Button Group -->
-                            <b-button block v-if="this.isFollowing || this.creatorId == this.activeUserId"
-                                      variant="success" id="addResults">Add My Results</b-button>
+                            <b-button block v-if="(this.isFollowing || this.creatorId === this.activeUserId) && this.hasOutcomes"
+                                      variant="success" id="addResults" v-b-modal="'addResultsModel'">Add My Results</b-button>
                             <br/>
-                            <div v-if="this.creatorId != this.activeUserId">
+                            <div v-if="this.creatorId !== this.activeUserId">
                                 <b-button block v-if="!this.isFollowing"
                                           variant="outline-dark"
                                           class="footerButton"
@@ -129,21 +171,34 @@
                                 </b-button>
                                 <br/>
                             </div>
+                            <!--View Participants Modal-->
+                            <b-modal id="viewParticipantsModal" size="lg" centered ok-only scrollable :title="activityTitle + ' Participants'">
+                                <b-card class="flex-fill" border-variant="secondary" id="viewParticipantsCard">
+                                    <strong>Participants: </strong><br>
+                                    <b-button-group v-for="participant in participants" :key="participant.id" id="viewParticipantsButtonGroup">
+                                        <b-button
+                                                class="participantButton" pill variant="success"
+                                                v-on:click="toUserProfile(participant.id)" id="participant">{{participant.name}}</b-button>
+                                    </b-button-group>
+                                    <p v-if="participants.length === 0" id="noParticipants">No participants to show</p>
+                                </b-card>
+                            </b-modal>
                             <!--View Participants and Results Buttons-->
                             <b-row class="mb-1">
                                 <b-col>
                                     <!--View Participants-->
                                     <b-button type="submit" variant="success" size="med"
-                                              v-on:click="viewParticipants" id="viewParticipants">
+                                              v-b-modal="'viewParticipantsModal'" id="viewParticipants">
                                         View Participants</b-button>
                                 </b-col>
-                                <b-col>
+                                <b-col v-if="this.hasOutcomes">
                                     <!--View Results-->
                                     <b-button type="submit" variant="success" size="med"
-                                              v-on:click="viewResults" id="viewResults">
+                                              id="viewResults">
                                         View Results</b-button>
                                 </b-col>
                             </b-row>
+                          <br/>
                         </div>
                     </div>
                 </div>
@@ -165,6 +220,8 @@
             return {
                 errored: false,
                 errorMessage: "",
+                dismissSecs: 5,
+                dismissCountDown: 0,
                 loading: false,
                 activityId: null,
                 activityTitle: "",
@@ -178,13 +235,58 @@
                 activeUserId: null,
                 continuous: false,
                 duration: "",
-                isFollowing: false
+                isFollowing: false,
+                participants: [],
+                hasOutcomes: false,
+                outcomeList: [
+                    { // Outcome object
+                        outcome_id: null,
+                        title: "",
+                        activity_id: null,
+                        unit_name: "",
+                        unit_type: "",
+                        activeUsersResult:
+                            {
+                            result_id: null,
+                            user_id: null,
+                            outcome_id: null,
+                            value: "",
+                            did_not_finish: false,
+                            comment: "",
+                            submitted: false
+                            },
+                        results: [
+                            { // Result object
+                                result_id: null,
+                                user_id: null,
+                                outcome_id: null,
+                                value: "",
+                                did_not_finish: false,
+                                comment: "",
+                                submitted: false
+                            }
+                        ]
+                    }
+                ],
             }
         },
         async mounted () {
             await this.init();
         },
         methods: {
+            /**
+             * Update dismissCountDown
+             */
+            countDownChanged(dismissCountDown) {
+                this.dismissCountDown = dismissCountDown;
+            },
+            /**
+             * Display add result error alert
+             */
+            showAlert() {
+                this.dismissCountDown = this.dismissSecs
+                window.scrollTo(0,0);
+            },
             /**
              * The initialisation function.
              * Gets all of the data required for the page
@@ -202,6 +304,9 @@
                 await this.getActiveUserId();
                 await this.getFollowingDetails();
                 await this.getCreatorUserDetails();
+                await this.fetchParticipantsForActivities();
+                await this.fetchOutcomesForActivity();
+                await this.fetchResultsForOutcomes();
                 this.loading = false;
             },
             /**
@@ -220,7 +325,7 @@
                     this.continuous = response.data.continuous;
                 }).catch(err => {
                     this.errored = true;
-                    this.errorMessage = err.response.message;
+                    this.errorMessage = err.response.data.message;
                 });
             },
             /**
@@ -232,7 +337,7 @@
                     this.activeUserId = response.data;
                 }).catch(err => {
                     this.errored = true;
-                    this.errorMessage = err.response.message;
+                    this.errorMessage = err.response.data.message;
                 })
             },
             /**
@@ -244,7 +349,7 @@
                     this.creatorName = response.data.firstname + " " + response.data.lastname;
                 }).catch(err => {
                     this.errored = true;
-                    this.errorMessage = err.response.message;
+                    this.errorMessage = err.response.data.message;
                 })
             },
             /**
@@ -282,7 +387,7 @@
                     this.isFollowing = response.data.subscribed;
                 }).catch((err) => {
                     this.errored = true;
-                    this.errorMessage = err.response.message;
+                    this.errorMessage = err.response.data.message;
                 });
 
             },
@@ -295,8 +400,9 @@
                     this.isFollowing = true;
                 }).catch((error) => {
                     this.errored = true;
-                    this.errorMessage = error.response.message;
+                    this.errorMessage = error.response.data.message;
                 });
+                await this.fetchParticipantsForActivities();
             },
             /**
              * Sends the delete request so the user can unfollow the activity
@@ -307,9 +413,133 @@
                     this.isFollowing = false;
                 }).catch((error) => {
                     this.errored = true;
-                    this.errorMessage = error.response.message;
+                    this.errorMessage = error.response.data.message;
+                });
+                await this.fetchParticipantsForActivities();
+            },
+            /**
+             * Sends you to the profile page of a specific user
+             * @param id
+             */
+            toUserProfile(id) {
+                this.$router.push({ name: 'profile', params: {userId: id} });
+            },
+            /**
+             * Gets list of participants for the activity
+             */
+            async fetchParticipantsForActivities() {
+                await api.getParticipants(this.activityId).then(response => {
+                    let participants = [];
+                    let user;
+                    for (let j = 0; j < response.data.length; j++) {
+                        user = response.data[j];
+                        participants.push({"name":user.firstname + ' ' + user.lastname,
+                            "id":user.id});
+                    }
+                    this.participants = participants;
+                }).catch(error => {
+                    //Log out if error
+                    if(error.response.status === 401) {
+                        sessionStorage.clear();
+                        this.$router.push('/login');
+                    }else{
+                        this.errored = true;
+                        this.errorMessage = "Unable to get participants - please try again later";
+                    }
                 });
             },
+            /**
+             * Gets the list of outcomes for the activity
+             */
+            async fetchOutcomesForActivity() {
+                await api.getActivityOutcomes(this.activityId).then(response => {
+                    this.outcomeList = response.data;
+                    if (this.outcomeList.length > 0) {
+                        this.hasOutcomes = true;
+                    }
+                  console.log(this.hasOutcomes);
+                }).catch(error => {
+                    if (error.response.status === 401) {
+                        sessionStorage.clear();
+                        this.goToPage('/login');
+                    } else {
+                        this.errored = true;
+                        this.errorMessage = "Unable to get outcomes - please try again later";
+                    }
+                });
+            },
+            /**
+             * Gets a list of results for each outcome
+             */
+            async fetchResultsForOutcomes() {
+                  for (let i = 0; i < this.outcomeList.length; i++) {
+                    let outcomeId = this.outcomeList[i].outcome_id;
+                    // TODO: Add api call getOutcomeResults here. Add data from response to outcome, like below
+                    // this.outcomeList[i].results = response.data;
+
+                    // If the active user's result is not returned create one
+                    this.outcomeList[i].results = []; //TODO remove this line when getOutcomeResults is implemented
+                    let activeUsersResults = this.outcomeList[i].results.filter(i => i.user_id === this.activeUserId);
+                    if (activeUsersResults.length < 1) {
+                      this.outcomeList[i].activeUsersResult = {
+                        user_id: this.activeUserId,
+                        outcome_id: outcomeId,
+                        value: "",
+                        did_not_finish: false,
+                        comment: "",
+                        submitted: false
+                      };
+                    } else {
+                      this.outcomeList[i].activeUsersResult = activeUsersResults[0];
+                      this.outcomeList[i].activeUsersResult.submitted = true;
+                    }
+                  }
+
+            },
+            /**
+             * Submit result to back-end for an outcome
+             * @param outcomeId the outcome ID
+             */
+            async submitOutcomeResult(outcomeId) {
+                // Finds the active user's result for the given outcome
+                let outcomes = this.outcomeList.filter(i => i.outcome_id === outcomeId);
+                if (outcomes.length < 1) return;
+
+                await api.createResult(outcomes[0].activeUsersResult, outcomeId).then(() => {
+                    outcomes[0].activeUsersResult.submitted = true;
+                    outcomes[0].results.push(outcomes[0].activeUsersResult);
+                    this.$forceUpdate();
+                }).catch(error => {
+                    this.processPostError(error);
+                });
+            },
+            /**
+             * Process the error in terms of status codes returned
+             * @param error being processed
+             */
+            processPostError(error) {
+                this.errored = true;
+                switch (error.response.status) {
+                    case 401:
+                        sessionStorage.clear();
+                        this.goToPage('/login');
+                        break;
+                    case 400:
+                        this.errored = false;
+                        this.errorMessage = error.response.data.message;
+                        this.showAlert();
+                        break;
+                    case 403:
+                        this.errorMessage = "User is not a participant of this outcome's activity";
+                        break;
+                    case 404:
+                        this.errorMessage = "Outcome not found - please try again later";
+                        break;
+                    default:
+                        this.errorMessage = "Unable to get outcomes - please try again later";
+                        break;
+                }
+            }
         }
     }
 </script>
@@ -341,5 +571,16 @@
 
     .footerButton {
         width: 100%;
+    }
+
+    .participantButton {
+        margin: 3px;
+        display: inline-block;
+    }
+
+    .word-count {
+        padding-top: 7px;
+        color: #707070;
+        font-size: 0.8em;
     }
 </style>

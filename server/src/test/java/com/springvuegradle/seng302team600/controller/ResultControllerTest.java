@@ -3,8 +3,10 @@ package com.springvuegradle.seng302team600.controller;
 import com.springvuegradle.seng302team600.enumeration.UnitType;
 import com.springvuegradle.seng302team600.model.*;
 import com.springvuegradle.seng302team600.repository.ActivityParticipantRepository;
+import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.OutcomeRepository;
 import com.springvuegradle.seng302team600.repository.ResultRepository;
+import com.springvuegradle.seng302team600.service.FeedEventService;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,11 +44,16 @@ public class ResultControllerTest {
     private ResultRepository resultRepository;
     @MockBean
     private ActivityParticipantRepository participantRepository;
+    @MockBean
+    private FeedEventService feedEventService;
+    @MockBean
+    private ActivityRepository activityRepository;
     @Autowired
     private MockMvc mvc;
 
     private static final Long USER_ID_1 = 1L;
     private static final Long USER_ID_2 = 2L;
+    private static final Long USER_ID_3 = 3L;
     private User dummyUser1;
     private User dummyUser2;
     private final String validToken = "valid";
@@ -56,7 +63,6 @@ public class ResultControllerTest {
     private static final Long OUTCOME_ID_1 = 1L;
     private Outcome dummyOutcome;
     private static final Long UNIT_ID_1 = 1L;
-    private Unit dummyUnit;
     private List<Result> resultTable;
     private Long nextResultId;
 
@@ -74,22 +80,20 @@ public class ResultControllerTest {
 
         dummyActivity = new Activity();
         dummyActivity.setParticipants(new HashSet<>());
+        dummyActivity.setCreatorUserId(USER_ID_3);
         ReflectionTestUtils.setField(dummyActivity, "activityId", ACTIVITY_ID_1);
-
-        dummyUnit = new Unit();
-        ReflectionTestUtils.setField(dummyUnit, "unitId", UNIT_ID_1);
-        dummyUnit.setUnitType(UnitType.TEXT);
-        Set<Unit> units = new HashSet<>();
-        units.add(dummyUnit);
 
         dummyOutcome = new Outcome();
         ReflectionTestUtils.setField(dummyOutcome, "outcomeId", OUTCOME_ID_1);
         dummyOutcome.setActivityId(ACTIVITY_ID_1);
         dummyOutcome.setResults(new HashSet<>());
-        dummyOutcome.setUnits(units);
+        dummyOutcome.setUnitType(UnitType.TEXT);
 
         resultTable = new ArrayList<>();
         nextResultId = 1L;
+
+        //Mocking ActivityRepository
+        when(activityRepository.findByActivityId(Mockito.any())).thenAnswer(i -> dummyActivity);
 
         //Mocking OutcomeRepository
         when(outcomeRepository.findByOutcomeId(Mockito.anyLong())).thenAnswer(i -> {
@@ -174,11 +178,8 @@ public class ResultControllerTest {
 
     private final String newResultJson = JsonConverter.toJson(true,
             "user_id", USER_ID_1,
-            "values", new Object[]{
-                    JsonConverter.toMap(
-                            "unit_id", UNIT_ID_1,
-                            "value", "someValue",
-                            "did_not_finish", "false")});
+            "value", "someValue",
+            "did_not_finish", "false");
 
     @Test
     public void resultCreationSuccess() throws Exception {
@@ -223,11 +224,8 @@ public class ResultControllerTest {
 
     private final String resultNotParticipantJson = JsonConverter.toJson(true,
             "user_id", USER_ID_2,
-            "values", new Object[]{
-                    JsonConverter.toMap(
-                            "unit_id", UNIT_ID_1,
-                            "value", "someValue",
-                            "did_not_finish", "false")});
+            "value", "someValue",
+            "did_not_finish", "false");
 
     @Test
     public void newResultByNotParticipantForbidden() throws Exception {
@@ -243,11 +241,8 @@ public class ResultControllerTest {
 
     private final String resultForbiddenJson = JsonConverter.toJson(true,
             "user_id", USER_ID_1,
-            "values", new Object[]{
-                    JsonConverter.toMap(
-                            "unit_id", UNIT_ID_1,
-                            "value", "someValue",
-                            "did_not_finish", "false")});
+            "value", "someValue",
+            "did_not_finish", "false");
 
     @Test
     public void newResultByNotAdminForbidden() throws Exception {

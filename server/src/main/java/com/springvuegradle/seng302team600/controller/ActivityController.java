@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import com.springvuegradle.seng302team600.payload.ParticipantResponse;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -47,9 +48,10 @@ public class ActivityController {
      * @param newActivity the new Activity
      * @param response Used to set status of operation
      * @param profileId the Id of the User who created the activity
+     * @return the id of the activity
      */
     @PostMapping("/profiles/{profileId}/activities")
-    public void newActivity(@Validated @RequestBody Activity newActivity,
+    public Long newActivity(@Validated @RequestBody Activity newActivity,
                             HttpServletRequest request,
                             HttpServletResponse response,
                             @PathVariable(value = "profileId") Long profileId) {
@@ -63,8 +65,10 @@ public class ActivityController {
         newActivity.setCreatorUserId(profileId);
         // Check the user input and throw ResponseStatusException if invalid stopping execution
         ActivityValidator.validate(newActivity);
-        activityRepository.save(newActivity);
+        Activity createdActivity = activityRepository.save(newActivity);
         response.setStatus(HttpServletResponse.SC_CREATED); //201
+
+        return createdActivity != null ? createdActivity.getActivityId() : null;
     }
 
     /**
@@ -192,17 +196,23 @@ public class ActivityController {
     /**
      * Get a list of participants for an activity
      * @param activityId the Id of the Activity
-     * @return a list of Users
+     * @return a HashSet of Users with firstname, lastname and id
      */
     @GetMapping("/activities/{activityId}/participants")
-    public Set<User> getParticipantsOfActivity(@PathVariable Long activityId, HttpServletRequest request) {
+    public Set<ParticipantResponse> getParticipantsOfActivity(@PathVariable Long activityId, HttpServletRequest request) {
+        Set<User> participantList;
+        Set<ParticipantResponse> returnedParticipantData = new HashSet<>();
         String token = request.getHeader("Token");
         userAuthenticationService.findByToken(token);
         Activity activity = activityRepository.findByActivityId(activityId);
         if (activity == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Activity not found");
         }
-        return activity.getParticipants();
+        participantList = activity.getParticipants();
+        for(User user : participantList){
+            returnedParticipantData.add(new ParticipantResponse(user));
+        }
+        return returnedParticipantData;
     }
 
 

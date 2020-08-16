@@ -1,9 +1,8 @@
 package com.springvuegradle.seng302team600.payload;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.springvuegradle.seng302team600.model.Unit;
+import com.springvuegradle.seng302team600.enumeration.UnitType;
 
-import java.util.Set;
 
 public class OutcomeRequest {
 
@@ -13,11 +12,11 @@ public class OutcomeRequest {
     @JsonProperty("title")
     private String title;
 
-    @JsonProperty("description")
-    private String description;
+    @JsonProperty("unit_name")
+    private String unitName;
 
-    @JsonProperty("units")
-    private Set<Unit> units;
+    @JsonProperty("unit_type")
+    private UnitType unitType;
 
     public OutcomeRequest() {}
 
@@ -25,12 +24,12 @@ public class OutcomeRequest {
         return activityId;
     }
 
-    public Set<Unit> getUnits() {
-        return units;
+    public String getUnitName() {
+        return unitName;
     }
 
-    public String getDescription() {
-        return description;
+    public UnitType getUnitType() {
+        return unitType;
     }
 
     public String getTitle() {

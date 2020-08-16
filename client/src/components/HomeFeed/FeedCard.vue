@@ -10,22 +10,18 @@
             <b-row class="mb-1">
                 <!-- Core Card Text -->
                 <b-col>
-                    <b-card-text id="description"><strong>{{firstName}} {{lastName}} {{actionText}} the activity {{event.activityName}}</strong></b-card-text>
+                    <!--Display You subscribed etc. if you initiated the event-->
+                    <b-card-text v-if="event.userId === viewerId && !isNaN(viewerId)"
+                                 id="description"><strong>You {{actionText}} the activity {{event.activityName}}</strong></b-card-text>
+                    <b-card-text v-else id="description"><strong>{{firstName}} {{lastName}} {{actionText}} the activity {{event.activityName}}</strong></b-card-text>
                 </b-col>
             </b-row>
-            <!-- Buttons and seperator not required for delete events -->
-            <hr style="border-color: inherit" v-if="event.feedEventType != 'DELETE'">
-            <b-row class="mb-1"  v-if="event.feedEventType != 'DELETE'">
+            <!-- Buttons and separator not required for delete events -->
+            <hr style="border-color: inherit" v-if="event.feedEventType !== 'DELETE'">
+            <b-row class="mb-1"  v-if="event.feedEventType !== 'DELETE'">
                 <b-col>
                     <!-- View Activity button -->
-                    <b-button id="viewActivityButton" variant="success">View Activity</b-button>
-                </b-col>
-                <b-col>
-                    <!-- Unfollow button -->
-                    <b-button id="unfollowButton" variant="outline-success">
-                        <img id="follow" src="../../../assets/png/footsteps_icon_hollow.png" width="15%" alt="Footsteps">
-                        Unfollow Activity
-                    </b-button>
+                    <b-button @click="goToViewActivityPage" block id="viewActivityButton" variant="success">View Activity</b-button>
                 </b-col>
             </b-row>
         </b-card>
@@ -50,6 +46,11 @@
                 activityId: Number,
                 userId: Number,
                 activityName: String,
+                outcomeTitle: String
+            },
+            viewerId: {
+                default: null,
+                type: Number,
             }
         },
         data: function() {
@@ -63,7 +64,7 @@
             }
         },
         async mounted () {
-            this.extractData();
+            await this.extractData();
         },
         methods: {
             /**
@@ -80,6 +81,7 @@
                     this.errored = true;
                 });
                 // Determine what type of event occurred
+                const vowelRegex = '^[aieouAIEOU].*';
                 switch (this.event.feedEventType) {
                     case 'DELETE':
                         this.actionText = "deleted";
@@ -92,6 +94,13 @@
                         break;
                     case 'FOLLOW':
                         this.actionText = "followed";
+                        break;
+                    case 'ADD_RESULT':
+                        if (this.event.outcomeTitle.match(vowelRegex)) {  // Use 'an' or 'a'?
+                            this.actionText = 'added an "' + this.event.outcomeTitle + '" result to';
+                        } else {
+                            this.actionText = 'added a "' + this.event.outcomeTitle + '" result to';
+                        }
                         break;
                     default:
                         this.errored = true;
@@ -110,6 +119,12 @@
                 } else {
                     this.time = "Just now";
                 }
+            },
+            /**
+             * Redirect to the given activities page.
+             */
+            goToViewActivityPage() {
+                this.$router.push({name: 'viewActivity', params: {activityId: this.event.activityId}});
             }
         }
     }

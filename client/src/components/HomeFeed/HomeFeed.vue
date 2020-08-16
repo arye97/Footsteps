@@ -15,7 +15,7 @@
         <section v-else-if="this.rows > 0">
             <section v-for="event in this.currentPageEventList" :key="event.id">
                 <!-- Feed Event List -->
-                <feed-card v-bind:event="event"/>
+                <feed-card v-bind:event="event" v-bind:viewer-id="userId"/>
                 <br>
             </section>
             <!-- Pagination Nav Bar -->
@@ -60,28 +60,54 @@
                 return this.feedEventList.length;
             }
         },
+        watch: {
+            /**
+             * Watcher is called whenever currentPage is changed, via reloading events
+             * or using the pagination bar.
+             */
+            currentPage() {
+                this.setCurrentPageEventList();
+            }
+        },
         async mounted() {
             this.userId = await this.getUserId();
-            api.getFeedEvents(this.userId).then(response => {
+            await api.getFeedEvents(this.userId).then(response => {
                 this.feedEventList = response.data;
                 // Flip the list order so the most recent event shows first
                 // Update what is shown on this page of the pagination
                 this.feedEventList.reverse();
-                this.currentPageEventList = this.feedEventList;
+                this.setCurrentPageEventList();
                 this.loading = false;
             }).catch(() => {
+                this.feedEventList = [];
+                this.setCurrentPageEventList();
                 this.errored = true;
-                this.error_message = "There was an error when fetching your event feed"
+                this.error_message = "There was an error when fetching your event feeds"
             });
+            this.currentPage = 1;
         },
-      methods: {
-        async getUserId() {
-          let userId = null;
-          await api.getUserId().then(response => {
-            userId = response.data;
-          }).catch(error => {this.throwError(error, true)});
-          return userId
+        methods: {
+            async getUserId() {
+                let userId = null;
+                await api.getUserId().then(response => {
+                    userId = response.data;
+                }).catch(error => {this.throwError(error, true)});
+                return userId
+            },
+            /**
+             * Calculate the feedEvents to be displayed from the current page number.
+             * This function is called when the pagination bar is altered,
+             * changing the currentPage variable.
+             */
+            setCurrentPageEventList() {
+                let leftIndex = (this.currentPage - 1) * this.eventsPerPage;
+                let rightIndex = leftIndex + this.eventsPerPage;
+                if (rightIndex > this.feedEventList.length) {
+                    rightIndex = this.feedEventList.length;
+                }
+                this.currentPageEventList = this.feedEventList.slice(leftIndex, rightIndex);
+                window.scrollTo(0,0);
+            },
         }
-      }
     }
 </script>

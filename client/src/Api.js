@@ -8,19 +8,21 @@ const SERVER_URL = process.env.VUE_APP_SERVER_ADD;
 
 const server = axios.create({
   baseURL: SERVER_URL,
-  timeout: 3000
+  timeout: 5000
 });
 
 function getTokenHeader() {
-  return {
-    headers: {'Token': sessionStorage.getItem("token"), "Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
+  let token = sessionStorage.getItem("token");
+  let header = {
+    headers: {"Token": token, "Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
     withCredentials: true
-  }
+  };
+  return header;
 }
 
 function getExtendedEmailTokenHeader(extendedHeaders) {
   let header = {
-    headers: {'Token': sessionStorage.getItem("token"), 'email' : extendedHeaders.email, "Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
+    headers: {"Token": sessionStorage.getItem("token"), 'email' :  extendedHeaders.email, "Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
     withCredentials: true
   };
   return header;
@@ -58,8 +60,8 @@ export default {
   getUserSubscribed: (activityId, userId) => server.get(`/profiles/${userId}/subscriptions/activities/${activityId}`, getTokenHeader()),
   setUserSubscribed: (activityId, userId) => server.post( `/profiles/${userId}/subscriptions/activities/${activityId}`, null, getTokenHeader()),
   deleteUserSubscribed: (activityId, userId) => server.delete(`/profiles/${userId}/subscriptions/activities/${activityId}`, getTokenHeader()),
-  //uncomment when implementing
-  //createOutcome: (outcome) => server.post(`/activities/outcomes`, outcome, getTokenHeader());
+  createOutcome: (outcome) => server.post(`/activities/outcomes`, outcome, getTokenHeader()),
   getFeedEvents: (userId) => server.get(`/profiles/${userId}/subscriptions/`, getTokenHeader()),
-  getActivityOutcomes: (activityId) => server.get(`/activities/${activityId}/outcomes`, getTokenHeader())
+  getActivityOutcomes: (activityId) => server.get(`/activities/${activityId}/outcomes`, getTokenHeader()),
+  createResult: (resultData, outcomeId) => server.post(`/outcomes/${outcomeId}/results`, resultData, getTokenHeader())
 }
