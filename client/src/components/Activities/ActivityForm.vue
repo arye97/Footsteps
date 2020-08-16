@@ -233,6 +233,9 @@
                                         {{ outcome.unit_name }}
                                     </p>
                                 </td>
+                            <!--Only show edit and delete buttons if this is a newly added Outcome. Uhg O(n^2)-->
+                            <!--This v-if should be removed when we add functionality for editing existing Outcomes-->
+                            <div v-if="!originalOutcomeList.includes(outcome)">
                                 <td class="tableButtonTd">
                                     <b-button variant="danger" :id="'deleteButton' + index" v-on:click="deleteOutcome(index)">
                                         <b-icon-trash-fill></b-icon-trash-fill>
@@ -241,6 +244,7 @@
                                 <td class="tableButtonTd">
                                     <b-button variant="primary" :id="'editButton' + index" v-on:click="editOutcome(index)">Edit</b-button>
                                 </td>
+                            </div>
                         </tr>
                     </table>
                 </section>
@@ -303,6 +307,12 @@
             outcomeList: {
                 default() {
                     return [];
+                },
+                type: Array
+            },
+            originalOutcomeList: {
+                default() {
+                    return [...this.outcomeList];
                 },
                 type: Array
             },

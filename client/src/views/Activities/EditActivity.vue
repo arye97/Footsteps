@@ -15,7 +15,10 @@
                     </div>
                 </div>
             </header>
-            <activity-form :submit-activity-func="submitEditActivity" :activity="activity"></activity-form>
+            <activity-form :submit-activity-func="submitEditActivity"
+                           :activity="activity"
+                           :outcome-list="outcomeList"
+                           :original-outcome-list="originalOutcomeList"/>
         </b-container>
         <br/><br/>
     </div>
@@ -25,7 +28,7 @@
     import Header from '../../components/Header/Header.vue'
     import api from "../../Api";
     import ActivityForm from "../../components/Activities/ActivityForm";
-    import {backendDateToLocalTimeZone} from "../../util";
+    import {backendDateToLocalTimeZone, UnitType} from "../../util";
 
     /**
      * A view used to edit an activity
@@ -49,6 +52,8 @@
                 },
                 activityId: null,
                 show: true,
+                outcomeList: [],
+                originalOutcomeList: [],
             }
         },
         async created() {
@@ -87,15 +92,46 @@
                     end_time: this.activity.submitEndTime
                 };
 
-                // Send the activityForm to the server to create a new activity
+                // Send the activityForm to the server to edit the activity
                 await api.updateActivity(activityForm, this.activity.profileId, this.activityId)
-                  .then(response => { // If successfully registered the response will have a status of 201
-                        if (response.status === 200) {
-                            this.$router.push({name: 'allActivities', params: {alertMessage: 'Activity modified successfully', alertCount: 5}});
-                        }
-                    }
-                ).catch(error => {this.throwError(error, false)});
+                  .catch(error => {this.throwError(error, false)});
+
+                await this.editAllOutcomes(this.outcomeList, this.originalOutcomeList, this.activityId);
+
+                this.$router.push({name: 'allActivities', params: {alertMessage: 'Activity modified successfully', alertCount: 5}});
             },
+
+
+            /**
+             * Sends all new Outcomes to the backend.  Doesn't re-send outcomes that already exist.  Should be used
+             * when submitting an Activity.  Only adds new outcomes, doesn't delete or modify existing ones.
+             * In a future story this will likely be modified to support edit and delete.
+             * @param editedOutcomes Array of outcomes belonging to the Activity after editing
+             * @param originalOutcomes Array of outcomes from backend before editing.  Used to prevent duplicates being created.
+             * @param activityId id of newly created activities
+             */
+            async editAllOutcomes(editedOutcomes, originalOutcomes, activityId) {
+
+                // Create an Array containing only new outcomes (like set difference)
+                let outcomes = [...editedOutcomes].filter(o => ![...originalOutcomes].includes(o));
+
+                for (let i=0, outcome; i < outcomes.length; i++) {  // Seems to need this type of loop for some reason
+                    outcome = outcomes[i];
+
+                    const outcomeRequest = {
+                        activity_id: activityId,
+                        title: outcome.title,
+                        unit_name: outcome.unit_name,
+                        unit_type: Object.keys(UnitType).includes(outcome.unit_type) ? outcome.unit_type : UnitType.TEXT,
+                    };
+
+                    await api.createOutcome(outcomeRequest).catch(serverError => {
+                        this.throwError(serverError, false);
+                    });
+                }
+
+            },
+
 
             /**
              * Get OK if the user can edit the given activity. Otherwise redirect to AllActivities.vue
@@ -105,7 +141,9 @@
             },
 
             /**
-             * Get the data of the selected activity from the backend.  Load it into the activity object
+             * Get the data of the selected activity and outcomes from the backend.  Load it into the activity object
+             * and outcomeList array.
+             * @param activityId id if the current activity
              */
             async getActivityData(activityId) {
                 await this.isActivityEditable(activityId);
@@ -120,7 +158,12 @@
                     for (let i = 0; i < response.data.activity_type.length; i++) {
                         this.activity.selectedActivityTypes.push(response.data.activity_type[i].name);
                     }
-                }).catch(error => {this.throwError(error, true)});
+                }).catch(error => this.throwError(error, true));
+
+                await api.getActivityOutcomes(activityId).then(response => {
+                    this.originalOutcomeList = [...response.data];
+                    this.outcomeList = [...response.data];
+                }).catch(error => this.throwError(error, true));
             },
 
             /**
@@ -154,7 +197,7 @@
             /**
              * Helper function for when errors are thrown by server after hitting an endpoint,
              * @param servError Error thrown by server endpoint
-             * @param isGet boolean value if the error is from a get endpoint, true if it is, false if it isnt, so that
+             * @param isGet boolean value if the error is from a get endpoint, true if it is, false if it isn't, so that
              * the function will use the necessary if statements to handle these
              */
              throwError(servError, isGet) {

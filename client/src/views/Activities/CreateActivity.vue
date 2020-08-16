@@ -77,14 +77,14 @@
                 };
 
                 // Send the activityForm to the server to create a new activity, and get it's id
-                await api.createActivity(activityForm, this.activity.profileId).then(response => { // If successfully registered the response will have a status of 201
+                await api.createActivity(activityForm, this.activity.profileId).then(response => {
                     activityId = response.data;
                 }).catch(error => {this.throwError(error, false)});
 
                 // Send the outcomes to the server.  Adds the activityId to the outcomes.
-                await this.createAllOutcomes(this.outcomeList, activityId).then(() => {
-                    this.$router.push({name: 'allActivities', params: {alertMessage: 'Activity added successfully', alertCount: 5}});
-                });
+                await this.createAllOutcomes(this.outcomeList, activityId);
+
+                this.$router.push({name: 'allActivities', params: {alertMessage: 'Activity added successfully', alertCount: 5}});
             },
 
             /**
