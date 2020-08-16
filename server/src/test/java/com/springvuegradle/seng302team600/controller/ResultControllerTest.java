@@ -53,6 +53,7 @@ public class ResultControllerTest {
 
     private static final Long USER_ID_1 = 1L;
     private static final Long USER_ID_2 = 2L;
+    private static final Long USER_ID_3 = 3L;
     private User dummyUser1;
     private User dummyUser2;
     private final String validToken = "valid";
@@ -79,6 +80,7 @@ public class ResultControllerTest {
 
         dummyActivity = new Activity();
         dummyActivity.setParticipants(new HashSet<>());
+        dummyActivity.setCreatorUserId(USER_ID_3);
         ReflectionTestUtils.setField(dummyActivity, "activityId", ACTIVITY_ID_1);
 
         dummyOutcome = new Outcome();
@@ -89,6 +91,9 @@ public class ResultControllerTest {
 
         resultTable = new ArrayList<>();
         nextResultId = 1L;
+
+        //Mocking ActivityRepository
+        when(activityRepository.findByActivityId(Mockito.any())).thenAnswer(i -> dummyActivity);
 
         //Mocking OutcomeRepository
         when(outcomeRepository.findByOutcomeId(Mockito.anyLong())).thenAnswer(i -> {

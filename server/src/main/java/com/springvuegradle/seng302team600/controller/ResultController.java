@@ -78,24 +78,26 @@ public class ResultController {
                     "User's result for given outcome already exists");
         }
 
+        Activity activity = activityRepository.findByActivityId(outcome.getActivityId());
+
         // Check if the user is participating in this outcome's activity
         Long followCount = participantRepository.existsByActivityIdAndUserId(
                 outcome.getActivityId(), result.getUserId());
-        if (followCount <= 0) {
+        if (followCount <= 0 && !activity.getCreatorUserId().equals(result.getUserId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "User is not a participant of this outcome's activity");
         }
 
         if (!userAuthenticationService.hasAdminPrivileges(user) && !user.getUserId().equals(result.getUserId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "User is Forbidden from added a result for this user ID");
+                    "User is Forbidden from adding a result for this user ID");
         }
 
         // Result table will be updated when saving this Outcome
+        result.setOutcome(outcome);
         outcome.addResult(result);
         outcomeRepository.save(outcome);
 
-        Activity activity = activityRepository.findByActivityId(outcome.getActivityId());
         //Create FeedEvent to add result for both participants and creator
         feedEventService.addResultToActivityEvent(activity, result.getUserId(), outcome.getTitle());
 

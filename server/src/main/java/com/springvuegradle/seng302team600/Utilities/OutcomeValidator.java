@@ -17,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class OutcomeValidator {
 
     private static final int TITLE_LENGTH = 75;
+    private static final int UNIT_LENGTH = 15;
 
     public static boolean validate(Outcome outcome) {
         validateTitle(outcome.getTitle());
@@ -58,8 +59,8 @@ public class OutcomeValidator {
         if (unitName == null || unitName.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unit name must be set");
         } else {
-            if (unitName.length() > TITLE_LENGTH) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unit name must be less than 75 characters long");
+            if (unitName.length() > UNIT_LENGTH) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unit name must be less than 15 characters long");
             }
         }
     }
