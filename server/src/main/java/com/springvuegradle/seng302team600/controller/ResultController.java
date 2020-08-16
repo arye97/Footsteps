@@ -6,6 +6,7 @@ import com.springvuegradle.seng302team600.model.Outcome;
 import com.springvuegradle.seng302team600.model.Result;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.ResultRequest;
+import com.springvuegradle.seng302team600.payload.ResultResponse;
 import com.springvuegradle.seng302team600.repository.ActivityParticipantRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.OutcomeRepository;
@@ -19,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -104,10 +106,43 @@ public class ResultController {
         response.setStatus(HttpServletResponse.SC_CREATED); //201
     }
 
+
+    /**
+     * Return a list of all Result objects that are associated with an outcome
+     *
+     * @param outcomeId id of the outcome you want Result from
+     * @param request the Http request from front-end
+     * @param response the Http response to front-end
+     * @return list of Result objects
+     */
     @GetMapping("/outcomes/{outcomeId}/results")
-    public List<Result> getOutcomeResults(@PathVariable Long outcomeId, HttpServletRequest request,
-                                          HttpServletResponse response) {
-        //TODO Implement this method, and add a DocString please
-        return null;
+    public List<ResultResponse> getOutcomeResults(@PathVariable Long outcomeId, HttpServletRequest request,
+                                                  HttpServletResponse response) {
+        // Authentication for session User
+        String token = request.getHeader("Token");
+        userAuthenticationService.findByToken(token);
+
+        Outcome outcome = outcomeRepository.findByOutcomeId(outcomeId);
+
+        List<Result> results = resultRepository.findByOutcome(outcome);
+
+
+
+        if (outcome == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Outcome not found");
+        }
+
+        if (results == null) {
+            return new ArrayList<>();
+        }
+
+        List<ResultResponse> resultResponses = new ArrayList<>();
+
+        for (Result result : results) {
+            User user = userAuthenticationService.viewUserById(result.getUserId(), token);
+
+            resultResponses.add(new ResultResponse(result, user));
+        }
+        return resultResponses;
     }
 }
