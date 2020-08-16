@@ -147,7 +147,7 @@
                                 </section>
                             </b-modal>
                             <!-- Add Results/Following Button Group -->
-                            <b-button block v-if="this.isFollowing || this.creatorId === this.activeUserId"
+                            <b-button block v-if="(this.isFollowing || this.creatorId === this.activeUserId) && this.hasOutcomes"
                                       variant="success" id="addResults" v-b-modal="'addResultsModel'">Add My Results</b-button>
                             <br/>
                             <div v-if="this.creatorId !== this.activeUserId">
@@ -191,13 +191,14 @@
                                               v-b-modal="'viewParticipantsModal'" id="viewParticipants">
                                         View Participants</b-button>
                                 </b-col>
-                                <b-col>
+                                <b-col v-if="this.hasOutcomes">
                                     <!--View Results-->
                                     <b-button type="submit" variant="success" size="med"
                                               id="viewResults">
                                         View Results</b-button>
                                 </b-col>
                             </b-row>
+                          <br/>
                         </div>
                     </div>
                 </div>
@@ -236,6 +237,7 @@
                 duration: "",
                 isFollowing: false,
                 participants: [],
+                hasOutcomes: false,
                 outcomeList: [
                     { // Outcome object
                         outcome_id: null,
@@ -452,6 +454,10 @@
             async fetchOutcomesForActivity() {
                 await api.getActivityOutcomes(this.activityId).then(response => {
                     this.outcomeList = response.data;
+                    if (this.outcomeList.length > 0) {
+                        this.hasOutcomes = true;
+                    }
+                  console.log(this.hasOutcomes);
                 }).catch(error => {
                     if (error.response.status === 401) {
                         sessionStorage.clear();
@@ -466,7 +472,7 @@
              * Gets a list of results for each outcome
              */
             async fetchResultsForOutcomes() {
-                for (let i = 0; i < this.outcomeList.length; i++) {
+                  for (let i = 0; i < this.outcomeList.length; i++) {
                     let outcomeId = this.outcomeList[i].outcome_id;
                     // TODO: Add api call getOutcomeResults here. Add data from response to outcome, like below
                     // this.outcomeList[i].results = response.data;
@@ -475,19 +481,20 @@
                     this.outcomeList[i].results = []; //TODO remove this line when getOutcomeResults is implemented
                     let activeUsersResults = this.outcomeList[i].results.filter(i => i.user_id === this.activeUserId);
                     if (activeUsersResults.length < 1) {
-                        this.outcomeList[i].activeUsersResult = {
-                                user_id: this.activeUserId,
-                                outcome_id: outcomeId,
-                                value: "",
-                                did_not_finish: false,
-                                comment: "",
-                                submitted: false
-                        };
+                      this.outcomeList[i].activeUsersResult = {
+                        user_id: this.activeUserId,
+                        outcome_id: outcomeId,
+                        value: "",
+                        did_not_finish: false,
+                        comment: "",
+                        submitted: false
+                      };
                     } else {
-                        this.outcomeList[i].activeUsersResult = activeUsersResults[0];
-                        this.outcomeList[i].activeUsersResult.submitted = true;
+                      this.outcomeList[i].activeUsersResult = activeUsersResults[0];
+                      this.outcomeList[i].activeUsersResult.submitted = true;
                     }
-                }
+                  }
+
             },
             /**
              * Submit result to back-end for an outcome
