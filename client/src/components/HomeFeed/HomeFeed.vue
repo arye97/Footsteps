@@ -91,9 +91,12 @@
                 let userId = null;
                 await api.getUserId().then(response => {
                     userId = response.data;
-                }).catch(error => {this.throwError(error, true)});
-                return userId
+                }).catch( () => {
+                    this.logout();
+                });
+                return userId;
             },
+
             /**
              * Calculate the feedEvents to be displayed from the current page number.
              * This function is called when the pagination bar is altered,
@@ -107,6 +110,23 @@
                 }
                 this.currentPageEventList = this.feedEventList.slice(leftIndex, rightIndex);
                 window.scrollTo(0,0);
+            },
+
+            /**
+             * Logs the user out and clears session token
+             */
+            logout () {
+                api.logout().then(() => {
+                    sessionStorage.clear();
+                    this.isLoggedIn = (sessionStorage.getItem("token") !== null);
+                    this.$forceUpdate();
+                    this.$router.push('/login');
+                }).catch(() => {
+                    sessionStorage.clear();
+                    this.isLoggedIn = (sessionStorage.getItem("token") !== null);
+                    this.$forceUpdate();
+                    this.$router.push('/login');
+                })
             },
         }
     }

@@ -125,9 +125,7 @@
 
         async mounted() {
             // If not logged in
-            if (!sessionStorage.getItem("token")) {
-                await this.logout(); //Routes to home on logout
-            }
+            await api.getUserId().catch(() => this.logout())
             await this.fetchActivityTypes();
         },
 
