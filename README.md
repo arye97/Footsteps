@@ -36,12 +36,18 @@ Set up the environment variables according to the information stored in eng-git
 1. Set up the following environment variables:
     - SPRING_DATASOURCE_USERNAME
     - SPRING_DATASOURCE_PASSWORD
-    - SPRING_DEFAULT_ADMIN_EMAIL
-    - SPRING_DEFAULT_ADMIN_PASSWORD  
-    With the credentials for the database and default admin.  If you don't have access to these values, you can still run the application locally (see step 3).  
+- SPRING_DEFAULT_ADMIN_EMAIL=default@default.com
+- SPRING_DEFAULT_ADMIN_PASSWORD=pzHqSbMXAsbh2Ajd
+You should have access to the Username and Password of the database (the first 2 variables) 
+and they should not be included here.  If you don't have access to these values, you can still 
+run the application locally (see end of step 3).  The teaching team has requested we add the username 
+and password for the default admin, so we have included them.  
+
 2. Navigate to the server folder: Example command: `cd server`  
-3. Run the server Command: `./gradlew bootRun`  
-    - By default this will run the localDev profile. You may use a specific server profile using the command `./gradlew bootRun -PspringProfile=profileName` instead  
+3. 3. If you know the correct URL of the database, you can store it in the environment variable: SPRING_DATASOURCE_URL
+and run the server with `./gradlew bootRun`. 
+    - You may also use a specific server profile using the command `./gradlew bootRun -PspringProfile=profileName`.
+See "Server Profiles" for all options."
     - If you do not have access to the test database or default admin credentials, you can use an in memory database by using the command `./gradlew bootRun -PspringProfile=local` instead  
 
 Running on: http://localhost:9499/
@@ -58,6 +64,12 @@ In order to use most profiles, you must have credentials set in your environment
 - **localProd**: Uses the prod database. This profile is not intended for future use outside of debugging the prod database.   
 - **dev**: Uses the test database. For use when deploying the development server on the virtual machine.   
 - **prod**: Uses the prod database. For use when deploying the production server on the virtual machine.  
+
+##### SSH into University Network
+If you are not on the University network (localDev or localProd) you can use the Database by SSH-ing:
+`ssh -L 3306:db2.csse.canterbury.ac.nz:3306 <UC-Username>@linux.cosc.canterbury.ac.nz -fN` and enter your credentials.
+If you are using Windows, see our Wiki on eng-git for how to do this.
+https://eng-git.canterbury.ac.nz/seng302-2020/team-600/wikis/How%20to%20configure%20database%20access%20and%20environment%20variables
 
 ### Sonarqube Analysis (Backend)
 The Footsteps program has a backend code analyser that is executed by

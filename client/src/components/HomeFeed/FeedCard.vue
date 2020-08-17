@@ -10,7 +10,10 @@
             <b-row class="mb-1">
                 <!-- Core Card Text -->
                 <b-col>
-                    <b-card-text id="description"><strong>{{firstName}} {{lastName}} {{actionText}} the activity {{event.activityName}}</strong></b-card-text>
+                    <!--Display You subscribed etc. if you initiated the event-->
+                    <b-card-text v-if="event.userId === viewerId && !isNaN(viewerId)"
+                                 id="description"><strong>You {{actionText}} the activity {{event.activityName}}</strong></b-card-text>
+                    <b-card-text v-else id="description"><strong>{{firstName}} {{lastName}} {{actionText}} the activity {{event.activityName}}</strong></b-card-text>
                 </b-col>
             </b-row>
             <!-- Buttons and separator not required for delete events -->
@@ -43,6 +46,11 @@
                 activityId: Number,
                 userId: Number,
                 activityName: String,
+                outcomeTitle: String
+            },
+            viewerId: {
+                default: null,
+                type: Number,
             }
         },
         data: function() {
@@ -73,6 +81,7 @@
                     this.errored = true;
                 });
                 // Determine what type of event occurred
+                const vowelRegex = '^[aieouAIEOU].*';
                 switch (this.event.feedEventType) {
                     case 'DELETE':
                         this.actionText = "deleted";
@@ -85,6 +94,13 @@
                         break;
                     case 'FOLLOW':
                         this.actionText = "followed";
+                        break;
+                    case 'ADD_RESULT':
+                        if (this.event.outcomeTitle.match(vowelRegex)) {  // Use 'an' or 'a'?
+                            this.actionText = 'added an "' + this.event.outcomeTitle + '" result to';
+                        } else {
+                            this.actionText = 'added a "' + this.event.outcomeTitle + '" result to';
+                        }
                         break;
                     default:
                         this.errored = true;

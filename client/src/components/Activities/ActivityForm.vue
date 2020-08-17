@@ -117,6 +117,9 @@
                             Include starting time
                         </b-form-checkbox>
                     </b-form-group>
+                    <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_start_valid">
+                        {{"Please enter a valid date"}}
+                    </div>
                     <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_start">
                         {{"Field is mandatory, a start date must be set with (optionally) a start time"}}
                     </div>
@@ -150,7 +153,9 @@
                             Include ending time
                         </b-form-checkbox>
                     </b-form-group>
-
+                    <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_end_valid">
+                        {{"Please enter a valid date"}}
+                    </div>
                     <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_end">
                         {{"Field is mandatory, an end date must be set with (optionally) an end time"}}
                     </div>
@@ -216,7 +221,11 @@
                 </b-row>
                 <b-row>
                     <b-col align-self="center">
+                        <div v-if="errored" class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert">
+                            {{  error_message  }}
+                        </div>
                         <b-button
+                                v-else
                                 v-bind:disabled="!validOutcome"
                                 variant="primary"
                                 id="addOutcome"
@@ -225,8 +234,10 @@
                         >
                             Add outcome
                         </b-button>
+
                     </b-col>
                 </b-row>
+
 
                 <section class="outcomesDisplay">
                     <table id="additionalEmailsTable" class="table table-hover">
@@ -243,6 +254,9 @@
                                         {{ outcome.unit_name }}
                                     </p>
                                 </td>
+                            <!--Only show edit and delete buttons if this is a newly added Outcome. Uhg O(n^2)-->
+                            <!--This v-if should be removed when we add functionality for editing existing Outcomes-->
+                            <div v-if="!originalOutcomeList.includes(outcome)">
                                 <td class="tableButtonTd">
                                     <b-button variant="danger" :id="'deleteButton' + index" v-on:click="deleteOutcome(index)">
                                         <b-icon-trash-fill></b-icon-trash-fill>
@@ -251,6 +265,7 @@
                                 <td class="tableButtonTd">
                                     <b-button variant="primary" :id="'editButton' + index" v-on:click="editOutcome(index)">Edit</b-button>
                                 </td>
+                            </div>
                         </tr>
                     </table>
                 </section>
@@ -306,9 +321,15 @@
                 },
                 type: Array
             },
+            originalOutcomeList: {
+                default() {
+                    return [...this.outcomeList];
+                },
+                type: Array
+            },
             submitActivityFunc: Function,
             startTime: String,
-            endTime: String
+            endTime: String,
         },
         data() {
             return {
@@ -332,7 +353,8 @@
                 maxOutcomeTitleCharCount: 75,
                 outcomeUnitCharCount: 0,
                 maxOutcomeUnitCharCount: 15,
-
+                errored: false,
+                error_message: "Something went wrong"
                 loading: false,
                 isRedirecting: false,
                 redirectionMessage: ''
@@ -453,8 +475,12 @@
 
                 // If duration is chosen
                 if (!this.activity.continuous) {
-                    if (!this.activity.submitStartTime) {
-                        this.showError('alert_start');
+                    if (isNaN(startTime.getTime())) {
+                        showError('alert_start_valid');
+                        this.isValidFormFlag = false;
+                    }
+                    else if (!this.activity.submitStartTime) {
+                        showError('alert_start');
                         this.isValidFormFlag = false;
                     }
                     else if (startTime > endTime) {
@@ -465,8 +491,13 @@
                         this.showError('alert_start_before_epoch_date');
                         this.isValidFormFlag = false;
                     }
-                    if (!this.activity.submitEndTime) {
-                        this.showError('alert_end');
+
+                    if (isNaN(endTime.getTime())) {
+                        showError('alert_end_valid');
+                        this.isValidFormFlag = false;
+                    }
+                    else if (!this.activity.submitEndTime) {
+                        showError('alert_end');
                         this.isValidFormFlag = false;
                     }
                     else if (endTime < startTime) {
@@ -526,6 +557,7 @@
              * Updates word count for outcome title
              */
             updateOutcomeWordCount() {
+                this.errored = false;
                 this.outcomeTitleCharCount = this.activeOutcome.title.length;
                 this.outcomeUnitCharCount = this.activeOutcome.unit_name.length;
                 this.validOutcome = this.outcomeTitleCharCount > 0 && this.outcomeUnitCharCount > 0
@@ -535,6 +567,8 @@
                     for (let i = 0; i < this.outcomeList.length; i++) {
                         if (this.activeOutcome.title === this.outcomeList[i].title) {
                             this.validOutcome = false;
+                            this.errored = true;
+                            this.error_message = "That outcome title already exists!";
                             return;
                         }
                     }
