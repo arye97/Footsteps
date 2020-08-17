@@ -130,6 +130,17 @@
             },
 
             /**
+             * Logs the user out and clears session token
+             */
+            logout () {
+                api.logout();
+                sessionStorage.clear();
+                this.isLoggedIn = (sessionStorage.getItem("token") !== null);
+                this.$forceUpdate();
+                this.$router.push('/login');
+            },
+
+            /**
              * Helper function for when errors are thrown by server after hitting an endpoint,
              * @param servError Error thrown by server endpoint
              * @param isGet boolean value if the error is from a get endpoint, true if it is, false if it isnt, so that
