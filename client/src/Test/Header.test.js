@@ -21,7 +21,7 @@ test('Toggle button for collapsible nav-bar exists', () => {
     expect(header.find('#togglerButton')).toBeTruthy();
 });
 
-test('There are 4 possible collapsible links, when logged in', () => {
+test('There are 5 possible collapsible links, when logged in', () => {
     header = mount(Header, {data() {
             return {
                 isLoggedIn: true

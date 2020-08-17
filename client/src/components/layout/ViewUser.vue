@@ -228,6 +228,11 @@
                       this.fitness = fitnessLevels[i].desc;
                     }
                   }
+                  if (this.user.role === 20) {
+                      // Is the global admin
+                      this.$router.push('/home');
+                      return;
+                  }
                   this.userDataLoaded = true;
                 }
               }).catch(error => {

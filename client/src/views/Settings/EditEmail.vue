@@ -170,6 +170,10 @@
 
                     await api.getUserData(this.userId).then(response => {
                         this.userId = response.data.id;
+                        if (response.data.role === 20) {
+                            // Is the global admin
+                            this.$router.push('/home');
+                        }
                     }).catch(error => {
                         if (error.response.data.status === 401) {
                             this.logout();

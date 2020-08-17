@@ -339,6 +339,11 @@
                     await api.getUserData(this.profileId).then(response => {
                         this.loggedIn = true;
                         this.loading = false;
+                        if (response.data.role === 20) {
+                            // Is the global admin
+                            this.$router.push('/home');
+                            return;
+                        }
                         this.setUserFields(response.data);
                     }).catch(error => {
                         this.processGetError(error);
