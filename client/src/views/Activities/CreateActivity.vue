@@ -79,7 +79,10 @@
                 // Send the activityForm to the server to create a new activity, and get it's id
                 await api.createActivity(activityForm, this.activity.profileId).then(response => {
                     activityId = response.data;
-                }).catch(error => {this.throwError(error, false)});
+                }).catch(error => {
+                    this.throwError(error.response, false)
+                    return;
+                });
 
                 // Send the outcomes to the server.  Adds the activityId to the outcomes.
                 await this.createAllOutcomes(this.outcomeList, activityId);
@@ -105,8 +108,8 @@
                         unit_type: Object.keys(UnitType).includes(outcome.unit_type) ? outcome.unit_type : UnitType.TEXT,
                     };
 
-                    await api.createOutcome(outcomeRequest).catch(serverError => {
-                        this.throwError(serverError, false);
+                    await api.createOutcome(outcomeRequest).catch(error => {
+                        this.throwError(error.response, false);
                     });
                 }
 
@@ -120,7 +123,9 @@
                 let userId = null;
                 await api.getUserId().then(response => {
                     userId = response.data;
-                }).catch(error => {this.throwError(error, true)});
+                }).catch(() => {
+                    this.logout();
+                });
                 return userId
             },
 
@@ -131,8 +136,10 @@
              * the function will use the necessary if statements to handle these
              */
             throwError(servError, isGet) {
+                // Prevents "can't read status of undefined" error
+                servError = 'response' in servError ? servError.response : servError;
                 if (!isGet) {
-                    switch (servError.response.status) {
+                    switch (servError.status) {
                         case 401:
                             sessionStorage.clear();
                             this.$router.push("/login");
@@ -145,7 +152,7 @@
                             throw new Error("Unknown error has occurred whilst creating this activity");
                     }
                 } else if (isGet) {
-                    switch (servError.response.status) {
+                    switch (servError.status) {
                         case 401:
                             sessionStorage.clear();
                             this.$router.push("/login");

@@ -137,7 +137,9 @@
              * Get OK if the user can edit the given activity. Otherwise redirect to AllActivities.vue
              */
             async isActivityEditable(activityId) {
-                await api.isActivityEditable(activityId).catch(error => {this.throwError(error, true)});
+                await api.isActivityEditable(activityId).catch(() => {
+                    this.$router.push({name: 'allActivities', params: {alertMessage: 'Activity is not editable', alertCount: 5}});
+                });
             },
 
             /**
@@ -158,8 +160,9 @@
                     for (let i = 0; i < response.data.activity_type.length; i++) {
                         this.activity.selectedActivityTypes.push(response.data.activity_type[i].name);
                     }
-                }).catch(error => this.throwError(error, true));
-
+                }).catch(() => {
+                    this.$router.push({name: 'allActivities', params: {alertMessage: "Can't get Activity data", alertCount: 5}});
+                });
                 await api.getActivityOutcomes(activityId).then(response => {
                     this.originalOutcomeList = [...response.data];
                     this.outcomeList = [...response.data];
@@ -190,7 +193,9 @@
                 let userId = null;
                 await api.getUserId().then(response => {
                     userId = response.data;
-                }).catch(error => {this.throwError(error, true)});
+                }).catch(() => {
+                    this.logout();
+                });
                 return userId
             },
 
@@ -201,8 +206,10 @@
              * the function will use the necessary if statements to handle these
              */
              throwError(servError, isGet) {
+                // Prevents "can't read status of undefined" error
+                servError = 'response' in servError ? servError.response : servError;
                  if (!isGet) {
-                    switch (servError.response.status) {
+                    switch (servError.status) {
                         case 401:
                             sessionStorage.clear();
                             this.$router.push("/login");
@@ -215,7 +222,7 @@
                             throw new Error("Unknown error has occurred whilst editing this activity");
                     }
                 } else if (isGet) {
-                    switch (servError.response.status) {
+                    switch (servError.status) {
                         case 401:
                             sessionStorage.clear();
                             this.$router.push("/login");

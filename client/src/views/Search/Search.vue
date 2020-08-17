@@ -125,9 +125,7 @@
 
         async mounted() {
             // If not logged in
-            if (!sessionStorage.getItem("token")) {
-                await this.logout(); //Routes to home on logout
-            }
+            await api.getUserId().catch(() => this.logout())
             await this.fetchActivityTypes();
         },
 
@@ -198,13 +196,13 @@
                     }).catch(err => {
                         this.loading = false;
                         this.errored = true;
-                        this.userList = []
+                        this.userList = [];
                         this.setCurrentPageUserList();
                         if ((err.code === "ECONNREFUSED") || (err.code === "ECONNABORTED")) {
                             this.error_message = "Cannot connect to server - please try again later!";
                         } else {
                             if (err.response.status === 401) {
-                                this.error_message = "You aren't logged in! You're being redirected!"
+                                this.error_message = "You aren't logged in! You're being redirected!";
                                 setTimeout(() => {this.logout()}, 3000)
                             } else if (err.response.status === 400) {
                                 this.error_message = err.response.data.message;
