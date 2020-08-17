@@ -120,7 +120,8 @@ test('Catches an http status error of 403 when checking if activity can be edite
 
 
     return editActivity.vm.getActivityData().then(() => {
-        expect(spy).toHaveBeenCalledWith({name: 'allActivities'});
+        expect(spy).toHaveBeenLastCalledWith(
+            { name: 'allActivities', params: {alertCount: 5, alertMessage: "Can't get Activity data"} });
     });
 });
 
@@ -137,7 +138,8 @@ test('Catches an http status error that isnt 401 or 403 when activity data is co
 
 
     return editActivity.vm.getActivityData().then(() => {
-        expect(spy).toHaveBeenCalledWith({ name: 'myProfile' });
+        expect(spy).toHaveBeenLastCalledWith(
+            { name: 'allActivities', params: {alertCount: 5, alertMessage: "Can't get Activity data"} });
     });
 });
 
