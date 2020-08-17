@@ -1,15 +1,6 @@
 <template>
 
     <div>
-        <section v-if="loading">
-            <div v-if="this.isRedirecting">
-                {{ redirectionMessage }}
-            </div>
-            <div class="loading text-center">
-                <b-spinner variant="primary" label="Spinning"></b-spinner>
-                <br/>
-            </div>
-        </section>
         <header class="masthead">
             <div class="container h-100">
                 <div class="row h-100 align-items-center">
@@ -354,10 +345,7 @@
                 outcomeUnitCharCount: 0,
                 maxOutcomeUnitCharCount: 15,
                 errored: false,
-                error_message: "Something went wrong",
-                loading: false,
-                isRedirecting: false,
-                redirectionMessage: ''
+                error_message: "Something went wrong"
             }
         },
         async created() {
@@ -396,7 +384,6 @@
             },
 
             processPostError(errResponse) {
-                this.isRedirecting = true;
                 if (errResponse.status === 401) {
                     this.logout();
                 } else if (errResponse.status === 403) {
