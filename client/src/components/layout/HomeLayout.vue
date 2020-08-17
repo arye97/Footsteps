@@ -6,7 +6,8 @@
                     <h1><br/></h1>
                     <div class="row h-100">
                         <div class="col-12 text-center">
-                            <h1 class="font-weight-light">Hakinakina</h1>
+                            <img id="logo" src="../../../assets/png/Footsteps_full.png" width="80%" alt="Footsteps Logo">
+                            <br/><br/>
                             <p class="lead">Plan your route with the best</p>
                             <hr><br/>
                             <form v-on:submit.prevent="register" v-if="!this.isLoggedIn">
@@ -20,12 +21,15 @@
                                 <div class="col-sm-12 text-center">
                                     <p class="lead">
 
-                                        <b-button variant="success" size="med" v-on:click="$router.push('Profile')">My Profile</b-button><br/><br/>
+                                        <b-button variant="success" size="med" v-on:click="$router.push({name: 'myProfile'})">My Profile</b-button><br/><br/>
 
-                                        <b-button variant="success" size="med" v-on:click="$router.push('Activities')">My Activities</b-button><br/><br/>
+                                        <b-button variant="success" size="med" v-on:click="$router.push({name: 'allActivities'})">My Activities</b-button><br/><br/>
 
                                     </p>
                                 </div>
+                                <hr><br/>
+                                <!-- Show recent online actions -->
+                                <HomeFeed></HomeFeed>
                             </div>
                         </div>
                     </div>
@@ -37,8 +41,10 @@
 
 
 <script>
+    import HomeFeed from "../HomeFeed/HomeFeed";
     export default {
         name: "HomeLayout",
+        components: {HomeFeed},
         isLoggedIn: false,
         data: function () {
             return {
@@ -46,6 +52,10 @@
             }
         },
         props: ['userId'],
+        mounted() {
+            this.setIsLoggedIn();
+
+        },
         watch: {
             isLoggedIn: function () {
                 this.setIsLoggedIn();

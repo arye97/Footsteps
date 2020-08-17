@@ -6,7 +6,7 @@
                 <Header/>
                 <div class="row h-100">
                     <div class="col-12 text-center">
-                        <h1 class="font-weight-light"><strong>Welcome to Hakinakina</strong></h1>
+                        <h1 class="font-weight-light"><strong>Welcome to Footsteps</strong></h1>
                         <div v-if="this.loading">
                             <p class="lead">{{message}}</p><br/>
                         </div>
@@ -56,6 +56,7 @@
                         }
                     }).catch(error => {
                         if (error.status === 401 || error.status === 404) {
+                            sessionStorage.clear();
                             this.$router.push("/login");
                         } else {
                             this.message = "An error has occurred, please try again later";

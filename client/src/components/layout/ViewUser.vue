@@ -3,9 +3,7 @@
         <h1><br/><br/></h1>
         <b-container class="contents" fluid>
             <div class="container">
-                <template v-if="this.loading === false">
-                    <Header :userId="this.userId"/>
-                </template>
+                <Header v-if="!modalView" :userId="this.userId"/>
                 <div class="row h-100">
                     <div class="col-12 text-center">
                         <section v-if="errored">
@@ -16,7 +14,8 @@
                             <div v-if="loading"> Loading... <br/><br/><b-spinner variant="primary" label="Spinning"></b-spinner></div>
                             <div v-else class="font-weight-light">
                                 <br/>
-                                <h1 class="font-weight-light"><strong>{{this.user.firstname}} {{this.user.middlename}} {{this.user.lastname}} ({{this.user.nickname}})</strong></h1>
+                                <h1 class="font-weight-light"><strong>{{this.user.firstname}} {{this.user.middlename}} {{this.user.lastname}}</strong></h1>
+                                <h1 class="font-weight-light" v-if="this.user.nickname">{{this.user.nickname}}</h1>
                                 <br/>
                                 <h5 class="font-weight-light" v-if="this.user.bio">"{{ this.user.bio }}"<br/></h5>
                                 <br/>
@@ -107,7 +106,7 @@
                                 <h3 class="font-weight-light"><strong>Activity Types: </strong></h3><br/>
 
                                 <b-list-group v-if="this.user.activityTypes.length >= 1">
-                                    <b-card v-for="activityType in this.user.activityTypes" v-bind:key="activityType" class="flex-fill" border-variant="secondary">
+                                    <b-card v-for="activityType in this.user.activityTypes" v-bind:key="activityType.name" class="flex-fill" border-variant="secondary">
                                         <b-card-text class="font-weight-light">
                                             {{activityType.name}}
                                         </b-card-text>
@@ -127,6 +126,9 @@
                         </section>
                     </div>
                 </div>
+                <section v-if="pageUrl === '/search/users' && userDataLoaded">
+                    <ActivityList :user_-id="userId"/>
+                </section>
             </div>
         </b-container>
         <br/><br/>
@@ -137,11 +139,22 @@
     import api from "../../Api";
     import {fitnessLevels} from '../../constants'
     import Header from '../../components/Header/Header';
-    //import {getDateString} from "../../util"
+    import ActivityList from "../Activities/ActivityList";
+
     export default {
         name: "ViewUser",
         components: {
+            ActivityList,
             Header
+        },
+        props: {
+            modalView: {
+                default: false,
+                type: Boolean
+            },
+            userId: {
+                default: ''
+            }
         },
         data() {
             return {
@@ -151,11 +164,12 @@
                 error: null,
                 fitness: null,
                 formattedDate: "",
-                userId: '',
                 isEditable: true,
                 activityTypes: [],
                 continuousActivities: [],
-                discreteActivities: []
+                discreteActivities: [],
+                userDataLoaded: false,
+                pageUrl: this.$route.fullPath
             }
         },
         async mounted() {
@@ -167,18 +181,27 @@
                 this.errored = false;
                 this.error = null;
                 this.fitness = null;
-                this.userId = this.$route.params.userId;
+                if(this.$route.params.userId) {
+                    this.userId = this.$route.params.userId;
+                } else if (this.userId === undefined || isNaN(this.userId)) {  // Check if the inputted userId prop wasn't used
+                        this.userId = this.getUserId();
+                }
                 this.loading = true;
                 await this.fetchActivityTypes();
                 this.continuousActivities = [];
                 this.discreteActivities = [];
-                if (this.userId === undefined || isNaN(this.userId)) {
-                    this.userId = '';
-                }
                 await this.editable();
                 await this.getProfile();
                 this.loading = false;
 
+
+            },
+            getUserId() {
+                let id = null;
+                api.getUserId().then(response => {
+                    id = response.data;
+                }).catch(()=> {id = '';})
+                return id;
             },
             /**
              * Fetch all possible activity types from the server.
@@ -205,10 +228,10 @@
                       this.fitness = fitnessLevels[i].desc;
                     }
                   }
+                  this.userDataLoaded = true;
                 }
               }).catch(error => {
                 this.errored = true;
-                console.log(error);
                 this.error = error.response.data.message;
                 if (error.response.data.status === 404 && sessionStorage.getItem('token') !== null) {
                   this.$router.push({ name: 'myProfile' });
@@ -233,7 +256,7 @@
                 })
             },
             editProfile () {
-                this.$router.push({name: 'details', params:  { userId: this.userId }});
+                this.$router.push({name: 'editProfile', params:  { userId: this.userId }});
             },
 
             /**

@@ -40,4 +40,6 @@ out/
 ### SonarQube ###
 client/.scannerwork/
 client/coverage/
-client/test-report.xml
+
+### Test Reports ###
+*/test-report.xml

@@ -3,7 +3,7 @@ package com.springvuegradle.seng302team600.service;
 import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.model.UserRole;
-import com.springvuegradle.seng302team600.payload.UserResponse;
+import com.springvuegradle.seng302team600.payload.LoginResponse;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +44,7 @@ public class UserAuthenticationService {
      * @param password user's password to login
      * @return the token generated or ResponseStatusException is thrown
      */
-    public UserResponse login(String email, String password) {
+    public LoginResponse login(String email, String password) {
         Email userEmail = emailRepository.findByEmail(email);
         if (userEmail == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Could not find user with email " + email);
@@ -55,7 +55,7 @@ public class UserAuthenticationService {
             user.setToken(token);
             user.setTokenTime();
             userRepository.save(user);
-            return new UserResponse(token, user.getUserId());
+            return new LoginResponse(token, user.getUserId());
         }
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login unsuccessful, please enter a valid password");
     }
@@ -78,7 +78,7 @@ public class UserAuthenticationService {
      * @return User requested or ResponseStatusException is thrown (if unauthorized or timed out)
      */
     public User findByToken(String token) {
-        if (token == null) {
+        if (token == null || token.equals("[object Object]")) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not logged in");
         }
         User user = userRepository.findByToken(token);

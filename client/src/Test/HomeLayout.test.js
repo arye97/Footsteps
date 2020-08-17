@@ -1,6 +1,6 @@
 import {shallowMount} from '@vue/test-utils'
 import HomeLayout from '../components/layout/HomeLayout.vue'
-import "jest"
+import 'vue-jest'
 
 let homeLayout;
 let push;
@@ -28,8 +28,8 @@ test('Is a vue instance', () => {
     expect(homeLayout.isVueInstance).toBeTruthy();
 });
 
-test('Does not have a mounted hook', () => {
-    expect(HomeLayout.mounted).toBeUndefined();
+test('Logo is on the page', () => {
+    expect(homeLayout.find('#logo').is('img')).toBeTruthy()
 });
 
 // ----AC1----
@@ -44,21 +44,3 @@ test.each([
 ])('AC1 Has a %s button', (button) => {
     expect(homeLayout.find('#'+ button + 'Button').is('button')).toBeTruthy();
 });
-
-// ----AC1----
-test.each([
-    ['register'],
-    ['login'],
-])('AC1 %s button click should direct to page', (button) => {
-    // let foundButton = homeLayout.find('#'+ button + 'Button');
-    // foundButton.trigger('click');
-    //
-    // const route = Router.find(route => route.name === button);
-    // expect(push).toHaveBeenCalledWith(route);
-    // Doesn't seem to be working to mock the router and check the call is being made, this will be finished after
-    // sprint 2 but before sprint 3
-    expect(true).toBeTruthy();
-});
-
-
-

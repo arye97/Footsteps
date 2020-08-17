@@ -41,7 +41,7 @@
                   v-model="firstname" id="first-name" name="first-name" placeholder="Your First Name..."
                 />
                 <div class="word-count">
-                    {{ firstNameCharCount }}/{{ maxNameCharCount }} characters remaining
+                    {{ firstNameCharCount }}/{{ maxNameCharCount }} characters left
                 </div>
             </b-form-group>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_first_name">
@@ -52,7 +52,7 @@
                 <!-- full-name field-->
                 <b-form-input type="text" class="form-control" trim v-on:click="unDisplayRules" v-on:input="updateCharCount" v-model="middlename" id="middle-name" name="middle-name" placeholder="Your Middle Name..." />
                 <div class="word-count">
-                    {{ middleNameCharCount }}/{{ maxNameCharCount }} characters remaining
+                    {{ middleNameCharCount }}/{{ maxNameCharCount }} characters left
                 </div>
             </b-form-group>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_middle_name">
@@ -63,7 +63,7 @@
                 <!-- full-name field-->
                 <b-input type="text" class="form-control" trim v-on:click="unDisplayRules" v-on:input="updateCharCount" v-model="lastname" id="last-name" name="last-name" placeholder="Your Last Name..." />
                 <div class="word-count">
-                    {{ lastNameCharCount }}/{{ maxNameCharCount }} characters remaining
+                    {{ lastNameCharCount }}/{{ maxNameCharCount }} characters left
                 </div>
             </b-form-group>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_last_name">
@@ -73,7 +73,7 @@
                 <!-- email field -->
                 <b-input type="email" class="form-control" trim v-on:click="unDisplayRules" v-on:input="updateCharCount" v-model="email" id="email" name="email" placeholder="Your Email Address..." />
                 <div class="word-count">
-                    {{ emailCharCount }}/{{ maxEmailCharCount }} characters remaining
+                    {{ emailCharCount }}/{{ maxEmailCharCount }} characters left
                 </div>
             </b-form-group>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_email">
@@ -119,7 +119,7 @@
                 <!-- nickname field-->
                 <b-input type="text" class="form-control" v-on:click="unDisplayRules" v-model="nickname" id="nickname" name="nickname" placeholder="Your Nickname..." />
                 <div class="word-count">
-                    {{ nicknameCharCount }}/{{ maxNameCharCount }} characters remaining
+                    {{ nicknameCharCount }}/{{ maxNameCharCount }} characters left
                 </div>
             </b-form-group>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_nickname">
@@ -142,7 +142,7 @@
                 <b-input type="date" name="date_of_birth" class="form-control" v-model="date_of_birth" id="date_of_birth" />
             </b-form-group>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_dob">
-                {{  "Field is mandatory, can not be blank and user must be within 13 - 150 years"  }}
+                {{  "Field is mandatory and can not be blank. User must be within 13 - 150 years (ie. the date must be in the past)"  }}
             </div>
 
             <b-form-group label-for="passportCountries" label="Passport Country:">
@@ -159,7 +159,7 @@
                 <b-form-textarea name="bio" class="form-control" id="bio" v-on:click="unDisplayRules"
                                  v-on:input="updateCharCount" v-model="bio" cols="30" rows="1" placeholder="Who are you?" />
                 <div class="word-count">
-                    {{ bioCharCount }}/{{ maxBioCharCount }} characters remaining
+                    {{ bioCharCount }}/{{ maxBioCharCount }} characters left
                 </div>
             </b-form-group>
             <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden="true" id="alert_bio">
@@ -196,8 +196,8 @@
     import api from '../../Api';
     import Multiselect from 'vue-multiselect'
     import Header from '../../components/Header/Header.vue'
-    import {getCountryNames, fitnessLevels} from '../../constants';
-    import {validateUser} from "../../util";
+    import {fitnessLevels} from '../../constants';
+    import {fetchCountries, validateUser} from "../../util";
 
     function showError(alert_name) {
         let errorAlert = document.getElementById(alert_name);
@@ -206,51 +206,6 @@
         setTimeout(function () {    //Hide alert bar after ~9000ms
             errorAlert.hidden = true;
         }, 9000);
-    }
-
-    async function validUser(newUser, passwordCheck) {
-        let count = 0; //count of blank fields
-        if(!validateUser(newUser.password, "password").valid) {
-            showError('alert_password_check');
-            count += 1;
-        }
-        if (newUser.password !== passwordCheck) {
-            showError('alert_password_match');
-            return 'password';
-        }
-        if(!validateUser(newUser.firstname, "firstname").valid) {
-            showError('alert_first_name');
-            count += 1;
-        }
-        if(!validateUser(newUser.middlename, "middlename").valid) {
-            showError('alert_middle_name');
-            count += 1;
-        }
-        if(!validateUser(newUser.lastname, "lastname").valid) {
-            showError('alert_last_name');
-            count += 1;
-        }
-        if(!validateUser(newUser.date_of_birth, "date_of_birth").valid) {
-            showError('alert_dob');
-            count += 1;
-        }
-        if(!validateUser(newUser.gender, "gender").valid) {
-            showError('alert_gender');
-            count += 1;
-        }
-        if(!validateUser(newUser.primary_email, "email").valid) {
-            showError('alert_email');
-            count += 1;
-        }
-        if(!validateUser(newUser.bio, "bio")) {
-            showError('alert_bio');
-            count += 1;
-        }
-        if(!validateUser(newUser.nickname, "nickname")) {
-            showError('alert_nickname');
-            count += 1;
-        }
-        return count;
     }
 
     export default {
@@ -291,7 +246,7 @@
         },
 
         mounted () {
-            this.fetchCountries();
+            this.countries = fetchCountries();
             this.fetchActivityTypes();
         },
 
@@ -325,36 +280,6 @@
                     });
                 });
             },
-
-            async fetchCountries() {
-                let select = [];
-                // Create a request variable and assign a new XMLHttpRequest object to it.
-                let request = new window.XMLHttpRequest();
-                //build url
-                let url = new URL(getCountryNames);
-                // Open a new connection, using the GET request on the URL endpoint;
-                request.open('GET', url, true);
-
-                request.onload = function() {
-                    // If the request is successful
-                    if(request.status >= 200 && request.status < 400) {
-                        let data = JSON.parse(this.response);
-                        data.forEach(country => {
-                            let elmt = country.name;
-                            select.push(elmt)
-                        } )
-                    } else {
-                        select = 'List is empty';
-                        let errorAlert = document.getElementById("alert_form");
-                        this.message_form = 'Error fetching countries';
-                        errorAlert.hidden = false;          //Show alert bar
-                    }
-                };
-                // Send request
-                this.countries = select;
-                request.send()
-            },
-
             async registerUser(evt) {
                 evt.preventDefault();
                 // Save the data as a newUser object
@@ -373,7 +298,7 @@
                     activity_types: this.selectedActivityTypes
                 };
                 if (newUser.fitness === undefined) newUser.fitness = -1;
-                let validCount = await validUser(newUser, this.passwordCheck);
+                let validCount = await this.validUser(newUser, this.passwordCheck);
                 if (validCount === 'password') {
                     this.message_form = "Password and re-typed password do not match. Please try again"
                     showError('alert_form');
@@ -388,7 +313,7 @@
                     if (response.status === 201) {
                         sessionStorage.setItem("token", response.data.Token);
                         // tokenStore.setToken(response.data);
-                        this.$router.push('/profile'); //Routes to profile on successful register
+                        this.$router.push('/'); //Routes to Home page on successful register
                     }
                 }).catch(error => {
                     //Get alert bar element
@@ -412,6 +337,50 @@
               this.nicknameCharCount = this.nickname.length;
               this.emailCharCount = this.email.length;
               this.bioCharCount = this.bio.length;
+            },
+            async validUser(newUser, passwordCheck) {
+                let count = 0; //count of blank fields
+                if(!validateUser(newUser.password, "password").valid) {
+                    showError('alert_password_check');
+                    count += 1;
+                }
+                if (newUser.password !== passwordCheck) {
+                    showError('alert_password_match');
+                    return 'password';
+                }
+                if(!validateUser(newUser.firstname, "firstname").valid) {
+                    showError('alert_first_name');
+                    count += 1;
+                }
+                if(!validateUser(newUser.middlename, "middlename").valid) {
+                    showError('alert_middle_name');
+                    count += 1;
+                }
+                if(!validateUser(newUser.lastname, "lastname").valid) {
+                    showError('alert_last_name');
+                    count += 1;
+                }
+                if(!validateUser(newUser.date_of_birth, "date_of_birth").valid) {
+                    showError('alert_dob');
+                    count += 1;
+                }
+                if(!validateUser(newUser.gender, "gender").valid) {
+                    showError('alert_gender');
+                    count += 1;
+                }
+                if(!validateUser(newUser.primary_email, "email").valid) {
+                    showError('alert_email');
+                    count += 1;
+                }
+                if(!validateUser(newUser.bio, "bio")) {
+                    showError('alert_bio');
+                    count += 1;
+                }
+                if(!validateUser(newUser.nickname, "nickname")) {
+                    showError('alert_nickname');
+                    count += 1;
+                }
+                return count;
             }
         },
 

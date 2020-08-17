@@ -248,7 +248,8 @@ public class UserValidatorTest {
         addEmails.add("email here");
         testUser.setAdditionalEmails(addEmails);
         Exception exception = assertThrows(ResponseStatusException.class, () -> {userValidator.validate(testUser);});
-        assertEquals("400 BAD_REQUEST \"Invalid email\"", exception.getMessage());
+
+        assertTrue(exception.getMessage().startsWith("400 BAD_REQUEST \"Invalid email"));
 
         //email exceeds max length
         addEmails.set(2, "jones@email.comAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
@@ -256,7 +257,7 @@ public class UserValidatorTest {
                 "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         testUser.setAdditionalEmails(addEmails);
         exception = assertThrows(ResponseStatusException.class, () -> {userValidator.validate(testUser);});
-        assertEquals("400 BAD_REQUEST \"Email exceeds maximum length\"", exception.getMessage());
+        assertTrue(exception.getMessage().startsWith("400 BAD_REQUEST \"Email exceeds maximum length"));
     }
 
     //fitness level

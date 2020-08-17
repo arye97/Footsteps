@@ -18,7 +18,7 @@
                     <h1><br/></h1>
                     <div class="row h-100 align-items-center">
                         <div class="col-sm-12 text-center">
-                            <h1 class="font-weight-light">Login to Hakinakina</h1>
+                            <h1 class="font-weight-light">Login to Footsteps</h1>
                             <hr>
                         <b-form id="form" @submit="login">
                             <b-form-group label-for="email" label="Email Address:">
@@ -95,11 +95,11 @@
                     return;
                 }
                 // Send login post to serve
-                api.login(userLogin).then(response => { //If successfully logged the response will have a status of 201
+                await api.login(userLogin).then(async response => { //If successfully logged the response will have a status of 201
                     if (response.status === 201) {
                         sessionStorage.setItem("token", response.data.Token);
                         this.userId = response.data.userId;
-                        api.getUserRoles(this.userId).then(roleResponse => {
+                        await api.getUserRoles(this.userId).then(roleResponse => {
                             if (roleResponse.data === 20){ //Account is default admin
                                 this.$router.push('/admin');
                             } else{
@@ -110,9 +110,9 @@
                             //Get alert bar element
                             if (err.message === "Network Error") {
                                 this.message = err.message;
-                            } else if (err.status === 401) { //Error 401: User not found
+                            } else if (err.response.status === 401) { //Error 401: User not found
                                 this.message = err.message; //Set alert bar message to error message from server
-                            } else if (err.status === 400) { //Error 400: Bad request
+                            } else if (err.response.status === 400) { //Error 400: Bad request
                                 this.message = "An invalid login request has been received please try again"
                             } else {    //Catch for any errors that are not specifically caught
                                 this.message = "An unknown error has occurred during login"
@@ -126,9 +126,9 @@
                     //Get alert bar element
                     if (error.message === "Network Error") {
                         this.message = error.message;
-                    } else if (error.status === 401) { //Error 401: User not found or incorrect password
-                        this.message = error.message; //Set alert bar message to error message from server
-                    } else if (error.status === 400) { //Error 400: Bad request (email and/or password fields not given)
+                    } else if (error.response.status === 401) { //Error 401: User not found or incorrect password
+                        this.message = error.response.data.message; //Set alert bar message to error message from server
+                    } else if (error.response.status === 400) { //Error 400: Bad request (email and/or password fields not given)
                         this.message = "An invalid login request has been received please try again"
                     } else {    //Catch for any errors that are not specifically caught
                         this.message = "An unknown error has occurred during login"

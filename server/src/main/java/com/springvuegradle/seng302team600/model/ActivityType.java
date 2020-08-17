@@ -12,7 +12,7 @@ public class ActivityType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
+    @Column(name = "activity_type_id", nullable = false)
     private Long activityTypeId;
 
     @ManyToMany(mappedBy = "activityTypes")

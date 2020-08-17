@@ -1,8 +1,8 @@
-# SENG302 Team 600 Hakinakina Application
+# SENG302 Team 600 Footsteps Application
 -----
-This is the README file for the SENG302 Team 600 Hakinakina Application.
+This is the README file for the SENG302 Team 600 Footsteps Application.
 
-Hakinakina is a fitness and leisure tracking web application.  
+Footsteps is a fitness and leisure tracking web application.  
 It has been built using javascript - utilising Vue - and java - using Spring.
 
 ### Team Details
@@ -46,36 +46,10 @@ Set up the environment variables according to the information stored in eng-git
 
 Running on: http://localhost:9499/
 
-Interfacing with the backend uses Postman with HTTP requests:
-- Creating a user with a POST and the path: '/createprofile'
-```
-{
-  "firstname": "Maurice",
-  "middlename": "Jack",
-  "lastname" : "DADSSA",
-  "nickname": "Jacky",
-  "email" : "mauricejacask@yahoo.com",
-  "password": "jack",
-  "bio": "Jacky loves to ride his bike on crazy mountains.",
-  "date_of_birth": "1985-12-20",
-  "gender": "male"
-}
-```
-- User login with a GET and the path: '/login'
-```
-{
-  "email" : "mauricejacask@yahoo.com",
-  "password": "jack"
-}
-```
-- Editing users with a POST by sending the id of the user to edit, and all attributes that are edited
-```
-{
-  "id": "1",
-  "bio": "I am a nice bio",
-  "password": "I am a nice bio"
-}
-```
+### Default Admin credentials  
+**Username/Email:**  default@default.com  
+**Password:**  pzHqSbMXAsbh2Ajd  
+
 ##### Server Profiles
 The server has several profiles that can be used, allowing for the use of different databases.  
 In order to use most profiles, you must have credentials set in your environment variables:  
@@ -86,7 +60,7 @@ In order to use most profiles, you must have credentials set in your environment
 - **prod**: Uses the prod database. For use when deploying the production server on the virtual machine.  
 
 ### Sonarqube Analysis (Backend)
-The Hakinakina program has a backend code analyser that is executed by
+The Footsteps program has a backend code analyser that is executed by
 Sonarqube and is then published to a server for analysis. It is 
 normally run on every build automatically but for manual code analysis do the 
 following: To run sonarqube for the backend refer to the "Server (Backend/API)" heading
@@ -110,7 +84,7 @@ This can be accessed by logging in using the following credentials:
 **Password**:  One23456
 
 ### Sonarqube Analysis (Frontend)
-The Hakinakina program has a frontend code analyser that is executed by
+The Footsteps program has a frontend code analyser that is executed by
 Sonarqube and is then published to a server for analysis. It is 
 normally run on every build automatically but for manual code analysis do the 
 following: To run sonarqube for the front end refer to the "Client (Frontend/GUI)" heading
@@ -118,7 +92,7 @@ above and follow steps 1-2, after step 2 is complete type the
 Command: 'npm run sonarqube'
 
 ### Third Party Dependencies
-The Hakinakina program does use some external libraries. These are listed below.
+The Footsteps program does use some external libraries. These are listed below.
 
 **Given dependencies**:  
 These were approved by the teaching staff before the project commenced
@@ -150,7 +124,7 @@ Frontend:
 - @vue/test/utils
 
 **Further approved dependencies**:  
-These dependencies have been approved for use in the Hakinakina application
+These dependencies have been approved for use in the Footsteps application
 
 Backend:
 - Spring Security

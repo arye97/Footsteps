@@ -27,7 +27,7 @@ public class Activity {
     @Column(name = "activity_name", length = NAME_LEN, nullable = false)
     @JsonProperty("activity_name")
     private String name;
-    
+
     @Column(name = "description", length = DESCRIPTION_LEN)
     @JsonProperty("description")
     private String description;
@@ -37,22 +37,30 @@ public class Activity {
     @JoinTable(
             name = "activity_activity_type",
             joinColumns = @JoinColumn(name = "activity_id"),
-            inverseJoinColumns = @JoinColumn(name = "id"))
+            inverseJoinColumns = @JoinColumn(name = "activity_type_id"))
     @JsonProperty("activity_type")
     private Set<ActivityType> activityTypes;
+
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})  // ALL except REMOVE
+    @JoinTable(
+            name = "activity_participant",
+            joinColumns = @JoinColumn(name = "activity_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private Set<User> participants = new HashSet<>();
 
     @NotNull(message = "This Activity needs to be either continuous or have a duration")
     @Column(name = "is_continuous", columnDefinition = "boolean", nullable = false)
     @JsonProperty("continuous")
     private boolean continuous;
 
-    @Column(name = "start_time", columnDefinition = "TIMESTAMP")
+    @Column(name = "start_time", columnDefinition = "DATETIME")
+    // See here for format pattern: https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
     @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ")
     @Temporal(TemporalType.TIMESTAMP)
     @JsonProperty("start_time")
     private Date startTime;
 
-    @Column(name = "end_time", columnDefinition = "TIMESTAMP")
+    @Column(name = "end_time", columnDefinition = "DATETIME")
     @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ")
     @Temporal(TemporalType.TIMESTAMP)
     @JsonProperty("end_time")
@@ -111,6 +119,14 @@ public class Activity {
         return continuous;
     }
 
+    public Set<User> getParticipants() {return participants;}
+
+    public void addParticipant(User user) { this.participants.add(user); }
+
+    public void removeParticipant(User user) { this.participants.remove(user); }
+
+    public void setParticipants(Set<User> participants) {this.participants = participants;}
+
     public void setContinuous(boolean continuous) {
         this.continuous = continuous;
     }
@@ -139,29 +155,26 @@ public class Activity {
         this.location = location;
     }
 
+    /**
+     * Return a unique hash based on attributes.
+     * @return hash code
+     */
     @Override
     public int hashCode() {
-        int result = 43;
-        result = 31 * result + name.hashCode();
-        result = 31 * result + description.hashCode();
-        result = 31 * result + startTime.hashCode();
-        result = 31 * result + endTime.hashCode();
-        result = 31 * result + location.hashCode();
-        result = 31 * result + activityTypes.hashCode();
-        result = 31 * result + (continuous ? 1 : 0);
-
-        return result;
+        return activityId.hashCode();
     }
 
+    /**
+     * Compare Activities based on attributes
+     * @param obj other Activity to campare
+     * @return equality
+     */
     @Override
     public boolean equals(final Object obj) {
         if (obj instanceof Activity) {
             final Activity other = (Activity) obj;
-            // Check that all attributes are not activityId and creatorUserId
-            return this.getName().equals(other.getName()) && this.getDescription().equals(other.getDescription()) &&
-                    this.getStartTime().equals(other.getStartTime()) && this.getEndTime().equals(other.getEndTime()) &&
-                    this.getLocation().equals(other.getLocation()) && this.getActivityTypes().equals(other.getActivityTypes()) &&
-                    this.isContinuous() == other.isContinuous();
+            // Check that all attributes are equal, except activityId and creatorUserId
+            return this.getActivityId().equals(other.getActivityId());
         }
         return false;
     }
@@ -178,6 +191,7 @@ public class Activity {
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
                 ", location='" + location + '\'' +
+                ", participants='" + participants + '\'' +
                 '}';
     }
 }

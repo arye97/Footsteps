@@ -1,38 +1,20 @@
 <template>
     <div>
-        <h1><br/><br/></h1>
         <b-container class="contents" fluid>
-            <h1><br/></h1>
-            <div class="header-sidebar">
-                <div>
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-sm-6 offset-sm-3">
-                                <template v-if="loggedIn">
-                                    <Header/>
-                                </template>
-                                <router-view></router-view>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <section v-if="loading">
+            <div v-if="this.isRedirecting">
+                {{ redirectionMessage }}
             </div>
+            <div class="loading text-center">
+                <b-spinner variant="primary" label="Spinning"></b-spinner>
+                <br/>
+            </div>
+        </section>
 
         <div v-if="loggedIn">
-            <Sidebar :userId="profileId"/>
                 <div class="settings-page" v-if="!this.isRedirecting">
                     <div class="container-fluid" v-if="loggedIn">
                         <div class="form-group">
-                            <header class="masthead">
-                                <div class="container h-100">
-                                    <div class="row h-100 align-items-center">
-                                        <div class="col-12 text-center">
-                                            <h1 class="font-weight-light"><strong>Edit Profile Details</strong></h1><br/>
-                                        </div>
-                                    </div>
-                                </div>
-                            </header>
-                            <hr>
                     <b-form-group  label-for="firstname" label="First Name: *">
                         <!-- first-name field-->
                         <div class="edit-area">
@@ -43,6 +25,9 @@
                                     placeholder="Your First Name..."
                                     trim required>
                             </b-form-input>
+                        </div>
+                        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" hidden="true" id="alert_first_name">
+                            {{  "Field is mandatory and can only contain letters, spaces, hyphens, and apostrophes"  }}
                         </div>
                     </b-form-group>
                     <b-form-group label-for="middlename" label="Middle Name:">
@@ -56,6 +41,9 @@
                                     trim>
                             </b-form-input>
                         </div>
+                        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" hidden="true" id="alert_middle_name">
+                            {{  "Field can only contain letters, spaces, hyphens, and apostrophes"  }}
+                        </div>
                     </b-form-group>
                     <b-form-group label-for="lastname" label="Last Name: *">
                         <!-- last-name field-->
@@ -67,6 +55,9 @@
                                     placeholder="Your Last Name..."
                                     trim required>
                             </b-form-input>
+                        </div>
+                        <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" hidden="true" id="alert_last_name">
+                            {{  "Field is mandatory and can only contain letters, spaces, hyphens, and apostrophes"  }}
                         </div>
                     </b-form-group>
                     <b-form-group label-for="nickname" label="Nickname:">
@@ -171,10 +162,6 @@
                     </div>
                 </div>
             </div>
-            <div v-if="this.isRedirecting">
-                {{ redirectionMessage }}
-                <br/><br/><b-spinner variant="primary" label="Spinning"></b-spinner>
-            </div>
                 </div>
         </div>
         </b-container>
@@ -183,20 +170,19 @@
 </template>
 
 <script>
-    import Sidebar from "../../components/layout/ProfileEditSidebar.vue"
     import Multiselect from 'vue-multiselect'
-    import Header from '../../components/Header/Header.vue'
     import api from "../../Api";
-    import {getCountryNames, fitnessLevels} from '../../constants';
-    import {validateUser} from "../../util"
+    import {fitnessLevels} from '../../constants';
+    import {validateUser, fetchCountries} from "../../util"
 
     export default {
         name: "Details.vue",
         components: {
-            Sidebar, Multiselect, Header
+            Multiselect
         },
         data() {
             return {
+                loading: true,
                 profileId: '',
                 firstname: '',
                 middlename: '',
@@ -232,43 +218,12 @@
                 this.loggedIn = false;
                 this.isRedirecting = false;
                 this.redirectionMessage = '';
-                this.fetchCountries();
+                this.countries = fetchCountries();
                 await this.fetchActivityTypes();
-                console.log(this.$route.params.userId);
                 if (this.$route.params.userId !== undefined) {
                     await this.validateUserIdWithToken(); // If allowed to edit profileId is set
                 }
                 await this.updateInputs();//Populate input fields with profile data if allowed to edit
-            },
-
-            /**
-             * Fetch the possible passport countries to select from.
-             */
-            fetchCountries: function () {
-                //Fill Passport countries
-                let select = [];
-                // Create a request variable and assign a new XMLHttpRequest object to it.
-                let request = new XMLHttpRequest();
-                //build url
-                let url = new URL(getCountryNames);
-                // Open a new connection, using the GET request on the URL endpoint;
-                request.open('GET', url, true);
-
-                request.onload = function () {
-                    // If the request is successful
-                    if (request.status >= 200 && request.status < 400) {
-                        let data = JSON.parse(this.response);
-                        data.forEach(country => {
-                            let elmt = country.name;
-                            select.push(elmt)
-                        })
-                    } else {
-                        select = 'List is empty'
-                    }
-                };
-                // Send request
-                this.countries = select;
-                request.send();
             },
 
             /**
@@ -293,7 +248,7 @@
             saveChanges() {
                 let errorCount = 0; //count of blank fields
                 if (!validateUser(this.firstname, "firstname").valid) {
-                    this.showError('alert_first_name');
+                  this.showError('alert_first_name');
                     errorCount += 1;
                 }
                 if (!validateUser(this.middlename, "middlename").valid) {
@@ -383,6 +338,7 @@
                     // If this point is reached user is authorized to edit the profile, and profileId has been set
                     await api.getUserData(this.profileId).then(response => {
                         this.loggedIn = true;
+                        this.loading = false;
                         this.setUserFields(response.data);
                     }).catch(error => {
                         this.processGetError(error);
@@ -399,37 +355,45 @@
              * Otherwise unknown error to present to user
              */
             processPutError(error) {
-                if (error.response.data.status === 401) {
+                let timeoutTime = 3000;
+                if (error.response.status === 401) {
                     this.loggedIn = false;
                     this.isRedirecting = true;
                     this.redirectionMessage = "Sorry, you are no longer logged in,\n" +
                         "Redirecting to the login page.";
                     setTimeout(() => {
-                        this.$router.push('/login');
-                    }, 4000);
-                } else if (error.response.data.status === 403) {
+                        this.logout()
+                    }, timeoutTime);
+                } else if (error.response.status === 403) {
                     this.isRedirecting = true;
                     this.redirectionMessage = "Sorry, you are not allowed to edit another user's profile,\n" +
                         "Redirecting to your edit profile page.";
                     setTimeout(() => {
-                        this.$router.push({ name: 'detailsNoID' });
+                        this.$router.push({ name: 'editMyProfile' });
                         this.init();
-                    }, 4000);
-                } else if (error.response.data.status === 404) {
+                    }, timeoutTime);
+                } else if (error.response.status === 404) {
                     this.isRedirecting = true;
                     this.redirectionMessage = "Sorry, the user does not exist,\n" +
                         "Redirecting to your edit profile page.";
                     setTimeout(() => {
-                        this.$router.push({name: 'detailsNoID'});
+                        this.$router.push({name: 'editMyProfile'});
                         this.init();
-                    }, 4000);
-                } else if (error.response.data.status === 400) {
-                    this.message = error.response.data.message.toString();
+                    }, timeoutTime);
+                } else if (error.response.status === 400) {
+                    this.message = error.response.message.toString();
                     this.showError('overall_message')
                 } else {
                     this.message = "An unknown error has occurred";
                     this.showError('overall_message')
                 }
+            },
+            /**
+             * Removes token from session storage and navigates to login page
+             */
+            logout() {
+                sessionStorage.clear();
+                this.$router.push('/login');
             },
 
             /**
@@ -440,35 +404,37 @@
              * Otherwise unknown error so redirect to user's home page
              */
             processGetError(error) {
+                let timeoutTime = 3000;
                 this.loggedIn = true;
                 this.isRedirecting = true;
-                if (error.response.data.status === 401) {
+                if (error.response.status === 401) {
                     this.loggedIn = false;
                     this.redirectionMessage = "Sorry, you are no longer logged in,\n" +
                         "Redirecting to the login page.";
                     setTimeout(() => {
+                        sessionStorage.clear();
                         this.$router.push('/login');
-                    }, 4000);
-                } else if (error.response.data.status === 403) {
+                    }, timeoutTime);
+                } else if (error.response.status === 403) {
                     this.redirectionMessage = "Sorry, you are not allowed to edit another user's profile,\n" +
                         "Redirecting to your edit profile page.";
                     setTimeout(() => {
-                        this.$router.push({ name: 'detailsNoID' });
+                        this.$router.push({ name: 'editMyProfile' });
                         this.init();
-                    }, 4000);
-                } else if (error.response.data.status === 404) {
+                    }, timeoutTime);
+                } else if (error.response.status === 404) {
                     this.redirectionMessage = "Sorry, the user does not exist,\n" +
                         "Redirecting to your edit profile page.";
                     setTimeout(() => {
-                        this.$router.push({ name: 'detailsNoID' });
+                        this.$router.push({ name: 'editMyProfile' });
                         this.init();
-                    }, 4000);
+                    }, timeoutTime);
                 } else {
                     this.redirectionMessage = "Sorry, an unknown error occurred when retrieving profile info,\n" +
                         "Redirecting to your home page.";
                     setTimeout(() => {
                         this.$router.push({ name: 'myProfile' });
-                    }, 4000);
+                    }, timeoutTime);
                 }
             },
 
@@ -563,5 +529,33 @@
 
     #activityTypesDiv {
         width: 50em;
+    }
+
+    #alert_first_name {
+        margin-top: 20px;
+    }
+
+    #alert_middle_name {
+        margin-top: 20px;
+    }
+
+    #alert_last_name {
+        margin-top: 20px;
+    }
+
+    #alert_nickname {
+        margin-top: 20px;
+    }
+
+    #alert_gender {
+        margin-top: 20px;
+    }
+
+    #alert_dob {
+        margin-top: 20px;
+    }
+
+    #alert_bio {
+        margin-top: 20px;
     }
 </style>

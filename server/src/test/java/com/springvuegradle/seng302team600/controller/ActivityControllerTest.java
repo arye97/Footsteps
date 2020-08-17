@@ -1,12 +1,21 @@
 package com.springvuegradle.seng302team600.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.model.Activity;
+import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
+import com.springvuegradle.seng302team600.model.UserRole;
+import com.springvuegradle.seng302team600.model.UserRole;
+import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
+import com.springvuegradle.seng302team600.repository.ActivityParticipantRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
+import com.springvuegradle.seng302team600.service.FeedEventService;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,26 +24,29 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ActivityController.class)
 class ActivityControllerTest {
 
+    @MockBean
+    private FeedEventService feedEventService;
     @MockBean
     private UserRepository userRepository;
     @MockBean
@@ -45,19 +57,26 @@ class ActivityControllerTest {
     private UserAuthenticationService userAuthenticationService;
     @MockBean
     private ActivityTypeService activityTypeService;
+    @MockBean
+    private ActivityParticipantRepository activityParticipantRepository;
     @Autowired
     private MockMvc mvc;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
     private static final Long DEFAULT_USER_ID = 1L;
+    private static final Long DEFAULT_USER_ID_2 = 2L;
+    private static final Long DEFAULT_USER_ID_3 = 3L;
     private static final Long DEFAULT_EMAIL_ID = 1L;
     private static final Long DEFAULT_ACTIVITY_ID = 1L;
     private static Long activityCount = 0L;
 
     private User dummyUser1;
     private User dummyUser2; // Used when a second user is required
+    private User dummyUser3;
     private final String validToken = "valid";
+    private final String forbiddenToken = "forbidden";
+    private final String anotherValidToken = "alsovalid";
     private Set<Activity> activityMockTable = new HashSet<>();
     private Set<User> userMockTable = new HashSet<>();
 
@@ -66,20 +85,66 @@ class ActivityControllerTest {
         MockitoAnnotations.initMocks(this);
         dummyUser1 = new User();
         dummyUser1.setToken(validToken);
+        ReflectionTestUtils.setField(dummyUser1, "userId", DEFAULT_USER_ID);
+
+        dummyUser2 = new User();
+        dummyUser2.setToken(forbiddenToken);
+        ReflectionTestUtils.setField(dummyUser2, "userId", DEFAULT_USER_ID_2);
+
+        dummyUser3 = new User();
+        dummyUser3.setToken(anotherValidToken);
+        ReflectionTestUtils.setField(dummyUser3, "userId", DEFAULT_USER_ID_3);
 
         // Mocking ActivityTypeService
         when(activityTypeService.getMatchingEntitiesFromRepository(Mockito.any())).thenAnswer(i -> i.getArgument(0));
-        when(activityRepository.findAllByUserId(Mockito.any(Long.class))).thenAnswer(i -> {
-            List<Activity> activities = new ArrayList<>();
-            for (Activity activity : activityMockTable) {
-                activities.add(activity);
-            }
-            return activities;
-        });
+        when(activityRepository.findAllByUserId(Mockito.any(Long.class))).thenAnswer(i -> new ArrayList<>(activityMockTable));
         // Mocking userAuthenticationService
-        when(userAuthenticationService.findByUserId(Mockito.any(String.class), Mockito.any(Long.class))).thenAnswer(i -> dummyUser1);
+        when(userAuthenticationService.findByUserId(Mockito.any(String.class), Mockito.any(Long.class))).thenAnswer(i -> {
+            String token = i.getArgument(0);
+            Long userId = i.getArgument(1);
+            switch (token) {
+                case validToken:
+                    if (userId.equals(DEFAULT_USER_ID)) {
+                        return dummyUser1;
+                    } else if (userId.equals(DEFAULT_USER_ID_2) || userId.equals(DEFAULT_USER_ID_3)) {
+                        throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+                    } else {
+                        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+                    }
+                case forbiddenToken:
+                    if (userId.equals(DEFAULT_USER_ID_2)) {
+                        return dummyUser2;
+                    } else if (userId.equals(DEFAULT_USER_ID) || userId.equals(DEFAULT_USER_ID_3)) {
+                        throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+                    } else {
+                        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+                    }
+                case anotherValidToken:
+                    if (userId.equals(DEFAULT_USER_ID_3)) {
+                        return dummyUser3;
+                    } else if (userId.equals(DEFAULT_USER_ID) || userId.equals(DEFAULT_USER_ID_2)) {
+                        throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+                    } else {
+                        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+                    }
+                default:
+                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            }
+        });
         when(userAuthenticationService.hasAdminPrivileges(Mockito.any())).thenAnswer(i ->
-                ((User) i.getArgument(0)).getToken().equals(validToken));
+                ((User) i.getArgument(0)).getRole() >= UserRole.ADMIN);
+        when(userAuthenticationService.findByToken(Mockito.any())).thenAnswer(i -> {
+            String token = i.getArgument(0);
+            if (token.equals(validToken)) {
+                return dummyUser1;
+            } else if (token.equals(forbiddenToken)) {
+                return dummyUser2;
+            } else if (token.equals(anotherValidToken)) {
+                return dummyUser3;
+            } else {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            }
+        });
     }
 
     /**
@@ -118,6 +183,47 @@ class ActivityControllerTest {
 
 
 
+
+
+
+    private final String newUserJson1 = JsonConverter.toJson(true,
+            "lastname", "Cucumber",
+            "firstname", "Larry",
+            "primary_email", "larry@gmail.com",
+            "password", "larrysPassword",
+            "date_of_birth", "2002-1-20",
+            "gender", "Female");
+
+    private final String newUserJson2 = JsonConverter.toJson(true,
+            "lastname", "Pocket",
+            "firstname", "Poly",
+            "middlename", "Michelle",
+            "nickname", "Pino",
+            "primary_email", "poly@pocket.com",
+            "password", "somepwd0",
+            "date_of_birth", "2000-11-11",
+            "gender", "Female");
+
+    private void setupMockingNoEmailDummyUser1(String json) throws JsonProcessingException {
+        UserRegisterRequest regReq;
+        regReq = objectMapper.treeToValue(objectMapper.readTree(json), UserRegisterRequest.class);
+        dummyUser1 = dummyUser1.builder(regReq);
+        when(userRepository.save(Mockito.any(User.class))).thenAnswer(i -> dummyUser1);
+    }
+
+
+    private void setupMockingNoEmailDummyUser3(String json) throws JsonProcessingException {
+        UserRegisterRequest regReq;
+        regReq = objectMapper.treeToValue(objectMapper.readTree(json), UserRegisterRequest.class);
+        dummyUser3 = dummyUser3.builder(regReq);
+        when(userRepository.save(Mockito.any(User.class))).thenAnswer(i -> dummyUser3);
+    }
+
+
+
+
+
+
     // ----------- Tests -----------
 
     private final String newActivity1Json = JsonConverter.toJson(true,
@@ -146,6 +252,7 @@ class ActivityControllerTest {
                 .andExpect(status().isCreated())
                 .andReturn();
         assertNotNull(result.getResponse());
+        assertDoesNotThrow(() -> {Long.valueOf(result.getResponse().getContentAsString());});
     }
 
     /**
@@ -282,4 +389,60 @@ class ActivityControllerTest {
     }
 
 
+    @Test
+    void checkActivityIsEditable() throws Exception {
+        Activity activityInRepo = objectMapper.readValue(newActivity2Json, Activity.class);
+        activityRepository.save(activityInRepo);
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get("/check-activity/{activityId}", DEFAULT_ACTIVITY_ID)
+                .header("Token", validToken)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mvc.perform(httpReq)
+                .andExpect(status().isOk());
+    }
+
+
+    @Test
+    void checkActivityIsNotEditable() throws Exception {
+        Activity activityInRepo = objectMapper.readValue(newActivity2Json, Activity.class);
+        activityRepository.save(activityInRepo);
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get("/check-activity/{activityId}", DEFAULT_ACTIVITY_ID)
+                .header("Token", forbiddenToken)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mvc.perform(httpReq)
+                .andExpect(status().isForbidden());
+    }
+
+
+    @Test
+    void getParticipantsOfActivitySuccess() throws Exception {
+        Activity activityInRepo = objectMapper.readValue(newActivity2Json, Activity.class);
+        setupMockingNoEmailDummyUser1(newUserJson1);
+        setupMockingNoEmailDummyUser3(newUserJson2);
+        activityInRepo.addParticipant(dummyUser1);
+        activityInRepo.addParticipant(dummyUser3);
+        activityRepository.save(activityInRepo);
+
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get("/check-activity/{activityId}", DEFAULT_ACTIVITY_ID)
+                .header("Token", validToken)
+                .accept(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String jsonResponseStr = result.getResponse().getContentAsString();
+        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
+        // Convert set to list for indexing each user
+        List<User> expectedParticipants = new ArrayList<>(activityRepository.findByActivityId(DEFAULT_ACTIVITY_ID).getParticipants());
+        for (int i = 0; i < jsonNode.size(); i++) {
+            // Removes "timedOut" property from User json received as timedOut is not a property within the User object
+            ((ObjectNode) jsonNode.get(i)).remove("timedOut");
+            // Converts user JsonNode node into User object
+            User participant = objectMapper.treeToValue(jsonNode.get(i), User.class);
+            assertEquals(participant.toString(), expectedParticipants.get(i).toString());
+        }
+    }
 }

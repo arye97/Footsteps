@@ -112,17 +112,20 @@ public class User {
     @JoinTable(
             name = "user_activity_type",
             joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "id"))
+            inverseJoinColumns = @JoinColumn(name = "activity_type_id"))
     @JsonProperty("activityTypes")
     private Set<ActivityType> activityTypes;
 
-    public enum Gender {
-        @JsonProperty("Male")
-        MALE,
-        @JsonProperty("Female")
-        FEMALE,
-        @JsonProperty("Non-Binary")
-        NON_BINARY
+        @ManyToMany(mappedBy = "participants")
+        Set<Activity> activitiesParticipatingIn;
+
+        public enum Gender {
+            @JsonProperty("Male")
+                MALE,
+            @JsonProperty("Female")
+                FEMALE,
+            @JsonProperty("Non-Binary")
+                NON_BINARY
     }
 
     //Can implement later, makes more sense in the long run
@@ -435,6 +438,38 @@ public class User {
 
     public int getRole() {
         return role;
+    }
+
+
+    /**
+     * Equate users by their ids, if they are null, user the super classes equals method (checking memory address I think).
+     * NOTE java.util.Objects.equals checks for equality without throwing null pointer exception if a field is null
+     * @return users are equal
+     */
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj instanceof User) {
+            final User other = (User) obj;
+            if (java.util.Objects.isNull(this.getUserId()) || java.util.Objects.isNull(other.getUserId())) {
+                return super.equals(other);
+            } else {
+                return java.util.Objects.equals(this.getUserId(), other.getUserId());
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Hash the user using userId if not null, else user super class hash.
+     * @return hash code
+     */
+    @Override
+    public int hashCode() {
+        if (java.util.Objects.nonNull(this.getUserId())) {
+            return this.getUserId().hashCode();
+        } else {
+            return super.hashCode();
+        }
     }
 
     @Override

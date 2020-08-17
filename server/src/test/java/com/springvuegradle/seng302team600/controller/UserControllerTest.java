@@ -5,16 +5,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springvuegradle.seng302team600.Utilities.UserValidator;
 import com.springvuegradle.seng302team600.model.*;
+import com.springvuegradle.seng302team600.payload.LoginResponse;
 import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import com.springvuegradle.seng302team600.payload.UserResponse;
-import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
-import com.springvuegradle.seng302team600.repository.EmailRepository;
-import com.springvuegradle.seng302team600.repository.UserRepository;
+import com.springvuegradle.seng302team600.repository.*;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +28,9 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.net.URI;
+import java.util.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -42,7 +43,11 @@ class UserControllerTest {
     @MockBean
     private EmailRepository emailRepository;
     @MockBean
+    private ActivityActivityTypeRepository activityActivityTypeRepository;
+    @MockBean
     private ActivityTypeRepository activityTypeRepository;
+    @MockBean
+    private UserActivityTypeRepository userActivityTypeRepository;
     @MockBean
     private UserAuthenticationService userAuthenticationService;
     @MockBean
@@ -72,7 +77,6 @@ class UserControllerTest {
     @BeforeEach
     void setUp() {
         defaultAdminIsRegistered = false;
-
         MockitoAnnotations.initMocks(this);
         dummyUser1 = new User();
     }
@@ -83,6 +87,7 @@ class UserControllerTest {
             return i.getArgument(0).equals(dummyEmail.getEmail());
         });
     }
+
     private void setupMockingNoEmail(String json) throws JsonProcessingException {
         UserRegisterRequest regReq;
         regReq = objectMapper.treeToValue(objectMapper.readTree(json), UserRegisterRequest.class);
@@ -121,7 +126,7 @@ class UserControllerTest {
         ReflectionTestUtils.setField(dummyUser1, "userId", DEFAULT_USER_ID);
         ReflectionTestUtils.setField(dummyEmail, "emailId", DEFAULT_EMAIL_ID);
         when(userAuthenticationService.login(Mockito.anyString(),Mockito.anyString())).thenAnswer(i -> {
-                if (i.getArgument(0).equals(dummyEmail.getEmail()) && dummyUser1.checkPassword(i.getArgument(1))) return new UserResponse("ValidToken", dummyUser1.getUserId());
+                if (i.getArgument(0).equals(dummyEmail.getEmail()) && dummyUser1.checkPassword(i.getArgument(1))) return new LoginResponse("ValidToken", dummyUser1.getUserId());
                 else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         });
         Mockito.doAnswer(i -> {
@@ -140,6 +145,66 @@ class UserControllerTest {
         when(userAuthenticationService.viewUserById(Mockito.anyLong(), Mockito.anyString())).thenAnswer(i -> {
             if ((long) i.getArgument(0) == 10L && i.getArgument(1) == validToken) return dummyUser2;
             else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        });
+
+        // Mock ActivityType repository for only dummyUser1
+        Map<String, Long> activityNameToIdMap = new HashMap<>(4);
+        Collection<ActivityType> activityTypes = dummyUser1.getActivityTypes();  // Get ActivityTypes from user
+        activityTypes = activityTypes == null ? new HashSet<>() : activityTypes;  // If null set to empty set
+        long id = 1;
+        for (ActivityType activityType: activityTypes) {
+            activityNameToIdMap.put(activityType.getName().toLowerCase(), id);
+            id++;
+        }
+        /**
+         * Mock the AND function of UserController
+         */
+        when(userActivityTypeRepository.findByAllActivityTypeIds(Mockito.anyList(), Mockito.anyInt())).thenAnswer(i -> {
+            List<Long> activityTypeIdsToMatch = i.getArgument(0);
+
+            Collection<Long> allActivityTypeIds = activityNameToIdMap.values();
+            if (allActivityTypeIds.containsAll(activityTypeIdsToMatch)) {   // Contains all
+                return Arrays.asList(dummyUser1.getUserId());
+            } else {
+                return null;
+            }
+        });
+        /**
+         * Mock the OR function of UserController
+         */
+        when(userActivityTypeRepository.findBySomeActivityTypeIds(Mockito.anyList())).thenAnswer(i -> {
+            List<Long> activityTypeIdsToMatch = i.getArgument(0);
+            boolean matched = false;
+
+            Collection<Long> allActivityTypeIds = activityNameToIdMap.values();
+            if (!Collections.disjoint(allActivityTypeIds, activityTypeIdsToMatch)) {  // Contains any
+                return Arrays.asList(dummyUser1.getUserId());
+            } else {
+                return null;
+            }
+        });
+        /**
+         * Use a hash map to convert ActivityType names to mocked ids
+         */
+        when(activityTypeRepository.findActivityTypeIdsByNames(Mockito.anyList())).thenAnswer(i -> {
+            List<String> activityTypeNames = i.getArgument(0);
+            List<Long> activityTypeIdList = new ArrayList<>();
+            for (String name: activityTypeNames) {
+                activityTypeIdList.add(activityNameToIdMap.get(name.toLowerCase()));
+            }
+            return activityTypeIdList;
+        });
+        when(userRepository.getUsersByIds(Mockito.anyList())).thenAnswer(i -> {
+            List<Long> checkId = new ArrayList<>();
+            checkId.add(dummyUser1.getUserId());
+            if (i.getArguments()[0].equals(checkId)) {
+                List<User> users = new ArrayList<>();
+                users.add(dummyUser1);
+                return users;
+            } else {
+                return null;
+            }
+
         });
     }
 
@@ -493,10 +558,10 @@ class UserControllerTest {
     }
 
 
-    @Test
     /**
      * Successful test to check if a token is logged in with given user id
      */
+    @Test
     public void checkIfUserIdMatchesTokenSuccess() throws Exception {
         setupMockingNoEmail(newUserJson);
 
@@ -514,11 +579,11 @@ class UserControllerTest {
     }
 
 
-    @Test
     /**
      * Unsuccessful test to check if a token is logged in with given user id
      * that that throws a 403 Forbidden
      */
+    @Test
     public void checkIfUserIdMatchesTokenForbidden() throws Exception {
         setupMockingNoEmail(newUserJson);
         long userId = dummyUser2.getUserId();
@@ -530,7 +595,6 @@ class UserControllerTest {
                 .andExpect(status().isOk());
 
         //Check token
-        System.out.println(userId);
         MockHttpServletRequestBuilder getRequestCheckToken = MockMvcRequestBuilders.get("/check-profile/{id}", userId)
                 .header("Token", validToken);
         mvc.perform(getRequestCheckToken)
@@ -575,13 +639,13 @@ class UserControllerTest {
             "old_password", "password1",
             "new_password", "PASSword2",
             "repeat_password", "PASSword2");
-    @Test
     /**
      * Test creating a user and editing they're password when the password and repeated password match.
      * NOTE: as of now there is no simple way to tell if a password has been updated because password
      * hashes are not returned when retrieving a user.  Though they could be tested by logging in,
      * logging out, changing password, and trying to log in again.
      */
+    @Test
     public void changePasswordSuccess() throws Exception {
 
         // Create user
@@ -611,10 +675,10 @@ class UserControllerTest {
             "old_password", "password1",
             "new_password", "password2",
             "repeat_password", "password3");
-    @Test
     /**
      * Test creating a user and editing they're password when the password and repeated password NO NOT match.
      */
+    @Test
     public void changePasswordFail() throws Exception {
         // Create user
         setupMocking(changePasswordUserJson);
@@ -633,11 +697,11 @@ class UserControllerTest {
             "new_password", "password1",
             "repeat_password", "password1");
 
-    @Test
     /**
      * Test creating a user and editing they're password when the new password is the same as the old password
      * (new passwords can't match old passwords).
      */
+    @Test
     public void changePasswordNewEqualsOld() throws Exception {
         // Create user
         setupMocking(changePasswordUserJson);
@@ -654,10 +718,10 @@ class UserControllerTest {
             "old_password", "password1",
             "new_password", "pass",
             "repeat_password", "pass");
-    @Test
     /**
      * Test creating a user and changing their password to a password that violates the password rules
      */
+    @Test
     public void changePasswordFailsRules() throws Exception {
         // Create user
         setupMocking(changePasswordUserJson);
@@ -668,11 +732,11 @@ class UserControllerTest {
                 .andExpect(status().isBadRequest());   // Don't think there is any other way to test this than bad request
     }
 
-    @Test
     /** Tests that a DefaultAdminUser is created when a UserController is created.
      * Checks that the Default Admin was added to the database in a roundabout way
      * (not the greatest).
      */
+    @Test
     public void defaultAdminIsCreated() throws Exception {
         // Get the UserController bean instance
         UserController controller = context.getBean(UserController.class);
@@ -698,10 +762,10 @@ class UserControllerTest {
                     "Rock Climbing", "Mountaineering"
             });
 
-    @Test
     /**
      *  Tests that the PUT endpoint updates the users activity types
      */
+    @Test
     public void updateUserActivityTypes() throws Exception {
         setupMockingNoEmail(createUserJsonViewUser1);
 
@@ -728,9 +792,9 @@ class UserControllerTest {
         assertNotNull(result);
     }
 
-    @Test
     /** Tests the response of getting a users role
      */
+    @Test
     void getUserRole() throws Exception {
         setupMocking(newUserJson);
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get("/profiles/{profileId}/role", DEFAULT_USER_ID)
@@ -738,5 +802,149 @@ class UserControllerTest {
         MvcResult request = mvc.perform(httpReq).andExpect(status().isOk()).andReturn();
         assertNotNull(request);
         assertEquals("0", request.getResponse().getContentAsString()); //as we are getting content as string we check it to a string of 0
+    }
+
+    private final String newUserWithActivityTypes = JsonConverter.toJson(
+            "lastname", "Pocket",
+            "firstname", "Poly",
+            "middlename", "Michelle",
+            "nickname", "Pino",
+            "primary_email", "poly@pocket.com",
+            "password", "somepwd0",
+            "bio", "Poly Pocket is so tiny.",
+            "activity_types", new Object[]{"Hiking"},
+            "date_of_birth", "2000-11-11",
+            "gender", "Female",
+            "fitness", 3,
+            "passports", new Object[]{"Australia", "Antarctica"});
+
+    /**
+     * Tests the response of getting the user by activity types using OR method
+     * using the activity types set in the user
+     */
+    @Test
+    void getUserByActivityTypesOR() throws Exception {
+        setupMocking(newUserWithActivityTypes);
+                                                                        // Passing path in as a URI prevents it from being re-encoded
+        MockHttpServletRequestBuilder httpReqOR = MockMvcRequestBuilders.get(new URI("/profiles?activity=Hiking%20biking&method=or"))
+                .header("Token", validToken);
+
+        MvcResult requestOR = mvc.perform(httpReqOR).andExpect(status().isOk()).andReturn();
+
+        // Deserialize into an JsonNode, and test that the array contains one value
+        JsonNode responseArrayOR = objectMapper.readTree(requestOR.getResponse().getContentAsString());
+        assertEquals(1, responseArrayOR.size());
+
+        // Test that response can be deserialized into UserResponse
+        assertDoesNotThrow(() -> objectMapper.treeToValue(responseArrayOR.get(0), UserResponse.class));
+    }
+
+    /**
+     * Tests the response of getting the user by activity types using AND method
+     * using the activity types set in the user
+     */
+    @Test
+    void getUserByActivityTypesAND() throws Exception {
+        setupMocking(newUserWithActivityTypes);
+
+        MockHttpServletRequestBuilder httpReqAND = MockMvcRequestBuilders.get(new URI("/profiles?activity=hiking%20biking&method=and"))
+                .header("Token", validToken);
+
+        MvcResult requestAND = mvc.perform(httpReqAND).andExpect(status().is4xxClientError()).andReturn();
+
+        assertNull(requestAND.getResponse().getContentType()); //should be equal as the user will not have BOTH hiking AND biking
+
+    }
+
+    private final String newUserWithSpacedActivityTypes = JsonConverter.toJson(true,
+            "lastname", "Pocket",
+            "firstname", "Poly",
+            "middlename", "Michelle",
+            "nickname", "Pino",
+            "primary_email", "poly@pocket.com",
+            "password", "somepwd0",
+            "bio", "Poly Pocket is so tiny.",
+            "activity_types", new Object[]{"Rock Climbing", "Baseball and Softball"},
+            "date_of_birth", "2000-11-11",
+            "gender", "Female",
+            "fitness", 3,
+            "passports", new Object[]{"Australia", "Antarctica"});
+
+
+    /**
+     * Tests getting a user by activity type with a dash in the name using OR method
+     */
+    @Test
+    void getUserByActivityTypesWithSpacesOR() throws Exception {
+        setupMocking(newUserWithSpacedActivityTypes);
+
+        MockHttpServletRequestBuilder httpReqOR = MockMvcRequestBuilders.get(new URI("/profiles?activity=rock-climbing%20Hiking&method=or"))
+                .header("Token", validToken);
+
+
+        //---Test-OR-Response----
+        MvcResult requestOR = mvc.perform(httpReqOR).andExpect(status().isOk()).andReturn();
+
+        // Deserialize into an JsonNode, and test that the array contains one value
+        JsonNode responseArrayOR = objectMapper.readTree(requestOR.getResponse().getContentAsString());
+        assertEquals(1, responseArrayOR.size());
+
+        // Test that response can be deserialized into UserResponse
+        assertDoesNotThrow(() -> objectMapper.treeToValue(responseArrayOR.get(0), UserResponse.class));
+
+    }
+
+    /**
+     * Tests getting a user by activity type with a dash in the name using AND method
+     */
+    @Test
+    void getUserByActivityTypesWithSpacesAND() throws Exception {
+        setupMocking(newUserWithSpacedActivityTypes);
+
+        MockHttpServletRequestBuilder httpReqAND = MockMvcRequestBuilders.get(new URI("/profiles?activity=baseball-and-Softball%20Rock-Climbing&method=and"))
+                .header("Token", validToken);
+
+
+        //---Test-AND-Response----
+        MvcResult requestAND = mvc.perform(httpReqAND).andExpect(status().isOk()).andReturn();
+
+        // Deserialize into an JsonNode, and test that the array contains one value
+        JsonNode responseArrayAND = objectMapper.readTree(requestAND.getResponse().getContentAsString());
+        assertEquals(1, responseArrayAND.size());
+
+        // Test that response can be deserialized into UserResponse
+        assertDoesNotThrow(() -> objectMapper.treeToValue(responseArrayAND.get(0), UserResponse.class));
+    }
+
+    private final String newUserWithOneSpacedActivityType = JsonConverter.toJson(true,
+            "lastname", "Someone",
+            "firstname", "Lester",
+            "middlename", "Michelle",
+            "nickname", "Pino",
+            "primary_email", "lester@hotmail.com",
+            "password", "somepwd0",
+            "bio", "Poly Pocket is so tiny.",
+            "activity_types", new Object[]{"Baseball and Softball"},
+            "date_of_birth", "2000-11-11",
+            "gender", "Female",
+            "fitness", 3,
+            "passports", new Object[]{"Australia", "Antarctica"});
+
+    /**
+     * Tests getting a user by activity type with a dash in the name using AND method
+     */
+    @Test
+    void failToGetUserByActivityTypesWithSpacesAND() throws Exception {
+        setupMocking(newUserWithOneSpacedActivityType);
+
+        MockHttpServletRequestBuilder httpReqAND = MockMvcRequestBuilders.get(new URI("/profiles?activity=baseball-and-Softball%20Rock-Climbing&method=and"))
+                .header("Token", validToken);
+
+
+        //---Test-AND-Response----
+        MvcResult requestAND = mvc.perform(httpReqAND).andExpect(status().is4xxClientError()).andReturn();
+
+        // Should be null because this user has ONLY Baseball and Softball, not Rock Climbing
+        assertNull(requestAND.getResponse().getContentType());
     }
 }

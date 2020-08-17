@@ -24,11 +24,11 @@
                             placeholder="Your Activity Name..."
                     ></b-form-input>
                     <div class="word-count">
-                        {{ nameCharCount }}/{{ maxNameCharCount }} characters remaining
+                        {{nameCharCount}}/{{maxNameCharCount}} characters left
                     </div>
                 </b-form-group>
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_activity_name">
-                    Field is mandatory and can only contain a maximum of {{ maxNameCharCount }} characters
+                    Field is mandatory and can only contain a maximum of {{maxNameCharCount}} characters
                 </div>
 
                 <b-form-group
@@ -45,11 +45,11 @@
                             placeholder="Description of your activity..."
                     ></b-form-textarea>
                     <div class="word-count">
-                        {{ descriptionCharCount }}/{{ maxDescriptionCharCount }} characters remaining
+                        {{descriptionCharCount}}/{{maxDescriptionCharCount}} characters left
                     </div>
                 </b-form-group>
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_description">
-                    Field is mandatory and can only contain a maximum of {{ maxDescriptionCharCount }} characters
+                     Field is mandatory and can only contain a maximum of {{maxDescriptionCharCount}} characters
                 </div>
 
                 <b-form-group
@@ -64,7 +64,7 @@
                     </multiselect>
                 </b-form-group>
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_activity_types">
-                    Field is mandatory and must have at least one activity type
+                    {{"Field is mandatory and must have at least one activity type"}}
                 </div>
 
                 <b-form-group
@@ -107,14 +107,17 @@
                             Include starting time
                         </b-form-checkbox>
                     </b-form-group>
+                    <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_start_valid">
+                        {{"Please enter a valid date"}}
+                    </div>
                     <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_start">
-                        Field is mandatory, a start date must be set with (optionally) a start time
+                        {{"Field is mandatory, a start date must be set with (optionally) a start time"}}
                     </div>
                     <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_start_after_end">
-                        A start date cannot be set after the end date
+                        {{"A start date cannot be set after the end date"}}
                     </div>
                     <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_start_before_epoch_date">
-                        A date cannot be set before 1st Jan, 1970
+                        {{"A date cannot be set before 1st Jan, 1970"}}
                     </div>
 
                     <b-form-group>
@@ -140,18 +143,19 @@
                             Include ending time
                         </b-form-checkbox>
                     </b-form-group>
-
+                    <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_end_valid">
+                        {{"Please enter a valid date"}}
+                    </div>
                     <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_end">
-                        Field is mandatory, an end date must be set with (optionally) an end time
+                        {{"Field is mandatory, an end date must be set with (optionally) an end time"}}
                     </div>
                     <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_end_before_start">
-                        An end date cannot be set before the start date
+                        {{"An end date cannot be set before the start date"}}
                     </div>
                     <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_end_before_epoch_date">
-                        A date cannot be set before 1st Jan, 1970
+                       {{"A date cannot be set before 1st Jan, 1970"}}
                     </div>
                 </div>
-
 
 
 
@@ -169,7 +173,97 @@
                     ></b-form-input>
                 </b-form-group>
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_location">
-                    Field is mandatory and a location must be set
+                    {{ "Field is mandatory and a location must be set" }}
+                </div>
+
+
+                <hr>
+
+
+                <label>Outcomes: </label>
+                <b-row>
+                    <b-col>
+                        <b-form-group
+                                id="input-group-outcome-title"
+                        >
+                            <b-form-input
+                                    id="input-outcome-title"
+                                    v-model="activeOutcome.title"
+                                    placeholder="Title of your outcome..."
+                                    trim
+                                    v-on:input="updateOutcomeWordCount"
+                            ></b-form-input>
+                            <div class="word-count" id="title-word-count">
+                                {{outcomeTitleCharCount}}/{{maxOutcomeTitleCharCount}} characters left
+                            </div>
+                            <b-form-input
+                                    id="input-outcome-unit-name"
+                                    v-model="activeOutcome.unit_name"
+                                    placeholder="Unit of your outcome..."
+                                    trim
+                                    v-on:input="updateOutcomeWordCount"
+                            ></b-form-input>
+                            <div class="word-count" id="unit-name-word-count">
+                                {{outcomeUnitCharCount}}/{{maxOutcomeUnitCharCount}} characters left
+                            </div>
+                        </b-form-group>
+                    </b-col>
+                </b-row>
+                <b-row>
+                    <b-col align-self="center">
+                        <div v-if="errored" class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert">
+                            {{  error_message  }}
+                        </div>
+                        <b-button
+                                v-else
+                                v-bind:disabled="!validOutcome"
+                                variant="primary"
+                                id="addOutcome"
+                                v-on:click="addOutcome"
+                                class="addOutcomesButton"
+                        >
+                            Add outcome
+                        </b-button>
+
+                    </b-col>
+                </b-row>
+
+
+                <section class="outcomesDisplay">
+                    <table id="additionalEmailsTable" class="table table-hover">
+                        <tr class="outcomesTable" v-for="(outcome, index) in this.outcomeList"
+                            v-bind:key="'outcome' + index"
+                            :id="'outcome' + index">
+                            <td>
+                                    <p :id="'title' + index">
+                                        {{ outcome.title }}
+                                    </p>
+                            </td>
+                                <td>
+                                    <p :id="'unit_name' + index">
+                                        {{ outcome.unit_name }}
+                                    </p>
+                                </td>
+                            <!--Only show edit and delete buttons if this is a newly added Outcome. Uhg O(n^2)-->
+                            <!--This v-if should be removed when we add functionality for editing existing Outcomes-->
+                            <div v-if="!originalOutcomeList.includes(outcome)">
+                                <td class="tableButtonTd">
+                                    <b-button variant="danger" :id="'deleteButton' + index" v-on:click="deleteOutcome(index)">
+                                        <b-icon-trash-fill></b-icon-trash-fill>
+                                    </b-button>
+                                </td>
+                                <td class="tableButtonTd">
+                                    <b-button variant="primary" :id="'editButton' + index" v-on:click="editOutcome(index)">Edit</b-button>
+                                </td>
+                            </div>
+                        </tr>
+                    </table>
+                </section>
+
+
+
+                <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="overall_message" hidden>
+                    <p id="alert-message">{{ overallMessageText }}</p>
                 </div>
                 <div>
                     <b-button variant="secondary" v-on:click="$router.back()">Back</b-button>
@@ -186,7 +280,11 @@
 <script>
     import Multiselect from 'vue-multiselect'
     import api from "../../Api";
+    import {localTimeZoneToBackEndTime} from "../../util";
 
+    /**
+     * Displays an error on the element with id equal to alert_name
+     */
     function showError(alert_name) {
         let errorAlert = document.getElementById(alert_name);
 
@@ -217,16 +315,27 @@
                 startTime: String,
                 endTime: String,
             },
+            outcomeList: {
+                default() {
+                    return [];
+                },
+                type: Array
+            },
+            originalOutcomeList: {
+                default() {
+                    return [...this.outcomeList];
+                },
+                type: Array
+            },
             submitActivityFunc: Function,
             startTime: String,
-            endTime: String
+            endTime: String,
         },
         data() {
             return {
                 activityTypes: [],
-
                 nameCharCount: 0,
-                maxNameCharCount: 75,
+                maxNameCharCount: 15,
                 descriptionCharCount: 0,
                 maxDescriptionCharCount: 1500,
                 defaultTime: "12:00",
@@ -235,6 +344,18 @@
                 has_end_time: true,
 
                 isValidFormFlag: true,
+                overallMessageText: "",
+
+                activeOutcome: {title:"", unit_name:""},
+                validOutcome: false,
+
+                outcomeTitleCharCount: 0,
+                maxOutcomeTitleCharCount: 75,
+                outcomeUnitCharCount: 0,
+                maxOutcomeUnitCharCount: 75,
+
+                errored: false,
+                error_message: "Something went wrong"
             }
         },
         async created() {
@@ -251,12 +372,18 @@
                 await this.validateActivityInputs();
                 if (this.isValidFormFlag) {
                     this.formatDurationActivity();
-                    await this.submitActivityFunc();
+                    try {
+                        await this.submitActivityFunc();
+                    } catch(err) {
+                        this.overallMessageText = err.message;
+                        showError('overall_message');
+                    }
                 }
             },
 
             /**
-             * Takes a date string and inserts it into a date and time string.  Helper method used in DOM.
+             * Takes a date string of the form yyyy-MM-dd and inserts it into a date and time string of the
+             * format yyyy-MM-ddThh:mm.  Helper method used in DOM.
              * (wish this could be a function)
              * @param dateStr string of the format yyyy-MM-dd
              * @param dateTimeStr string of the format yyyy-MM-ddThh:mm
@@ -301,7 +428,11 @@
 
                 // If duration is chosen
                 if (!this.activity.continuous) {
-                    if (!this.activity.submitStartTime) {
+                    if (isNaN(startTime.getTime())) {
+                        showError('alert_start_valid');
+                        this.isValidFormFlag = false;
+                    }
+                    else if (!this.activity.submitStartTime) {
                         showError('alert_start');
                         this.isValidFormFlag = false;
                     }
@@ -309,12 +440,16 @@
                         showError('alert_start_after_end');
                         this.isValidFormFlag = false;
                     }
-                    //ToDo this currently doesn't work. Should check if start date isn't before 1970
                     else if (startTime < new Date(0)) {
                         showError('alert_start_before_epoch_date');
                         this.isValidFormFlag = false;
                     }
-                    if (!this.activity.submitEndTime) {
+
+                    if (isNaN(endTime.getTime())) {
+                        showError('alert_end_valid');
+                        this.isValidFormFlag = false;
+                    }
+                    else if (!this.activity.submitEndTime) {
                         showError('alert_end');
                         this.isValidFormFlag = false;
                     }
@@ -322,8 +457,7 @@
                         showError('alert_end_before_start');
                         this.isValidFormFlag = false;
                     }
-                    //ToDo this currently doesn't work. Should check if end date isn't before 1970
-                    else if (startTime < new Date(0)) {
+                    else if (endTime < new Date(0)) {
                         showError('alert_end_before_epoch_date');
                         this.isValidFormFlag = false;
                     }
@@ -336,22 +470,26 @@
             },
 
             /**
-             * If this Activity is not continuous format the dates correctly for the Backend.
+             * Format the dates correctly for the Backend.
              */
             formatDurationActivity() {
-                // If this Activity is continuous, add a start/end time to the activityForm
-                if (!this.activity.continuous) {
-                    // If no time provided, manually concatenating Thh:mm, which is bad, might use Moment.js instead but will consult team
-                    if (this.activity.submitStartTime.length === 10) {
-                        this.activity.submitStartTime = this.activity.submitStartTime.concat('T00:01')
-                    }
-                    if (this.activity.submitEndTime.length === 10) {
-                        this.activity.submitEndTime = this.activity.submitEndTime.concat('T00:01')
-                    }
-
-                    this.activity.submitStartTime = this.activity.submitStartTime.concat(':00+0000');
-                    this.activity.submitEndTime = this.activity.submitEndTime.concat(':00+0000');
+                if (this.activity.submitStartTime && this.activity.submitStartTime.length === 10) {
+                    this.activity.submitStartTime = this.activity.submitStartTime.concat('T00:01')
                 }
+                if (this.activity.submitEndTime && this.activity.submitEndTime.length === 10) {
+                    this.activity.submitEndTime = this.activity.submitEndTime.concat('T00:01')
+                }
+
+                // These are used if a time is set and then the Include starting/ending time box is un-ticked
+                if (!this.has_start_time) {
+                    this.activity.submitStartTime = this.activity.submitStartTime.split('T')[0] + 'T12:00';
+                }
+                if (!this.has_end_time) {
+                    this.activity.submitEndTime = this.activity.submitEndTime.split('T')[0] + 'T12:00';
+                }
+
+                this.activity.submitStartTime = localTimeZoneToBackEndTime(this.activity.submitStartTime);
+                this.activity.submitEndTime = localTimeZoneToBackEndTime(this.activity.submitEndTime);
             },
 
             /**
@@ -369,6 +507,26 @@
             },
 
             /**
+             * Updates word count for outcome title
+             */
+            updateOutcomeWordCount() {
+                this.errored = false;
+                this.outcomeTitleCharCount = this.activeOutcome.title.length;
+                this.outcomeUnitCharCount = this.activeOutcome.unit_name.length;
+                this.validOutcome = this.outcomeTitleCharCount > 0 && this.outcomeUnitCharCount > 0;
+                if (this.validOutcome) {
+                    for (let i = 0; i < this.outcomeList.length; i++) {
+                        if (this.activeOutcome.title === this.outcomeList[i].title) {
+                            this.validOutcome = false;
+                            this.errored = true;
+                            this.error_message = "That outcome title already exists!";
+                            return;
+                        }
+                    }
+                }
+            },
+
+            /**
              * Fetch all possible activity types from the server
              */
             async fetchActivityTypes() {
@@ -378,6 +536,42 @@
                         return a.toLowerCase().localeCompare(b.toLowerCase());
                     });
                 });
+            },
+
+            /**
+             * Adds the current outcome to the outcomeList and clears the outcome input fields
+             * (current outcome is the outcome in the input boxes)
+             */
+            addOutcome() {
+                this.outcomeList.push(this.activeOutcome);
+                this.activeOutcome = {title:"", unit_name:""};
+                this.updateOutcomeWordCount();
+            },
+
+            /**
+             * Removes a specified outcome from the list of outcomes
+             * (Active outcome is not part of this list)
+             * @param index The index of the outcome, to be deleted, in the outcomeList
+             */
+            deleteOutcome (index) {
+                let outcomeToBeRemoved = this.outcomeList[index];
+                // Remove outcomeToBeRemoved from this.outcomeList
+                this.outcomeList = this.outcomeList.filter(
+                    function(outcome) {
+                        return outcome !== outcomeToBeRemoved
+                    });
+            },
+
+            /**
+             * Sets the active outcome to the selected outcome
+             * Deletes the to be edited outcome from the outcomeList
+             * Updates the outcome input boxes and their respective word counts
+             * @param index The index of the outcome, to be edited, in the outcomeList
+             */
+            editOutcome(index) {
+                this.activeOutcome = this.outcomeList[index];
+                this.deleteOutcome(index);
+                this.updateOutcomeWordCount();
             }
         }
     }
@@ -397,5 +591,18 @@
 
     .checkbox-time {
         padding-top: 10px;
+    }
+
+    .tableButtonTd {
+        float: right;
+    }
+
+    .outcomesTable p {
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+
+    .addOutcomesButton {
+        margin-bottom: 5px;
     }
 </style>
