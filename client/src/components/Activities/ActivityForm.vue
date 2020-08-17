@@ -354,7 +354,7 @@
                 outcomeUnitCharCount: 0,
                 maxOutcomeUnitCharCount: 15,
                 errored: false,
-                error_message: "Something went wrong"
+                error_message: "Something went wrong",
                 loading: false,
                 isRedirecting: false,
                 redirectionMessage: ''
