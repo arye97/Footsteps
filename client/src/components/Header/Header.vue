@@ -18,7 +18,11 @@
                     <b-nav-item v-if=!this.isLoggedIn>
                         <router-link to='/register' class="nav-link">Register</router-link>
                     </b-nav-item>
-                    <b-nav-item  v-if=this.isLoggedIn>
+                    <b-nav-item  v-if="this.isLoggedIn && this.isGlobalAdmin === false">
+                        <router-link v-if="this.isAdmin" to="/admin"
+                                     class="nav-link">Admin Dashboard</router-link>
+                    </b-nav-item>
+                    <b-nav-item  v-if="this.isLoggedIn && this.isGlobalAdmin === false">
                         <router-link :to="{ name: 'allActivities' }"
                                      class="nav-link">My Activities</router-link>
                     </b-nav-item>
@@ -27,7 +31,7 @@
                                 :to="{ name: 'searchPage' }"
                                 class="nav-link">Search</router-link>
                     </b-nav-item>
-                    <b-nav-item v-if=this.isLoggedIn>
+                    <b-nav-item v-if="this.isLoggedIn && this.isGlobalAdmin === false">
                         <router-link
                                 :to="{ name: 'myProfile' }"
                                 class="nav-link">Profile</router-link>
@@ -53,6 +57,8 @@
         data: function () {
             return {
                 isLoggedIn : sessionStorage.getItem("token") !== null,
+                isAdmin: false,
+                isGlobalAdmin: false
             }
         },
         props: ['userId'],
@@ -61,6 +67,18 @@
                 this.setIsLoggedIn();
             }
         },
+        async mounted() {
+            await api.getAllUserData().then(response => {
+                this.isAdmin = false;
+                this.isGlobalAdmin = false;
+                if (response.data.role >= 10) {
+                    this.isAdmin = true;
+                }
+                if (response.data.role === 20) {
+                    this.isGlobalAdmin = true;
+                }
+            }).catch(() => this.logout());
+        },
         methods: {
             setIsLoggedIn: function() {
                 this.isLoggedIn = (sessionStorage.getItem("token") !== null);
@@ -68,7 +86,6 @@
             async logout() {
                 await api.logout().then(() => {
                     sessionStorage.clear();
-                    // tokenStore.setToken(null);
                     this.isLoggedIn = (sessionStorage.getItem("token") !== null);
                     this.$forceUpdate();
                     this.$router.push('/login'); //Routes to home on logout
