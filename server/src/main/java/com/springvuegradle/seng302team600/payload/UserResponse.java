@@ -59,6 +59,9 @@ public class UserResponse {
     @JsonProperty("bio")
     private String bio;
 
+    @JsonProperty("role")
+    private int role;
+
     public UserResponse(User user) {
         this.lastName = user.getLastName();
         this.firstName = user.getFirstName();
@@ -73,6 +76,7 @@ public class UserResponse {
         this.gender = user.getGender();
         this.dateOfBirth = user.getDateOfBirth();
         this.bio = user.getBio();
+        this.role = user.getRole();
     }
 
     public UserResponse() {}

@@ -17,19 +17,21 @@
                                 </div><br/>
                             </form>
                             <!--div for main page stuff when user is logged in-->
-                            <div v-if="this.isLoggedIn">
+                            <div v-if="this.isLoggedIn && !this.loading">
                                 <div class="col-sm-12 text-center">
-                                    <p class="lead">
-
+                                    <footer class="lead" v-if="this.isAdmin">
+                                        <b-button variant="success" size="med" v-on:click="$router.push('/admin')">Admin dashboard</b-button><br/><br/>
+                                    </footer>
+                                    <footer class="lead" v-if="!this.isGlobalAdmin">
                                         <b-button variant="success" size="med" v-on:click="$router.push({name: 'myProfile'})">My Profile</b-button><br/><br/>
-
+                                    </footer>
+                                    <footer class="lead" v-if="!this.isGlobalAdmin">
                                         <b-button variant="success" size="med" v-on:click="$router.push({name: 'allActivities'})">My Activities</b-button><br/><br/>
-
-                                    </p>
+                                    </footer>
                                 </div>
                                 <hr><br/>
                                 <!-- Show recent online actions -->
-                                <HomeFeed></HomeFeed>
+                                <HomeFeed v-if="!this.isGlobalAdmin"></HomeFeed>
                             </div>
                         </div>
                     </div>
@@ -42,6 +44,7 @@
 
 <script>
     import HomeFeed from "../HomeFeed/HomeFeed";
+    import api from "../../Api";
     export default {
         name: "HomeLayout",
         components: {HomeFeed},
@@ -49,12 +52,27 @@
         data: function () {
             return {
                 isLoggedIn : sessionStorage.getItem("token") !== null,
+                isAdmin: false,
+                isGlobalAdmin: false,
+                loading: true
             }
         },
         props: ['userId'],
-        mounted() {
+        async mounted() {
+            this.loading = true;
             this.setIsLoggedIn();
-
+            await api.getAllUserData().then(response => {
+                if (response.data.role >= 10) {
+                    this.isAdmin = true;
+                }
+                if (response.data.role === 20) {
+                    this.isGlobalAdmin = true;
+                }
+                this.loading = false;
+            }).catch(() => {
+                // Redirect to login
+                this.login();
+            });
         },
         watch: {
             isLoggedIn: function () {
@@ -66,12 +84,11 @@
                 this.isLoggedIn = (sessionStorage.getItem("token") !== null);
             },
             login() {
+                sessionStorage.getItem("token")
                 this.$router.push('/login');
-                // this.$emit('login');
             },
             register() {
                 this.$router.push('/register');
-                // this.$emit('register');
             }
         },
     }
