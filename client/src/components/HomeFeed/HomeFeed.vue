@@ -116,17 +116,11 @@
              * Logs the user out and clears session token
              */
             logout () {
-                api.logout().then(() => {
-                    sessionStorage.clear();
-                    this.isLoggedIn = (sessionStorage.getItem("token") !== null);
-                    this.$forceUpdate();
-                    this.$router.push('/login');
-                }).catch(() => {
-                    sessionStorage.clear();
-                    this.isLoggedIn = (sessionStorage.getItem("token") !== null);
-                    this.$forceUpdate();
-                    this.$router.push('/login');
-                })
+                api.logout()
+                sessionStorage.clear();
+                this.isLoggedIn = (sessionStorage.getItem("token") !== null);
+                this.$forceUpdate();
+                this.$router.push('/login');
             },
         }
     }

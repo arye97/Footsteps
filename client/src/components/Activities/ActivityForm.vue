@@ -383,6 +383,13 @@
                 }
             },
 
+            /**
+             * Handles errors thrown when trying to create an activity
+             * status code 401: logs user out
+             * status code 403: sends user back to activity list screen and shows them a error message there
+             * status code 404: sends user back to activity list screen and shows them a error message there
+             * any other errors: sends user back to activity list screen and shows them a error message there
+             */
             processPostError(errResponse) {
                 if (errResponse.status === 401) {
                     this.logout();
@@ -402,17 +409,11 @@
              * Logs the user out and clears session token
              */
             logout () {
-                api.logout().then(() => {
-                    sessionStorage.clear();
-                    this.isLoggedIn = (sessionStorage.getItem("token") !== null);
-                    this.$forceUpdate();
-                    this.$router.push('/login');
-                }).catch(() => {
-                    sessionStorage.clear();
-                    this.isLoggedIn = (sessionStorage.getItem("token") !== null);
-                    this.$forceUpdate();
-                    this.$router.push('/login');
-                })
+                api.logout();
+                sessionStorage.clear();
+                this.isLoggedIn = (sessionStorage.getItem("token") !== null);
+                this.$forceUpdate();
+                this.$router.push('/login');
             },
 
             /**
