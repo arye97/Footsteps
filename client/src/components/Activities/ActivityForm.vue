@@ -397,8 +397,13 @@
                     this.$router.push({name: 'allActivities', params:
                             {alertMessage: "Sorry, you do not have permission to edit or create another user's activity", alertCount: 5}});
                 } else if (errResponse.status === 404) {
+                    this.$router.push({
+                        name: 'allActivities', params:
+                            {alertMessage: "Sorry, we couldn't find this activity", alertCount: 5}
+                    });
+                } else if ('message' in errResponse) {  // If the error is thrown from throwError
                     this.$router.push({name: 'allActivities', params:
-                            {alertMessage: "Sorry, we couldn't find this activity", alertCount: 5}});
+                            {alertMessage: errResponse.message, alertCount: 5}});
                 } else {
                     this.$router.push({name: 'allActivities', params:
                             {alertMessage: "Sorry, an unknown error occurred while creating this activity", alertCount: 5}});
@@ -464,11 +469,11 @@
                 // If duration is chosen
                 if (!this.activity.continuous) {
                     if (isNaN(startTime.getTime())) {
-                        showError('alert_start_valid');
+                        this.showError('alert_start_valid');
                         this.isValidFormFlag = false;
                     }
                     else if (!this.activity.submitStartTime) {
-                        showError('alert_start');
+                        this.showError('alert_start');
                         this.isValidFormFlag = false;
                     }
                     else if (startTime > endTime) {
@@ -481,11 +486,11 @@
                     }
 
                     if (isNaN(endTime.getTime())) {
-                        showError('alert_end_valid');
+                        this.showError('alert_end_valid');
                         this.isValidFormFlag = false;
                     }
                     else if (!this.activity.submitEndTime) {
-                        showError('alert_end');
+                        this.showError('alert_end');
                         this.isValidFormFlag = false;
                     }
                     else if (endTime < startTime) {
