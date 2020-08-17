@@ -18,8 +18,8 @@
                     <b-nav-item v-if=!this.isLoggedIn>
                         <router-link to='/register' class="nav-link">Register</router-link>
                     </b-nav-item>
-                    <b-nav-item  v-if="this.isLoggedIn && this.isGlobalAdmin === false">
-                        <router-link v-if="this.isAdmin" to="/admin"
+                    <b-nav-item  v-if="this.isLoggedIn && this.isAdmin">
+                        <router-link to="/admin"
                                      class="nav-link">Admin Dashboard</router-link>
                     </b-nav-item>
                     <b-nav-item  v-if="this.isLoggedIn && this.isGlobalAdmin === false">

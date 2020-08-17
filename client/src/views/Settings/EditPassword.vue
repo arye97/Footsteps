@@ -114,6 +114,10 @@
                         this.loading = false;
                         this.user = response.data;
                         this.userId = this.user.id;
+                        if (this.user.role === 20) {
+                            // Is the global admin
+                            this.$router.push('/home');
+                        }
                     }).catch(error => {
                         if (error.response.data.status === 401) {
                             this.logout();

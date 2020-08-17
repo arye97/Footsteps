@@ -17,7 +17,7 @@
                                 </div><br/>
                             </form>
                             <!--div for main page stuff when user is logged in-->
-                            <div v-if="this.isLoggedIn">
+                            <div v-if="this.isLoggedIn && !this.loading">
                                 <div class="col-sm-12 text-center">
                                     <footer class="lead" v-if="this.isAdmin">
                                         <b-button variant="success" size="med" v-on:click="$router.push('/admin')">Admin dashboard</b-button><br/><br/>
@@ -53,11 +53,13 @@
             return {
                 isLoggedIn : sessionStorage.getItem("token") !== null,
                 isAdmin: false,
-                isGlobalAdmin: false
+                isGlobalAdmin: false,
+                loading: true
             }
         },
         props: ['userId'],
         async mounted() {
+            this.loading = true;
             this.setIsLoggedIn();
             await api.getAllUserData().then(response => {
                 if (response.data.role >= 10) {
@@ -66,11 +68,11 @@
                 if (response.data.role === 20) {
                     this.isGlobalAdmin = true;
                 }
+                this.loading = false;
             }).catch(() => {
                 // Redirect to login
                 this.login();
             });
-
         },
         watch: {
             isLoggedIn: function () {
