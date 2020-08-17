@@ -17,7 +17,7 @@
             <div class="row h-100">
                 <div class="col-12 text-center">
                     <div v-if="errored">
-                        <p class="font-weight-light">{{this.errorMessage}}</p>
+                        <h1 class="font-weight-light">{{this.errorMessage}}</h1>
                     </div>
                     <div v-else>
                         <div v-if="loading"> Loading... <br/><br/><b-spinner variant="primary" label="Spinning"></b-spinner></div>
@@ -340,55 +340,63 @@
              * @returns {Promise<void>}
              */
             async getActivityDetails() {
-                await api.getActivityData(this.activityId).then(response => {
-                    this.activityTitle = response.data.activity_name;
-                    this.description = response.data.description;
-                    this.creatorId = response.data.creatorUserId;
-                    this.location = response.data.location;
-                    this.startTime = response.data.start_time;
-                    this.endTime = response.data.end_time;
-                    this.activityTypes = response.data.activity_type;
-                    this.continuous = response.data.continuous;
-                }).catch(err => {
-                    this.errored = true;
-                    this.errorMessage = err.response.data.message;
-                });
+                if (!this.errored) {
+                    await api.getActivityData(this.activityId).then(response => {
+                        this.activityTitle = response.data.activity_name;
+                        this.description = response.data.description;
+                        this.creatorId = response.data.creatorUserId;
+                        this.location = response.data.location;
+                        this.startTime = response.data.start_time;
+                        this.endTime = response.data.end_time;
+                        this.activityTypes = response.data.activity_type;
+                        this.continuous = response.data.continuous;
+                    }).catch(err => {
+                        this.errored = true;
+                        this.errorMessage = err.response.data.message;
+                    });
+                }
             },
             /**
              * Get the ID of the user who is viewing the activity
              * @returns {Promise<void>}
              */
             async getActiveUserId() {
-                await api.getUserId().then(response => {
-                    this.activeUserId = response.data;
-                }).catch(err => {
-                    this.errored = true;
-                    this.errorMessage = err.response.data.message;
-                })
+                if (!this.errored) {
+                    await api.getUserId().then(response => {
+                        this.activeUserId = response.data;
+                    }).catch(err => {
+                        this.errored = true;
+                        this.errorMessage = err.response.data.message;
+                    })
+                }
             },
             /**
              * Get the name of the user who is viewing the activity
              * @returns {Promise<void>}
              */
             async getActiveUserName() {
-                await api.getUserData(this.activeUserId).then(response => {
-                    this.activeUserName = response.data.firstname + " " + response.data.lastname;
-                }).catch(err => {
-                    this.errored = true;
-                    this.errorMessage = err.response.data.message;
-                })
+                if (!this.errored) {
+                    await api.getUserData(this.activeUserId).then(response => {
+                        this.activeUserName = response.data.firstname + " " + response.data.lastname;
+                    }).catch(err => {
+                        this.errored = true;
+                        this.errorMessage = err.response.data.message;
+                    })
+                }
             },
             /**
              * Get the name of the activity creator
              * @returns {Promise<void>}
              */
             async getCreatorUserDetails() {
-                await api.getUserData(this.creatorId).then(response => {
-                    this.creatorName = response.data.firstname + " " + response.data.lastname;
-                }).catch(err => {
-                    this.errored = true;
-                    this.errorMessage = err.response.data.message;
-                })
+                if (!this.errored) {
+                    await api.getUserData(this.creatorId).then(response => {
+                        this.creatorName = response.data.firstname + " " + response.data.lastname;
+                    }).catch(err => {
+                        this.errored = true;
+                        this.errorMessage = err.response.data.message;
+                    })
+                }
             },
             /**
              * Utilises the formatDateTime utility function
@@ -398,16 +406,18 @@
              * Gets the duration of the activity
              */
             getTime() {
-                let timeUnits = [];
-                let days = Math.floor(((new Date(this.endTime) - new Date(this.startTime))/1000/60/60/24));
-                let hours =  Math.ceil(((new Date(this.endTime) - new Date(this.startTime))/1000/60/60)) % 24;
-                if (days > 0) {
-                    timeUnits.push(days + " Days");
+                if (!this.errored) {
+                    let timeUnits = [];
+                    let days = Math.floor(((new Date(this.endTime) - new Date(this.startTime)) / 1000 / 60 / 60 / 24));
+                    let hours = Math.ceil(((new Date(this.endTime) - new Date(this.startTime)) / 1000 / 60 / 60)) % 24;
+                    if (days > 0) {
+                        timeUnits.push(days + " Days");
+                    }
+                    if (hours > 0) {
+                        timeUnits.push(hours + " Hours");
+                    }
+                    this.duration = timeUnits.join(", ")
                 }
-                if (hours > 0) {
-                    timeUnits.push(hours + " Hours");
-                }
-                this.duration = timeUnits.join(", ")
             },
             /**
              * Routes to a given url
@@ -421,13 +431,14 @@
              * @returns {Promise<void>}
              */
             async getFollowingDetails() {
-                await api.getUserSubscribed(this.activityId, this.activeUserId).then((response) => {
-                    this.isFollowing = response.data.subscribed;
-                }).catch((err) => {
-                    this.errored = true;
-                    this.errorMessage = err.response.data.message;
-                });
-
+                if (!this.errored) {
+                    await api.getUserSubscribed(this.activityId, this.activeUserId).then((response) => {
+                        this.isFollowing = response.data.subscribed;
+                    }).catch((err) => {
+                        this.errored = true;
+                        this.errorMessage = err.response.data.message;
+                    });
+                }
             },
             /**
              * Sends the post request so a user can follow the activity
@@ -466,74 +477,81 @@
              * Gets list of participants for the activity
              */
             async fetchParticipantsForActivities() {
-                await api.getParticipants(this.activityId).then(response => {
-                    let participants = [];
-                    let user;
-                    for (let j = 0; j < response.data.length; j++) {
-                        user = response.data[j];
-                        participants.push({"name":user.firstname + ' ' + user.lastname,
-                            "id":user.id});
-                    }
-                    this.participants = participants;
-                }).catch(error => {
-                    //Log out if error
-                    if(error.response.status === 401) {
-                        sessionStorage.clear();
-                        this.$router.push('/login');
-                    }else{
-                        this.errored = true;
-                        this.errorMessage = "Unable to get participants - please try again later";
-                    }
-                });
+                if (!this.errored) {
+                    await api.getParticipants(this.activityId).then(response => {
+                        let participants = [];
+                        let user;
+                        for (let j = 0; j < response.data.length; j++) {
+                            user = response.data[j];
+                            participants.push({
+                                "name": user.firstname + ' ' + user.lastname,
+                                "id": user.id
+                            });
+                        }
+                        this.participants = participants;
+                    }).catch(error => {
+                        //Log out if error
+                        if (error.response.status === 401) {
+                            sessionStorage.clear();
+                            this.$router.push('/login');
+                        } else {
+                            this.errored = true;
+                            this.errorMessage = "Unable to get participants - please try again later";
+                        }
+                    });
+                }
             },
             /**
              * Gets the list of outcomes for the activity
              */
             async fetchOutcomesForActivity() {
-                await api.getActivityOutcomes(this.activityId).then(response => {
-                    this.outcomeList = response.data;
-                    if (this.outcomeList.length > 0) {
-                        this.hasOutcomes = true;
-                    }
-                }).catch(error => {
-                    if (error.response.status === 401) {
-                        sessionStorage.clear();
-                        this.goToPage('/login');
-                    } else {
-                        this.errored = true;
-                        this.errorMessage = "Unable to get outcomes - please try again later";
-                    }
-                });
+                if (!this.errored) {
+                    await api.getActivityOutcomes(this.activityId).then(response => {
+                        this.outcomeList = response.data;
+                        if (this.outcomeList.length > 0) {
+                            this.hasOutcomes = true;
+                        }
+                    }).catch(error => {
+                        if (error.response.status === 401) {
+                            sessionStorage.clear();
+                            this.goToPage('/login');
+                        } else {
+                            this.errored = true;
+                            this.errorMessage = "Unable to get outcomes - please try again later";
+                        }
+                    });
+                }
             },
             /**
              * Gets a list of results for each outcome
              */
             async fetchResultsForOutcomes() {
-                  for (let i = 0; i < this.outcomeList.length; i++) {
-                    let outcomeId = this.outcomeList[i].outcome_id;
-                    await api.getOutcomeResults(outcomeId).then(response => {
-                        this.outcomeList[i].results = response.data;
-                    }).catch(() => {
-                        this.resultError = true;
-                    });
-                    // If the active user's result is not returned create one
-                    let activeUsersResults = this.outcomeList[i].results.filter(i => i.user_id === this.activeUserId);
-                    if (activeUsersResults.length < 1) {
-                      this.outcomeList[i].activeUsersResult = {
-                        user_id: this.activeUserId,
-                        outcome_id: outcomeId,
-                        user_name: this.activeUserName,
-                        value: "",
-                        did_not_finish: false,
-                        comment: "",
-                        submitted: false
-                      };
-                    } else {
-                      this.outcomeList[i].activeUsersResult = activeUsersResults[0];
-                      this.outcomeList[i].activeUsersResult.submitted = true;
+                if (!this.errored) {
+                    for (let i = 0; i < this.outcomeList.length; i++) {
+                        let outcomeId = this.outcomeList[i].outcome_id;
+                        await api.getOutcomeResults(outcomeId).then(response => {
+                            this.outcomeList[i].results = response.data;
+                        }).catch(() => {
+                            this.resultError = true;
+                        });
+                        // If the active user's result is not returned create one
+                        let activeUsersResults = this.outcomeList[i].results.filter(i => i.user_id === this.activeUserId);
+                        if (activeUsersResults.length < 1) {
+                            this.outcomeList[i].activeUsersResult = {
+                                user_id: this.activeUserId,
+                                outcome_id: outcomeId,
+                                user_name: this.activeUserName,
+                                value: "",
+                                did_not_finish: false,
+                                comment: "",
+                                submitted: false
+                            };
+                        } else {
+                            this.outcomeList[i].activeUsersResult = activeUsersResults[0];
+                            this.outcomeList[i].activeUsersResult.submitted = true;
+                        }
                     }
-                  }
-
+                }
             },
             /**
              * Submit result to back-end for an outcome
