@@ -233,19 +233,13 @@
              * Logs the user out and clears session token
              */
             logout () {
-                api.logout().then(() => {
-                    sessionStorage.clear();
-                    // tokenStore.setToken(null);
-                    this.isLoggedIn = (sessionStorage.getItem("token") !== null);
-                    this.$forceUpdate();
-                    this.$router.push('/login'); //Routes to home on logout
-                }).catch(() => {
-                    sessionStorage.clear();
-                    this.isLoggedIn = (sessionStorage.getItem("token") !== null);
-                    this.$forceUpdate();
-                    this.$router.push('/login'); //Routes to home on logout
-                })
+                api.logout()
+                sessionStorage.clear();
+                this.isLoggedIn = (sessionStorage.getItem("token") !== null);
+                this.$forceUpdate();
+                this.$router.push('/login');
             },
+
             /**
              * Redirect to view user screen
              */

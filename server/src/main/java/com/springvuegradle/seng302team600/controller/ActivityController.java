@@ -81,7 +81,7 @@ public class ActivityController {
     public ActivityResponse findUserActivity(@PathVariable Long activityId) {
         Activity activity = activityRepository.findByActivityId(activityId);
         if (activity == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid activity id");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Activity is not found. This activity may have been deleted.");
         }
         return new ActivityResponse(activity);
     }

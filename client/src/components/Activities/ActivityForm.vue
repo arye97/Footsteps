@@ -1,4 +1,5 @@
 <template>
+
     <div>
         <header class="masthead">
             <div class="container h-100">
@@ -282,6 +283,7 @@
     import api from "../../Api";
     import {localTimeZoneToBackEndTime} from "../../util";
 
+
     /**
      * Displays an error on the element with id equal to alert_name
      */
@@ -335,7 +337,7 @@
             return {
                 activityTypes: [],
                 nameCharCount: 0,
-                maxNameCharCount: 15,
+                maxNameCharCount: 75,
                 descriptionCharCount: 0,
                 maxDescriptionCharCount: 1500,
                 defaultTime: "12:00",
@@ -352,8 +354,7 @@
                 outcomeTitleCharCount: 0,
                 maxOutcomeTitleCharCount: 75,
                 outcomeUnitCharCount: 0,
-                maxOutcomeUnitCharCount: 75,
-
+                maxOutcomeUnitCharCount: 15,
                 errored: false,
                 error_message: "Something went wrong"
             }
@@ -362,6 +363,7 @@
             await this.fetchActivityTypes();
         },
         methods: {
+
             /**
              * Called when submit button is pressed.  Validates the form input, then calls the function passed in
              * through props.  This way the form can be used to edit and create activities.
@@ -374,11 +376,48 @@
                     this.formatDurationActivity();
                     try {
                         await this.submitActivityFunc();
-                    } catch(err) {
-                        this.overallMessageText = err.message;
-                        showError('overall_message');
+                    } catch(errResponse) {
+                        this.processPostError(errResponse);
                     }
                 }
+            },
+
+            /**
+             * Handles errors thrown when trying to create an activity
+             * status code 401: logs user out
+             * status code 403: sends user back to activity list screen and shows them a error message there
+             * status code 404: sends user back to activity list screen and shows them a error message there
+             * any other errors: sends user back to activity list screen and shows them a error message there
+             */
+            processPostError(errResponse) {
+                if (errResponse.status === 401) {
+                    this.logout();
+                } else if (errResponse.status === 403) {
+                    this.$router.push({name: 'allActivities', params:
+                            {alertMessage: "Sorry, you do not have permission to edit or create another user's activity", alertCount: 5}});
+                } else if (errResponse.status === 404) {
+                    this.$router.push({
+                        name: 'allActivities', params:
+                            {alertMessage: "Sorry, we couldn't find this activity", alertCount: 5}
+                    });
+                } else if ('message' in errResponse) {  // If the error is thrown from throwError
+                    this.$router.push({name: 'allActivities', params:
+                            {alertMessage: errResponse.message, alertCount: 5}});
+                } else {
+                    this.$router.push({name: 'allActivities', params:
+                            {alertMessage: "Sorry, an unknown error occurred while creating this activity", alertCount: 5}});
+                }
+            },
+
+            /**
+             * Logs the user out and clears session token
+             */
+            logout () {
+                api.logout();
+                sessionStorage.clear();
+                this.isLoggedIn = (sessionStorage.getItem("token") !== null);
+                this.$forceUpdate();
+                this.$router.push('/login');
             },
 
             /**
@@ -513,7 +552,9 @@
                 this.errored = false;
                 this.outcomeTitleCharCount = this.activeOutcome.title.length;
                 this.outcomeUnitCharCount = this.activeOutcome.unit_name.length;
-                this.validOutcome = this.outcomeTitleCharCount > 0 && this.outcomeUnitCharCount > 0;
+                this.validOutcome = this.outcomeTitleCharCount > 0 && this.outcomeUnitCharCount > 0
+                                    && this.outcomeTitleCharCount <= this.maxOutcomeTitleCharCount
+                                    && this.outcomeUnitCharCount <= this.maxOutcomeUnitCharCount;
                 if (this.validOutcome) {
                     for (let i = 0; i < this.outcomeList.length; i++) {
                         if (this.activeOutcome.title === this.outcomeList[i].title) {
