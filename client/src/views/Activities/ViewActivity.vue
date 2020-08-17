@@ -200,9 +200,9 @@
                                               id="viewResults" v-b-modal="'resultsModal'" v-else>
                                         View Results</b-button>
 
-                                    <b-modal id="resultsModal" title="Activity Results">
+                                    <b-modal id="resultsModal" title="Activity Results" scrollable ok-only ok-variant="secondary" ok-title="Back">
                                         <div v-for="outcome in this.outcomeList" :key="outcome.outcome_id">
-                                            <b-button v-b-toggle="'collapse' + outcome.outcome_id" variant="primary" block>{{outcome.title}}</b-button>
+                                            <b-button v-b-toggle="'collapse' + outcome.outcome_id" variant="success" block>{{outcome.title}}</b-button>
                                             <b-collapse :id="'collapse' + outcome.outcome_id">
                                                 <div v-if="outcome.results.length > 0">
                                                     <b-card v-for="result in outcome.results" :key="result.result_id">
