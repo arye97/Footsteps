@@ -68,16 +68,18 @@
             }
         },
         async mounted() {
-            await api.getAllUserData().then(response => {
-                this.isAdmin = false;
-                this.isGlobalAdmin = false;
-                if (response.data.role >= 10) {
-                    this.isAdmin = true;
-                }
-                if (response.data.role === 20) {
-                    this.isGlobalAdmin = true;
-                }
-            }).catch(() => this.logout());
+            if (this.isLoggedIn) {
+                await api.getAllUserData().then(response => {
+                    this.isAdmin = false;
+                    this.isGlobalAdmin = false;
+                    if (response.data.role >= 10) {
+                        this.isAdmin = true;
+                    }
+                    if (response.data.role === 20) {
+                        this.isGlobalAdmin = true;
+                    }
+                }).catch(() => this.logout());
+            }
         },
         methods: {
             setIsLoggedIn: function() {
