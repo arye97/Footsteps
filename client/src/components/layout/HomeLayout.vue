@@ -61,18 +61,20 @@
         async mounted() {
             this.loading = true;
             this.setIsLoggedIn();
-            await api.getAllUserData().then(response => {
-                if (response.data.role >= 10) {
-                    this.isAdmin = true;
-                }
-                if (response.data.role === 20) {
-                    this.isGlobalAdmin = true;
-                }
-                this.loading = false;
-            }).catch(() => {
-                // Redirect to login
-                this.login();
-            });
+            if (this.isLoggedIn) {
+                await api.getAllUserData().then(response => {
+                    if (response.data.role >= 10) {
+                        this.isAdmin = true;
+                    }
+                    if (response.data.role === 20) {
+                        this.isGlobalAdmin = true;
+                    }
+                    this.loading = false;
+                }).catch(() => {
+                    // Redirect to login
+                    this.login();
+                });
+            }
         },
         watch: {
             isLoggedIn: function () {
