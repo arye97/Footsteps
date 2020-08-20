@@ -13,9 +13,9 @@ public interface FeedEventRepository extends JpaRepository<FeedEvent, Long> {
 
     @Query(value =
             "SELECT * " +
-            "FROM feed_event FE LEFT JOIN feed_event_viewers FEV" +
-            "ON FE.feed_event_id = FEV.feed_event_id" +
+            "FROM feed_event AS FE LEFT JOIN feed_event_viewers AS FEV " +
+            "ON FE.feed_event_id = FEV.feed_event_id " +
             "WHERE FEV.user_id = :userId " +
-            "ORDER BY time_stamp", nativeQuery = true)
+            "ORDER BY time_stamp ", nativeQuery = true)
     List<FeedEvent> findByViewerIdOrderByTimeStamp(@Param("userId") Long viewerId);
 }
