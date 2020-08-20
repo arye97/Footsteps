@@ -44,7 +44,10 @@ beforeEach(() => {
         api.getFeedEvents.mockImplementation(() => {
             return Promise.resolve({
                 data: [FEED_EVENT],
-                status: 200
+                status: 200,
+                headers: {
+                    "total-rows": 5
+                }
             })
         });
         api.getUserId.mockImplementation(() => {
