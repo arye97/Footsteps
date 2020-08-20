@@ -146,7 +146,6 @@ public class FeedEventController {
      * @param profileId the id of the user to check
      * @return the list of feed events
      */
-    @CrossOrigin(origins = "*", exposedHeaders = "Total-Rows")
     @GetMapping("/profiles/{profileId}/subscriptions")
     public List<FeedEvent> getFeedEvents(HttpServletRequest request, HttpServletResponse response,
                                          @PathVariable Long profileId) {
