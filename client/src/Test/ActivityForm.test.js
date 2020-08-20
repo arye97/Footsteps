@@ -1,9 +1,11 @@
 import "vue-jest"
-import {shallowMount} from "@vue/test-utils";
+import {mount, createLocalVue} from "@vue/test-utils";
 import api from "../Api";
 import ActivityForm from "../components/Activities/ActivityForm";
+import { BootstrapVue } from 'bootstrap-vue'
 
-
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
 
 const ACTIVITY1 = {
     profileId: 116,
@@ -23,14 +25,13 @@ let activityForm;
  * Before each test, mock the necessary properties and methods.
  */
 beforeEach(() => {
-    activityForm = shallowMount(ActivityForm, {
+    activityForm = mount(ActivityForm, {
         propsData: {
             activity: { ACTIVITY1
             }
         },
         mocks: {api},
-        methods: {
-            }
+        localVue
     });
 });
 
