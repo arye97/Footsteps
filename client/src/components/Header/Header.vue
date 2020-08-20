@@ -68,15 +68,20 @@
             }
         },
         async mounted() {
+            this.isAdmin = sessionStorage.getItem("role") >= 10;
+            this.isGlobalAdmin = sessionStorage.getItem("role") === "20";
             if (this.isLoggedIn) {
                 await api.getAllUserData().then(response => {
                     this.isAdmin = false;
                     this.isGlobalAdmin = false;
+                    sessionStorage.setItem("role", "0");
                     if (response.data.role >= 10) {
                         this.isAdmin = true;
+                        sessionStorage.setItem("role", "10");
                     }
                     if (response.data.role === 20) {
                         this.isGlobalAdmin = true;
+                        sessionStorage.setItem("role", "20")
                     }
                 }).catch(() => this.logout());
             }
