@@ -20,6 +20,14 @@ function getTokenHeader() {
   return header;
 }
 
+function getExtendedFeedEventTokenHeader(pageNumber) {
+  let header = {
+    headers: {"Token": sessionStorage.getItem("token"), 'Page-Number' :  pageNumber, "Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
+    withCredentials: true
+  };
+  return header;
+}
+
 function getExtendedEmailTokenHeader(extendedHeaders) {
   let header = {
     headers: {"Token": sessionStorage.getItem("token"), 'email' :  extendedHeaders.email, "Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
@@ -61,7 +69,7 @@ export default {
   setUserSubscribed: (activityId, userId) => server.post( `/profiles/${userId}/subscriptions/activities/${activityId}`, null, getTokenHeader()),
   deleteUserSubscribed: (activityId, userId) => server.delete(`/profiles/${userId}/subscriptions/activities/${activityId}`, getTokenHeader()),
   createOutcome: (outcome) => server.post(`/activities/outcomes`, outcome, getTokenHeader()),
-  getFeedEvents: (userId) => server.get(`/profiles/${userId}/subscriptions/`, getTokenHeader()),
+  getFeedEvents: (userId, pageNumber) => server.get(`/profiles/${userId}/subscriptions/`, getExtendedFeedEventTokenHeader(pageNumber)),
   getActivityOutcomes: (activityId) => server.get(`/activities/${activityId}/outcomes`, getTokenHeader()),
   getOutcomeResults: (outcomeId) => server.get(`/outcomes/${outcomeId}/results`, getTokenHeader()),
   createResult: (resultData, outcomeId) => server.post(`/outcomes/${outcomeId}/results`, resultData, getTokenHeader())

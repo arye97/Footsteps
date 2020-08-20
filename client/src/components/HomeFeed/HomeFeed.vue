@@ -13,14 +13,14 @@
             <br/>
         </section>
         <section v-else-if="this.rows > 0">
-            <section v-for="event in this.currentPageEventList" :key="event.id">
+            <section v-for="event in this.paginatedFeedEventList" :key="event.id">
                 <!-- Feed Event List -->
                 <feed-card v-bind:event="event" v-bind:viewer-id="userId"/>
                 <br>
             </section>
             <!-- Pagination Nav Bar -->
             <b-pagination
-                    v-if="!errored && !loading && feedEventList.length >= eventsPerPage"
+                    v-if="!errored && !loading "
                     align="fill"
                     v-model="currentPage"
                     :total-rows="rows"
@@ -47,17 +47,12 @@
             return {
                 errored: false,
                 loading: true,
-                feedEventList: [],
+                paginatedFeedEventList: [],
                 currentPage: 1,
                 eventsPerPage: 5,
-                currentPageEventList: [],
                 error_message: "",
-                userId: null
-            }
-        },
-        computed: {
-            rows() {
-                return this.feedEventList.length;
+                userId: null,
+                rows: null
             }
         },
         watch: {
@@ -65,28 +60,29 @@
              * Watcher is called whenever currentPage is changed, via reloading events
              * or using the pagination bar.
              */
-            currentPage() {
-                this.setCurrentPageEventList();
+            async currentPage() {
+                await this.getPaginatedFeedEvents();
             }
         },
         async mounted() {
             this.userId = await this.getUserId();
-            await api.getFeedEvents(this.userId).then(response => {
-                this.feedEventList = response.data;
-                // Flip the list order so the most recent event shows first
-                // Update what is shown on this page of the pagination
-                this.feedEventList.reverse();
-                this.setCurrentPageEventList();
-                this.loading = false;
-            }).catch(() => {
-                this.feedEventList = [];
-                this.setCurrentPageEventList();
-                this.errored = true;
-                this.error_message = "There was an error when fetching your event feeds"
-            });
-            this.currentPage = 1;
+            await this.getPaginatedFeedEvents();
         },
         methods: {
+            async getPaginatedFeedEvents() {
+                window.scrollTo(0,450);
+                let pageNumber = this.currentPage - 1;
+                await api.getFeedEvents(this.userId, pageNumber).then(response => {
+                    this.paginatedFeedEventList = response.data;
+                    this.rows = response.headers["total-rows"];
+                    this.loading = false;
+                }).catch(() => {
+                    this.paginatedFeedEventList = [];
+                    this.errored = true;
+                    this.error_message = "There was an error when fetching your event feeds"
+                });
+            },
+
             async getUserId() {
                 let userId = null;
                 await api.getUserId().then(response => {
@@ -98,25 +94,10 @@
             },
 
             /**
-             * Calculate the feedEvents to be displayed from the current page number.
-             * This function is called when the pagination bar is altered,
-             * changing the currentPage variable.
-             */
-            setCurrentPageEventList() {
-                let leftIndex = (this.currentPage - 1) * this.eventsPerPage;
-                let rightIndex = leftIndex + this.eventsPerPage;
-                if (rightIndex > this.feedEventList.length) {
-                    rightIndex = this.feedEventList.length;
-                }
-                this.currentPageEventList = this.feedEventList.slice(leftIndex, rightIndex);
-                window.scrollTo(0,0);
-            },
-
-            /**
              * Logs the user out and clears session token
              */
             logout () {
-                api.logout()
+                api.logout();
                 sessionStorage.clear();
                 this.isLoggedIn = (sessionStorage.getItem("token") !== null);
                 this.$forceUpdate();
