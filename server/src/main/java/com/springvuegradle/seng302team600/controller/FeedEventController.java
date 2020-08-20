@@ -19,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -154,9 +155,12 @@ public class FeedEventController {
         userAuthenticationService.findByUserId(token, profileId);
         // Instantiate pagination
         Pageable pageWithFiveFeedEvents = PageRequest.of(pageNumber, PAGE_SIZE, Sort.by("timeStamp").descending());
-        Page<FeedEvent> responseData = feedEventRepository.findByViewerId(profileId, pageWithFiveFeedEvents);
-        int totalElements = (int) responseData.getTotalElements();
+        Page<FeedEvent> paginationResponseData = feedEventRepository.findByViewerId(profileId, pageWithFiveFeedEvents);
+        if (paginationResponseData == null) {
+            return new ArrayList<>();
+        }
+        int totalElements = (int) paginationResponseData.getTotalElements();
         response.setIntHeader("Total-Rows", totalElements);
-        return responseData.getContent();
+        return paginationResponseData.getContent();
     }
 }
