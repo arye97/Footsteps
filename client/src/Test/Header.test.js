@@ -36,11 +36,11 @@ test('There are 5 possible collapsible links, when logged in', () => {
         localVue
     });
     expect(header.vm.isLoggedIn).toBeTruthy();
-    const items = header.findAll('b-nav-item');
+    const items = header.findAll('router-link');
     expect(items.length).toEqual(5);
 });
 
 test('There are 2 possible collapsible links, when not logged in', () => {
     // Not logged in by default!
-    expect(header.findAll('b-nav-item')).toHaveLength(2);
+    expect(header.findAll('router-link')).toHaveLength(2);
 });
