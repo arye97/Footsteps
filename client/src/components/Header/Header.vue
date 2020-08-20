@@ -68,9 +68,12 @@
             }
         },
         async mounted() {
-            this.isAdmin = sessionStorage.getItem("role") >= 10;
-            this.isGlobalAdmin = sessionStorage.getItem("role") === "20";
             if (this.isLoggedIn) {
+                //Checks the session storage to get the stored user role
+                this.isAdmin = sessionStorage.getItem("role") >= 10;
+                this.isGlobalAdmin = sessionStorage.getItem("role") === "20";
+                //Fetch the user's actual role.
+                //This takes time, so session storage is used to prevent the admins from seeing the wrong header while the call is made
                 await api.getAllUserData().then(response => {
                     this.isAdmin = false;
                     this.isGlobalAdmin = false;
