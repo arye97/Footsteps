@@ -20,7 +20,7 @@ function getTokenHeader() {
   return header;
 }
 
-function getExtendedFeedEventTokenHeader(pageNumber) {
+function getExtendedPageNumberTokenHeader(pageNumber) {
   let header = {
     headers: {"Token": sessionStorage.getItem("token"), 'Page-Number' :  pageNumber, "Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
     withCredentials: true
@@ -60,16 +60,16 @@ export default {
   getActivityData: (activityId) => server.get(`/activities/${activityId}`, getTokenHeader()),
   isActivityEditable: (activityId) => server.get(`/check-activity/${activityId}`, getTokenHeader()),
   getUserRoles: (userId) => server.get(`/profiles/${userId}/role`, getTokenHeader()),
-  getUsersByActivityType: (activityTypes, method) => {
+  getUsersByActivityType: (activityTypes, method, pageNumber) => {
     let activityTypesStr = activityTypes.map(a => a.replace(/\s/g, '-')).join(' ');  // Use RegEx to replace ALL spaces with dashes (because str.replace is stupid)
-    return server.get(`profiles?activity=${activityTypesStr}&method=${method}`, getTokenHeader())
+    return server.get(`profiles?activity=${activityTypesStr}&method=${method}`, getExtendedPageNumberTokenHeader(pageNumber))
   },
   getCountries: () => server.get(getCountryNames),
   getUserSubscribed: (activityId, userId) => server.get(`/profiles/${userId}/subscriptions/activities/${activityId}`, getTokenHeader()),
   setUserSubscribed: (activityId, userId) => server.post( `/profiles/${userId}/subscriptions/activities/${activityId}`, null, getTokenHeader()),
   deleteUserSubscribed: (activityId, userId) => server.delete(`/profiles/${userId}/subscriptions/activities/${activityId}`, getTokenHeader()),
   createOutcome: (outcome) => server.post(`/activities/outcomes`, outcome, getTokenHeader()),
-  getFeedEvents: (userId, pageNumber) => server.get(`/profiles/${userId}/subscriptions/`, getExtendedFeedEventTokenHeader(pageNumber)),
+  getFeedEvents: (userId, pageNumber) => server.get(`/profiles/${userId}/subscriptions/`, getExtendedPageNumberTokenHeader(pageNumber)),
   getActivityOutcomes: (activityId) => server.get(`/activities/${activityId}/outcomes`, getTokenHeader()),
   getOutcomeResults: (outcomeId) => server.get(`/outcomes/${outcomeId}/results`, getTokenHeader()),
   createResult: (resultData, outcomeId) => server.post(`/outcomes/${outcomeId}/results`, resultData, getTokenHeader())

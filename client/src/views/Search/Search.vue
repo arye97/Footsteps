@@ -64,7 +64,7 @@
             <br/>
             <br/>
         </section>
-        <section v-else v-for="user in this.currentPageUserList" :key="user.id">
+        <section v-else v-for="user in this.userList" :key="user.id">
             <!-- User List -->
             <user-card v-bind:user="user" v-bind:activity-types-searched-for="activityTypesSearchedFor"/>
             <br>
@@ -99,8 +99,8 @@
             return {
                 usersPerPage: 5,
                 currentPage: 1,
-                currentPageUserList: [],
                 userList: [],
+
                 searchMode: 'activityType',
                 searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
                     { value: 'activityType', text: 'Activity Type'}
@@ -119,7 +119,8 @@
                 searchType: "and",
                 errored: false,
                 error_message: "Something went wrong! Please try again.",
-                loading: false
+                loading: false,
+                rows: null
             }
         },
 
@@ -135,16 +136,7 @@
              * or the pagination bar.
              */
             currentPage() {
-                this.setCurrentPageUserList();
-            }
-        },
-
-        computed: {
-            /**
-             * Finds the number of users (rows) gained from the search query.
-             */
-            rows() {
-                return this.userList.length;
+                this.getPaginatedUsersByActivityType();
             }
         },
 
@@ -154,26 +146,48 @@
             },
 
             /**
-             * Function for redirecting to user profile via userId
+             * Function for redirecting to user profile via userId.
              */
             viewProfile(userId) {
                 this.goToPage({ name: 'profile', params: {userId: userId} })
             },
 
+
             /**
-             * Calculate the users to be displayed from the current page number.
-             * This function is called when the pagination bar is altered,
-             * changing the currentPage variable.
+             * Fetches a paginated list of users, filtered by specified activity types,
+             * through an API call.
              */
-            setCurrentPageUserList() {
-                let leftIndex = (this.currentPage - 1) * this.usersPerPage;
-                let rightIndex = leftIndex + this.usersPerPage;
-                if (rightIndex > this.userList.length) {
-                    rightIndex = this.userList.length;
-                }
-                this.currentPageUserList = this.userList.slice(leftIndex, rightIndex);
-                window.scrollTo(0,0);
+            async getPaginatedUsersByActivityType() {
+                let pageNumber = this.currentPage - 1;
+                api.getUsersByActivityType(this.activityTypesSearchedFor, this.searchType, pageNumber)
+                    .then(response => {
+                        if (response.status === 200) {
+                            // Show users in page
+                            this.userList = response.data;
+                            this.rows = response.headers["total-rows"];
+                        }
+                        this.loading = false;
+                    }).catch(err => {
+                    this.loading = false;
+                    this.errored = true;
+                    this.userList = [];
+                    if ((err.code === "ECONNREFUSED") || (err.code === "ECONNABORTED")) {
+                        this.error_message = "Cannot connect to server - please try again later!";
+                    } else {
+                        if (err.response.status === 401) {
+                            this.error_message = "You aren't logged in! You're being redirected!";
+                            setTimeout(() => {this.logout()}, 3000)
+                        } else if (err.response.status === 400) {
+                            this.error_message = err.response.data.message;
+                        } else if (err.response.status === 404) {
+                            this.error_message = "No users with activity types ".concat(this.selectedActivityTypes) + " have been found!"
+                        } else {
+                            this.error_message = "Something went wrong! Please try again."
+                        }
+                    }
+                });
             },
+
 
             /**
              * Searches a user based on a string of activity types and a method AND or OR
@@ -185,35 +199,7 @@
                 this.loading = true;
                 // Set is as a copy so the User card is only updated after clicking search
                 this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
-                api.getUsersByActivityType(this.activityTypesSearchedFor, this.searchType)
-                    .then(response => {
-                        if (response.status === 200) {
-                            // Show users in page
-                            this.userList = response.data;
-                            this.setCurrentPageUserList();
-                        }
-                        this.loading = false;
-                    }).catch(err => {
-                        this.loading = false;
-                        this.errored = true;
-                        this.userList = [];
-                        this.setCurrentPageUserList();
-                        if ((err.code === "ECONNREFUSED") || (err.code === "ECONNABORTED")) {
-                            this.error_message = "Cannot connect to server - please try again later!";
-                        } else {
-                            if (err.response.status === 401) {
-                                this.error_message = "You aren't logged in! You're being redirected!";
-                                setTimeout(() => {this.logout()}, 3000)
-                            } else if (err.response.status === 400) {
-                                this.error_message = err.response.data.message;
-                            } else if (err.response.status === 404) {
-                                this.error_message = "No users with activity types ".concat(this.selectedActivityTypes) + " have been found!"
-                            } else {
-                                this.error_message = "Something went wrong! Please try again."
-                            }
-                        }
-                });
-                this.currentPage = 1;
+                this.getPaginatedUsersByActivityType();
             },
             /**
              * Logout is used for when an error needs redirection

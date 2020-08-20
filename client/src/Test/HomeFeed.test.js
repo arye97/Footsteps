@@ -72,5 +72,6 @@ beforeEach(() => {
 });
 
 test('Check that feed event data is fetched and rendered properly', () => {
+    window.scrollTo = jest.fn();
     expect(homeFeed.find('#description').text()).toBe('You modified the activity The First Activity')
 });

@@ -69,6 +69,10 @@
             await this.getPaginatedFeedEvents();
         },
         methods: {
+
+            /**
+             * Fetches a paginated list of FeedEvents through an API call.
+             */
             async getPaginatedFeedEvents() {
                 window.scrollTo(0,450);
                 let pageNumber = this.currentPage - 1;
