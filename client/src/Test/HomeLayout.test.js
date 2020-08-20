@@ -1,6 +1,10 @@
-import {shallowMount} from '@vue/test-utils'
+import {mount, createLocalVue} from '@vue/test-utils'
 import HomeLayout from '../components/layout/HomeLayout.vue'
 import 'vue-jest'
+import BootstrapVue from "bootstrap-vue";
+
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
 
 let homeLayout;
 let push;
@@ -19,9 +23,10 @@ beforeEach(() => {
         mocks: {
             $route,
             $router
-        }
+        },
+        localVue
     };
-    homeLayout = shallowMount(HomeLayout, config);
+    homeLayout = mount(HomeLayout, config);
 });
 
 test('Is a vue instance', () => {
