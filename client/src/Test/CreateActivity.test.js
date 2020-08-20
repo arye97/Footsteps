@@ -1,9 +1,13 @@
 import 'vue-jest'
-import {shallowMount} from '@vue/test-utils'
+import {mount, createLocalVue} from '@vue/test-utils'
 import CreateActivity from "../views/Activities/CreateActivity";
 import api from "../Api";
 import router from '../index';
+import { BootstrapVue } from 'bootstrap-vue';
 jest.mock("../Api");
+
+const localVue = createLocalVue();
+localVue.use(BootstrapVue)
 
 let createActivity;
 let config;
@@ -14,7 +18,8 @@ let receivedOutcomeRequests = [];
 
 beforeAll(() => {
     config = {
-        router
+        router,
+        localVue
     };
     // This Removes: TypeError: Cannot read property 'then' of undefined
     api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID, status: 200 }));
@@ -22,7 +27,7 @@ beforeAll(() => {
         receivedOutcomeRequests.push(outcomeRequest);
         Promise.resolve({ data: DEFAULT_USER_ID, status: 200 })
     });
-    createActivity = shallowMount(CreateActivity, config);
+    createActivity = mount(CreateActivity, config);
 });
 
 beforeEach(() => {

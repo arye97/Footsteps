@@ -1,8 +1,13 @@
-import {shallowMount} from '@vue/test-utils'
-import EditEmail from '../views/Settings/EditEmail.vue'
-import api from "../Api"
-import 'vue-jest'
+import {mount, createLocalVue} from '@vue/test-utils';
+import EditEmail from '../views/Settings/EditEmail.vue';
+import api from "../Api";
+import 'vue-jest';
+import {BootstrapVue, BootstrapVueIcons} from "bootstrap-vue";
 jest.mock("../Api");
+
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
+localVue.use(BootstrapVueIcons);
 
 let editEmail;
 let push;
@@ -46,7 +51,7 @@ beforeEach(() => {
                 status: 200
             }));
 
-        editEmail = shallowMount(EditEmail, {
+        editEmail = mount(EditEmail, {
             methods: {
                 editable: async () => {},
                 logout: () => {}
@@ -54,7 +59,8 @@ beforeEach(() => {
             mocks: {
                 $route,
                 $router
-            }
+            },
+            localVue
         });
 
         // This causes a delay between beforeEach finishing, and the tests being run.

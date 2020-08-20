@@ -1,10 +1,10 @@
-import Vue from 'vue'
-import { BootstrapVue, BootstrapVueIcons, IconsPlugin } from 'bootstrap-vue'
-import App from './App/App'
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
+import Vue from 'vue';
+import { BootstrapVue, BootstrapVueIcons, IconsPlugin } from 'bootstrap-vue';
+import App from './App/App';
+import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap-vue/dist/bootstrap-vue.css';
 import VueLogger from 'vuejs-logger';
-import router from './index'
+import router from './index';
 
 Vue.config.productionTip = false;
 

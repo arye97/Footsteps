@@ -2,7 +2,7 @@ import "vue-jest"
 import {mount, createLocalVue} from "@vue/test-utils";
 import api from "../Api";
 import ActivityForm from "../components/Activities/ActivityForm";
-import { BootstrapVue } from 'bootstrap-vue'
+import { BootstrapVue } from 'bootstrap-vue';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);

@@ -1,9 +1,13 @@
 import 'vue-jest'
-import {shallowMount} from '@vue/test-utils'
+import {createLocalVue, mount} from '@vue/test-utils'
 import EditActivity from "../views/Activities/EditActivity";
 import api from "../Api";
 import router from '../index';
+import {BootstrapVue} from 'bootstrap-vue';
 jest.mock("../Api");
+
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
 
 let editActivity;
 let config;
@@ -26,7 +30,8 @@ const ORIGINAL_OUTCOME_LIST = [OUTCOME1];
 
 beforeAll(() => {
     config = {
-        router
+        router,
+        localVue
     };
     // This Removes: TypeError: Cannot read property 'then' of undefined
     api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID, status: 200 }));
@@ -37,7 +42,7 @@ beforeAll(() => {
         receivedOutcomeRequests.push(outcomeRequest);
         Promise.resolve({ data: DEFAULT_USER_ID, status: 200 })
     });
-    editActivity = shallowMount(EditActivity, config);
+    editActivity = mount(EditActivity, config);
 });
 
 beforeEach(() => {

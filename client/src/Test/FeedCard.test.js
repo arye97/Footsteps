@@ -1,10 +1,14 @@
 import 'vue-jest'
-import {mount} from "@vue/test-utils";
+import {mount, createLocalVue} from "@vue/test-utils";
 import FeedCard from "../components/HomeFeed/FeedCard";
 import "jest"
 import api from "../Api";
+import {BootstrapVue} from "bootstrap-vue";
 
 jest.mock('../Api');
+
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
 
 let feedCard;
 let now;
@@ -58,7 +62,8 @@ beforeEach(() => {
             propsData: {
                 event: EVENT_DELETE
             },
-            mocks: {api}
+            mocks: {api},
+            localVue
         });
 
         // This causes a delay between beforeEach finishing, and the tests being run.
@@ -87,10 +92,13 @@ describe("The feed card", () => {
     });
 
     test('Has 1 buttons for a follow event', () => {
+        const newLocalVue = createLocalVue();
+        newLocalVue.use(BootstrapVue);
         feedCard = mount(FeedCard, {
             propsData: {
                 event: EVENT_FOLLOW
-            }
+            },
+            newLocalVue
         });
         expect(feedCard.findAll('b-button')).toHaveLength(1);
     });
@@ -114,7 +122,8 @@ describe("The extract data method", () => {
         feedCard = mount(FeedCard, {
             propsData: {
                 event: EVENT_FOLLOW
-            }
+            },
+            localVue
         });
         await feedCard.vm.extractData();
         expect(feedCard.vm.time).toBe(value + " minutes ago");
@@ -131,7 +140,8 @@ describe("The extract data method", () => {
         feedCard = mount(FeedCard, {
             propsData: {
                 event: EVENT_FOLLOW
-            }
+            },
+            localVue
         });
         await feedCard.vm.extractData();
         expect(feedCard.vm.time).toBe(value + " hours ago");
@@ -149,7 +159,8 @@ describe("The extract data method", () => {
         feedCard = mount(FeedCard, {
             propsData: {
                 event: EVENT_FOLLOW
-            }
+            },
+            localVue
         });
         await feedCard.vm.extractData();
         expect(feedCard.vm.time).toBe(value + " days ago");

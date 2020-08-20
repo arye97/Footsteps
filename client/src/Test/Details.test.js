@@ -1,10 +1,14 @@
-import {mount} from '@vue/test-utils'
+import {mount, createLocalVue} from '@vue/test-utils'
 import Details from '../views/Settings/Details.vue'
 import '../Api'
 import 'vue-jest'
 import api from "../Api";
-import router from '../index'
+import router from '../index';
+import { BootstrapVue } from 'bootstrap-vue'
 jest.mock("../Api");
+
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
 
 let editWrapper;
 const testUser = {

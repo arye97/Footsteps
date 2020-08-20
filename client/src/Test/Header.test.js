@@ -1,12 +1,17 @@
-import {mount} from '@vue/test-utils'
-import Header from '../components/Header/Header.vue'
-import "vue-jest"
+import {mount, createLocalVue} from '@vue/test-utils';
+import Header from '../components/Header/Header.vue';
+import "vue-jest";
+import {BootstrapVue} from 'bootstrap-vue';
 
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
 
 let header;
 
 beforeEach(() => {
-    header = mount(Header);
+    header = mount(Header, {
+        localVue
+    });
 });
 
 test('Is a vue instance', () => {
@@ -22,11 +27,14 @@ test('Toggle button for collapsible nav-bar exists', () => {
 });
 
 test('There are 5 possible collapsible links, when logged in', () => {
-    header = mount(Header, {data() {
+    header = mount(Header, {
+        data() {
             return {
                 isLoggedIn: true
             }
-        }});
+        },
+        localVue
+    });
     expect(header.vm.isLoggedIn).toBeTruthy();
     const items = header.findAll('b-nav-item');
     expect(items.length).toEqual(5);
