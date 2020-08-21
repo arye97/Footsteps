@@ -12,7 +12,6 @@ import com.springvuegradle.seng302team600.repository.FeedEventRepository;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,39 +109,40 @@ public class FeedEventControllerTest {
                 ((User) i.getArgument(0)).getRole() >= 10);
 
 
+//        // Mocking FeedEventRepository (MINE (EUAN))
+//        when(feedEventRepository.findByViewerId(Mockito.anyLong(), Mockito.any(Pageable.class))).thenAnswer(i -> {
+//            Long id = i.getArgument(0);
+//            List<FeedEvent> feedEvents = new ArrayList<>();
+//            for (FeedEvent feedEvent : feedEventTable) {
+//                if (feedEvent.getViewerId().equals(id)) {
+//                    feedEvents.add(feedEvent);
+//                }
+//            }
+//            Page<FeedEvent> result = new PageImpl(feedEvents);
+//            return result.isEmpty() ? null : result;
+//        });
+
         // Mocking FeedEventRepository
-        when(feedEventRepository.findByViewerId(Mockito.anyLong(), Mockito.any(Pageable.class))).thenAnswer(i -> {
+        when(feedEventRepository.findByViewerIdOrderByTimeStamp(Mockito.anyLong(), Mockito.any(Pageable.class))).thenAnswer(i -> {
             Long id = i.getArgument(0);
+            User user;
+            if (id.equals(USER_ID_1)) {
+                user = dummyUser1;
+            }
+            else if (id.equals(USER_ID_2)) {
+                user = dummyUser2;
+            } else {
+                user = null;
+            }
             List<FeedEvent> feedEvents = new ArrayList<>();
             for (FeedEvent feedEvent : feedEventTable) {
-                if (feedEvent.getViewerId().equals(id)) {
+                if (feedEvent.getViewers().contains(user)) {
                     feedEvents.add(feedEvent);
                 }
             }
             Page<FeedEvent> result = new PageImpl(feedEvents);
             return result.isEmpty() ? null : result;
         });
-
-//        // Mocking FeedEventRepository
-//        when(feedEventRepository.findByViewerIdOrderByTimeStamp(Mockito.anyLong())).thenAnswer(i -> {
-//            Long id = i.getArgument(0);
-//            User user;
-//            if (id.equals(USER_ID_1)) {
-//                user = dummyUser1;
-//            }
-//            else if (id.equals(USER_ID_2)) {
-//                user = dummyUser2;
-//            } else {
-//                user = null;
-//            }
-//            List<FeedEvent> result = new ArrayList<>();
-//            for (FeedEvent feedEvent : feedEventTable) {
-//                if (feedEvent.getViewers().contains(user)) {
-//                    result.add(feedEvent);
-//                }
-//            }
-//            return result.isEmpty() ? null : result;
-//        });
 
 
         // Mocking ActivityRepository

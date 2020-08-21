@@ -339,7 +339,7 @@ public class UserController {
      * Returns a user's role, based on users id
      * @param request the http request to the endpoint
      * @param response the http response
-     * @profileId the user's id from the request url
+     * @param profileId the user's id from the request url
      */
     @GetMapping("/profiles/{profileId}/role")
     public int getUsersRole(HttpServletRequest request,
@@ -373,10 +373,7 @@ public class UserController {
                                                      @RequestParam(value="method") String method) {
         String token = request.getHeader("Token");
         int pageNumber = request.getIntHeader("Page-Number");
-
-        // User validation
         userService.findByToken(token);
-
         if (activityTypes.length() < 1) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Activity Types must be specified");
         }

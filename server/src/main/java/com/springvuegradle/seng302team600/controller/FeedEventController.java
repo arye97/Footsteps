@@ -160,15 +160,13 @@ public class FeedEventController {
         int pageNumber = request.getIntHeader("Page-Number");
         userAuthenticationService.findByUserId(token, profileId);
         // Instantiate pagination
-        Pageable pageWithFiveFeedEvents = PageRequest.of(pageNumber, PAGE_SIZE, Sort.by("timeStamp").descending());
-        Page<FeedEvent> paginationResponseData = feedEventRepository.findByViewerId(profileId, pageWithFiveFeedEvents);
+        Pageable pageWithFiveFeedEvents = PageRequest.of(pageNumber, PAGE_SIZE);
+        Page<FeedEvent> paginationResponseData = feedEventRepository.findByViewerIdOrderByTimeStamp(profileId, pageWithFiveFeedEvents);
         if (paginationResponseData == null) {
             return new ArrayList<>();
         }
         int totalElements = (int) paginationResponseData.getTotalElements();
         response.setIntHeader("Total-Rows", totalElements);
         return paginationResponseData.getContent();
-
-//        return feedEventRepository.findByViewerIdOrderByTimeStamp(profileId);
     }
 }

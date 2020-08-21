@@ -87,7 +87,6 @@ const ACTIVITY_TYPES = [
     "Biking", "Hiking", "Athletics"
 ];
 
-let currentPage = 1;
 let pageSize = 5;
 
 let searchPage;
@@ -250,7 +249,6 @@ describe('Pagination limits the user cards displayed to the user', () => {
             });
         searchPage.vm.getPaginatedUsersByActivityType().then(() => {
             expect(searchPage.vm.api.getUsersByActivityType).toHaveBeenCalledWith(["Hiking", "Biking"], "or", searchPage.vm.$data.currentPage - 1);
-            console.log(searchPage.vm.$data.userList)
             expect(searchPage.vm.$data.userList).toEqual(
                 SEARCH_RESPONSE1.slice((searchPage.vm.$data.currentPage - 1) * searchPage.vm.$data.usersPerPage,
                                         searchPage.vm.$data.currentPage * searchPage.vm.$data.usersPerPage));
