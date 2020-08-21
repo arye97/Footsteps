@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
-  <file path="/Users/euan/Desktop/uni/SENG302/team-600/client/src/Test/Search.test.js">
-    <testCase name="Is a vue instance" duration="636"/>
-    <testCase name="Activities search bos exists" duration="278"/>
-    <testCase name="Search mode selector exists" duration="103"/>
-    <testCase name="Search button exists" duration="75"/>
-    <testCase name="And search operator radio button exists" duration="105"/>
-    <testCase name="Or search operator radio button exists" duration="414"/>
-    <testCase name="Searching user based on activity types With the &apos;or&apos; method Search user with one activity type &apos;hiking&apos;" duration="331"/>
-    <testCase name="Searching user based on activity types With the &apos;or&apos; method Search user with two activity types &apos;hiking&apos; and &apos;biking&apos;" duration="178"/>
-    <testCase name="Fetch list of activity types from back-end" duration="91"/>
-    <testCase name="Pagination limits the user cards displayed to the user First page contains usersPerPage number of users (1st half of users)" duration="473"/>
-    <testCase name="Pagination limits the user cards displayed to the user Second page contains usersPerPage number of users (2nd half of users)" duration="208"/>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/Header.test.js">
+    <testCase name="Is a vue instance" duration="78"/>
+    <testCase name="Logo is on the page" duration="37"/>
+    <testCase name="Toggle button for collapsible nav-bar exists" duration="39"/>
+    <testCase name="There are 6 possible collapsible links, when logged in" duration="85">
+      <failure message="Error: expect(received).toEqual(expected) // deep equality"><![CDATA[Error: expect(received).toEqual(expected) // deep equality
+
+Expected: 6
+Received: 5
+    at Object.<anonymous> (/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/Header.test.js:32:26)
+    at Object.asyncJestTest (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:100:37)
+    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:45:12
+    at new Promise (<anonymous>)
+    at mapper (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:28:19)
+    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:75:41]]></failure>
+    </testCase>
+    <testCase name="There are 2 possible collapsible links, when not logged in" duration="23"/>
   </file>
 </testExecutions>

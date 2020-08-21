@@ -46,7 +46,8 @@ public class FeedEventController {
 
     /**
      * POST request endpoint for a user to follow an activity
-     * @param profileId the id of the user to be the follower
+     *
+     * @param profileId  the id of the user to be the follower
      * @param activityId the id of the activity to be followed
      */
     @SuppressWarnings("Duplicates")  // I don't see a good way of not duplicating the first lines
@@ -68,22 +69,25 @@ public class FeedEventController {
 
         //The user is not following the event so continue
         // Create the Follow Feed Event and save it to the db
-        FeedEvent followEvent = new FeedEvent(activityId, activity.getName(), profileId, profileId, FeedPostType.FOLLOW);
+        FeedEvent followEvent = new FeedEvent(activityId, activity.getName(), profileId, FeedPostType.FOLLOW);
+        followEvent.addViewer(user);
         feedEventRepository.save(followEvent); //save the event!
 
         // Add participant at the end, in case there are errors before then
         activity.addParticipant(user);
         activityRepository.save(activity);
+        response.setStatus(HttpServletResponse.SC_CREATED);
     }
 
     /**
      * DELETE request endpoint for a user to un-follow an activity
-     * @param profileId the id of the user to be the follower
+     *
+     * @param profileId  the id of the user to be the follower
      * @param activityId the id of the activity to be followed
      */
     @SuppressWarnings("Duplicates")  // I don't see a good way of not duplicating the first lines
     @DeleteMapping("/profiles/{profileId}/subscriptions/activities/{activityId}")
-    public void unFollowAnActivity(HttpServletRequest request, HttpServletResponse response,
+    public void unFollowAnActivity(HttpServletRequest request,
                                    @PathVariable Long profileId, @PathVariable Long activityId) {
 
         String token = request.getHeader("Token");
@@ -100,7 +104,8 @@ public class FeedEventController {
 
         //The user has not un-followed the event so continue
         // Create the Follow Feed Event and save it to the db
-        FeedEvent unFollowEvent = new FeedEvent(activityId, activity.getName(), profileId, profileId, FeedPostType.UNFOLLOW);
+        FeedEvent unFollowEvent = new FeedEvent(activityId, activity.getName(), profileId, FeedPostType.UNFOLLOW);
+        unFollowEvent.addViewer(user);
         feedEventRepository.save(unFollowEvent); //save the event!
 
         // Remove participant at the end, in case there are errors before then
@@ -110,26 +115,27 @@ public class FeedEventController {
 
     /**
      * Gets whether or not the user is following an activity
-     * @param profileId the id of the user to check
+     *
+     * @param profileId  the id of the user to check
      * @param activityId the id of the activity to check
      * @return true if the user is a participant in the activity
      */
     @GetMapping("/profiles/{profileId}/subscriptions/activities/{activityId}")
-    public IsFollowingResponse isFollowingAnActivity(HttpServletRequest request, HttpServletResponse response,
+    public IsFollowingResponse isFollowingAnActivity(HttpServletRequest request,
                                                      @PathVariable Long profileId, @PathVariable Long activityId) {
         String token = request.getHeader("Token");
-        User user = userAuthenticationService.findByUserId(token, profileId);
+        userAuthenticationService.findByUserId(token, profileId);
         Long followingCount = activityParticipantRepository.existsByActivityIdAndUserId(activityId, profileId);
-        IsFollowingResponse isFollowing = new IsFollowingResponse(followingCount > 0);
-        return isFollowing;
+        return new IsFollowingResponse(followingCount > 0);
     }
 
     /**
      * Checks that user and activity are not null.  If either are, throws a 400 error, bad request.
      * Helper function to reduce duplicate code.
+     *
      * @throws ResponseStatusException 400 error if either id is null
      */
-    private void checkUserActivityNotNull(User user,  Activity activity) throws ResponseStatusException {
+    private void checkUserActivityNotNull(User user, Activity activity) throws ResponseStatusException {
         // Check that user can be found.  If it isn't, could be that token is bad, or user doesn't exist.
         if (user == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't find or authenticate user from profileId");
@@ -143,6 +149,7 @@ public class FeedEventController {
     /**
      * Gets the list of paginated feed events the user is subscribed to in descending order by timeStamp.
      * There are five FeedEvents for a single page.
+     *
      * @param profileId the id of the user to check
      * @return the list of feed events
      */
@@ -161,5 +168,7 @@ public class FeedEventController {
         int totalElements = (int) paginationResponseData.getTotalElements();
         response.setIntHeader("Total-Rows", totalElements);
         return paginationResponseData.getContent();
+
+//        return feedEventRepository.findByViewerIdOrderByTimeStamp(profileId);
     }
 }

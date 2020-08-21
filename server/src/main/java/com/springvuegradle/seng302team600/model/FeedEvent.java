@@ -7,6 +7,8 @@ import com.springvuegradle.seng302team600.enumeration.FeedPostType;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * The superclass for feed events
@@ -46,10 +48,14 @@ public class FeedEvent {
     @Column(name = "author_id", nullable = false)
     private Long authorId;
 
-    // The user to view this feed event
+    // The users to view this feed event
     @JsonIgnore
-    @Column(name = "viewer_id", nullable = false)
-    private Long viewerId;
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})  // ALL except REMOVE
+    @JoinTable(
+            name = "feed_event_viewers",
+            joinColumns = @JoinColumn(name = "feed_event_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private Set<User> viewers;
 
     // The type of feed post - set by the enum
     @JsonProperty("feedEventType")
@@ -73,15 +79,13 @@ public class FeedEvent {
      * @param activityId The id of the activity related to the feed event
      * @param activityName The name of the activity related to the feed event
      * @param authorId The user who caused the feed event
-     * @param viewerId The user to view this feed event
      * @param feedEventType The type of feed post - set by the enum
      */
-    public FeedEvent(Long activityId, String activityName, Long authorId, Long viewerId, FeedPostType feedEventType) {
+    public FeedEvent(Long activityId, String activityName, Long authorId, FeedPostType feedEventType) {
         setTimeStampNow();
         this.activityId = activityId;
         this.activityName = activityName;
         this.authorId = authorId;
-        this.viewerId = viewerId;
         this.feedEventType = feedEventType;
     }
 
@@ -109,8 +113,8 @@ public class FeedEvent {
         return authorId;
     }
 
-    public Long getViewerId() {
-        return viewerId;
+    public Set<User> getViewers() {
+        return viewers;
     }
 
     public void setFeedEventType(FeedPostType type) {
@@ -129,8 +133,13 @@ public class FeedEvent {
         authorId = id;
     }
 
-    public void setViewerId(Long id) {
-        viewerId = id;
+    public void setViewers(Set<User> viewers) {
+        this.viewers = viewers;
+    }
+
+    public void addViewer(User viewer) {
+        if (viewers == null) viewers = new HashSet<>();
+        viewers.add(viewer);
     }
 
     public void setTimeStamp(Date time) {
