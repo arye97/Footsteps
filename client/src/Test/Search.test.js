@@ -60,12 +60,34 @@ const SEARCH_RESPONSE1 = [
                 "name": "Biking"
             }
         ]
+    },
+    {
+        "firstname": "Jenny",
+        "lastname": "Mariam",
+        "activityTypes": [
+            {
+                "activityTypeId": 12,
+                "name": "Biking"
+            }
+        ]
+    },
+    {
+        "firstname": "Mary",
+        "lastname": "Sidoarjo",
+        "activityTypes": [
+            {
+                "activityTypeId": 34,
+                "name": "Hiking"
+            }
+        ]
     }
 ];
 
 const ACTIVITY_TYPES = [
     "Biking", "Hiking", "Athletics"
 ];
+
+let pageSize = 5;
 
 let searchPage;
 
@@ -83,6 +105,16 @@ beforeEach(() => {
         Promise.resolve({
             data: ACTIVITY_TYPES,
             status: 200
+        })
+    );
+
+    api.getUsersByActivityType.mockImplementation(() =>
+        Promise.resolve({
+            data: SEARCH_RESPONSE1.slice((searchPage.vm.$data.currentPage - 1) * pageSize, searchPage.vm.$data.currentPage * pageSize),
+            status: 200,
+            headers: {
+                "total-rows": SEARCH_RESPONSE1.length
+            }
         })
     );
 });
@@ -120,8 +152,11 @@ describe("Searching user based on activity types", () => {
 
             api.getUsersByActivityType.mockImplementation(() =>
                 Promise.resolve({
-                    data: SEARCH_RESPONSE1,
-                    status: 200
+                    data: SEARCH_RESPONSE1.slice((searchPage.vm.$data.currentPage  - 1) * pageSize, searchPage.vm.$data.currentPage  * pageSize),
+                    status: 200,
+                    headers: {
+                        "total-rows": SEARCH_RESPONSE1.length
+                    }
                 })
             );
 
@@ -131,8 +166,9 @@ describe("Searching user based on activity types", () => {
                 selectedActivityTypes: [ "Hiking" ],
                 searchType: "or"
             });
+
             return searchPage.vm.search().then(() => {
-                expect(searchPage.vm.api.getUsersByActivityType).toHaveBeenCalledWith(["Hiking"], "or");
+                expect(searchPage.vm.api.getUsersByActivityType).toHaveBeenCalledWith(["Hiking"], "or", searchPage.vm.$data.currentPage - 1);
             });
         });
 
@@ -141,8 +177,11 @@ describe("Searching user based on activity types", () => {
 
             api.getUsersByActivityType.mockImplementation(() =>
                 Promise.resolve({
-                    data: SEARCH_RESPONSE1,
-                    status: 200
+                    data: SEARCH_RESPONSE1.slice((searchPage.vm.$data.currentPage  - 1) * pageSize, searchPage.vm.$data.currentPage  * pageSize),
+                    status: 200,
+                    headers: {
+                        "total-rows": SEARCH_RESPONSE1.length
+                    }
                 })
             );
 
@@ -151,7 +190,7 @@ describe("Searching user based on activity types", () => {
                     searchType: "or"
             });
             return searchPage.vm.search().then(() => {
-                expect(searchPage.vm.api.getUsersByActivityType).toHaveBeenCalledWith(["Hiking", "Biking"], "or");
+                expect(searchPage.vm.api.getUsersByActivityType).toHaveBeenCalledWith(["Hiking", "Biking"], "or", searchPage.vm.$data.currentPage - 1);
             });
         });
 
@@ -194,26 +233,35 @@ test('Fetch list of activity types from back-end', () => {
 });
 
 /**
- * The below tests are setup to assume usersPerPage has a value of 2.
- * Hence, usersPerPage is set to 2 for these tests.
+ * The below tests are setup to assume usersPerPage has a value of 5 (AS IN THE SERVER).
+ * Hence, usersPerPage is set to 5 for these tests.
  * This variable can be changed in Search.vue and will not effect these tests.
  */
 describe('Pagination limits the user cards displayed to the user', () => {
-    test('First page contains usersPerPage number of users (1st half of users)', () => {
+
+
+    test('First page contains usersPerPage number of users (1st half of users)', async () => {
         window.scrollTo = jest.fn();
-        expect(searchPage.vm.$data.currentPageUserList).toEqual([]);
-        searchPage.vm.$data.userList = SEARCH_RESPONSE1;
-        searchPage.vm.$data.usersPerPage = 2;
-        searchPage.vm.setCurrentPageUserList();
-        expect(searchPage.vm.$data.currentPageUserList).toEqual(SEARCH_RESPONSE1.slice(0, 2));
+        expect(searchPage.vm.$data.userList).toEqual([]);
+        await searchPage.vm.api.getUsersByActivityType(["Hiking", "Biking"], "or", searchPage.vm.$data.currentPage - 1)
+            .then((response) => {
+                expect(response.headers['total-rows']).toBe(6);
+            });
+        searchPage.vm.getPaginatedUsersByActivityType().then(() => {
+            expect(searchPage.vm.api.getUsersByActivityType).toHaveBeenCalledWith(["Hiking", "Biking"], "or", searchPage.vm.$data.currentPage - 1);
+            expect(searchPage.vm.$data.userList).toEqual(
+                SEARCH_RESPONSE1.slice((searchPage.vm.$data.currentPage - 1) * searchPage.vm.$data.usersPerPage,
+                                        searchPage.vm.$data.currentPage * searchPage.vm.$data.usersPerPage));
+        });
     });
-    test('Second page contains usersPerPage number of users (2nd half of users)', () => {
+    test('Second page contains usersPerPage number of users (2nd half of users)', async () => {
         window.scrollTo = jest.fn();
-        expect(searchPage.vm.$data.currentPageUserList).toEqual([]);
-        searchPage.vm.$data.userList = SEARCH_RESPONSE1;
-        searchPage.vm.$data.usersPerPage = 2;
         searchPage.vm.$data.currentPage = 2;
-        searchPage.vm.setCurrentPageUserList();
-        expect(searchPage.vm.$data.currentPageUserList).toEqual(SEARCH_RESPONSE1.slice(2, 4));
+        searchPage.vm.getPaginatedUsersByActivityType().then(() => {
+            searchPage.vm.api.getUsersByActivityType(["Hiking", "Biking"], "or", searchPage.vm.$data.currentPage - 1);
+            expect(searchPage.vm.$data.userList).toEqual(SEARCH_RESPONSE1.slice(
+                (searchPage.vm.$data.currentPage - 1) * searchPage.vm.$data.usersPerPage,
+                searchPage.vm.$data.currentPage * searchPage.vm.$data.usersPerPage));
+        });
     });
 });

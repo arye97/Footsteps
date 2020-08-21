@@ -17,6 +17,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -61,7 +62,12 @@ public class FeedEventControllerTest {
     private Activity dummyActivity;
     private List<FeedEvent> feedEventTable;
     private FeedEvent dummyEvent;
+
+    private int pageNumber;
+    private Pageable pageableMock;
+
     private static final long EVENT_ID_1 = 1L;
+    private static final int PAGE_SIZE = 5;
 
 
 
@@ -85,7 +91,7 @@ public class FeedEventControllerTest {
         ReflectionTestUtils.setField(dummyEvent, "feedEventId", EVENT_ID_1);
         feedEventTable.add(dummyEvent);
 
-
+        pageNumber = 0;
 
         // Mocking UserAuthenticationService
         when(userAuthenticationService.findByUserId(Mockito.any(String.class), Mockito.any(Long.class))).thenAnswer(i -> {
@@ -102,8 +108,22 @@ public class FeedEventControllerTest {
         when(userAuthenticationService.hasAdminPrivileges(Mockito.any())).thenAnswer(i ->
                 ((User) i.getArgument(0)).getRole() >= 10);
 
+
+//        // Mocking FeedEventRepository (MINE (EUAN))
+//        when(feedEventRepository.findByViewerId(Mockito.anyLong(), Mockito.any(Pageable.class))).thenAnswer(i -> {
+//            Long id = i.getArgument(0);
+//            List<FeedEvent> feedEvents = new ArrayList<>();
+//            for (FeedEvent feedEvent : feedEventTable) {
+//                if (feedEvent.getViewerId().equals(id)) {
+//                    feedEvents.add(feedEvent);
+//                }
+//            }
+//            Page<FeedEvent> result = new PageImpl(feedEvents);
+//            return result.isEmpty() ? null : result;
+//        });
+
         // Mocking FeedEventRepository
-        when(feedEventRepository.findByViewerIdOrderByTimeStamp(Mockito.anyLong())).thenAnswer(i -> {
+        when(feedEventRepository.findByViewerIdOrderByTimeStamp(Mockito.anyLong(), Mockito.any(Pageable.class))).thenAnswer(i -> {
             Long id = i.getArgument(0);
             User user;
             if (id.equals(USER_ID_1)) {
@@ -114,14 +134,16 @@ public class FeedEventControllerTest {
             } else {
                 user = null;
             }
-            List<FeedEvent> result = new ArrayList<>();
+            List<FeedEvent> feedEvents = new ArrayList<>();
             for (FeedEvent feedEvent : feedEventTable) {
                 if (feedEvent.getViewers().contains(user)) {
-                    result.add(feedEvent);
+                    feedEvents.add(feedEvent);
                 }
             }
+            Page<FeedEvent> result = new PageImpl(feedEvents);
             return result.isEmpty() ? null : result;
         });
+
 
         // Mocking ActivityRepository
         when(activityRepository.findByActivityId(Mockito.anyLong())).thenAnswer(i -> {
@@ -367,6 +389,7 @@ public class FeedEventControllerTest {
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(
                 "/profiles/{profileId}/subscriptions/", USER_ID_1)
                 .header("Token", validToken)
+                .header("Page-Number", pageNumber)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
 
@@ -390,6 +413,7 @@ public class FeedEventControllerTest {
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(
                 "/profiles/{profileId}/subscriptions/", USER_ID_2)
                 .header("Token", validToken)
+                .header("Page-Number", pageNumber)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
 

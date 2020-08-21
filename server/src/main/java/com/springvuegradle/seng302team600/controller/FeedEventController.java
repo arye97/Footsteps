@@ -9,12 +9,17 @@ import com.springvuegradle.seng302team600.repository.ActivityParticipantReposito
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.FeedEventRepository;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,6 +33,8 @@ public class FeedEventController {
     private final ActivityRepository activityRepository;
     private final UserAuthenticationService userAuthenticationService;
     private final ActivityParticipantRepository activityParticipantRepository;
+
+    private static final int PAGE_SIZE = 5;
 
     public FeedEventController(FeedEventRepository feedEventRepository, ActivityRepository activityRepository,
                                UserAuthenticationService userAuthenticationService, ActivityParticipantRepository activityParticipantRepository) {
@@ -140,15 +147,26 @@ public class FeedEventController {
     }
 
     /**
-     * Gets the list of feed events the user is subscribed to in chronological order
+     * Gets the list of paginated feed events the user is subscribed to in descending order by timeStamp.
+     * There are five FeedEvents for a single page.
      *
      * @param profileId the id of the user to check
      * @return the list of feed events
      */
     @GetMapping("/profiles/{profileId}/subscriptions")
-    public List<FeedEvent> getFeedEvents(HttpServletRequest request, @PathVariable Long profileId) {
+    public List<FeedEvent> getFeedEvents(HttpServletRequest request, HttpServletResponse response,
+                                         @PathVariable Long profileId) {
         String token = request.getHeader("Token");
+        int pageNumber = request.getIntHeader("Page-Number");
         userAuthenticationService.findByUserId(token, profileId);
-        return feedEventRepository.findByViewerIdOrderByTimeStamp(profileId);
+        // Instantiate pagination
+        Pageable pageWithFiveFeedEvents = PageRequest.of(pageNumber, PAGE_SIZE);
+        Page<FeedEvent> paginationResponseData = feedEventRepository.findByViewerIdOrderByTimeStamp(profileId, pageWithFiveFeedEvents);
+        if (paginationResponseData == null) {
+            return new ArrayList<>();
+        }
+        int totalElements = (int) paginationResponseData.getTotalElements();
+        response.setIntHeader("Total-Rows", totalElements);
+        return paginationResponseData.getContent();
     }
 }

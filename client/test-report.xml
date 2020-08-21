@@ -1,42 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
-  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/LiveBackEnd/LiveBackEndApi.test.js">
-    <testCase name="Register a new user" duration="393"/>
-    <testCase name="Logout user" duration="14"/>
-    <testCase name="Login user" duration="146"/>
-    <testCase name="Run tests on new user Get user role" duration="181"/>
-    <testCase name="Run tests on new user Get user id using token" duration="187"/>
-    <testCase name="Run tests on new user Modify password" duration="539"/>
-    <testCase name="Run tests on new user Edit profile" duration="205"/>
-    <testCase name="Run tests on new user Get user data by Id" duration="214"/>
-    <testCase name="Run tests on new user Get user data by Token" duration="169"/>
-    <testCase name="Run tests on new user Test the /check-profile end point" duration="145"/>
-    <testCase name="Run tests on new user Checking user email endpoints Set additional emails for the user" duration="179"/>
-    <testCase name="Run tests on new user Checking user email endpoints Edit primary and additional emails for the user" duration="149"/>
-    <testCase name="Run tests on new user Checking user email endpoints Check if email is in the database" duration="164"/>
-    <testCase name="Run tests on new user Checking user email endpoints Get all emails from user" duration="171"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Create activity" duration="312"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Edit activity" duration="191"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Get data from activity" duration="178"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Check if user can edit activity" duration="180"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Create activity outcome" duration="175"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Get an activities outcomes" duration="175"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Create new result for an outcome" duration="202"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Get all activities from a user" duration="170"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Delete an activity" duration="169"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Get list of participants for an activity" duration="168"/>
-    <testCase name="Run tests on new user Checking user feed event endpoints Get following status for an unsubscribed activity" duration="191"/>
-    <testCase name="Run tests on new user Checking user feed event endpoints Follow an unsubscribed activity" duration="175"/>
-    <testCase name="Run tests on new user Checking user feed event endpoints Follow an already subscribed activity throws a 400 error" duration="164"/>
-    <testCase name="Run tests on new user Checking user feed event endpoints Get following status for a subscribed activity" duration="167"/>
-    <testCase name="Run tests on new user Checking user feed event endpoints Unfollow a subscribed activity" duration="159"/>
-    <testCase name="Run tests on new user Checking user feed event endpoints Unfollow an already unsubscribed activity throws a 400 error" duration="168"/>
-    <testCase name="Run tests on new user Searching for users Get users by one activity type (OR)" duration="36"/>
-    <testCase name="Run tests on new user Searching for users Get users by one activity type (AND)" duration="34"/>
-    <testCase name="Run tests on new user Searching for users Get users by more than one activity types (OR)" duration="32"/>
-    <testCase name="Run tests on new user Searching for users Get users by more than one activity types (AND)" duration="29"/>
-    <testCase name="Run tests on new user Searching for users Get users with ActivityTypes containing a space (OR)" duration="40"/>
-    <testCase name="Run tests on new user Searching for users Get users with ActivityTypes containing &gt;1 spaces (AND)" duration="31"/>
-    <testCase name="Other miscellaneous tests Get all activity types in the database" duration="8"/>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/Header.test.js">
+    <testCase name="Is a vue instance" duration="78"/>
+    <testCase name="Logo is on the page" duration="37"/>
+    <testCase name="Toggle button for collapsible nav-bar exists" duration="39"/>
+    <testCase name="There are 6 possible collapsible links, when logged in" duration="85">
+      <failure message="Error: expect(received).toEqual(expected) // deep equality"><![CDATA[Error: expect(received).toEqual(expected) // deep equality
+
+Expected: 6
+Received: 5
+    at Object.<anonymous> (/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/Header.test.js:32:26)
+    at Object.asyncJestTest (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:100:37)
+    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:45:12
+    at new Promise (<anonymous>)
+    at mapper (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:28:19)
+    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:75:41]]></failure>
+    </testCase>
+    <testCase name="There are 2 possible collapsible links, when not logged in" duration="23"/>
   </file>
 </testExecutions>
