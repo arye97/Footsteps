@@ -448,7 +448,7 @@ describe("Run tests on new user", () => {
 
         test("Follow an unsubscribed activity", () => {
             return api.setUserSubscribed(activityCreatedByUser1.id, USER2_ID).then(response => {
-                expect(response.status).toEqual(200);
+                expect(response.status).toEqual(201);
             }).catch(err => {throw procError(err)});
         });
 

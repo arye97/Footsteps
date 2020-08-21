@@ -80,7 +80,8 @@ public class FeedEventControllerTest {
         ReflectionTestUtils.setField(dummyActivity, "activityId", ACTIVITY_ID_1);
 
         feedEventTable = new ArrayList<>();
-        dummyEvent = new FeedEvent(ACTIVITY_ID_1, "DummyActivity", USER_ID_1, USER_ID_1, FeedPostType.MODIFY);
+        dummyEvent = new FeedEvent(ACTIVITY_ID_1, "DummyActivity", USER_ID_1, FeedPostType.MODIFY);
+        dummyEvent.addViewer(dummyUser1);
         ReflectionTestUtils.setField(dummyEvent, "feedEventId", EVENT_ID_1);
         feedEventTable.add(dummyEvent);
 
@@ -104,9 +105,18 @@ public class FeedEventControllerTest {
         // Mocking FeedEventRepository
         when(feedEventRepository.findByViewerIdOrderByTimeStamp(Mockito.anyLong())).thenAnswer(i -> {
             Long id = i.getArgument(0);
+            User user;
+            if (id.equals(USER_ID_1)) {
+                user = dummyUser1;
+            }
+            else if (id.equals(USER_ID_2)) {
+                user = dummyUser2;
+            } else {
+                user = null;
+            }
             List<FeedEvent> result = new ArrayList<>();
             for (FeedEvent feedEvent : feedEventTable) {
-                if (feedEvent.getViewerId().equals(id)) {
+                if (feedEvent.getViewers().contains(user)) {
                     result.add(feedEvent);
                 }
             }
@@ -192,7 +202,7 @@ public class FeedEventControllerTest {
                 .accept(MediaType.APPLICATION_JSON);
 
         MvcResult result = mvc.perform(httpReq)
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andReturn();
 
         assertNotNull(result.getResponse());
