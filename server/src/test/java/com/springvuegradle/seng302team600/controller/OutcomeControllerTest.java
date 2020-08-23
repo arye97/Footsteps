@@ -161,6 +161,9 @@ public class OutcomeControllerTest {
             }
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         });
+
+        // Mocking ResultRepository
+        when(resultRepository.existsByOutcome(Mockito.any())).thenAnswer(i -> false);
     }
 
     /**
