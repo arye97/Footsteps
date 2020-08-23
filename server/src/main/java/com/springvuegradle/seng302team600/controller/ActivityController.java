@@ -1,6 +1,6 @@
 package com.springvuegradle.seng302team600.controller;
 
-import com.springvuegradle.seng302team600.Utilities.ActivityValidator;
+import com.springvuegradle.seng302team600.validator.ActivityValidator;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.ActivityResponse;
@@ -183,7 +183,7 @@ public class ActivityController {
      */
     @GetMapping("/profiles/{profileId}/activities")
     public List<ActivityResponse> getUsersActivities(@PathVariable Long profileId, HttpServletRequest request) {
-        //checking for user validation
+        //checking user authentication
         //attempt to find user by token, don't need to save user discovered
         String token = request.getHeader("Token");
         userAuthenticationService.viewUserById(profileId, token);

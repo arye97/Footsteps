@@ -1,7 +1,7 @@
 package com.springvuegradle.seng302team600.controller;
 
 
-import com.springvuegradle.seng302team600.Utilities.OutcomeValidator;
+import com.springvuegradle.seng302team600.validator.OutcomeValidator;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.Outcome;
 import com.springvuegradle.seng302team600.model.User;
@@ -10,7 +10,6 @@ import com.springvuegradle.seng302team600.payload.OutcomeResponse;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.OutcomeRepository;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
