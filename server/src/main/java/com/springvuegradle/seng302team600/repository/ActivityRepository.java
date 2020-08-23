@@ -1,25 +1,23 @@
 package com.springvuegradle.seng302team600.repository;
 
 import com.springvuegradle.seng302team600.model.Activity;
-import com.springvuegradle.seng302team600.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import java.util.List;
 
 @RepositoryRestResource
 public interface ActivityRepository extends JpaRepository<Activity, Long> {
+
     Activity findByActivityId(Long id);
 
-    //If you see that this is highlighted red, it is NOT AN ERROR, please don't delete.
+    // Finds both activities created by and participated by the given user
     @Query(value =
-            "SELECT * " +
-            "FROM activity " +
-            "WHERE creator_user_id = ?1 " +
-            "ORDER BY activity_id ASC", nativeQuery = true)
+            "SELECT DISTINCT A.* " +
+            "FROM activity AS A LEFT JOIN activity_participant AS AP " +
+            "ON A.activity_id = AP.activity_id " +
+            "WHERE A.creator_user_id = ?1 OR AP.user_id = ?1 " +
+            "ORDER BY A.activity_id ASC", nativeQuery = true)
     List<Activity> findAllByUserId(Long userId);
-
-    List<Activity> findActivityByActivityIdIn(List<Long> activityIds);
 }

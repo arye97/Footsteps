@@ -46,9 +46,10 @@ public class ActivityController {
 
     /**
      * Create a new Activity.
+     *
      * @param newActivity the new Activity
-     * @param response Used to set status of operation
-     * @param profileId the Id of the User who created the activity
+     * @param response    Used to set status of operation
+     * @param profileId   the Id of the User who created the activity
      * @return the id of the activity
      */
     @PostMapping("/profiles/{profileId}/activities")
@@ -74,6 +75,7 @@ public class ActivityController {
 
     /**
      * Get an activity by Id
+     *
      * @param activityId the Id of the Activity
      * @return the found activity
      */
@@ -88,6 +90,7 @@ public class ActivityController {
 
     /**
      * Get all the Activities in the Database
+     *
      * @return List of all Activities
      */
     @GetMapping("/activities")
@@ -99,13 +102,15 @@ public class ActivityController {
     }
 
 
-    /** Put Request for editing/updating an activity created by a user
-     *  Checks all possible inputs to see if that input is there, and to be updated
-     *  takes from the client only the json object of the to-be-updated inputs
-     *  and the activity id through put the url mapping.
+    /**
+     * Put Request for editing/updating an activity created by a user
+     * Checks all possible inputs to see if that input is there, and to be updated
+     * takes from the client only the json object of the to-be-updated inputs
+     * and the activity id through put the url mapping.
+     *
      * @param activityId the Id of the Activity to edit
-     * @param activity the activity object to update
-     * @param profileId the Id of the User who created the activity
+     * @param activity   the activity object to update
+     * @param profileId  the Id of the User who created the activity
      */
 
     @PutMapping("/profiles/{profileId}/activities/{activityId}")
@@ -146,11 +151,12 @@ public class ActivityController {
 
     /**
      * Delete an Activity
+     *
      * @param activityId the Id of the activity to delete
-     * @param request the actual request from the client, containing pertinent data
+     * @param request    the actual request from the client, containing pertinent data
      */
     @DeleteMapping("/profiles/{profileId}/activities/{activityId}")
-    public void deleteActivity(@PathVariable(value="profileId") Long profileId, @PathVariable(value="activityId") Long activityId, HttpServletRequest request) {
+    public void deleteActivity(@PathVariable(value = "profileId") Long profileId, @PathVariable(value = "activityId") Long activityId, HttpServletRequest request) {
         //Check the activity is this specific users activity
         Activity activity = activityRepository.findByActivityId(activityId);
         if (activity == null) {
@@ -178,8 +184,9 @@ public class ActivityController {
 
     /**
      * Get all activities that a user has created or is currently following
+     *
      * @param profileId the id of the user/creator
-     * @param request the actual request from the client, containing pertinent data
+     * @param request   the actual request from the client, containing pertinent data
      */
     @GetMapping("/profiles/{profileId}/activities")
     public List<ActivityResponse> getUsersActivities(@PathVariable Long profileId, HttpServletRequest request) {
@@ -188,19 +195,16 @@ public class ActivityController {
         String token = request.getHeader("Token");
         userAuthenticationService.viewUserById(profileId, token);
         List<Activity> activities = activityRepository.findAllByUserId(profileId);
-        List<Long> followedActivityIds = this.activityParticipantRepository.findActivitiesByParticipantId(profileId);
-        List<Activity> followedActivities = this.activityRepository.findActivityByActivityIdIn(followedActivityIds);
-        activities.addAll(followedActivities);
-        Set<Activity> distinctActivities = new HashSet<>(activities);
 
         List<ActivityResponse> activityResponses = new ArrayList<>();
-        distinctActivities.forEach(i -> activityResponses.add(new ActivityResponse(i)));
+        activities.forEach(i -> activityResponses.add(new ActivityResponse(i)));
         return activityResponses;
     }
 
 
     /**
      * Get a list of participants for an activity
+     *
      * @param activityId the Id of the Activity
      * @return a HashSet of Users with firstname, lastname and id
      */
@@ -215,7 +219,7 @@ public class ActivityController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Activity not found");
         }
         participantList = activity.getParticipants();
-        for(User user : participantList){
+        for (User user : participantList) {
             returnedParticipantData.add(new ParticipantResponse(user));
         }
         return returnedParticipantData;
@@ -228,11 +232,12 @@ public class ActivityController {
      * - 200 OK
      * - 401 UNAUTHORIZED
      * - 403 FORBIDDEN
+     *
      * @param activityId the activity's ID which is being checked
-     * @param request the actual request from the client, containing pertinent data
+     * @param request    the actual request from the client, containing pertinent data
      */
     @GetMapping("/check-activity/{activityId}")
-    public void isActivityEditableByUser(@PathVariable(value="activityId") Long activityId, HttpServletRequest request) {
+    public void isActivityEditableByUser(@PathVariable(value = "activityId") Long activityId, HttpServletRequest request) {
         String token = request.getHeader("Token");
         // Checks the authentication of the user, are they logged in, have they timed out, do they exist.
         // If an error is found this service throws an UNAUTHORIZED error (401)
