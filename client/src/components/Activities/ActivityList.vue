@@ -1,17 +1,18 @@
 <template>
     <div id="main">
         <div v-if="this.loading" style="text-align: center">
-            <b-spinner id="spinner" class="margin-bottom: 1.7em; margin-top: 0.8em" variant="primary" label="Spinning"></b-spinner>
+            <b-spinner id="spinner" class="margin-bottom: 1.7em; margin-top: 0.8em" variant="primary"
+                       label="Spinning"></b-spinner>
         </div>
         <div v-else-if="this.errored" class="alert alert-danger alert-dismissible fade show " role="alert" id="alert">
-            {{  error_message  }}
+            {{ error_message }}
         </div>
         <div v-else-if="this.isRedirecting" class="alert alert-danger alert-dismissible fade show ">
             {{ redirectionMessage }}
         </div>
         <b-tabs v-else content-class="mt-4" justified>
             <b-tab title="Continuous" :active="continuousIsActive(true)">
-                <section v-for="activity in this.activityList.filter(i => i.continuous)" :key="activity.id">
+                <section v-for="activity in this.continuousActivityList" :key="activity.id">
                     <!-- Activity List -->
                     <b-card border-variant="secondary" style="background-color: #f3f3f3" class="continuousCard">
                         <b-row no-gutters>
@@ -53,9 +54,19 @@
                 </section>
                 <hr/>
                 <footer class="noMore">No more activities to show</footer>
+                <hr/>
+                <!-- Continuous Pagination Nav Bar -->
+                <b-pagination
+                        id="continuousPaginationBar"
+                        v-if="!errored && !loading && !isRedirecting && continuousRows > 0"
+                        align="fill"
+                        v-model="continuousCurrentPage"
+                        :total-rows="continuousRows"
+                        :per-page="activitiesPerPage"
+                ></b-pagination>
             </b-tab>
             <b-tab title="Duration" :active="continuousIsActive(false)">
-                <section v-for="activity in this.activityList.filter(i => !i.continuous)" :key="activity.id">
+                <section v-for="activity in this.durationActivityList" :key="activity.id">
                     <!-- Activity List -->
                     <b-card border-variant="secondary" style="background-color: #f3f3f3" class="durationCard">
                         <b-row no-gutters>
@@ -101,6 +112,16 @@
                 </section>
                 <hr/>
                 <footer class="noMore">No more activities to show</footer>
+                <hr/>
+                <!-- Duration Pagination Nav Bar -->
+                <b-pagination
+                        id="durationPaginationBar"
+                        v-if="!errored && !loading && !isRedirecting && durationRows > 0"
+                        align="fill"
+                        v-model="durationCurrentPage"
+                        :total-rows="durationRows"
+                        :per-page="activitiesPerPage"
+                ></b-pagination>
             </b-tab>
         </b-tabs>
     </div>
@@ -121,8 +142,13 @@
         },
         data() {
             return {
-                activityList : [],
-                noMore: false,
+                continuousActivityList: [],
+                durationActivityList: [],
+                continuousCurrentPage: 1,
+                durationCurrentPage: 1,
+                continuousRows: null,
+                durationRows: null,
+                activitiesPerPage: 5,
                 activeTab: 0,
                 loading: true,
                 userId: this.user_Id,
@@ -134,12 +160,27 @@
                 timeout: 3200
             }
         },
+        watch: {
+            /**
+             * Watchers are called whenever currentPage is changed, via reloading activities
+             * or using the pagination bar.
+             */
+            async continuousCurrentPage() {
+                if (this.continuousCurrentPage <= 0) this.continuousCurrentPage = 1;
+                await this.getListOfActivities(true);
+            },
+            async durationCurrentPage() {
+                if (this.durationCurrentPage <= 0) this.durationCurrentPage = 1;
+                await this.getListOfActivities(false);
+            }
+        },
         beforeMount() {
             this.checkLoggedIn();
         },
         async mounted() {
             await this.getActiveUserId();
-            await this.getListOfActivities();
+            await this.getListOfActivities(true);
+            await this.getListOfActivities(false);
             await this.getCreatorNamesForActivities();
             await this.getFollowingStatusForActivity();
         },
@@ -154,9 +195,15 @@
              */
             async followActivity(activityId, filteredIndex, isContinuous) {
                 await api.setUserSubscribed(activityId, this.activeUserId).then(() => {
-                    let activity = this.activityList.filter(activity => activity.continuous === isContinuous)[filteredIndex];
-                    let index = this.activityList.indexOf(activity);
-                    this.activityList[index].subscribed = true;
+                    if (isContinuous) {
+                        let activity = this.continuousActivityList[filteredIndex];
+                        let index = this.continuousActivityList.indexOf(activity);
+                        this.continuousActivityList[index].subscribed = true;
+                    } else {
+                        let activity = this.durationActivityList[filteredIndex];
+                        let index = this.durationActivityList.indexOf(activity);
+                        this.durationActivityList[index].subscribed = true;
+                    }
                     this.$forceUpdate();  // Notice we have to use a $ here
                 }).catch((error) => {
                     this.processGetError(error, "FOLLOW");
@@ -174,9 +221,15 @@
              */
             async unfollowActivity(activityId, filteredIndex, isContinuous) {
                 await api.deleteUserSubscribed(activityId, this.activeUserId).then(() => {
-                    let activity = this.activityList.filter(activity => activity.continuous === isContinuous)[filteredIndex];
-                    let index = this.activityList.indexOf(activity);
-                    this.activityList[index].subscribed = false;
+                    if (isContinuous) {
+                        let activity = this.continuousActivityList[filteredIndex];
+                        let index = this.continuousActivityList.indexOf(activity);
+                        this.continuousActivityList[index].subscribed = false;
+                    } else {
+                        let activity = this.durationActivityList[filteredIndex];
+                        let index = this.durationActivityList.indexOf(activity);
+                        this.durationActivityList[index].subscribed = false;
+                    }
                     this.$forceUpdate();  // Notice we have to use a $ here
                 }).catch((error) => {
                     this.processGetError(error, "UNFOLLOW");
@@ -213,8 +266,7 @@
                             this.$router.go();
                         }, this.timeout);
                     }
-                }
-                else if (error.response.status === 401) {
+                } else if (error.response.status === 401) {
                     this.redirectionMessage = "Sorry, you are no longer logged in,\n" +
                         "Redirecting to the login page.";
                     setTimeout(() => {
@@ -254,14 +306,14 @@
              * Returns the starting/ending days associated with an duration activity
              */
             getDays(activity) {
-                return Math.floor(((new Date(activity.end_time) - new Date(activity.start_time))/1000/60/60/24))
+                return Math.floor(((new Date(activity.end_time) - new Date(activity.start_time)) / 1000 / 60 / 60 / 24))
             },
 
             /**
              * Returns the starting/ending hours associated with an duration activity
              */
             getHours(activity) {
-                return Math.ceil(((new Date(activity.end_time) - new Date(activity.start_time))/1000/60/60)) % 24
+                return Math.ceil(((new Date(activity.end_time) - new Date(activity.start_time)) / 1000 / 60 / 60)) % 24
             },
 
             /**
@@ -275,18 +327,30 @@
 
 
             /**
-             * Retrieves a list of activities
-             * that a user is following or has created
+             * Retrieves a list of continuous activities
+             * that a user is following or has created,
+             * but only for the given page.
              */
-            async getListOfActivities() {
+            async getListOfActivities(isContinuous) {
                 this.errored = false;
-                await api.getUserActivities(this.userId).then(
-                    response => { //If successfully registered the response will have a status of 201
-                        if (response.data.length === 0) {
-                            this.noMore = true;
-                        }
-                        this.activityList = response.data;
-                    }).catch(() => {
+                window.scrollTo(0, 0);
+                let searchFilter = (isContinuous) ? "CONTINUOUS" : "DURATION";
+                let pageNumber = (isContinuous) ? this.continuousCurrentPage : this.durationCurrentPage;
+                pageNumber = pageNumber - 1;
+                await api.getUserActivities(this.userId, pageNumber, searchFilter).then(response => {
+                    if (isContinuous) {
+                        this.continuousActivityList = response.data;
+                        this.continuousRows = response.headers["total-rows"];
+                    } else {
+                        this.durationActivityList = response.data;
+                        this.durationRows = response.headers["total-rows"];
+                    }
+                }).catch(() => {
+                    if (isContinuous) {
+                        this.continuousActivityList = [];
+                    } else {
+                        this.durationActivityList = [];
+                    }
                     this.errored = true;
                 })
             },
@@ -304,7 +368,7 @@
              * @param isContinuousTab true if called by continuous tab, false of non-continuous tab.
              */
             continuousIsActive(isContinuousTab) {
-                if (this.activityList.filter(a => !a.continuous).length > 0 && this.activityList.filter(a => a.continuous).length === 0) {
+                if (this.durationActivityList.length > 0 && this.continuousActivityList.length === 0) {
                     return !isContinuousTab;
                 } else {
                     return isContinuousTab;
@@ -335,14 +399,33 @@
                     return;
                 }
 
-                // Delete from local memory
-                this.activityList.splice(this.activityList.findIndex(a => a.id === activityId), 1);
-
                 // Delete from database
                 await api.deleteActivity(this.userId, activityId).catch(() => {
                     this.errored = true;
                     this.error_message = "Could not delete activity";
                 })
+
+                // Delete from local memory
+                let activityIndex = this.continuousActivityList.findIndex(a => a.id === activityId);
+                if (activityIndex >= 0) {
+                    this.continuousActivityList.splice(activityIndex, 1);
+                    this.continuousRows--;
+                    if ((this.continuousCurrentPage - 1) * this.activitiesPerPage >= this.continuousRows) {
+                        this.continuousCurrentPage--;
+                    } else {
+                        await this.getListOfActivities(true);
+                    }
+                } else {
+                    activityIndex = this.durationActivityList.findIndex(a => a.id === activityId);
+                    this.durationActivityList.splice(activityIndex, 1);
+                    this.durationRows--;
+                    if ((this.durationCurrentPage - 1) * this.activitiesPerPage >= this.durationRows) {
+                        this.durationCurrentPage--;
+                    } else {
+                        await this.getListOfActivities(false);
+                    }
+                }
+                this.$forceUpdate();
             },
 
 
@@ -352,10 +435,19 @@
              * Then manually assigns a "creatorName" property to each activity.
              */
             async getCreatorNamesForActivities() {
-                for (let i = 0; i < this.activityList.length; i++) {
-                    await api.getUserData(this.activityList[i].creatorUserId).then((response) => {
-                        this.activityList[i]["creatorName"] = `${response.data.firstname} ${response.data.lastname}`;
-                    }).catch((error) => {
+                // Continuous Activity List
+                for (let i = 0; i < this.continuousActivityList.length; i++) {
+                    await api.getUserData(this.continuousActivityList[i].creatorUserId).then(response => {
+                        this.continuousActivityList[i]["creatorName"] = `${response.data.firstname} ${response.data.lastname}`;
+                    }).catch(error => {
+                        this.processGetError(error, "UNKNOWN")
+                    });
+                }
+                // Duration Activity List
+                for (let i = 0; i < this.durationActivityList.length; i++) {
+                    await api.getUserData(this.durationActivityList[i].creatorUserId).then(response => {
+                        this.durationActivityList[i]["creatorName"] = `${response.data.firstname} ${response.data.lastname}`;
+                    }).catch(error => {
                         this.processGetError(error, "UNKNOWN")
                     });
                 }
@@ -367,11 +459,22 @@
              * for an activity that a user is following
              */
             async getFollowingStatusForActivity() {
-                for (let i = 0; i < this.activityList.length; i++) {
-                    if (this.activeUserId !== this.activityList[i].creatorUserId) {
-                        await api.getUserSubscribed(this.activityList[i].id, this.activeUserId).then((response) => {
-                            this.activityList[i]["subscribed"] = response.data.subscribed;
-                        }).catch((error) => {
+                // Continuous Activity List
+                for (let i = 0; i < this.continuousActivityList.length; i++) {
+                    if (this.activeUserId !== this.continuousActivityList[i].creatorUserId) {
+                        await api.getUserSubscribed(this.continuousActivityList[i].id, this.activeUserId).then(response => {
+                            this.continuousActivityList[i]["subscribed"] = response.data.subscribed;
+                        }).catch(error => {
+                            this.processGetError(error, "UNKNOWN")
+                        });
+                    }
+                }
+                // Duration Activity List
+                for (let i = 0; i < this.durationActivityList.length; i++) {
+                    if (this.activeUserId !== this.durationActivityList[i].creatorUserId) {
+                        await api.getUserSubscribed(this.durationActivityList[i].id, this.activeUserId).then(response => {
+                            this.durationActivityList[i]["subscribed"] = response.data.subscribed;
+                        }).catch(error => {
                             this.processGetError(error, "UNKNOWN")
                         });
                     }
@@ -381,31 +484,9 @@
 
 
             /**
-             * Called when activity modal is triggered to close (x button in modal).
-             * If the ActivityList component belongs to a User
-             * and the activity in question has been UNFOLLOWED,
-             * then the activity is removed from activityList.
-             * @param filteredIndex of activity in modal
-             * @param isContinuous Type of Activity to follow
-             * @returns {Promise<void>}
-             */
-            async onHidden (filteredIndex, isContinuous) {
-                if (this.user_Id === this.activeUserId) {
-                    // if this is my login page
-                    let activity = this.activityList.filter(activity => activity.continuous === isContinuous)[filteredIndex];
-                    let index = this.activityList.indexOf(activity);
-                    if (this.activityList[index].subscribed === false) {
-                        this.activityList.splice(index, 1);
-                    }
-                }
-                this.$forceUpdate();  // Notice we have to use a $ here
-            },
-
-
-            /**
              * Logs the user out and clears session token
              */
-            logout () {
+            logout() {
                 api.logout()
                 sessionStorage.clear();
                 this.isLoggedIn = (sessionStorage.getItem("token") !== null);
@@ -423,10 +504,12 @@
         width: 7.5%;
         height: 7.5%;
     }
+
     .noMore {
         text-align: center;
 
     }
+
     .text-justified {
         text-align: justify;
     }

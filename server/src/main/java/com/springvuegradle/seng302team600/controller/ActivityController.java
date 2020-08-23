@@ -1,14 +1,17 @@
 package com.springvuegradle.seng302team600.controller;
 
+import com.springvuegradle.seng302team600.model.FeedEvent;
 import com.springvuegradle.seng302team600.validator.ActivityValidator;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.ActivityResponse;
-import com.springvuegradle.seng302team600.repository.ActivityParticipantRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
 import com.springvuegradle.seng302team600.service.FeedEventService;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -33,15 +36,17 @@ public class ActivityController {
     private final UserAuthenticationService userAuthenticationService;
     private final ActivityTypeService activityTypeService;
     private final FeedEventService feedEventService;
-    private final ActivityParticipantRepository activityParticipantRepository;
+
+    private static final int PAGE_SIZE = 5;
+    private static final String CONTINUOUS = "CONTINUOUS";
+    private static final String DURATION = "DURATION";
 
     public ActivityController(ActivityRepository activityRepository, UserAuthenticationService userAuthenticationService,
-                              ActivityTypeService activityTypeService, FeedEventService feedEventService, ActivityParticipantRepository activityParticipantRepository) {
+                              ActivityTypeService activityTypeService, FeedEventService feedEventService) {
         this.activityRepository = activityRepository;
         this.userAuthenticationService = userAuthenticationService;
         this.activityTypeService = activityTypeService;
         this.feedEventService = feedEventService;
-        this.activityParticipantRepository = activityParticipantRepository;
     }
 
     /**
@@ -117,7 +122,7 @@ public class ActivityController {
     public void editActivity(@PathVariable(value = "profileId") Long profileId,
                              @PathVariable(value = "activityId") Long activityId,
                              @Validated @RequestBody Activity activity,
-                             HttpServletRequest request, HttpServletResponse response) throws IOException {
+                             HttpServletRequest request, HttpServletResponse response) {
         String token = request.getHeader("Token");
         User author = userAuthenticationService.findByUserId(token, profileId);
         //get old activity to set values
@@ -183,24 +188,55 @@ public class ActivityController {
     }
 
     /**
-     * Get all activities that a user has created or is currently following
+     * Get all activities that a user has created or is currently following.
+     * This list can be limited/filtered by just continuous or duration activities.
+     * Accepts extra headers
+     * - Page-Number which has a of default 0 (first page),
+     * - Search-Filter which can be either CONTINUOUS or DURATION.
+     * A successful response returns the header Total-Rows.
      *
      * @param profileId the id of the user/creator
      * @param request   the actual request from the client, containing pertinent data
      */
     @GetMapping("/profiles/{profileId}/activities")
-    public List<ActivityResponse> getUsersActivities(@PathVariable Long profileId, HttpServletRequest request) {
-        //checking user authentication
-        //attempt to find user by token, don't need to save user discovered
+    public List<ActivityResponse> getUsersActivities(@PathVariable Long profileId,
+                                                     HttpServletRequest request, HttpServletResponse response) {
         String token = request.getHeader("Token");
         userAuthenticationService.viewUserById(profileId, token);
-        List<Activity> activities = activityRepository.findAllByUserId(profileId);
 
+        int pageNumber = request.getIntHeader("Page-Number");
+        if (pageNumber < 0) pageNumber = 0;
+
+        String searchFilter = request.getHeader("Search-Filter");
+        List<Activity> activities;
+        if (searchFilter != null && searchFilter.equals(CONTINUOUS)) {
+            activities = activityRepository.findAllContinuousByUserId(profileId);
+        } else if (searchFilter != null && searchFilter.equals(DURATION)) {
+            activities = activityRepository.findAllDurationByUserId(profileId);
+        } else {
+            activities = activityRepository.findAllByUserId(profileId);
+        }
+
+        if (activities == null) {
+            return new ArrayList<>();
+        }
+        Set<Activity> distinctActivities = new HashSet<>(activities);
+        int fromIndex = pageNumber * PAGE_SIZE;
+        int toIndex = pageNumber * PAGE_SIZE + PAGE_SIZE;
+        int totalElements = distinctActivities.size();
+        if (fromIndex >= totalElements) {
+            return new ArrayList<>();
+        }
+        if (toIndex > totalElements) toIndex = totalElements;
+        List<Activity> activitiesOnPage = new ArrayList<>(distinctActivities)
+                .subList(fromIndex, toIndex);
+
+        response.setIntHeader("Total-Rows", totalElements);
         List<ActivityResponse> activityResponses = new ArrayList<>();
-        activities.forEach(i -> activityResponses.add(new ActivityResponse(i)));
+        activitiesOnPage.forEach(i ->
+                activityResponses.add(new ActivityResponse(i)));
         return activityResponses;
     }
-
 
     /**
      * Get a list of participants for an activity
