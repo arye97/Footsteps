@@ -88,10 +88,37 @@ public class OutcomeController {
         return outcomeResponses;
     }
 
-
+    /**
+     * hi there
+     * welcome to my docstring :)
+     * get stick bugged lmao
+     * @param outcome
+     * @param request
+     */
     @PutMapping("/activities/outcomes")
-    public void updateActivityOutcomes(@Validated @RequestBody Outcome outcome, HttpServletRequest request) {
-        //ToDo: Implement this method, and add a DocString please
+    public void updateActivityOutcomes(@PathVariable(value = "profileId") Long profileId,
+                                       @PathVariable( value = "outcomeId") Long outcomeId,
+                                       @Validated @RequestBody Outcome outcome, HttpServletRequest request) {
+        String token = request.getHeader("Token");
+        User creator = userAuthenticationService.findByUserId(token, profileId);
+        //Get old outcome to set value
+        Outcome oldOutcome = outcomeRepository.findByOutcomeId(outcomeId);
+        //Check outcome exists and user is the creator
+        if(oldOutcome == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Outcome not found")
+        }
+
+        String activityId = oldOutcome.getActivityId();
+        Activity activity = activityRepository.findByActivityId(activityId);
+
+        if((!activity.getCreatorUserId().equals(profileId))
+            && (!userAuthenticationService.hasAdminPrivleges(creator))){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is forbidden from editing outcome with ID: " + outcomeId);
+        }
+
+        OutcomeValidator.validate(outcome)
+
+
     }
 
 
