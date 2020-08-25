@@ -92,31 +92,44 @@ public class OutcomeController {
     }
 
     /**
-     * hi there
-     * welcome to my docstring :)
-     * get stick bugged lmao
-     * @param outcome
-     * @param request
+     * Put request for editing an outcome created by a user
+     * Checks all possible inputs to see if it is there and needs updating
+     * Will throw an error if the outcome you're trying to edit has results already
+     * @param profileId the ID of the user who created the outcome
+     * @param outcomeId the ID of the outcome to edit
+     * @param outcome the Outcome object we are updating
      */
     @PutMapping("/activities/outcomes")
-    public void updateActivityOutcomes(@PathVariable( value = "outcomeId") Long outcomeId,
+    public void updateActivityOutcomes(@PathVariable(value = "profileId") Long profileId,
+                                       @PathVariable( value = "outcomeId") Long outcomeId,
                                        @Validated @RequestBody Outcome outcome,
                                        HttpServletRequest request) {
+
+        String token = request.getHeader("Token");
+        User creator = userAuthenticationService.findByUserId(token, profileId);
         //Get old outcome and check that it's not null & user has permisison to edit
         Outcome oldOutcome = outcomeRepository.findByOutcomeId(outcomeId);
         if(oldOutcome == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Outcome not found")
         }
 
-        Boolean notAllowedToEdit = true;
-        notAllowedToEdit = resultRepository.existsByOutcome(oldOutcome);
+        Boolean resultsExist = true;
+        resultsExist = resultRepository.existsByOutcome(oldOutcome);
 
-        if(notAllowedToEdit){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is forbidden from editing outcome with the ID: " + outcomeId);
+        if(resultsExist){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot edit outcome ID " + outcomeId + " due to results already existing");
         }
-        
-        //Set old outcome values to new values and save
+
+        String activityId = oldOutcome.getActivityId();
+        Activity activity = activityRepository.findByActivityId(activityId);
+        if((!activity.getCreatorUserId().equals(profileId))
+                && (!userAuthenticationService.hasAdminPrivleges(creator))){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is forbidden from editing outcome with ID: " + outcomeId);
+        }
+
         OutcomeValidator.validate(outcome);
+
+        //Set old outcome values to new values and save
         oldOutcome.setTitle(outcome.getTitle());
         oldOutcome.setUnitName(outcome.getUnitName());
         oldOutcome.setUnitType(outcome.getUnitType());
