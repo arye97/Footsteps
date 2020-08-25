@@ -99,29 +99,31 @@ public class OutcomeController {
      * @param request
      */
     @PutMapping("/activities/outcomes")
-    public void updateActivityOutcomes(@PathVariable(value = "profileId") Long profileId,
-                                       @PathVariable( value = "outcomeId") Long outcomeId,
-                                       @Validated @RequestBody Outcome outcome, HttpServletRequest request) {
-        String token = request.getHeader("Token");
-        User creator = userAuthenticationService.findByUserId(token, profileId);
-        //Get old outcome to set value
+    public void updateActivityOutcomes(@PathVariable( value = "outcomeId") Long outcomeId,
+                                       @Validated @RequestBody Outcome outcome,
+                                       HttpServletRequest request) {
+        //Get old outcome and check that it's not null & user has permisison to edit
         Outcome oldOutcome = outcomeRepository.findByOutcomeId(outcomeId);
-        //Check outcome exists and user is the creator
         if(oldOutcome == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Outcome not found")
         }
 
-        String activityId = oldOutcome.getActivityId();
-        Activity activity = activityRepository.findByActivityId(activityId);
+        Boolean notAllowedToEdit = true;
+        notAllowedToEdit = resultRepository.existsByOutcome(oldOutcome);
 
-        if((!activity.getCreatorUserId().equals(profileId))
-            && (!userAuthenticationService.hasAdminPrivleges(creator))){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is forbidden from editing outcome with ID: " + outcomeId);
+        if(notAllowedToEdit){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is forbidden from editing outcome with the ID: " + outcomeId);
         }
+        
+        //Set old outcome values to new values and save
+        OutcomeValidator.validate(outcome);
+        oldOutcome.setTitle(outcome.getTitle());
+        oldOutcome.setUnitName(outcome.getUnitName());
+        oldOutcome.setUnitType(outcome.getUnitType());
+        oldOUtcome.setResults(outcome.getResults());
 
-        OutcomeValidator.validate(outcome)
-
-
+        outcomeRepository.save(oldOutcome);
+        response.setStatus(HttpServletResponse.SC_OK); //200
     }
 
 
