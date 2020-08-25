@@ -103,14 +103,14 @@ public class OutcomeController {
     public void updateActivityOutcomes(@PathVariable(value = "profileId") Long profileId,
                                        @PathVariable( value = "outcomeId") Long outcomeId,
                                        @Validated @RequestBody Outcome outcome,
-                                       HttpServletRequest request) {
+                                       HttpServletRequest request, HttpServletResponse response) {
 
         String token = request.getHeader("Token");
         User creator = userAuthenticationService.findByUserId(token, profileId);
         //Get old outcome and check that it's not null & user has permisison to edit
         Outcome oldOutcome = outcomeRepository.findByOutcomeId(outcomeId);
         if(oldOutcome == null){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Outcome not found")
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Outcome not found");
         }
 
         Boolean resultsExist = true;
@@ -120,10 +120,10 @@ public class OutcomeController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot edit outcome ID " + outcomeId + " due to results already existing");
         }
 
-        String activityId = oldOutcome.getActivityId();
+        Long activityId = oldOutcome.getActivityId();
         Activity activity = activityRepository.findByActivityId(activityId);
         if((!activity.getCreatorUserId().equals(profileId))
-                && (!userAuthenticationService.hasAdminPrivleges(creator))){
+                && (!userAuthenticationService.hasAdminPrivileges(creator))){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is forbidden from editing outcome with ID: " + outcomeId);
         }
 
@@ -133,7 +133,7 @@ public class OutcomeController {
         oldOutcome.setTitle(outcome.getTitle());
         oldOutcome.setUnitName(outcome.getUnitName());
         oldOutcome.setUnitType(outcome.getUnitType());
-        oldOUtcome.setResults(outcome.getResults());
+        oldOutcome.setResults(outcome.getResults());
 
         outcomeRepository.save(oldOutcome);
         response.setStatus(HttpServletResponse.SC_OK); //200
