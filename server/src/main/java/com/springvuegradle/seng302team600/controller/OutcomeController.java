@@ -97,10 +97,23 @@ public class OutcomeController {
         //ToDo: Implement this method, and add a DocString please
     }
 
-
+    /**
+     * Removes the outcome identified by its outcomeId.
+     * The user requesting the outcomes removal must be the author of the activity the outcome belongs too
+     * - or is an admin.
+     * @param outcomeId the ID of the outcome that is to be deleted
+     * @param request the request that contains the current user token
+     */
     @DeleteMapping("/activities/{outcomeId}/outcomes")
     public void deleteActivityOutcomes(@PathVariable Long outcomeId, HttpServletRequest request) {
-        //ToDo: Implement this method, and add a DocString please
+        String token = request.getHeader("Token");
+        User user = userAuthenticationService.findByToken(token);
+        Outcome outcome = outcomeRepository.findByOutcomeId(outcomeId);
+        Activity activity = activityRepository.findByActivityId(outcome.getActivityId());
+        if (!userAuthenticationService.hasAdminPrivileges(user) && !user.getUserId().equals(activity.getCreatorUserId())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is unauthorized to remove this outcome.");
+        }
+        outcomeRepository.delete(outcome);
     }
 
 }
