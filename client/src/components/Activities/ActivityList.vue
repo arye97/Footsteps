@@ -181,62 +181,14 @@
             await this.getActiveUserId();
             await this.getListOfActivities(true);
             await this.getListOfActivities(false);
-            await this.getCreatorNamesForActivities();
-            await this.getFollowingStatusForActivity();
+
+            await this.getCreatorNamesForActivities(true);
+            await this.getCreatorNamesForActivities(false);
+
+            await this.getFollowingStatusForActivity(true);
+            await this.getFollowingStatusForActivity(false);
         },
         methods: {
-            /**
-             * Makes a request to the back-end to FOLLOW an activity.
-             *
-             * @param activityId Id of the activity to follow
-             * @param filteredIndex Index of activity to follow
-             * @param isContinuous Type of Activity to follow
-             * @returns {Promise<void>}
-             */
-            async followActivity(activityId, filteredIndex, isContinuous) {
-                await api.setUserSubscribed(activityId, this.activeUserId).then(() => {
-                    if (isContinuous) {
-                        let activity = this.continuousActivityList[filteredIndex];
-                        let index = this.continuousActivityList.indexOf(activity);
-                        this.continuousActivityList[index].subscribed = true;
-                    } else {
-                        let activity = this.durationActivityList[filteredIndex];
-                        let index = this.durationActivityList.indexOf(activity);
-                        this.durationActivityList[index].subscribed = true;
-                    }
-                    this.$forceUpdate();  // Notice we have to use a $ here
-                }).catch((error) => {
-                    this.processGetError(error, "FOLLOW");
-                });
-            },
-
-
-            /**
-             * Makes a request to the back-end to UNFOLLOW an activity.
-             *
-             * @param activityId Id of the activity to unfollow
-             * @param filteredIndex Index of activity to unfollow
-             * @param isContinuous Type of Activity to follow
-             * @returns {Promise<void>}
-             */
-            async unfollowActivity(activityId, filteredIndex, isContinuous) {
-                await api.deleteUserSubscribed(activityId, this.activeUserId).then(() => {
-                    if (isContinuous) {
-                        let activity = this.continuousActivityList[filteredIndex];
-                        let index = this.continuousActivityList.indexOf(activity);
-                        this.continuousActivityList[index].subscribed = false;
-                    } else {
-                        let activity = this.durationActivityList[filteredIndex];
-                        let index = this.durationActivityList.indexOf(activity);
-                        this.durationActivityList[index].subscribed = false;
-                    }
-                    this.$forceUpdate();  // Notice we have to use a $ here
-                }).catch((error) => {
-                    this.processGetError(error, "UNFOLLOW");
-                });
-            },
-
-
             /**
              * This helper function is called when an error is caught
              * when performing a FOLLOW/UNFOLLOW requests to the server.<br>
@@ -327,9 +279,10 @@
 
 
             /**
-             * Retrieves a list of continuous activities
+             * Retrieves a list of continuous or duration activities
              * that a user is following or has created,
              * but only for the given page.
+             * @param isContinuous true if asking for the continuous list, otherwise false for duration
              */
             async getListOfActivities(isContinuous) {
                 this.errored = false;
@@ -430,23 +383,19 @@
 
 
             /**
-             * Iterates over list of activities
-             * and obtains name of creator of an activity.
+             * Iterates over list of activities either continuous or duration
+             * and obtains the name of the creator of an activity.
              * Then manually assigns a "creatorName" property to each activity.
              */
-            async getCreatorNamesForActivities() {
-                // Continuous Activity List
-                for (let i = 0; i < this.continuousActivityList.length; i++) {
-                    await api.getUserData(this.continuousActivityList[i].creatorUserId).then(response => {
-                        this.continuousActivityList[i]["creatorName"] = `${response.data.firstname} ${response.data.lastname}`;
-                    }).catch(error => {
-                        this.processGetError(error, "UNKNOWN")
-                    });
-                }
-                // Duration Activity List
-                for (let i = 0; i < this.durationActivityList.length; i++) {
-                    await api.getUserData(this.durationActivityList[i].creatorUserId).then(response => {
-                        this.durationActivityList[i]["creatorName"] = `${response.data.firstname} ${response.data.lastname}`;
+            async getCreatorNamesForActivities(isContinuous) {
+                let activityList = isContinuous ? this.continuousActivityList : this.durationActivityList;
+                for (let i = 0; i < activityList.length; i++) {
+                    await api.getUserData(activityList[i].creatorUserId).then(response => {
+                        if (isContinuous) {
+                            this.continuousActivityList[i]["creatorName"] = `${response.data.firstname} ${response.data.lastname}`;
+                        } else {
+                            this.durationActivityList[i]["creatorName"] = `${response.data.firstname} ${response.data.lastname}`;
+                        }
                     }).catch(error => {
                         this.processGetError(error, "UNKNOWN")
                     });
@@ -454,26 +403,21 @@
             },
 
             /**
-             * Iterates over list of activities
+             * Iterates over list of activities either continuous or duration
              * and obtains a follow status
-             * for an activity that a user is following
+             * for an activity that a user is following.
+             * @param isContinuous true if asking for the continuous list, otherwise false for duration
              */
-            async getFollowingStatusForActivity() {
-                // Continuous Activity List
-                for (let i = 0; i < this.continuousActivityList.length; i++) {
-                    if (this.activeUserId !== this.continuousActivityList[i].creatorUserId) {
-                        await api.getUserSubscribed(this.continuousActivityList[i].id, this.activeUserId).then(response => {
-                            this.continuousActivityList[i]["subscribed"] = response.data.subscribed;
-                        }).catch(error => {
-                            this.processGetError(error, "UNKNOWN")
-                        });
-                    }
-                }
-                // Duration Activity List
-                for (let i = 0; i < this.durationActivityList.length; i++) {
-                    if (this.activeUserId !== this.durationActivityList[i].creatorUserId) {
-                        await api.getUserSubscribed(this.durationActivityList[i].id, this.activeUserId).then(response => {
-                            this.durationActivityList[i]["subscribed"] = response.data.subscribed;
+            async getFollowingStatusForActivity(isContinuous) {
+                let activityList = isContinuous ? this.continuousActivityList : this.durationActivityList;
+                for (let i = 0; i < activityList.length; i++) {
+                    if (this.activeUserId !== activityList[i].creatorUserId) {
+                        await api.getUserSubscribed(activityList[i].id, this.activeUserId).then(response => {
+                            if (isContinuous) {
+                                this.continuousActivityList[i]["subscribed"] = response.data.subscribed;
+                            } else {
+                                this.durationActivityList[i]["subscribed"] = response.data.subscribed;
+                            }
                         }).catch(error => {
                             this.processGetError(error, "UNKNOWN")
                         });
