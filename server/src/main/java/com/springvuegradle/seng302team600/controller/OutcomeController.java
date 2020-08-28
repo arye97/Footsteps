@@ -106,12 +106,15 @@ public class OutcomeController {
      */
     @DeleteMapping("/activities/{outcomeId}/outcomes")
     public void deleteActivityOutcomes(@PathVariable Long outcomeId, HttpServletRequest request) {
-        String token = request.getHeader("Token");
-        User user = userAuthenticationService.findByToken(token);
         Outcome outcome = outcomeRepository.findByOutcomeId(outcomeId);
+        if (outcome == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Outcome with id " + outcomeId.toString() + "could not be found");
+        }
         Activity activity = activityRepository.findByActivityId(outcome.getActivityId());
-        if (!userAuthenticationService.hasAdminPrivileges(user) && !user.getUserId().equals(activity.getCreatorUserId())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is unauthorized to remove this outcome.");
+        String token = request.getHeader("Token");
+        User user = userAuthenticationService.findByUserId(token, activity.getCreatorUserId());
+        if (user == null || !user.getUserId().equals(activity.getCreatorUserId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is forbidden from removing this outcome.");
         }
         outcomeRepository.delete(outcome);
     }
