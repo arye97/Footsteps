@@ -18,7 +18,8 @@
             <activity-form :submit-activity-func="submitEditActivity"
                            :activity="activity"
                            :outcome-list="outcomeList"
-                           :original-outcome-list="originalOutcomeList"/>
+                           :original-outcome-list="originalOutcomeList"
+                           @update-outcome-list="update"/>
         </b-container>
         <br/><br/>
     </div>
@@ -76,6 +77,9 @@
 
 
         methods: {
+            update(outcomeList) {
+                this.outcomeList = outcomeList;
+            },
 
             /**
              * Makes a PUT request to the back-end to edit an activity
@@ -97,7 +101,6 @@
                   .catch(error => {this.throwError(error, false)});
 
                 await this.editAllOutcomes(this.outcomeList, this.originalOutcomeList, this.activityId);
-
                 this.$router.push({name: 'allActivities', params: {alertMessage: 'Activity modified successfully', alertCount: 5}});
             },
 
@@ -111,13 +114,17 @@
              * @param activityId id of newly created activities
              */
             async editAllOutcomes(editedOutcomes, originalOutcomes, activityId) {
-
-                // Create an Array containing only new outcomes (like set difference)
+                let deletedOutcomes = [];
                 let outcomes = [...editedOutcomes].filter(o => ![...originalOutcomes].includes(o));
+                // Create an Array containing DELETED and MODIFIED OUTCOMES
+                for (let i = 0; i < originalOutcomes.length; i++) {
+                    if (!editedOutcomes.includes(originalOutcomes[i])) {
+                        deletedOutcomes.push(originalOutcomes[i]);
+                    }
+                }
 
-                for (let i=0, outcome; i < outcomes.length; i++) {  // Seems to need this type of loop for some reason
+                for (let i = 0, outcome; i < outcomes.length; i++) {  // Seems to need this type of loop for some reason
                     outcome = outcomes[i];
-
                     const outcomeRequest = {
                         activity_id: activityId,
                         title: outcome.title,
@@ -126,6 +133,12 @@
                     };
 
                     await api.createOutcome(outcomeRequest).catch(serverError => {
+                        this.throwError(serverError, false);
+                    });
+                }
+
+                for (let i = 0; i < deletedOutcomes.length; i++) {  // Seems to need this type of loop for some reason
+                    await api.deleteOutcome(deletedOutcomes[i].outcome_id).catch(serverError => {
                         this.throwError(serverError, false);
                     });
                 }

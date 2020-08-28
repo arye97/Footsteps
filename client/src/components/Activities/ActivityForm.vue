@@ -236,27 +236,25 @@
                             v-bind:key="'outcome' + index"
                             :id="'outcome' + index">
                             <td>
-                                    <p :id="'title' + index">
-                                        {{ outcome.title }}
-                                    </p>
+                                <p :id="'title' + index">
+                                    {{ outcome.title }}
+                                </p>
                             </td>
-                                <td>
-                                    <p :id="'unit_name' + index">
-                                        {{ outcome.unit_name }}
-                                    </p>
-                                </td>
+                            <td>
+                                <p :id="'unit_name' + index">
+                                    {{ outcome.unit_name }}
+                                </p>
+                            </td>
                             <!--Only show edit and delete buttons if this is a newly added Outcome. Uhg O(n^2)-->
                             <!--This v-if should be removed when we add functionality for editing existing Outcomes-->
-                            <div v-if="!originalOutcomeList.includes(outcome)">
-                                <td class="tableButtonTd">
-                                    <b-button variant="danger" :id="'deleteButton' + index" v-on:click="deleteOutcome(index)">
-                                        <b-icon-trash-fill></b-icon-trash-fill>
-                                    </b-button>
-                                </td>
-                                <td class="tableButtonTd">
-                                    <b-button variant="primary" :id="'editButton' + index" v-on:click="editOutcome(index)">Edit</b-button>
-                                </td>
-                            </div>
+                            <td class="tableButtonTd">
+                                <b-button variant="danger" :id="'deleteButton' + index" v-on:click="deleteOutcome(index)">
+                                    <b-icon-trash-fill></b-icon-trash-fill>
+                                </b-button>
+                            </td>
+                            <td class="tableButtonTd">
+                                <b-button variant="primary" :id="'editButton' + index" v-on:click="editOutcome(index)">Edit</b-button>
+                            </td>
                         </tr>
                     </table>
                 </section>
@@ -579,6 +577,10 @@
                 });
             },
 
+
+
+
+
             /**
              * Adds the current outcome to the outcomeList and clears the outcome input fields
              * (current outcome is the outcome in the input boxes)
@@ -587,6 +589,7 @@
                 this.outcomeList.push(this.activeOutcome);
                 this.activeOutcome = {title:"", unit_name:""};
                 this.updateOutcomeWordCount();
+                this.$emit("update-outcome-list", this.outcomeList);
             },
 
             /**
@@ -594,13 +597,15 @@
              * (Active outcome is not part of this list)
              * @param index The index of the outcome, to be deleted, in the outcomeList
              */
-            deleteOutcome (index) {
+            deleteOutcome(index) {
                 let outcomeToBeRemoved = this.outcomeList[index];
                 // Remove outcomeToBeRemoved from this.outcomeList
                 this.outcomeList = this.outcomeList.filter(
                     function(outcome) {
                         return outcome !== outcomeToBeRemoved
-                    });
+                    }
+                );
+                this.$emit("update-outcome-list", this.outcomeList);
             },
 
             /**
@@ -613,6 +618,7 @@
                 this.activeOutcome = this.outcomeList[index];
                 this.deleteOutcome(index);
                 this.updateOutcomeWordCount();
+                this.$emit("update-outcome-list", this.outcomeList);
             }
         }
     }

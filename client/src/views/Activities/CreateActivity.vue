@@ -15,7 +15,10 @@
                     </div>
                 </div>
             </header>
-            <activity-form :submit-activity-func="submitCreateActivity" :activity="activity" :outcome-list="outcomeList"/>
+            <activity-form :submit-activity-func="submitCreateActivity"
+                           :activity="activity"
+                           :outcome-list="outcomeList"
+                           @update-outcome-list="update"/>
         </b-container>
         <br/><br/>
     </div>
@@ -59,6 +62,9 @@
             this.activity.profileId = userId;
         },
         methods: {
+            update(outcomeList) {
+                this.outcomeList = outcomeList;
+            },
 
             /**
              * Makes a POST request to the back-end to create an activity
@@ -86,7 +92,6 @@
 
                 // Send the outcomes to the server.  Adds the activityId to the outcomes.
                 await this.createAllOutcomes(this.outcomeList, activityId);
-
                 this.$router.push({name: 'allActivities', params: {alertMessage: 'Activity added successfully', alertCount: 5}});
             },
 
