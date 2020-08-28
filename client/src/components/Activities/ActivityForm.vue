@@ -577,35 +577,27 @@
                 });
             },
 
-
-
-
-
             /**
-             * Adds the current outcome to the outcomeList and clears the outcome input fields
+             * Adds the current outcome to the outcomeList through parent component
+             * to prevent prop mutation.
+             * Clears the outcome input fields.
              * (current outcome is the outcome in the input boxes)
              */
             addOutcome() {
-                this.outcomeList.push(this.activeOutcome);
+                this.$emit("add-outcome", this.activeOutcome);
                 this.activeOutcome = {title:"", unit_name:""};
                 this.updateOutcomeWordCount();
-                this.$emit("update-outcome-list", this.outcomeList);
             },
 
             /**
-             * Removes a specified outcome from the list of outcomes
+             * Removes a specified outcome from the list of outcomes through parent component
+             * to prevent prop mutation.
              * (Active outcome is not part of this list)
              * @param index The index of the outcome, to be deleted, in the outcomeList
              */
             deleteOutcome(index) {
                 let outcomeToBeRemoved = this.outcomeList[index];
-                // Remove outcomeToBeRemoved from this.outcomeList
-                this.outcomeList = this.outcomeList.filter(
-                    function(outcome) {
-                        return outcome !== outcomeToBeRemoved
-                    }
-                );
-                this.$emit("update-outcome-list", this.outcomeList);
+                this.$emit("delete-outcome", outcomeToBeRemoved);
             },
 
             /**
@@ -618,7 +610,8 @@
                 this.activeOutcome = this.outcomeList[index];
                 this.deleteOutcome(index);
                 this.updateOutcomeWordCount();
-                this.$emit("update-outcome-list", this.outcomeList);
+                // todo for task PUT endpoint pls also update javadoc
+                // this.$emit("edit-outcome", this.outcomeList);
             }
         }
     }

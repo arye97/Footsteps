@@ -19,7 +19,10 @@
                            :activity="activity"
                            :outcome-list="outcomeList"
                            :original-outcome-list="originalOutcomeList"
-                           @update-outcome-list="update"/>
+                           @add-outcome="addOutcome"
+                           @delete-outcome="deleteOutcome"/>
+<!--             todo for task PUT endpoint-->
+<!--             @edit-outcome="editOutcome"/>-->
         </b-container>
         <br/><br/>
     </div>
@@ -77,9 +80,29 @@
 
 
         methods: {
-            update(outcomeList) {
-                this.outcomeList = outcomeList;
+            /**
+             * Adds an outcome to outcomeList
+             * to prevent prop mutation.
+             * @param outcomeToBeAdded Outcome to be added to list
+             */
+            addOutcome(outcomeToBeAdded) {
+                this.outcomeList.push(outcomeToBeAdded);
             },
+            /**
+             * Removes a specified outcome from outcomeList
+             * @param outcomeToBeRemoved Outcome to be removed from list
+             */
+            deleteOutcome(outcomeToBeRemoved) {
+                this.outcomeList = this.outcomeList.filter(
+                    function(outcome) {
+                        return outcome !== outcomeToBeRemoved
+                    }
+                );
+            },
+            // todo for task PUT endpoint
+            // editOutcome(outcome) {
+            //
+            // },
 
             /**
              * Makes a PUT request to the back-end to edit an activity
