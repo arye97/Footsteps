@@ -1,21 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
-  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/Header.test.js">
-    <testCase name="Is a vue instance" duration="78"/>
-    <testCase name="Logo is on the page" duration="37"/>
-    <testCase name="Toggle button for collapsible nav-bar exists" duration="39"/>
-    <testCase name="There are 6 possible collapsible links, when logged in" duration="85">
-      <failure message="Error: expect(received).toEqual(expected) // deep equality"><![CDATA[Error: expect(received).toEqual(expected) // deep equality
-
-Expected: 6
-Received: 5
-    at Object.<anonymous> (/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/Header.test.js:32:26)
-    at Object.asyncJestTest (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:100:37)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:45:12
-    at new Promise (<anonymous>)
-    at mapper (/Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:28:19)
-    at /Users/ethanburnett/Computer Science/SENG302/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:75:41]]></failure>
-    </testCase>
-    <testCase name="There are 2 possible collapsible links, when not logged in" duration="23"/>
+  <file path="/Users/euan/Desktop/uni/SENG302/team-600/client/src/Test/ActivityForm.test.js">
+    <testCase name="Is a vue instance" duration="238"/>
+    <testCase name="Outcome title input exists" duration="155"/>
+    <testCase name="Outcome unit_name input exists" duration="107"/>
+    <testCase name="Outcome title word count exists" duration="119"/>
+    <testCase name="Outcome unit_name word count exists" duration="74"/>
+    <testCase name="Add outcome button exists" duration="87"/>
+    <testCase name="Outcomes table exists" duration="73"/>
   </file>
 </testExecutions>

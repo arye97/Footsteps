@@ -229,9 +229,8 @@
                     </b-col>
                 </b-row>
 
-
                 <section class="outcomesDisplay">
-                    <table id="additionalEmailsTable" class="table table-hover">
+                    <table id="outcomesTable" class="table table-hover">
                         <tr class="outcomesTable" v-for="(outcome, index) in this.outcomeList"
                             v-bind:key="'outcome' + index"
                             :id="'outcome' + index">
@@ -258,8 +257,6 @@
                         </tr>
                     </table>
                 </section>
-
-
 
                 <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="overall_message" hidden>
                     <p id="alert-message">{{ overallMessageText }}</p>
