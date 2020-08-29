@@ -73,5 +73,6 @@ export default {
   getFeedEvents: (userId, pageNumber) => server.get(`/profiles/${userId}/subscriptions/`, getExtendedPageNumberTokenHeader(pageNumber)),
   getActivityOutcomes: (activityId) => server.get(`/activities/${activityId}/outcomes`, getTokenHeader()),
   getOutcomeResults: (outcomeId) => server.get(`/outcomes/${outcomeId}/results`, getTokenHeader()),
-  createResult: (resultData, outcomeId) => server.post(`/outcomes/${outcomeId}/results`, resultData, getTokenHeader())
+  createResult: (resultData, outcomeId) => server.post(`/outcomes/${outcomeId}/results`, resultData, getTokenHeader()),
+  updateOutcome: (outcomeData) => server.put(`/activities/outcomes`, outcomeData, getTokenHeader()),
 }
