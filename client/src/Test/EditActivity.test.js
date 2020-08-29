@@ -26,7 +26,12 @@ const ORIGINAL_OUTCOME_LIST = [OUTCOME1];
 
 beforeAll(() => {
     config = {
-        router
+        router,
+        data: function() {
+            return {
+                outcomeList: [OUTCOME1]
+            }
+        }
     };
     // This Removes: TypeError: Cannot read property 'then' of undefined
     api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID, status: 200 }));
@@ -189,3 +194,14 @@ test('Creates no requests when no new Outcomes', () => {
     expect(receivedOutcomeRequests.length).toBe(0);  // Should only make a request for the new Outcome
 });
 
+test('Adds an Outcome to outcomeList', () => {
+    expect(editActivity.vm.outcomeList.length).toBe(1);
+    editActivity.vm.addOutcome(OUTCOME2);
+    expect(editActivity.vm.outcomeList.length).toBe(2);
+});
+
+test('Deletes an Outcome from outcomeList', () => {
+    expect(editActivity.vm.outcomeList.length).toBe(1);
+    editActivity.vm.deleteOutcome(OUTCOME1);
+    expect(editActivity.vm.outcomeList.length).toBe(0);
+});

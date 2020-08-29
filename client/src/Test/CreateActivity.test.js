@@ -12,23 +12,6 @@ const DEFAULT_ACTIVITY_ID = 1;
 
 let receivedOutcomeRequests = [];
 
-beforeAll(() => {
-    config = {
-        router
-    };
-    // This Removes: TypeError: Cannot read property 'then' of undefined
-    api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID, status: 200 }));
-    api.createOutcome.mockImplementation(outcomeRequest => {
-        receivedOutcomeRequests.push(outcomeRequest);
-        Promise.resolve({ data: DEFAULT_USER_ID, status: 200 })
-    });
-    createActivity = shallowMount(CreateActivity, config);
-});
-
-beforeEach(() => {
-    receivedOutcomeRequests = [];
-});
-
 const ACTIVITY1 = {
     activity_name: "Trail Run Arthur's Pass",
     description: "A trail run of Mingha - Deception Route in Arthur's pass.  South to north.",
@@ -44,6 +27,36 @@ const OUTCOME1 = {
     unit_name: "Distance",
     unit_type: "TEXT"
 };
+
+const OUTCOME2 = {
+    title: "Chickens",
+    unit_name: "Eggs",
+    unit_type: "TEXT"
+};
+
+beforeAll(() => {
+    config = {
+        router,
+        data: function() {
+            return {
+                outcomeList: [OUTCOME1]
+            }
+        }
+    };
+    // This Removes: TypeError: Cannot read property 'then' of undefined
+    api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID, status: 200 }));
+    api.createOutcome.mockImplementation(outcomeRequest => {
+        receivedOutcomeRequests.push(outcomeRequest);
+        Promise.resolve({ data: DEFAULT_USER_ID, status: 200 })
+    });
+    createActivity = shallowMount(CreateActivity, config);
+
+
+});
+
+beforeEach(() => {
+    receivedOutcomeRequests = [];
+});
 
 test('Is a vue instance', () => {
     expect(createActivity.isVueInstance).toBeTruthy();
@@ -118,7 +131,16 @@ test('Creates the correct Outcome payload', () => {
     expect(outcomeRequest.unit_type).toBeDefined();
 
     expect(Object.keys(outcomeRequest).length).toBe(4);
-
 });
 
+test('Adds an Outcome to outcomeList', () => {
+    expect(createActivity.vm.outcomeList.length).toBe(1);
+    createActivity.vm.addOutcome(OUTCOME2);
+    expect(createActivity.vm.outcomeList.length).toBe(2);
+});
 
+test('Deletes an Outcome from outcomeList', () => {
+    expect(createActivity.vm.outcomeList.length).toBe(1);
+    createActivity.vm.deleteOutcome(OUTCOME1);
+    expect(createActivity.vm.outcomeList.length).toBe(0);
+});
