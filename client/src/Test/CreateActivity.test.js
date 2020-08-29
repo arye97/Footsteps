@@ -28,18 +28,12 @@ const OUTCOME1 = {
     unit_type: "TEXT"
 };
 
-const OUTCOME2 = {
-    title: "Chickens",
-    unit_name: "Eggs",
-    unit_type: "TEXT"
-};
-
 beforeAll(() => {
     config = {
         router,
         data: function() {
             return {
-                outcomeList: [OUTCOME1]
+                outcomeList: []
             }
         }
     };
@@ -60,6 +54,14 @@ beforeEach(() => {
 
 test('Is a vue instance', () => {
     expect(createActivity.isVueInstance).toBeTruthy();
+});
+
+test('Adds and deletes an Outcome to outcomeList', () => {
+    expect(createActivity.vm.outcomeList.length).toBe(0);
+    createActivity.vm.addOutcome(OUTCOME1);
+    expect(createActivity.vm.outcomeList.length).toBe(1);
+    createActivity.vm.deleteOutcome(OUTCOME1);
+    expect(createActivity.vm.outcomeList.length).toBe(0);
 });
 
 test('Catches an http status error of 400 or an invalid activity field when create activity form is submitted and gives user an appropriate alert', () => {
@@ -131,16 +133,4 @@ test('Creates the correct Outcome payload', () => {
     expect(outcomeRequest.unit_type).toBeDefined();
 
     expect(Object.keys(outcomeRequest).length).toBe(4);
-});
-
-test('Adds an Outcome to outcomeList', () => {
-    expect(createActivity.vm.outcomeList.length).toBe(1);
-    createActivity.vm.addOutcome(OUTCOME2);
-    expect(createActivity.vm.outcomeList.length).toBe(2);
-});
-
-test('Deletes an Outcome from outcomeList', () => {
-    expect(createActivity.vm.outcomeList.length).toBe(1);
-    createActivity.vm.deleteOutcome(OUTCOME1);
-    expect(createActivity.vm.outcomeList.length).toBe(0);
 });
