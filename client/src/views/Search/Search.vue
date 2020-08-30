@@ -1,98 +1,44 @@
 <template>
     <div>
-    <header class="masthead">
-        <br/><br/><br/>
-        <div class="container h-100">
-            <div class="row h-100 align-items-center">
-                <div class="col-12 text-center">
-                    <Header/>
-                    <br/>
+        <header class="masthead">
+            <br/><br/><br/>
+            <div class="container h-100">
+                <div class="row h-100 align-items-center">
+                    <div class="col-12 text-center">
+                        <Header/>
+                        <br/>
+                    </div>
                 </div>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <b-container class="contents">
-        <Header/>
-        <br/>
-        <div class="container h-100">
-            <b-row>
-                <b-col cols="5" class="floatLeft">
-                    <h3>Search for:</h3>
-                </b-col>
-                <b-col class="floatRight">
-                    <b-form-select id="searchModeSelect" v-model="searchOption" :options="searchOptions"></b-form-select>
-                </b-col>
-            </b-row>
+        <b-container class="contents">
             <br/>
-            <b-row>
-                <b-col cols="8">
-                    <multiselect v-model="selectedActivityTypes" id="searchBoxActivities"
-                                 :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
-                                 placeholder="Select your activity types">
-                        <template slot="noResult">Invalid activity type</template>
-                    </multiselect>
-                </b-col>
-                <b-col cols="4">
-                    <b-form-select id="searchModeSelect" v-model="searchMode" :options="searchModes"></b-form-select>
-                </b-col>
-            </b-row>
-            <b-row style="margin-bottom: 1.7em; margin-top: 0.8em">
-                <b-col cols="6" align-self="center">
-                    <b-form-radio id="andRadioButton" v-model="searchType" name="andType" value="and">Search results match all selections</b-form-radio>
-                </b-col>
-                <b-col cols="6" align-self="center">
-                    <b-form-radio id="orRadioButton" v-model="searchType" name="orType" value="or">Search results match at least one selection</b-form-radio>
-                </b-col>
-            </b-row>
-            <b-row>
-                <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
-                    Search
-                </b-button>
-                <br/>
-            </b-row>
-        </div>
-
-        <section v-if="errored" class="text-center">
-            <div class="alert alert-danger alert-dismissible fade show text-center" role="alert" id="alert">
-                {{ error_message }}
+            <div class="container h-100">
+                <b-row>
+                    <b-col cols="5" class="floatLeft">
+                        <h3>Search for:</h3>
+                    </b-col>
+                    <b-col class="floatRight">
+                        <b-form-select id="searchModeSelect" v-model="searchOption" :options="searchOptions"></b-form-select>
+                    </b-col>
+                </b-row>
+                <UserSearch/>
             </div>
-        </section>
-        <section v-else-if="loading" class="text-center">
-            <br/>
-            <b-spinner variant="primary" label="Spinning"></b-spinner>
-            <br/>
-            <br/>
-        </section>
-        <section v-else v-for="user in this.userList" :key="user.id">
-            <!-- User List -->
-            <user-card v-bind:user="user" v-bind:activity-types-searched-for="activityTypesSearchedFor"/>
-            <br>
-        </section>
-        <!-- Pagination Nav Bar -->
-        <b-pagination
-                v-if="!errored && !loading && userList.length >= 1"
-                align="fill"
-                v-model="currentPage"
-                :total-rows="rows"
-                :per-page="usersPerPage"
-        ></b-pagination>
-    </b-container>
+        </b-container>
     </div>
 </template>
 
 <script>
     import Header from '../../components/Header/Header.vue';
-    import Multiselect from 'vue-multiselect';
-    import UserCard from "./UserCard";
     import api from '../../Api';
+    import UserSearch from './UserSearch';
 
     export default {
         name: "Search",
         components: {
-            UserCard,
-            Header,
-            Multiselect
+            UserSearch,
+            Header
         },
 
         data() {
