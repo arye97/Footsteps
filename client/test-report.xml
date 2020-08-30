@@ -1,12 +1,196 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
-  <file path="/Users/euan/Desktop/uni/SENG302/team-600/client/src/Test/ActivityForm.test.js">
-    <testCase name="Is a vue instance" duration="238"/>
-    <testCase name="Outcome title input exists" duration="155"/>
-    <testCase name="Outcome unit_name input exists" duration="107"/>
-    <testCase name="Outcome title word count exists" duration="119"/>
-    <testCase name="Outcome unit_name word count exists" duration="74"/>
-    <testCase name="Add outcome button exists" duration="87"/>
-    <testCase name="Outcomes table exists" duration="73"/>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/ViewActivity.test.js">
+    <testCase name="Is a vue instance" duration="99"/>
+    <testCase name="The view activity page displays the activity title" duration="211"/>
+    <testCase name="The view activity page displays the activity description" duration="231"/>
+    <testCase name="The view activity page displays the activity location" duration="219"/>
+    <testCase name="The view activity page has a view participants button" duration="200"/>
+    <testCase name="The view activity page has a view results button" duration="224"/>
+    <testCase name="The view activity page shows the activity type" duration="177"/>
+    <testCase name="The view activity page has a view participants modal" duration="200"/>
+    <testCase name="The view activity page displays 2 participants" duration="214"/>
+    <testCase name="The view activity page has add result model" duration="195"/>
+    <testCase name="The view activity page displays 1 outcome card" duration="203"/>
+    <testCase name="The view activity page displays 1 input for the result" duration="173"/>
+    <testCase name="The view activity page displays 1 submit result button" duration="192"/>
+    <testCase name="As an activity creator I cannot see the follow button" duration="5"/>
+    <testCase name="As an activity creator I cannot see the unfollow button" duration="1"/>
+    <testCase name="As an activity creator I can see the edit activity button" duration="1"/>
+    <testCase name="As an activity creator I can see the add results button" duration="2"/>
+    <testCase name="If I&apos;m following an activity I can see the unfollow button" duration="218"/>
+    <testCase name="If I&apos;m following an activity I can&apos;t see the follow button" duration="194"/>
+    <testCase name="If I&apos;m following an activity I can&apos;t see the edit activity button" duration="200"/>
+    <testCase name="If I&apos;m following an activity I can see the add results button" duration="174"/>
+    <testCase name="If I am not following the activity I can&apos;t see the unfollow button" duration="176"/>
+    <testCase name="If I am not following the activity I can see the follow button" duration="194"/>
+    <testCase name="If I am not following the activity I can&apos;t see the edit activity button" duration="188"/>
+    <testCase name="If I am not following the activity I can&apos;t see the add results button" duration="187"/>
+    <testCase name="When there are no participants When there are no participants, it displays &apos;No participants to show&apos;" duration="174"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/Search.test.js">
+    <testCase name="Is a vue instance" duration="37"/>
+    <testCase name="Activities search bos exists" duration="30"/>
+    <testCase name="Search mode selector exists" duration="20"/>
+    <testCase name="Search button exists" duration="23"/>
+    <testCase name="And search operator radio button exists" duration="18"/>
+    <testCase name="Or search operator radio button exists" duration="26"/>
+    <testCase name="Searching user based on activity types With the &apos;or&apos; method Search user with one activity type &apos;hiking&apos;" duration="61"/>
+    <testCase name="Searching user based on activity types With the &apos;or&apos; method Search user with two activity types &apos;hiking&apos; and &apos;biking&apos;" duration="50"/>
+    <testCase name="Fetch list of activity types from back-end" duration="44"/>
+    <testCase name="Pagination limits the user cards displayed to the user First page contains usersPerPage number of users (1st half of users)" duration="34"/>
+    <testCase name="Pagination limits the user cards displayed to the user Second page contains usersPerPage number of users (2nd half of users)" duration="25"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/Details.test.js">
+    <testCase name="Is a vue instance" duration="578"/>
+    <testCase name="Successful changes Mutate first name" duration="245"/>
+    <testCase name="Successful changes Names with hyphens and apostrophes" duration="369"/>
+    <testCase name="Successful changes Mutate middle name" duration="210"/>
+    <testCase name="Successful changes Empty middle name" duration="215"/>
+    <testCase name="Successful changes Mutate last name" duration="196"/>
+    <testCase name="Successful changes Mutate nickname" duration="209"/>
+    <testCase name="Successful changes Empty nickname" duration="195"/>
+    <testCase name="Successful changes Mutate bio" duration="256"/>
+    <testCase name="Successful changes Empty bio" duration="200"/>
+    <testCase name="Unsuccessful changes Empty first name" duration="200"/>
+    <testCase name="Unsuccessful changes Numbered first name" duration="274"/>
+    <testCase name="Unsuccessful changes Empty last name" duration="181"/>
+    <testCase name="Unsuccessful changes Numbered last name" duration="181"/>
+    <testCase name="Unsuccessful changes Numbered last name" duration="193"/>
+    <testCase name="Required fields Required fields are marked" duration="274"/>
+    <testCase name="Required fields Not required fields are not marked" duration="210"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/FeedCard.test.js">
+    <testCase name="Is a vue instance" duration="164"/>
+    <testCase name="The feed card Displays a description of what happened" duration="162"/>
+    <testCase name="The feed card Displays a timestamp" duration="162"/>
+    <testCase name="The feed card Does not have any buttons for a delete event" duration="170"/>
+    <testCase name="The feed card Has 1 buttons for a follow event" duration="167"/>
+    <testCase name="The extract data method Sets the time for events that occurred in the last 10s to &quot;Just now&quot;" duration="162"/>
+    <testCase name="The extract data method Sets the time for events that occurred 1 minutes ago to &quot;%s minutes ago&quot;" duration="171"/>
+    <testCase name="The extract data method Sets the time for events that occurred 10 minutes ago to &quot;%s minutes ago&quot;" duration="165"/>
+    <testCase name="The extract data method Sets the time for events that occurred 37 minutes ago to &quot;%s minutes ago&quot;" duration="165"/>
+    <testCase name="The extract data method Sets the time for events that occurred 59 minutes ago to &quot;%s minutes ago&quot;" duration="171"/>
+    <testCase name="The extract data method Sets the time for events that occurred 1 hours ago to &quot;%s hours ago&quot;" duration="174"/>
+    <testCase name="The extract data method Sets the time for events that occurred 9 hours ago to &quot;%s hours ago&quot;" duration="167"/>
+    <testCase name="The extract data method Sets the time for events that occurred 17 hours ago to &quot;%s hours ago&quot;" duration="161"/>
+    <testCase name="The extract data method Sets the time for events that occurred 23 hours ago to &quot;%s hours ago&quot;" duration="163"/>
+    <testCase name="The extract data method Sets the time for events that occurred 1 days ago to &quot;%s days ago&quot;" duration="163"/>
+    <testCase name="The extract data method Sets the time for events that occurred 31 days ago to &quot;%s days ago&quot;" duration="165"/>
+    <testCase name="The extract data method Sets the time for events that occurred 157 days ago to &quot;%s days ago&quot;" duration="170"/>
+    <testCase name="The extract data method Sets the time for events that occurred 76543 days ago to &quot;%s days ago&quot;" duration="166"/>
+    <testCase name="The extract data method Sets the first name of the person who triggered the event" duration="155"/>
+    <testCase name="The extract data method Sets the last name of the person who triggered the event" duration="163"/>
+    <testCase name="The extract data method Sets the activity title of the event concerned" duration="161"/>
+    <testCase name="The extract data method Sets the outcome title of an outcome" duration="158"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/EditPassword.test.js">
+    <testCase name="Is a vue instance" duration="164"/>
+    <testCase name="Successful changes Normal Password Change" duration="191"/>
+    <testCase name="Successful changes Extremely long password" duration="175"/>
+    <testCase name="Unsuccessful changes Blank new password" duration="171"/>
+    <testCase name="Unsuccessful changes Blank repeated password" duration="186"/>
+    <testCase name="Unsuccessful changes Short new password" duration="173"/>
+    <testCase name="Unsuccessful changes Numberless new password" duration="179"/>
+    <testCase name="Unsuccessful changes Letterless new password" duration="191"/>
+    <testCase name="Unsuccessful changes New password mismatch" duration="191"/>
+    <testCase name="Unsuccessful changes No password change" duration="187"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/EditEmail.test.js">
+    <testCase name="Is a vue instance" duration="163"/>
+    <testCase name="Displays Primary Email" duration="186"/>
+    <testCase name="Displays Secondary Emails" duration="169"/>
+    <testCase name="Make Secondary Primary" duration="173"/>
+    <testCase name="Add Secondary Email" duration="174"/>
+    <testCase name="Add More than 5 Emails" duration="199"/>
+    <testCase name="Delete Secondary Email" duration="158"/>
+    <testCase name="Delete All Secondary Emails" duration="167"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/Register.test.js">
+    <testCase name="Is a vue instance" duration="128"/>
+    <testCase name="AC4 first-name is marked as a mandatory attribute (with an asterisk)" duration="106"/>
+    <testCase name="AC4 last-name is marked as a mandatory attribute (with an asterisk)" duration="87"/>
+    <testCase name="AC4 email is marked as a mandatory attribute (with an asterisk)" duration="74"/>
+    <testCase name="AC4 password is marked as a mandatory attribute (with an asterisk)" duration="76"/>
+    <testCase name="AC4 passwordCheck is marked as a mandatory attribute (with an asterisk)" duration="78"/>
+    <testCase name="AC4 gender is marked as a mandatory attribute (with an asterisk)" duration="106"/>
+    <testCase name="AC4 date_of_birth is marked as a mandatory attribute (with an asterisk)" duration="96"/>
+    <testCase name="AC7 Gender dropdown menu contains “male”, “female”, and “non-binary”" duration="74"/>
+    <testCase name="isValidDOB checks that a date of birth is older than number of years should be false if age is *less* than 13" duration="51"/>
+    <testCase name="isValidDOB checks that a date of birth is older than number of years should be true if age is *greater* than 13" duration="82"/>
+    <testCase name="AC9 User is taken to homepage on register" duration="179"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/CreateActivity.test.js">
+    <testCase name="Is a vue instance" duration="2"/>
+    <testCase name="Catches an http status error of 400 or an invalid activity field when create activity form is submitted and gives user an appropriate alert" duration="4"/>
+    <testCase name="Catches an http status error of 401 or user not authenticated when create activity form is submitted and takes user to login page" duration="44"/>
+    <testCase name="Catches an http status error of 403 or forbidden access when create activity form is submitted and gives user an appropriate alert" duration="2"/>
+    <testCase name="Catches an http status error that isnt 401, 404, 403 and gives the user an appropriate alert" duration="8"/>
+    <testCase name="Creates the correct Outcome payload" duration="3"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/EditActivity.test.js">
+    <testCase name="Is a vue instance" duration="17"/>
+    <testCase name="Catches an http status error of 401 or user not authenticated when edit activity form is submitted and takes user to login page" duration="8"/>
+    <testCase name="Catches an http status error of 403 or forbidden access when edit activity form is submitted and gives user an appropriate alert" duration="2"/>
+    <testCase name="Checking 200 response status of edit activity function" duration="2"/>
+    <testCase name="Catches an http status error that isnt 401, 404, 403 and gives the user an appropriate alert" duration="2"/>
+    <testCase name="Catches an http status error of 401 when activity data is coming back from the server get endpoint" duration="11"/>
+    <testCase name="Catches an http status error of 403 when checking if activity can be edited by user" duration="5"/>
+    <testCase name="Catches an http status error that isnt 401 or 403 when activity data is coming back from the server get endpoint" duration="6"/>
+    <testCase name="Creates the correct Outcome payload and creates only new Outcomes" duration="2"/>
+    <testCase name="Creates no requests when no new Outcomes" duration="1"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/UserCard.test.js">
+    <testCase name="Is a vue instance" duration="28"/>
+    <testCase name="The UserCard Displays Full Name" duration="28"/>
+    <testCase name="The UserCard Displays Email and Bio" duration="32"/>
+    <testCase name="The UserCard Displays ActivityTypes that were both searched for, and match the user" duration="22"/>
+    <testCase name="The View User Modal View User Modal title contains Full Name" duration="23"/>
+    <testCase name="The View User Modal View User Modal title contains go to profile button" duration="16"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/HomeLayout.test.js">
+    <testCase name="Is a vue instance" duration="23"/>
+    <testCase name="Logo is on the page" duration="6"/>
+    <testCase name="AC1 Has 2 buttons" duration="7"/>
+    <testCase name="AC1 Has a register button" duration="5"/>
+    <testCase name="AC1 Has a login button" duration="5"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/ActivityForm.test.js">
+    <testCase name="Is a vue instance" duration="48"/>
+    <testCase name="Outcome title input exists" duration="27"/>
+    <testCase name="Outcome unit_name input exists" duration="38"/>
+    <testCase name="Outcome title word count exists" duration="52"/>
+    <testCase name="Outcome unit_name word count exists" duration="37"/>
+    <testCase name="Add outcome button exists" duration="38"/>
+    <testCase name="Outcomes table exists" duration="26"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/Header.test.js">
+    <testCase name="Is a vue instance" duration="75"/>
+    <testCase name="Logo is on the page" duration="9"/>
+    <testCase name="Toggle button for collapsible nav-bar exists" duration="12"/>
+    <testCase name="There are 5 possible collapsible links, when logged in" duration="18"/>
+    <testCase name="There are 2 possible collapsible links, when not logged in" duration="7"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/HomeFeed.test.js">
+    <testCase name="Check that feed event data is fetched and rendered properly" duration="228"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/Login.test.js">
+    <testCase name="Is a vue instance" duration="45"/>
+    <testCase name="AC9 User is taken to homepage on login" duration="52"/>
+    <testCase name="AC9 Admin is taken to dashboard on login" duration="39"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/util.test.js">
+    <testCase name="Timezone conversion functions From Back End to Front End Back end date in UTC time" duration="1"/>
+    <testCase name="Timezone conversion functions From Back End to Front End UTC date at one to midnight" duration="2"/>
+    <testCase name="Timezone conversion functions From Back End to Front End UTC date at exactly midnight" duration="0"/>
+    <testCase name="Timezone conversion functions From Back End to Front End Invalid UTC date after midnight" duration="2"/>
+    <testCase name="Timezone conversion functions From Front End to Back End Front end date 9pm" duration="1"/>
+    <testCase name="Timezone conversion functions From Front End to Back End Test invalid UTC date after midnight" duration="1"/>
+    <testCase name="Convert ISO8601 into readable date and AM/PM time Receive UTC time from back-end Test UTC date formatted with correct single digit AM time" duration="1"/>
+    <testCase name="Convert ISO8601 into readable date and AM/PM time Receive UTC time from back-end Test UTC date formatted with correct single digit PM time" duration="1"/>
+    <testCase name="Convert ISO8601 into readable date and AM/PM time Receive UTC time from back-end Test UTC date formatted with correct double digit 12:00 AM time" duration="1"/>
+    <testCase name="Convert ISO8601 into readable date and AM/PM time Receive UTC time from back-end Test UTC date formatted with correct double digit 12:00 PM time" duration="0"/>
+    <testCase name="Test current time functions currentDateBackend returns a valid date" duration="1"/>
+    <testCase name="Test current time functions currentDateFrontend returns a valid date" duration="1"/>
   </file>
 </testExecutions>

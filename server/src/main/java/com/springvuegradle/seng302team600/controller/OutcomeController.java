@@ -1,7 +1,7 @@
 package com.springvuegradle.seng302team600.controller;
 
 
-import com.springvuegradle.seng302team600.Utilities.OutcomeValidator;
+import com.springvuegradle.seng302team600.validator.OutcomeValidator;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.Outcome;
 import com.springvuegradle.seng302team600.model.User;
