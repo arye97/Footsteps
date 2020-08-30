@@ -28,6 +28,12 @@ const OUTCOME1 = {
     unit_type: "TEXT"
 };
 
+const OUTCOME2 = {
+    title: "My Awesome Outcome Part too",
+    unit_name: "Eggs",
+    unit_type: "TEXT"
+};
+
 beforeAll(() => {
     config = {
         router,
@@ -56,12 +62,13 @@ test('Is a vue instance', () => {
     expect(createActivity.isVueInstance).toBeTruthy();
 });
 
-test('Adds and deletes an Outcome to outcomeList', () => {
+test('Adds 2 Outcomes and deletes an Outcome to outcomeList', () => {
     expect(createActivity.vm.outcomeList.length).toBe(0);
     createActivity.vm.addOutcome(OUTCOME1);
-    expect(createActivity.vm.outcomeList.length).toBe(1);
+    createActivity.vm.addOutcome(OUTCOME2);
+    expect(createActivity.vm.outcomeList.length).toBe(2);
     createActivity.vm.deleteOutcome(OUTCOME1);
-    expect(createActivity.vm.outcomeList.length).toBe(0);
+    expect(createActivity.vm.outcomeList.length).toBe(1);
 });
 
 test('Catches an http status error of 400 or an invalid activity field when create activity form is submitted and gives user an appropriate alert', () => {
