@@ -365,6 +365,13 @@ describe("Run tests on new user", () => {
             }).catch(err => {throw procError(err)});
         });
 
+        test("Delete activity outcome", () => {
+            OUTCOME1.activity_id = ACTIVITY_IDS.values().next().value;  // Create attribute
+            return api.deleteOutcome(OUTCOME1.activity_id).then(response => {
+                expect(response.status).toEqual(200);
+            }).catch(err => {throw procError(err)});
+        });
+
         test("Get an activities outcomes", () => {
             return api.getActivityOutcomes(ACTIVITY_IDS.values().next().value).then(response => {
                 expect(response.status).toEqual(200);

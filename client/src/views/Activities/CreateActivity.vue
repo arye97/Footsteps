@@ -15,7 +15,13 @@
                     </div>
                 </div>
             </header>
-            <activity-form :submit-activity-func="submitCreateActivity" :activity="activity" :outcome-list="outcomeList"/>
+            <activity-form :submit-activity-func="submitCreateActivity"
+                           :activity="activity"
+                           :outcome-list="outcomeList"
+                           @add-outcome="addOutcome"
+                           @delete-outcome="deleteOutcome"/>
+            <!--             todo for task PUT endpoint-->
+            <!--             @edit-outcome="editOutcome"/>-->
         </b-container>
         <br/><br/>
     </div>
@@ -59,6 +65,29 @@
             this.activity.profileId = userId;
         },
         methods: {
+            /**
+             * Adds an outcome to outcomeList
+             * to prevent prop mutation.
+             * @param outcomeToBeAdded Outcome to be added to list
+             */
+            addOutcome(outcomeToBeAdded) {
+                this.outcomeList.push(outcomeToBeAdded);
+            },
+            /**
+             * Removes a specified outcome from outcomeList
+             * @param outcomeToBeRemoved Outcome to be removed from list
+             */
+            deleteOutcome(outcomeToBeRemoved) {
+                this.outcomeList = this.outcomeList.filter(
+                    function(outcome) {
+                        return outcome !== outcomeToBeRemoved
+                    }
+                );
+            },
+            // todo for task PUT endpoint
+            // editOutcome(outcome) {
+            //
+            // },
 
             /**
              * Makes a POST request to the back-end to create an activity
@@ -86,7 +115,6 @@
 
                 // Send the outcomes to the server.  Adds the activityId to the outcomes.
                 await this.createAllOutcomes(this.outcomeList, activityId);
-
                 this.$router.push({name: 'allActivities', params: {alertMessage: 'Activity added successfully', alertCount: 5}});
             },
 

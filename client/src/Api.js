@@ -78,6 +78,7 @@ export default {
   setUserSubscribed: (activityId, userId) => server.post( `/profiles/${userId}/subscriptions/activities/${activityId}`, null, getTokenHeader()),
   deleteUserSubscribed: (activityId, userId) => server.delete(`/profiles/${userId}/subscriptions/activities/${activityId}`, getTokenHeader()),
   createOutcome: (outcome) => server.post(`/activities/outcomes`, outcome, getTokenHeader()),
+  deleteOutcome: (outcomeId) => server.delete(`/activities/${outcomeId}/outcomes`, getTokenHeader()),
   getFeedEvents: (userId, pageNumber) => server.get(`/profiles/${userId}/subscriptions/`, getExtendedPageNumberTokenHeader(pageNumber)),
   getActivityOutcomes: (activityId) => server.get(`/activities/${activityId}/outcomes`, getTokenHeader()),
   getOutcomeResults: (outcomeId) => server.get(`/outcomes/${outcomeId}/results`, getTokenHeader()),
