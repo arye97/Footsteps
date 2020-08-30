@@ -69,6 +69,8 @@ test('Adds 2 Outcomes and deletes an Outcome to outcomeList', () => {
     expect(createActivity.vm.outcomeList.length).toBe(2);
     createActivity.vm.deleteOutcome(OUTCOME1);
     expect(createActivity.vm.outcomeList.length).toBe(1);
+    createActivity.vm.deleteOutcome(OUTCOME2);
+    expect(createActivity.vm.outcomeList.length).toBe(0);
 });
 
 test('Catches an http status error of 400 or an invalid activity field when create activity form is submitted and gives user an appropriate alert', () => {
