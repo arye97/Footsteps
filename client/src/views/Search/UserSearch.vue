@@ -64,9 +64,9 @@
 </template>
 
 <script>
-import UserCard from "@/views/Search/UserCard";
+import UserCard from "./UserCard";
 import Multiselect from "vue-multiselect";
-import api from "@/Api";
+import api from "../../Api";
 
 export default {
     name: "UserSearch.vue",
