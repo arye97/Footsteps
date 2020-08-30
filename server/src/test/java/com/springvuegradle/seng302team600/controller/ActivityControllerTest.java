@@ -5,12 +5,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.model.Activity;
-import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.model.UserRole;
-import com.springvuegradle.seng302team600.model.UserRole;
 import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
-import com.springvuegradle.seng302team600.repository.ActivityParticipantRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
@@ -57,8 +54,6 @@ class ActivityControllerTest {
     private UserAuthenticationService userAuthenticationService;
     @MockBean
     private ActivityTypeService activityTypeService;
-    @MockBean
-    private ActivityParticipantRepository activityParticipantRepository;
     @Autowired
     private MockMvc mvc;
 
@@ -97,7 +92,7 @@ class ActivityControllerTest {
 
         // Mocking ActivityTypeService
         when(activityTypeService.getMatchingEntitiesFromRepository(Mockito.any())).thenAnswer(i -> i.getArgument(0));
-        when(activityRepository.findAllByUserId(Mockito.any(Long.class))).thenAnswer(i -> new ArrayList<>(activityMockTable));
+
         // Mocking userAuthenticationService
         when(userAuthenticationService.findByUserId(Mockito.any(String.class), Mockito.any(Long.class))).thenAnswer(i -> {
             String token = i.getArgument(0);
@@ -172,12 +167,23 @@ class ActivityControllerTest {
             return null;
         });
         when(activityRepository.findAllByUserId(Mockito.any(Long.class))).thenAnswer(i -> {
+            Long userId = i.getArgument(0);
+            User user;
+            if (userId.equals(DEFAULT_USER_ID)) {
+                user = dummyUser1;
+            } else if (userId.equals(DEFAULT_USER_ID_2)) {
+                user = dummyUser2;
+            } else {
+                user = dummyUser3;
+            }
+            List<Activity> activities = new ArrayList<>();
             for (Activity activity : activityMockTable) {
-                if (activity.getCreatorUserId() == i.getArgument(0)) {
-                    return activity;
+                if (activity.getCreatorUserId().equals(userId) ||
+                        activity.getParticipants().contains(user)) {
+                    activities.add(activity);
                 }
             }
-            return null;
+            return activities;
         });
     }
 
@@ -350,7 +356,6 @@ class ActivityControllerTest {
      */
     @Test
     void getUserActivities() throws Exception {
-        //Todo: Change the assertNotNull to assertEquals(1, repoSize)
         //Save some activities to get
         Activity activity = objectMapper.readValue(newActivity1Json, Activity.class);
         activityRepository.save(activity);
@@ -362,8 +367,11 @@ class ActivityControllerTest {
         MvcResult result = mvc.perform(httpReq)
                 .andExpect(status().isOk())
                 .andReturn();
-        //int contentLength = result.getResponse().getContentLength();
-        assertNotNull(result); //should have one item in this list as saved above
+
+        String strContentLength = result.getResponse().getHeader("Total-Rows");
+        assertNotNull(strContentLength);
+        int contentLength = Integer.parseInt(strContentLength);
+        assertEquals(1, contentLength);
     }
 
 

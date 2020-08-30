@@ -3,7 +3,7 @@ package com.springvuegradle.seng302team600.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.springvuegradle.seng302team600.Utilities.UserValidator;
+import com.springvuegradle.seng302team600.validator.UserValidator;
 import com.springvuegradle.seng302team600.model.*;
 import com.springvuegradle.seng302team600.payload.LoginResponse;
 import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
