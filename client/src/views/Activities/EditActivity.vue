@@ -133,10 +133,10 @@
             async editAllOutcomes(currentOutcomes, originalOutcomes, activityId) {
                 let deletedOutcomes = [], createdOutcomes = [], editedOutcomes = [];
                 for (let i = 0; i < currentOutcomes.length; i++) {
-                    if (!originalOutcomes.includes(currentOutcomes[i])) {
-                        createdOutcomes.push(currentOutcomes[i]); // Outcome was just created
-                    } else if (currentOutcomes[i].isEdited === true && currentOutcomes[i].outcome_id !== undefined) {
+                    if (currentOutcomes[i].isEdited === true && currentOutcomes[i].outcome_id !== undefined) {
                         editedOutcomes.push(currentOutcomes[i]); // Outcome was edited
+                    } else if (!originalOutcomes.includes(currentOutcomes[i])) {
+                        createdOutcomes.push(currentOutcomes[i]); // Outcome was just created
                     }
                 }
 
