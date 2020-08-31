@@ -52,6 +52,7 @@ beforeAll(() => {
     // This Removes: TypeError: Cannot read property 'then' of undefined
     api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID, status: 200 }));
     api.getActivityData.mockImplementation(() => Promise.resolve({data: ACTIVITY1, status: 200}));
+    api.deleteOutcome.mockImplementation(() => Promise.resolve({data: null, status: 200}));
     // Mock isActivityEditable endpoint to succeed
     api.isActivityEditable.mockImplementation(() => Promise.resolve({ data: null, status: 200 }));
     api.getActivityOutcomes.mockImplementation(() => Promise.resolve({ data: ORIGINAL_OUTCOME_LIST, status: 200 }));
@@ -61,6 +62,7 @@ beforeAll(() => {
     });
     api.updateOutcome.mockImplementation(outcomeRequest => {
         editedOutcomeRequests.push(outcomeRequest);
+        Promise.resolve({data: null, status: 200});
     });
     editActivity = shallowMount(EditActivity, config);
 });
@@ -68,6 +70,7 @@ beforeAll(() => {
 beforeEach(() => {
     receivedOutcomeRequests = [];
     editedOutcomeRequests = [];
+    editActivity.vm.outcomeList = [];
 });
 
 const ACTIVITY1 = {
@@ -85,6 +88,7 @@ test('Is a vue instance', () => {
 });
 
 test('Adds and deletes an Outcome to outcomeList', () => {
+    console.log(editActivity.vm.outcomeList[0])
     expect(editActivity.vm.outcomeList.length).toBe(0);
     editActivity.vm.addOutcome(OUTCOME1);
     expect(editActivity.vm.outcomeList.length).toBe(1);
