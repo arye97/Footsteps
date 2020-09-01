@@ -96,10 +96,11 @@ test('Catches an http status error of 400 or an invalid activity field when crea
         error => expect(error).toEqual(new Error("Entered activity field(s) are invalid")));
 });
 
-test('Catches an http status error of 401 or user not authenticated when create activity form is submitted and takes user to login page', () => {
+test('Catches an http status error of 401 or user not authenticated when create activity form is submitted and takes user to login page', async () => {
     createActivity.setProps({
         ACTIVITY1
     });
+    await createActivity.vm.$router.push('/activities/create');
 
     let networkError = new Error("Mocked Network Error");
     networkError.response = {status: 401};   // Explicitly give the error a response.status
