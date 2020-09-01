@@ -1,106 +1,52 @@
 <template>
     <div>
-    <header class="masthead">
-        <br/><br/><br/>
-        <div class="container h-100">
-            <div class="row h-100 align-items-center">
-                <div class="col-12 text-center">
-                    <Header/>
-                    <br/>
+        <header class="masthead">
+            <br/><br/><br/>
+            <div class="container h-100">
+                <div class="row h-100 align-items-center">
+                    <div class="col-12 text-center">
+                        <Header/>
+                        <br/>
+                    </div>
                 </div>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <b-container class="contents">
-        <Header/>
-        <br/>
-        <div class="container h-100">
-            <b-row>
-                <b-col cols="5" class="floatLeft">
-                    <h3>Search for:</h3>
-                </b-col>
-                <b-col class="floatRight">
-                    <b-form-select id="searchModeSelect" v-model="searchOption" :options="searchOptions"></b-form-select>
-                </b-col>
-            </b-row>
+        <b-container class="contents">
             <br/>
-            <b-row>
-                <b-col cols="8">
-                    <multiselect v-model="selectedActivityTypes" id="searchBoxActivities"
-                                 :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
-                                 placeholder="Select your activity types">
-                        <template slot="noResult">Invalid activity type</template>
-                    </multiselect>
-                </b-col>
-                <b-col cols="4">
-                    <b-form-select id="searchModeSelect" v-model="searchMode" :options="searchModes"></b-form-select>
-                </b-col>
-            </b-row>
-            <b-row style="margin-bottom: 1.7em; margin-top: 0.8em">
-                <b-col cols="6" align-self="center">
-                    <b-form-radio id="andRadioButton" v-model="searchType" name="andType" value="and">Search results match all selections</b-form-radio>
-                </b-col>
-                <b-col cols="6" align-self="center">
-                    <b-form-radio id="orRadioButton" v-model="searchType" name="orType" value="or">Search results match at least one selection</b-form-radio>
-                </b-col>
-            </b-row>
-            <b-row>
-                <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
-                    Search
-                </b-button>
-                <br/>
-            </b-row>
-        </div>
-
-        <section v-if="errored" class="text-center">
-            <div class="alert alert-danger alert-dismissible fade show text-center" role="alert" id="alert">
-                {{ error_message }}
+            <div class="container h-100">
+                <b-row>
+                    <b-col cols="5" class="floatLeft">
+                        <h3>Search for:</h3>
+                    </b-col>
+                    <b-col class="floatRight">
+                        <b-form-select id="searchModeSelect" v-model="searchOption" :options="searchOptions"></b-form-select>
+                    </b-col>
+                </b-row>
+                <UserSearch/>
             </div>
-        </section>
-        <section v-else-if="loading" class="text-center">
-            <br/>
-            <b-spinner variant="primary" label="Spinning"></b-spinner>
-            <br/>
-            <br/>
-        </section>
-        <section v-else v-for="user in this.currentPageUserList" :key="user.id">
-            <!-- User List -->
-            <user-card v-bind:user="user" v-bind:activity-types-searched-for="activityTypesSearchedFor"/>
-            <br>
-        </section>
-        <!-- Pagination Nav Bar -->
-        <b-pagination
-                v-if="!errored && !loading && userList.length >= 1"
-                align="fill"
-                v-model="currentPage"
-                :total-rows="rows"
-                :per-page="usersPerPage"
-        ></b-pagination>
-    </b-container>
+        </b-container>
     </div>
 </template>
 
 <script>
     import Header from '../../components/Header/Header.vue';
-    import Multiselect from 'vue-multiselect';
-    import UserCard from "./UserCard";
     import api from '../../Api';
+    import UserSearch from './UserSearch';
 
     export default {
         name: "Search",
         components: {
-            UserCard,
-            Header,
-            Multiselect
+            UserSearch,
+            Header
         },
 
         data() {
             return {
                 usersPerPage: 5,
                 currentPage: 1,
-                currentPageUserList: [],
                 userList: [],
+
                 searchMode: 'activityType',
                 searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
                     { value: 'activityType', text: 'Activity Type'}
@@ -119,7 +65,8 @@
                 searchType: "and",
                 errored: false,
                 error_message: "Something went wrong! Please try again.",
-                loading: false
+                loading: false,
+                rows: null
             }
         },
 
@@ -135,16 +82,7 @@
              * or the pagination bar.
              */
             currentPage() {
-                this.setCurrentPageUserList();
-            }
-        },
-
-        computed: {
-            /**
-             * Finds the number of users (rows) gained from the search query.
-             */
-            rows() {
-                return this.userList.length;
+                this.getPaginatedUsersByActivityType();
             }
         },
 
@@ -154,26 +92,45 @@
             },
 
             /**
-             * Function for redirecting to user profile via userId
+             * Function for redirecting to user profile via userId.
              */
             viewProfile(userId) {
                 this.goToPage({ name: 'profile', params: {userId: userId} })
             },
 
+
             /**
-             * Calculate the users to be displayed from the current page number.
-             * This function is called when the pagination bar is altered,
-             * changing the currentPage variable.
+             * Fetches a paginated list of users, filtered by specified activity types,
+             * through an API call.
              */
-            setCurrentPageUserList() {
-                let leftIndex = (this.currentPage - 1) * this.usersPerPage;
-                let rightIndex = leftIndex + this.usersPerPage;
-                if (rightIndex > this.userList.length) {
-                    rightIndex = this.userList.length;
-                }
-                this.currentPageUserList = this.userList.slice(leftIndex, rightIndex);
-                window.scrollTo(0,0);
+            async getPaginatedUsersByActivityType() {
+                let pageNumber = this.currentPage - 1;
+                api.getUsersByActivityType(this.activityTypesSearchedFor, this.searchType, pageNumber)
+                    .then(response => {
+                        this.userList = response.data;
+                        this.rows = response.headers["total-rows"];
+                        this.loading = false;
+                    }).catch(error => {
+                    this.loading = false;
+                    this.errored = true;
+                    this.userList = [];
+                    if ((error.code === "ECONNREFUSED") || (error.code === "ECONNABORTED")) {
+                        this.error_message = "Cannot connect to server - please try again later!";
+                    } else {
+                        if (error.response.status === 401) {
+                            this.error_message = "You aren't logged in! You're being redirected!";
+                            setTimeout(() => {this.logout()}, 3000)
+                        } else if (error.response.status === 400) {
+                            this.error_message = error.response.data.message;
+                        } else if (error.response.status === 404) {
+                            this.error_message = "No users with activity types ".concat(this.selectedActivityTypes) + " have been found!"
+                        } else {
+                            this.error_message = "Something went wrong! Please try again."
+                        }
+                    }
+                });
             },
+
 
             /**
              * Searches a user based on a string of activity types and a method AND or OR
@@ -185,35 +142,7 @@
                 this.loading = true;
                 // Set is as a copy so the User card is only updated after clicking search
                 this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
-                api.getUsersByActivityType(this.activityTypesSearchedFor, this.searchType)
-                    .then(response => {
-                        if (response.status === 200) {
-                            // Show users in page
-                            this.userList = response.data;
-                            this.setCurrentPageUserList();
-                        }
-                        this.loading = false;
-                    }).catch(err => {
-                        this.loading = false;
-                        this.errored = true;
-                        this.userList = [];
-                        this.setCurrentPageUserList();
-                        if ((err.code === "ECONNREFUSED") || (err.code === "ECONNABORTED")) {
-                            this.error_message = "Cannot connect to server - please try again later!";
-                        } else {
-                            if (err.response.status === 401) {
-                                this.error_message = "You aren't logged in! You're being redirected!";
-                                setTimeout(() => {this.logout()}, 3000)
-                            } else if (err.response.status === 400) {
-                                this.error_message = err.response.data.message;
-                            } else if (err.response.status === 404) {
-                                this.error_message = "No users with activity types ".concat(this.selectedActivityTypes) + " have been found!"
-                            } else {
-                                this.error_message = "Something went wrong! Please try again."
-                            }
-                        }
-                });
-                this.currentPage = 1;
+                this.getPaginatedUsersByActivityType();
             },
             /**
              * Logout is used for when an error needs redirection

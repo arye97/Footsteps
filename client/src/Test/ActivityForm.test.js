@@ -60,5 +60,5 @@ test('Add outcome button exists', () => {
 });
 
 test('Outcomes table exists', () => {
-    expect(activityForm.find('#additionalEmailsTable').exists()).toBeTruthy();
+    expect(activityForm.find('#outcomesTable').exists()).toBeTruthy();
 });

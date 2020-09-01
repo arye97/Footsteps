@@ -1,7 +1,7 @@
 package com.springvuegradle.seng302team600.controller;
 
 
-import com.springvuegradle.seng302team600.Utilities.OutcomeValidator;
+import com.springvuegradle.seng302team600.validator.OutcomeValidator;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.Outcome;
 import com.springvuegradle.seng302team600.model.User;
@@ -9,8 +9,8 @@ import com.springvuegradle.seng302team600.payload.OutcomeRequest;
 import com.springvuegradle.seng302team600.payload.OutcomeResponse;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.OutcomeRepository;
+import com.springvuegradle.seng302team600.repository.ResultRepository;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -27,11 +27,14 @@ public class OutcomeController {
     private final UserAuthenticationService userAuthenticationService;
     private final OutcomeRepository outcomeRepository;
     private final ActivityRepository activityRepository;
+    private final ResultRepository resultRepository;
 
-    public OutcomeController(UserAuthenticationService userAuthenticationService, OutcomeRepository outcomeRepository, ActivityRepository activityRepository) {
+    public OutcomeController(UserAuthenticationService userAuthenticationService, OutcomeRepository outcomeRepository,
+                             ActivityRepository activityRepository, ResultRepository resultRepository) {
         this.userAuthenticationService = userAuthenticationService;
         this.outcomeRepository = outcomeRepository;
         this.activityRepository = activityRepository;
+        this.resultRepository = resultRepository;
     }
 
 
@@ -94,10 +97,26 @@ public class OutcomeController {
         //ToDo: Implement this method, and add a DocString please
     }
 
-
+    /**
+     * Removes the outcome identified by its outcomeId.
+     * The user requesting the outcomes removal must be the author of the activity the outcome belongs too
+     * - or is an admin.
+     * @param outcomeId the ID of the outcome that is to be deleted
+     * @param request the request that contains the current user token
+     */
     @DeleteMapping("/activities/{outcomeId}/outcomes")
     public void deleteActivityOutcomes(@PathVariable Long outcomeId, HttpServletRequest request) {
-        //ToDo: Implement this method, and add a DocString please
+        Outcome outcome = outcomeRepository.findByOutcomeId(outcomeId);
+        if (outcome == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Outcome with id " + outcomeId.toString() + "could not be found");
+        }
+        Activity activity = activityRepository.findByActivityId(outcome.getActivityId());
+        String token = request.getHeader("Token");
+        User user = userAuthenticationService.findByUserId(token, activity.getCreatorUserId());
+        if (user == null || !user.getUserId().equals(activity.getCreatorUserId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is forbidden from removing this outcome.");
+        }
+        outcomeRepository.delete(outcome);
     }
 
 }

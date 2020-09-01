@@ -9,10 +9,13 @@ import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.OutcomeRepository;
 import com.springvuegradle.seng302team600.repository.ResultRepository;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
+import io.cucumber.java.an.E;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -28,10 +31,9 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(OutcomeController.class)
@@ -124,6 +126,15 @@ public class OutcomeControllerTest {
             }
         });
 
+        when(outcomeRepository.findByOutcomeId(Mockito.anyLong())).thenAnswer(i -> {
+            Long outcomeId = i.getArgument(0);
+            for (Outcome outcome : outcomeTable) {
+                if (outcome.getOutcomeId().equals(outcomeId)) {
+                    return outcome;
+                }
+            }
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Could not find outcome.");
+        });
         // Mocking OutcomeRepository
         when(outcomeRepository.findByActivityId(Mockito.any())).thenAnswer(i -> {
             Long activityId = i.getArgument(0);
@@ -161,6 +172,9 @@ public class OutcomeControllerTest {
             }
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         });
+
+        // Mocking ResultRepository
+        when(resultRepository.existsByOutcome(Mockito.any())).thenAnswer(i -> false);
     }
 
     /**
@@ -199,7 +213,6 @@ public class OutcomeControllerTest {
     void saveOutcome() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         String outcomeJson = objectMapper.writeValueAsString(dummyOutcome3);
-        System.out.println(outcomeJson);
         MockHttpServletRequestBuilder createOutcome = MockMvcRequestBuilders
                 .post("/activities/outcomes")
                 .header("Token", validToken)
@@ -217,5 +230,25 @@ public class OutcomeControllerTest {
         //make sure the response is null as a post request is <void>
         assertNull(result.getResponse().getContentType());
         
+    }
+
+    @Test
+    void deleteOutcome() throws Exception {
+
+        ReflectionTestUtils.setField(dummyOutcome1, "outcomeId", 1L);
+        outcomeTable.add(dummyOutcome1);
+        MockHttpServletRequestBuilder createOutcome = MockMvcRequestBuilders
+                .delete("/activities/{outcomeId}/outcomes", 1L)
+                .header("Token", validToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mvc.perform(createOutcome)
+                .andExpect(status().isOk())
+                .andReturn();
+        verify(outcomeRepository, atMostOnce()).delete(any(Outcome.class));
+        outcomeTable.remove(dummyOutcome1);
+        assertNotNull(result);
+        assertEquals(0, outcomeTable.size());
     }
 }

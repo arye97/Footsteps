@@ -285,7 +285,7 @@ describe("Run tests on new user", () => {
 
     describe("Checking user activity endpoints", () => {
         function fetchActivities() {  // Helper function to prevent duplicate code
-            return api.getUserActivities(USER1_ID).then(response => {
+            return api.getUserActivities(USER1_ID, 0, "").then(response => {
                 ACTIVITY_IDS = new Set(response.data.map(activity => activity.id));
                 OUTCOME1.activity_id = ACTIVITY_IDS.values().next().value;
             }).catch(err => console.error(procError(err)));
@@ -365,6 +365,13 @@ describe("Run tests on new user", () => {
             }).catch(err => {throw procError(err)});
         });
 
+        test("Delete activity outcome", () => {
+            OUTCOME1.activity_id = ACTIVITY_IDS.values().next().value;  // Create attribute
+            return api.deleteOutcome(OUTCOME1.activity_id).then(response => {
+                expect(response.status).toEqual(200);
+            }).catch(err => {throw procError(err)});
+        });
+
         test("Get an activities outcomes", () => {
             return api.getActivityOutcomes(ACTIVITY_IDS.values().next().value).then(response => {
                 expect(response.status).toEqual(200);
@@ -380,7 +387,7 @@ describe("Run tests on new user", () => {
         });
 
         test("Get all activities from a user", () => {
-            return api.getUserActivities(USER1_ID).then(response => {
+            return api.getUserActivities(USER1_ID, 0, "").then(response => {
                 expect(response.status).toEqual(200);
                 expect(response.data.length).toBe(1);
             }).catch(err => {throw procError(err)});
@@ -412,7 +419,7 @@ describe("Run tests on new user", () => {
         let activityCreatedByUser1 = null;
 
         function fetchActivities() {  // Helper function to prevent duplicate code
-            return api.getUserActivities(USER1_ID).then(response => {
+            return api.getUserActivities(USER1_ID, 0, "").then(response => {
                 activityCreatedByUser1 = response.data[0];
             }).catch(err => console.error(procError(err)));
         }
@@ -448,7 +455,7 @@ describe("Run tests on new user", () => {
 
         test("Follow an unsubscribed activity", () => {
             return api.setUserSubscribed(activityCreatedByUser1.id, USER2_ID).then(response => {
-                expect(response.status).toEqual(200);
+                expect(response.status).toEqual(201);
             }).catch(err => {throw procError(err)});
         });
 

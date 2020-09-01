@@ -37,6 +37,7 @@ public class Application {
                 "https://localhost:9500")));
         config.setAllowedMethods(Collections.singletonList("*"));
         config.setAllowedHeaders(Collections.singletonList("*"));
+        config.setExposedHeaders(Collections.singletonList("Total-Rows"));
         source.registerCorsConfiguration("/**", config);
         FilterRegistrationBean bean = new FilterRegistrationBean<>(new CorsFilter(source));
         bean.setOrder(Ordered.HIGHEST_PRECEDENCE);

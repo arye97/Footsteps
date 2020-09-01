@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FeedEventTest {
 
@@ -19,6 +19,8 @@ public class FeedEventTest {
     @Test
     void setTimeStampNowIsNow() {
         feedEventTest.setTimeStampNow();
-        assertEquals(new Date(), feedEventTest.getTimeStamp());
+        Long time1 = feedEventTest.getTimeStamp().getTime();
+        Long time2 = new Date().getTime();
+        assertTrue(Math.abs(time1 - time2) < 1000);
     }
 }
