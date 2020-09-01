@@ -7,7 +7,7 @@ import { BootstrapVue } from 'bootstrap-vue';
 jest.mock("../Api");
 
 const localVue = createLocalVue();
-localVue.use(BootstrapVue)
+localVue.use(BootstrapVue);
 
 let createActivity;
 let config;
@@ -41,7 +41,7 @@ const OUTCOME2 = {
 const ACTIVITY_TYPES = [
     {activityTypeId: 1, name: "Hng"},
     {activityTypeId: 2, name: "Attics"}
-]
+];
 
 beforeAll(() => {
     config = {
@@ -57,13 +57,11 @@ beforeAll(() => {
     api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID, status: 200 }));
     api.createOutcome.mockImplementation(outcomeRequest => {
         receivedOutcomeRequests.push(outcomeRequest);
-        Promise.resolve({ data: DEFAULT_USER_ID, status: 200 })
+        Promise.resolve({data: DEFAULT_USER_ID, status: 200});
     });
     api.getUserId.mockImplementation(() => Promise.resolve({data: 1, status: 200}));
     api.getActivityTypes.mockImplementation(() => Promise.resolve({data: ACTIVITY_TYPES, status: 200}));
     createActivity = mount(CreateActivity, config);
-
-
 });
 
 beforeEach(() => {
