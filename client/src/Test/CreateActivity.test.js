@@ -38,6 +38,11 @@ const OUTCOME2 = {
     unit_type: "TEXT"
 };
 
+const ACTIVITY_TYPES = [
+    {activityTypeId: 1, name: "Hng"},
+    {activityTypeId: 2, name: "Attics"}
+]
+
 beforeAll(() => {
     config = {
         router,
@@ -54,6 +59,8 @@ beforeAll(() => {
         receivedOutcomeRequests.push(outcomeRequest);
         Promise.resolve({ data: DEFAULT_USER_ID, status: 200 })
     });
+    api.getUserId.mockImplementation(() => Promise.resolve({data: 1, status: 200}));
+    api.getActivityTypes.mockImplementation(() => Promise.resolve({data: ACTIVITY_TYPES, status: 200}));
     createActivity = mount(CreateActivity, config);
 
 
