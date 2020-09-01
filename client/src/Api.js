@@ -69,7 +69,7 @@ export default {
   getActivityData: (activityId) => server.get(`/activities/${activityId}`, getTokenHeader()),
   isActivityEditable: (activityId) => server.get(`/check-activity/${activityId}`, getTokenHeader()),
   getUserRoles: (userId) => server.get(`/profiles/${userId}/role`, getTokenHeader()),
-  getUsersByActivityType: (activityTypes, method, pageNumber) => {
+  getUsersByActivityType: (activityTypes, method, pageNumber) => {    // method denotes "and" or "or"
     let activityTypesStr = activityTypes.map(a => a.replace(/\s/g, '-')).join(' ');  // Use RegEx to replace ALL spaces with dashes (because str.replace is stupid)
     return server.get(`profiles?activity=${activityTypesStr}&method=${method}`, getExtendedPageNumberTokenHeader(pageNumber))
   },
@@ -82,5 +82,13 @@ export default {
   getFeedEvents: (userId, pageNumber) => server.get(`/profiles/${userId}/subscriptions/`, getExtendedPageNumberTokenHeader(pageNumber)),
   getActivityOutcomes: (activityId) => server.get(`/activities/${activityId}/outcomes`, getTokenHeader()),
   getOutcomeResults: (outcomeId) => server.get(`/outcomes/${outcomeId}/results`, getTokenHeader()),
-  createResult: (resultData, outcomeId) => server.post(`/outcomes/${outcomeId}/results`, resultData, getTokenHeader())
+  createResult: (resultData, outcomeId) => server.post(`/outcomes/${outcomeId}/results`, resultData, getTokenHeader()),
+  getActivityByActivityType: (activityTypes, method, pageNumber) => {    // method denotes "and" or "or"
+    let activityTypesStr = activityTypes.map(a => a.replace(/\s/g, '-')).join(' ');  // Use RegEx to replace ALL spaces with dashes (because str.replace is stupid)
+    console.log(activityTypesStr, method, pageNumber);
+    console.log('api call not implemented yet');
+    return null;
+    //return server.get(`activities?activity=${activityTypesStr}&method=${method}`, getExtendedPageNumberTokenHeader(pageNumber))
+    //todo: confirm the url for this request
+  },
 }

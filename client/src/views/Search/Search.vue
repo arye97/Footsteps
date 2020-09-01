@@ -138,19 +138,6 @@
                 });
             },
 
-
-            /**
-             * Searches a user based on a string of activity types and a method AND or OR
-             */
-            async search() {
-                // Converts list of activity types into string
-                // e.g. ["Hiking", "Biking"] into "Hiking Biking"
-                this.errored = false;
-                this.loading = true;
-                // Set is as a copy so the User card is only updated after clicking search
-                this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
-                this.getPaginatedUsersByActivityType();
-            },
             /**
              * Logout is used for when an error needs redirection
              * we must actually log out the user rather than just redirect them

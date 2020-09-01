@@ -78,7 +78,8 @@ export default {
             activitiesList: [],
             searchMode: 'activityType',
             searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
-                { value: 'activityType', text: 'Activity Type'}
+                { value: 'activityType', text: 'Activity Type'},
+                { value: 'name', text: 'Name'}
             ],
             // These are the ActivityTypes selected in the Multiselect
             selectedActivityTypes : [],
@@ -137,7 +138,62 @@ export default {
                     this.logout()
                 }, 3000);
             });
-        }
+        },
+
+        /**
+         * Fetches a paginated list of activities, filtered by specified activity types,
+         * through an API call.
+         */
+        async getPaginatedActivitiesByActivityType() {
+            console.log('searching for activity by type');
+            let pageNumber = this.currentPage - 1;
+            api.getActivityByActivityType(this.activityTypesSearchedFor, this.searchType, pageNumber)
+                .then(response => {
+                    this.activitiesList = response.data;
+                    this.rows = response.headers["total-rows"];
+                    this.loading = false;
+                    this.resultsFound = true;
+                }).catch(error => {
+                this.loading = false;
+                this.errored = true;
+                this.userList = [];
+                if ((error.code === "ECONNREFUSED") || (error.code === "ECONNABORTED")) {
+                    this.error_message = "Cannot connect to server - please try again later!";
+                } else {
+                    if (error.response.status === 401) {
+                        this.error_message = "You aren't logged in! You're being redirected!";
+                        setTimeout(() => {this.logout()}, 3000)
+                    } else if (error.response.status === 400) {
+                        this.error_message = error.response.data.message;
+                    } else if (error.response.status === 404) {
+                        this.error_message = "No activities with activity types ".concat(this.selectedActivityTypes) + " have been found!"
+                    } else {
+                        this.error_message = "Something went wrong! Please try again."
+                    }
+                }
+            });
+        },
+
+
+        /**
+         * Searches a activity based on a string of activity types and a method AND or OR
+         */
+        //todo: update this jdoc to reflect the addition of name searching
+        async search() {
+            // Converts list of activity types into string
+            // e.g. ["Hiking", "Biking"] into "Hiking Biking"
+            this.errored = false;
+            this.loading = true;
+            if (this.searchMode === 'activityType') {
+                // Set is as a copy so the User card is only updated after clicking search
+                this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
+                this.getPaginatedActivitiesByActivityType();
+            } else if (this.searchMode === 'name') {
+                console.log('searching for activity by name');
+                //todo: implement this
+                console.log('name searching not implemented yet');
+            }
+        },
     }
 }
 </script>
