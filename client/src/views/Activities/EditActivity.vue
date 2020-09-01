@@ -95,7 +95,7 @@
             deleteOutcome(outcomeToBeRemoved) {
                 this.outcomeList = this.outcomeList.filter(
                     function(outcome) {
-                        return outcome !== outcomeToBeRemoved
+                        return outcome !== outcomeToBeRemoved;
                     }
                 );
             },

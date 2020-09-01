@@ -27,6 +27,18 @@ const OUTCOME2 = {
     unit_type: "TEXT"
 };
 const ORIGINAL_OUTCOME_LIST = [OUTCOME1];
+const ACTIVITY_TYPES = [
+    {activityTypeId: 1, name: "Hng"},
+    {activityTypeId: 2, name: "Attics"}
+];
+const ACTIVITY_DATA = {
+    activity_name: "Activity name",
+    creatorUserId: 1,
+    continuous: true,
+    description: "My activity description",
+    location: "My activity location",
+    activity_type: ["Hng", "Attics"],
+};
 
 beforeAll(() => {
     config = {
@@ -45,8 +57,10 @@ beforeAll(() => {
     api.getActivityOutcomes.mockImplementation(() => Promise.resolve({ data: ORIGINAL_OUTCOME_LIST, status: 200 }));
     api.createOutcome.mockImplementation(outcomeRequest => {
         receivedOutcomeRequests.push(outcomeRequest);
-        Promise.resolve({ data: DEFAULT_USER_ID, status: 200 })
+        Promise.resolve({ data: DEFAULT_USER_ID, status: 200 });
     });
+    api.getActivityTypes.mockImplementation(() => Promise.resolve({data: ACTIVITY_TYPES, status: 200}));
+    api.getActivityData.mockImplementation(() => Promise.resolve({data: ACTIVITY_DATA, status: 200}));
     editActivity = mount(EditActivity, config);
 });
 
@@ -69,11 +83,12 @@ test('Is a vue instance', () => {
 });
 
 test('Adds and deletes an Outcome to outcomeList', () => {
-    expect(editActivity.vm.outcomeList.length).toBe(0);
-    editActivity.vm.addOutcome(OUTCOME1);
+    // The list starts with one outcome already added
     expect(editActivity.vm.outcomeList.length).toBe(1);
-    editActivity.vm.deleteOutcome(OUTCOME1);
-    expect(editActivity.vm.outcomeList.length).toBe(0);
+    editActivity.vm.addOutcome(OUTCOME2);
+    expect(editActivity.vm.outcomeList.length).toBe(2);
+    editActivity.vm.deleteOutcome(OUTCOME2);
+    expect(editActivity.vm.outcomeList.length).toBe(1);
 });
 
 test('Catches an http status error of 401 or user not authenticated when edit activity form is submitted and takes user to login page', () => {
