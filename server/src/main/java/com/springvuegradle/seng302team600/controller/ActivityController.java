@@ -312,10 +312,8 @@ public class ActivityController {
         userAuthenticationService.findByToken(token);
 
         List<ActivityResponse> activitiesFound = new ArrayList<>();
-        List<String> wordsToSearch = Arrays.asList(activityName.split(" "));
 
         String searchWord = "%" + activityName + "%"; //need to add these % for the SQL statement
-
         List<Activity> activities = activityRepository.findAllByKeyword(searchWord);
         for (Activity activity : activities) {
             activitiesFound.add(new ActivityResponse(activity));

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.model.UserRole;
+import com.springvuegradle.seng302team600.payload.ActivityResponse;
 import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
@@ -14,6 +15,7 @@ import com.springvuegradle.seng302team600.repository.UserRepository;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
 import com.springvuegradle.seng302team600.service.FeedEventService;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
+import io.cucumber.java.bs.A;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -30,6 +32,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -184,6 +187,21 @@ class ActivityControllerTest {
                 }
             }
             return activities;
+        });
+        when(activityRepository.findAllByKeyword(Mockito.anyString())).thenAnswer(i -> {
+            String keyword = i.getArgument(0);
+            List<Activity> foundActivities = new ArrayList<>();
+            if (keyword.equals("Climb") || keyword.equals("%Climb%") || keyword.equals("climb")) {
+                Activity dummyActivity1 = new Activity();
+                ReflectionTestUtils.setField(dummyActivity1, "activityId", 1L);
+                Activity dummyActivity2 = new Activity();
+                ReflectionTestUtils.setField(dummyActivity2, "activityId", 2L);
+                dummyActivity1.setName("Climb Mount Fuji");
+                dummyActivity2.setName("Climb the Ivory Tower");
+                foundActivities.add(dummyActivity1);
+                foundActivities.add(dummyActivity2);
+            }
+            return foundActivities;
         });
     }
 
@@ -452,5 +470,61 @@ class ActivityControllerTest {
             User participant = objectMapper.treeToValue(jsonNode.get(i), User.class);
             assertEquals(participant.toString(), expectedParticipants.get(i).toString());
         }
+    }
+
+    @Test
+    void getActivitiesByAKeyword() throws Exception {
+        List<ActivityResponse> allActivities = new ArrayList<>();
+        Activity dummyActivity1 = new Activity();
+        ReflectionTestUtils.setField(dummyActivity1, "activityId", 1L);
+        Activity dummyActivity2 = new Activity();
+        ReflectionTestUtils.setField(dummyActivity2, "activityId", 2L);
+        Activity dummyActivity3 = new Activity();
+        ReflectionTestUtils.setField(dummyActivity3, "activityId", 3L);
+        dummyActivity1.setName("Climb Mount Fuji");
+        dummyActivity2.setName("Climb the Ivory Tower");
+        dummyActivity3.setName("Michael Scott's Dunder Mifflin Scranton Meredith Palmer Memorial Celebrity Rabies Awareness Fun Run Pro Am Race for the Cure");
+        ActivityResponse actResponse1 = new ActivityResponse(dummyActivity1);
+        ActivityResponse actResponse2 = new ActivityResponse(dummyActivity2);
+        ActivityResponse actResponse3 = new ActivityResponse(dummyActivity3);
+        allActivities.add(actResponse1);
+        allActivities.add(actResponse2);
+        allActivities.add(actResponse3);
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityName=Climb"))
+                .header("Token", validToken);
+
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isOk())
+                .andReturn();
+        assertNotNull(result);
+        JsonNode responseString = objectMapper.readTree(result.getResponse().getContentAsString());
+        assertEquals(2, responseString.size());
+    }
+
+    @Test
+    void requireKeywordToFindActivityByName() throws Exception {
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityName="))
+                .header("Token", validToken);
+
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        JsonNode responseString = objectMapper.readTree(result.getResponse().getContentAsString());
+        assertEquals(0, responseString.size());
+    }
+
+    @Test
+    void cannotFindActivitiesByKeyword() throws Exception {
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityName=keyword"))
+                .header("Token", validToken);
+
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isNotFound())
+                .andReturn();
+        JsonNode responseString = objectMapper.readTree(result.getResponse().getContentAsString());
+        assertEquals(0, responseString.size());
     }
 }
