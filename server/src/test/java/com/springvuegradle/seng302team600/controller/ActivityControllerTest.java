@@ -8,9 +8,7 @@ import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.model.UserRole;
 import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
-import com.springvuegradle.seng302team600.repository.ActivityRepository;
-import com.springvuegradle.seng302team600.repository.EmailRepository;
-import com.springvuegradle.seng302team600.repository.UserRepository;
+import com.springvuegradle.seng302team600.repository.*;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
 import com.springvuegradle.seng302team600.service.FeedEventService;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
@@ -30,6 +28,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -54,6 +53,8 @@ class ActivityControllerTest {
     private UserAuthenticationService userAuthenticationService;
     @MockBean
     private ActivityTypeService activityTypeService;
+    @MockBean
+    private ActivityActivityTypeRepository activityActivityTypeRepository;
     @Autowired
     private MockMvc mvc;
 
@@ -452,5 +453,25 @@ class ActivityControllerTest {
             User participant = objectMapper.treeToValue(jsonNode.get(i), User.class);
             assertEquals(participant.toString(), expectedParticipants.get(i).toString());
         }
+    }
+
+    /**
+     * Tests the response of getting the user by activity types using AND method
+     * using the activity types set in the user
+     */
+    @Test
+    void getUserByActivityTypesAND() throws Exception {
+
+
+//        setupMocking(newUserWithActivityTypes);
+//
+//        MockHttpServletRequestBuilder httpReqAND = MockMvcRequestBuilders.get(new URI("/profiles?activity=hiking%20biking&method=and"))
+//                .header("Token", validToken)
+//                .header("Page-Number", pageNumber);
+//
+//        MvcResult requestAND = mvc.perform(httpReqAND).andExpect(status().is4xxClientError()).andReturn();
+//
+//        assertNull(requestAND.getResponse().getContentType()); //should be equal as the user will not have BOTH hiking AND biking
+
     }
 }
