@@ -57,7 +57,7 @@ beforeAll(() => {
     api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID, status: 200 }));
     api.createOutcome.mockImplementation(outcomeRequest => {
         receivedOutcomeRequests.push(outcomeRequest);
-        Promise.resolve({data: DEFAULT_USER_ID, status: 200});
+        return Promise.resolve({data: DEFAULT_USER_ID, status: 200});
     });
     api.getUserId.mockImplementation(() => Promise.resolve({data: 1, status: 200}));
     api.getActivityTypes.mockImplementation(() => Promise.resolve({data: ACTIVITY_TYPES, status: 200}));
@@ -141,8 +141,8 @@ test('Catches an http status error that isnt 401, 404, 403 and gives the user an
 /**
  * Tests whether a the payload sent to the backend has the required correct fields.
  */
-test('Creates the correct Outcome payload', () => {
-    createActivity.vm.createAllOutcomes([OUTCOME1], DEFAULT_ACTIVITY_ID);
+test('Creates the correct Outcome payload', async () => {
+    await createActivity.vm.createAllOutcomes([OUTCOME1], DEFAULT_ACTIVITY_ID);
     expect(receivedOutcomeRequests.length).toBe(1);
     let outcomeRequest = receivedOutcomeRequests[0];
 
