@@ -170,7 +170,7 @@ class UserControllerTest {
 
             Collection<Long> allActivityTypeIds = activityNameToIdMap.values();
             if (allActivityTypeIds.containsAll(activityTypeIdsToMatch)) {   // Contains all
-                Page<FeedEvent> result = new PageImpl(Arrays.asList(dummyUser1.getUserId()));
+                Page<Long> result = new PageImpl(Arrays.asList(dummyUser1.getUserId()));
                 return result;
             } else {
                 return null;
@@ -185,7 +185,7 @@ class UserControllerTest {
 
             Collection<Long> allActivityTypeIds = activityNameToIdMap.values();
             if (!Collections.disjoint(allActivityTypeIds, activityTypeIdsToMatch)) {  // Contains any
-                Page<FeedEvent> result = new PageImpl(Arrays.asList(dummyUser1.getUserId()));
+                Page<Long> result = new PageImpl(Arrays.asList(dummyUser1.getUserId()));
                 return result;
             } else {
                 return null;

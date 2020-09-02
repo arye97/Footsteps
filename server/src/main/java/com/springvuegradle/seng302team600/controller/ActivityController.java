@@ -320,7 +320,6 @@ public class ActivityController {
         List<String> types = typesWithDashes.stream()
                 .map(a -> a.replace('-', ' '))
                 .collect(Collectors.toList());
-
         List<Long> activityTypeIds = activityTypeRepository.findActivityTypeIdsByNames(types);
         int numActivityTypes = activityTypeIds.size();
 
@@ -329,8 +328,8 @@ public class ActivityController {
         if (method.toLowerCase().equals("and")) {
             paginatedActivityIds = activityActivityTypeRepository.findByAllActivityTypeIds(activityTypeIds, numActivityTypes, pageWithFiveActivities);
         // TODO for Search ActivityType By "OR" task
-//        } else if (method.toLowerCase().equals("or")) {
-////            paginatedActivityIds = activityActivityTypeRepository.findBySomeActivityTypeIds(activityTypeIds, pageWithFiveActivities); //Gets the userIds
+        //} else if (method.toLowerCase().equals("or")) {
+        //      paginatedActivityIds = activityActivityTypeRepository.findBySomeActivityTypeIds(activityTypeIds, pageWithFiveActivities); //Gets the userIds
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Method must be specified as either (AND, OR)");
         }
