@@ -1,11 +1,12 @@
 <template>
     <div>
-        <b-card border-variant="secondary" style="background-color: #f3f3f3" id="activityCard">
-            <b-row class="mb-1">
+        <b-card v-if="errored" id="erroredActivityCard" border-variant="secondary" style="background-color: #f3f3f3">
+            {{ errorMessage }}
+        </b-card>
+        <b-card v-else-if="!loading" border-variant="secondary" style="background-color: #f3f3f3" id="activityCard">
+            <b-row>
                 <b-col>
-                    <strong>{{ activity.activity_name }}
-                        <div style="text-decoration-color: red">|</div>
-                        {{ creatorName }}</strong>
+                    <strong>{{ activity.activity_name }} | {{ creatorName }}</strong>
                 </b-col>
                 <b-col>
                     <b-button id="viewActivityButton" style="float: right" variant="success"
@@ -13,17 +14,25 @@
                     </b-button>
                 </b-col>
             </b-row>
+            <hr style="border-color: inherit">
             <b-row no-gutters>
-                <b-col md="1">
+                <b-col>
                     <b-card-text :id="'activity' + activity.id + 'Card'">
-                        <strong>Location: </strong>{{ activity.location }}
+                        <strong>Location:</strong>
                         <br>
+                        {{ activity.location }}
+                        <br/>
                         <div v-if="!activity.continuous">
-                            <strong>Start Date: </strong>{{ getDateTime(activity.start_time) }}
+                            <strong>Start Date:</strong>
                             <br/>
-                            <strong>End Date: </strong>{{ getDateTime(activity.end_time) }}
-                            <br/><br/>
+                            {{ getDateTime(activity.start_time) }}
+                            <br/>
+                            <strong>End Date:</strong>
+                            <br/>
+                            {{ getDateTime(activity.end_time) }}
+                            <br/>
                         </div>
+                        <br/>
                         <div v-if="activity.description.length <= 75">
                             {{ activity.description }}
                         </div>
@@ -33,18 +42,17 @@
                     </b-card-text>
                 </b-col>
                 <b-col v-if="activity.activity_type.length >= 1">
-                    <b-list-group id="matchingActivityTypes">
+                    <b-list-group class="mx-2" id="matchingActivityTypes">
                         <section v-for="activityType in activity.activity_type" v-bind:key="activityType.name">
                             <!-- Only display queried activity types -->
                             <b-list-group-item v-if="activityTypesSearchedFor.includes(activityType.name)"
-                                               variant="success">
+                                               style="text-align: center" variant="success">
                                 {{ activityType.name }}
                             </b-list-group-item>
                         </section>
                     </b-list-group>
                 </b-col>
             </b-row>
-            <br/>
         </b-card>
     </div>
 </template>
@@ -65,10 +73,7 @@
                 continuous: Boolean,
                 start_time: Date,
                 end_time: Date,
-                location: String // Todo this will change in a future story
-            },
-            activeUserId: {
-                default: null
+                location: String
             },
             activityTypesSearchedFor: {
                 default() {
@@ -81,13 +86,14 @@
         data() {
             return {
                 errored: false,
-                errorMessage: 'An error occurred when loading this activity card, please try again',
+                errorMessage: 'An error occurred when loading this activity, please try again',
                 loading: true,
-                activityName: ''
+                creatorName: ''
             }
         },
 
         async mounted() {
+            this.loading = true;
             await this.getCreatorName();
             this.loading = false;
         },

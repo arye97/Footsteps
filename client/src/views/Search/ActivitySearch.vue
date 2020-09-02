@@ -46,7 +46,7 @@
                 <br/>
             </section>
             <section v-else v-for="activity in this.activitiesList" :key="activity.id">
-                <!-- User List -->
+                <!-- Activity List -->
                 <activity-card v-bind:activity="activity" v-bind:activity-types-searched-for="activityTypesSearchedFor"/>
                 <br>
             </section>
@@ -65,17 +65,27 @@
 <script>
 import Multiselect from "vue-multiselect";
 import api from "../../Api";
+import ActivityCard from "./ActivityCard";
 
 export default {
     name: "ActivitySearch",
     components: {
+        ActivityCard,
         Multiselect
     },
     data() {
         return {
             activitiesPerPage: 5,
             currentPage: 1,
-            activitiesList: [],
+            activitiesList: [{id: 1,
+                creatorUserId: 1,
+                activity_name: 'Snow Race',
+                description: 'A fun snow race A fun snow raceA fun snow race A fun snow race A fun snow race',
+                activity_type: [{name: 'Archery', activityTypeId: 1000},],
+                continuous: false,
+                start_time: new Date(),
+                end_time: new Date(),
+                location: 'Queenstown'}],
             searchMode: 'activityType',
             searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
                 { value: 'activityType', text: 'Activity Type'}
@@ -83,7 +93,7 @@ export default {
             // These are the ActivityTypes selected in the Multiselect
             selectedActivityTypes : [],
             // These are a copy of selectedActivityTypes passed to the UserCard (to avoid mutation after clicking search)
-            activityTypesSearchedFor : [],
+            activityTypesSearchedFor : ['Archery'],
 
             activityTypes: [],
             searchType: "and",
