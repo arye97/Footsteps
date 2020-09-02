@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testExecutions version="1">
+  <file path="C:\Users\games\Documents\2020\SENG302\SENG302 Project\team-600\client\src\Test\ActivitySearch.test.js">
+    <testCase name="Is a vue instance" duration="117"/>
+    <testCase name="Activities search box exists" duration="65"/>
+    <testCase name="Search button exists" duration="44"/>
+    <testCase name="And search operator radio button exists" duration="30"/>
+    <testCase name="Or search operator radio button exists" duration="38"/>
+  </file>
+</testExecutions>
