@@ -116,20 +116,3 @@ describe('The ActivityCard elements', () => {
         expect(names).toContain(ACTIVITY.description);
     });
 });
-
-//
-// describe("The View User Modal", () => {
-//
-//     test('View User Modal title contains Full Name', () => {
-//         let modal = userCard.find('#modal-view-profile' + DEFAULT_USER_ID);
-//         expect(modal.attributes().title).toContain(USER1.firstname);
-//         expect(modal.attributes().title).toContain(USER1.lastname);
-//     });
-//
-//
-//     test('View User Modal title contains go to profile button', () => {
-//         let modal = userCard.find('#modal-view-profile' + DEFAULT_USER_ID);
-//         expect(modal.find("#goToProfileButton").exists()).toBeTruthy();
-//     });
-//
-// });
