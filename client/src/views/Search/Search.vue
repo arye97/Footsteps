@@ -23,7 +23,12 @@
                         <b-form-select id="searchModeSelect" v-model="searchOption" :options="searchOptions"></b-form-select>
                     </b-col>
                 </b-row>
-                <UserSearch/>
+                <div v-if="searchOption === 'users'">
+                    <UserSearch/>
+                </div>
+                <div v-else-if="searchOption === 'activities'">
+                    <ActivitySearch/>
+                </div>
             </div>
         </b-container>
     </div>
@@ -33,10 +38,12 @@
     import Header from '../../components/Header/Header.vue';
     import api from '../../Api';
     import UserSearch from './UserSearch';
+    import ActivitySearch from "./ActivitySearch";
 
     export default {
         name: "Search",
         components: {
+            ActivitySearch,
             UserSearch,
             Header
         },
@@ -53,8 +60,8 @@
                 ],
                 searchOption: 'users',
                 searchOptions: [
-                    //{value: 'activities', text: 'Activities'},
-                    {value: 'users', text: 'Users'}
+                    {value: 'users', text: 'Users'},
+                    {value: 'activities', text: 'Activities'}
                 ],
                 // These are the ActivityTypes selected in the Multiselect
                 selectedActivityTypes : [],
