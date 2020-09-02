@@ -292,9 +292,8 @@ public class ActivityController {
      * eg Climb%20Mount%20Fuji
      * so the url would look like => /activities?activityName=Climb%20Mount%20Fuji
      * where we check all activities if they contain any of these words
-     * @param request
-     * @param response
-     * @param activityName
+     * @param request the http request with the user token we need
+     * @param activityName the word/sentence we need to search for
      * @return a list containing all activities found
      */
     @RequestMapping(
@@ -303,24 +302,17 @@ public class ActivityController {
             method = RequestMethod.GET
     )
     public List<ActivityResponse> getActivitiesByName(HttpServletRequest request,
-                                                      HttpServletResponse response,
                                                       @RequestParam(value="activityName") String activityName) {
+        List<ActivityResponse> activitiesFound = new ArrayList<>();
         if (activityName.length() == 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No search parameters given");
+            return activitiesFound;
         }
         String token = request.getHeader("Token");
         userAuthenticationService.findByToken(token);
-
-        List<ActivityResponse> activitiesFound = new ArrayList<>();
-
         String searchWord = "%" + activityName + "%"; //need to add these % for the SQL statement
         List<Activity> activities = activityRepository.findAllByKeyword(searchWord);
         for (Activity activity : activities) {
             activitiesFound.add(new ActivityResponse(activity));
-        }
-        if (activitiesFound.size() == 0) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Could not find any matching " +
-                    "activities for query string: " + activityName);
         }
         return activitiesFound;
     }

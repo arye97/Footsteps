@@ -373,7 +373,6 @@
                         this.updateOriginalAdditionalEmails();
                         this.checkIfChangesMade();
                     }).catch(async error => {
-                        console.log(error)
                         await this.processGetError(error);
                         this.primaryEmail = this.originalPrimaryEmail;
                         this.additionalEmails = Array.from(this.originalAdditionalEmails);
