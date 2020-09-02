@@ -77,15 +77,7 @@ export default {
         return {
             activitiesPerPage: 5,
             currentPage: 1,
-            activitiesList: [{id: 1,
-                creatorUserId: 1,
-                activity_name: 'Snow Race',
-                description: 'A fun snow race A fun snow raceA fun snow race A fun snow race A fun snow race',
-                activity_type: [{name: 'Archery', activityTypeId: 1000},],
-                continuous: false,
-                start_time: new Date(),
-                end_time: new Date(),
-                location: 'Queenstown'}],
+            activitiesList: [],
             searchMode: 'activityType',
             searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
                 { value: 'activityType', text: 'Activity Type'}
@@ -93,7 +85,7 @@ export default {
             // These are the ActivityTypes selected in the Multiselect
             selectedActivityTypes : [],
             // These are a copy of selectedActivityTypes passed to the UserCard (to avoid mutation after clicking search)
-            activityTypesSearchedFor : ['Archery'],
+            activityTypesSearchedFor : [],
 
             activityTypes: [],
             searchType: "and",

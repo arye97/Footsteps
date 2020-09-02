@@ -5,7 +5,7 @@
         </b-card>
         <b-card v-else-if="!loading" border-variant="secondary" style="background-color: #f3f3f3" id="activityCard">
             <b-row>
-                <b-col>
+                <b-col id="activityName-creatorName">
                     <strong>{{ activity.activity_name }} | {{ creatorName }}</strong>
                 </b-col>
                 <b-col>
@@ -93,7 +93,6 @@
         },
 
         async mounted() {
-            this.loading = true;
             await this.getCreatorName();
             this.loading = false;
         },
@@ -122,6 +121,7 @@
                         this.errored = true;
                     }
                 });
+                this.loading = false;
             },
             /**
              * Logout is used for when an error needs redirection
