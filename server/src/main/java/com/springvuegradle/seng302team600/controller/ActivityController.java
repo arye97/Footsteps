@@ -21,10 +21,7 @@ import com.springvuegradle.seng302team600.payload.ParticipantResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
-import java.util.HashSet;
-import java.util.ArrayList;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Controller to manage activities and activity type
@@ -287,5 +284,36 @@ public class ActivityController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is forbidden from editing activity with ID:" + activityId);
         }
         // If this point is reached status code is OK (200)
+    }
+
+    /**
+     * Takes a string from url params which we will use for matching
+     * This string must have % character in place of spaces provided from front end
+     * eg Climb%20Mount%20Fuji
+     * so the url would look like => /activities?activityName=Climb%20Mount%20Fuji
+     * where we check all activities if they contain any of these words
+     * @param request the http request with the user token we need
+     * @param activityName the word/sentence we need to search for
+     * @return a list containing all activities found
+     */
+    @RequestMapping(
+            value = "/activities",
+            params = { "activityName"},
+            method = RequestMethod.GET
+    )
+    public List<ActivityResponse> getActivitiesByName(HttpServletRequest request,
+                                                      @RequestParam(value="activityName") String activityName) {
+        List<ActivityResponse> activitiesFound = new ArrayList<>();
+        if (activityName.length() == 0) {
+            return activitiesFound;
+        }
+        String token = request.getHeader("Token");
+        userAuthenticationService.findByToken(token);
+        String searchWord = "%" + activityName + "%"; //need to add these % for the SQL statement
+        List<Activity> activities = activityRepository.findAllByKeyword(searchWord);
+        for (Activity activity : activities) {
+            activitiesFound.add(new ActivityResponse(activity));
+        }
+        return activitiesFound;
     }
 }

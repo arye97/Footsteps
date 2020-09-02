@@ -916,7 +916,6 @@ class UserControllerTest {
                 .header("Token", validToken)
                 .header("Page-Number", pageNumber);
 
-
         //---Test-AND-Response----
         MvcResult requestAND = mvc.perform(httpReqAND).andExpect(status().isOk()).andReturn();
 

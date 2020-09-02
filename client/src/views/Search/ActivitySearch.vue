@@ -4,12 +4,15 @@
             <br/>
             <div>
                 <b-row>
-                    <b-col cols="8">
+                    <b-col cols="8" v-if="searchMode==='activityType'">
                         <multiselect v-model="selectedActivityTypes" id="searchBoxActivities"
                                      :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
                                      placeholder="Select your activity types">
                             <template slot="noResult">Invalid activity type</template>
                         </multiselect>
+                    </b-col>
+                    <b-col cols="8" v-if="searchMode==='activityName'">
+                        <b-form-input id="searchBoxActivityTitle" v-model="activityTitle" placeholder="Search activity by title"></b-form-input>
                     </b-col>
                     <b-col cols="4">
                         <b-form-select id="searchModeSelect" v-model="searchMode" :options="searchModes"></b-form-select>
@@ -78,13 +81,14 @@ export default {
             activitiesList: [],
             searchMode: 'activityType',
             searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
-                { value: 'activityType', text: 'Activity Type'}
+                { value: 'activityType', text: 'Activity Type'},
+                { value: 'activityName', text: 'Activity Name'}
             ],
             // These are the ActivityTypes selected in the Multiselect
             selectedActivityTypes : [],
             // These are a copy of selectedActivityTypes passed to the UserCard (to avoid mutation after clicking search)
             activityTypesSearchedFor : [],
-
+            activityTitle: "",
             activityTypes: [],
             searchType: "and",
             errored: false,
