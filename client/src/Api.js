@@ -82,5 +82,10 @@ export default {
   getFeedEvents: (userId, pageNumber) => server.get(`/profiles/${userId}/subscriptions/`, getExtendedPageNumberTokenHeader(pageNumber)),
   getActivityOutcomes: (activityId) => server.get(`/activities/${activityId}/outcomes`, getTokenHeader()),
   getOutcomeResults: (outcomeId) => server.get(`/outcomes/${outcomeId}/results`, getTokenHeader()),
-  createResult: (resultData, outcomeId) => server.post(`/outcomes/${outcomeId}/results`, resultData, getTokenHeader())
+  createResult: (resultData, outcomeId) => server.post(`/outcomes/${outcomeId}/results`, resultData, getTokenHeader()),
+  getActivityByActivityTitle: (activityNames, method, pageNumber) => {    // method denotes "and" or "or"
+    let activityNamesStr = activityNames.map(a => a.replace(/\s/g, '-')).join(' ');  // Use RegEx to replace ALL spaces with dashes (because str.replace is stupid)
+    //api call hasnt been implemented yet on backend but will hopefully look like this
+    return server.get(`/activities?activity=${activityNamesStr}&method=${method}`, getExtendedPageNumberTokenHeader(pageNumber))
+  },
 }

@@ -86,6 +86,7 @@ export default {
             ],
             // These are the ActivityTypes selected in the Multiselect
             selectedActivityTypes : [],
+            selectedActivityNames : [],
             // These are a copy of selectedActivityTypes passed to the UserCard (to avoid mutation after clicking search)
             activityTypesSearchedFor : [],
             activityTitle: "",
@@ -141,6 +142,40 @@ export default {
                     this.logout()
                 }, 3000);
             });
+        },
+
+        /**
+         * Fetches a paginated list of activities, filtered by specified activity name,
+         * through an API call.
+         */
+        async getPaginatedActivitiesByActivityTitle() {
+            console.log('searching for activity by name');
+            let pageNumber = this.currentPage - 1;
+            api.getActivityByActivityTitle(this.activityTitle, this.searchType, pageNumber)
+                .then(response => {
+                    this.activitiesList = response.data;
+                    this.rows = response.headers["total-rows"];
+                    this.loading = false;
+                    this.resultsFound = true;
+                }).catch(error => {
+                    this.loading = false;
+                    this.errored = true;
+                    this.userList = [];
+                    if ((error.code === "ECONNREFUSED") || (error.code === "ECONNABORTED")) {
+                        this.error_message = "Cannot connect to server - please try again later!";
+                    } else {
+                        if (error.response.status === 401) {
+                            this.error_message = "You aren't logged in! You're being redirected!";
+                            setTimeout(() => {this.logout()}, 3000)
+                        } else if (error.response.status === 400) {
+                            this.error_message = error.response.data.message;
+                        } else if (error.response.status === 404) {
+                            this.error_message = "No activities with activity names ".concat(this.selectedActivityNames) + " have been found!"
+                        } else {
+                            this.error_message = "Something went wrong! Please try again."
+                        }
+                    }
+                });
         }
     }
 }

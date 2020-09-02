@@ -118,6 +118,61 @@ beforeEach(() => {
     );
 });
 
+
+describe("Searching activity based on activity title", () => {
+
+    describe("With the 'or' method", () => {
+
+        test("Search user with activity title 'PLACEHOLDER'", () => {
+
+            api.getActivityByActivityTitle.mockImplementation(() =>
+                Promise.resolve({
+                    data: SEARCH_RESPONSE1.slice((activitySearch.vm.$data.currentPage  - 1) * pageSize, activitySearch.vm.$data.currentPage  * pageSize),
+                    status: 200,
+                    headers: {
+                        "total-rows": SEARCH_RESPONSE1.length
+                    }
+                })
+            );
+
+
+
+            activitySearch.setData({
+                selectedActivityNames: [ "PLACEHOLDER" ],
+                searchType: "or"
+            });
+
+            return activitySearch.vm.search().then(() => {
+                expect(activitySearch.vm.api.getActivityByActivityTitle).toHaveBeenCalledWith(["PLACEHOLDER"], "or", activitySearch.vm.$data.currentPage - 1);
+            });
+        });
+
+
+        test("Search activity with two activity titles 'PLACEHOLDER' and 'PLACEHOLDER'", () => {
+
+            api.getActivityByActivityTitle.mockImplementation(() =>
+                Promise.resolve({
+                    data: SEARCH_RESPONSE1.slice((activitySearch.vm.$data.currentPage  - 1) * pageSize, activitySearch.vm.$data.currentPage  * pageSize),
+                    status: 200,
+                    headers: {
+                        "total-rows": SEARCH_RESPONSE1.length
+                    }
+                })
+            );
+
+            activitySearch.setData({
+                selectedActivityTypes: [ "PLACEHOLDER", "PLACEHOLDER" ],
+                searchType: "and"
+            });
+            return activitySearch.vm.search().then(() => {
+                expect(activitySearch.vm.api.getActivityByActivityTitle).toHaveBeenCalledWith(["PLACEHOLDER", "PLACEHOLDER"], "and", activitySearch.vm.$data.currentPage - 1);
+            });
+        });
+
+    });
+});
+
+
 test('Is a vue instance', () => {
     expect(activitySearch.isVueInstance).toBeTruthy();
 });
