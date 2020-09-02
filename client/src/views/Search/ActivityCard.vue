@@ -3,7 +3,7 @@
         <b-card v-if="errored" id="erroredActivityCard" border-variant="secondary" style="background-color: #f3f3f3">
             {{ errorMessage }}
         </b-card>
-        <b-card v-else-if="!loading" border-variant="secondary" style="background-color: #f3f3f3" id="activityCard">
+        <b-card v-else border-variant="secondary" style="background-color: #f3f3f3" id="activityCard">
             <b-row>
                 <b-col id="activityName-creatorName">
                     <strong>{{ activity.activity_name }} | {{ creatorName }}</strong>
@@ -87,14 +87,12 @@
             return {
                 errored: false,
                 errorMessage: 'An error occurred when loading this activity, please try again',
-                loading: true,
                 creatorName: ''
             }
         },
 
         async mounted() {
             await this.getCreatorName();
-            this.loading = false;
         },
 
         methods: {
@@ -121,7 +119,6 @@
                         this.errored = true;
                     }
                 });
-                this.loading = false;
             },
             /**
              * Logout is used for when an error needs redirection
