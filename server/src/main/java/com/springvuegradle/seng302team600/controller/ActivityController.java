@@ -307,10 +307,36 @@ public class ActivityController {
         if (activityName.length() == 0) {
             return activitiesFound;
         }
+        //check for a plus or minus
+        String newQuery = "";
+        List<String> name = Arrays.asList(activityName.split(" "));
+        if (activityName.contains("-")) {
+            int i = 0;
+            while (!name.get(i).equals("-")) {
+                newQuery = String.format("%s%s", newQuery, name.get(i));
+                i++;
+                newQuery += " ";
+            }
+            newQuery = newQuery.trim();
+        } else if (activityName.contains("\\+")) {
+            for (String term : name) {
+                if (!term.equals("\\+")) {
+                    newQuery = String.format("%s%s", newQuery, term);
+                    newQuery += " ";
+                }
+            }
+        }
+        activityName = newQuery;
         String token = request.getHeader("Token");
         userAuthenticationService.findByToken(token);
-        String searchWord = "%" + activityName + "%"; //need to add these % for the SQL statement
-        List<Activity> activities = activityRepository.findAllByKeyword(searchWord);
+        if (activityName.startsWith("\"") && activityName.endsWith("\"")){
+            //then the user has chosen exact match!
+            activityName = activityName.substring(1, activityName.length() - 1);
+        } else {
+            activityName = "%" + activityName + "%";
+        }
+
+        List<Activity> activities = activityRepository.findAllByKeyword(activityName);
         for (Activity activity : activities) {
             activitiesFound.add(new ActivityResponse(activity));
         }
