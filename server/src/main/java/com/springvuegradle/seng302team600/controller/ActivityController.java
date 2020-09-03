@@ -309,8 +309,13 @@ public class ActivityController {
         }
         String token = request.getHeader("Token");
         userAuthenticationService.findByToken(token);
-        String searchWord = "%" + activityName + "%"; //need to add these % for the SQL statement
-        List<Activity> activities = activityRepository.findAllByKeyword(searchWord);
+        if (activityName.startsWith("\"") && activityName.endsWith("\"")){
+            //then the user has chosen exact match!
+            activityName = activityName.substring(1, activityName.length() - 1);
+        } else {
+            activityName = "%" + activityName + "%";
+        }
+        List<Activity> activities = activityRepository.findAllByKeyword(activityName);
         for (Activity activity : activities) {
             activitiesFound.add(new ActivityResponse(activity));
         }
