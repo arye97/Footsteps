@@ -291,6 +291,7 @@ public class ActivityController {
      * This string must have % character in place of spaces provided from front end
      * eg Climb%20Mount%20Fuji
      * so the url would look like => /activities?activityName=Climb%20Mount%20Fuji
+     * or if we want to exact match it would be /activities?activityName="Climb%20Mount%20Fuji"
      * where we check all activities if they contain any of these words
      * @param request the http request with the user token we need
      * @param activityName the word/sentence we need to search for
@@ -309,8 +310,22 @@ public class ActivityController {
         }
         String token = request.getHeader("Token");
         userAuthenticationService.findByToken(token);
-        String searchWord = "%" + activityName + "%"; //need to add these % for the SQL statement
-        List<Activity> activities = activityRepository.findAllByKeyword(searchWord);
+        //check for multiple words in the search query
+        if (activityName.startsWith("\"") && activityName.endsWith("\"")){
+            //then the user has chosen exact match!
+            activityName = activityName.substring(1, activityName.length() - 1);
+            if (activityName.contains("%20")) {
+                List<String> searchTerms =  Arrays.asList(activityName.split("%20")); //underscore is our space char
+                activityName = "";
+                for (String term : searchTerms) {
+                    activityName = activityName + term + " ";
+                }
+                activityName = activityName.trim();
+            }
+        } else {
+            activityName = "%" + activityName + "%";
+        }
+        List<Activity> activities = activityRepository.findAllByKeyword(activityName);
         for (Activity activity : activities) {
             activitiesFound.add(new ActivityResponse(activity));
         }
