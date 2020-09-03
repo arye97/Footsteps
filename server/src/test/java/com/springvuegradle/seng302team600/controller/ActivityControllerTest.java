@@ -464,7 +464,7 @@ class ActivityControllerTest {
         when(activityRepository.findAllByKeyword(Mockito.anyString())).thenAnswer(i -> {
             String keyword = i.getArgument(0);
             List<Activity> foundActivities = new ArrayList<>();
-            if (keyword.equals("%Climb%")) {
+            if (keyword.equals("Climb%")) {
                 Activity dumActivity1 = new Activity();
                 ReflectionTestUtils.setField(dumActivity1, "activityId", 1L);
                 Activity dumActivity2 = new Activity();
