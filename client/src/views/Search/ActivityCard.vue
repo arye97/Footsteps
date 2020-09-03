@@ -16,7 +16,7 @@
             </b-row>
             <hr style="border-color: inherit">
             <b-row no-gutters>
-                <b-col>
+                <b-col cols="6">
                     <b-card-text :id="'activity' + activity.id + 'Card'">
                         <strong>Location:</strong>
                         <br>
