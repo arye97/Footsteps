@@ -492,7 +492,6 @@ class ActivityControllerTest {
     void getActivitiesByExactSearch() throws Exception {
         when(activityRepository.findAllByKeyword(Mockito.anyString())).thenAnswer(i -> {
             String keyword = i.getArgument(0);
-            System.out.println(keyword);
             List<Activity> foundActivities = new ArrayList<>();
             Activity dumActivity1 = new Activity();
             ReflectionTestUtils.setField(dumActivity1, "activityId", 1L);
