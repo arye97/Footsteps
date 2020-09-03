@@ -323,7 +323,13 @@ public class ActivityController {
                 activityName = activityName.trim();
             }
         } else {
-            activityName = "%" + activityName + "%";
+            String newQuery = "";
+            List<String> searchTerms =  Arrays.asList(activityName.split(" "));
+            for (String term : searchTerms) {
+                newQuery = newQuery + term + "%";
+            }
+            System.out.println(newQuery);
+            activityName = newQuery;
         }
         List<Activity> activities = activityRepository.findAllByKeyword(activityName);
         for (Activity activity : activities) {
