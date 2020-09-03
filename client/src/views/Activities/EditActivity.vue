@@ -196,8 +196,8 @@
                     for (let i = 0; i < response.data.activity_type.length; i++) {
                         this.activity.selectedActivityTypes.push(response.data.activity_type[i].name);
                     }
-                }).catch(() => {
-                    this.$router.push({name: 'allActivities', params: {alertMessage: "Can't get Activity data", alertCount: 5}});
+                }).catch((err) => {
+                    this.throwError(err, true);
                 });
                 await api.getActivityOutcomes(activityId).then(response => {
                     this.originalOutcomeList = [...response.data];
@@ -275,10 +275,22 @@
                             this.$router.push("/login");
                             break;
                         case 403:
-                            this.$router.push({name: 'allActivities'});
+                            this.$router.push({
+                                name: 'allActivities',
+                                params: {
+                                    alertCount: 5,
+                                    alertMessage: "Activity is not editable"
+                                }
+                            });
                             break;
                         default:
-                            this.$router.push({name: 'myProfile'});
+                            this.$router.push({
+                                name: 'allActivities',
+                                params: {
+                                    alertCount: 5,
+                                    alertMessage: "Can't get Activity data"
+                                }
+                            });
                     }
                 }
             }
