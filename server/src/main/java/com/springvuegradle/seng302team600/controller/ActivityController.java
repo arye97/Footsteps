@@ -328,7 +328,6 @@ public class ActivityController {
             for (String term : searchTerms) {
                 newQuery = newQuery + term + "%";
             }
-            System.out.println(newQuery);
             activityName = newQuery;
         }
         List<Activity> activities = activityRepository.findAllByKeyword(activityName);
