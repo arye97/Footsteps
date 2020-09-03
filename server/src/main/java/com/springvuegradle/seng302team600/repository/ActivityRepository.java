@@ -39,7 +39,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
     List<Activity> findAllDurationByUserId(@Param("userId") Long userId);
 
     @Query(value =
-            "SELECT DISTINCT * FROM activity WHERE activity_name LIKE ?1", nativeQuery = true)
+            "SELECT * FROM activity WHERE activity_name LIKE ?1", nativeQuery = true)
     List<Activity> findAllByKeyword(@Param("keyword") String keyword);
 
     @Query(value = "" +
