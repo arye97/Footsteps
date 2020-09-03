@@ -71,6 +71,12 @@
             }
         },
 
+        watch: {
+            $route: function () {
+                this.$bvModal.hide('modal-view-profile' + this.user.id)
+            }
+        },
+
         async mounted() {
 
         },
