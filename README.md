@@ -148,3 +148,4 @@ Frontend:
 - Vue-multiselect
 - Vue-jest (and babel-core by association)
 - @vue/test-utils
+- gmap-vue

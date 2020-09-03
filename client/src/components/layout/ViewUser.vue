@@ -45,6 +45,10 @@
                                 </b-list-group>
                                 <br/>
 
+                                <div class="map-box">
+                                    <map-viewer></map-viewer>
+                                </div>
+
                                 <!--Handling for displaying of Fitness Level-->
                                 <h3 class="font-weight-light"><strong>Fitness Level: </strong></h3>
 
@@ -140,12 +144,14 @@
     import {fitnessLevels} from '../../constants'
     import Header from '../../components/Header/Header';
     import ActivityList from "../Activities/ActivityList";
+    import MapViewer from "../../components/Map/MapViewer";
 
     export default {
         name: "ViewUser",
         components: {
             ActivityList,
-            Header
+            Header,
+            MapViewer
         },
         props: {
             modalView: {

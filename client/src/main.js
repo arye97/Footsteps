@@ -5,6 +5,7 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import VueLogger from 'vuejs-logger';
 import router from './index'
+import * as GmapVue from 'gmap-vue';
 
 Vue.config.productionTip = false;
 
@@ -14,6 +15,13 @@ Vue.use(BootstrapVue);
 Vue.use(BootstrapVueIcons);
 // Optionally install the BootstrapVue icon components plugin
 Vue.use(IconsPlugin);
+
+Vue.use(GmapVue, {
+  load: {
+    key: 'INSERT_API_KEY_HERE',
+  },
+  installComponents: true
+});
 
 /* eslint-disable no-new */
 new Vue({

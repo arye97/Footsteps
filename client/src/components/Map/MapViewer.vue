@@ -1,12 +1,35 @@
 <template>
     <div id="mapDiv">
-<!--        map goes here-->
+        <GmapMap
+                ref="mapRef"
+                :center="{lat:10, lng:10}"
+                :zoom="7"
+                map-type-id="terrain"
+                style="width: 500px; height: 300px"
+        >
+            <!--<GmapMarker-->
+                    <!--ref="myMarker"-->
+                    <!--:key="index"-->
+                    <!--v-for="(m, index) in markers"-->
+                    <!--:position="m.position"-->
+                    <!--:clickable="true"-->
+                    <!--:draggable="true"-->
+                    <!--@click="center=m.position"-->
+            <!--/>-->
+            <GmapMarker ref="myMarker" :position="google && new google.maps.LatLng(1.38, 103.8)" />
+        </GmapMap>
     </div>
 </template>
 
 <script>
+    import { gmapApi } from 'gmap-vue';
+
     export default {
-        name: "MapViewer.vue",
+        name: "MapViewer",
+
+        computed: {
+            google: gmapApi
+        },
 
         data() {
             return {
