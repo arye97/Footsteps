@@ -142,20 +142,4 @@ public class UserAuthenticationService {
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with ID: " + id);
     }
-
-    /**
-     * Will need to be changed later when the database is fully implemented
-     * Checks that the session gives the request access to modify the user with a given id
-     * This will allow for checking both admins and users
-     * @param userId the id of the user linked to the session
-     * @param profileId the id of the user to access the profile of
-     * @return true if the session has permission to modify the user; false otherwise
-     */
-    private boolean validUser(long userId, long profileId) {
-        if (userId == profileId) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 }

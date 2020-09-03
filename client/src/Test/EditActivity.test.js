@@ -26,7 +26,12 @@ const ORIGINAL_OUTCOME_LIST = [OUTCOME1];
 
 beforeAll(() => {
     config = {
-        router
+        router,
+        data: function() {
+            return {
+                outcomeList: []
+            }
+        }
     };
     // This Removes: TypeError: Cannot read property 'then' of undefined
     api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID, status: 200 }));
@@ -56,6 +61,14 @@ const ACTIVITY1 = {
 
 test('Is a vue instance', () => {
     expect(editActivity.isVueInstance).toBeTruthy();
+});
+
+test('Adds and deletes an Outcome to outcomeList', () => {
+    expect(editActivity.vm.outcomeList.length).toBe(0);
+    editActivity.vm.addOutcome(OUTCOME1);
+    expect(editActivity.vm.outcomeList.length).toBe(1);
+    editActivity.vm.deleteOutcome(OUTCOME1);
+    expect(editActivity.vm.outcomeList.length).toBe(0);
 });
 
 test('Catches an http status error of 401 or user not authenticated when edit activity form is submitted and takes user to login page', () => {
@@ -188,4 +201,3 @@ test('Creates no requests when no new Outcomes', () => {
     editActivity.vm.editAllOutcomes([OUTCOME1, OUTCOME2], [OUTCOME1, OUTCOME2], DEFAULT_ACTIVITY_ID);
     expect(receivedOutcomeRequests.length).toBe(0);  // Should only make a request for the new Outcome
 });
-

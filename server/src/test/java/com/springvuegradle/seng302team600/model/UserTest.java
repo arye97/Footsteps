@@ -1,6 +1,6 @@
 package com.springvuegradle.seng302team600.model;
 
-import com.springvuegradle.seng302team600.Utilities.UserValidator;
+import com.springvuegradle.seng302team600.validator.UserValidator;
 import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

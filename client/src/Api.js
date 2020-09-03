@@ -20,6 +20,15 @@ function getTokenHeader() {
   return header;
 }
 
+function getExtendedSearchFilterPageNumberTokenHeader(pageNumber, searchFilter) {
+  let header = {
+    headers: {"Token": sessionStorage.getItem("token"), "Page-Number":  pageNumber, "Search-Filter": searchFilter,
+      "Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
+    withCredentials: true
+  };
+  return header;
+}
+
 function getExtendedPageNumberTokenHeader(pageNumber) {
   let header = {
     headers: {"Token": sessionStorage.getItem("token"), 'Page-Number' :  pageNumber, "Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
@@ -52,7 +61,7 @@ export default {
   updatePassword: (userId, oldPass, newPass, repeatPass) => server.put(`/profiles/${userId}/password`,
     {'old_password': oldPass, 'new_password': newPass, 'repeat_password': repeatPass}, getTokenHeader()),
   getAllUserData: () => server.get('/profiles', getTokenHeader()),
-  getUserActivities: (profileId) => server.get(`/profiles/${profileId}/activities`, getTokenHeader()),
+  getUserActivities: (profileId, pageNumber, searchFilter) => server.get(`/profiles/${profileId}/activities`, getExtendedSearchFilterPageNumberTokenHeader(pageNumber, searchFilter)),
   getUserId: () => server.get(`/profiles/userId`, getTokenHeader()),
   deleteActivity: (profileId, activityId) => server.delete(`/profiles/${profileId}/activities/${activityId}`, getTokenHeader()),
   createActivity: (activityData, profileId) => server.post(`/profiles/${profileId}/activities`, activityData, getTokenHeader()),
@@ -69,6 +78,7 @@ export default {
   setUserSubscribed: (activityId, userId) => server.post( `/profiles/${userId}/subscriptions/activities/${activityId}`, null, getTokenHeader()),
   deleteUserSubscribed: (activityId, userId) => server.delete(`/profiles/${userId}/subscriptions/activities/${activityId}`, getTokenHeader()),
   createOutcome: (outcome) => server.post(`/activities/outcomes`, outcome, getTokenHeader()),
+  deleteOutcome: (outcomeId) => server.delete(`/activities/${outcomeId}/outcomes`, getTokenHeader()),
   getFeedEvents: (userId, pageNumber) => server.get(`/profiles/${userId}/subscriptions/`, getExtendedPageNumberTokenHeader(pageNumber)),
   getActivityOutcomes: (activityId) => server.get(`/activities/${activityId}/outcomes`, getTokenHeader()),
   getOutcomeResults: (outcomeId) => server.get(`/outcomes/${outcomeId}/results`, getTokenHeader()),

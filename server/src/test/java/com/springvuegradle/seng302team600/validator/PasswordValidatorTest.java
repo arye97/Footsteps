@@ -1,4 +1,4 @@
-package com.springvuegradle.seng302team600.Utilities;
+package com.springvuegradle.seng302team600.validator;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.web.server.ResponseStatusException;

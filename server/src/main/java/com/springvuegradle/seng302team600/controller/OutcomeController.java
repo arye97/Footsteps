@@ -1,7 +1,7 @@
 package com.springvuegradle.seng302team600.controller;
 
 
-import com.springvuegradle.seng302team600.Utilities.OutcomeValidator;
+import com.springvuegradle.seng302team600.validator.OutcomeValidator;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.Outcome;
 import com.springvuegradle.seng302team600.model.User;
@@ -139,10 +139,26 @@ public class OutcomeController {
         response.setStatus(HttpServletResponse.SC_OK); //200
     }
 
-
+    /**
+     * Removes the outcome identified by its outcomeId.
+     * The user requesting the outcomes removal must be the author of the activity the outcome belongs too
+     * - or is an admin.
+     * @param outcomeId the ID of the outcome that is to be deleted
+     * @param request the request that contains the current user token
+     */
     @DeleteMapping("/activities/{outcomeId}/outcomes")
     public void deleteActivityOutcomes(@PathVariable Long outcomeId, HttpServletRequest request) {
-        //ToDo: Implement this method, and add a DocString please
+        Outcome outcome = outcomeRepository.findByOutcomeId(outcomeId);
+        if (outcome == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Outcome with id " + outcomeId.toString() + "could not be found");
+        }
+        Activity activity = activityRepository.findByActivityId(outcome.getActivityId());
+        String token = request.getHeader("Token");
+        User user = userAuthenticationService.findByUserId(token, activity.getCreatorUserId());
+        if (user == null || !user.getUserId().equals(activity.getCreatorUserId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is forbidden from removing this outcome.");
+        }
+        outcomeRepository.delete(outcome);
     }
 
 }
