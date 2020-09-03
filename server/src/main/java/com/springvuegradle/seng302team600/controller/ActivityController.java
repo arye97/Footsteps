@@ -308,6 +308,7 @@ public class ActivityController {
             return activitiesFound;
         }
         int pageNumber = request.getIntHeader("Page-Number");
+        if (pageNumber == -1) pageNumber = 0;
         String token = request.getHeader("Token");
         userAuthenticationService.findByToken(token);
         String searchWord = "%" + activityName + "%"; //need to add these % for the SQL statement
