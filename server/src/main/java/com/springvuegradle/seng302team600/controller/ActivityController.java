@@ -1,6 +1,5 @@
 package com.springvuegradle.seng302team600.controller;
 
-import com.springvuegradle.seng302team600.model.FeedEvent;
 import com.springvuegradle.seng302team600.validator.ActivityValidator;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.User;
@@ -20,7 +19,6 @@ import com.springvuegradle.seng302team600.payload.ParticipantResponse;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -292,28 +290,37 @@ public class ActivityController {
      * eg Climb%20Mount%20Fuji
      * so the url would look like => /activities?activityName=Climb%20Mount%20Fuji
      * where we check all activities if they contain any of these words
-     * @param request the http request with the user token we need
+     *
+     * @param request      the http request with the user token we need
+     * @param response     the http response
      * @param activityName the word/sentence we need to search for
      * @return a list containing all activities found
      */
     @RequestMapping(
             value = "/activities",
-            params = { "activityName"},
+            params = {"activityName"},
             method = RequestMethod.GET
     )
-    public List<ActivityResponse> getActivitiesByName(HttpServletRequest request,
-                                                      @RequestParam(value="activityName") String activityName) {
+    public List<ActivityResponse> getActivitiesByName(HttpServletRequest request, HttpServletResponse response,
+                                                      @RequestParam(value = "activityName") String activityName) {
         List<ActivityResponse> activitiesFound = new ArrayList<>();
         if (activityName.length() == 0) {
             return activitiesFound;
         }
+        int pageNumber = request.getIntHeader("Page-Number");
         String token = request.getHeader("Token");
         userAuthenticationService.findByToken(token);
         String searchWord = "%" + activityName + "%"; //need to add these % for the SQL statement
-        List<Activity> activities = activityRepository.findAllByKeyword(searchWord);
-        for (Activity activity : activities) {
-            activitiesFound.add(new ActivityResponse(activity));
+        Page<Activity> paginatedActivities;
+        Pageable pageWithFiveActivities = PageRequest.of(pageNumber, PAGE_SIZE);
+        paginatedActivities = activityRepository.findAllByKeyword(searchWord, pageWithFiveActivities);
+        if (paginatedActivities == null || paginatedActivities.getTotalPages() == 0) {
+            return activitiesFound;
         }
+        List<Activity> activities = paginatedActivities.getContent();
+        activities.forEach(i -> activitiesFound.add(new ActivityResponse(i)));
+        int totalElements = (int) paginatedActivities.getTotalElements();
+        response.setIntHeader("Total-Rows", totalElements);
         return activitiesFound;
     }
 }

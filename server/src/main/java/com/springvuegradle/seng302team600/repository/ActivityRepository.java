@@ -1,6 +1,8 @@
 package com.springvuegradle.seng302team600.repository;
 
 import com.springvuegradle.seng302team600.model.Activity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -39,6 +41,6 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
     List<Activity> findAllDurationByUserId(@Param("userId") Long userId);
 
     @Query(value =
-            "SELECT DISTINCT * FROM activity WHERE activity_name LIKE ?1", nativeQuery = true)
-    List<Activity> findAllByKeyword(@Param("keyword") String keyword);
+            "SELECT * FROM activity WHERE activity_name LIKE ?1", nativeQuery = true)
+    Page<Activity> findAllByKeyword(@Param("keyword") String keyword, Pageable pageable);
 }
