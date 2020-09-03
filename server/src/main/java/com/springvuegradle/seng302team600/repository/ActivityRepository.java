@@ -37,4 +37,8 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
             "WHERE is_continuous = false AND (creator_user_id = :userId OR user_id = :userId) " +
             "ORDER BY A.activity_id ASC", nativeQuery = true)
     List<Activity> findAllDurationByUserId(@Param("userId") Long userId);
+
+    @Query(value =
+            "SELECT DISTINCT * FROM activity WHERE activity_name LIKE ?1", nativeQuery = true)
+    List<Activity> findAllByKeyword(@Param("keyword") String keyword);
 }

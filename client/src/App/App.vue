@@ -1,6 +1,8 @@
 <template>
     <div class="col-sm-6 offset-sm-3">
-        <router-view></router-view>
+        <keep-alive include="Search" max="3">
+            <router-view :key="$route.fullPath"></router-view>
+        </keep-alive>
     </div>
 </template>
 
@@ -8,8 +10,7 @@
     
   import 'bootstrap-vue/dist/bootstrap-vue.css'
     export default {
-        name:
-            "app"
+        name: "app"
     }
 
 </script>

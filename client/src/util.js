@@ -1,5 +1,6 @@
 import {nameRegex} from "./constants";
 import api from "./Api";
+import router from './index'
 
 export function validateUser(fieldData, fieldType) {
     const emailRegex = new RegExp(/^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/);
@@ -223,3 +224,24 @@ export const UnitType = {
     TIME: "TIME",
     BOOLEAN: "BOOLEAN"
 };
+
+/**
+ * Clear Cached Pages.  If no array is provided, then removes all page caches.  Can be used to removed pages cached
+ * with <keep-alive>.
+ * @param pageNames Array of page names.
+ */
+export function clearPageCaches(pageNames) {
+    pageNames = Symbol.iterator in Object(pageNames) ? [...pageNames] : undefined;
+    setTimeout(() => {
+        let pageName;
+        let d = [];
+        for(let vm of router.app.$children[0].$children) {
+            pageName = vm.$options.name;
+            if((pageNames === undefined || pageNames.includes(pageName)) && vm._inactive === true)
+                d.push(vm);
+        }
+        for(let vm of d) {
+            vm.$destroy();
+        }
+    });
+}
