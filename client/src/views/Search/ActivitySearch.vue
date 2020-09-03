@@ -50,7 +50,7 @@
             </section>
             <section v-else v-for="activity in this.activitiesList" :key="activity.id">
                 <!-- User List -->
-                <activity-card v-bind:activity="activity" v-bind:activity-types-searched-for="activityTypesSearchedFor"/>
+                <activity-card v-bind:activity="activity" v-bind:activity-types-searched-for="activityTypesSearchedFor"></activity-card>
                 <br>
             </section>
             <!-- Pagination Nav Bar -->
