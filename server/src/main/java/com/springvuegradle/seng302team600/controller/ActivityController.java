@@ -1,15 +1,16 @@
 package com.springvuegradle.seng302team600.controller;
 
-import com.springvuegradle.seng302team600.repository.ActivityActivityTypeRepository;
-import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
-import com.springvuegradle.seng302team600.validator.ActivityValidator;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.ActivityResponse;
+import com.springvuegradle.seng302team600.payload.ParticipantResponse;
+import com.springvuegradle.seng302team600.repository.ActivityActivityTypeRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
+import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
 import com.springvuegradle.seng302team600.service.FeedEventService;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
+import com.springvuegradle.seng302team600.validator.ActivityValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import com.springvuegradle.seng302team600.payload.ParticipantResponse;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

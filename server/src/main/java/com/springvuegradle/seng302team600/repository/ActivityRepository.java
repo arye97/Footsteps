@@ -3,8 +3,6 @@ package com.springvuegradle.seng302team600.repository;
 import com.springvuegradle.seng302team600.model.Activity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import com.springvuegradle.seng302team600.model.ActivityType;
-import com.springvuegradle.seng302team600.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
