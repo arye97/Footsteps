@@ -42,3 +42,8 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
 
     @Query(value="SELECT * FROM activity WHERE activity_id in ?1", nativeQuery=true)
     List<Activity> getActivitiesByIds(@Param("userIds") List<Long> activityIds);}
+
+    @Query(value =
+            "SELECT * FROM activity WHERE activity_name LIKE ?1", nativeQuery = true)
+    List<Activity> findAllByKeyword(@Param("keyword") String keyword);
+}

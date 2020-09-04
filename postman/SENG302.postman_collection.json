@@ -1,0 +1,307 @@
+{
+	"info": {
+		"_postman_id": "f99540e8-7b54-40c5-9fb1-da0a0e527e0a",
+		"name": "SENG302",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Register User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d936cd71-accd-42fd-81fa-8e3974dea25f",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"postman.setEnvironmentVariable(\"Token\", jsonData.Token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"lastname\": \"User\",\r\n    \"firstname\": \"Test\",\r\n    \"middlename\": \"\",\r\n    \"nickname\": \"\",\r\n    \"primary_email\": \"user@uclive.ac.nz\",\r\n    \"password\": \"pasword1234\",\r\n    \"date_of_birth\": \"1999-10-19\",\r\n    \"gender\": \"Male\",\r\n    \"bio\": \"\",\r\n    \"fitness\": -1,\r\n    \"passports\": [],\r\n    \"activity_types\": []\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9499/profiles",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9499",
+					"path": [
+						"profiles"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Follow Activity",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Token",
+						"value": "{{Token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:9499/profiles/2/subscriptions/activities/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9499",
+					"path": [
+						"profiles",
+						"2",
+						"subscriptions",
+						"activities",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Participants",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Token",
+						"value": "{{Token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:9499/activities/1/participants",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9499",
+					"path": [
+						"activities",
+						"1",
+						"participants"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Outcomes",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Token",
+						"value": "{{Token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:9499/activities/1/outcomes",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9499",
+					"path": [
+						"activities",
+						"1",
+						"outcomes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Outcome",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Token",
+						"value": "{{Token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"activity_id\": 1,\r\n    \"title\": \"Distance Ran\",\r\n    \"unit_name\": \"metres\",\r\n    \"unit_type\": \"TEXT\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9499/activities/outcomes",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9499",
+					"path": [
+						"activities",
+						"outcomes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Outcome",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Token",
+						"value": "{{Token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:9499/activities/1/outcomes",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9499",
+					"path": [
+						"activities",
+						"1",
+						"outcomes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Result",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Token",
+						"value": "{{Token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"user_id\": 2,\r\n    \"value\": \"Hundred\",\r\n    \"did_not_finish\": false\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9499/outcomes/1/results",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9499",
+					"path": [
+						"outcomes",
+						"1",
+						"results"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Results",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Token",
+						"value": "{{Token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9499/outcomes/2/results",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9499",
+					"path": [
+						"outcomes",
+						"2",
+						"results"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Activity",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Token",
+						"type": "text",
+						"value": "{{Token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"activity_name\": \"First Act\",\r\n    \"description\": \"Hello There\",\r\n    \"activity_type\": [\r\n        \"4×4 Driving Experience\"\r\n    ],\r\n    \"continuous\": true,\r\n    \"location\": \"Home\",\r\n    \"start_time\": \"2020-08-15T02:07:00+1200\",\r\n    \"end_time\": \"2020-08-15T02:07:00+1200\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9499/profiles/2/activities",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9499",
+					"path": [
+						"profiles",
+						"2",
+						"activities"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
