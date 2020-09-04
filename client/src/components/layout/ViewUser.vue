@@ -46,7 +46,11 @@
                                 <br/>
 
                                 <div class="map-box">
-                                    <map-viewer></map-viewer>
+                                    <!--ToDo: Add the user's location to replace these coordinates-->
+                                    <map-viewer
+                                            :pins="[{id:1, lat:-43.53, lng:172.63}]"
+                                            :center="{lat:-43.53, lng:172.63}"
+                                    ></map-viewer>
                                 </div>
 
                                 <!--Handling for displaying of Fitness Level-->
