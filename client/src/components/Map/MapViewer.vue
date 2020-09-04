@@ -2,21 +2,21 @@
     <div id="mapDiv">
         <GmapMap
                 ref="mapRef"
-                :center="{lat:10, lng:10}"
-                :zoom="7"
+                v-bind:center="currentCenter"
+                :zoom="4.5"
                 map-type-id="terrain"
                 style="width: 500px; height: 300px"
         >
-            <!--<GmapMarker-->
-                    <!--ref="myMarker"-->
-                    <!--:key="index"-->
-                    <!--v-for="(m, index) in markers"-->
-                    <!--:position="m.position"-->
-                    <!--:clickable="true"-->
-                    <!--:draggable="true"-->
-                    <!--@click="center=m.position"-->
-            <!--/>-->
-            <GmapMarker ref="myMarker" :position="google && new google.maps.LatLng(1.38, 103.8)" />
+            <GmapMarker
+                    ref="myMarker"
+                    :key="pin.id"
+                    v-for="pin in pins"
+                    :position="google && new google.maps.LatLng(pin.lat, pin.lng)"
+                    :clickable="true"
+                    :draggable="true"
+                    @click="currentCenter={lat:pin.lat, lng:pin.lng}"
+            />
+<!--            <GmapMarker ref="myMarker" :position="google && new google.maps.LatLng(locations[0].lat, locations[0].lng)" />-->
         </GmapMap>
     </div>
 </template>
@@ -27,13 +27,35 @@
     export default {
         name: "MapViewer",
 
+        props: {
+            center: {
+                default() {
+                    return {lat:-40.9006, lng:174.8860};
+                },
+                type: Object,
+                validator: function (center) {
+                    // Center must have lat and lng
+                    return !isNaN(center.lat) && !isNaN(center.lng);
+                }
+            },
+            pins: {
+                default() {
+                    return [];
+                },
+                type: Array,
+                validator: function (pins) {
+                    // Each pin must have a lat, lng and id
+                    return pins.every(pin => {return !isNaN(pin.lat) && !isNaN(pin.lng) && !isNaN(pin.id);});
+                }
+            }
+        },
         computed: {
             google: gmapApi
         },
 
         data() {
             return {
-                locations: []
+                currentCenter: this.center
             }
         },
 
@@ -41,32 +63,8 @@
 
         },
 
-        mehtods: {
+        methods: {
 
-            /**
-             * Set the set of locations to be shown on the map
-             * @param locationsJson json formatted list of locations to be displayed on the map
-             */
-            setLocations(locationsList) {
-                //todo: check for validity of locationsJson
-                this.locations = locationsList;
-            },
-
-            /**
-             * Adds a list of json format locations to the existing locations list
-             * @param locationsList json formatted locations to be added to the current locations list
-             */
-            addLocations(locationsList) {
-                //todo: check for validity of locationsJson
-                this.locations.concat(locationsList)
-            },
-
-            /**
-             * Remove all locations from locations display list
-             */
-            clearLocations() {
-                this.locations = []
-            }
         }
     }
 
