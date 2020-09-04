@@ -131,7 +131,7 @@
                     </div>
                 </div>
                 <section v-if="pageUrl === '/search/users' && userDataLoaded">
-                    <ActivityList :user_-id="userId"/>
+                    <ActivityList :user-id-prop="userId"/>
                 </section>
             </div>
         </b-container>
@@ -158,12 +158,13 @@
                 default: false,
                 type: Boolean
             },
-            userId: {
+            userIdProp: {
                 default: ''
             }
         },
         data() {
             return {
+                userId: this.userIdProp,
                 user: null,
                 loading: true,
                 errored: false,

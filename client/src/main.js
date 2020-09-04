@@ -7,6 +7,9 @@ import VueLogger from 'vuejs-logger';
 import router from './index'
 import * as GmapVue from 'gmap-vue';
 
+// Used by env variables
+require('dotenv').config();
+
 Vue.config.productionTip = false;
 
 Vue.use(VueLogger);
@@ -18,7 +21,7 @@ Vue.use(IconsPlugin);
 
 Vue.use(GmapVue, {
   load: {
-    key: 'INSERT_API_KEY_HERE',
+    key: process.env["VUE_APP_GOOGLE_MAPS_API_KEY"],
   },
   installComponents: true
 });
