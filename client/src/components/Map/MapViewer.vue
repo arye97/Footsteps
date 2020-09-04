@@ -2,7 +2,7 @@
     <div id="mapDiv">
         <GmapMap
                 ref="mapRef"
-                v-bind:center="currentCenter"
+                :center="currentCenter"
                 :zoom="4.5"
                 map-type-id="terrain"
                 style="width: 500px; height: 300px"
@@ -16,7 +16,6 @@
                     :draggable="true"
                     @click="currentCenter={lat:pin.lat, lng:pin.lng}"
             />
-<!--            <GmapMarker ref="myMarker" :position="google && new google.maps.LatLng(locations[0].lat, locations[0].lng)" />-->
         </GmapMap>
     </div>
 </template>
@@ -30,7 +29,7 @@
         props: {
             center: {
                 default() {
-                    return {lat:-40.9006, lng:174.8860};
+                    return {lat:-40.9006, lng:174.8860};  // Coordinates of New Zealand
                 },
                 type: Object,
                 validator: function (center) {
