@@ -108,20 +108,6 @@ public class FeedEventControllerTest {
         when(userAuthenticationService.hasAdminPrivileges(Mockito.any())).thenAnswer(i ->
                 ((User) i.getArgument(0)).getRole() >= 10);
 
-
-//        // Mocking FeedEventRepository (MINE (EUAN))
-//        when(feedEventRepository.findByViewerId(Mockito.anyLong(), Mockito.any(Pageable.class))).thenAnswer(i -> {
-//            Long id = i.getArgument(0);
-//            List<FeedEvent> feedEvents = new ArrayList<>();
-//            for (FeedEvent feedEvent : feedEventTable) {
-//                if (feedEvent.getViewerId().equals(id)) {
-//                    feedEvents.add(feedEvent);
-//                }
-//            }
-//            Page<FeedEvent> result = new PageImpl(feedEvents);
-//            return result.isEmpty() ? null : result;
-//        });
-
         // Mocking FeedEventRepository
         when(feedEventRepository.findByViewerIdOrderByTimeStamp(Mockito.anyLong(), Mockito.any(Pageable.class))).thenAnswer(i -> {
             Long id = i.getArgument(0);
