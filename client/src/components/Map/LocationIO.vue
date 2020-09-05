@@ -32,12 +32,17 @@
 
 <script>
     import MapViewer from "../../components/Map/MapViewer";
+    import { gmapApi } from 'gmap-vue';
 
     export default {
         name: "LocationIO",
 
         components: {
             MapViewer
+        },
+
+        computed: {
+            google: gmapApi
         },
 
         data() {
@@ -50,6 +55,7 @@
         },
 
         methods: {
+
             addLocation() {
                 //todo: get proper id
                 let pin = {"id":this.pins.length+1,"lat":parseFloat(this.latInput),"lng":parseFloat(this.lngInput)};
@@ -57,6 +63,9 @@
                 this.latInput =0;
                 this.lngInput = 0;
                 console.log(process.env["VUE_APP_GOOGLE_MAPS_API_KEY"]);
+
+
+                this.google
             }
         }
     }

@@ -22,6 +22,7 @@ Vue.use(IconsPlugin);
 Vue.use(GmapVue, {
   load: {
     key: process.env["VUE_APP_GOOGLE_MAPS_API_KEY"],
+    libraries: 'places',
   },
   installComponents: true
 });
