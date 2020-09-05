@@ -7,25 +7,20 @@
         <b-row>
             <b-col>
                 <b-form-input
-                    id="latInput"
-                    v-model="latInput"
-                    type="number"
-                    placeholder="Input lat here"
+                    id="locationInput"
+                    v-model="locationInput"
+                    type="text"
+                    placeholder="Input address here"
                 ></b-form-input>
             </b-col>
             <b-col>
-                <b-form-input
-                        id="lngInput"
-                        v-model="lngInput"
-                        type="number"
-                        placeholder="Input lng here"
-                ></b-form-input>
+                <b-button
+                        id="LocationSubmit"
+                        v-on:click="addLocation()"
+                >Place pin</b-button>
             </b-col>
         </b-row>
-        <b-button
-            id="LocationSubmit"
-            v-on:click="addLocation()"
-        >Place pin</b-button>
+
     </div>
 
 </template>
@@ -49,23 +44,16 @@
             return {
                 pins:[{id:1, lat:-43.53, lng:172.63}],
                 center:{lat:-43.53, lng:172.63},
-                latInput: 0,
-                lngInput: 0
+                locations: [],
+                locationInput: ""
             }
         },
 
         methods: {
 
             addLocation() {
-                //todo: get proper id
-                let pin = {"id":this.pins.length+1,"lat":parseFloat(this.latInput),"lng":parseFloat(this.lngInput)};
-                this.pins.push(pin);
-                this.latInput =0;
-                this.lngInput = 0;
-                console.log(process.env["VUE_APP_GOOGLE_MAPS_API_KEY"]);
-
-
-                this.google
+                //todo: validate and format location
+                this.locations.push(this.locationInput);
             }
         }
     }
