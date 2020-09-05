@@ -96,13 +96,14 @@ public class OutcomeController {
      * Checks all possible inputs to see if it is there and needs updating
      * Will throw an error if the outcome you're trying to edit has results already
      * @param outcome the Outcome object we are updating
+     * @param outcomeId the ID of the outcome we are editing
      */
-    @PutMapping("/activities/outcomes")
-    public void updateActivityOutcomes(@Validated @RequestBody Outcome outcome,
+    @PutMapping("/activities/{outcomeId}/outcomes")
+    public void updateActivityOutcomes(@Validated @RequestBody OutcomeRequest outcome,
+                                       @PathVariable Long outcomeId,
                                        HttpServletRequest request, HttpServletResponse response) {
 
         String token = request.getHeader("Token");
-        Long outcomeId = outcome.getOutcomeId();
 
         //Get old outcome and check that it's not null
         Outcome oldOutcome = outcomeRepository.findByOutcomeId(outcomeId);
@@ -114,25 +115,18 @@ public class OutcomeController {
         Long activityId = oldOutcome.getActivityId();
         Activity activity = activityRepository.findByActivityId(activityId);
         Long profileId = activity.getCreatorUserId();
-        User creator = userAuthenticationService.findByUserId(token, profileId);
-
-        Boolean resultsExist = true;
-        resultsExist = resultRepository.existsByOutcome(oldOutcome);
-        if(resultsExist){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot edit outcome ID " + outcomeId + " due to results already existing");
+        userAuthenticationService.findByUserId(token, profileId);
+        if(resultRepository.existsByOutcome(oldOutcome)){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Cannot edit outcome ID " + outcomeId + " due to results already existing");
         }
-        if((!activity.getCreatorUserId().equals(profileId))
-                && (!userAuthenticationService.hasAdminPrivileges(creator))){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is forbidden from editing outcome with ID: " + outcomeId);
-        }
-        OutcomeValidator.validate(outcome);
+        OutcomeValidator.validate(new Outcome(outcome));
 
         //Overwrite old outcome data with new data and save
         oldOutcome.setTitle(outcome.getTitle());
         oldOutcome.setUnitName(outcome.getUnitName());
         oldOutcome.setUnitType(outcome.getUnitType());
         outcomeRepository.save(oldOutcome);
-        response.setStatus(HttpServletResponse.SC_OK); //200
     }
 
     /**

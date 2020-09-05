@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springvuegradle.seng302team600.enumeration.UnitType;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.Outcome;
+import com.springvuegradle.seng302team600.model.Result;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.OutcomeRepository;
@@ -82,17 +83,27 @@ public class OutcomeControllerTest {
         dummyOutcome1 = new Outcome();
         dummyOutcome1.setTitle("Run Marathon");
         dummyOutcome1.setActivityId(ACTIVITY_ID_1);
+        dummyOutcome1.setUnitName("Unit Name 1");
+        dummyOutcome1.setUnitType(UnitType.TEXT);
 
         dummyOutcome2 = new Outcome();
         dummyOutcome2.setTitle("Swam a kilometre");
         dummyOutcome2.setActivityId(ACTIVITY_ID_1);
+        dummyOutcome2.setUnitName("Unit Name 2");
+        dummyOutcome2.setUnitType(UnitType.TEXT);
 
         dummyOutcome3 = new Outcome();
         ReflectionTestUtils.setField(dummyOutcome3, "outcomeId", 1L);
         dummyOutcome3.setActivityId(ACTIVITY_ID_1);
-        dummyOutcome3.setUnitName("Unit name");
+        dummyOutcome3.setUnitName("Unit Name 3");
         dummyOutcome3.setUnitType(UnitType.NUMBER);
         dummyOutcome3.setTitle("This is my outcome");
+
+        Result result = new Result();
+        result.setOutcome(dummyOutcome3);
+        HashSet<Result> results = new HashSet<>();
+        results.add(result);
+        dummyOutcome3.setResults(results);
 
         dummyActivity = new Activity();
         dummyActivity.setCreatorUserId(USER_ID_1);
@@ -138,13 +149,13 @@ public class OutcomeControllerTest {
         // Mocking OutcomeRepository
         when(outcomeRepository.findByActivityId(Mockito.any())).thenAnswer(i -> {
             Long activityId = i.getArgument(0);
-            List<Outcome> result = new ArrayList<>();
+            List<Outcome> resultList = new ArrayList<>();
             for (Outcome outcome : outcomeTable) {
                 if (activityId.equals(outcome.getActivityId())) {
-                    result.add(outcome);
+                    resultList.add(outcome);
                 }
             }
-            return result;
+            return resultList;
         });
         when(outcomeRepository.save(Mockito.any())).thenAnswer(i -> {
             Outcome outcome = i.getArgument(0);
@@ -174,7 +185,10 @@ public class OutcomeControllerTest {
         });
 
         // Mocking ResultRepository
-        when(resultRepository.existsByOutcome(Mockito.any())).thenAnswer(i -> false);
+        when(resultRepository.existsByOutcome(Mockito.any())).thenAnswer(i -> {
+            Outcome outcome = i.getArgument(0);
+            return !outcome.getResults().isEmpty();
+        });
     }
 
     /**
