@@ -35,11 +35,6 @@
         components: {
             MapViewer
         },
-
-        computed: {
-            google: gmapApi
-        },
-
         data() {
             return {
                 pins:[{id:1, lat:-43.53, lng:172.63}],
