@@ -1,6 +1,6 @@
 <template>
-    <div id="mapDiv">
-        <GmapMap
+    <div id="mapDiv" class="map-box">
+        <GmapMap class="map"
                 ref="mapRef"
                 :center="currentCenter"
                 :zoom="4.5"
@@ -70,5 +70,15 @@
 </script>
 
 <style scoped>
-
+    .map {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px outset #6c757e;
+    }
+    .map-box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 </style>
