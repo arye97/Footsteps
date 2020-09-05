@@ -29,7 +29,7 @@
             <b-button style="margin-bottom: 1.7em; margin-top: 0.8em" variant="primary" v-on:click="goToPage('/activities/create')">Create New Activity</b-button>
         </div>
         <section>
-            <ActivityList v-if="userId !== null" :user_-id="this.userId"/>
+            <ActivityList v-if="userId !== null" :user-id-prop="this.userId"/>
         </section>
 
         </b-container>
