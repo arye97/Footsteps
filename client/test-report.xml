@@ -1,43 +1,167 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
-  <file path="/Users/euan/Desktop/uni/SENG302/team-600/client/src/Test/LiveBackEnd/LiveBackEndApi.test.js">
-    <testCase name="Register a new user" duration="755"/>
-    <testCase name="Logout user" duration="22"/>
-    <testCase name="Login user" duration="173"/>
-    <testCase name="Run tests on new user Get user role" duration="268"/>
-    <testCase name="Run tests on new user Get user id using token" duration="227"/>
-    <testCase name="Run tests on new user Modify password" duration="740"/>
-    <testCase name="Run tests on new user Edit profile" duration="251"/>
-    <testCase name="Run tests on new user Get user data by Id" duration="210"/>
-    <testCase name="Run tests on new user Get user data by Token" duration="199"/>
-    <testCase name="Run tests on new user Test the /check-profile end point" duration="188"/>
-    <testCase name="Run tests on new user Checking user email endpoints Set additional emails for the user" duration="241"/>
-    <testCase name="Run tests on new user Checking user email endpoints Edit primary and additional emails for the user" duration="213"/>
-    <testCase name="Run tests on new user Checking user email endpoints Check if email is in the database" duration="214"/>
-    <testCase name="Run tests on new user Checking user email endpoints Get all emails from user" duration="204"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Create activity" duration="336"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Edit activity" duration="276"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Get data from activity" duration="257"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Check if user can edit activity" duration="254"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Create activity outcome" duration="253"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Delete activity outcome" duration="254"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Get an activities outcomes" duration="248"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Create new result for an outcome" duration="275"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Get all activities from a user" duration="248"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Delete an activity" duration="257"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Get list of participants for an activity" duration="306"/>
-    <testCase name="Run tests on new user Checking user feed event endpoints Get following status for an unsubscribed activity" duration="265"/>
-    <testCase name="Run tests on new user Checking user feed event endpoints Follow an unsubscribed activity" duration="264"/>
-    <testCase name="Run tests on new user Checking user feed event endpoints Follow an already subscribed activity throws a 400 error" duration="247"/>
-    <testCase name="Run tests on new user Checking user feed event endpoints Get following status for a subscribed activity" duration="230"/>
-    <testCase name="Run tests on new user Checking user feed event endpoints Unfollow a subscribed activity" duration="243"/>
-    <testCase name="Run tests on new user Checking user feed event endpoints Unfollow an already unsubscribed activity throws a 400 error" duration="232"/>
-    <testCase name="Run tests on new user Searching for users Get users by one activity type (OR)" duration="70"/>
-    <testCase name="Run tests on new user Searching for users Get users by one activity type (AND)" duration="49"/>
-    <testCase name="Run tests on new user Searching for users Get users by more than one activity types (OR)" duration="72"/>
-    <testCase name="Run tests on new user Searching for users Get users by more than one activity types (AND)" duration="56"/>
-    <testCase name="Run tests on new user Searching for users Get users with ActivityTypes containing a space (OR)" duration="59"/>
-    <testCase name="Run tests on new user Searching for users Get users with ActivityTypes containing &gt;1 spaces (AND)" duration="66"/>
-    <testCase name="Other miscellaneous tests Get all activity types in the database" duration="10"/>
+  <file path="D:\Documents\UC 300\SENG 302\team-600\client\src\Test\LocationIO.test.js">
+    <testCase name="Is a vue instance" duration="81">
+      <failure message="TypeError: Cannot read property &apos;gmapApi&apos; of null"><![CDATA[TypeError: Cannot read property 'gmapApi' of null
+    at VueComponent.gmapApi (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\gmap-vue\dist\main.js:220:18)
+    at Watcher.get (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4465:25)
+    at Watcher.evaluate (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4570:21)
+    at Proxy.computedGetter (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4819:17)
+    at D:\Documents\UC 300\SENG 302\team-600\client\src\components\Map\MapViewer.vue:81:414
+    at Proxy.renderList (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:2624:16)
+    at Proxy.render (D:\Documents\UC 300\SENG 302\team-600\client\src\components\Map\MapViewer.vue:81:300)
+    at VueComponent.Vue._render (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:3538:22)
+    at VueComponent.updateComponent (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4054:21)
+    at Watcher.get (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4465:25)
+    at new Watcher (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4454:12)
+    at mountComponent (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4061:3)
+    at VueComponent.Object.<anonymous>.Vue.$mount (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:8392:10)
+    at init (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:3112:13)
+    at createComponent (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:5958:9)
+    at createElm (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:5905:9)
+    at createChildren (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:6033:9)
+    at createElm (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:5934:9)
+    at VueComponent.patch [as __patch__] (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:6455:7)
+    at VueComponent.Vue._update (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:3933:19)
+    at VueComponent.updateComponent (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4054:10)
+    at Watcher.get (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4465:25)
+    at new Watcher (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4454:12)
+    at mountComponent (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4061:3)
+    at VueComponent.Object.<anonymous>.Vue.$mount (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:8392:10)
+    at init (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:3112:13)
+    at createComponent (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:5958:9)
+    at createElm (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:5905:9)
+    at VueComponent.patch [as __patch__] (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:6455:7)
+    at VueComponent.Vue._update (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:3933:19)
+    at VueComponent.updateComponent (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4054:10)
+    at Watcher.get (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4465:25)
+    at new Watcher (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4454:12)
+    at mountComponent (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4061:3)
+    at VueComponent.Object.<anonymous>.Vue.$mount (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:8392:10)
+    at mount (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\@vue\test-utils\dist\vue-test-utils.js:13855:21)
+    at Object.<anonymous> (D:\Documents\UC 300\SENG 302\team-600\client\src\Test\LocationIO.test.js:9:18)
+    at Object.asyncJestLifecycle (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\jest-jasmine2\build\jasmineAsyncInstall.js:53:37)
+    at D:\Documents\UC 300\SENG 302\team-600\client\node_modules\jest-jasmine2\build\queueRunner.js:45:12
+    at new Promise (<anonymous>)
+    at mapper (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\jest-jasmine2\build\queueRunner.js:28:19)
+    at D:\Documents\UC 300\SENG 302\team-600\client\node_modules\jest-jasmine2\build\queueRunner.js:75:41
+    at processTicksAndRejections (internal/process/task_queues.js:97:5)]]></failure>
+      <failure message="TypeError: Cannot read property &apos;isVueInstance&apos; of undefined"><![CDATA[TypeError: Cannot read property 'isVueInstance' of undefined
+    at Object.<anonymous> (D:\Documents\UC 300\SENG 302\team-600\client\src\Test\LocationIO.test.js:14:23)
+    at Object.asyncJestTest (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\jest-jasmine2\build\jasmineAsyncInstall.js:100:37)
+    at D:\Documents\UC 300\SENG 302\team-600\client\node_modules\jest-jasmine2\build\queueRunner.js:45:12
+    at new Promise (<anonymous>)
+    at mapper (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\jest-jasmine2\build\queueRunner.js:28:19)
+    at D:\Documents\UC 300\SENG 302\team-600\client\node_modules\jest-jasmine2\build\queueRunner.js:75:41
+    at processTicksAndRejections (internal/process/task_queues.js:97:5)]]></failure>
+    </testCase>
+    <testCase name="Location input  exists" duration="30">
+      <failure message="TypeError: Cannot read property &apos;gmapApi&apos; of null"><![CDATA[TypeError: Cannot read property 'gmapApi' of null
+    at VueComponent.gmapApi (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\gmap-vue\dist\main.js:220:18)
+    at Watcher.get (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4465:25)
+    at Watcher.evaluate (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4570:21)
+    at Proxy.computedGetter (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4819:17)
+    at D:\Documents\UC 300\SENG 302\team-600\client\src\components\Map\MapViewer.vue:81:414
+    at Proxy.renderList (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:2624:16)
+    at Proxy.render (D:\Documents\UC 300\SENG 302\team-600\client\src\components\Map\MapViewer.vue:81:300)
+    at VueComponent.Vue._render (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:3538:22)
+    at VueComponent.updateComponent (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4054:21)
+    at Watcher.get (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4465:25)
+    at new Watcher (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4454:12)
+    at mountComponent (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4061:3)
+    at VueComponent.Object.<anonymous>.Vue.$mount (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:8392:10)
+    at init (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:3112:13)
+    at createComponent (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:5958:9)
+    at createElm (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:5905:9)
+    at createChildren (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:6033:9)
+    at createElm (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:5934:9)
+    at VueComponent.patch [as __patch__] (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:6455:7)
+    at VueComponent.Vue._update (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:3933:19)
+    at VueComponent.updateComponent (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4054:10)
+    at Watcher.get (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4465:25)
+    at new Watcher (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4454:12)
+    at mountComponent (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4061:3)
+    at VueComponent.Object.<anonymous>.Vue.$mount (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:8392:10)
+    at init (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:3112:13)
+    at createComponent (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:5958:9)
+    at createElm (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:5905:9)
+    at VueComponent.patch [as __patch__] (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:6455:7)
+    at VueComponent.Vue._update (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:3933:19)
+    at VueComponent.updateComponent (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4054:10)
+    at Watcher.get (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4465:25)
+    at new Watcher (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4454:12)
+    at mountComponent (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4061:3)
+    at VueComponent.Object.<anonymous>.Vue.$mount (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:8392:10)
+    at mount (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\@vue\test-utils\dist\vue-test-utils.js:13855:21)
+    at Object.<anonymous> (D:\Documents\UC 300\SENG 302\team-600\client\src\Test\LocationIO.test.js:9:18)
+    at Object.asyncJestLifecycle (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\jest-jasmine2\build\jasmineAsyncInstall.js:53:37)
+    at D:\Documents\UC 300\SENG 302\team-600\client\node_modules\jest-jasmine2\build\queueRunner.js:45:12
+    at new Promise (<anonymous>)
+    at mapper (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\jest-jasmine2\build\queueRunner.js:28:19)
+    at D:\Documents\UC 300\SENG 302\team-600\client\node_modules\jest-jasmine2\build\queueRunner.js:75:41
+    at processTicksAndRejections (internal/process/task_queues.js:97:5)]]></failure>
+      <failure message="TypeError: Cannot read property &apos;find&apos; of undefined"><![CDATA[TypeError: Cannot read property 'find' of undefined
+    at Object.<anonymous> (D:\Documents\UC 300\SENG 302\team-600\client\src\Test\LocationIO.test.js:18:23)
+    at Object.asyncJestTest (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\jest-jasmine2\build\jasmineAsyncInstall.js:100:37)
+    at D:\Documents\UC 300\SENG 302\team-600\client\node_modules\jest-jasmine2\build\queueRunner.js:45:12
+    at new Promise (<anonymous>)
+    at mapper (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\jest-jasmine2\build\queueRunner.js:28:19)
+    at D:\Documents\UC 300\SENG 302\team-600\client\node_modules\jest-jasmine2\build\queueRunner.js:75:41
+    at processTicksAndRejections (internal/process/task_queues.js:97:5)]]></failure>
+    </testCase>
+    <testCase name="Location submit button exists" duration="22">
+      <failure message="TypeError: Cannot read property &apos;gmapApi&apos; of null"><![CDATA[TypeError: Cannot read property 'gmapApi' of null
+    at VueComponent.gmapApi (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\gmap-vue\dist\main.js:220:18)
+    at Watcher.get (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4465:25)
+    at Watcher.evaluate (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4570:21)
+    at Proxy.computedGetter (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4819:17)
+    at D:\Documents\UC 300\SENG 302\team-600\client\src\components\Map\MapViewer.vue:81:414
+    at Proxy.renderList (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:2624:16)
+    at Proxy.render (D:\Documents\UC 300\SENG 302\team-600\client\src\components\Map\MapViewer.vue:81:300)
+    at VueComponent.Vue._render (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:3538:22)
+    at VueComponent.updateComponent (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4054:21)
+    at Watcher.get (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4465:25)
+    at new Watcher (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4454:12)
+    at mountComponent (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4061:3)
+    at VueComponent.Object.<anonymous>.Vue.$mount (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:8392:10)
+    at init (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:3112:13)
+    at createComponent (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:5958:9)
+    at createElm (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:5905:9)
+    at createChildren (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:6033:9)
+    at createElm (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:5934:9)
+    at VueComponent.patch [as __patch__] (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:6455:7)
+    at VueComponent.Vue._update (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:3933:19)
+    at VueComponent.updateComponent (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4054:10)
+    at Watcher.get (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4465:25)
+    at new Watcher (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4454:12)
+    at mountComponent (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4061:3)
+    at VueComponent.Object.<anonymous>.Vue.$mount (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:8392:10)
+    at init (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:3112:13)
+    at createComponent (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:5958:9)
+    at createElm (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:5905:9)
+    at VueComponent.patch [as __patch__] (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:6455:7)
+    at VueComponent.Vue._update (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:3933:19)
+    at VueComponent.updateComponent (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4054:10)
+    at Watcher.get (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4465:25)
+    at new Watcher (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4454:12)
+    at mountComponent (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:4061:3)
+    at VueComponent.Object.<anonymous>.Vue.$mount (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\vue\dist\vue.runtime.common.dev.js:8392:10)
+    at mount (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\@vue\test-utils\dist\vue-test-utils.js:13855:21)
+    at Object.<anonymous> (D:\Documents\UC 300\SENG 302\team-600\client\src\Test\LocationIO.test.js:9:18)
+    at Object.asyncJestLifecycle (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\jest-jasmine2\build\jasmineAsyncInstall.js:53:37)
+    at D:\Documents\UC 300\SENG 302\team-600\client\node_modules\jest-jasmine2\build\queueRunner.js:45:12
+    at new Promise (<anonymous>)
+    at mapper (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\jest-jasmine2\build\queueRunner.js:28:19)
+    at D:\Documents\UC 300\SENG 302\team-600\client\node_modules\jest-jasmine2\build\queueRunner.js:75:41
+    at processTicksAndRejections (internal/process/task_queues.js:97:5)]]></failure>
+      <failure message="TypeError: Cannot read property &apos;find&apos; of undefined"><![CDATA[TypeError: Cannot read property 'find' of undefined
+    at Object.<anonymous> (D:\Documents\UC 300\SENG 302\team-600\client\src\Test\LocationIO.test.js:22:23)
+    at Object.asyncJestTest (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\jest-jasmine2\build\jasmineAsyncInstall.js:100:37)
+    at D:\Documents\UC 300\SENG 302\team-600\client\node_modules\jest-jasmine2\build\queueRunner.js:45:12
+    at new Promise (<anonymous>)
+    at mapper (D:\Documents\UC 300\SENG 302\team-600\client\node_modules\jest-jasmine2\build\queueRunner.js:28:19)
+    at D:\Documents\UC 300\SENG 302\team-600\client\node_modules\jest-jasmine2\build\queueRunner.js:75:41
+    at processTicksAndRejections (internal/process/task_queues.js:97:5)]]></failure>
+    </testCase>
   </file>
 </testExecutions>
