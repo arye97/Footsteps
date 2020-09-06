@@ -310,8 +310,6 @@ public class ActivityController {
     )
     public List<ActivityResponse> getActivitiesByName(HttpServletRequest request,
                                                       @RequestParam(value="activityName") String activityName) {
-
-        System.out.println(activityName.contains("+"));
         String token = request.getHeader("Token");
         userAuthenticationService.findByToken(token);
         List<ActivityResponse> activitiesFound = new ArrayList<>();
@@ -324,12 +322,12 @@ public class ActivityController {
             //this gives <searchQuery, exclusions>
             searchStrings = ActivitySearchService.handleMinusSpecialCaseString(activityName);
             activities = activityRepository.findAllByKeywordExcludingTerm(searchStrings.get(0), searchStrings.get(1));
-        } else if (activityName.contains("%2b") || (activityName.contains("+"))) { //ToDo: need to talk to team about better term to use
-            System.out.println(activityName);
+        } else if (activityName.contains("%2b") || (activityName.contains("+"))) {
             //this gives a list of all separate search queries
             searchStrings = ActivitySearchService.handlePlusSpecialCaseString(activityName);
             Set<Activity> setToRemoveDuplicates = new HashSet<>();
             for (String term : searchStrings) {
+                System.out.println("calling it");
                 setToRemoveDuplicates.addAll(activityRepository.findAllByKeyword(term));
             }
             activities.addAll(setToRemoveDuplicates);
