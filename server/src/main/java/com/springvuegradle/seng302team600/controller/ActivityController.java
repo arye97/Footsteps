@@ -1,15 +1,16 @@
 package com.springvuegradle.seng302team600.controller;
 
-import com.springvuegradle.seng302team600.repository.ActivityActivityTypeRepository;
-import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
-import com.springvuegradle.seng302team600.validator.ActivityValidator;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.ActivityResponse;
+import com.springvuegradle.seng302team600.payload.ParticipantResponse;
+import com.springvuegradle.seng302team600.repository.ActivityActivityTypeRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
+import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
 import com.springvuegradle.seng302team600.service.FeedEventService;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
+import com.springvuegradle.seng302team600.validator.ActivityValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,14 +18,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import com.springvuegradle.seng302team600.payload.ParticipantResponse;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.io.IOException;
-import java.util.*;
 
 /**
  * Controller to manage activities and activity type
@@ -300,20 +298,26 @@ public class ActivityController {
      * so the url would look like => /activities?activityName=Climb%20Mount%20Fuji
      * or if we want to exact match it would be /activities?activityName="Climb%20Mount%20Fuji"
      * where we check all activities if they contain any of these words
-     * @param request the http request with the user token we need
+     *
+     * @param request      the http request with the user token we need
+     * @param response     the http response
      * @param activityName the word/sentence we need to search for
      * @return a list containing all activities found
      */
     @RequestMapping(
             value = "/activities",
-            params = { "activityName"},
+            params = {"activityName"},
             method = RequestMethod.GET
     )
-    public List<ActivityResponse> getActivitiesByName(HttpServletRequest request,
-                                                      @RequestParam(value="activityName") String activityName) {
+    public List<ActivityResponse> getActivitiesByName(HttpServletRequest request, HttpServletResponse response,
+                                                      @RequestParam(value = "activityName") String activityName) {
         List<ActivityResponse> activitiesFound = new ArrayList<>();
         if (activityName.length() == 0) {
             return activitiesFound;
+        }
+        int pageNumber = request.getIntHeader("Page-Number");
+        if (pageNumber == -1) {
+            pageNumber = 0;
         }
         String token = request.getHeader("Token");
         userAuthenticationService.findByToken(token);
@@ -337,10 +341,16 @@ public class ActivityController {
             }
             activityName = newQuery;
         }
-        List<Activity> activities = activityRepository.findAllByKeyword(activityName);
-        for (Activity activity : activities) {
-            activitiesFound.add(new ActivityResponse(activity));
+        Page<Activity> paginatedActivities;
+        Pageable pageWithFiveActivities = PageRequest.of(pageNumber, PAGE_SIZE);
+        paginatedActivities = activityRepository.findAllByKeyword(activityName, pageWithFiveActivities);
+        if (paginatedActivities == null || paginatedActivities.getTotalPages() == 0) {
+            return activitiesFound;
         }
+        List<Activity> activities = paginatedActivities.getContent();
+        activities.forEach(i -> activitiesFound.add(new ActivityResponse(i)));
+        int totalElements = (int) paginatedActivities.getTotalElements();
+        response.setIntHeader("Total-Rows", totalElements);
         return activitiesFound;
     }
 

@@ -4,9 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.springvuegradle.seng302team600.model.*;
-import com.springvuegradle.seng302team600.payload.ActivityResponse;
 import com.springvuegradle.seng302team600.model.Activity;
+import com.springvuegradle.seng302team600.model.ActivityType;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.model.UserRole;
 import com.springvuegradle.seng302team600.payload.ActivityResponse;
@@ -22,6 +21,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -33,16 +33,10 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.*;
 import java.net.URI;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -702,7 +696,7 @@ class ActivityControllerTest {
 
     @Test
     void getActivitiesByAKeyword() throws Exception {
-        when(activityRepository.findAllByKeyword(Mockito.anyString())).thenAnswer(i -> {
+        when(activityRepository.findAllByKeyword(Mockito.anyString(), Mockito.any())).thenAnswer(i -> {
             String keyword = i.getArgument(0);
             List<Activity> foundActivities = new ArrayList<>();
             if (keyword.equals("Climb%")) {
@@ -715,7 +709,8 @@ class ActivityControllerTest {
                 foundActivities.add(dumActivity1);
                 foundActivities.add(dumActivity2);
             }
-            return foundActivities;
+            Page<Activity> result = new PageImpl(foundActivities);
+            return result;
         });
 
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityName=Climb"))
@@ -731,7 +726,7 @@ class ActivityControllerTest {
 
     @Test
     void getActivitiesByExactSearch() throws Exception {
-        when(activityRepository.findAllByKeyword(Mockito.anyString())).thenAnswer(i -> {
+        when(activityRepository.findAllByKeyword(Mockito.anyString(), Mockito.any())).thenAnswer(i -> {
             String keyword = i.getArgument(0);
             List<Activity> foundActivities = new ArrayList<>();
             Activity dumActivity1 = new Activity();
@@ -750,7 +745,8 @@ class ActivityControllerTest {
                     }
                 }
             }
-            return selectedActivities;
+            Page<Activity> result = new PageImpl(selectedActivities);
+            return result;
         });
 
         URI uri = new URI(
@@ -784,7 +780,7 @@ class ActivityControllerTest {
 
     @Test
     void cannotFindActivitiesByKeyword() throws Exception {
-        when(activityRepository.findAllByKeyword(Mockito.anyString())).thenAnswer(i -> {
+        when(activityRepository.findAllByKeyword(Mockito.anyString(), Mockito.any())).thenAnswer(i -> {
             String keyword = i.getArgument(0);
             List<Activity> foundActivities = new ArrayList<>();
             if (keyword.equals("Climb") || keyword.equals("%Climb%")) {
@@ -797,7 +793,8 @@ class ActivityControllerTest {
                 foundActivities.add(dumActivity1);
                 foundActivities.add(dumActivity2);
             }
-            return foundActivities;
+            Page<Activity> result = new PageImpl(foundActivities);
+            return result;
         });
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityName=keyword"))
                 .header("Token", validToken);
