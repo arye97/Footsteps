@@ -54,8 +54,8 @@
 
 <script>
     import api from '../../Api';
-    // import {tokenStore} from "../../main";
     import Header from '../../components/Header/Header.vue'
+    import {clearPageCaches} from "../../util";
 
     async function validUser(userLogin) {
         return (userLogin.email !== '' && userLogin.password !== '')
@@ -73,6 +73,9 @@
         name: "Login",
         components : {
             Header
+        },
+        beforeCreate() {
+            clearPageCaches();
         },
         data() {
             return {

@@ -371,7 +371,13 @@ public class UserController {
                                                      @RequestParam(value="activity") String activityTypes,
                                                      @RequestParam(value="method") String method) {
         String token = request.getHeader("Token");
-        int pageNumber = request.getIntHeader("Page-Number");
+        int pageNumber;
+        try {
+            pageNumber = request.getIntHeader("Page-Number");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Page-Number must be an integer");
+        }
+
         userService.findByToken(token);
         if (activityTypes.length() < 1) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Activity Types must be specified");

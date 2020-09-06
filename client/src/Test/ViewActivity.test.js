@@ -4,6 +4,7 @@ import "jest";
 import api from "../Api";
 
 jest.mock('../Api');
+jest.mock('../index');
 
 let viewActivity;
 
