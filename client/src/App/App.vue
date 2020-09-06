@@ -18,7 +18,7 @@
 <style>
     body{
         background-image: url('../../assets/jpg/mt1.jpg');
-
+        background-repeat: repeat-y;
         background-size: cover;
     }
 
