@@ -4,12 +4,15 @@
             <br/>
             <div>
                 <b-row>
-                    <b-col cols="8">
+                    <b-col cols="8" v-if="searchMode==='activityType'">
                         <multiselect v-model="selectedActivityTypes" id="searchBoxActivities"
                                      :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
                                      placeholder="Select your activity types">
                             <template slot="noResult">Invalid activity type</template>
                         </multiselect>
+                    </b-col>
+                    <b-col cols="8" v-if="searchMode==='activityName'">
+                        <b-form-input id="searchBoxActivityTitle" v-model="activityTitle" placeholder="Search activity by title"></b-form-input>
                     </b-col>
                     <b-col cols="4">
                         <b-form-select id="searchModeSelect" v-model="searchMode" :options="searchModes"></b-form-select>
@@ -34,7 +37,6 @@
                 <hr/>
                 <br/>
             </div>
-
             <section v-if="errored" class="text-center">
                 <div class="alert alert-danger alert-dismissible fade show text-center" role="alert" id="alert">
                     {{ error_message }}
@@ -46,48 +48,59 @@
                 <br/>
                 <br/>
             </section>
-            <section v-else v-for="user in this.userList" :key="user.id">
-                <!-- User List -->
-                <user-card v-bind:user="user" v-bind:activity-types-searched-for="activityTypesSearchedFor"/>
+            <section v-else v-for="activity in this.activitiesList" :key="activity.id">
+                <!-- Activity List -->
+                <activity-card v-bind:activity="activity" v-bind:activity-types-searched-for="activityTypesSearchedFor"></activity-card>
                 <br>
             </section>
             <!-- Pagination Nav Bar -->
             <b-pagination
-                v-if="!errored && !loading && userList.length >= 1"
+                v-if="!errored && !loading && activitiesList.length >= 1"
                 align="fill"
                 v-model="currentPage"
                 :total-rows="rows"
-                :per-page="usersPerPage"
+                :per-page="activitiesPerPage"
             ></b-pagination>
         </div>
     </div>
 </template>
 
 <script>
-import UserCard from "./UserCard";
 import Multiselect from "vue-multiselect";
 import api from "../../Api";
+import ActivityCard from "./ActivityCard";
 
 export default {
-    name: "UserSearch",
+    name: "ActivitySearch",
     components: {
-        UserCard,
+        ActivityCard,
         Multiselect
     },
-    data () {
+    data() {
         return {
-            usersPerPage: 5,
+            activitiesPerPage: 5,
             currentPage: 1,
-            userList: [],
+            activitiesList: [{ // ToDo remove this placeholder when actual activity search is implemented
+                id: 1,
+                creatorUserId: 1,
+                activity_name: "Snow trip",
+                description: "A fun Snow skiing trip. With lots of snow and scary looking tricks. Don't be late.",
+                activity_type: [{activity_type_id: 1, name: 'Skiing'}],
+                continuous: false,
+                start_time: new Date(),
+                end_time: new Date(),
+                location: "Queenstown"
+            }],
             searchMode: 'activityType',
             searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
-                { value: 'activityType', text: 'Activity Type'}
+                { value: 'activityType', text: 'Activity Type'},
+                { value: 'activityName', text: 'Activity Name'}
             ],
             // These are the ActivityTypes selected in the Multiselect
             selectedActivityTypes : [],
             // These are a copy of selectedActivityTypes passed to the UserCard (to avoid mutation after clicking search)
-            activityTypesSearchedFor : [],
-
+            activityTypesSearchedFor : ['Skiing'], // ToDo remove this placeholder when actual activity search is implemented
+            activityTitle: "",
             activityTypes: [],
             searchType: "and",
             errored: false,
@@ -103,74 +116,9 @@ export default {
         await this.fetchActivityTypes();
     },
 
-    watch: {
-        /**
-         * Watcher is called whenever currentPage is changed, via searching new query
-         * or the pagination bar.
-         */
-        currentPage() {
-            this.getPaginatedUsersByActivityType();
-        }
-    },
-
     methods: {
         goToPage(url) {
             this.$router.push(url);
-        },
-
-        /**
-         * Function for redirecting to user profile via userId.
-         */
-        viewProfile(userId) {
-            this.goToPage({ name: 'profile', params: {userId: userId} })
-        },
-
-
-        /**
-         * Fetches a paginated list of users, filtered by specified activity types,
-         * through an API call.
-         */
-        async getPaginatedUsersByActivityType() {
-            let pageNumber = this.currentPage - 1;
-            api.getUsersByActivityType(this.activityTypesSearchedFor, this.searchType, pageNumber)
-                .then(response => {
-                    this.userList = response.data;
-                    this.rows = response.headers["total-rows"];
-                    this.loading = false;
-                    this.resultsFound = true;
-                }).catch(error => {
-                    this.loading = false;
-                    this.errored = true;
-                    this.userList = [];
-                    if ((error.code === "ECONNREFUSED") || (error.code === "ECONNABORTED")) {
-                        this.error_message = "Cannot connect to server - please try again later!";
-                    } else {
-                        if (error.response.status === 401) {
-                            this.error_message = "You aren't logged in! You're being redirected!";
-                            setTimeout(() => {this.logout()}, 3000)
-                        } else if (error.response.status === 400) {
-                            this.error_message = error.response.data.message;
-                        } else if (error.response.status === 404) {
-                            this.error_message = "No users with activity types ".concat(this.selectedActivityTypes) + " have been found!"
-                        } else {
-                            this.error_message = "Something went wrong! Please try again."
-                        }
-                    }
-                });
-        },
-
-
-        /**
-         * Searches a user based on a string of activity types and a method AND or OR
-         */
-        async search() {
-            // Converts list of activity types into string
-            // e.g. ["Hiking", "Biking"] into "Hiking Biking"
-            this.errored = false;
-            this.loading = true;
-            // Set is as a copy so the User card is only updated after clicking search
-            this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
-            this.getPaginatedUsersByActivityType();
         },
         /**
          * Logout is used for when an error needs redirection
@@ -207,7 +155,6 @@ export default {
             });
         }
     }
-
 }
 </script>
 

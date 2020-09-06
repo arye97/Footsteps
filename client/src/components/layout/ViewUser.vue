@@ -45,6 +45,14 @@
                                 </b-list-group>
                                 <br/>
 
+                                <div class="map-box">
+                                    <!--ToDo: Add the user's location to replace these coordinates-->
+                                    <map-viewer
+                                            :pins="[{id:1, lat:-43.53, lng:172.63}]"
+                                            :center="{lat:-43.53, lng:172.63}"
+                                    ></map-viewer>
+                                </div>
+
                                 <!--Handling for displaying of Fitness Level-->
                                 <h3 class="font-weight-light"><strong>Fitness Level: </strong></h3>
 
@@ -127,7 +135,7 @@
                     </div>
                 </div>
                 <section v-if="pageUrl === '/search/users' && userDataLoaded">
-                    <ActivityList :user_-id="userId"/>
+                    <ActivityList :user-id-prop="userId"/>
                 </section>
             </div>
         </b-container>
@@ -140,24 +148,27 @@
     import {fitnessLevels} from '../../constants'
     import Header from '../../components/Header/Header';
     import ActivityList from "../Activities/ActivityList";
+    import MapViewer from "../../components/Map/MapViewer";
 
     export default {
         name: "ViewUser",
         components: {
             ActivityList,
-            Header
+            Header,
+            MapViewer
         },
         props: {
             modalView: {
                 default: false,
                 type: Boolean
             },
-            userId: {
+            userIdProp: {
                 default: ''
             }
         },
         data() {
             return {
+                userId: this.userIdProp,
                 user: null,
                 loading: true,
                 errored: false,
