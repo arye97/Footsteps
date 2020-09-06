@@ -82,5 +82,6 @@ export default {
   getFeedEvents: (userId, pageNumber) => server.get(`/profiles/${userId}/subscriptions/`, getExtendedPageNumberTokenHeader(pageNumber)),
   getActivityOutcomes: (activityId) => server.get(`/activities/${activityId}/outcomes`, getTokenHeader()),
   getOutcomeResults: (outcomeId) => server.get(`/outcomes/${outcomeId}/results`, getTokenHeader()),
-  createResult: (resultData, outcomeId) => server.post(`/outcomes/${outcomeId}/results`, resultData, getTokenHeader())
+  createResult: (resultData, outcomeId) => server.post(`/outcomes/${outcomeId}/results`, resultData, getTokenHeader()),
+  getCoordinateDataByLocation: (location) => server.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${location}&key=${process.env["VUE_APP_GOOGLE_MAPS_API_KEY"]}`)
 }

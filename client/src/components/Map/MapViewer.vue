@@ -9,8 +9,8 @@
         >
             <GmapMarker
                     ref="myMarker"
-                    :key="pin.id"
-                    v-for="pin in pins"
+                    :key="index"
+                    v-for="(pin, index) in pins"
                     :position="google && new google.maps.LatLng(pin.lat, pin.lng)"
                     :clickable="true"
                     :draggable="true"
@@ -44,7 +44,7 @@
                 type: Array,
                 validator: function (pins) {
                     // Each pin must have a lat, lng and id
-                    return pins.every(pin => {return !isNaN(pin.lat) && !isNaN(pin.lng) && !isNaN(pin.id);});
+                    return pins.every(pin => {return !isNaN(pin.lat) && !isNaN(pin.lng);});
                 }
             }
         },
