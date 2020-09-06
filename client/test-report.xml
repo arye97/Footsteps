@@ -1,13 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
-  <file path="C:\Users\rebek\OneDrive - University of Canterbury\SENG302\Project\client\src\Test\EditEmail.test.js">
-    <testCase name="Is a vue instance" duration="263"/>
-    <testCase name="Displays Primary Email" duration="279"/>
-    <testCase name="Displays Secondary Emails" duration="210"/>
-    <testCase name="Make Secondary Primary" duration="293"/>
-    <testCase name="Add Secondary Email" duration="294"/>
-    <testCase name="Add More than 5 Emails" duration="380"/>
-    <testCase name="Delete Secondary Email" duration="218"/>
-    <testCase name="Delete All Secondary Emails" duration="267"/>
+  <file path="/Users/euan/Desktop/uni/SENG302/team-600/client/src/Test/LiveBackEnd/LiveBackEndApi.test.js">
+    <testCase name="Register a new user" duration="755"/>
+    <testCase name="Logout user" duration="22"/>
+    <testCase name="Login user" duration="173"/>
+    <testCase name="Run tests on new user Get user role" duration="268"/>
+    <testCase name="Run tests on new user Get user id using token" duration="227"/>
+    <testCase name="Run tests on new user Modify password" duration="740"/>
+    <testCase name="Run tests on new user Edit profile" duration="251"/>
+    <testCase name="Run tests on new user Get user data by Id" duration="210"/>
+    <testCase name="Run tests on new user Get user data by Token" duration="199"/>
+    <testCase name="Run tests on new user Test the /check-profile end point" duration="188"/>
+    <testCase name="Run tests on new user Checking user email endpoints Set additional emails for the user" duration="241"/>
+    <testCase name="Run tests on new user Checking user email endpoints Edit primary and additional emails for the user" duration="213"/>
+    <testCase name="Run tests on new user Checking user email endpoints Check if email is in the database" duration="214"/>
+    <testCase name="Run tests on new user Checking user email endpoints Get all emails from user" duration="204"/>
+    <testCase name="Run tests on new user Checking user activity endpoints Create activity" duration="336"/>
+    <testCase name="Run tests on new user Checking user activity endpoints Edit activity" duration="276"/>
+    <testCase name="Run tests on new user Checking user activity endpoints Get data from activity" duration="257"/>
+    <testCase name="Run tests on new user Checking user activity endpoints Check if user can edit activity" duration="254"/>
+    <testCase name="Run tests on new user Checking user activity endpoints Create activity outcome" duration="253"/>
+    <testCase name="Run tests on new user Checking user activity endpoints Delete activity outcome" duration="254"/>
+    <testCase name="Run tests on new user Checking user activity endpoints Get an activities outcomes" duration="248"/>
+    <testCase name="Run tests on new user Checking user activity endpoints Create new result for an outcome" duration="275"/>
+    <testCase name="Run tests on new user Checking user activity endpoints Get all activities from a user" duration="248"/>
+    <testCase name="Run tests on new user Checking user activity endpoints Delete an activity" duration="257"/>
+    <testCase name="Run tests on new user Checking user activity endpoints Get list of participants for an activity" duration="306"/>
+    <testCase name="Run tests on new user Checking user feed event endpoints Get following status for an unsubscribed activity" duration="265"/>
+    <testCase name="Run tests on new user Checking user feed event endpoints Follow an unsubscribed activity" duration="264"/>
+    <testCase name="Run tests on new user Checking user feed event endpoints Follow an already subscribed activity throws a 400 error" duration="247"/>
+    <testCase name="Run tests on new user Checking user feed event endpoints Get following status for a subscribed activity" duration="230"/>
+    <testCase name="Run tests on new user Checking user feed event endpoints Unfollow a subscribed activity" duration="243"/>
+    <testCase name="Run tests on new user Checking user feed event endpoints Unfollow an already unsubscribed activity throws a 400 error" duration="232"/>
+    <testCase name="Run tests on new user Searching for users Get users by one activity type (OR)" duration="70"/>
+    <testCase name="Run tests on new user Searching for users Get users by one activity type (AND)" duration="49"/>
+    <testCase name="Run tests on new user Searching for users Get users by more than one activity types (OR)" duration="72"/>
+    <testCase name="Run tests on new user Searching for users Get users by more than one activity types (AND)" duration="56"/>
+    <testCase name="Run tests on new user Searching for users Get users with ActivityTypes containing a space (OR)" duration="59"/>
+    <testCase name="Run tests on new user Searching for users Get users with ActivityTypes containing &gt;1 spaces (AND)" duration="66"/>
+    <testCase name="Other miscellaneous tests Get all activity types in the database" duration="10"/>
   </file>
 </testExecutions>
