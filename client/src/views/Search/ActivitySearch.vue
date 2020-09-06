@@ -49,7 +49,7 @@
                 <br/>
             </section>
             <section v-else v-for="activity in this.activitiesList" :key="activity.id">
-                <!-- User List -->
+                <!-- Activity List -->
                 <activity-card v-bind:activity="activity" v-bind:activity-types-searched-for="activityTypesSearchedFor"></activity-card>
                 <br>
             </section>
@@ -68,17 +68,29 @@
 <script>
 import Multiselect from "vue-multiselect";
 import api from "../../Api";
+import ActivityCard from "./ActivityCard";
 
 export default {
     name: "ActivitySearch",
     components: {
+        ActivityCard,
         Multiselect
     },
     data() {
         return {
             activitiesPerPage: 5,
             currentPage: 1,
-            activitiesList: [],
+            activitiesList: [{ // ToDo remove this placeholder when actual activity search is implemented
+                id: 1,
+                creatorUserId: 1,
+                activity_name: "Snow trip",
+                description: "A fun Snow skiing trip. With lots of snow and scary looking tricks. Don't be late.",
+                activity_type: [{activity_type_id: 1, name: 'Skiing'}],
+                continuous: false,
+                start_time: new Date(),
+                end_time: new Date(),
+                location: "Queenstown"
+            }],
             searchMode: 'activityType',
             searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
                 { value: 'activityType', text: 'Activity Type'},
@@ -88,7 +100,7 @@ export default {
             selectedActivityTypes : [],
             selectedActivityNames : [],
             // These are a copy of selectedActivityTypes passed to the UserCard (to avoid mutation after clicking search)
-            activityTypesSearchedFor : [],
+            activityTypesSearchedFor : ['Skiing'], // ToDo remove this placeholder when actual activity search is implemented
             activityTitle: "",
             activityTypes: [],
             searchType: "and",
