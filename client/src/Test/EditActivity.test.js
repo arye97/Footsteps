@@ -26,7 +26,7 @@ const OUTCOME2 = {
     unit_name: "Time",
     unit_type: "TEXT"
 };
-const ORIGINAL_OUTCOME_LIST = [OUTCOME1];
+const ORIGINAL_OUTCOME_LIST = [];
 const ACTIVITY_TYPES = [
     {activityTypeId: 1, name: "Hng"},
     {activityTypeId: 2, name: "Attics"}
@@ -86,12 +86,11 @@ test('Is a vue instance', () => {
 });
 
 test('Adds and deletes an Outcome to outcomeList', () => {
-    // The test mounting includes 1 outcome to start
-    expect(editActivity.vm.outcomeList.length).toBe(1);
+    expect(editActivity.vm.outcomeList.length).toBe(0);
     editActivity.vm.addOutcome(OUTCOME2);
-    expect(editActivity.vm.outcomeList.length).toBe(2);
-    editActivity.vm.deleteOutcome(OUTCOME2);
     expect(editActivity.vm.outcomeList.length).toBe(1);
+    editActivity.vm.deleteOutcome(OUTCOME2);
+    expect(editActivity.vm.outcomeList.length).toBe(0);
 });
 
 test('Catches an http status error of 401 or user not authenticated when edit activity form is submitted and takes user to login page', () => {

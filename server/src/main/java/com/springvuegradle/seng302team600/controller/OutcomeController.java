@@ -91,10 +91,42 @@ public class OutcomeController {
         return outcomeResponses;
     }
 
+    /**
+     * Put request for editing an outcome created by a user
+     * Checks all possible inputs to see if it is there and needs updating
+     * Will throw an error if the outcome you're trying to edit has results already
+     * @param outcome the Outcome object we are updating
+     * @param outcomeId the ID of the outcome we are editing
+     */
+    @PutMapping("/activities/{outcomeId}/outcomes")
+    public void updateActivityOutcomes(@Validated @RequestBody OutcomeRequest outcome,
+                                       @PathVariable Long outcomeId,
+                                       HttpServletRequest request, HttpServletResponse response) {
 
-    @PutMapping("/activities/outcomes")
-    public void updateActivityOutcomes(@Validated @RequestBody Outcome outcome, HttpServletRequest request) {
-        //ToDo: Implement this method, and add a DocString please
+        String token = request.getHeader("Token");
+
+        //Get old outcome and check that it's not null
+        Outcome oldOutcome = outcomeRepository.findByOutcomeId(outcomeId);
+        if(oldOutcome == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Outcome not found");
+        }
+
+        //Get required info & check user is allowed to edit
+        Long activityId = oldOutcome.getActivityId();
+        Activity activity = activityRepository.findByActivityId(activityId);
+        Long profileId = activity.getCreatorUserId();
+        userAuthenticationService.findByUserId(token, profileId);
+        if(resultRepository.existsByOutcome(oldOutcome)){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Cannot edit outcome ID " + outcomeId + " due to results already existing");
+        }
+        OutcomeValidator.validate(new Outcome(outcome));
+
+        //Overwrite old outcome data with new data and save
+        oldOutcome.setTitle(outcome.getTitle());
+        oldOutcome.setUnitName(outcome.getUnitName());
+        oldOutcome.setUnitType(outcome.getUnitType());
+        outcomeRepository.save(oldOutcome);
     }
 
     /**
