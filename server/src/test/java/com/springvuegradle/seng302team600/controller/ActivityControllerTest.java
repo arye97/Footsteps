@@ -4,14 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.springvuegradle.seng302team600.model.*;
+import com.springvuegradle.seng302team600.payload.ActivityResponse;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.model.UserRole;
 import com.springvuegradle.seng302team600.payload.ActivityResponse;
 import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
-import com.springvuegradle.seng302team600.repository.ActivityRepository;
-import com.springvuegradle.seng302team600.repository.EmailRepository;
-import com.springvuegradle.seng302team600.repository.UserRepository;
+import com.springvuegradle.seng302team600.repository.*;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
 import com.springvuegradle.seng302team600.service.FeedEventService;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
@@ -22,6 +22,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -31,6 +33,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.*;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -58,6 +61,10 @@ class ActivityControllerTest {
     private UserAuthenticationService userAuthenticationService;
     @MockBean
     private ActivityTypeService activityTypeService;
+    @MockBean
+    private ActivityActivityTypeRepository activityActivityTypeRepository;
+    @MockBean
+    private ActivityTypeRepository activityTypeRepository;
     @Autowired
     private MockMvc mvc;
 
@@ -67,12 +74,34 @@ class ActivityControllerTest {
     private static final Long DEFAULT_USER_ID_2 = 2L;
     private static final Long DEFAULT_USER_ID_3 = 3L;
     private static final Long DEFAULT_EMAIL_ID = 1L;
+
     private static final Long DEFAULT_ACTIVITY_ID = 1L;
+    private static final Long DEFAULT_ACTIVITY_ID_2 = 2L;
+    private static final Long DEFAULT_ACTIVITY_ID_3 = 3L;
+    private static final Long DEFAULT_ACTIVITY_ID_4 = 4L;
+    private static final Long DEFAULT_ACTIVITY_ID_5 = 5L;
+    private static final Long DEFAULT_ACTIVITY_ID_6 = 6L;
+    private static final Long DEFAULT_ACTIVITY_ID_7 = 7L;
+
+    private static final Long DEFAULT_ACTIVITY_TYPE_ID = 1L;
+    private static final Long DEFAULT_ACTIVITY_TYPE_ID_2 = 2L;
+    private static final Long DEFAULT_ACTIVITY_TYPE_ID_3 = 3L;
+    private static final Long DEFAULT_ACTIVITY_TYPE_ID_4 = 4L;
+
     private static Long activityCount = 0L;
+    private int currentPageNumber = 0;
 
     private User dummyUser1;
     private User dummyUser2; // Used when a second user is required
     private User dummyUser3;
+
+    private Set<Activity> dummySearchActivitiesTable = new HashSet<>();
+
+    private Set<ActivityType> dummyActivity1ActivityTypes = new HashSet<>();
+    private Set<ActivityType> dummyActivity2ActivityTypes = new HashSet<>();
+    private Set<ActivityType> dummyActivity3ActivityTypes = new HashSet<>();
+    private Set<ActivityType> dummyOtherActivitiesActivityTypes = new HashSet<>();
+
     private final String validToken = "valid";
     private final String forbiddenToken = "forbidden";
     private final String anotherValidToken = "alsovalid";
@@ -152,6 +181,59 @@ class ActivityControllerTest {
     @BeforeEach
     void setupActivityRepository() {
         activityCount = 0L;
+
+        ActivityType dummyActivityType1 = new ActivityType("Biking");
+        ReflectionTestUtils.setField(dummyActivityType1, "activityTypeId", DEFAULT_ACTIVITY_TYPE_ID);
+        ActivityType dummyActivityType2 = new ActivityType("Hiking");
+        ReflectionTestUtils.setField(dummyActivityType2, "activityTypeId", DEFAULT_ACTIVITY_TYPE_ID_2);
+        ActivityType dummyActivityType3 = new ActivityType("Eating");
+        ReflectionTestUtils.setField(dummyActivityType3, "activityTypeId", DEFAULT_ACTIVITY_TYPE_ID_3);
+        ActivityType dummyActivityType4 = new ActivityType("Smiling");
+        ReflectionTestUtils.setField(dummyActivityType4, "activityTypeId", DEFAULT_ACTIVITY_TYPE_ID_4);
+
+        Set<ActivityType> dummySearchActivityTypes = new HashSet<>();
+        dummySearchActivityTypes.add(dummyActivityType1);
+        dummySearchActivityTypes.add(dummyActivityType2);
+        dummySearchActivityTypes.add(dummyActivityType3);
+        dummySearchActivityTypes.add(dummyActivityType4);
+
+        dummyActivity1ActivityTypes.add(dummyActivityType1);
+        dummyActivity1ActivityTypes.add(dummyActivityType2);
+        dummyActivity1ActivityTypes.add(dummyActivityType4);
+        dummyActivity2ActivityTypes.add(dummyActivityType2);
+        dummyActivity2ActivityTypes.add(dummyActivityType3);
+        dummyActivity2ActivityTypes.add(dummyActivityType4);
+        dummyActivity3ActivityTypes.add(dummyActivityType1);
+        dummyActivity3ActivityTypes.add(dummyActivityType2);
+        dummyActivity3ActivityTypes.add(dummyActivityType4);
+        dummyOtherActivitiesActivityTypes.add(dummyActivityType4);
+
+        Activity dummyActivity1 = new Activity();
+        ReflectionTestUtils.setField(dummyActivity1, "activityId", DEFAULT_ACTIVITY_ID_2);
+        ReflectionTestUtils.setField(dummyActivity1, "activityTypes", dummyActivity1ActivityTypes);
+        Activity dummyActivity2 = new Activity();
+        ReflectionTestUtils.setField(dummyActivity2, "activityId", DEFAULT_ACTIVITY_ID_3);
+        ReflectionTestUtils.setField(dummyActivity2, "activityTypes", dummyActivity2ActivityTypes);
+        Activity dummyActivity3 = new Activity();
+        ReflectionTestUtils.setField(dummyActivity3, "activityId", DEFAULT_ACTIVITY_ID_4);
+        ReflectionTestUtils.setField(dummyActivity3, "activityTypes", dummyActivity3ActivityTypes);
+        Activity dummyActivity4 = new Activity();
+        ReflectionTestUtils.setField(dummyActivity4, "activityId", DEFAULT_ACTIVITY_ID_5);
+        ReflectionTestUtils.setField(dummyActivity4, "activityTypes", dummyOtherActivitiesActivityTypes);
+        Activity dummyActivity5 = new Activity();
+        ReflectionTestUtils.setField(dummyActivity5, "activityId", DEFAULT_ACTIVITY_ID_6);
+        ReflectionTestUtils.setField(dummyActivity5, "activityTypes", dummyOtherActivitiesActivityTypes);
+        Activity dummyActivity6 = new Activity();
+        ReflectionTestUtils.setField(dummyActivity6, "activityId", DEFAULT_ACTIVITY_ID_7);
+        ReflectionTestUtils.setField(dummyActivity6, "activityTypes", dummyOtherActivitiesActivityTypes);
+
+        dummySearchActivitiesTable.add(dummyActivity1);
+        dummySearchActivitiesTable.add(dummyActivity2);
+        dummySearchActivitiesTable.add(dummyActivity3);
+        dummySearchActivitiesTable.add(dummyActivity4);
+        dummySearchActivitiesTable.add(dummyActivity5);
+        dummySearchActivitiesTable.add(dummyActivity6);
+
         // Save
         when(activityRepository.save(Mockito.any(Activity.class))).thenAnswer(i -> {
             Activity newActivity = i.getArgument(0);
@@ -182,17 +264,77 @@ class ActivityControllerTest {
             }
             List<Activity> activities = new ArrayList<>();
             for (Activity activity : activityMockTable) {
-                if (activity.getCreatorUserId().equals(userId) ||
-                        activity.getParticipants().contains(user)) {
+                if (activity.getCreatorUserId().equals(userId) || activity.getParticipants().contains(user)) {
                     activities.add(activity);
                 }
             }
             return activities;
         });
 
+
+
+
+        // Mock ActivityType repository for each activity
+        Map<String, Long> activityTypeNameToIdMap = new HashMap<>(4);
+        Map<Long, ActivityType> activityTypeIdToObjectMap = new HashMap<>(4);
+        for (ActivityType activityType: dummySearchActivityTypes) {
+            activityTypeNameToIdMap.put(activityType.getName().toLowerCase(), activityType.getActivityTypeId());
+            activityTypeIdToObjectMap.put(activityType.getActivityTypeId(), activityType);
+        }
+
+        when(activityTypeRepository.findActivityTypeIdsByNames(Mockito.anyList())).thenAnswer(i -> {
+            List<String> activityTypeNames = i.getArgument(0);
+            List<Long> activityTypeIds = new ArrayList<>();
+            for (String name: activityTypeNames) {
+                activityTypeIds.add(activityTypeNameToIdMap.get(name.toLowerCase()));
+            }
+            return activityTypeIds;
+        });
+
+        when(activityRepository.getActivitiesByIds(Mockito.anyList())).thenAnswer(i -> {
+            List<Long> activityIds = i.getArgument(0);
+            List<Activity> activities = new ArrayList<>();
+            for (Activity activity: dummySearchActivitiesTable) {
+                if (activityIds.contains(activity.getActivityId())) {
+                    activities.add(activity);
+                }
+            }
+            return activities;
+        });
+
+        // Mock the AND function of ActivityController
+        when(activityActivityTypeRepository.findByAllActivityTypeIds(Mockito.anyList(), Mockito.anyInt(), Mockito.any(Pageable.class))).thenAnswer(i -> {
+            List<Long> activityTypeIdsToMatch = i.getArgument(0);
+            Pageable pageWithFiveActivities = i.getArgument(2);
+            int pageNumber = pageWithFiveActivities.getPageNumber();
+            int pageSize = pageWithFiveActivities.getPageSize();
+
+            List<ActivityType> activityTypesToMatch = new ArrayList<>();
+            for (Long id: activityTypeIdsToMatch) {
+                activityTypesToMatch.add(activityTypeIdToObjectMap.get(id));
+            }
+            List<Long> activityIdsToSearch = new ArrayList<>();
+            for (Activity activity: dummySearchActivitiesTable) {
+                if (activity.getActivityTypes().containsAll(activityTypesToMatch)) {
+                    activityIdsToSearch.add(activity.getActivityId());
+                }
+            }
+            if (activityIdsToSearch.size() > 0) {
+                int startIndex = pageNumber * pageSize;
+                int endIndex = (pageNumber + 1) * pageSize;
+                List<Long> paginatedActivityIds;
+                if (startIndex > activityIdsToSearch.size()) {
+                    return null;
+                } else if (endIndex > activityIdsToSearch.size()) {
+                    endIndex = activityIdsToSearch.size();
+                }
+                paginatedActivityIds = activityIdsToSearch.subList(startIndex, endIndex);
+                return new PageImpl(paginatedActivityIds);
+            } else {
+                return null;
+            }
+        });
     }
-
-
 
 
 
@@ -229,10 +371,6 @@ class ActivityControllerTest {
         dummyUser3 = dummyUser3.builder(regReq);
         when(userRepository.save(Mockito.any(User.class))).thenAnswer(i -> dummyUser3);
     }
-
-
-
-
 
 
     // ----------- Tests -----------
@@ -458,6 +596,109 @@ class ActivityControllerTest {
             assertEquals(participant.toString(), expectedParticipants.get(i).toString());
         }
     }
+
+    @Test
+    void searchOneActivityByActivityTypesANDSuccessful() throws Exception {
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities?activity=eating&method=and"))
+                .header("Token", validToken)
+                .header("Page-Number", currentPageNumber);
+
+        MvcResult response = mvc.perform(request)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
+        assertEquals(1, responseArray.size());
+        assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), ActivityResponse.class));
+    }
+
+    @Test
+    void searchTwoActivitiesByActivityTypesANDSuccessful() throws Exception {
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities?activity=biking%20hiking&method=and"))
+                .header("Token", validToken)
+                .header("Page-Number", currentPageNumber);
+
+        MvcResult response = mvc.perform(request)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
+        assertEquals(2, responseArray.size());
+        assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), ActivityResponse.class));
+    }
+
+    @Test
+    void searchPageOneOfPaginatedActivitiesByActivityTypesANDSuccessful() throws Exception {
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities?activity=smiling&method=and"))
+                .header("Token", validToken)
+                .header("Page-Number", currentPageNumber);
+
+        MvcResult response = mvc.perform(request)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
+        assertEquals(5, responseArray.size());
+        assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), ActivityResponse.class));
+    }
+
+    @Test
+    void searchPageTwoOfPaginatedActivitiesByActivityTypesANDSuccessful() throws Exception {
+        currentPageNumber++;
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities?activity=smiling&method=and"))
+                .header("Token", validToken)
+                .header("Page-Number", currentPageNumber);
+
+        MvcResult response = mvc.perform(request)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
+        assertEquals(1, responseArray.size());
+        assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), ActivityResponse.class));
+        currentPageNumber--;
+    }
+
+    @Test
+    void searchPageThreeOfPaginatedActivitiesByActivityTypesANDFailNotFound() throws Exception {
+        currentPageNumber++;
+        currentPageNumber++;
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities?activity=smiling&method=and"))
+                .header("Token", validToken)
+                .header("Page-Number", currentPageNumber);
+
+        mvc.perform(request)
+                .andExpect(status().isNotFound())
+                .andReturn();
+        currentPageNumber--;
+        currentPageNumber--;
+    }
+
+    @Test
+    void searchOneActivityByActivityTypesANDFailNotFound() throws Exception {
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities?activity=smelling&method=and"))
+                .header("Token", validToken)
+                .header("Page-Number", currentPageNumber);
+
+        mvc.perform(request)
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
+    void searchOneActivityByActivityTypesMethodFailBadRequest() throws Exception {
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities?activity=eating&method=blah"))
+                .header("Token", validToken)
+                .header("Page-Number", currentPageNumber);
+
+        mvc.perform(request)
+                .andExpect(status().isBadRequest())
+                .andReturn();
+    }
+
+    // TODO Testing with OR should be almost identical to the ones above
+    // TODO Should test OR with 1 activity type eating which has a single Activity as a response
+    // TODO and test OR with 2 activity types hiking and biking which should have three Activities as a response
 
     @Test
     void getActivitiesByAKeyword() throws Exception {

@@ -1,5 +1,7 @@
 package com.springvuegradle.seng302team600.controller;
 
+import com.springvuegradle.seng302team600.repository.ActivityActivityTypeRepository;
+import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
 import com.springvuegradle.seng302team600.validator.ActivityValidator;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.User;
@@ -18,6 +20,9 @@ import com.springvuegradle.seng302team600.payload.ParticipantResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Controller to manage activities and activity type
@@ -29,16 +34,21 @@ public class ActivityController {
     private final UserAuthenticationService userAuthenticationService;
     private final ActivityTypeService activityTypeService;
     private final FeedEventService feedEventService;
+    private final ActivityTypeRepository activityTypeRepository;
+    private final ActivityActivityTypeRepository activityActivityTypeRepository;
+
     private static final int PAGE_SIZE = 5;
     private static final String CONTINUOUS = "CONTINUOUS";
     private static final String DURATION = "DURATION";
 
     public ActivityController(ActivityRepository activityRepository, UserAuthenticationService userAuthenticationService,
-                              ActivityTypeService activityTypeService, FeedEventService feedEventService) {
+                              ActivityTypeService activityTypeService, FeedEventService feedEventService, ActivityTypeRepository activityTypeRepository, ActivityActivityTypeRepository activityActivityTypeRepository) {
         this.activityRepository = activityRepository;
         this.userAuthenticationService = userAuthenticationService;
         this.activityTypeService = activityTypeService;
         this.feedEventService = feedEventService;
+        this.activityTypeRepository = activityTypeRepository;
+        this.activityActivityTypeRepository = activityActivityTypeRepository;
     }
 
     /**
@@ -329,5 +339,62 @@ public class ActivityController {
             activitiesFound.add(new ActivityResponse(activity));
         }
         return activitiesFound;
+    }
+
+
+    /**
+     * Obtains a paginated list of 5 activities by activity types.
+     * Either using AND so all provided activity types MUST be included in returned user or
+     * OR where one or more can be related to a user.
+     * @param activityTypes the list of activity types
+     * @param method the method to use (OR, AND)
+     * @return a list of users
+     */
+    @RequestMapping(
+            value = "/activities",
+            params = { "activity", "method" },
+            method = RequestMethod.GET
+    )
+    public List<ActivityResponse> getActivitiesByActivityType(HttpServletRequest request,
+                                                     HttpServletResponse response,
+                                                     @RequestParam(value="activity") String activityTypes,
+                                                     @RequestParam(value="method") String method) {
+        String token = request.getHeader("Token");
+        int pageNumber = request.getIntHeader("Page-Number");
+        userAuthenticationService.findByToken(token);
+        if (activityTypes.length() < 1) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Activity Types must be specified");
+        }
+        List<String> typesWithDashes = Arrays.asList(activityTypes.split(" "));
+
+        List<String> types = typesWithDashes.stream()
+                .map(a -> a.replace('-', ' '))
+                .collect(Collectors.toList());
+        List<Long> activityTypeIds = activityTypeRepository.findActivityTypeIdsByNames(types);
+        int numActivityTypes = activityTypeIds.size();
+
+        Page<Long> paginatedActivityIds;
+        Pageable pageWithFiveActivities = PageRequest.of(pageNumber, PAGE_SIZE);
+        if (method.toLowerCase().equals("and")) {
+            paginatedActivityIds = activityActivityTypeRepository.findByAllActivityTypeIds(activityTypeIds, numActivityTypes, pageWithFiveActivities);
+        // TODO for Search ActivityType By "OR" task
+        //} else if (method.toLowerCase().equals("or")) {
+        //      paginatedActivityIds = activityActivityTypeRepository.findBySomeActivityTypeIds(activityTypeIds, pageWithFiveActivities); //Gets the userIds
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Method must be specified as either (AND, OR)");
+        }
+
+        if (paginatedActivityIds == null || paginatedActivityIds.getTotalPages() == 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No activities have been found");
+        }
+
+        List<Activity> activityList =  activityRepository.getActivitiesByIds(paginatedActivityIds.getContent());
+        List<ActivityResponse> activitySearchList = new ArrayList<>();
+        for (Activity activity : activityList) {
+            activitySearchList.add(new ActivityResponse(activity));
+        }
+        int totalElements = (int) paginatedActivityIds.getTotalElements();
+        response.setIntHeader("Total-Rows", totalElements);
+        return activitySearchList;
     }
 }
