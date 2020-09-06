@@ -134,9 +134,8 @@
     export default {
         name: "ActivityList",
         props: {
-            //this is an underscore as props need to be set to a data(){} attribute, not directly assigned
-            // through a prop!!
-            user_Id: {
+            // This is named userIdProp because we shouldn't be modifying props
+            userIdProp: {
                 default: null
             }
         },
@@ -151,7 +150,7 @@
                 activitiesPerPage: 5,
                 activeTab: 0,
                 loading: true,
-                userId: this.user_Id,
+                userId: this.userIdProp,
                 errored: false,
                 error_message: "Could not load user activities",
                 activeUserId: null,
