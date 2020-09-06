@@ -1,6 +1,5 @@
 package com.springvuegradle.seng302team600.controller;
 
-import com.springvuegradle.seng302team600.model.FeedEvent;
 import com.springvuegradle.seng302team600.validator.ActivityValidator;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.User;
@@ -9,9 +8,7 @@ import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
 import com.springvuegradle.seng302team600.service.FeedEventService;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import com.springvuegradle.seng302team600.validator.ActivitySearchValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +17,6 @@ import com.springvuegradle.seng302team600.payload.ParticipantResponse;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -33,7 +29,6 @@ public class ActivityController {
     private final UserAuthenticationService userAuthenticationService;
     private final ActivityTypeService activityTypeService;
     private final FeedEventService feedEventService;
-
     private static final int PAGE_SIZE = 5;
     private static final String CONTINUOUS = "CONTINUOUS";
     private static final String DURATION = "DURATION";
@@ -304,53 +299,32 @@ public class ActivityController {
     )
     public List<ActivityResponse> getActivitiesByName(HttpServletRequest request,
                                                       @RequestParam(value="activityName") String activityName) {
+
+        String token = request.getHeader("Token");
+        userAuthenticationService.findByToken(token);
         List<ActivityResponse> activitiesFound = new ArrayList<>();
         if (activityName.length() == 0) {
             return activitiesFound;
         }
-        //check for a plus or minus
-        String newQuery = "";
-        List<String> name = Arrays.asList(activityName.split(" "));
+        List<Activity> activities = new ArrayList<>();
+        List<String> searchStrings;
         if (activityName.contains("-")) {
-            int i = 0;
-            while (!name.get(i).equals("-")) {
-                newQuery = String.format("%s%s", newQuery, name.get(i));
-                i++;
-                newQuery += " ";
+            //this gives <searchQuery, exclusions>
+            searchStrings = ActivitySearchValidator.handleMinusSpecialCaseString(activityName);
+            activities = activityRepository.findAllByKeywordExcludingTerm(searchStrings.get(0), searchStrings.get(1));
+        } else if (activityName.contains("plus")) { //ToDo: need to talk to team about better term to use
+            //this gives a list of all separate search queries
+            searchStrings = ActivitySearchValidator.handlePlusSpecialCaseString(activityName);
+            Set<Activity> setToRemoveDuplicates = new HashSet<>();
+            for (String term : searchStrings) {
+                setToRemoveDuplicates.addAll(activityRepository.findAllByKeyword(term));
             }
-            newQuery = newQuery.trim();
-        } else if (activityName.contains("\\+")) {
-            for (String term : name) {
-                if (!term.equals("\\+")) {
-                    newQuery = String.format("%s%s", newQuery, term);
-                    newQuery += " ";
-                }
-            }
-        }
-        activityName = newQuery;
-        String token = request.getHeader("Token");
-        userAuthenticationService.findByToken(token);
-        //check for multiple words in the search query
-        if (activityName.startsWith("\"") && activityName.endsWith("\"")){
-            //then the user has chosen exact match!
-            activityName = activityName.substring(1, activityName.length() - 1);
-            if (activityName.contains("%20")) {
-                List<String> searchTerms =  Arrays.asList(activityName.split("%20")); //underscore is our space char
-                activityName = "";
-                for (String term : searchTerms) {
-                    activityName = activityName + term + " ";
-                }
-                activityName = activityName.trim();
-            }
+            activities.addAll(setToRemoveDuplicates);
+
         } else {
-            String newQuery = "";
-            List<String> searchTerms =  Arrays.asList(activityName.split(" "));
-            for (String term : searchTerms) {
-                newQuery = newQuery + term + "%";
-            }
-            activityName = newQuery;
+            activityName = ActivitySearchValidator.getSearchQuery(activityName);
+            activities = activityRepository.findAllByKeyword(activityName);
         }
-        List<Activity> activities = activityRepository.findAllByKeyword(activityName);
         for (Activity activity : activities) {
             activitiesFound.add(new ActivityResponse(activity));
         }
