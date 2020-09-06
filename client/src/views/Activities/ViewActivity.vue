@@ -52,6 +52,12 @@
                                 </b-card-text>
                             </b-card>
                             <br/>
+                            <div>
+                                <b-button v-b-toggle="'map-area'" variant="primary">Toggle Map</b-button>
+                                <b-collapse center id="map-area">
+                                    <map-viewer></map-viewer>
+                                </b-collapse>
+                            </div>
                             <!-- Time details -> only relevant for duration activities -->
                             <div v-if="!continuous">
                                 <b-row class="mb-1">
@@ -233,10 +239,11 @@
     import Header from "../../components/Header/Header";
     import api from "../../Api";
     import {formatDateTime} from "../../util";
+    import MapViewer from "../../components/Map/MapViewer";
 
     export default {
         name: "ViewActivity",
-        components: {Header},
+        components: {MapViewer, Header},
         data () {
             return {
                 errored: false,
