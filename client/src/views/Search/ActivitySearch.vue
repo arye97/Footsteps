@@ -188,6 +188,25 @@ export default {
                         }
                     }
                 });
+        },
+
+        /**
+         * Searches a activity based on a string of activity types or an activity name by the AND or OR method
+         */
+        async search() {
+            // Converts list of activity types into string
+            // e.g. ["Hiking", "Biking"] into "Hiking Biking"
+            this.errored = false;
+            this.loading = true;
+            if (this.searchMode === 'activityType') {
+                // Set is as a copy so the User card is only updated after clicking search
+                this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
+                this.getPaginatedActivitiesByActivityType();
+            } else if (this.searchMode === 'name') {
+                console.log('searching for activity by name');
+                this.activityTitle = this.selectedActivityNames;
+                this.getPaginatedActivitiesByActivityTitle();
+            }
         }
     }
 }
