@@ -316,7 +316,9 @@ public class ActivityController {
             return activitiesFound;
         }
         int pageNumber = request.getIntHeader("Page-Number");
-        if (pageNumber == -1) pageNumber = 0;
+        if (pageNumber == -1) {
+            pageNumber = 0;
+        }
         String token = request.getHeader("Token");
         userAuthenticationService.findByToken(token);
         //check for multiple words in the search query
