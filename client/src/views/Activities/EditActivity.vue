@@ -61,11 +61,6 @@
             }
         },
         async created() {
-            // If not logged in
-            if (!sessionStorage.getItem("token")) {
-                this.$router.push('/login'); //Routes to home on logout
-            }
-
             // Get the activityId out of the URL
             let url = window.location.pathname;
             let activityId = url.substring(url.lastIndexOf('/') + 1);
