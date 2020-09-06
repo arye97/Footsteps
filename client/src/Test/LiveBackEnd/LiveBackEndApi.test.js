@@ -627,7 +627,6 @@ describe("Run tests on new user", () => {
             });
         });
 
-
         test("Get page 1 of paginated users with ActivityTypes (AND)", () => {
             return api.getUsersByActivityType(["Badminton", "Basketball"], "and", PAGE_NUMBER).then(response => {
                 expect(response.status).toEqual(200);
@@ -638,7 +637,7 @@ describe("Run tests on new user", () => {
         });
 
         test("Get page 2 of paginated users with ActivityTypes (OR)", () => {
-            PAGE_NUMBER += 1;
+            PAGE_NUMBER = 1;
             return api.getUsersByActivityType(["Badminton", "Rock Climbing"], "or", PAGE_NUMBER).then(response => {
                 expect(response.status).toEqual(200);
                 expect(response.data.length).toEqual(1);
@@ -656,7 +655,54 @@ describe("Run tests on new user", () => {
             });
         });
 
+        test("Get non-existent page 3 of paginated users with ActivityTypes", () => {
+            PAGE_NUMBER = 2;
+            return api.getUsersByActivityType(["Badminton", "Basketball"], "or", PAGE_NUMBER).then(response => {
+                expect(response.status).toEqual(200);
+                expect(response.data.length).toEqual(0);
+            }).catch(err => {
+                throw procError(err)
+            });
+        });
 
+        test("Get paginated users with ActivityTypes and BAD_METHOD", () => {
+            PAGE_NUMBER = 0;
+            return api.getUsersByActivityType(["Hiking"], "BAD_METHOD", PAGE_NUMBER).then(response => {
+                fail("API should have thrown a 400 error")
+            }).catch(err => {
+                expect(err.response.data.status).toEqual(400);
+                expect(err.response.data.message).toEqual(
+                    "Method must be specified as either (AND, OR)"
+                );
+                procError(err)
+            });
+        });
+
+        test("Get paginated users with ActivityTypes that does not exist", () => {
+            PAGE_NUMBER = 0;
+            return api.getUsersByActivityType(["Rugby"], "or", PAGE_NUMBER).then(response => {
+                fail("API should have thrown a 404 error")
+            }).catch(err => {
+                expect(err.response.data.status).toEqual(404);
+                expect(err.response.data.message).toEqual(
+                    "No users have been found"
+                );
+                procError(err)
+            });
+        });
+
+        test("Get paginated users with ActivityTypes with BAD PAGE_NUMBER", () => {
+            PAGE_NUMBER = 2;
+            return api.getUsersByActivityType(["Badminton", "Basketball"], "or", "BAD_NUMBER").then(response => {
+                fail("API should have thrown a 400 error")
+            }).catch(err => {
+                expect(err.response.data.status).toEqual(400);
+                expect(err.response.data.message).toEqual(
+                    "Page-Number must be an integer"
+                );
+                procError(err)
+            });
+        });
     });
 });
 
