@@ -10,7 +10,7 @@ import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
 import com.springvuegradle.seng302team600.service.FeedEventService;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
-import com.springvuegradle.seng302team600.validator.ActivitySearchValidator;
+import com.springvuegradle.seng302team600.service.ActivitySearchService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,8 +24,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.io.IOException;
-import java.util.*;
 
 /**
  * Controller to manage activities and activity type
@@ -313,6 +311,7 @@ public class ActivityController {
     public List<ActivityResponse> getActivitiesByName(HttpServletRequest request,
                                                       @RequestParam(value="activityName") String activityName) {
 
+        System.out.println(activityName.contains("+"));
         String token = request.getHeader("Token");
         userAuthenticationService.findByToken(token);
         List<ActivityResponse> activitiesFound = new ArrayList<>();
@@ -323,11 +322,12 @@ public class ActivityController {
         List<String> searchStrings;
         if (activityName.contains("-")) {
             //this gives <searchQuery, exclusions>
-            searchStrings = ActivitySearchValidator.handleMinusSpecialCaseString(activityName);
+            searchStrings = ActivitySearchService.handleMinusSpecialCaseString(activityName);
             activities = activityRepository.findAllByKeywordExcludingTerm(searchStrings.get(0), searchStrings.get(1));
-        } else if (activityName.contains("plus")) { //ToDo: need to talk to team about better term to use
+        } else if (activityName.contains("%2b") || (activityName.contains("+"))) { //ToDo: need to talk to team about better term to use
+            System.out.println(activityName);
             //this gives a list of all separate search queries
-            searchStrings = ActivitySearchValidator.handlePlusSpecialCaseString(activityName);
+            searchStrings = ActivitySearchService.handlePlusSpecialCaseString(activityName);
             Set<Activity> setToRemoveDuplicates = new HashSet<>();
             for (String term : searchStrings) {
                 setToRemoveDuplicates.addAll(activityRepository.findAllByKeyword(term));
@@ -335,7 +335,7 @@ public class ActivityController {
             activities.addAll(setToRemoveDuplicates);
 
         } else {
-            activityName = ActivitySearchValidator.getSearchQuery(activityName);
+            activityName = ActivitySearchService.getSearchQuery(activityName);
             activities = activityRepository.findAllByKeyword(activityName);
         }
         for (Activity activity : activities) {

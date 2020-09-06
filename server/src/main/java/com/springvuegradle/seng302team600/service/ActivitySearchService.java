@@ -1,9 +1,9 @@
-package com.springvuegradle.seng302team600.validator;
+package com.springvuegradle.seng302team600.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-public class ActivitySearchValidator {
+public class ActivitySearchService {
 
     public static List<String> handleMinusSpecialCaseString(String searchString) {
         String searchQuery = "%";
@@ -26,7 +26,7 @@ public class ActivitySearchValidator {
     }
 
     public static List<String> handlePlusSpecialCaseString(String searchString) {
-        List<String> name = Arrays.asList(searchString.split("plus"));
+        List<String> name = Arrays.asList(searchString.split("\\+"));
         List<String> queries = new ArrayList<>();
         for (String terms : name) {
             List<String> total_terms = Arrays.asList(terms.split(" "));
