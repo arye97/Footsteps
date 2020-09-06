@@ -856,8 +856,9 @@ class ActivityControllerTest {
         activities.add(dumActivity1);
         activities.add(dumActivity2);
 
-        when(activityRepository.findAllByKeyword(Mockito.anyString())).thenAnswer(i -> {
+        when(activityRepository.findAllByKeyword(Mockito.anyString(), Mockito.any())).thenAnswer(i -> {
             List<Activity> foundActivities = new ArrayList<>();
+            Page<Activity> pagedFoundActivities;
             String keyword = i.getArgument(0);
             keyword = keyword.replaceAll("[^a-zA-Z0-9\\\\s+]", "");
             System.out.println(keyword);
@@ -867,7 +868,9 @@ class ActivityControllerTest {
                     foundActivities.add(activity);
                 }
             }
-            return foundActivities;
+            System.out.println(foundActivities);
+            pagedFoundActivities = new PageImpl<>(foundActivities);
+            return pagedFoundActivities;
         });
 
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityName=Fuji%20%2b%20Tower"))

@@ -13,6 +13,7 @@ import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import com.springvuegradle.seng302team600.service.ActivitySearchService;
 import com.springvuegradle.seng302team600.validator.ActivityValidator;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -311,6 +312,7 @@ public class ActivityController {
             method = RequestMethod.GET
     )
     public List<ActivityResponse> getActivitiesByName(HttpServletRequest request,
+                                                      HttpServletResponse response,
                                                       @RequestParam(value="activityName") String activityName) {
         String token = request.getHeader("Token");
         userAuthenticationService.findByToken(token);
@@ -324,36 +326,40 @@ public class ActivityController {
         }
         List<Activity> activities = new ArrayList<>();
         List<String> searchStrings;
+        Page<Activity> paginatedActivities;
+        Pageable pageWithFiveActivities = PageRequest.of(pageNumber, PAGE_SIZE);
         if (activityName.contains("-")) {
             //this gives <searchQuery, exclusions>
             searchStrings = ActivitySearchService.handleMinusSpecialCaseString(activityName);
             activities = activityRepository.findAllByKeywordExcludingTerm(searchStrings.get(0), searchStrings.get(1));
+            for (Activity activity : activities) {
+                activitiesFound.add(new ActivityResponse(activity));
+            }
+            return activitiesFound;
         } else if (activityName.contains("%2b") || (activityName.contains("+"))) {
             //this gives a list of all separate search queries
             searchStrings = ActivitySearchService.handlePlusSpecialCaseString(activityName);
             Set<Activity> setToRemoveDuplicates = new HashSet<>();
             for (String term : searchStrings) {
-                System.out.println("calling it");
-                setToRemoveDuplicates.addAll(activityRepository.findAllByKeyword(term));
+                Page<Activity> currPage = activityRepository.findAllByKeyword(term, pageWithFiveActivities);
+                setToRemoveDuplicates.addAll(currPage.getContent());
             }
-            activities.addAll(setToRemoveDuplicates);
+            List<Activity> listedActivities = new ArrayList<>(setToRemoveDuplicates);
+            paginatedActivities = new PageImpl<>(listedActivities);
 
         } else {
             activityName = ActivitySearchService.getSearchQuery(activityName);
-            activities = activityRepository.findAllByKeyword(activityName);
+            paginatedActivities = activityRepository.findAllByKeyword(activityName, pageWithFiveActivities);
         }
-        for (Activity activity : activities) {
-            activitiesFound.add(new ActivityResponse(activity));
-        Page<Activity> paginatedActivities;
-        Pageable pageWithFiveActivities = PageRequest.of(pageNumber, PAGE_SIZE);
-        paginatedActivities = activityRepository.findAllByKeyword(activityName, pageWithFiveActivities);
+
         if (paginatedActivities == null || paginatedActivities.getTotalPages() == 0) {
             return activitiesFound;
         }
-        List<Activity> activities = paginatedActivities.getContent();
-        activities.forEach(i -> activitiesFound.add(new ActivityResponse(i)));
+        List<Activity> pageActivities = paginatedActivities.getContent();
+        pageActivities.forEach(i -> activitiesFound.add(new ActivityResponse(i)));
         int totalElements = (int) paginatedActivities.getTotalElements();
         response.setIntHeader("Total-Rows", totalElements);
+
         return activitiesFound;
     }
 
