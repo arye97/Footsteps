@@ -1,9 +1,13 @@
 import 'vue-jest'
-import {shallowMount} from '@vue/test-utils'
+import {createLocalVue, mount} from '@vue/test-utils'
 import EditActivity from "../views/Activities/EditActivity";
 import api from "../Api";
 import router from '../index';
+import {BootstrapVue} from 'bootstrap-vue';
 jest.mock("../Api");
+
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
 
 let editActivity;
 let config;
@@ -22,16 +26,29 @@ const OUTCOME2 = {
     unit_name: "Time",
     unit_type: "TEXT"
 };
-const ORIGINAL_OUTCOME_LIST = [OUTCOME1];
+const ORIGINAL_OUTCOME_LIST = [];
+const ACTIVITY_TYPES = [
+    {activityTypeId: 1, name: "Hng"},
+    {activityTypeId: 2, name: "Attics"}
+];
+const ACTIVITY_DATA = {
+    activity_name: "Activity name",
+    creatorUserId: 1,
+    continuous: true,
+    description: "My activity description",
+    location: "My activity location",
+    activity_type: ["Hng", "Attics"],
+};
 
-beforeAll(() => {
+beforeEach(() => {
     config = {
         router,
         data: function() {
             return {
                 outcomeList: []
             }
-        }
+        },
+        localVue
     };
     // This Removes: TypeError: Cannot read property 'then' of undefined
     api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID, status: 200 }));
@@ -40,9 +57,14 @@ beforeAll(() => {
     api.getActivityOutcomes.mockImplementation(() => Promise.resolve({ data: ORIGINAL_OUTCOME_LIST, status: 200 }));
     api.createOutcome.mockImplementation(outcomeRequest => {
         receivedOutcomeRequests.push(outcomeRequest);
-        Promise.resolve({ data: DEFAULT_USER_ID, status: 200 })
+        return Promise.resolve({ data: DEFAULT_USER_ID, status: 200 });
     });
-    editActivity = shallowMount(EditActivity, config);
+    api.getActivityTypes.mockImplementation(() => Promise.resolve({data: ACTIVITY_TYPES, status: 200}));
+    api.getActivityData.mockImplementation(() => Promise.resolve({data: ACTIVITY_DATA, status: 200}));
+    editActivity = mount(EditActivity, config);
+    if (editActivity.vm.$router.currentRoute.name !== "editActivity") {
+        editActivity.vm.$router.push(`/activities/edit/${DEFAULT_ACTIVITY_ID}`);
+    }
 });
 
 beforeEach(() => {
@@ -65,9 +87,9 @@ test('Is a vue instance', () => {
 
 test('Adds and deletes an Outcome to outcomeList', () => {
     expect(editActivity.vm.outcomeList.length).toBe(0);
-    editActivity.vm.addOutcome(OUTCOME1);
+    editActivity.vm.addOutcome(OUTCOME2);
     expect(editActivity.vm.outcomeList.length).toBe(1);
-    editActivity.vm.deleteOutcome(OUTCOME1);
+    editActivity.vm.deleteOutcome(OUTCOME2);
     expect(editActivity.vm.outcomeList.length).toBe(0);
 });
 
@@ -105,7 +127,6 @@ test('Checking 200 response status of edit activity function', () => {
         ACTIVITY1
     });
 
-
     api.updateActivity.mockImplementation(() => Promise.resolve({ data: {'Token': 'ValidToken', 'userId': 1}, status: 200 }));  // Mocks errors sent from the server
     let spy = jest.spyOn(router, 'push');
 
@@ -133,7 +154,6 @@ test('Catches an http status error of 401 when activity data is coming back from
         ACTIVITY1
     });
 
-
     let networkError = new Error("Mocked Network Error");
     networkError.response = {status: 401};   // Explicitly give the error a response.status
     api.getActivityData.mockImplementation(() => Promise.reject(networkError));  // Mocks errors sent from the server
@@ -158,7 +178,7 @@ test('Catches an http status error of 403 when checking if activity can be edite
 
     return editActivity.vm.getActivityData().then(() => {
         expect(spy).toHaveBeenLastCalledWith(
-            { name: 'allActivities', params: {alertCount: 5, alertMessage: "Can't get Activity data"} });
+            { name: 'allActivities', params: {alertCount: 5, alertMessage: "Activity is not editable"} });
     });
 });
 
@@ -180,9 +200,8 @@ test('Catches an http status error that isnt 401 or 403 when activity data is co
     });
 });
 
-
-test('Creates the correct Outcome payload and creates only new Outcomes', () => {
-    editActivity.vm.editAllOutcomes([OUTCOME1, OUTCOME2], [OUTCOME1], DEFAULT_ACTIVITY_ID);
+test('Creates the correct Outcome payload and creates only new Outcomes', async () => {
+    await editActivity.vm.editAllOutcomes([OUTCOME1, OUTCOME2], [OUTCOME1], DEFAULT_ACTIVITY_ID);
     expect(receivedOutcomeRequests.length).toBe(1);  // Should only make a request for the new Outcome
     let outcomeRequest = receivedOutcomeRequests[0];
 
