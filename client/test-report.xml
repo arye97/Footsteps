@@ -1,115 +1,208 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
-  <file path="/Users/Ben/Desktop/SENG302/project/team-600/client/src/Test/LiveBackEnd/LiveBackEndApi.test.js">
-    <testCase name="Register a new user" duration="462"/>
-    <testCase name="Logout user" duration="16"/>
-    <testCase name="Login user" duration="132"/>
-    <testCase name="Run tests on new user Get user role" duration="192"/>
-    <testCase name="Run tests on new user Get user id using token" duration="150"/>
-    <testCase name="Run tests on new user Modify password" duration="455"/>
-    <testCase name="Run tests on new user Edit profile" duration="151"/>
-    <testCase name="Run tests on new user Get user data by Id" duration="163"/>
-    <testCase name="Run tests on new user Get user data by Token" duration="141"/>
-    <testCase name="Run tests on new user Test the /check-profile end point" duration="143"/>
-    <testCase name="Run tests on new user Checking user email endpoints Set additional emails for the user" duration="164"/>
-    <testCase name="Run tests on new user Checking user email endpoints Edit primary and additional emails for the user" duration="161"/>
-    <testCase name="Run tests on new user Checking user email endpoints Check if email is in the database" duration="154"/>
-    <testCase name="Run tests on new user Checking user email endpoints Get all emails from user" duration="155"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Create activity" duration="241"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Edit activity" duration="199"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Get data from activity" duration="192"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Check if user can edit activity" duration="178"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Create activity outcome" duration="178"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Delete activity outcome" duration="169"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Get an activities outcomes" duration="172"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Create new result for an outcome" duration="189"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Get all activities from a user" duration="168"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Delete an activity" duration="167"/>
-    <testCase name="Run tests on new user Checking user activity endpoints Get list of participants for an activity" duration="166"/>
-    <testCase name="Run tests on new user Checking user feed event endpoints Get following status for an unsubscribed activity" duration="187"/>
-    <testCase name="Run tests on new user Checking user feed event endpoints Follow an unsubscribed activity" duration="171"/>
-    <testCase name="Run tests on new user Checking user feed event endpoints Follow an already subscribed activity throws a 400 error" duration="166"/>
-    <testCase name="Run tests on new user Checking user feed event endpoints Get following status for a subscribed activity" duration="162"/>
-    <testCase name="Run tests on new user Checking user feed event endpoints Unfollow a subscribed activity" duration="166"/>
-    <testCase name="Run tests on new user Checking user feed event endpoints Unfollow an already unsubscribed activity throws a 400 error" duration="161"/>
-    <testCase name="Run tests on new user Searching for users Get users by one activity type (OR)" duration="22">
-      <failure message="TypeError: Invalid value &quot;undefined&quot; for header &quot;Page-Number&quot;TypeError [ERR_HTTP_INVALID_HEADER_VALUE]: Invalid value &quot;undefined&quot; for header &quot;Page-Number&quot;"><![CDATA[TypeError: Invalid value "undefined" for header "Page-Number"TypeError [ERR_HTTP_INVALID_HEADER_VALUE]: Invalid value "undefined" for header "Page-Number"
-    at ClientRequest.setHeader (_http_outgoing.js:529:3)
-    at new ClientRequest (_http_client.js:241:14)
-    at Object.request (http.js:46:10)
-    at RedirectableRequest.Object.<anonymous>.RedirectableRequest._performRequest (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/node_modules/follow-redirects/index.js:169:24)
-    at new RedirectableRequest (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/node_modules/follow-redirects/index.js:66:8)
-    at Object.wrappedProtocol.request (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/node_modules/follow-redirects/index.js:307:14)
-    at dispatchHttpRequest (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/lib/adapters/http.js:179:25)
-    at new Promise (<anonymous>)
-    at httpAdapter (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/lib/adapters/http.js:21:10)
-    at dispatchRequest (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/lib/core/dispatchRequest.js:52:10)]]></failure>
-    </testCase>
-    <testCase name="Run tests on new user Searching for users Get users by one activity type (AND)" duration="25">
-      <failure message="TypeError: Invalid value &quot;undefined&quot; for header &quot;Page-Number&quot;TypeError [ERR_HTTP_INVALID_HEADER_VALUE]: Invalid value &quot;undefined&quot; for header &quot;Page-Number&quot;"><![CDATA[TypeError: Invalid value "undefined" for header "Page-Number"TypeError [ERR_HTTP_INVALID_HEADER_VALUE]: Invalid value "undefined" for header "Page-Number"
-    at ClientRequest.setHeader (_http_outgoing.js:529:3)
-    at new ClientRequest (_http_client.js:241:14)
-    at Object.request (http.js:46:10)
-    at RedirectableRequest.Object.<anonymous>.RedirectableRequest._performRequest (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/node_modules/follow-redirects/index.js:169:24)
-    at new RedirectableRequest (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/node_modules/follow-redirects/index.js:66:8)
-    at Object.wrappedProtocol.request (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/node_modules/follow-redirects/index.js:307:14)
-    at dispatchHttpRequest (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/lib/adapters/http.js:179:25)
-    at new Promise (<anonymous>)
-    at httpAdapter (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/lib/adapters/http.js:21:10)
-    at dispatchRequest (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/lib/core/dispatchRequest.js:52:10)]]></failure>
-    </testCase>
-    <testCase name="Run tests on new user Searching for users Get users by more than one activity types (OR)" duration="20">
-      <failure message="TypeError: Invalid value &quot;undefined&quot; for header &quot;Page-Number&quot;TypeError [ERR_HTTP_INVALID_HEADER_VALUE]: Invalid value &quot;undefined&quot; for header &quot;Page-Number&quot;"><![CDATA[TypeError: Invalid value "undefined" for header "Page-Number"TypeError [ERR_HTTP_INVALID_HEADER_VALUE]: Invalid value "undefined" for header "Page-Number"
-    at ClientRequest.setHeader (_http_outgoing.js:529:3)
-    at new ClientRequest (_http_client.js:241:14)
-    at Object.request (http.js:46:10)
-    at RedirectableRequest.Object.<anonymous>.RedirectableRequest._performRequest (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/node_modules/follow-redirects/index.js:169:24)
-    at new RedirectableRequest (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/node_modules/follow-redirects/index.js:66:8)
-    at Object.wrappedProtocol.request (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/node_modules/follow-redirects/index.js:307:14)
-    at dispatchHttpRequest (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/lib/adapters/http.js:179:25)
-    at new Promise (<anonymous>)
-    at httpAdapter (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/lib/adapters/http.js:21:10)
-    at dispatchRequest (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/lib/core/dispatchRequest.js:52:10)]]></failure>
-    </testCase>
-    <testCase name="Run tests on new user Searching for users Get users by more than one activity types (AND)" duration="22">
-      <failure message="TypeError: Invalid value &quot;undefined&quot; for header &quot;Page-Number&quot;TypeError [ERR_HTTP_INVALID_HEADER_VALUE]: Invalid value &quot;undefined&quot; for header &quot;Page-Number&quot;"><![CDATA[TypeError: Invalid value "undefined" for header "Page-Number"TypeError [ERR_HTTP_INVALID_HEADER_VALUE]: Invalid value "undefined" for header "Page-Number"
-    at ClientRequest.setHeader (_http_outgoing.js:529:3)
-    at new ClientRequest (_http_client.js:241:14)
-    at Object.request (http.js:46:10)
-    at RedirectableRequest.Object.<anonymous>.RedirectableRequest._performRequest (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/node_modules/follow-redirects/index.js:169:24)
-    at new RedirectableRequest (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/node_modules/follow-redirects/index.js:66:8)
-    at Object.wrappedProtocol.request (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/node_modules/follow-redirects/index.js:307:14)
-    at dispatchHttpRequest (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/lib/adapters/http.js:179:25)
-    at new Promise (<anonymous>)
-    at httpAdapter (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/lib/adapters/http.js:21:10)
-    at dispatchRequest (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/lib/core/dispatchRequest.js:52:10)]]></failure>
-    </testCase>
-    <testCase name="Run tests on new user Searching for users Get users with ActivityTypes containing a space (OR)" duration="19">
-      <failure message="TypeError: Invalid value &quot;undefined&quot; for header &quot;Page-Number&quot;TypeError [ERR_HTTP_INVALID_HEADER_VALUE]: Invalid value &quot;undefined&quot; for header &quot;Page-Number&quot;"><![CDATA[TypeError: Invalid value "undefined" for header "Page-Number"TypeError [ERR_HTTP_INVALID_HEADER_VALUE]: Invalid value "undefined" for header "Page-Number"
-    at ClientRequest.setHeader (_http_outgoing.js:529:3)
-    at new ClientRequest (_http_client.js:241:14)
-    at Object.request (http.js:46:10)
-    at RedirectableRequest.Object.<anonymous>.RedirectableRequest._performRequest (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/node_modules/follow-redirects/index.js:169:24)
-    at new RedirectableRequest (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/node_modules/follow-redirects/index.js:66:8)
-    at Object.wrappedProtocol.request (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/node_modules/follow-redirects/index.js:307:14)
-    at dispatchHttpRequest (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/lib/adapters/http.js:179:25)
-    at new Promise (<anonymous>)
-    at httpAdapter (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/lib/adapters/http.js:21:10)
-    at dispatchRequest (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/lib/core/dispatchRequest.js:52:10)]]></failure>
-    </testCase>
-    <testCase name="Run tests on new user Searching for users Get users with ActivityTypes containing &gt;1 spaces (AND)" duration="24">
-      <failure message="TypeError: Invalid value &quot;undefined&quot; for header &quot;Page-Number&quot;TypeError [ERR_HTTP_INVALID_HEADER_VALUE]: Invalid value &quot;undefined&quot; for header &quot;Page-Number&quot;"><![CDATA[TypeError: Invalid value "undefined" for header "Page-Number"TypeError [ERR_HTTP_INVALID_HEADER_VALUE]: Invalid value "undefined" for header "Page-Number"
-    at ClientRequest.setHeader (_http_outgoing.js:529:3)
-    at new ClientRequest (_http_client.js:241:14)
-    at Object.request (http.js:46:10)
-    at RedirectableRequest.Object.<anonymous>.RedirectableRequest._performRequest (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/node_modules/follow-redirects/index.js:169:24)
-    at new RedirectableRequest (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/node_modules/follow-redirects/index.js:66:8)
-    at Object.wrappedProtocol.request (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/node_modules/follow-redirects/index.js:307:14)
-    at dispatchHttpRequest (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/lib/adapters/http.js:179:25)
-    at new Promise (<anonymous>)
-    at httpAdapter (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/lib/adapters/http.js:21:10)
-    at dispatchRequest (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/axios/lib/core/dispatchRequest.js:52:10)]]></failure>
-    </testCase>
-    <testCase name="Other miscellaneous tests Get all activity types in the database" duration="7"/>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/Details.test.js">
+    <testCase name="Is a vue instance" duration="785"/>
+    <testCase name="Successful changes Mutate first name" duration="278"/>
+    <testCase name="Successful changes Names with hyphens and apostrophes" duration="223"/>
+    <testCase name="Successful changes Mutate middle name" duration="206"/>
+    <testCase name="Successful changes Empty middle name" duration="205"/>
+    <testCase name="Successful changes Mutate last name" duration="193"/>
+    <testCase name="Successful changes Mutate nickname" duration="210"/>
+    <testCase name="Successful changes Empty nickname" duration="186"/>
+    <testCase name="Successful changes Mutate bio" duration="192"/>
+    <testCase name="Successful changes Empty bio" duration="191"/>
+    <testCase name="Unsuccessful changes Empty first name" duration="183"/>
+    <testCase name="Unsuccessful changes Numbered first name" duration="189"/>
+    <testCase name="Unsuccessful changes Empty last name" duration="183"/>
+    <testCase name="Unsuccessful changes Numbered last name" duration="190"/>
+    <testCase name="Unsuccessful changes Numbered last name" duration="192"/>
+    <testCase name="Required fields Required fields are marked" duration="220"/>
+    <testCase name="Required fields Not required fields are not marked" duration="217"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/ViewActivity.test.js">
+    <testCase name="Is a vue instance" duration="71"/>
+    <testCase name="The view activity page displays the activity title" duration="197"/>
+    <testCase name="The view activity page displays the activity description" duration="214"/>
+    <testCase name="The view activity page displays the activity location" duration="203"/>
+    <testCase name="The view activity page has a view participants button" duration="217"/>
+    <testCase name="The view activity page has a view results button" duration="200"/>
+    <testCase name="The view activity page shows the activity type" duration="169"/>
+    <testCase name="The view activity page has a view participants modal" duration="189"/>
+    <testCase name="The view activity page displays 2 participants" duration="200"/>
+    <testCase name="The view activity page has add result model" duration="198"/>
+    <testCase name="The view activity page displays 1 outcome card" duration="194"/>
+    <testCase name="The view activity page displays 1 input for the result" duration="174"/>
+    <testCase name="The view activity page displays 1 submit result button" duration="175"/>
+    <testCase name="As an activity creator I cannot see the follow button" duration="2"/>
+    <testCase name="As an activity creator I cannot see the unfollow button" duration="1"/>
+    <testCase name="As an activity creator I can see the edit activity button" duration="2"/>
+    <testCase name="As an activity creator I can see the add results button" duration="1"/>
+    <testCase name="If I&apos;m following an activity I can see the unfollow button" duration="185"/>
+    <testCase name="If I&apos;m following an activity I can&apos;t see the follow button" duration="189"/>
+    <testCase name="If I&apos;m following an activity I can&apos;t see the edit activity button" duration="184"/>
+    <testCase name="If I&apos;m following an activity I can see the add results button" duration="203"/>
+    <testCase name="If I am not following the activity I can&apos;t see the unfollow button" duration="173"/>
+    <testCase name="If I am not following the activity I can see the follow button" duration="189"/>
+    <testCase name="If I am not following the activity I can&apos;t see the edit activity button" duration="188"/>
+    <testCase name="If I am not following the activity I can&apos;t see the add results button" duration="175"/>
+    <testCase name="When there are no participants When there are no participants, it displays &apos;No participants to show&apos;" duration="182"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/FeedCard.test.js">
+    <testCase name="Is a vue instance" duration="158"/>
+    <testCase name="The feed card Displays a description of what happened" duration="160"/>
+    <testCase name="The feed card Displays a timestamp" duration="159"/>
+    <testCase name="The feed card Does not have any buttons for a delete event" duration="161"/>
+    <testCase name="The feed card Has 1 buttons for a follow event" duration="166"/>
+    <testCase name="The extract data method Sets the time for events that occurred in the last 10s to &quot;Just now&quot;" duration="159"/>
+    <testCase name="The extract data method Sets the time for events that occurred 1 minutes ago to &quot;%s minutes ago&quot;" duration="162"/>
+    <testCase name="The extract data method Sets the time for events that occurred 10 minutes ago to &quot;%s minutes ago&quot;" duration="178"/>
+    <testCase name="The extract data method Sets the time for events that occurred 37 minutes ago to &quot;%s minutes ago&quot;" duration="165"/>
+    <testCase name="The extract data method Sets the time for events that occurred 59 minutes ago to &quot;%s minutes ago&quot;" duration="162"/>
+    <testCase name="The extract data method Sets the time for events that occurred 1 hours ago to &quot;%s hours ago&quot;" duration="171"/>
+    <testCase name="The extract data method Sets the time for events that occurred 9 hours ago to &quot;%s hours ago&quot;" duration="161"/>
+    <testCase name="The extract data method Sets the time for events that occurred 17 hours ago to &quot;%s hours ago&quot;" duration="168"/>
+    <testCase name="The extract data method Sets the time for events that occurred 23 hours ago to &quot;%s hours ago&quot;" duration="181"/>
+    <testCase name="The extract data method Sets the time for events that occurred 1 days ago to &quot;%s days ago&quot;" duration="172"/>
+    <testCase name="The extract data method Sets the time for events that occurred 31 days ago to &quot;%s days ago&quot;" duration="166"/>
+    <testCase name="The extract data method Sets the time for events that occurred 157 days ago to &quot;%s days ago&quot;" duration="165"/>
+    <testCase name="The extract data method Sets the time for events that occurred 76543 days ago to &quot;%s days ago&quot;" duration="188"/>
+    <testCase name="The extract data method Sets the first name of the person who triggered the event" duration="161"/>
+    <testCase name="The extract data method Sets the last name of the person who triggered the event" duration="159"/>
+    <testCase name="The extract data method Sets the activity title of the event concerned" duration="160"/>
+    <testCase name="The extract data method Sets the outcome title of an outcome" duration="157"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/EditPassword.test.js">
+    <testCase name="Is a vue instance" duration="161"/>
+    <testCase name="Successful changes Normal Password Change" duration="202"/>
+    <testCase name="Successful changes Extremely long password" duration="172"/>
+    <testCase name="Unsuccessful changes Blank new password" duration="165"/>
+    <testCase name="Unsuccessful changes Blank repeated password" duration="177"/>
+    <testCase name="Unsuccessful changes Short new password" duration="167"/>
+    <testCase name="Unsuccessful changes Numberless new password" duration="168"/>
+    <testCase name="Unsuccessful changes Letterless new password" duration="169"/>
+    <testCase name="Unsuccessful changes New password mismatch" duration="174"/>
+    <testCase name="Unsuccessful changes No password change" duration="187"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/EditEmail.test.js">
+    <testCase name="Is a vue instance" duration="168"/>
+    <testCase name="Displays Primary Email" duration="170"/>
+    <testCase name="Displays Secondary Emails" duration="166"/>
+    <testCase name="Make Secondary Primary" duration="164"/>
+    <testCase name="Add Secondary Email" duration="175"/>
+    <testCase name="Add More than 5 Emails" duration="200"/>
+    <testCase name="Delete Secondary Email" duration="162"/>
+    <testCase name="Delete All Secondary Emails" duration="173"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/Register.test.js">
+    <testCase name="Is a vue instance" duration="71"/>
+    <testCase name="AC4 first-name is marked as a mandatory attribute (with an asterisk)" duration="90"/>
+    <testCase name="AC4 last-name is marked as a mandatory attribute (with an asterisk)" duration="50"/>
+    <testCase name="AC4 email is marked as a mandatory attribute (with an asterisk)" duration="64"/>
+    <testCase name="AC4 password is marked as a mandatory attribute (with an asterisk)" duration="58"/>
+    <testCase name="AC4 passwordCheck is marked as a mandatory attribute (with an asterisk)" duration="44"/>
+    <testCase name="AC4 gender is marked as a mandatory attribute (with an asterisk)" duration="59"/>
+    <testCase name="AC4 date_of_birth is marked as a mandatory attribute (with an asterisk)" duration="57"/>
+    <testCase name="AC7 Gender dropdown menu contains “male”, “female”, and “non-binary”" duration="69"/>
+    <testCase name="isValidDOB checks that a date of birth is older than number of years should be false if age is *less* than 13" duration="84"/>
+    <testCase name="isValidDOB checks that a date of birth is older than number of years should be true if age is *greater* than 13" duration="65"/>
+    <testCase name="AC9 User is taken to homepage on register" duration="118"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/UserSearch.test.js">
+    <testCase name="Is a vue instance" duration="37"/>
+    <testCase name="Activities search box exists" duration="30"/>
+    <testCase name="Search button exists" duration="28"/>
+    <testCase name="And search operator radio button exists" duration="19"/>
+    <testCase name="Or search operator radio button exists" duration="24"/>
+    <testCase name="Searching user based on activity types With the &apos;or&apos; method Search user with one activity type &apos;hiking&apos;" duration="35"/>
+    <testCase name="Searching user based on activity types With the &apos;or&apos; method Search user with two activity types &apos;hiking&apos; and &apos;biking&apos;" duration="37"/>
+    <testCase name="Fetch list of activity types from back-end" duration="82"/>
+    <testCase name="Pagination limits the user cards displayed to the user First page contains usersPerPage number of users (1st half of users)" duration="38"/>
+    <testCase name="Pagination limits the user cards displayed to the user Second page contains usersPerPage number of users (2nd half of users)" duration="22"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/ActivityForm.test.js">
+    <testCase name="Is a vue instance" duration="59"/>
+    <testCase name="Outcome title input exists" duration="29"/>
+    <testCase name="Outcome unit_name input exists" duration="44"/>
+    <testCase name="Outcome title word count exists" duration="65"/>
+    <testCase name="Outcome unit_name word count exists" duration="34"/>
+    <testCase name="Add outcome button exists" duration="30"/>
+    <testCase name="Outcomes table exists" duration="53"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/ActivitySearch.test.js">
+    <testCase name="Is a vue instance" duration="51"/>
+    <testCase name="Activities search box exists" duration="17"/>
+    <testCase name="Search button exists" duration="52"/>
+    <testCase name="And search operator radio button exists" duration="25"/>
+    <testCase name="Or search operator radio button exists" duration="15"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/CreateActivity.test.js">
+    <testCase name="Is a vue instance" duration="2"/>
+    <testCase name="Adds 2 Outcomes and deletes an Outcome to outcomeList" duration="4"/>
+    <testCase name="Catches an http status error of 400 or an invalid activity field when create activity form is submitted and gives user an appropriate alert" duration="3"/>
+    <testCase name="Catches an http status error of 401 or user not authenticated when create activity form is submitted and takes user to login page" duration="4"/>
+    <testCase name="Catches an http status error of 403 or forbidden access when create activity form is submitted and gives user an appropriate alert" duration="2"/>
+    <testCase name="Catches an http status error that isnt 401, 404, 403 and gives the user an appropriate alert" duration="6"/>
+    <testCase name="Creates the correct Outcome payload" duration="42"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/Login.test.js">
+    <testCase name="Is a vue instance" duration="24"/>
+    <testCase name="AC9 User is taken to homepage on login" duration="33"/>
+    <testCase name="AC9 Admin is taken to dashboard on login" duration="32"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/EditActivity.test.js">
+    <testCase name="Is a vue instance" duration="12"/>
+    <testCase name="Adds and deletes an Outcome to outcomeList" duration="2"/>
+    <testCase name="Catches an http status error of 401 or user not authenticated when edit activity form is submitted and takes user to login page" duration="6"/>
+    <testCase name="Catches an http status error of 403 or forbidden access when edit activity form is submitted and gives user an appropriate alert" duration="2"/>
+    <testCase name="Checking 200 response status of edit activity function" duration="1"/>
+    <testCase name="Catches an http status error that isnt 401, 404, 403 and gives the user an appropriate alert" duration="2"/>
+    <testCase name="Catches an http status error of 401 when activity data is coming back from the server get endpoint" duration="2"/>
+    <testCase name="Catches an http status error of 403 when checking if activity can be edited by user" duration="3"/>
+    <testCase name="Catches an http status error that isnt 401 or 403 when activity data is coming back from the server get endpoint" duration="3"/>
+    <testCase name="Creates the correct Outcome payload and creates only new Outcomes" duration="2"/>
+    <testCase name="Creates no requests when no new Outcomes" duration="1"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/UserCard.test.js">
+    <testCase name="Is a vue instance" duration="18"/>
+    <testCase name="The UserCard Displays Full Name" duration="26"/>
+    <testCase name="The UserCard Displays Email and Bio" duration="22"/>
+    <testCase name="The UserCard Displays ActivityTypes that were both searched for, and match the user" duration="37"/>
+    <testCase name="The View User Modal View User Modal title contains Full Name" duration="24"/>
+    <testCase name="The View User Modal View User Modal title contains go to profile button" duration="11"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/Search.test.js">
+    <testCase name="Is a vue instance" duration="17"/>
+    <testCase name="Search mode selector exists" duration="12"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/HomeFeed.test.js">
+    <testCase name="Check that feed event data is fetched and rendered properly" duration="157"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/util.test.js">
+    <testCase name="Timezone conversion functions From Back End to Front End Back end date in UTC time" duration="1"/>
+    <testCase name="Timezone conversion functions From Back End to Front End UTC date at one to midnight" duration="1"/>
+    <testCase name="Timezone conversion functions From Back End to Front End UTC date at exactly midnight" duration="1"/>
+    <testCase name="Timezone conversion functions From Back End to Front End Invalid UTC date after midnight" duration="0"/>
+    <testCase name="Timezone conversion functions From Front End to Back End Front end date 9pm" duration="1"/>
+    <testCase name="Timezone conversion functions From Front End to Back End Test invalid UTC date after midnight" duration="1"/>
+    <testCase name="Convert ISO8601 into readable date and AM/PM time Receive UTC time from back-end Test UTC date formatted with correct single digit AM time" duration="1"/>
+    <testCase name="Convert ISO8601 into readable date and AM/PM time Receive UTC time from back-end Test UTC date formatted with correct single digit PM time" duration="1"/>
+    <testCase name="Convert ISO8601 into readable date and AM/PM time Receive UTC time from back-end Test UTC date formatted with correct double digit 12:00 AM time" duration="1"/>
+    <testCase name="Convert ISO8601 into readable date and AM/PM time Receive UTC time from back-end Test UTC date formatted with correct double digit 12:00 PM time" duration="1"/>
+    <testCase name="Test current time functions currentDateBackend returns a valid date" duration="1"/>
+    <testCase name="Test current time functions currentDateFrontend returns a valid date" duration="1"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/Header.test.js">
+    <testCase name="Is a vue instance" duration="20"/>
+    <testCase name="Logo is on the page" duration="6"/>
+    <testCase name="Toggle button for collapsible nav-bar exists" duration="7"/>
+    <testCase name="There are 5 possible collapsible links, when logged in" duration="14"/>
+    <testCase name="There are 2 possible collapsible links, when not logged in" duration="7"/>
+  </file>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/HomeLayout.test.js">
+    <testCase name="Is a vue instance" duration="6"/>
+    <testCase name="Logo is on the page" duration="5"/>
+    <testCase name="AC1 Has 2 buttons" duration="8"/>
+    <testCase name="AC1 Has a register button" duration="5"/>
+    <testCase name="AC1 Has a login button" duration="15"/>
   </file>
 </testExecutions>
