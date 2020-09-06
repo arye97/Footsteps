@@ -55,7 +55,11 @@ beforeEach(() => {
       data: [{name: 'New Zealand'}, {name: 'Australia'}],
       status: 200
     }));
-    editWrapper = mount(Details, {router, attachToDocument: true, mocks: {api}});
+    let div = document.createElement('div');
+    if (document.body) {
+      document.body.appendChild(div);
+    }
+    editWrapper = mount(Details, {router, attachTo: div, mocks: {api}});
     sleep(150).then(() => resolve());
   })
 });
