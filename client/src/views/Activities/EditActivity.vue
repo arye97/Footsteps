@@ -21,8 +21,6 @@
                            :original-outcome-list="originalOutcomeList"
                            @add-outcome="addOutcome"
                            @delete-outcome="deleteOutcome"/>
-<!--             todo for task PUT endpoint-->
-<!--             @edit-outcome="editOutcome"/>-->
         </b-container>
         <br/><br/>
     </div>
@@ -99,10 +97,6 @@
                     }
                 );
             },
-            // todo for task PUT endpoint
-            // editOutcome(outcome) {
-            //
-            // },
 
             /**
              * Makes a PUT request to the back-end to edit an activity
@@ -132,22 +126,29 @@
              * Sends all new Outcomes to the backend.  Doesn't re-send outcomes that already exist.  Should be used
              * when submitting an Activity.  Only adds new outcomes, doesn't delete or modify existing ones.
              * In a future story this will likely be modified to support edit and delete.
-             * @param editedOutcomes Array of outcomes belonging to the Activity after editing
+             * @param currentOutcomes Array of outcomes belonging to the Activity after editing
              * @param originalOutcomes Array of outcomes from backend before editing.  Used to prevent duplicates being created.
              * @param activityId id of newly created activities
              */
-            async editAllOutcomes(editedOutcomes, originalOutcomes, activityId) {
-                let deletedOutcomes = [];
-                let outcomes = [...editedOutcomes].filter(o => ![...originalOutcomes].includes(o));
-                // Create an Array containing DELETED and MODIFIED OUTCOMES
+            async editAllOutcomes(currentOutcomes, originalOutcomes, activityId) {
+                let deletedOutcomes = [], createdOutcomes = [], editedOutcomes = [];
+                for (let i = 0; i < currentOutcomes.length; i++) {
+                    if (currentOutcomes[i].isEdited === true && currentOutcomes[i].outcome_id !== undefined) {
+                        editedOutcomes.push(currentOutcomes[i]); // Outcome was edited
+                    } else if (!originalOutcomes.includes(currentOutcomes[i])) {
+                        createdOutcomes.push(currentOutcomes[i]); // Outcome was just created
+                    }
+                }
+
                 for (let i = 0; i < originalOutcomes.length; i++) {
-                    if (!editedOutcomes.includes(originalOutcomes[i])) {
+                    if (!currentOutcomes.includes(originalOutcomes[i])) {
                         deletedOutcomes.push(originalOutcomes[i]);
                     }
                 }
 
-                for (let i = 0, outcome; i < outcomes.length; i++) {  // Seems to need this type of loop for some reason
-                    outcome = outcomes[i];
+                // Created Outcomes
+                for (let i = 0, outcome; i < createdOutcomes.length; i++) {  // Seems to need this type of loop for some reason
+                    outcome = createdOutcomes[i];
                     const outcomeRequest = {
                         activity_id: activityId,
                         title: outcome.title,
@@ -160,6 +161,14 @@
                     });
                 }
 
+                // Edited Outcomes
+                for (let i = 0; i < editedOutcomes.length; i++) {
+                    await api.updateOutcome(editedOutcomes[i]).catch(serverError => {
+                        this.throwError(serverError, false);
+                    });
+                }
+
+                // Deleted Outcomes
                 for (let i = 0; i < deletedOutcomes.length; i++) {  // Seems to need this type of loop for some reason
                     await api.deleteOutcome(deletedOutcomes[i].outcome_id).catch(serverError => {
                         this.throwError(serverError, false);

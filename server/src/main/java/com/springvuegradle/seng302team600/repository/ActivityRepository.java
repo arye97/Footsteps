@@ -1,8 +1,8 @@
 package com.springvuegradle.seng302team600.repository;
 
 import com.springvuegradle.seng302team600.model.Activity;
-import com.springvuegradle.seng302team600.model.ActivityType;
-import com.springvuegradle.seng302team600.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -45,5 +45,5 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
 
     @Query(value =
             "SELECT * FROM activity WHERE activity_name LIKE ?1", nativeQuery = true)
-    List<Activity> findAllByKeyword(@Param("keyword") String keyword);
+    Page<Activity> findAllByKeyword(@Param("keyword") String keyword, Pageable pageable);
 }
