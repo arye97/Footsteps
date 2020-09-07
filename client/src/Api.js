@@ -83,6 +83,7 @@ export default {
   getActivityOutcomes: (activityId) => server.get(`/activities/${activityId}/outcomes`, getTokenHeader()),
   getOutcomeResults: (outcomeId) => server.get(`/outcomes/${outcomeId}/results`, getTokenHeader()),
   createResult: (resultData, outcomeId) => server.post(`/outcomes/${outcomeId}/results`, resultData, getTokenHeader()),
+  updateOutcome: (outcomeData) => server.put(`/activities/outcomes`, outcomeData, getTokenHeader()),
   getActivityByActivityTitle: (activityNames, method, pageNumber) => {    // method denotes "and" or "or"
     let activityNamesStr = activityNames.map(a => a.replace(/\s/g, '-')).join(' ');  // Use RegEx to replace ALL spaces with dashes (because str.replace is stupid)
     //api call hasnt been implemented yet on backend but will hopefully look like this
