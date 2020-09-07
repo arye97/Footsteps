@@ -1,5 +1,5 @@
 import {mount} from '@vue/test-utils'
-import EditPassword from '../views/Settings/EditPassword.vue'
+import EditPassword from '../components/Settings/EditPassword.vue'
 import api from "../Api"
 import 'vue-jest'
 import router from "../index";
