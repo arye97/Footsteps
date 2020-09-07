@@ -13,10 +13,13 @@ let editActivity;
 let config;
 const DEFAULT_USER_ID = 1;
 const DEFAULT_ACTIVITY_ID = 1;
+const DEFAULT_OUTCOME_ID = 1;
 
 let receivedOutcomeRequests = [];
+let editedOutcomeRequests = [];
 
 const OUTCOME1 = {
+    outcome_id: DEFAULT_OUTCOME_ID,
     title: "My Awesome Outcome",
     unit_name: "Distance",
     unit_type: "TEXT"
@@ -26,6 +29,19 @@ const OUTCOME2 = {
     unit_name: "Time",
     unit_type: "TEXT"
 };
+const OUTCOME3 = { // Same outcome as OUTCOME1 just edited
+    outcome_id: DEFAULT_OUTCOME_ID,
+    title: "Edited My Awesome Outcome",
+    unit_name: "Distance",
+    unit_type: "TEXT",
+    isEdited: true
+};
+const OUTCOME4 = { // New outcome not yet within DB, and also edited
+    title: "Edited My New Outcome",
+    unit_name: "Eggs",
+    unit_type: "TEXT",
+    isEdited: true
+}
 const ORIGINAL_OUTCOME_LIST = [];
 const ACTIVITY_TYPES = [
     {activityTypeId: 1, name: "Hng"},
@@ -52,12 +68,18 @@ beforeEach(() => {
     };
     // This Removes: TypeError: Cannot read property 'then' of undefined
     api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID, status: 200 }));
+    api.getActivityData.mockImplementation(() => Promise.resolve({data: ACTIVITY1, status: 200}));
+    api.deleteOutcome.mockImplementation(() => Promise.resolve({data: null, status: 200}));
     // Mock isActivityEditable endpoint to succeed
     api.isActivityEditable.mockImplementation(() => Promise.resolve({ data: null, status: 200 }));
     api.getActivityOutcomes.mockImplementation(() => Promise.resolve({ data: ORIGINAL_OUTCOME_LIST, status: 200 }));
     api.createOutcome.mockImplementation(outcomeRequest => {
         receivedOutcomeRequests.push(outcomeRequest);
         return Promise.resolve({ data: DEFAULT_USER_ID, status: 200 });
+    });
+    api.updateOutcome.mockImplementation(outcomeRequest => {
+        editedOutcomeRequests.push(outcomeRequest);
+        Promise.resolve({data: null, status: 200});
     });
     api.getActivityTypes.mockImplementation(() => Promise.resolve({data: ACTIVITY_TYPES, status: 200}));
     api.getActivityData.mockImplementation(() => Promise.resolve({data: ACTIVITY_DATA, status: 200}));
@@ -69,6 +91,8 @@ beforeEach(() => {
 
 beforeEach(() => {
     receivedOutcomeRequests = [];
+    editedOutcomeRequests = [];
+    editActivity.vm.outcomeList = [];
 });
 
 const ACTIVITY1 = {
@@ -219,4 +243,16 @@ test('Creates the correct Outcome payload and creates only new Outcomes', async 
 test('Creates no requests when no new Outcomes', () => {
     editActivity.vm.editAllOutcomes([OUTCOME1, OUTCOME2], [OUTCOME1, OUTCOME2], DEFAULT_ACTIVITY_ID);
     expect(receivedOutcomeRequests.length).toBe(0);  // Should only make a request for the new Outcome
+});
+
+test('Edits outcome with an ID and isEdited set to true', () => {
+    editActivity.vm.editAllOutcomes([OUTCOME3], ORIGINAL_OUTCOME_LIST, DEFAULT_ACTIVITY_ID);
+    expect(receivedOutcomeRequests.length).toBe(0); // api.createOutcome is not called
+    expect(editedOutcomeRequests.length).toBe(1); // api.updateOutcome is called once
+});
+
+test('Creates outcome with no ID and isEdited set to true', () => {
+    editActivity.vm.editAllOutcomes([OUTCOME1, OUTCOME4], ORIGINAL_OUTCOME_LIST, DEFAULT_ACTIVITY_ID);
+    expect(receivedOutcomeRequests.length).toBe(1); // api.createOutcome is called once
+    expect(editedOutcomeRequests.length).toBe(0); // api.updateOutcome is not called
 });
