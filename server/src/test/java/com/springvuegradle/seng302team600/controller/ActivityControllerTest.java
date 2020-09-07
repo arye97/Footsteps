@@ -92,7 +92,6 @@ class ActivityControllerTest {
     private Set<ActivityType> dummyActivity2ActivityTypes = new HashSet<>();
     private Set<ActivityType> dummyActivity3ActivityTypes = new HashSet<>();
     private Set<ActivityType> dummyOtherActivitiesActivityTypes = new HashSet<>();
-    private Location location = new Location(0.0d, 0.0d, "Null Island");
 
     private final String validToken = "valid";
     private final String forbiddenToken = "forbidden";

@@ -19,15 +19,28 @@ public class Location {
     @JsonProperty("id")
     private Long locationId;
 
-    @Column(name = "longitude", nullable = false)
+    @Column(name = "longitude")
     private Double longitude;
 
-    @Column(name = "latitude", nullable = false)
+    @Column(name = "latitude")
     private Double latitude;
 
     @Column(name = "location_name", length = NAME_LEN, nullable = false)
     @JsonProperty("name")
     private String locationName;
+
+    /**
+     * Creates a new location with a name
+     * Has a longitude and latitude of 1 (Rather than 0 to show that this is temporarily intended behaviour)
+     * @param name the name of the location
+     */
+    public Location(String name) {
+        //TODO: Remove this behaviour once the map inputs are completed
+        this.longitude = 1.0;
+        this.latitude = 1.0;
+        this.locationName = name;
+    }
+    public Location() {}
 
     /**
      * Creates a new location with a longitude, latitude, and name
@@ -39,10 +52,6 @@ public class Location {
         this.longitude = longitude;
         this.latitude = latitude;
         this.locationName = name;
-    }
-
-    public Location() {
-
     }
 
     public Long getLocationId() {
