@@ -5,6 +5,12 @@ import java.util.Arrays;
 import java.util.List;
 public class ActivitySearchService {
 
+    /**
+     * This function handles the case when a search query needs to have an
+     * excluded term seperated from the main body, which is denoted by a '-' character in the search string
+     * @param searchString the string query to parse
+     * @return a list of two strings, one is the query and one is the term to be excluded from the search
+     */
     public static List<String> handleMinusSpecialCaseString(String searchString) {
         String searchQuery = "%";
         String exclusion = "%";
@@ -25,6 +31,12 @@ public class ActivitySearchService {
         return queries;
     }
 
+    /**
+     * This function handles the case when multiple separate search queries are to be linked together
+     * which is denoted by the inclusion of a '+' character in the search string
+     * @param searchString the string query to parse
+     * @return a list of two strings, one is the query and one is the term to be excluded from the search
+     */
     public static List<String> handlePlusSpecialCaseString(String searchString) {
         List<String> name = Arrays.asList(searchString.split("\\+"));
         List<String> queries = new ArrayList<>();
@@ -39,6 +51,12 @@ public class ActivitySearchService {
         return queries;
     }
 
+    /**
+     * This function handles generic searches, and exact string matching.
+     * Exact matches are denoted by double quotes encompassing the ENTIRE query, not just a single word/term
+     * @param searchString the string query to parse
+     * @return a query string to be used in an SQL query
+     */
     public static String getSearchQuery(String searchString) {
         if (searchString.startsWith("\"") && searchString.endsWith("\"")){
             //then the user has chosen exact match!
