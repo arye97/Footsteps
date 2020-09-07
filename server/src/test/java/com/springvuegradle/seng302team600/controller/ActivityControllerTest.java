@@ -4,10 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.springvuegradle.seng302team600.model.Activity;
-import com.springvuegradle.seng302team600.model.ActivityType;
-import com.springvuegradle.seng302team600.model.User;
-import com.springvuegradle.seng302team600.model.UserRole;
+import com.springvuegradle.seng302team600.model.*;
 import com.springvuegradle.seng302team600.payload.ActivityResponse;
 import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import com.springvuegradle.seng302team600.repository.*;
@@ -95,6 +92,7 @@ class ActivityControllerTest {
     private Set<ActivityType> dummyActivity2ActivityTypes = new HashSet<>();
     private Set<ActivityType> dummyActivity3ActivityTypes = new HashSet<>();
     private Set<ActivityType> dummyOtherActivitiesActivityTypes = new HashSet<>();
+    private Location location = new Location(0.0d, 0.0d, "Null Island");
 
     private final String validToken = "valid";
     private final String forbiddenToken = "forbidden";
@@ -378,7 +376,11 @@ class ActivityControllerTest {
             "continuous", false,
             "start_time", "2020-02-20T08:00:00+1300",
             "end_time", "2020-02-20T08:00:00+1300",
-            "location", "Kaikoura, NZ");
+            "location", new HashMap<String, String>(){{
+                put("longitude", "0.0");
+                put("latitude", "0.0");
+                put("name", "Null Island");
+            }});
 
     /**
      * Test successful creation of new activity.
@@ -422,7 +424,11 @@ class ActivityControllerTest {
             "continuous", false,
             "start_time", "2020-02-20T08:00:00+1300",
             "end_time", "2020-02-20T08:00:00+1300",
-            "location", "Kaikoura, NZ");
+            "location", new HashMap<String, String>(){{
+                put("longitude", "0.0");
+                put("latitude", "0.0");
+                put("name", "Null Island");
+            }});
 
 
 
@@ -456,7 +462,11 @@ class ActivityControllerTest {
             "continuous", false,
             "start_time", "2020-02-20T08:00:00Z",
             "end_time", "2020-02-20T08:00:00Z",
-            "location", "Christchurch, NZ");
+            "location", new HashMap<String, String>(){{
+                put("longitude", "0.0");
+                put("latitude", "0.0");
+                put("name", "Null Island");
+            }});
 
     /**
      * Tests that Bad Request is returned when the date format is not correct, in this case representing time zone
@@ -485,8 +495,11 @@ class ActivityControllerTest {
             "continuous", false,
             "start_time", "2020-02-20T08:00:00+1300",
             "end_time", "2020-02-20T08:00:00+1300",
-            "location", "Kaikoura, NZ");
-
+            "location", new HashMap<String, String>(){{
+                put("longitude", "0.0");
+                put("latitude", "0.0");
+                put("name", "Null Island");
+            }});
 
     /**
      * Test successful get request of activities created by specific user

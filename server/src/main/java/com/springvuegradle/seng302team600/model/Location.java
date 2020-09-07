@@ -11,6 +11,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "location")
 public class Location {
+    final static private int NAME_LEN = 75;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +25,8 @@ public class Location {
     @Column(name = "latitude", nullable = false)
     private Double latitude;
 
-    @Column(name = "location_name", nullable = false)
+    @Column(name = "location_name", length = NAME_LEN, nullable = false)
+    @JsonProperty("name")
     private String locationName;
 
     /**
@@ -37,6 +39,10 @@ public class Location {
         this.longitude = longitude;
         this.latitude = latitude;
         this.locationName = name;
+    }
+
+    public Location() {
+
     }
 
     public Long getLocationId() {
