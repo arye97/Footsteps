@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springvuegradle.seng302team600.enumeration.UnitType;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.Outcome;
+import com.springvuegradle.seng302team600.model.Result;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.OutcomeRepository;
@@ -82,17 +83,27 @@ public class OutcomeControllerTest {
         dummyOutcome1 = new Outcome();
         dummyOutcome1.setTitle("Run Marathon");
         dummyOutcome1.setActivityId(ACTIVITY_ID_1);
+        dummyOutcome1.setUnitName("Unit Name 1");
+        dummyOutcome1.setUnitType(UnitType.TEXT);
 
         dummyOutcome2 = new Outcome();
         dummyOutcome2.setTitle("Swam a kilometre");
         dummyOutcome2.setActivityId(ACTIVITY_ID_1);
+        dummyOutcome2.setUnitName("Unit Name 2");
+        dummyOutcome2.setUnitType(UnitType.TEXT);
 
         dummyOutcome3 = new Outcome();
         ReflectionTestUtils.setField(dummyOutcome3, "outcomeId", 1L);
         dummyOutcome3.setActivityId(ACTIVITY_ID_1);
-        dummyOutcome3.setUnitName("Unit name");
+        dummyOutcome3.setUnitName("Unit Name 3");
         dummyOutcome3.setUnitType(UnitType.NUMBER);
         dummyOutcome3.setTitle("This is my outcome");
+
+        Result result = new Result();
+        result.setOutcome(dummyOutcome3);
+        HashSet<Result> results = new HashSet<>();
+        results.add(result);
+        dummyOutcome3.setResults(results);
 
         dummyActivity = new Activity();
         dummyActivity.setCreatorUserId(USER_ID_1);
@@ -106,10 +117,11 @@ public class OutcomeControllerTest {
 
         // Mocking UserAuthenticationService
         when(userAuthenticationService.findByUserId(Mockito.any(), Mockito.any(Long.class))).thenAnswer(i -> {
+            String token = i.getArgument(0);
             Long id = i.getArgument(1);
-            if (id.equals(USER_ID_1)) {
+            if (id.equals(USER_ID_1) && token.equals(validToken)) {
                 return dummyUser1;
-            } else if (id.equals(USER_ID_2)) {
+            } else if (id.equals(USER_ID_2) && token.equals(validToken2)) {
                 return dummyUser2;
             } else {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN);
@@ -138,13 +150,13 @@ public class OutcomeControllerTest {
         // Mocking OutcomeRepository
         when(outcomeRepository.findByActivityId(Mockito.any())).thenAnswer(i -> {
             Long activityId = i.getArgument(0);
-            List<Outcome> result = new ArrayList<>();
+            List<Outcome> resultList = new ArrayList<>();
             for (Outcome outcome : outcomeTable) {
                 if (activityId.equals(outcome.getActivityId())) {
-                    result.add(outcome);
+                    resultList.add(outcome);
                 }
             }
-            return result;
+            return resultList;
         });
         when(outcomeRepository.save(Mockito.any())).thenAnswer(i -> {
             Outcome outcome = i.getArgument(0);
@@ -153,7 +165,9 @@ public class OutcomeControllerTest {
                 nextOutcomeId++;
             } else {
                 int index = 0;
-                for (Outcome oldOutcome : outcomeTable) {
+                Outcome oldOutcome;
+                for (int j = 0; j < outcomeTable.size(); j++) {
+                    oldOutcome = outcomeTable.get(j);
                     if (oldOutcome.getOutcomeId().equals(outcome.getOutcomeId())) {
                         outcomeTable.remove(index);
                     }
@@ -174,14 +188,18 @@ public class OutcomeControllerTest {
         });
 
         // Mocking ResultRepository
-        when(resultRepository.existsByOutcome(Mockito.any())).thenAnswer(i -> false);
+        when(resultRepository.existsByOutcome(Mockito.any())).thenAnswer(i -> {
+            Outcome outcome = i.getArgument(0);
+            if (outcome.getResults() == null) return false;
+            return !outcome.getResults().isEmpty();
+        });
     }
 
     /**
      * Check that Activity Outcomes can be retrieved.
      */
     @Test
-    void getAllOutcomes() throws Exception {
+    public void getAllOutcomes() throws Exception {
 
         outcomeTable.add(dummyOutcome1);
         outcomeTable.add(dummyOutcome2);
@@ -202,15 +220,8 @@ public class OutcomeControllerTest {
         assertEquals(outcomeTable.size(), objectMapper.readTree(jsonResponseStr).size());
     }
 
-
-    private final String outcomeJson = JsonConverter.toJson(true,
-            "title", "This is my outcome",
-            "activity_id", ACTIVITY_ID_1,
-            "unit_name", "Test Name",
-            "unit_type", "TEXT"
-            );
     @Test
-    void saveOutcome() throws Exception {
+    public void saveOutcome() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         String outcomeJson = objectMapper.writeValueAsString(dummyOutcome3);
         MockHttpServletRequestBuilder createOutcome = MockMvcRequestBuilders
@@ -233,7 +244,7 @@ public class OutcomeControllerTest {
     }
 
     @Test
-    void deleteOutcome() throws Exception {
+    public void deleteOutcome() throws Exception {
 
         ReflectionTestUtils.setField(dummyOutcome1, "outcomeId", 1L);
         outcomeTable.add(dummyOutcome1);
@@ -251,4 +262,78 @@ public class OutcomeControllerTest {
         assertNotNull(result);
         assertEquals(0, outcomeTable.size());
     }
+
+
+    private final String successfulEditOutcomeJson = JsonConverter.toJson(true,
+            "title", "Edited title",
+            "activity_id", ACTIVITY_ID_1,
+            "unit_name", "Edited name",
+            "unit_type", "TEXT"
+    );
+    @Test
+    public void successfulEditOutcome() throws Exception {
+        ReflectionTestUtils.setField(dummyOutcome1, "outcomeId", 1L);
+        outcomeTable.add(dummyOutcome1);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .put("/activities/{outcomeId}/outcomes", 1L)
+                .header("Token", validToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(successfulEditOutcomeJson);
+
+        mvc.perform(request).andExpect(status().isOk());
+        assertEquals("Edited title", outcomeTable.get(0).getTitle());
+        assertEquals("Edited name", outcomeTable.get(0).getUnitName());
+    }
+
+    @Test
+    public void wontEditWhenOutcomeNotFound() throws Exception {
+        ReflectionTestUtils.setField(dummyOutcome1, "outcomeId", 1L);
+        outcomeTable.add(dummyOutcome1);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .put("/activities/{outcomeId}/outcomes", 2L)
+                .header("Token", validToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(successfulEditOutcomeJson);
+
+        mvc.perform(request).andExpect(status().isNotFound());
+        assertNotEquals("Edited title", outcomeTable.get(0).getTitle());
+        assertNotEquals("Edited name", outcomeTable.get(0).getUnitName());
+    }
+
+    @Test
+    public void wontEditOutcomeIfResultsExist() throws Exception {
+        ReflectionTestUtils.setField(dummyOutcome3, "outcomeId", 1L);
+        outcomeTable.add(dummyOutcome3);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .put("/activities/{outcomeId}/outcomes", 1L)
+                .header("Token", validToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(successfulEditOutcomeJson);
+
+        mvc.perform(request).andExpect(status().isForbidden());
+        assertNotEquals("Edited title", outcomeTable.get(0).getTitle());
+        assertNotEquals("Edited name", outcomeTable.get(0).getUnitName());
+    }
+
+
+    @Test
+    public void wontEditIfUserForbidden() throws Exception {
+        ReflectionTestUtils.setField(dummyOutcome1, "outcomeId", 1L);
+        outcomeTable.add(dummyOutcome1);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .put("/activities/{outcomeId}/outcomes", 1L)
+                .header("Token", validToken2)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(successfulEditOutcomeJson);
+
+        mvc.perform(request).andExpect(status().isForbidden());
+        assertNotEquals("Edited title", outcomeTable.get(0).getTitle());
+        assertNotEquals("Edited name", outcomeTable.get(0).getUnitName());
+    }
+
 }
+
