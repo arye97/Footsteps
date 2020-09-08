@@ -1,5 +1,5 @@
 import ViewActivity from "../views/Activities/ViewActivity";
-import {createLocalVue, mount} from "@vue/test-utils";
+import {createLocalVue, mount, RouterLinkStub} from "@vue/test-utils";
 import "jest";
 import api from "../Api";
 import router from '../index';
@@ -147,6 +147,9 @@ beforeEach(() => {
     config = {
         mocks: {
             $route
+        },
+        stubs: {
+            RouterLink: RouterLinkStub
         },
         router,
         localVue
