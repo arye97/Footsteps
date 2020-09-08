@@ -1,5 +1,5 @@
 import {shallowMount} from '@vue/test-utils'
-import EditEmail from '../views/Settings/EditEmail.vue'
+import EditEmail from '../components/Settings/EditEmail'
 import api from "../Api"
 import 'vue-jest'
 jest.mock("../Api");
