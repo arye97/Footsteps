@@ -297,8 +297,8 @@ public class ActivityController {
      * Takes a string from url params which we will use for matching
      * This string must have % character in place of spaces provided from front end
      * eg Climb%20Mount%20Fuji
-     * so the url would look like => /activities?activityName=Climb%20Mount%20Fuji
-     * or if we want to exact match it would be /activities?activityName="Climb%20Mount%20Fuji"
+     * so the url would look like => /activities?activityKeywords=Climb%20Mount%20Fuji
+     * or if we want to exact match it would be /activities?activityKeywords="Climb%20Mount%20Fuji"
      * where we check all activities if they contain any of these words
      *
      * @param request      the http request with the user token we need
