@@ -2,6 +2,7 @@ package com.springvuegradle.seng302team600.steps;
 
 import com.springvuegradle.seng302team600.cucumberSpringBase;
 import com.springvuegradle.seng302team600.model.User;
+import com.springvuegradle.seng302team600.payload.LoginResponse;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -56,12 +57,12 @@ public class loginAndRegisterSteps extends cucumberSpringBase {
             User user = savedUsers.get(email);
             if (user != null) {
                 user.setToken(authenticationToken);
-                //System.out.println("Authentication token is: " + authenticationToken);
-                return authenticationToken;
+                return new LoginResponse(authenticationToken, user.getUserId());
             }
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Could not login");
         });
-        //assertEquals(authenticationToken, userAuthenticationService.login(email, password));
+        LoginResponse freshLogin = userAuthenticationService.login(email, password);
+        assertEquals(authenticationToken, freshLogin.getToken());
     }
 
     private void logUserOut(String authenticate) {
