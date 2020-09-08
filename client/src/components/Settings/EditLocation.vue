@@ -80,8 +80,8 @@ export default {
          */
         async updateLocation() {
             let editedLocation = {
-                'publicLocation': this.publicLocation,
-                'privateLocation': this.privateLocation,
+                'public_location': this.publicLocation,
+                'private_location': this.privateLocation,
             };
             await api.editLocation(editedLocation, this.profileId).then(() => {
                 // alertDiv.classList.add("alert-success");

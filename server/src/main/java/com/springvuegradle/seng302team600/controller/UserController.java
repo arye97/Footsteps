@@ -5,13 +5,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.springvuegradle.seng302team600.payload.*;
 import com.springvuegradle.seng302team600.validator.UserValidator;
 import com.springvuegradle.seng302team600.validator.PasswordValidator;
 import com.springvuegradle.seng302team600.model.*;
-import com.springvuegradle.seng302team600.payload.EditPasswordRequest;
-import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
-import com.springvuegradle.seng302team600.payload.LoginResponse;
-import com.springvuegradle.seng302team600.payload.UserResponse;
 import com.springvuegradle.seng302team600.repository.*;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
@@ -287,16 +284,22 @@ public class UserController {
 
     /**
      * If the current user has authorization edit user with given id.
-     * @param jsonEditLocationString the json body of the request as a string
+     * @param locationRequest the payload containing the locations (public, private)
      * @param request the http request to the endpoint
      * @param response the http response
      * @param profileId user id obtained from the request url
      * @throws JsonProcessingException thrown if there is an issue when converting the body to an object node
      */
     @PutMapping("/profiles/{profileId}/location")
-    public void editLocation(@RequestBody String jsonEditLocationString, HttpServletRequest request,
-                            HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) throws IOException {
-        // TODO STUB for task4840
+    public void editLocation(@Validated @RequestBody EditLocationRequest locationRequest,
+                             HttpServletRequest request,
+                             HttpServletResponse response,
+                             @PathVariable(value = "profileId") Long profileId) throws IOException {
+        String token = request.getHeader("Token");
+        User user = userService.findByUserId(token, profileId);
+
+        Location publicLocation = locationRequest.getPublicLocation();
+        Location privateLocation = locationRequest.getPrivateLocation();
     }
 
     /**
