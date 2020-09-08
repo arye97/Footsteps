@@ -157,7 +157,12 @@ public class FeedEventController {
     public List<FeedEvent> getFeedEvents(HttpServletRequest request, HttpServletResponse response,
                                          @PathVariable Long profileId) {
         String token = request.getHeader("Token");
-        int pageNumber = request.getIntHeader("Page-Number");
+        int pageNumber;
+        try {
+            pageNumber = request.getIntHeader("Page-Number");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Page-Number must be an integer");
+        }
         userAuthenticationService.findByUserId(token, profileId);
         // Instantiate pagination
         Pageable pageWithFiveFeedEvents = PageRequest.of(pageNumber, PAGE_SIZE);
