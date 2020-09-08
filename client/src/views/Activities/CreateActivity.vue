@@ -20,8 +20,6 @@
                            :outcome-list="outcomeList"
                            @add-outcome="addOutcome"
                            @delete-outcome="deleteOutcome"/>
-            <!--             todo for task PUT endpoint-->
-            <!--             @edit-outcome="editOutcome"/>-->
         </b-container>
         <br/><br/>
     </div>
@@ -84,10 +82,6 @@
                     }
                 );
             },
-            // todo for task PUT endpoint
-            // editOutcome(outcome) {
-            //
-            // },
 
             /**
              * Makes a POST request to the back-end to create an activity

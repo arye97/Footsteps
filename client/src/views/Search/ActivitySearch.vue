@@ -18,14 +18,6 @@
                         <b-form-select id="searchModeSelect" v-model="searchMode" :options="searchModes"></b-form-select>
                     </b-col>
                 </b-row>
-                <b-row style="margin-bottom: 1.7em; margin-top: 0.8em">
-                    <b-col cols="6" align-self="center">
-                        <b-form-radio id="andRadioButton" v-model="searchType" name="andType" value="and">Must include all selections</b-form-radio>
-                    </b-col>
-                    <b-col cols="6" align-self="center">
-                        <b-form-radio id="orRadioButton" v-model="searchType" name="orType" value="or">Must include one selection</b-form-radio>
-                    </b-col>
-                </b-row>
                 <b-row>
                     <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
                         Search
@@ -49,7 +41,7 @@
                 <br/>
             </section>
             <section v-else v-for="activity in this.activitiesList" :key="activity.id">
-                <!-- User List -->
+                <!-- Activity List -->
                 <activity-card v-bind:activity="activity" v-bind:activity-types-searched-for="activityTypesSearchedFor"></activity-card>
                 <br>
             </section>
@@ -68,10 +60,12 @@
 <script>
 import Multiselect from "vue-multiselect";
 import api from "../../Api";
+import ActivityCard from "./ActivityCard";
 
 export default {
     name: "ActivitySearch",
     components: {
+        ActivityCard,
         Multiselect
     },
     data() {
@@ -86,7 +80,6 @@ export default {
             ],
             // These are the ActivityTypes selected in the Multiselect
             selectedActivityTypes : [],
-            selectedActivityNames : [],
             // These are a copy of selectedActivityTypes passed to the UserCard (to avoid mutation after clicking search)
             activityTypesSearchedFor : [],
             activityTitle: "",
@@ -149,11 +142,14 @@ export default {
          * through an API call.
          */
         async getPaginatedActivitiesByActivityTitle() {
-            console.log('searching for activity by name');
             let pageNumber = this.currentPage - 1;
             api.getActivityByActivityTitle(this.activityTitle, this.searchType, pageNumber)
                 .then(response => {
                     this.activitiesList = response.data;
+                    if (this.activityTitle.length != 0 && (response.data).length === 0) {
+                        this.errored = true;
+                        this.error_message = "No activities with activity names ".concat(this.activityTitle) + " have been found!"
+                    }
                     this.rows = response.headers["total-rows"];
                     this.loading = false;
                     this.resultsFound = true;
@@ -170,12 +166,33 @@ export default {
                         } else if (error.response.status === 400) {
                             this.error_message = error.response.data.message;
                         } else if (error.response.status === 404) {
-                            this.error_message = "No activities with activity names ".concat(this.selectedActivityNames) + " have been found!"
+                            this.error_message = "No activities with activity names ".concat(this.activityTitle) + " have been found!"
                         } else {
                             this.error_message = "Something went wrong! Please try again."
                         }
                     }
                 });
+        },
+
+        /**
+         * Searches a activity based on a string of activity types or an activity name by the AND or OR method
+         */
+        async search() {
+            // Converts list of activity types into string
+            // e.g. ["Hiking", "Biking"] into "Hiking Biking"
+            this.errored = false;
+            this.loading = true;
+            if (this.searchMode === 'activityType') {
+                // Set is as a copy so the User card is only updated after clicking search
+                this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
+                this.getPaginatedActivitiesByActivityType();
+            } else if (this.searchMode === 'activityName') {
+                if (this.activityTitle.length === 0) {
+                    this.errored = true;
+                    this.error_message = "Cannot have empty search field, please try again!";
+                }
+                this.getPaginatedActivitiesByActivityTitle();
+            }
         }
     }
 }
@@ -184,6 +201,7 @@ export default {
 <style scoped>
 .searchButton {
     width: 200%;
+    margin-top: 1rem !important;
 }
 
 </style>

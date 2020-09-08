@@ -1,30 +1,30 @@
 package com.springvuegradle.seng302team600.controller;
 
-import com.springvuegradle.seng302team600.repository.ActivityActivityTypeRepository;
-import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
-import com.springvuegradle.seng302team600.validator.ActivityValidator;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.ActivityResponse;
+import com.springvuegradle.seng302team600.payload.ParticipantResponse;
+import com.springvuegradle.seng302team600.repository.ActivityActivityTypeRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
+import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
 import com.springvuegradle.seng302team600.service.FeedEventService;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
+import com.springvuegradle.seng302team600.service.ActivitySearchService;
+import com.springvuegradle.seng302team600.validator.ActivityValidator;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import com.springvuegradle.seng302team600.payload.ParticipantResponse;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.io.IOException;
-import java.util.*;
 
 /**
  * Controller to manage activities and activity type
@@ -300,47 +300,75 @@ public class ActivityController {
      * so the url would look like => /activities?activityName=Climb%20Mount%20Fuji
      * or if we want to exact match it would be /activities?activityName="Climb%20Mount%20Fuji"
      * where we check all activities if they contain any of these words
-     * @param request the http request with the user token we need
-     * @param activityName the word/sentence we need to search for
+     *
+     * @param request      the http request with the user token we need
+     * @param response     the http response
+     * @param activityKeywords the word/sentence we need to search for
      * @return a list containing all activities found
      */
     @RequestMapping(
             value = "/activities",
-            params = { "activityName"},
+            params = {"activityKeywords"},
             method = RequestMethod.GET
     )
-    public List<ActivityResponse> getActivitiesByName(HttpServletRequest request,
-                                                      @RequestParam(value="activityName") String activityName) {
-        List<ActivityResponse> activitiesFound = new ArrayList<>();
-        if (activityName.length() == 0) {
-            return activitiesFound;
-        }
+    public List<ActivityResponse> getActivitiesByKeywords(HttpServletRequest request,
+                                                      HttpServletResponse response,
+                                                      @RequestParam(value="activityKeywords") String activityKeywords) {
         String token = request.getHeader("Token");
         userAuthenticationService.findByToken(token);
-        //check for multiple words in the search query
-        if (activityName.startsWith("\"") && activityName.endsWith("\"")){
-            //then the user has chosen exact match!
-            activityName = activityName.substring(1, activityName.length() - 1);
-            if (activityName.contains("%20")) {
-                List<String> searchTerms =  Arrays.asList(activityName.split("%20")); //underscore is our space char
-                activityName = "";
-                for (String term : searchTerms) {
-                    activityName = activityName + term + " ";
-                }
-                activityName = activityName.trim();
+
+        List<ActivityResponse> activitiesFound = new ArrayList<>();
+        if (activityKeywords.length() == 0) {
+            return activitiesFound;
+        }
+
+        int pageNumber = request.getIntHeader("Page-Number");
+        if (pageNumber == -1) {
+            pageNumber = 0;
+        }
+
+        List<Activity> activities;
+        List<String> searchStrings;
+        Page<Activity> paginatedActivities;
+        Pageable pageWithFiveActivities = PageRequest.of(pageNumber, PAGE_SIZE);
+
+        if (activityKeywords.contains("-")) {
+            //this gives <searchQuery, exclusions>
+            searchStrings = ActivitySearchService.handleMinusSpecialCaseString(activityKeywords);
+            activities = activityRepository.findAllByKeywordExcludingTerm(searchStrings.get(0), searchStrings.get(1));
+
+            for (Activity activity : activities) {
+                activitiesFound.add(new ActivityResponse(activity));
             }
+
+            return activitiesFound;
+        } else if (activityKeywords.contains("%2b") || (activityKeywords.contains("+"))) {
+            //this gives a list of all separate search queries
+            searchStrings = ActivitySearchService.handlePlusSpecialCaseString(activityKeywords);
+            Set<Activity> setToRemoveDuplicates = new HashSet<>();
+
+            for (String term : searchStrings) {
+                Page<Activity> currPage = activityRepository.findAllByKeyword(term, pageWithFiveActivities);
+                setToRemoveDuplicates.addAll(currPage.getContent());
+            }
+
+            List<Activity> listedActivities = new ArrayList<>(setToRemoveDuplicates);
+            paginatedActivities = new PageImpl<>(listedActivities);
         } else {
-            String newQuery = "";
-            List<String> searchTerms =  Arrays.asList(activityName.split(" "));
-            for (String term : searchTerms) {
-                newQuery = newQuery + term + "%";
-            }
-            activityName = newQuery;
+            activityKeywords = ActivitySearchService.getSearchQuery(activityKeywords);
+            paginatedActivities = activityRepository.findAllByKeyword(activityKeywords, pageWithFiveActivities);
         }
-        List<Activity> activities = activityRepository.findAllByKeyword(activityName);
-        for (Activity activity : activities) {
-            activitiesFound.add(new ActivityResponse(activity));
+
+        if (paginatedActivities == null || paginatedActivities.getTotalPages() == 0) {
+            return activitiesFound;
         }
+
+        List<Activity> pageActivities = paginatedActivities.getContent();
+        pageActivities.forEach(i -> activitiesFound.add(new ActivityResponse(i)));
+
+        int totalElements = (int) paginatedActivities.getTotalElements();
+        response.setIntHeader("Total-Rows", totalElements);
+
         return activitiesFound;
     }
 
