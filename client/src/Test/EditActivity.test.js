@@ -79,7 +79,7 @@ beforeEach(() => {
     });
     api.updateOutcome.mockImplementation(outcomeRequest => {
         editedOutcomeRequests.push(outcomeRequest);
-        Promise.resolve({data: null, status: 200});
+        return Promise.resolve({data: null, status: 200});
     });
     api.getActivityTypes.mockImplementation(() => Promise.resolve({data: ACTIVITY_TYPES, status: 200}));
     api.getActivityData.mockImplementation(() => Promise.resolve({data: ACTIVITY_DATA, status: 200}));
