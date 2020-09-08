@@ -19,14 +19,32 @@ import { _isValidDOB } from '../util'
 let registerWrapper;
 let spy;
 
+const ACTIVITY_TYPES = ['New Zealand','Australia'];
+const USER_DATA = {
+    firstname: 'Test',
+    middlename: '',
+    lastname: 'Testers',
+    password: 'ITestForALiving1',
+    gender: 'Male',
+    date_of_birth: '10-10-1999',
+    fitness: 1,
+    nickname: '',
+    bio: '',
+    passports: [],
+    activity_types: []
+};
+const EXTRA_DATA = {
+    passwordCheck: USER_DATA.password,
+    primary_email: "tester@test.com",
+    fitness: {value: 1, desc: "Unfit, no regular exercise, being active is very rare"},
+};
 
 beforeEach(() => {
+    api.getActivityTypes.mockImplementation(() => Promise.resolve({ data: ACTIVITY_TYPES, status: 200 }));
     api.register.mockImplementation(() => Promise.resolve({ data: 'ValidToken', status: 201 }));
     spy = jest.spyOn(router, 'push');
     registerWrapper = shallowMount(Register, {router, mocks: {api}});
 });
-
-
 
 test('Is a vue instance', () => {
     expect(registerWrapper.isVueInstance).toBeTruthy();
@@ -91,31 +109,23 @@ describe("isValidDOB checks that a date of birth is older than number of years",
     });
 });
 
+describe('User has inputted their data', () => {
+    beforeEach(() => {
+        registerWrapper = shallowMount(Register, {
+            data() {
+                return {...USER_DATA, ...{passwordCheck: EXTRA_DATA.passwordCheck, email: EXTRA_DATA.primary_email, fitness: EXTRA_DATA.fitness}}
+            },
+            router,
+            mocks: {api}});
+    });
+    // ----AC9----
+    test('AC9 User is taken to homepage on register', async ()=> {
+        await registerWrapper.vm.$router.push('/register');
+        return registerWrapper.vm.registerUser(new Event("dummy")).then(() => {
+            expect(registerWrapper.vm.api.register)
+                .toHaveBeenCalledWith({...USER_DATA, ...{primary_email: EXTRA_DATA.primary_email}});
 
-// ----AC9----
-test('AC9 User is taken to homepage on register', ()=> {
-    const userdata = {
-        firstname: 'Test',
-        middlename: '',
-        lastname: 'Testers',
-        password: 'ITestForALiving1',
-        gender: 'Male',
-        date_of_birth: '10-10-1999',
-        fitness: 1,
-        nickname: '',
-        bio: '',
-        passports: [],
-        activity_types: []
-    };
-    const extraData = {
-        passwordCheck: userdata.password,
-        primary_email: "tester@test.com",
-        fitness: {value: 1, desc: "Unfit, no regular exercise, being active is very rare"},
-    };
-    registerWrapper.setData({...userdata, ...{passwordCheck: extraData.passwordCheck, email: extraData.primary_email, fitness: extraData.fitness}});
-    return registerWrapper.vm.registerUser(new Event("dummy")).then(() => {
-        expect(registerWrapper.vm.api.register)
-            .toHaveBeenCalledWith({...userdata, ...{primary_email: extraData.primary_email}});
-        expect(spy).toHaveBeenCalledWith("/");
+            expect(spy).toHaveBeenCalledWith("/");
+        });
     });
 });
