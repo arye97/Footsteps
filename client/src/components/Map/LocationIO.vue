@@ -7,7 +7,7 @@
                     :center="center"
                     :pins="pins"
             ></map-viewer>
-            <b-row>
+            <b-row v-if="!viewOnly">
                 <b-col>
                     <b-form-input
                         id="locationInput"
@@ -43,6 +43,14 @@
         components: {
             MapViewer
         },
+
+        props: {
+            viewOnly: {
+                default: false,
+                type: Boolean
+            },
+        },
+
         data() {
             return {
                 isMapVisible: false,

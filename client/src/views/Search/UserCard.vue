@@ -36,7 +36,8 @@
                     <b-list-group id="matchingActivityTypes">
                         <section v-for="activityType in user.activityTypes" v-bind:key="activityType.name">
                             <!-- Only display queried activity types -->
-                            <b-list-group-item v-if="activityTypesSearchedFor.indexOf(activityType.name) > -1" variant="primary">
+                            <b-list-group-item v-if="activityTypesSearchedFor.indexOf(activityType.name) > -1"
+                                               style="text-align: center" variant="primary">
                                 {{ activityType.name }}
                             </b-list-group-item>
                         </section>
