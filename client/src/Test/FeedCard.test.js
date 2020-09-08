@@ -57,7 +57,6 @@ beforeEach(() => {
             })
         });
 
-
         feedCard = mount(FeedCard, {
             propsData: {
                 event: EVENT_DELETE
@@ -68,7 +67,7 @@ beforeEach(() => {
 
         // This causes a delay between beforeEach finishing, and the tests being run.
         // This isn't at all good practice, but its the only way I am able
-        // to get EditEmail to fully mount before the tests are run.
+        // to get FeedCard to fully mount before the tests are run.
         // resolve() signals the above promise to complete
         sleep(150).then(() => resolve());
     });
@@ -80,27 +79,26 @@ test('Is a vue instance', () => {
 
 describe("The feed card", () => {
     test('Displays a description of what happened', () => {
-        expect(feedCard.find('#description')).toBeTruthy();
+        expect(feedCard.find('#description').exists()).toBeTruthy();
     });
 
     test('Displays a timestamp', () => {
-        expect(feedCard.find('#time')).toBeTruthy();
+        expect(feedCard.find('#time').exists()).toBeTruthy();
     });
 
     test('Does not have any buttons for a delete event', () => {
         expect(feedCard.findAll('b-button')).toHaveLength(0);
     });
 
-    test('Has 1 buttons for a follow event', () => {
-        const newLocalVue = createLocalVue();
-        newLocalVue.use(BootstrapVue);
+    test('Has a button to view the activity for a follow event', async () => {
         feedCard = mount(FeedCard, {
             propsData: {
                 event: EVENT_FOLLOW
             },
-            newLocalVue
+            localVue
         });
-        expect(feedCard.findAll('b-button')).toHaveLength(1);
+        await sleep(150);
+        expect(feedCard.find('#viewActivityButton').exists()).toBeTruthy();
     });
 });
 

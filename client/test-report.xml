@@ -1,15 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
-  <file path="C:\Users\rebek\OneDrive - University of Canterbury\SENG302\Project\client\src\Test\EditPassword.test.js">
-    <testCase name="Is a vue instance" duration="182"/>
-    <testCase name="Successful changes Normal Password Change" duration="221"/>
-    <testCase name="Successful changes Extremely long password" duration="200"/>
-    <testCase name="Unsuccessful changes Blank new password" duration="182"/>
-    <testCase name="Unsuccessful changes Blank repeated password" duration="177"/>
-    <testCase name="Unsuccessful changes Short new password" duration="188"/>
-    <testCase name="Unsuccessful changes Numberless new password" duration="192"/>
-    <testCase name="Unsuccessful changes Letterless new password" duration="179"/>
-    <testCase name="Unsuccessful changes New password mismatch" duration="179"/>
-    <testCase name="Unsuccessful changes No password change" duration="193"/>
+  <file path="C:\Users\rebek\OneDrive - University of Canterbury\SENG302\Project\client\src\Test\FeedCard.test.js">
+    <testCase name="Is a vue instance" duration="194"/>
+    <testCase name="The feed card Displays a description of what happened" duration="191"/>
+    <testCase name="The feed card Displays a timestamp" duration="173"/>
+    <testCase name="The feed card Does not have any buttons for a delete event" duration="177"/>
+    <testCase name="The feed card Has a button to view the activity for a follow event" duration="354"/>
+    <testCase name="The extract data method Sets the time for events that occurred in the last 10s to &quot;Just now&quot;" duration="175"/>
+    <testCase name="The extract data method Sets the time for events that occurred 1 minutes ago to &quot;%s minutes ago&quot;" duration="219"/>
+    <testCase name="The extract data method Sets the time for events that occurred 10 minutes ago to &quot;%s minutes ago&quot;" duration="195"/>
+    <testCase name="The extract data method Sets the time for events that occurred 37 minutes ago to &quot;%s minutes ago&quot;" duration="199"/>
+    <testCase name="The extract data method Sets the time for events that occurred 59 minutes ago to &quot;%s minutes ago&quot;" duration="199"/>
+    <testCase name="The extract data method Sets the time for events that occurred 1 hours ago to &quot;%s hours ago&quot;" duration="187"/>
+    <testCase name="The extract data method Sets the time for events that occurred 9 hours ago to &quot;%s hours ago&quot;" duration="205"/>
+    <testCase name="The extract data method Sets the time for events that occurred 17 hours ago to &quot;%s hours ago&quot;" duration="190"/>
+    <testCase name="The extract data method Sets the time for events that occurred 23 hours ago to &quot;%s hours ago&quot;" duration="187"/>
+    <testCase name="The extract data method Sets the time for events that occurred 1 days ago to &quot;%s days ago&quot;" duration="175"/>
+    <testCase name="The extract data method Sets the time for events that occurred 31 days ago to &quot;%s days ago&quot;" duration="182"/>
+    <testCase name="The extract data method Sets the time for events that occurred 157 days ago to &quot;%s days ago&quot;" duration="192"/>
+    <testCase name="The extract data method Sets the time for events that occurred 76543 days ago to &quot;%s days ago&quot;" duration="191"/>
+    <testCase name="The extract data method Sets the first name of the person who triggered the event" duration="167"/>
+    <testCase name="The extract data method Sets the last name of the person who triggered the event" duration="168"/>
+    <testCase name="The extract data method Sets the activity title of the event concerned" duration="167"/>
+    <testCase name="The extract data method Sets the outcome title of an outcome" duration="166"/>
   </file>
 </testExecutions>
