@@ -48,14 +48,14 @@
                             <h3 class="font-weight-light"><strong>Location:</strong></h3><br/>
                             <b-card class="flex-fill" border-variant="secondary" id="location">
                                 <b-card-text class="font-weight-light">
-                                    {{this.location}}
+                                    {{this.location.name}}
                                 </b-card-text>
                             </b-card>
                             <br/>
                             <div>
                                 <b-button v-b-toggle="'map-area'" variant="primary">Toggle Map</b-button>
                                 <b-collapse center id="map-area">
-                                    <map-viewer></map-viewer>
+                                    <map-viewer pins="[{lat: this.location.latitude, lng: this.location.longitude}]"></map-viewer>
                                 </b-collapse>
                             </div>
                             <!-- Time details -> only relevant for duration activities -->
