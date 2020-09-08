@@ -132,6 +132,16 @@ public class User {
                 NON_BINARY
     }
 
+    @Column(name="private_location")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JsonProperty("private_location")
+    private Location privateLocation;
+
+    @Column(name="public_location")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JsonProperty("public_location")
+    private Location publicLocation;
+
     //Can implement later, makes more sense in the long run
     public enum FitnessLevel {
         SEDENTARY, LOW, MEDIUM, HIGH, VERY_HIGH
@@ -442,6 +452,22 @@ public class User {
 
     public int getRole() {
         return role;
+    }
+
+    public Location getPrivateLocation() {
+        return privateLocation;
+    }
+
+    public Location getPublicLocation() {
+        return publicLocation;
+    }
+
+    public void setPrivateLocation(Location privateLocation) {
+        this.privateLocation = privateLocation;
+    }
+
+    public void setPublicLocation(Location publicLocation) {
+        this.publicLocation = publicLocation;
     }
 
 
