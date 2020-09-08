@@ -2,7 +2,7 @@
     <div id="mapDiv" class="map-box">
         <GmapMap class="map"
                 ref="mapRef"
-                :center="currentCenter"
+                :center="center"
                 :zoom="4.5"
                 map-type-id="terrain"
                 style="width: 500px; height: 300px"
@@ -54,7 +54,6 @@
 
         data() {
             return {
-                currentCenter: this.center
             }
         },
 

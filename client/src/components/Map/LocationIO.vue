@@ -2,28 +2,20 @@
     <div>
         <b-card class="flex-fill" border-variant="secondary">
             <div v-if="isMapVisible">
-            <b-button id="hideMapButton" v-on:click="hideMap()">Hide Map</b-button>
-            <map-viewer
-                    :center="center"
-                    :pins="pins"
-            ></map-viewer>
-            <b-row v-if="!viewOnly">
-                <b-col>
-                    <b-form-input
-                        id="locationInput"
-                        v-model="locationInput"
-                        type="text"
-                        placeholder="Input address here"
-                    ></b-form-input>
-                </b-col>
-                <b-col>
-                    <b-button
-                            id="LocationSubmit"
-                            v-on:click="addLocation()"
-                    >Place pin</b-button>
-                </b-col>
-            </b-row>
-                <label>{{ inputDisplay }}</label>
+                <b-button id="hideMapButton" v-on:click="hideMap()">Hide Map</b-button>
+                <map-viewer
+                        :center="center"
+                        :pins="pins"
+                ></map-viewer>
+                <div v-if="!viewOnly">
+                    <h2>Search and add a pin</h2>
+                    <label>
+                        <gmap-autocomplete
+                                @place_changed="getPlaceField">
+                        </gmap-autocomplete>
+                        <button @click="addMarker">Add</button>
+                    </label>
+                </div>
             </div>
             <div v-else>
                 <b-button id="showMapButton" v-on:click="showMap()">Show Map</b-button>
@@ -35,7 +27,7 @@
 
 <script>
     import MapViewer from "../../components/Map/MapViewer";
-    import api from "../../Api"
+
 
     export default {
         name: "LocationIO",
@@ -59,36 +51,16 @@
                 locations: [],
                 locationInput: "",
                 awaitingSearch: false,
-                inputDisplay: ''
+                inputDisplay: '',
+                currentPlace: null
             }
         },
 
-        watch: {
-            locationInput: function () {
-                if (!this.awaitingSearch) {
-                    setTimeout(() => {
-
-                        this.awaitingSearch = false;
-                        this.inputDisplay = this.locationInput;
-                    }, 1000); // 1 sec delay
-                    //todo: ping auto complete
-                    // this.inputDisplay = this.locationInput;
-                }
-                this.awaitingSearch = true;
-            },
+        mounted() {
+            this.geolocate();
         },
 
         methods: {
-
-            async addLocation() {
-                // let goeApi = "https://maps.googleapis.com/maps/api/geocode/json?address=" + this.locationInput + "&key=YOUR_API_KEY"
-                //todo: validate and format location
-
-                this.locations.push(this.locationInput);
-                let response = await api.getCoordinateDataByLocation(this.locationInput);
-                console.log(response);
-                this.pins.push(response.data.results[0].geometry.location);
-            },
 
             hideMap() {
                 this.isMapVisible = false;
@@ -96,6 +68,33 @@
 
             showMap() {
                 this.isMapVisible = true;
+            },
+
+            // receives a place object via the autocomplete component
+            getPlaceField(place) {
+                this.currentPlace = place;
+            },
+
+            addMarker() {
+                if (this.currentPlace) {
+                    const pin = {
+                        lat: this.currentPlace.geometry.location.lat(),
+                        lng: this.currentPlace.geometry.location.lng()
+                    };
+                    this.pins.push(pin);
+                    this.locations.push(this.currentPlace);
+                    this.center = pin;
+                    this.currentPlace = null;
+                }
+            },
+
+            geolocate: function() {
+                navigator.geolocation.getCurrentPosition(position => {
+                    this.center = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                });
             }
         }
     }
