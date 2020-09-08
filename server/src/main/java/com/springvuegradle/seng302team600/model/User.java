@@ -132,13 +132,13 @@ public class User {
                 NON_BINARY
     }
 
-    @Column(name="private_location")
     @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "private_location", referencedColumnName = "location_id")
     @JsonProperty("private_location")
     private Location privateLocation;
 
-    @Column(name="public_location")
     @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "public_location", referencedColumnName = "location_id")
     @JsonProperty("public_location")
     private Location publicLocation;
 
