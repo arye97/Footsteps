@@ -54,12 +54,13 @@
                             <br/>
                             <div>
                                 <b-button v-b-toggle="'map-area'" variant="primary">Toggle Map</b-button>
-                                <b-collapse center id="map-area">
-                                    <map-viewer
-                                      :pins="[{lat: this.location.latitude, lng: this.location.longitude}]"
-                                      :center="{lat: this.location.latitude, lng: this.location.longitude}"
-                                    >
-                                    </map-viewer>
+                                <b-collapse id="map-area">
+                                    <b-card>
+                                        <map-viewer
+                                          :pins="[{lat: this.location.latitude, lng: this.location.longitude}]"
+                                          :center="{lat: this.location.latitude, lng: this.location.longitude}"
+                                        ></map-viewer>
+                                    </b-card>
                                 </b-collapse>
                             </div>
                             <!-- Time details -> only relevant for duration activities -->
