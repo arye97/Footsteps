@@ -40,9 +40,13 @@ beforeEach(() => {
     return new Promise(resolve => {
         api.getUserData.mockImplementation(() => Promise.resolve({data: testUser, status: 200}));
         api.updatePassword.mockImplementation(() => Promise.resolve({status: 200}));
+        let div = document.createElement('div');
+        if (document.body) {
+            document.body.appendChild(div);
+        }
         editWrapper = mount(EditPassword, {
             router,
-            attachToDocument: true,
+            attachTo: div,
             mocks: {api},
             localVue
         });
