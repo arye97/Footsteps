@@ -1,18 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
-  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/EditActivity.test.js">
-    <testCase name="Is a vue instance" duration="277"/>
-    <testCase name="Adds and deletes an Outcome to outcomeList" duration="161"/>
-    <testCase name="Catches an http status error of 401 or user not authenticated when edit activity form is submitted and takes user to login page" duration="139"/>
-    <testCase name="Catches an http status error of 403 or forbidden access when edit activity form is submitted and gives user an appropriate alert" duration="175"/>
-    <testCase name="Checking 200 response status of edit activity function" duration="139"/>
-    <testCase name="Catches an http status error that isnt 401, 404, 403 and gives the user an appropriate alert" duration="131"/>
-    <testCase name="Catches an http status error of 401 when activity data is coming back from the server get endpoint" duration="134"/>
-    <testCase name="Catches an http status error of 403 when checking if activity can be edited by user" duration="125"/>
-    <testCase name="Catches an http status error that isnt 401 or 403 when activity data is coming back from the server get endpoint" duration="111"/>
-    <testCase name="Creates the correct Outcome payload and creates only new Outcomes" duration="141"/>
-    <testCase name="Creates no requests when no new Outcomes" duration="113"/>
-    <testCase name="Edits outcome with an ID and isEdited set to true" duration="113"/>
-    <testCase name="Creates outcome with no ID and isEdited set to true" duration="132"/>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/ViewActivity.test.js">
+    <testCase name="Is a vue instance" duration="272"/>
+    <testCase name="The view activity page Displays the activity title" duration="245"/>
+    <testCase name="The view activity page Displays the activity description" duration="247"/>
+    <testCase name="The view activity page Displays the activity location" duration="226"/>
+    <testCase name="The view activity page Has a view participants button" duration="211"/>
+    <testCase name="The view activity page Has a view results button" duration="216"/>
+    <testCase name="The view activity page Shows the activity type" duration="209"/>
+    <testCase name="As an activity creator I cannot see the follow button" duration="226"/>
+    <testCase name="As an activity creator I cannot see the unfollow button" duration="201"/>
+    <testCase name="As an activity creator I can see the edit activity button" duration="210"/>
+    <testCase name="As an activity creator I can see the add results button" duration="217"/>
+    <testCase name="If I&apos;m following an activity I can see the unfollow button" duration="405"/>
+    <testCase name="If I&apos;m following an activity I can&apos;t see the follow button" duration="411"/>
+    <testCase name="If I&apos;m following an activity I can&apos;t see the edit activity button" duration="400"/>
+    <testCase name="If I&apos;m following an activity I can see the add results button" duration="409"/>
+    <testCase name="If I am not following the activity I can&apos;t see the unfollow button" duration="397"/>
+    <testCase name="If I am not following the activity I can see the follow button" duration="418"/>
+    <testCase name="If I am not following the activity I can&apos;t see the edit activity button" duration="387"/>
+    <testCase name="If I am not following the activity I can&apos;t see the add results button" duration="400"/>
   </file>
 </testExecutions>
