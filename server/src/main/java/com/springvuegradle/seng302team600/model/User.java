@@ -108,6 +108,10 @@ public class User {
     @JsonProperty("passports")
     private List<String> passports;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JsonProperty("location")
+    private Location location;
+
     @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})  // ALL except REMOVE
     @JoinTable(
             name = "user_activity_type",
