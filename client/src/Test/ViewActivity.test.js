@@ -3,9 +3,13 @@ import {createLocalVue, mount} from "@vue/test-utils";
 import "jest";
 import api from "../Api";
 import router from '../index';
-// import { BootstrapVue } from 'bootstrap-vue';
+import { BootstrapVue, BootstrapVueIcons, IconsPlugin } from 'bootstrap-vue';
+
 const localVue = createLocalVue();
-// localVue.use(BootstrapVue);
+localVue.use(BootstrapVue);
+localVue.use(BootstrapVueIcons);
+localVue.use(IconsPlugin);
+
 
 jest.mock('../Api');
 jest.mock('../index');
@@ -163,55 +167,29 @@ test('Is a vue instance', () => {
 
 describe('The view activity page', () => {
 
-    test('displays the activity title', () => {
+    test('Displays the activity title', () => {
         expect(viewActivity.find('#activityTitle').exists()).toBeTruthy();
     });
 
-    test('displays the activity description', () => {
+    test('Displays the activity description', () => {
         expect(viewActivity.find('#description').exists()).toBeTruthy();
     });
 
-    test('displays the activity location', () => {
+    test('Displays the activity location', () => {
         expect(viewActivity.find('#location').exists()).toBeTruthy();
     });
 
-    test('has a view participants button', () => {
+    test('Has a view participants button', () => {
         expect(viewActivity.find('#viewParticipants').exists()).toBeTruthy();
     });
 
-    test('has a view results button', () => {
+    test('Has a view results button', () => {
         expect(viewActivity.find('#viewResults').exists()).toBeTruthy();
     });
 
-    test('shows the activity type', () => {
+    test('Shows the activity type', () => {
         expect(viewActivity.find('#activityType').exists()).toBeTruthy();
     });
-
-    test('has a view participants modal', () => {
-        expect(viewActivity.find('#viewParticipantsModal').exists()).toBeTruthy();
-    });
-
-    test('displays 2 participants', () => {
-        // The set up data is set with 2 people participating in this activity
-        expect(viewActivity.findAll('#participant').length).toBe(2);
-    });
-
-    test('has add result model', () => {
-        expect(viewActivity.find('#addResultsModel').exists()).toBeTruthy();
-    });
-
-    test('displays 1 outcome card', () => {
-        expect(viewActivity.findAll('#outcomeAddResultCard').length).toBe(1);
-    });
-
-    test('displays 1 input for the result', () => {
-        expect(viewActivity.findAll('#NotSubmittedInputValue1').length).toBe(1);
-    });
-
-    test('displays 1 submit result button', () => {
-        expect(viewActivity.findAll('#submitResult').length).toBe(1);
-    });
-
 });
 
 describe('As an activity creator', () => {
@@ -302,26 +280,5 @@ describe('If I am not following the activity', () => {
 
     test("I can't see the add results button", () => {
         expect(viewActivity.find('#addResults').exists()).toBeFalsy();
-    });
-});
-
-describe('When there are no participants', () => {
-    beforeEach(() => {
-        setValues();
-        PARTICIPANTS_DATA = [];
-        api.getParticipants.mockImplementation(() => {
-            return Promise.resolve({
-                data: PARTICIPANTS_DATA,
-                status: 200
-            });
-        });
-        return new Promise(resolve => {
-            viewActivity = mount(ViewActivity, config);
-            sleep(150).then(() => resolve());
-        });
-    });
-
-    test("When there are no participants, it displays 'No participants to show'", () => {
-        expect(viewActivity.find('#noParticipants').text()).toBe('No participants to show');
     });
 });
