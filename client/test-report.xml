@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
-  <file path="C:\Users\rebek\OneDrive - University of Canterbury\SENG302\Project\client\src\Test\Header.test.js">
-    <testCase name="Is a vue instance" duration="91"/>
-    <testCase name="Logo is on the page" duration="27"/>
-    <testCase name="Toggle button for collapsible nav-bar exists" duration="29"/>
-    <testCase name="There are 5 possible collapsible links, when logged in" duration="71"/>
-    <testCase name="There are 2 possible collapsible links, when not logged in" duration="22"/>
+  <file path="C:\Users\rebek\OneDrive - University of Canterbury\SENG302\Project\client\src\Test\HomeFeed.test.js">
+    <testCase name="Check that feed event data is fetched and rendered properly" duration="194"/>
   </file>
 </testExecutions>

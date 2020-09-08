@@ -67,6 +67,8 @@ beforeEach(() => {
             })
         });
 
+        window.scrollTo = jest.fn();
+
         homeFeed = mount(HomeFeed, {
             mocks: {api},
             localVue
@@ -74,6 +76,10 @@ beforeEach(() => {
 
         sleep(150).then(() => resolve());
     });
+});
+
+afterAll(() => {
+   jest.clearAllMocks();
 });
 
 test('Check that feed event data is fetched and rendered properly', () => {
