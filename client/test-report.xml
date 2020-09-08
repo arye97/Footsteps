@@ -1,13 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
-  <file path="C:\Users\rebek\OneDrive - University of Canterbury\SENG302\Project\client\src\Test\EditEmail.test.js">
-    <testCase name="Is a vue instance" duration="175"/>
-    <testCase name="Displays Primary Email" duration="211"/>
-    <testCase name="Displays Secondary Emails" duration="192"/>
-    <testCase name="Make Secondary Primary" duration="207"/>
-    <testCase name="Add Secondary Email" duration="200"/>
-    <testCase name="Add More than 5 Emails" duration="198"/>
-    <testCase name="Delete Secondary Email" duration="195"/>
-    <testCase name="Delete All Secondary Emails" duration="191"/>
+  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/ViewActivity.test.js">
+    <testCase name="Is a vue instance" duration="410"/>
+    <testCase name="The view activity page displays the activity title" duration="295"/>
+    <testCase name="The view activity page displays the activity description" duration="365"/>
+    <testCase name="The view activity page displays the activity location" duration="364"/>
+    <testCase name="The view activity page has a view participants button" duration="438"/>
+    <testCase name="The view activity page has a view results button" duration="389"/>
+    <testCase name="The view activity page shows the activity type" duration="303"/>
+    <testCase name="The view activity page has a view participants modal" duration="298"/>
+    <testCase name="The view activity page displays 2 participants" duration="407"/>
+    <testCase name="The view activity page has add result model" duration="327"/>
+    <testCase name="The view activity page displays 1 outcome card" duration="325"/>
+    <testCase name="The view activity page displays 1 input for the result" duration="346"/>
+    <testCase name="The view activity page displays 1 submit result button" duration="366"/>
+    <testCase name="As an activity creator I cannot see the follow button" duration="351"/>
+    <testCase name="As an activity creator I cannot see the unfollow button" duration="319"/>
+    <testCase name="As an activity creator I can see the edit activity button" duration="315"/>
+    <testCase name="As an activity creator I can see the add results button" duration="314"/>
+    <testCase name="If I&apos;m following an activity I can see the unfollow button" duration="594"/>
+    <testCase name="If I&apos;m following an activity I can&apos;t see the follow button" duration="588"/>
+    <testCase name="If I&apos;m following an activity I can&apos;t see the edit activity button" duration="608"/>
+    <testCase name="If I&apos;m following an activity I can see the add results button" duration="647"/>
+    <testCase name="If I am not following the activity I can&apos;t see the unfollow button" duration="639"/>
+    <testCase name="If I am not following the activity I can see the follow button" duration="769"/>
+    <testCase name="If I am not following the activity I can&apos;t see the edit activity button" duration="652"/>
+    <testCase name="If I am not following the activity I can&apos;t see the add results button" duration="553"/>
+    <testCase name="When there are no participants When there are no participants, it displays &apos;No participants to show&apos;" duration="725"/>
   </file>
 </testExecutions>
