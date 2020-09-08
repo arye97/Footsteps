@@ -713,7 +713,7 @@ class ActivityControllerTest {
             return result;
         });
 
-        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityName=Climb"))
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityKeywords=Climb"))
                 .header("Token", validToken);
 
         MvcResult result = mvc.perform(httpReq)
@@ -753,7 +753,7 @@ class ActivityControllerTest {
                 null,
                 null,
                 "/activities",
-                "activityName=\"Climb%20Mount%20Fuji\"",
+                "activityKeywords=\"Climb%20Mount%20Fuji\"",
                 null);
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(uri)
                 .header("Token", validToken);
@@ -768,7 +768,7 @@ class ActivityControllerTest {
     @Test
     void requireKeywordToFindActivityByName() throws Exception {
 
-        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityName="))
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityKeywords="))
                 .header("Token", validToken);
 
         MvcResult result = mvc.perform(httpReq)
@@ -796,7 +796,7 @@ class ActivityControllerTest {
             Page<Activity> result = new PageImpl(foundActivities);
             return result;
         });
-        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityName=keyword"))
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityKeywords=keyword"))
                 .header("Token", validToken);
 
         MvcResult result = mvc.perform(httpReq)
@@ -833,7 +833,7 @@ class ActivityControllerTest {
             return foundActivities;
         });
 
-        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityName=Climb%20-%20Fuji"))
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityKeywords=Climb%20-%20Fuji"))
                 .header("Token", validToken);
 
         MvcResult result = mvc.perform(httpReq)
@@ -861,19 +861,17 @@ class ActivityControllerTest {
             Page<Activity> pagedFoundActivities;
             String keyword = i.getArgument(0);
             keyword = keyword.replaceAll("[^a-zA-Z0-9\\\\s+]", "");
-            System.out.println(keyword);
             for (Activity activity : activities) {
                 List<String> name = Arrays.asList(activity.getName().split(" "));
                 if (name.contains(keyword)) {
                     foundActivities.add(activity);
                 }
             }
-            System.out.println(foundActivities);
             pagedFoundActivities = new PageImpl<>(foundActivities);
             return pagedFoundActivities;
         });
 
-        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityName=Fuji%20%2b%20Tower"))
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityKeywords=Fuji%20%2b%20Tower"))
                 .header("Token", validToken);
 
         MvcResult result = mvc.perform(httpReq)
