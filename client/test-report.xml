@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
-  <file path="C:\Users\rebek\OneDrive - University of Canterbury\SENG302\Project\client\src\Test\Search.test.js">
-    <testCase name="Is a vue instance" duration="32"/>
-    <testCase name="Search mode selector exists" duration="25"/>
+  <file path="C:\Users\rebek\OneDrive - University of Canterbury\SENG302\Project\client\src\Test\ActivityCard.test.js">
+    <testCase name="Is a vue instance" duration="51"/>
+    <testCase name="The ActivityCard errors Displays an error card if creator name is not found" duration="49"/>
+    <testCase name="The ActivityCard elements Displays a card with no errors" duration="22"/>
+    <testCase name="The ActivityCard elements Displays activity name and creator name" duration="24"/>
+    <testCase name="The ActivityCard elements Displays a button for redirecting" duration="19"/>
+    <testCase name="The ActivityCard elements Displays ActivityTypes that were both searched for, and match the activity" duration="18"/>
+    <testCase name="The ActivityCard elements Does not display ActivityTypes that were searched for, and do not match the activity" duration="18"/>
+    <testCase name="The ActivityCard elements Displays activity info" duration="21"/>
   </file>
 </testExecutions>

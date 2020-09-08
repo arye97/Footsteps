@@ -1,10 +1,14 @@
 import "vue-jest"
 import api from '../Api'
-import {shallowMount} from "@vue/test-utils";
+import {mount, createLocalVue} from "@vue/test-utils";
 import router from "../index";
 
 import ActivitySearch from "../views/Search/ActivitySearch";
 import "jest";
+import BootstrapVue from "bootstrap-vue";
+
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
 
 jest.mock('../Api');
 
@@ -92,10 +96,7 @@ let pageSize = 5;
 let activitySearch;
 
 beforeEach(() => {
-    activitySearch = shallowMount(ActivitySearch, {
-        methods: {
-            logout: () => {},
-        },
+    activitySearch = mount(ActivitySearch, {
         router,
         mocks: {api}
     });
@@ -116,6 +117,8 @@ beforeEach(() => {
             }
         })
     );
+
+    api.logout.mockImplementation(() => Promise.resole({status:200}));
 });
 
 test('Is a vue instance', () => {
