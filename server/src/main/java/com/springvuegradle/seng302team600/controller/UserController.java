@@ -286,6 +286,20 @@ public class UserController {
     }
 
     /**
+     * If the current user has authorization edit user with given id.
+     * @param jsonEditLocationString the json body of the request as a string
+     * @param request the http request to the endpoint
+     * @param response the http response
+     * @param profileId user id obtained from the request url
+     * @throws JsonProcessingException thrown if there is an issue when converting the body to an object node
+     */
+    @PutMapping("/profiles/{profileId}/location")
+    public void editLocation(@RequestBody String jsonEditLocationString, HttpServletRequest request,
+                            HttpServletResponse response, @PathVariable(value = "profileId") Long profileId) throws IOException {
+        // TODO STUB for task4840
+    }
+
+    /**
      * Takes a token and a user id and queries the repository
      * to check if a user is logged in with a provided token.
      * @param request the http request to the endpoint
