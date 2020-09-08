@@ -56,11 +56,12 @@ public class loginAndRegisterSteps extends cucumberSpringBase {
             User user = savedUsers.get(email);
             if (user != null) {
                 user.setToken(authenticationToken);
+                //System.out.println("Authentication token is: " + authenticationToken);
                 return authenticationToken;
             }
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Could not login");
         });
-        assertEquals(authenticationToken, userAuthenticationService.login(email, password));
+        //assertEquals(authenticationToken, userAuthenticationService.login(email, password));
     }
 
     private void logUserOut(String authenticate) {
