@@ -18,14 +18,6 @@
                         <b-form-select id="searchModeSelect" v-model="searchMode" :options="searchModes"></b-form-select>
                     </b-col>
                 </b-row>
-                <b-row style="margin-bottom: 1.7em; margin-top: 0.8em">
-                    <b-col cols="6" align-self="center">
-                        <b-form-radio id="andRadioButton" v-model="searchType" name="andType" value="and">Must include all selections</b-form-radio>
-                    </b-col>
-                    <b-col cols="6" align-self="center">
-                        <b-form-radio id="orRadioButton" v-model="searchType" name="orType" value="or">Must include one selection</b-form-radio>
-                    </b-col>
-                </b-row>
                 <b-row>
                     <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
                         Search
@@ -80,17 +72,7 @@ export default {
         return {
             activitiesPerPage: 5,
             currentPage: 1,
-            activitiesList: [{ // ToDo remove this placeholder when actual activity search is implemented
-                id: 1,
-                creatorUserId: 1,
-                activity_name: "Snow trip",
-                description: "A fun Snow skiing trip. With lots of snow and scary looking tricks. Don't be late.",
-                activity_type: [{activity_type_id: 1, name: 'Skiing'}],
-                continuous: false,
-                start_time: new Date(),
-                end_time: new Date(),
-                location: "Queenstown"
-            }],
+            activitiesList: [],
             searchMode: 'activityType',
             searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
                 { value: 'activityType', text: 'Activity Type'},
@@ -98,9 +80,8 @@ export default {
             ],
             // These are the ActivityTypes selected in the Multiselect
             selectedActivityTypes : [],
-            selectedActivityNames : [],
             // These are a copy of selectedActivityTypes passed to the UserCard (to avoid mutation after clicking search)
-            activityTypesSearchedFor : ['Skiing'], // ToDo remove this placeholder when actual activity search is implemented
+            activityTypesSearchedFor : [],
             activityTitle: "",
             activityTypes: [],
             searchType: "and",
@@ -161,11 +142,14 @@ export default {
          * through an API call.
          */
         async getPaginatedActivitiesByActivityTitle() {
-            console.log('searching for activity by name');
             let pageNumber = this.currentPage - 1;
             api.getActivityByActivityTitle(this.activityTitle, this.searchType, pageNumber)
                 .then(response => {
                     this.activitiesList = response.data;
+                    if (this.activityTitle.length != 0 && (response.data).length === 0) {
+                        this.errored = true;
+                        this.error_message = "No activities with activity names ".concat(this.activityTitle) + " have been found!"
+                    }
                     this.rows = response.headers["total-rows"];
                     this.loading = false;
                     this.resultsFound = true;
@@ -182,7 +166,7 @@ export default {
                         } else if (error.response.status === 400) {
                             this.error_message = error.response.data.message;
                         } else if (error.response.status === 404) {
-                            this.error_message = "No activities with activity names ".concat(this.selectedActivityNames) + " have been found!"
+                            this.error_message = "No activities with activity names ".concat(this.activityTitle) + " have been found!"
                         } else {
                             this.error_message = "Something went wrong! Please try again."
                         }
@@ -202,9 +186,11 @@ export default {
                 // Set is as a copy so the User card is only updated after clicking search
                 this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
                 this.getPaginatedActivitiesByActivityType();
-            } else if (this.searchMode === 'name') {
-                console.log('searching for activity by name');
-                this.activityTitle = this.selectedActivityNames;
+            } else if (this.searchMode === 'activityName') {
+                if (this.activityTitle.length === 0) {
+                    this.errored = true;
+                    this.error_message = "Cannot have empty search field, please try again!";
+                }
                 this.getPaginatedActivitiesByActivityTitle();
             }
         }
@@ -215,6 +201,7 @@ export default {
 <style scoped>
 .searchButton {
     width: 200%;
+    margin-top: 1rem !important;
 }
 
 </style>
