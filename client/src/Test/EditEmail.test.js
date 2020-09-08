@@ -105,25 +105,23 @@ test('Make Secondary Primary', () => {
 });
 
 
-test('Add Secondary Email', async () => {
+test('Add Secondary Email', () => {
     const newEmail1 = "mynewemail1@gmail.com";
 
     editEmail.vm.$data.insertedEmail = newEmail1;
     editEmail.find("#addEmail").trigger("submit.prevent");
-    await editEmail.vm.$nextTick();
 
     expect(editEmail.vm.$data.additionalEmails).toContain(newEmail1);
 });
 
 
-test('Add More than 5 Emails', async () => {
+test('Add More than 5 Emails', () => {
     let newEmail;
     for (let i=1; i <= MAX_EMAILS + 1; i++) {
         newEmail =  "mynewemail" + i + "@gmail.com";
 
         editEmail.vm.$data.insertedEmail = newEmail;
-        editEmail.find("#addEmail").trigger("submit.prevent");
-        await editEmail.vm.$nextTick();
+        editEmail.find('#addEmail').trigger("submit.prevent");
     }
 
     expect(editEmail.vm.$data.additionalEmails.length).toBe(4);
