@@ -303,60 +303,69 @@ public class ActivityController {
      *
      * @param request      the http request with the user token we need
      * @param response     the http response
-     * @param activityName the word/sentence we need to search for
+     * @param activityKeywords the word/sentence we need to search for
      * @return a list containing all activities found
      */
     @RequestMapping(
             value = "/activities",
-            params = {"activityName"},
+            params = {"activityKeywords"},
             method = RequestMethod.GET
     )
-    public List<ActivityResponse> getActivitiesByName(HttpServletRequest request,
+    public List<ActivityResponse> getActivitiesByKeywords(HttpServletRequest request,
                                                       HttpServletResponse response,
-                                                      @RequestParam(value="activityName") String activityName) {
+                                                      @RequestParam(value="activityKeywords") String activityKeywords) {
         String token = request.getHeader("Token");
         userAuthenticationService.findByToken(token);
+
         List<ActivityResponse> activitiesFound = new ArrayList<>();
-        if (activityName.length() == 0) {
+        if (activityKeywords.length() == 0) {
             return activitiesFound;
         }
+
         int pageNumber = request.getIntHeader("Page-Number");
         if (pageNumber == -1) {
             pageNumber = 0;
         }
-        List<Activity> activities = new ArrayList<>();
+
+        List<Activity> activities;
         List<String> searchStrings;
         Page<Activity> paginatedActivities;
         Pageable pageWithFiveActivities = PageRequest.of(pageNumber, PAGE_SIZE);
-        if (activityName.contains("-")) {
+
+        if (activityKeywords.contains("-")) {
             //this gives <searchQuery, exclusions>
-            searchStrings = ActivitySearchService.handleMinusSpecialCaseString(activityName);
+            searchStrings = ActivitySearchService.handleMinusSpecialCaseString(activityKeywords);
             activities = activityRepository.findAllByKeywordExcludingTerm(searchStrings.get(0), searchStrings.get(1));
+
             for (Activity activity : activities) {
                 activitiesFound.add(new ActivityResponse(activity));
             }
+
             return activitiesFound;
-        } else if (activityName.contains("%2b") || (activityName.contains("+"))) {
+        } else if (activityKeywords.contains("%2b") || (activityKeywords.contains("+"))) {
             //this gives a list of all separate search queries
-            searchStrings = ActivitySearchService.handlePlusSpecialCaseString(activityName);
+            searchStrings = ActivitySearchService.handlePlusSpecialCaseString(activityKeywords);
             Set<Activity> setToRemoveDuplicates = new HashSet<>();
+
             for (String term : searchStrings) {
                 Page<Activity> currPage = activityRepository.findAllByKeyword(term, pageWithFiveActivities);
                 setToRemoveDuplicates.addAll(currPage.getContent());
             }
+
             List<Activity> listedActivities = new ArrayList<>(setToRemoveDuplicates);
             paginatedActivities = new PageImpl<>(listedActivities);
-
         } else {
-            activityName = ActivitySearchService.getSearchQuery(activityName);
-            paginatedActivities = activityRepository.findAllByKeyword(activityName, pageWithFiveActivities);
+            activityKeywords = ActivitySearchService.getSearchQuery(activityKeywords);
+            paginatedActivities = activityRepository.findAllByKeyword(activityKeywords, pageWithFiveActivities);
         }
 
         if (paginatedActivities == null || paginatedActivities.getTotalPages() == 0) {
             return activitiesFound;
         }
+
         List<Activity> pageActivities = paginatedActivities.getContent();
         pageActivities.forEach(i -> activitiesFound.add(new ActivityResponse(i)));
+
         int totalElements = (int) paginatedActivities.getTotalElements();
         response.setIntHeader("Total-Rows", totalElements);
 
