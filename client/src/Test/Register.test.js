@@ -19,7 +19,7 @@ import { _isValidDOB } from '../util'
 let registerWrapper;
 let spy;
 
-const ACTIVITY_TYPES = ['New Zealand','Australia'];
+const ACTIVITY_TYPES = ["Biking", "Hiking", "Athletics"];
 const USER_DATA = {
     firstname: 'Test',
     middlename: '',
