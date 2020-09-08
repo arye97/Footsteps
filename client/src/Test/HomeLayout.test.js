@@ -34,7 +34,7 @@ test('Is a vue instance', () => {
 });
 
 test('Logo is on the page', () => {
-    expect(homeLayout.find('#logo').is('img')).toBeTruthy()
+    expect(homeLayout.find('img').exists()).toBeTruthy()
 });
 
 // ----AC1----
@@ -47,5 +47,5 @@ test.each([
     ['register'],
     ['login'],
 ])('AC1 Has a %s button', (button) => {
-    expect(homeLayout.find('#'+ button + 'Button').is('button')).toBeTruthy();
+    expect(homeLayout.find('#'+ button + 'Button').exists()).toBeTruthy();
 });

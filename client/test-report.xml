@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
-  <file path="C:\Users\rebek\OneDrive - University of Canterbury\SENG302\Project\client\src\Test\HomeFeed.test.js">
-    <testCase name="Check that feed event data is fetched and rendered properly" duration="194"/>
+  <file path="C:\Users\rebek\OneDrive - University of Canterbury\SENG302\Project\client\src\Test\HomeLayout.test.js">
+    <testCase name="Is a vue instance" duration="25"/>
+    <testCase name="Logo is on the page" duration="17"/>
+    <testCase name="AC1 Has 2 buttons" duration="8"/>
+    <testCase name="AC1 Has a register button" duration="8"/>
+    <testCase name="AC1 Has a login button" duration="7"/>
   </file>
 </testExecutions>
