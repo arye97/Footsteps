@@ -21,13 +21,16 @@
                             <template>
                                 <b-tabs content-class="mt-3" align="center">
                                     <b-tab title="My Details" active>
-                                        <Details/>
+                                        <EditDetails/>
                                     </b-tab>
                                     <b-tab title="My Password">
                                         <EditPassword/>
                                     </b-tab>
                                     <b-tab title="My Emails">
                                         <EditEmail/>
+                                    </b-tab>
+                                    <b-tab title="My Location">
+                                        <EditLocation/>
                                     </b-tab>
                                 </b-tabs>
 
@@ -44,13 +47,14 @@
 
 <script>
     import Header from '../../components/Header/Header.vue'
-    import Details from './Details'
-    import EditEmail from "./EditEmail";
-    import EditPassword from "./EditPassword";
+    import EditDetails from "../../components/Settings/EditDetails";
+    import EditEmail from "../../components/Settings/EditEmail";
+    import EditPassword from "../../components/Settings/EditPassword";
+    import EditLocation from "../../components/Settings/EditLocation";
 
     export default {
         name: "EditProfile.vue",
-        components: {Header, Details, EditPassword, EditEmail}
+        components: {Header, EditDetails, EditPassword, EditEmail, EditLocation}
     }
 </script>
 <style scoped>

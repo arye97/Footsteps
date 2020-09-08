@@ -244,14 +244,13 @@
                                     {{ outcome.unit_name }}
                                 </p>
                             </td>
-                            <!--Only show edit and delete buttons if this is a newly added Outcome. Uhg O(n^2)-->
-                            <!--This v-if should be removed when we add functionality for editing existing Outcomes-->
+                            <!--Only show edit button if this Outcome does not have results-->
                             <td class="tableButtonTd">
                                 <b-button variant="danger" :id="'deleteButton' + index" v-on:click="deleteOutcome(index)">
                                     <b-icon-trash-fill></b-icon-trash-fill>
                                 </b-button>
                             </td>
-                            <td class="tableButtonTd">
+                            <td class="tableButtonTd" v-if="editableOutcomes[index]">
                                 <b-button variant="primary" :id="'editButton' + index" v-on:click="editOutcome(index)">Edit</b-button>
                             </td>
                         </tr>
@@ -345,6 +344,7 @@
 
                 activeOutcome: {title:"", unit_name:""},
                 validOutcome: false,
+                editableOutcomes: [],
 
                 outcomeTitleCharCount: 0,
                 maxOutcomeTitleCharCount: 75,
@@ -356,6 +356,13 @@
         },
         async created() {
             await this.fetchActivityTypes();
+        },
+        watch: {
+            async outcomeList() {
+                if (this.outcomeList.length !== this.editableOutcomes.length) {
+                    await this.checkOutcomesAreEditable();
+                }
+            }
         },
         methods: {
 
@@ -582,6 +589,7 @@
              */
             addOutcome() {
                 this.$emit("add-outcome", this.activeOutcome);
+                this.editableOutcomes.push(true);
                 this.activeOutcome = {title:"", unit_name:""};
                 this.updateOutcomeWordCount();
             },
@@ -595,20 +603,63 @@
             deleteOutcome(index) {
                 let outcomeToBeRemoved = this.outcomeList[index];
                 this.$emit("delete-outcome", outcomeToBeRemoved);
+                this.editableOutcomes.splice(index, 1);
             },
 
             /**
              * Sets the active outcome to the selected outcome
              * Deletes the to be edited outcome from the outcomeList
              * Updates the outcome input boxes and their respective word counts
+             * Sets isEdited to true for when submitting the final outcome list
              * @param index The index of the outcome, to be edited, in the outcomeList
              */
             editOutcome(index) {
                 this.activeOutcome = this.outcomeList[index];
+                this.activeOutcome.isEdited = true;
                 this.deleteOutcome(index);
-                this.updateOutcomeWordCount();
-                // todo for task PUT endpoint pls also update javadoc
-                // this.$emit("edit-outcome", this.outcomeList);
+                this.editableOutcomes.splice(index, 1);
+                // The prop outcomeList takes time to update within this child.
+                // Therefore, the method updateOutcomeWordCount can't be called as it invalids the outcome each time.
+                // Hence, the three lines below are duplicated code from that method.
+                this.outcomeTitleCharCount = this.activeOutcome.title.length;
+                this.outcomeUnitCharCount = this.activeOutcome.unit_name.length;
+                this.validOutcome = true;
+            },
+
+            /**
+             * Add outcomes which can be edited to the editableOutcomes list
+             */
+            async checkOutcomesAreEditable() {
+                this.editableOutcomes = [];
+                for (let i = 0 ; i < this.outcomeList.length ; i++) {
+                    this.editableOutcomes.push(await this.outcomeIsEditable(i));
+                }
+            },
+
+            /**
+             * Checks whether or not the outcome at the given index can be edited.
+             * @param index The index of the outcome being checked
+             * @return true if outcome is editable, otherwise false
+             */
+            async outcomeIsEditable(index) {
+                let result = false;
+                let outcome = this.outcomeList[index];
+                if (outcome.outcome_id === undefined) {
+                    return true;
+                }
+                await api.getOutcomeResults(outcome.outcome_id).then(response => {
+                    if (response.data.length <= 0) {
+                        result = true;
+                    }
+                }).catch(error => {
+                    if (error.response.status === 401) {
+                        this.logout();
+                    } else {
+                        this.$router.push({name: 'allActivities', params:
+                                {alertMessage: "Sorry, an unknown error occurred while loading the outcomes", alertCount: 5}});
+                    }
+                })
+                return result;
             }
         }
     }

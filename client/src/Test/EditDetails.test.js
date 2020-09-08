@@ -1,5 +1,5 @@
 import {mount} from '@vue/test-utils'
-import Details from '../views/Settings/Details.vue'
+import EditDetails from "../components/Settings/EditDetails";
 import '../Api'
 import 'vue-jest'
 import api from "../Api";
@@ -51,7 +51,7 @@ beforeEach(() => {
       data: [{name: 'New Zealand'}, {name: 'Australia'}],
       status: 200
     }));
-    editWrapper = mount(Details, {router, attachToDocument: true, mocks: {api}});
+    editWrapper = mount(EditDetails, {router, attachToDocument: true, mocks: {api}});
     sleep(150).then(() => resolve());
   })
 });
