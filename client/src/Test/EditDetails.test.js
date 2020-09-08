@@ -1,7 +1,7 @@
-import {mount, createLocalVue} from '@vue/test-utils'
-import Details from '../views/Settings/Details.vue'
-import '../Api'
-import 'vue-jest'
+import {mount, createLocalVue} from '@vue/test-utils';
+import EditDetails from '../components/Settings/EditDetails.vue';
+import '../Api';
+import 'vue-jest';
 import api from "../Api";
 import router from '../index';
 import { BootstrapVue } from 'bootstrap-vue'
@@ -59,7 +59,7 @@ beforeEach(() => {
     if (document.body) {
       document.body.appendChild(div);
     }
-    editWrapper = mount(Details, {router, attachTo: div, mocks: {api}});
+    editWrapper = mount(EditDetails, {router, attachTo: div, mocks: {api}});
     sleep(150).then(() => resolve());
   })
 });

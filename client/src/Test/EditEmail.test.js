@@ -1,5 +1,5 @@
 import {mount, createLocalVue} from '@vue/test-utils';
-import EditEmail from '../views/Settings/EditEmail.vue';
+import EditEmail from '../components/Settings/EditEmail.vue';
 import api from "../Api";
 import 'vue-jest';
 import {BootstrapVue, BootstrapVueIcons} from "bootstrap-vue";

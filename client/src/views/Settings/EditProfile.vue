@@ -44,9 +44,9 @@
 
 <script>
     import Header from '../../components/Header/Header.vue'
-    import Details from './Details'
-    import EditEmail from "./EditEmail";
-    import EditPassword from "./EditPassword";
+    import Details from '../../components/Settings/EditDetails.vue'
+    import EditEmail from "../../components/Settings/EditEmail";
+    import EditPassword from "../../components/Settings/EditPassword";
 
     export default {
         name: "EditProfile.vue",
