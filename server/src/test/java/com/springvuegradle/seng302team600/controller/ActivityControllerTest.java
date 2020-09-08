@@ -4,10 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.springvuegradle.seng302team600.model.Activity;
-import com.springvuegradle.seng302team600.model.ActivityType;
-import com.springvuegradle.seng302team600.model.User;
-import com.springvuegradle.seng302team600.model.UserRole;
+import com.springvuegradle.seng302team600.model.*;
 import com.springvuegradle.seng302team600.payload.ActivityResponse;
 import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import com.springvuegradle.seng302team600.repository.*;
@@ -378,7 +375,11 @@ class ActivityControllerTest {
             "continuous", false,
             "start_time", "2020-02-20T08:00:00+1300",
             "end_time", "2020-02-20T08:00:00+1300",
-            "location", "Kaikoura, NZ");
+            "location", new HashMap<String, String>(){{
+                put("longitude", "0.0");
+                put("latitude", "0.0");
+                put("name", "Null Island");
+            }});
 
     /**
      * Test successful creation of new activity.
@@ -422,7 +423,11 @@ class ActivityControllerTest {
             "continuous", false,
             "start_time", "2020-02-20T08:00:00+1300",
             "end_time", "2020-02-20T08:00:00+1300",
-            "location", "Kaikoura, NZ");
+            "location", new HashMap<String, String>(){{
+                put("longitude", "0.0");
+                put("latitude", "0.0");
+                put("name", "Null Island");
+            }});
 
 
 
@@ -456,7 +461,11 @@ class ActivityControllerTest {
             "continuous", false,
             "start_time", "2020-02-20T08:00:00Z",
             "end_time", "2020-02-20T08:00:00Z",
-            "location", "Christchurch, NZ");
+            "location", new HashMap<String, String>(){{
+                put("longitude", "0.0");
+                put("latitude", "0.0");
+                put("name", "Null Island");
+            }});
 
     /**
      * Tests that Bad Request is returned when the date format is not correct, in this case representing time zone
@@ -485,8 +494,11 @@ class ActivityControllerTest {
             "continuous", false,
             "start_time", "2020-02-20T08:00:00+1300",
             "end_time", "2020-02-20T08:00:00+1300",
-            "location", "Kaikoura, NZ");
-
+            "location", new HashMap<String, String>(){{
+                put("longitude", "0.0");
+                put("latitude", "0.0");
+                put("name", "Null Island");
+            }});
 
     /**
      * Test successful get request of activities created by specific user
@@ -713,7 +725,7 @@ class ActivityControllerTest {
             return result;
         });
 
-        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityName=Climb"))
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityKeywords=Climb"))
                 .header("Token", validToken);
 
         MvcResult result = mvc.perform(httpReq)
@@ -753,7 +765,7 @@ class ActivityControllerTest {
                 null,
                 null,
                 "/activities",
-                "activityName=\"Climb%20Mount%20Fuji\"",
+                "activityKeywords=\"Climb%20Mount%20Fuji\"",
                 null);
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(uri)
                 .header("Token", validToken);
@@ -768,7 +780,7 @@ class ActivityControllerTest {
     @Test
     void requireKeywordToFindActivityByName() throws Exception {
 
-        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityName="))
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityKeywords="))
                 .header("Token", validToken);
 
         MvcResult result = mvc.perform(httpReq)
@@ -796,7 +808,7 @@ class ActivityControllerTest {
             Page<Activity> result = new PageImpl(foundActivities);
             return result;
         });
-        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityName=keyword"))
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityKeywords=keyword"))
                 .header("Token", validToken);
 
         MvcResult result = mvc.perform(httpReq)
@@ -804,5 +816,80 @@ class ActivityControllerTest {
                 .andReturn();
         JsonNode responseString = objectMapper.readTree(result.getResponse().getContentAsString());
         assertEquals(0, responseString.size());
+    }
+
+    @Test
+    void findActivitiesWhileExcludingKeyword() throws Exception {
+        List<Activity> activities = new ArrayList<>();
+        Activity dumActivity1 = new Activity();
+        ReflectionTestUtils.setField(dumActivity1, "activityId", 1L);
+        Activity dumActivity2 = new Activity();
+        ReflectionTestUtils.setField(dumActivity2, "activityId", 2L);
+        dumActivity1.setName("Climb Mount Fuji");
+        dumActivity2.setName("Climb the Ivory Tower");
+        activities.add(dumActivity1);
+        activities.add(dumActivity2);
+
+        when(activityRepository.findAllByKeywordExcludingTerm(Mockito.anyString(), Mockito.anyString())).thenAnswer(i -> {
+            List<Activity> foundActivities = new ArrayList<>();
+            String keyword = i.getArgument(0);
+            String exclusion = i.getArgument(1);
+            keyword = keyword.replaceAll("[^a-zA-Z0-9\\\\s+]", "");
+            exclusion = exclusion.replaceAll("[^a-zA-Z0-9\\\\s+]", "");
+            for (Activity activity : activities) {
+                List<String> name = Arrays.asList(activity.getName().split(" "));
+                if ((!name.contains(exclusion)) && (name.contains(keyword))) {
+                    foundActivities.add(activity);
+                }
+            }
+            return foundActivities;
+        });
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityKeywords=Climb%20-%20Fuji"))
+                .header("Token", validToken);
+
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isOk())
+                .andReturn();
+        JsonNode responseString = objectMapper.readTree(result.getResponse().getContentAsString());
+        assertEquals(1, responseString.size());
+
+    }
+
+    @Test
+    void findAllActivitiesUsingMultipleNames() throws Exception {
+        List<Activity> activities = new ArrayList<>();
+        Activity dumActivity1 = new Activity();
+        ReflectionTestUtils.setField(dumActivity1, "activityId", 1L);
+        Activity dumActivity2 = new Activity();
+        ReflectionTestUtils.setField(dumActivity2, "activityId", 2L);
+        dumActivity1.setName("Climb Mount Fuji");
+        dumActivity2.setName("Climb the Ivory Tower");
+        activities.add(dumActivity1);
+        activities.add(dumActivity2);
+
+        when(activityRepository.findAllByKeyword(Mockito.anyString(), Mockito.any())).thenAnswer(i -> {
+            List<Activity> foundActivities = new ArrayList<>();
+            Page<Activity> pagedFoundActivities;
+            String keyword = i.getArgument(0);
+            keyword = keyword.replaceAll("[^a-zA-Z0-9\\\\s+]", "");
+            for (Activity activity : activities) {
+                List<String> name = Arrays.asList(activity.getName().split(" "));
+                if (name.contains(keyword)) {
+                    foundActivities.add(activity);
+                }
+            }
+            pagedFoundActivities = new PageImpl<>(foundActivities);
+            return pagedFoundActivities;
+        });
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityKeywords=Fuji%20%2b%20Tower"))
+                .header("Token", validToken);
+
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isOk())
+                .andReturn();
+        JsonNode responseString = objectMapper.readTree(result.getResponse().getContentAsString());
+        assertEquals(2, responseString.size());
     }
 }

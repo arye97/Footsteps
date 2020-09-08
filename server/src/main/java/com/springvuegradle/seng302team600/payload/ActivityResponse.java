@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.ActivityType;
+import com.springvuegradle.seng302team600.model.Location;
 
 import java.util.Date;
 import java.util.Set;
@@ -37,7 +38,7 @@ public class ActivityResponse {
     private Date endTime;
 
     @JsonProperty("location")
-    private String location;
+    private Location location;
 
     public ActivityResponse() { }
 
