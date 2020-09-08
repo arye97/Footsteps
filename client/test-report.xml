@@ -1,15 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
-  <file path="C:\Users\rebek\OneDrive - University of Canterbury\SENG302\Project\client\src\Test\UserSearch.test.js">
-    <testCase name="Is a vue instance" duration="61"/>
-    <testCase name="Activities search box exists" duration="57"/>
-    <testCase name="Search button exists" duration="33"/>
-    <testCase name="And search operator radio button exists" duration="23"/>
-    <testCase name="Or search operator radio button exists" duration="23"/>
-    <testCase name="Searching user based on activity types With the &apos;or&apos; method Search user with one activity type &apos;hiking&apos;" duration="47"/>
-    <testCase name="Searching user based on activity types With the &apos;or&apos; method Search user with two activity types &apos;hiking&apos; and &apos;biking&apos;" duration="45"/>
-    <testCase name="Fetch list of activity types from back-end" duration="79"/>
-    <testCase name="Pagination limits the user cards displayed to the user First page contains usersPerPage number of users (1st half of users)" duration="34"/>
-    <testCase name="Pagination limits the user cards displayed to the user Second page contains usersPerPage number of users (2nd half of users)" duration="40"/>
+  <file path="C:\Users\rebek\OneDrive - University of Canterbury\SENG302\Project\client\src\Test\Login.test.js">
+    <testCase name="Is a vue instance" duration="40"/>
+    <testCase name="AC9 User is taken to homepage on login" duration="65"/>
+    <testCase name="AC9 Admin is taken to dashboard on login" duration="35"/>
   </file>
 </testExecutions>

@@ -19,12 +19,13 @@ test('Is a vue instance', () => {
 });
 
 
-test('AC9 User is taken to homepage on login', ()=> {
+test('AC9 User is taken to homepage on login', async ()=> {
     const userdata = {email: "tester@tester.com", password: "testPass"};
     api.login.mockImplementation(() => Promise.resolve({ data: {'Token': 'ValidToken', 'userId': 1}, status: 201 }));
     api.getUserRoles.mockImplementation( () => Promise.resolve({ data : 0, status : 200}))
     let spy = jest.spyOn(router, 'push');
     loginWrapper = shallowMount(Login, {router, mocks: {api}});
+    await loginWrapper.vm.$router.push('/login');
     loginWrapper.setData({...userdata, ...{message:""}});
     return loginWrapper.vm.login(new Event("dummy")).then(() => {
         expect(loginWrapper.vm.api.login).toHaveBeenCalledWith(userdata);
