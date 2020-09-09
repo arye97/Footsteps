@@ -84,5 +84,4 @@ export default {
   getOutcomeResults: (outcomeId) => server.get(`/outcomes/${outcomeId}/results`, getTokenHeader()),
   createResult: (resultData, outcomeId) => server.post(`/outcomes/${outcomeId}/results`, resultData, getTokenHeader()),
   updateOutcome: (outcomeData) => server.put(`/activities/outcomes`, outcomeData, getTokenHeader()),
-  getCoordinateDataByLocation: (location) => server.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${location}&key=${process.env["VUE_APP_GOOGLE_MAPS_API_KEY"]}`)
 }

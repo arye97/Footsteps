@@ -1,5 +1,5 @@
 <template>
-    <div id="mapDiv" class="map-box">
+    <div id="mapDiv" class="map-pane">
         <keep-alive>
             <GmapMap class="map"
                     ref="mapRef"
@@ -77,7 +77,7 @@
         justify-content: center;
         border: 1px outset #6c757e;
     }
-    .map-box {
+    .map-pane {
         display: flex;
         align-items: center;
         justify-content: center;

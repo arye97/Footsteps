@@ -48,7 +48,7 @@
                                 <h3 class="font-weight-light"><strong>Location: </strong></h3><br/>
                                 <div class="map-pane">
                                     <!--ToDo: Add the user's location to replace these coordinates-->
-                                    <location-i-o v-bind:view-only="true"></location-i-o>
+                                    <location-i-o :view-only="true"></location-i-o>
                                 </div>
 
                                 <!--Handling for displaying of Fitness Level-->
