@@ -41,7 +41,7 @@ const EXTRA_DATA = {
 
 beforeEach(() => {
     api.getActivityTypes.mockImplementation(() => Promise.resolve({ data: ACTIVITY_TYPES, status: 200 }));
-    api.register.mockImplementation(() => Promise.resolve({ data: 'ValidToken', status: 201 }));
+    api.register.mockImplementation(() => Promise.resolve({ data: {Token: 'ValidToken'}, status: 201 }));
     spy = jest.spyOn(router, 'push');
     registerWrapper = shallowMount(Register, {router, mocks: {api}});
 });
