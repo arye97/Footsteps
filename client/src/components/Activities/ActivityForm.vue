@@ -659,10 +659,11 @@
                 return result;
             },
             locationValue: function (params) {
-                console.log("Parent")
-                console.log(params)
-                this.activity.location = params[0];
-                console.log(this.activity)
+                this.activity.location = {
+                    latitude: params[0].lat,
+                    longitude: params[0].lng,
+                    name: params[0].name,
+                };
             }
         }
     }
