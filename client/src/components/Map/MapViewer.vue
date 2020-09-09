@@ -1,22 +1,24 @@
 <template>
     <div id="mapDiv" class="map-box">
-        <GmapMap class="map"
-                ref="mapRef"
-                :center="center"
-                :zoom="4.5"
-                map-type-id="terrain"
-                style="width: 500px; height: 300px"
-        >
-            <GmapMarker
-                    ref="myMarker"
-                    :key="index"
-                    v-for="(pin, index) in pins"
-                    :position="google && new google.maps.LatLng(pin.lat, pin.lng)"
-                    :clickable="true"
-                    :draggable="true"
-                    @click="currentCenter={lat:pin.lat, lng:pin.lng}"
-            />
-        </GmapMap>
+        <keep-alive>
+            <GmapMap class="map"
+                    ref="mapRef"
+                    :center="center"
+                    :zoom="4.5"
+                    map-type-id="terrain"
+                    style="width: 500px; height: 300px"
+            >
+                <GmapMarker
+                        ref="myMarker"
+                        :key="index"
+                        v-for="(pin, index) in pins"
+                        :position="google && new google.maps.LatLng(pin.lat, pin.lng)"
+                        :clickable="true"
+                        :draggable="true"
+                        @click="center={lat:pin.lat, lng:pin.lng}"
+                />
+            </GmapMap>
+        </keep-alive>
     </div>
 </template>
 

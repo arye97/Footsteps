@@ -1,23 +1,46 @@
-import {mount} from '@vue/test-utils'
+import {mount, createLocalVue} from '@vue/test-utils'
 import LocationIO from '../components/Map/LocationIO.vue'
+import {BootstrapVue} from 'bootstrap-vue';
+import { gmapApi } from 'gmap-vue';
 import "vue-jest"
 
+jest.mock("gmap-vue");
+
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
+localVue.use(gmapApi);
+
+let config;
 
 let locationIO;
 
 beforeEach(() => {
-    locationIO = mount(LocationIO);
-    jest.mock("gmap-vue")
+    config = {
+        localVue
+    };
+    locationIO = mount(LocationIO, config);
 });
 
 test('Is a vue instance', () => {
     expect(locationIO.isVueInstance).toBeTruthy();
 });
 
-test('Location input  exists', () => {
-    expect(locationIO.find('#locationInput').exists()).toBeTruthy();
+test('map pane does not exist at default', () => {
+    expect(locationIO.find('#mapComponent').exists()).toBeFalsy();
 });
 
-test('Location submit button exists', () => {
-    expect(locationIO.find('#LocationSubmit').exists()).toBeTruthy();
+test('gmap Auto complete does not exist at default', () => {
+    expect(locationIO.find('#gmapAutoComplete').exists()).toBeFalsy();
+});
+
+test('Add marker button does not exist at default', () => {
+    expect(locationIO.find('#addMarkerButton').exists()).toBeFalsy();
+});
+
+test('Hide map button does not exist at default', () => {
+    expect(locationIO.find('#hideMapButton').exists()).toBeFalsy();
+});
+
+test('Show map button exists at default', () => {
+    expect(locationIO.find('#showMapButton').exists()).toBeTruthy();
 });

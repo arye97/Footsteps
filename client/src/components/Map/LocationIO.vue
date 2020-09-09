@@ -2,23 +2,24 @@
     <div>
         <b-card class="flex-fill" border-variant="secondary">
             <div v-if="isMapVisible">
-                <b-button id="hideMapButton" v-on:click="hideMap()">Hide Map</b-button>
-                <map-viewer
-                        :center="center"
-                        :pins="pins"
-                ></map-viewer>
+                <b-button id="hideMapButton" v-on:click="isMapVisible=false">Hide Map</b-button>
+                    <map-viewer
+                            id="mapComponent"
+                            :center="center"
+                            :pins="pins"
+                    ></map-viewer>
                 <div v-if="!viewOnly">
-                    <h2>Search and add a pin</h2>
-                    <label>
-                        <gmap-autocomplete
-                                @place_changed="getPlaceField">
-                        </gmap-autocomplete>
-                        <button @click="addMarker">Add</button>
-                    </label>
+                    <h3 class="font-weight-light"><strong>Search and add a pin</strong></h3>
+                    <gmap-autocomplete
+                            id="gmapAutoComplete"
+                            @place_changed="getPlaceField"
+                            class="form-control" style="width: 100%">
+                    </gmap-autocomplete>
+                    <b-button id='addMarkerButton' block @click="addMarker">Add</b-button>
                 </div>
             </div>
             <div v-else>
-                <b-button id="showMapButton" v-on:click="showMap()">Show Map</b-button>
+                <b-button id="showMapButton" v-on:click="isMapVisible=true">Show Map</b-button>
             </div>
         </b-card>
     </div>
@@ -46,29 +47,13 @@
         data() {
             return {
                 isMapVisible: false,
-                pins:[{lat:-46.53, lng:172.63},],
-                center:{lat:-43.53, lng:172.63},
-                locations: [],
-                locationInput: "",
-                awaitingSearch: false,
-                inputDisplay: '',
+                pins:[],
+                center:undefined,
                 currentPlace: null
             }
         },
 
-        mounted() {
-            this.geolocate();
-        },
-
         methods: {
-
-            hideMap() {
-                this.isMapVisible = false;
-            },
-
-            showMap() {
-                this.isMapVisible = true;
-            },
 
             // receives a place object via the autocomplete component
             getPlaceField(place) {
@@ -82,19 +67,9 @@
                         lng: this.currentPlace.geometry.location.lng()
                     };
                     this.pins.push(pin);
-                    this.locations.push(this.currentPlace);
                     this.center = pin;
                     this.currentPlace = null;
                 }
-            },
-
-            geolocate: function() {
-                navigator.geolocation.getCurrentPosition(position => {
-                    this.center = {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    };
-                });
             }
         }
     }
