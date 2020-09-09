@@ -1,15 +1,12 @@
 import ViewActivity from "../views/Activities/ViewActivity";
-import {createLocalVue, mount, RouterLinkStub} from "@vue/test-utils";
+import {createLocalVue, shallowMount, RouterLinkStub} from "@vue/test-utils";
 import "jest";
 import api from "../Api";
 import router from '../index';
-import { BootstrapVue, BootstrapVueIcons, IconsPlugin } from 'bootstrap-vue';
+import { BootstrapVue } from 'bootstrap-vue';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(BootstrapVueIcons);
-localVue.use(IconsPlugin);
-
 
 jest.mock('../Api');
 jest.mock('../index');
@@ -155,7 +152,7 @@ beforeEach(() => {
         localVue
     };
     return new Promise(resolve => {
-        viewActivity = mount(ViewActivity, config);
+        viewActivity = shallowMount(ViewActivity, config);
         // This causes a delay between beforeEach finishing, and the tests being run.
         // This isn't at all good practice, but its the only way I am able
         // to get ViewActivity to fully mount before the tests are run.
@@ -231,7 +228,7 @@ describe("If I'm following an activity", () => {
             });
         });
         return new Promise(resolve => {
-            viewActivity = mount(ViewActivity, config);
+            viewActivity = shallowMount(ViewActivity, config);
             sleep(150).then(() => resolve());
         });
     });
@@ -264,7 +261,7 @@ describe('If I am not following the activity', () => {
             });
         });
         return new Promise(resolve => {
-            viewActivity = mount(ViewActivity, config);
+            viewActivity = shallowMount(ViewActivity, config);
             sleep(150).then(() => resolve());
         });
     });

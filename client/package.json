@@ -88,6 +88,9 @@
       "node",
       "vue"
     ],
+    "setupFiles": [
+      "./src/Test/SessionStorageMock.js"
+    ],
     "setupFilesAfterEnv": [
       "./src/Test/LiveBackEnd/setup.js"
     ],

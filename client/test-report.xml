@@ -1,24 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
-  <file path="/Users/ethanburnett/Computer Science/SENG302/team-600/client/src/Test/ViewActivity.test.js">
-    <testCase name="Is a vue instance" duration="272"/>
-    <testCase name="The view activity page Displays the activity title" duration="245"/>
-    <testCase name="The view activity page Displays the activity description" duration="247"/>
-    <testCase name="The view activity page Displays the activity location" duration="226"/>
-    <testCase name="The view activity page Has a view participants button" duration="211"/>
-    <testCase name="The view activity page Has a view results button" duration="216"/>
-    <testCase name="The view activity page Shows the activity type" duration="209"/>
-    <testCase name="As an activity creator I cannot see the follow button" duration="226"/>
-    <testCase name="As an activity creator I cannot see the unfollow button" duration="201"/>
-    <testCase name="As an activity creator I can see the edit activity button" duration="210"/>
-    <testCase name="As an activity creator I can see the add results button" duration="217"/>
-    <testCase name="If I&apos;m following an activity I can see the unfollow button" duration="405"/>
-    <testCase name="If I&apos;m following an activity I can&apos;t see the follow button" duration="411"/>
-    <testCase name="If I&apos;m following an activity I can&apos;t see the edit activity button" duration="400"/>
-    <testCase name="If I&apos;m following an activity I can see the add results button" duration="409"/>
-    <testCase name="If I am not following the activity I can&apos;t see the unfollow button" duration="397"/>
-    <testCase name="If I am not following the activity I can see the follow button" duration="418"/>
-    <testCase name="If I am not following the activity I can&apos;t see the edit activity button" duration="387"/>
-    <testCase name="If I am not following the activity I can&apos;t see the add results button" duration="400"/>
+  <file path="C:\Users\rebek\OneDrive - University of Canterbury\SENG302\Project\client\src\Test\Header.test.js">
+    <testCase name="Is a vue instance" duration="183"/>
+    <testCase name="Logo is on the page" duration="55"/>
+    <testCase name="Toggle button for collapsible nav-bar exists" duration="45"/>
+    <testCase name="There are 5 possible collapsible links, when logged in" duration="108"/>
+    <testCase name="There are 2 possible collapsible links, when not logged in" duration="34"/>
   </file>
 </testExecutions>
