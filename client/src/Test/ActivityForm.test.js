@@ -4,6 +4,7 @@ import api from "../Api";
 import ActivityForm from "../components/Activities/ActivityForm";
 import { BootstrapVue } from 'bootstrap-vue';
 
+jest.mock("../Api");
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 
@@ -19,12 +20,17 @@ const ACTIVITY1 = {
     submitStartTime: "2020-12-16T09:00:00+0000",
     submitEndTime: "2020-12-17T17:00:00+0000"
 };
+const ACTIVITY_TYPES = [
+    {activityTypeId: 1, name: "Hng"},
+    {activityTypeId: 2, name: "Attics"}
+];
 
 let activityForm;
 /**
  * Before each test, mock the necessary properties and methods.
  */
 beforeEach(() => {
+    api.getActivityTypes.mockImplementation(() => Promise.resolve({data: ACTIVITY_TYPES, status: 200}));
     activityForm = mount(ActivityForm, {
         propsData: {
             activity: { ACTIVITY1
