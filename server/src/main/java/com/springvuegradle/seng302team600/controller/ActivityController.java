@@ -43,6 +43,9 @@ public class ActivityController {
     private static final String CONTINUOUS = "CONTINUOUS";
     private static final String DURATION = "DURATION";
 
+    private static final String TOKEN_DECLARATION = "Token";
+    private static final String NOT_FOUND = "Activity not found";
+
     public ActivityController(ActivityRepository activityRepository, UserAuthenticationService userAuthenticationService,
                               ActivityTypeService activityTypeService, FeedEventService feedEventService, ActivityTypeRepository activityTypeRepository, ActivityActivityTypeRepository activityActivityTypeRepository) {
         this.activityRepository = activityRepository;
@@ -66,7 +69,7 @@ public class ActivityController {
                             HttpServletRequest request,
                             HttpServletResponse response,
                             @PathVariable(value = "profileId") Long profileId) {
-        String token = request.getHeader("Token");
+        String token = request.getHeader(TOKEN_DECLARATION);
         // Throws error if token doesn't match the profileId, i.e. you can't create an activity with a creatorUserId that isn't your own
         userAuthenticationService.findByUserId(token, profileId);
         // Use ActivityType entities from the database.  Don't create duplicates.
@@ -127,13 +130,13 @@ public class ActivityController {
                              @PathVariable(value = "activityId") Long activityId,
                              @Validated @RequestBody Activity activity,
                              HttpServletRequest request, HttpServletResponse response) {
-        String token = request.getHeader("Token");
+        String token = request.getHeader(TOKEN_DECLARATION);
         User author = userAuthenticationService.findByUserId(token, profileId);
         //get old activity to set values
         Activity oldActivity = activityRepository.findByActivityId(activityId);
         //check activity exists and user is author
         if (oldActivity == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Activity not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, NOT_FOUND);
         }
         if ((!oldActivity.getCreatorUserId().equals(profileId)) //check for author
                 && (!userAuthenticationService.hasAdminPrivileges(author))) { //check for admin
@@ -172,7 +175,7 @@ public class ActivityController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid activity id");
         }
         Long authorId = activity.getCreatorUserId();
-        String token = request.getHeader("Token");
+        String token = request.getHeader(TOKEN_DECLARATION);
         User user = userAuthenticationService.findByUserId(token, profileId); //finds user and validates they exist
 
         if ((!userAuthenticationService.hasAdminPrivileges(user)) && (authorId != null)) {
@@ -205,7 +208,7 @@ public class ActivityController {
     @GetMapping("/profiles/{profileId}/activities")
     public List<ActivityResponse> getUsersActivities(@PathVariable Long profileId,
                                                      HttpServletRequest request, HttpServletResponse response) {
-        String token = request.getHeader("Token");
+        String token = request.getHeader(TOKEN_DECLARATION);
         userAuthenticationService.viewUserById(profileId, token);
 
         int pageNumber = request.getIntHeader("Page-Number");
@@ -252,11 +255,11 @@ public class ActivityController {
     public Set<ParticipantResponse> getParticipantsOfActivity(@PathVariable Long activityId, HttpServletRequest request) {
         Set<User> participantList;
         Set<ParticipantResponse> returnedParticipantData = new HashSet<>();
-        String token = request.getHeader("Token");
+        String token = request.getHeader(TOKEN_DECLARATION);
         userAuthenticationService.findByToken(token);
         Activity activity = activityRepository.findByActivityId(activityId);
         if (activity == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Activity not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, NOT_FOUND);
         }
         participantList = activity.getParticipants();
         for (User user : participantList) {
@@ -278,13 +281,13 @@ public class ActivityController {
      */
     @GetMapping("/check-activity/{activityId}")
     public void isActivityEditableByUser(@PathVariable(value = "activityId") Long activityId, HttpServletRequest request) {
-        String token = request.getHeader("Token");
+        String token = request.getHeader(TOKEN_DECLARATION);
         // Checks the authentication of the user, are they logged in, have they timed out, do they exist.
         // If an error is found this service throws an UNAUTHORIZED error (401)
         User user = userAuthenticationService.findByToken(token);
         Activity activity = activityRepository.findByActivityId(activityId);
         if (activity == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Activity not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, NOT_FOUND);
         }
         // Check if the user is the creator or an admin, if not throw a FORBIDDEN error (403).
         if (!user.getUserId().equals(activity.getCreatorUserId()) && !userAuthenticationService.hasAdminPrivileges(user)) {
@@ -313,7 +316,7 @@ public class ActivityController {
     public List<ActivityResponse> getActivitiesByKeywords(HttpServletRequest request,
                                                       HttpServletResponse response,
                                                       @RequestParam(value="activityKeywords") String activityKeywords) {
-        String token = request.getHeader("Token");
+        String token = request.getHeader(TOKEN_DECLARATION);
         userAuthenticationService.findByToken(token);
 
         List<ActivityResponse> activitiesFound = new ArrayList<>();
@@ -388,7 +391,7 @@ public class ActivityController {
                                                      HttpServletResponse response,
                                                      @RequestParam(value="activity") String activityTypes,
                                                      @RequestParam(value="method") String method) {
-        String token = request.getHeader("Token");
+        String token = request.getHeader(TOKEN_DECLARATION);
         int pageNumber = request.getIntHeader("Page-Number");
         userAuthenticationService.findByToken(token);
         if (activityTypes.length() < 1) {
