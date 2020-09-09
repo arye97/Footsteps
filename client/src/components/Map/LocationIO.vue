@@ -10,10 +10,13 @@
                 <div v-if="!viewOnly">
                     <h2>Search and add a pin</h2>
                     <label>
+                        <!--If there are other data we need, add them to 'fields' below-->
                         <gmap-autocomplete
+                                :options="{fields: ['geometry', 'formatted_address', 'address_components']}"
                                 @place_changed="getPlaceField">
+
                         </gmap-autocomplete>
-                        <button @click="addMarker">Add</button>
+                        <b-button @click="addMarker">Add</b-button>
                     </label>
                 </div>
             </div>
