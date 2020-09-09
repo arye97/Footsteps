@@ -306,10 +306,9 @@ public class ActivityController {
      * @param activityKeywords the word/sentence we need to search for
      * @return a list containing all activities found
      */
-    @RequestMapping(
+    @GetMapping(
             value = "/activities",
-            params = {"activityKeywords"},
-            method = RequestMethod.GET
+            params = {"activityKeywords"}
     )
     public List<ActivityResponse> getActivitiesByKeywords(HttpServletRequest request,
                                                       HttpServletResponse response,
@@ -381,10 +380,9 @@ public class ActivityController {
      * @param method the method to use (OR, AND)
      * @return a list of users
      */
-    @RequestMapping(
+    @GetMapping(
             value = "/activities",
-            params = { "activity", "method" },
-            method = RequestMethod.GET
+            params = { "activity", "method" }
     )
     public List<ActivityResponse> getActivitiesByActivityType(HttpServletRequest request,
                                                      HttpServletResponse response,
@@ -406,7 +404,7 @@ public class ActivityController {
 
         Page<Long> paginatedActivityIds;
         Pageable pageWithFiveActivities = PageRequest.of(pageNumber, PAGE_SIZE);
-        if (method.toLowerCase().equals("and")) {
+        if (method.equalsIgnoreCase("and")) {
             paginatedActivityIds = activityActivityTypeRepository.findByAllActivityTypeIds(activityTypeIds, numActivityTypes, pageWithFiveActivities);
         // TODO for Search ActivityType By "OR" task
         //} else if (method.toLowerCase().equals("or")) {
