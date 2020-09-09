@@ -12,6 +12,7 @@
                     <h3 class="font-weight-light"><strong>Search and add a pin</strong></h3>
                     <gmap-autocomplete
                             id="gmapAutoComplete"
+                                :options="{fields: ['geometry', 'formatted_address', 'address_components']}"
                             @place_changed="getPlaceField"
                             class="form-control" style="width: 100%">
                     </gmap-autocomplete>
