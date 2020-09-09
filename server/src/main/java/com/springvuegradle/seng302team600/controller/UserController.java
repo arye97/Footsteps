@@ -361,10 +361,9 @@ public class UserController {
      * @param method the method to use (OR, AND)
      * @return a list of users
      */
-    @RequestMapping(
+    @GetMapping(
             value = "/profiles",
-            params = { "activity", "method" },
-            method = RequestMethod.GET
+            params = { "activity", "method" }
     )
     public List<UserResponse> getUsersByActivityType(HttpServletRequest request,
                                                      HttpServletResponse response,
@@ -398,9 +397,9 @@ public class UserController {
 
         Page<Long> paginatedUserIds;
         Pageable pageWithFiveUsers = PageRequest.of(pageNumber, PAGE_SIZE);
-        if (method.toLowerCase().equals("and")) {
+        if (method.equalsIgnoreCase("and")) {
             paginatedUserIds = userActivityTypeRepository.findByAllActivityTypeIds(activityTypeIds, numActivityTypes, pageWithFiveUsers); //Gets the userIds
-        } else if (method.toLowerCase().equals("or")) {
+        } else if (method.equalsIgnoreCase("or")) {
             paginatedUserIds = userActivityTypeRepository.findBySomeActivityTypeIds(activityTypeIds, pageWithFiveUsers); //Gets the userIds
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Method must be specified as either (AND, OR)");
