@@ -305,6 +305,7 @@ public class UserController {
         user.setPublicLocation(publicLocation);
         user.setPrivateLocation(privateLocation);
         userRepository.save(user);
+        response.setStatus(HttpServletResponse.SC_OK); //200
     }
 
     /**
