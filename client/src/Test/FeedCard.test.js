@@ -1,10 +1,14 @@
 import 'vue-jest'
-import {mount} from "@vue/test-utils";
+import {mount, createLocalVue} from "@vue/test-utils";
 import FeedCard from "../components/HomeFeed/FeedCard";
 import "jest"
 import api from "../Api";
+import {BootstrapVue} from "bootstrap-vue";
 
 jest.mock('../Api');
+
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
 
 let feedCard;
 let now;
@@ -53,17 +57,17 @@ beforeEach(() => {
             })
         });
 
-
         feedCard = mount(FeedCard, {
             propsData: {
                 event: EVENT_DELETE
             },
-            mocks: {api}
+            mocks: {api},
+            localVue
         });
 
         // This causes a delay between beforeEach finishing, and the tests being run.
         // This isn't at all good practice, but its the only way I am able
-        // to get EditEmail to fully mount before the tests are run.
+        // to get FeedCard to fully mount before the tests are run.
         // resolve() signals the above promise to complete
         sleep(150).then(() => resolve());
     });
@@ -75,24 +79,26 @@ test('Is a vue instance', () => {
 
 describe("The feed card", () => {
     test('Displays a description of what happened', () => {
-        expect(feedCard.find('#description')).toBeTruthy();
+        expect(feedCard.find('#description').exists()).toBeTruthy();
     });
 
     test('Displays a timestamp', () => {
-        expect(feedCard.find('#time')).toBeTruthy();
+        expect(feedCard.find('#time').exists()).toBeTruthy();
     });
 
     test('Does not have any buttons for a delete event', () => {
         expect(feedCard.findAll('b-button')).toHaveLength(0);
     });
 
-    test('Has 1 buttons for a follow event', () => {
+    test('Has a button to view the activity for a follow event', async () => {
         feedCard = mount(FeedCard, {
             propsData: {
                 event: EVENT_FOLLOW
-            }
+            },
+            localVue
         });
-        expect(feedCard.findAll('b-button')).toHaveLength(1);
+        await sleep(150);
+        expect(feedCard.find('#viewActivityButton').exists()).toBeTruthy();
     });
 });
 
@@ -114,7 +120,8 @@ describe("The extract data method", () => {
         feedCard = mount(FeedCard, {
             propsData: {
                 event: EVENT_FOLLOW
-            }
+            },
+            localVue
         });
         await feedCard.vm.extractData();
         expect(feedCard.vm.time).toBe(value + " minutes ago");
@@ -131,7 +138,8 @@ describe("The extract data method", () => {
         feedCard = mount(FeedCard, {
             propsData: {
                 event: EVENT_FOLLOW
-            }
+            },
+            localVue
         });
         await feedCard.vm.extractData();
         expect(feedCard.vm.time).toBe(value + " hours ago");
@@ -149,7 +157,8 @@ describe("The extract data method", () => {
         feedCard = mount(FeedCard, {
             propsData: {
                 event: EVENT_FOLLOW
-            }
+            },
+            localVue
         });
         await feedCard.vm.extractData();
         expect(feedCard.vm.time).toBe(value + " days ago");

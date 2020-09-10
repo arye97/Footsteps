@@ -1,10 +1,14 @@
-import {mount} from '@vue/test-utils'
-import EditDetails from "../components/Settings/EditDetails";
-import '../Api'
-import 'vue-jest'
+import {mount, createLocalVue} from '@vue/test-utils';
+import EditDetails from '../components/Settings/EditDetails.vue';
+import '../Api';
+import 'vue-jest';
 import api from "../Api";
-import router from '../index'
+import router from '../index';
+import { BootstrapVue } from 'bootstrap-vue'
 jest.mock("../Api");
+
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
 
 let editWrapper;
 const testUser = {
@@ -51,7 +55,11 @@ beforeEach(() => {
       data: [{name: 'New Zealand'}, {name: 'Australia'}],
       status: 200
     }));
-    editWrapper = mount(EditDetails, {router, attachToDocument: true, mocks: {api}});
+    let div = document.createElement('div');
+    if (document.body) {
+      document.body.appendChild(div);
+    }
+    editWrapper = mount(EditDetails, {router, attachTo: div, mocks: {api}});
     sleep(150).then(() => resolve());
   })
 });

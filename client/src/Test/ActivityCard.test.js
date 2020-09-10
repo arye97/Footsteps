@@ -1,6 +1,6 @@
 import "vue-jest"
 import api from '../Api'
-import {shallowMount} from "@vue/test-utils";
+import {mount} from "@vue/test-utils";
 import router from "../index";
 import ActivityCard from '../views/Search/ActivityCard.vue'
 import "jest"
@@ -43,7 +43,7 @@ let activityCard;
 
 beforeEach(() => {
     api.getUserData.mockImplementation(() => Promise.resolve({data: USER, status: 200}));
-    activityCard = shallowMount(ActivityCard, {
+    activityCard = mount(ActivityCard, {
         propsData: {
             activity: ACTIVITY,
             activityTypesSearchedFor: ["Archery", "Orienteering"]
@@ -63,7 +63,7 @@ describe("The ActivityCard errors", () => {
         let networkError = new Error("Mocked Network Error");
         networkError.response = {status: 404};
         api.getUserData.mockImplementation(() => Promise.reject(networkError));
-        activityCard = shallowMount(ActivityCard, {
+        activityCard = mount(ActivityCard, {
             propsData: {
                 activity: ACTIVITY,
                 activityTypesSearchedFor: ["Archery", "Orienteering", 'Gymnastics']

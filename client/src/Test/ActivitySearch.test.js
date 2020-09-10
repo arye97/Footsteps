@@ -1,105 +1,24 @@
 import "vue-jest"
 import api from '../Api'
-import {shallowMount} from "@vue/test-utils";
+import {shallowMount, createLocalVue} from "@vue/test-utils";
 import router from "../index";
 
 import ActivitySearch from "../views/Search/ActivitySearch";
 import "jest";
+import BootstrapVue from "bootstrap-vue";
+
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
 
 jest.mock('../Api');
-
-const SEARCH_RESPONSE1 = [
-    {
-        "firstname": "DJ",
-        "lastname": "Roomba",
-        "activityTypes": [
-            {
-                "activityTypeId": 12,
-                "name": "Biking"
-            },
-            {
-                "activityTypeId": 34,
-                "name": "Hiking"
-            }
-        ]
-    },
-    {
-        "firstname": "Akira",
-        "lastname": "Kurosawa",
-        "activityTypes": [
-            {
-                "activityTypeId": 12,
-                "name": "Biking"
-            },
-            {
-                "activityTypeId": 34,
-                "name": "Hiking"
-            }
-        ]
-    },
-    {
-        "firstname": "Samantha",
-        "lastname": "Saliva",
-        "activityTypes": [
-            {
-                "activityTypeId": 7,
-                "name": "Athletics"
-            },
-            {
-                "activityTypeId": 34,
-                "name": "Hiking"
-            }
-        ]
-    },
-    {
-        "firstname": "Manny",
-        "lastname": "Mannamynamo",
-        "activityTypes": [
-            {
-                "activityTypeId": 12,
-                "name": "Biking"
-            }
-        ]
-    },
-    {
-        "firstname": "Jenny",
-        "lastname": "Mariam",
-        "activityTypes": [
-            {
-                "activityTypeId": 12,
-                "name": "Biking"
-            }
-        ]
-    },
-    {
-        "firstname": "Mary",
-        "lastname": "Sidoarjo",
-        "activityTypes": [
-            {
-                "activityTypeId": 34,
-                "name": "Hiking"
-            }
-        ]
-    }
-];
 
 const ACTIVITY_TYPES = [
     "Biking", "Hiking", "Athletics"
 ];
 
-let pageSize = 5;
-
 let activitySearch;
 
 beforeEach(() => {
-    activitySearch = shallowMount(ActivitySearch, {
-        methods: {
-            logout: () => {},
-        },
-        router,
-        mocks: {api}
-    });
-
     api.getActivityTypes.mockImplementation(() =>
         Promise.resolve({
             data: ACTIVITY_TYPES,
@@ -107,22 +26,22 @@ beforeEach(() => {
         })
     );
 
-    api.getUsersByActivityType.mockImplementation(() =>
-        Promise.resolve({
-            data: SEARCH_RESPONSE1.slice((activitySearch.vm.$data.currentPage - 1) * pageSize, activitySearch.vm.$data.currentPage * pageSize),
-            status: 200,
-            headers: {
-                "total-rows": SEARCH_RESPONSE1.length
-            }
-        })
-    );
+    api.getUserId.mockImplementation(() => Promise.resolve({status: 200}));
+
+    api.logout.mockImplementation(() => Promise.resolve({status:200}));
+
+    activitySearch = shallowMount(ActivitySearch, {
+        router,
+        mocks: {api},
+        localVue
+    });
 });
 
 test('Is a vue instance', () => {
     expect(activitySearch.isVueInstance).toBeTruthy();
 });
 
-test('Activities search box exists', () => {
+test('Activity type search box exists', () => {
     expect(activitySearch.find('#searchBoxActivities').exists()).toBeTruthy();
 });
 
