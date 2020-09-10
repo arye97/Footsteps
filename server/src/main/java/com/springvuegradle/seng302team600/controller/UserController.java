@@ -283,7 +283,8 @@ public class UserController {
     }
 
     /**
-     * If the current user has authorization edit user with given id.
+     * Edits the private and public locations of a user.
+     * Since it is a PUT request, it completely replaces
      * @param locationRequest the payload containing the locations (public, private)
      * @param request the http request to the endpoint
      * @param response the http response
@@ -300,6 +301,10 @@ public class UserController {
 
         Location publicLocation = locationRequest.getPublicLocation();
         Location privateLocation = locationRequest.getPrivateLocation();
+
+        user.setPublicLocation(publicLocation);
+        user.setPrivateLocation(privateLocation);
+        userRepository.save(user);
     }
 
     /**
