@@ -15,6 +15,8 @@ import Search from "./views/Search/Search";
 Vue.use(Router);
 Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
+Vue.config.productionTip = false;
+Vue.config.devtools = false;
 
 /**
 * Guard my route function is a function that checks if a user is 

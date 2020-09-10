@@ -92,21 +92,12 @@ let pageSize = 5;
 let userSearch;
 
 beforeEach(() => {
-    userSearch = shallowMount(UserSearch, {
-        methods: {
-            logout: () => {},
-        },
-        router,
-        mocks: {api}
-    });
-
     api.getActivityTypes.mockImplementation(() =>
         Promise.resolve({
             data: ACTIVITY_TYPES,
             status: 200
         })
     );
-
     api.getUsersByActivityType.mockImplementation(() =>
         Promise.resolve({
             data: SEARCH_RESPONSE1.slice((userSearch.vm.$data.currentPage - 1) * pageSize, userSearch.vm.$data.currentPage * pageSize),
@@ -116,6 +107,12 @@ beforeEach(() => {
             }
         })
     );
+    api.getUserId.mockImplementation(() => Promise.resolve({data: 1, status: 200}));
+    api.logout.mockImplementation(() => Promise.resolve({status: 200}));
+    userSearch = shallowMount(UserSearch, {
+        router,
+        mocks: {api}
+    });
 });
 
 test('Is a vue instance', () => {

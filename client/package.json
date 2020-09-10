@@ -71,11 +71,6 @@
     "transformIgnorePatterns": [
       "<rootDir>/node_modules/(?!gmap-vue/.*)"
     ],
-    "jestSonar": {
-      "reportPath": "coverage",
-      "reportFile": "test-report.xml",
-      "indent": 4
-    },
     "moduleNameMapper": {
       "\\.(css|less)$": "<rootDir>/assets/css/__mocks__/styleMock.js"
     },
@@ -88,9 +83,17 @@
       "node",
       "vue"
     ],
+    "setupFiles": [
+      "./src/Test/SessionStorageMock.js"
+    ],
     "setupFilesAfterEnv": [
       "./src/Test/LiveBackEnd/setup.js"
     ],
     "globalSetup": "<rootDir>/jest-setup-global.js"
+  },
+  "jestSonar": {
+    "reportPath": "coverage",
+    "reportFile": "test-report.xml",
+    "indent": 4
   }
 }
