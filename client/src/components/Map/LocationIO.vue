@@ -49,17 +49,22 @@
             singleOnly: {
                 default: false,
                 type: Boolean
+            },
+            currentLocation: {
+                default: undefined,
+                type: Object
             }
         },
 
         data() {
             return {
                 isMapVisible: false,
-                pins:[],
-                center:undefined,
+                pins: [],
+                center: this.currentLocation,
                 currentPlace: null
             }
         },
+
 
         methods: {
 
@@ -75,6 +80,7 @@
              * Add a marker centred on the coordinates of this.currentPlace
              */
             addMarker() {
+                console.log(this.center)
                 if (this.currentPlace) {
                     const pin = {
                         lat: this.currentPlace.geometry.location.lat(),

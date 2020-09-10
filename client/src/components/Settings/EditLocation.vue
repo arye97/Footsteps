@@ -10,21 +10,31 @@
             </div>
         </section>
         <section v-if="isLoggedIn">
-
             <div>
                 <h3 class="font-weight-light"><strong>Public Location: </strong></h3><br/>
                 <div class="map-pane">
-                    <!--ToDo: Add the user's location to replace these coordinates-->
-                    <location-i-o :view-only="false"></location-i-o>
+                    <location-i-o class="input-location"
+                                  v-on:child-pins="locationPublicValue"
+                                  :current-location="publicLocation"
+                                  :single-only=true></location-i-o>
                 </div>
             </div>
             <div>
                 <h3 class="font-weight-light"><strong>Private Location: </strong></h3><br/>
                 <div class="map-pane">
-                    <!--ToDo: Add the user's location to replace these coordinates-->
-                    <location-i-o :view-only="false"></location-i-o>
+                    <location-i-o class="input-location"
+                                  v-on:child-pins="locationPrivateValue"
+                                  :current-location="privateLocation"
+                                  :single-only=true></location-i-o>
                 </div>
             </div>
+            <b-button type="submit" variant="success float-right"
+                      size="lg"
+                      v-on:click="saveChanges">
+                Save Changes
+            </b-button>
+
+            <!--                      v-bind:disabled="changesHaveBeenMade===false"-->
         </section>
     </b-container>
 </template>
@@ -82,7 +92,6 @@ export default {
             if (!this.isRedirecting) {
                 await api.getAllUserData().then(response => {
                     this.isLoggedIn = true;
-                    this.loading = false;
                     if (response.data.role === 20) {
                         // Is the global admin
                         this.$router.push('/home');
@@ -90,6 +99,7 @@ export default {
                         this.publicLocation = response.data.public_location;
                         this.privateLocation = response.data.private_location;
                     }
+                    this.loading = false;
                 }).catch(error => {
                     this.processGetError(error);
                 });
@@ -99,13 +109,13 @@ export default {
         /**
          * Submits a PUT request to edit a user's public/private locations.
          */
-        async updateLocation() {
+        async saveChanges() {
             let editedLocation = {
                 'public_location': this.publicLocation,
                 'private_location': this.privateLocation,
             };
             await api.editLocation(editedLocation, this.profileId).then(() => {
-                // TODO implement after LocationIO is inserted into HTML
+                // successfully saved modal thingy
             }).catch(error => {
                 this.processPutError(error);
             });
@@ -153,10 +163,21 @@ export default {
             }
         },
 
-        // check if my id
-        // check if logged in
-        // function with error handling
+        locationPublicValue: function (params) {
+            this.publicLocation = {
+                latitude: params[0].lat,
+                longitude: params[0].lng,
+                name: params[0].name,
+            };
+        },
 
+        locationPrivateValue: function (params) {
+            this.privateLocation = {
+                latitude: params[0].lat,
+                longitude: params[0].lng,
+                name: params[0].name,
+            };
+        }
     }
 }
 </script>
