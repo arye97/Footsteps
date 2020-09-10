@@ -1,22 +1,24 @@
 <template>
-    <div id="mapDiv">
-        <GmapMap
-                ref="mapRef"
-                :center="currentCenter"
-                :zoom="4.5"
-                map-type-id="terrain"
-                style="width: 500px; height: 300px"
-        >
-            <GmapMarker
-                    ref="myMarker"
-                    :key="pin.id"
-                    v-for="pin in pins"
-                    :position="google && new google.maps.LatLng(pin.lat, pin.lng)"
-                    :clickable="true"
-                    :draggable="true"
-                    @click="currentCenter={lat:pin.lat, lng:pin.lng}"
-            />
-        </GmapMap>
+    <div id="mapDiv" class="map-pane">
+        <keep-alive>
+            <GmapMap class="map"
+                    ref="mapRef"
+                    :center="center"
+                    :zoom="4.5"
+                    map-type-id="terrain"
+                    style="width: 500px; height: 300px"
+            >
+                <GmapMarker
+                        ref="myMarker"
+                        :key="index"
+                        v-for="(pin, index) in pins"
+                        :position="google && new google.maps.LatLng(pin.lat, pin.lng)"
+                        :clickable="true"
+                        :draggable="true"
+                        @click="center={lat:pin.lat, lng:pin.lng}"
+                />
+            </GmapMap>
+        </keep-alive>
     </div>
 </template>
 
@@ -44,7 +46,7 @@
                 type: Array,
                 validator: function (pins) {
                     // Each pin must have a lat, lng and id
-                    return pins.every(pin => {return !isNaN(pin.lat) && !isNaN(pin.lng) && !isNaN(pin.id);});
+                    return pins.every(pin => {return !isNaN(pin.lat) && !isNaN(pin.lng);});
                 }
             }
         },
@@ -54,7 +56,6 @@
 
         data() {
             return {
-                currentCenter: this.center
             }
         },
 
@@ -70,5 +71,15 @@
 </script>
 
 <style scoped>
-
+    .map {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px outset #6c757e;
+    }
+    .map-pane {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 </style>
