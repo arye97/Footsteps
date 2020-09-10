@@ -34,7 +34,7 @@ beforeEach(() => {
         };
 
         api.getUserData.mockImplementation(
-            () => Promise.resolve({ data: {id: DEFAULT_USER_ID}, status: 201 }))
+            () => Promise.resolve({ data: {id: DEFAULT_USER_ID}, status: 201 }));
 
         api.getUserEmails.mockImplementation(
             () => Promise.resolve({
