@@ -10,22 +10,24 @@
             </div>
         </section>
         <section v-if="isLoggedIn">
-            <div>
-                <h3 class="font-weight-light"><strong>Public Location: </strong></h3><br/>
-                <div class="map-pane">
-                    <location-i-o class="input-location"
-                                  v-on:child-pins="locationPublicValue"
-                                  :current-location="publicLocation"
-                                  :single-only=true></location-i-o>
+            <div v-if="!locationLoading">
+                <div>
+                    <h3 class="font-weight-light"><strong>Public Location: </strong></h3><br/>
+                    <div class="map-pane">
+                        <location-i-o class="input-location"
+                                      v-on:child-pins="locationPublicValue"
+                                      :current-location="publicLocation"
+                                      :single-only=true></location-i-o>
+                    </div>
                 </div>
-            </div>
-            <div>
-                <h3 class="font-weight-light"><strong>Private Location: </strong></h3><br/>
-                <div class="map-pane">
-                    <location-i-o class="input-location"
-                                  v-on:child-pins="locationPrivateValue"
-                                  :current-location="privateLocation"
-                                  :single-only=true></location-i-o>
+                <div>
+                    <h3 class="font-weight-light"><strong>Private Location: </strong></h3><br/>
+                    <div class="map-pane">
+                        <location-i-o class="input-location"
+                                      v-on:child-pins="locationPrivateValue"
+                                      :current-location="privateLocation"
+                                      :single-only=true></location-i-o>
+                    </div>
                 </div>
             </div>
             <b-button type="submit" variant="success float-right"
@@ -53,6 +55,8 @@ export default {
             profileId: null,
             isLoggedIn: false,
             loading: true,
+            locationLoading: true,
+
             redirectionMessage: "Something went wrong! Try again later",
             // errored: false,
             isRedirecting: false,
@@ -60,7 +64,10 @@ export default {
             isPublicLocation: true,
 
             publicLocation: null,
-            privateLocation: null
+            privateLocation: null,
+
+            inputPublicLocation: null,
+            inputPrivateLocation: null
         }
     },
     async mounted() {
@@ -98,10 +105,17 @@ export default {
                     } else {
                         this.publicLocation = response.data.public_location;
                         this.privateLocation = response.data.private_location;
+                        if (this.publicLocation) {
+                            delete this.publicLocation['id'];
+                        }
+                        if (this.privateLocation) {
+                            delete this.privateLocation['id'];
+                        }
                     }
+                    this.locationLoading = false;
                     this.loading = false;
                 }).catch(error => {
-                    this.processGetError(error);
+                    this.processPutError(error);
                 });
             }
         },
@@ -110,15 +124,24 @@ export default {
          * Submits a PUT request to edit a user's public/private locations.
          */
         async saveChanges() {
-            let editedLocation = {
-                'public_location': this.publicLocation,
-                'private_location': this.privateLocation,
-            };
-            await api.editLocation(editedLocation, this.profileId).then(() => {
-                // successfully saved modal thingy
-            }).catch(error => {
-                this.processPutError(error);
-            });
+            console.log(this.publicLocation)
+            console.log(this.privateLocation)
+
+            // If input location is none, then dont modify location
+            let editedLocation = {}
+            if (this.inputPublicLocation && this.inputPublicLocation !== this.publicLocation) {
+                editedLocation['public_location'] = this.inputPublicLocation;
+            }
+            if (this.inputPrivateLocation && this.inputPrivateLocation !== this.privateLocation) {
+                editedLocation['private_location'] = this.inputPrivateLocation;
+            }
+
+            console.log(editedLocation)
+            // await api.editLocation(editedLocation, this.profileId).then(() => {
+            //     // successfully saved modal thingy
+            // }).catch(error => {
+            //     this.processPutError(error);
+            // });
         },
 
         /**
@@ -128,7 +151,7 @@ export default {
          * 403 (FORBIDDEN) and 404 (NOT_FOUND) redirect to this user's edit profile page,<br>
          * Otherwise unknown error so redirect to user's home page
          */
-        processGetError(error) {
+        processPutError(error) {
             let timeoutTime = 3000;
             this.isLoggedIn = true;
             this.isRedirecting = true;
@@ -164,7 +187,7 @@ export default {
         },
 
         locationPublicValue: function (params) {
-            this.publicLocation = {
+            this.inputPublicLocation = {
                 latitude: params[0].lat,
                 longitude: params[0].lng,
                 name: params[0].name,
@@ -172,7 +195,7 @@ export default {
         },
 
         locationPrivateValue: function (params) {
-            this.privateLocation = {
+            this.inputPrivateLocation = {
                 latitude: params[0].lat,
                 longitude: params[0].lng,
                 name: params[0].name,

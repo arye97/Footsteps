@@ -300,13 +300,19 @@ public class UserController {
         User user = userService.findByUserId(token, profileId);
 
         LocationPayload publicLocationPayload = locationRequest.getPublicLocation();
+        Location publicLocation;
+        if (publicLocationPayload != null) {
+            publicLocation = new Location(publicLocationPayload);
+            user.setPublicLocation(publicLocation);
+        }
+
         LocationPayload privateLocationPayload = locationRequest.getPrivateLocation();
+        Location privateLocation;
+        if (privateLocationPayload != null) {
+            privateLocation = new Location(privateLocationPayload);
+            user.setPrivateLocation(privateLocation);
+        }
 
-        Location publicLocation = new Location(publicLocationPayload);
-        Location privateLocation = new Location(privateLocationPayload);
-
-        user.setPublicLocation(publicLocation);
-        user.setPrivateLocation(privateLocation);
         userRepository.save(user);
         response.setStatus(HttpServletResponse.SC_OK); //200
     }

@@ -60,8 +60,24 @@
             return {
                 isMapVisible: false,
                 pins: [],
-                center: this.currentLocation,
+                center: undefined,
                 currentPlace: null
+            }
+        },
+
+        mounted() {
+            if (this.currentLocation) {
+                let pin = {
+                    lat: this.currentLocation.latitude,
+                    lng: this.currentLocation.longitude,
+                    name: this.currentLocation.name
+                };
+                if (this.singleOnly && this.pins) {
+                    this.pins[0] = pin;
+                } else {
+                    this.pins.push(pin);
+                }
+                this.center = pin;
             }
         },
 
@@ -80,7 +96,6 @@
              * Add a marker centred on the coordinates of this.currentPlace
              */
             addMarker() {
-                console.log(this.center)
                 if (this.currentPlace) {
                     const pin = {
                         lat: this.currentPlace.geometry.location.lat(),
