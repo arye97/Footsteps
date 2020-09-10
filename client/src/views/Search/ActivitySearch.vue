@@ -18,6 +18,17 @@
                         <b-form-select id="searchModeSelect" v-model="searchMode" :options="searchModes"></b-form-select>
                     </b-col>
                 </b-row>
+                <h4 class="text-center">
+                    Search rules:<br/>
+                </h4>
+                <footer>
+                    <ul>
+                        <li>All searches are case insensitive including "" searches</li>
+                        <li>Use quotation marks to search for whole matches of the string within ("run" could return run to Mars but NOT running to Venus)</li>
+                        <li>Use "+" to include both strings in the search (any leading or tailing spaces are trimmed) (CSSE + fun will return any activity with the names CSSE and fun)</li>
+                        <li>Use "-" for splitting strings but only including answer without the string following the "-" (CSSE - fun would search for anything including CSSE that does not contain fun)</li>
+                    </ul>
+                </footer><br/>
                 <b-row>
                     <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
                         Search
@@ -185,7 +196,7 @@ export default {
             if (this.searchMode === 'activityType') {
                 // Set is as a copy so the User card is only updated after clicking search
                 this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
-                this.getPaginatedActivitiesByActivityType();
+                //this.getPaginatedActivitiesByActivityType();
             } else if (this.searchMode === 'activityName') {
                 if (this.activityTitle.length === 0) {
                     this.errored = true;
@@ -201,6 +212,9 @@ export default {
 <style scoped>
 .searchButton {
     width: 200%;
+    margin-top: 0rem !important;
+}
+h4 {
     margin-top: 1rem !important;
 }
 
