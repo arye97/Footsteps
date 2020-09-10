@@ -1,8 +1,13 @@
-import {shallowMount} from '@vue/test-utils'
-import EditEmail from '../components/Settings/EditEmail'
-import api from "../Api"
-import 'vue-jest'
+import {mount, createLocalVue} from '@vue/test-utils';
+import EditEmail from '../components/Settings/EditEmail.vue';
+import api from "../Api";
+import 'vue-jest';
+import {BootstrapVue, BootstrapVueIcons} from "bootstrap-vue";
 jest.mock("../Api");
+
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
+localVue.use(BootstrapVueIcons);
 
 let editEmail;
 let push;
@@ -34,8 +39,7 @@ beforeEach(() => {
         };
 
         api.getUserData.mockImplementation(
-            () => Promise.resolve({ data: {id: DEFAULT_USER_ID}, status: 201 }))
-
+            () => Promise.resolve({ data: {id: DEFAULT_USER_ID}, status: 201 }));
         api.getUserEmails.mockImplementation(
             () => Promise.resolve({
                 data: {
@@ -44,17 +48,21 @@ beforeEach(() => {
                     primaryEmail: "johntester@tester.com"
                 },
                 status: 200
-            }));
+            })
+        );
+        api.checkProfile.mockImplementation(
+            () => Promise.resolve({status: 200})
+        );
+        api.logout.mockImplementation(
+            () => Promise.resolve({status: 200})
+        );
 
-        editEmail = shallowMount(EditEmail, {
-            methods: {
-                editable: async () => {},
-                logout: () => {}
-            },
+        editEmail = mount(EditEmail, {
             mocks: {
                 $route,
                 $router
-            }
+            },
+            localVue
         });
 
         // This causes a delay between beforeEach finishing, and the tests being run.
@@ -96,25 +104,23 @@ test('Make Secondary Primary', () => {
 });
 
 
-test('Add Secondary Email', async () => {
+test('Add Secondary Email', () => {
     const newEmail1 = "mynewemail1@gmail.com";
 
     editEmail.vm.$data.insertedEmail = newEmail1;
     editEmail.find("#addEmail").trigger("submit.prevent");
-    await editEmail.vm.$nextTick();
 
     expect(editEmail.vm.$data.additionalEmails).toContain(newEmail1);
 });
 
 
-test('Add More than 5 Emails', async () => {
+test('Add More than 5 Emails', () => {
     let newEmail;
     for (let i=1; i <= MAX_EMAILS + 1; i++) {
         newEmail =  "mynewemail" + i + "@gmail.com";
 
         editEmail.vm.$data.insertedEmail = newEmail;
-        editEmail.find("#addEmail").trigger("submit.prevent");
-        await editEmail.vm.$nextTick();
+        editEmail.find('#addEmail').trigger("submit.prevent");
     }
 
     expect(editEmail.vm.$data.additionalEmails.length).toBe(4);
