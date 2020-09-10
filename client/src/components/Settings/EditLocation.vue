@@ -10,16 +10,34 @@
             </div>
         </section>
         <section v-if="isLoggedIn">
-            <!-- ToDo: put location things in here!-->
+
+            <div>
+                <h3 class="font-weight-light"><strong>Public Location: </strong></h3><br/>
+                <div class="map-pane">
+                    <!--ToDo: Add the user's location to replace these coordinates-->
+                    <location-i-o :view-only="false"></location-i-o>
+                </div>
+            </div>
+            <div>
+                <h3 class="font-weight-light"><strong>Private Location: </strong></h3><br/>
+                <div class="map-pane">
+                    <!--ToDo: Add the user's location to replace these coordinates-->
+                    <location-i-o :view-only="false"></location-i-o>
+                </div>
+            </div>
         </section>
     </b-container>
 </template>
 
 <script>
 import api from "../../Api";
+import LocationIO from "../../components/Map/LocationIO";
 
 export default {
     name: "EditLocation",
+    components: {
+        LocationIO
+    },
     data() {
         return {
             profileId: null,
@@ -29,6 +47,8 @@ export default {
             // errored: false,
             isRedirecting: false,
             isEditable: false,
+            isPublicLocation: true,
+
             publicLocation: null,
             privateLocation: null
         }
@@ -37,6 +57,7 @@ export default {
         if (this.$route.params.userId !== undefined) {
             await this.validateUserIdWithToken();
         }
+        this.populateInputs();
 
     },
     methods: {
@@ -66,8 +87,8 @@ export default {
                         // Is the global admin
                         this.$router.push('/home');
                     } else {
-                        this.publicLocation = response.data.publicLocation;
-                        this.privateLocation = response.data.privateLocation;
+                        this.publicLocation = response.data.public_location;
+                        this.privateLocation = response.data.private_location;
                     }
                 }).catch(error => {
                     this.processGetError(error);
@@ -84,18 +105,11 @@ export default {
                 'private_location': this.privateLocation,
             };
             await api.editLocation(editedLocation, this.profileId).then(() => {
-                // alertDiv.classList.add("alert-success");
-                // alertDiv.classList.remove("alert-danger");
-                // this.message = "Successfully updated field";
-                // alertDiv.removeAttribute("hidden");
-                // setTimeout(function () {
-                //     alertDiv.hidden = true;
-                // }, 3000);
+                // TODO implement after LocationIO is inserted into HTML
             }).catch(error => {
                 this.processPutError(error);
             });
         },
-
 
         /**
          * This helper function is called when an error is caught when performing a Get request to the server.<br>

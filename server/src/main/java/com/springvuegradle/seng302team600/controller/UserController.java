@@ -299,8 +299,11 @@ public class UserController {
         String token = request.getHeader("Token");
         User user = userService.findByUserId(token, profileId);
 
-        Location publicLocation = locationRequest.getPublicLocation();
-        Location privateLocation = locationRequest.getPrivateLocation();
+        LocationPayload publicLocationPayload = locationRequest.getPublicLocation();
+        LocationPayload privateLocationPayload = locationRequest.getPrivateLocation();
+
+        Location publicLocation = new Location(publicLocationPayload);
+        Location privateLocation = new Location(privateLocationPayload);
 
         user.setPublicLocation(publicLocation);
         user.setPrivateLocation(privateLocation);

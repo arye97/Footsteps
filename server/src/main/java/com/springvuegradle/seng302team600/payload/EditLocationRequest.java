@@ -6,24 +6,24 @@ import com.springvuegradle.seng302team600.model.Location;
 public class EditLocationRequest {
 
     @JsonProperty("public_location")
-    private Location publicLocation;
+    private LocationPayload publicLocation;
 
     @JsonProperty("private_location")
-    private Location privateLocation;
+    private LocationPayload privateLocation;
     
-    public Location getPublicLocation() {
+    public LocationPayload getPublicLocation() {
         return publicLocation;
     }
 
-    public void setPublicLocation(Location publicLocation) {
+    public void setPublicLocation(LocationPayload publicLocation) {
         this.publicLocation = publicLocation;
     }
 
-    public Location getPrivateLocation() {
+    public LocationPayload getPrivateLocation() {
         return privateLocation;
     }
 
-    public void setPrivateLocation(Location privateLocation) {
+    public void setPrivateLocation(LocationPayload privateLocation) {
         this.privateLocation = privateLocation;
     }
 }
