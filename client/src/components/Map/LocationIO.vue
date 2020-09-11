@@ -6,7 +6,6 @@
                     <map-viewer
                             id="mapComponent"
                             ref="mapViewerRef"
-                            :center="center"
                             :pins="pins"
                             @pin-move="setInputBoxUpdatePins"
                     ></map-viewer>
@@ -55,7 +54,6 @@
             return {
                 isMapVisible: false,
                 pins:[],
-                center:undefined,
                 currentPlace: null,
                 address: ""
             }
@@ -89,13 +87,11 @@
 
                 } else {
                     pin = {
-                        lat: this.$refs.mapViewerRef.center.lat,
-                        lng: this.$refs.mapViewerRef.center.lng
-                    }
-                    console.log(pin)
+                        lat: this.$refs.mapViewerRef.currentCenter.lat,
+                        lng: this.$refs.mapViewerRef.currentCenter.lng
+                    };
                 }
                 this.pins.push(pin);
-                this.center = pin;
             },
 
             /**
