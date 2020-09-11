@@ -46,18 +46,35 @@
                 default: false,
                 type: Boolean
             },
+            parentPins: {
+              default: function() {return []},
+              type: Array
+            },
+            parentCenter: {
+                default: null,
+                type: Object
+            }
         },
 
         data() {
             return {
                 isMapVisible: false,
-                pins:[],
+                pins: [],
                 center:undefined,
                 currentPlace: null
             }
         },
 
-        methods: {
+      mounted() {
+        if (this.parentCenter) {
+          this.center = this.parentCenter;
+        }
+        if (this.parentPins) {
+          this.pins.push(...this.parentPins);
+        }
+      },
+
+      methods: {
 
             /**
              * Receives a place object via the autocomplete component

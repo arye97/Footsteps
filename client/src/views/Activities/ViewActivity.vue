@@ -53,15 +53,11 @@
                             </b-card>
                             <br/>
                             <div>
-                                <b-button v-b-toggle="'map-area'" variant="primary">Toggle Map</b-button>
-                                <b-collapse id="map-area">
-                                    <b-card>
-                                        <map-viewer
-                                          :pins="[{lat: this.location.latitude, lng: this.location.longitude}]"
-                                          :center="{lat: this.location.latitude, lng: this.location.longitude}"
-                                        ></map-viewer>
-                                    </b-card>
-                                </b-collapse>
+                              <location-i-o
+                                  :view-only="true"
+                                  :parent-pins="[{lat: this.location.latitude, lng: this.location.longitude}]"
+                                  :parent-center="{lat: this.location.latitude, lng: this.location.longitude}">
+                              </location-i-o>
                             </div>
                             <!-- Time details -> only relevant for duration activities -->
                             <div v-if="!continuous">
@@ -244,11 +240,11 @@
     import Header from "../../components/Header/Header";
     import api from "../../Api";
     import {formatDateTime} from "../../util";
-    import MapViewer from "../../components/Map/MapViewer";
+    import LocationIO from "../../components/Map/LocationIO";
 
     export default {
         name: "ViewActivity",
-        components: {MapViewer, Header},
+        components: {LocationIO, Header},
         data () {
             return {
                 errored: false,
