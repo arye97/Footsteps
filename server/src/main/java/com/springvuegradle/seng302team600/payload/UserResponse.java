@@ -62,6 +62,12 @@ public class UserResponse {
     @JsonProperty("role")
     private int role;
 
+    @JsonProperty("publicLocation")
+    private object publicLocation;
+
+    @JsonProperty("privateLocation")
+    private object privateLocation;
+
     public UserResponse(User user) {
         this.lastName = user.getLastName();
         this.firstName = user.getFirstName();
