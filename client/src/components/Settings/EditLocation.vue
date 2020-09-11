@@ -25,6 +25,7 @@
                             </th>
                         </tr>
                     </table>
+                    <p class="location-description">This is the location that other users will see on your profile.</p>
                     <div class="map-pane">
                         <location-i-o class="input-location"
                                       v-on:child-pins="locationPublicValue"
@@ -43,11 +44,13 @@
                             </th>
                             <th class="location-column-value">
                                 <h3 v-if="this.inputPrivateLocation" class="font-weight-light"> {{this.inputPrivateLocation.name}} </h3>
-                                <h3 v-else-if="this.privateLocation" class="font-weight-light"> {{this.privateLocation.name}} </h3>
+                                <h3 v-else-if="this.privateLocation" class="font-weight-light"> Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch
+                                </h3>
                                 <h3 v-else class="font-weight-light"> Not Specified </h3>
                             </th>
                         </tr>
                     </table>
+                    <p class="location-description">This location will only be visible to you.</p>
                     <div class="map-pane">
                         <location-i-o class="input-location"
                                       v-on:child-pins="locationPrivateValue"
@@ -369,7 +372,7 @@ export default {
     }
 
     .location-container {
-
+        word-break: break-all
     }
 
     table {
@@ -420,5 +423,10 @@ export default {
 
     #locationAlert {
         margin-top: 10px;
+    }
+
+    .location-description {
+        color: grey;
+        font-size: 15px;
     }
 </style>
