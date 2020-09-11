@@ -16,6 +16,89 @@ const ACTIVITY_TYPES = [
     "Biking", "Hiking", "Athletics"
 ];
 
+let pageSize = 5;
+
+const SEARCH_RESPONSE1 = [
+    {
+        "firstname": "DJ",
+        "lastname": "Roomba",
+        "activity_name": "PLACEHOLDER",
+        "activityTypes": [
+            {
+                "activityTypeId": 12,
+                "name": "Biking"
+            },
+            {
+                "activityTypeId": 34,
+                "name": "Hiking"
+            }
+        ]
+    },
+    {
+        "firstname": "Akira",
+        "lastname": "Kurosawa",
+        "activityName": "PLACEHOLDERS",
+        "activityTypes": [
+            {
+                "activityTypeId": 12,
+                "name": "Biking"
+            },
+            {
+                "activityTypeId": 34,
+                "name": "Hiking"
+            }
+        ]
+    },
+    {
+        "firstname": "Samantha",
+        "lastname": "Saliva",
+        "activity_name": "lmao",
+        "activityTypes": [
+            {
+                "activityTypeId": 7,
+                "name": "Athletics"
+            },
+            {
+                "activityTypeId": 34,
+                "name": "Hiking"
+            }
+        ]
+    },
+    {
+        "firstname": "Manny",
+        "lastname": "Mannamynamo",
+        "activity_name": "idk",
+        "activityTypes": [
+            {
+                "activityTypeId": 12,
+                "name": "Biking"
+            }
+        ]
+    },
+    {
+        "firstname": "Jenny",
+        "lastname": "Mariam",
+        "activity_name": "Another",
+        "activityTypes": [
+            {
+                "activityTypeId": 12,
+                "name": "Biking"
+            }
+        ]
+    },
+    {
+        "firstname": "Mary",
+        "lastname": "Sidoarjo",
+        "activity_name": "Another Another Kaikoura Coast Track race",
+        "activityTypes": [
+            {
+                "activityTypeId": 34,
+                "name": "Hiking"
+            }
+        ]
+    }
+];
+
 let activitySearch;
 
 beforeEach(() => {
@@ -40,34 +123,7 @@ beforeEach(() => {
 
 describe("Searching activity based on activity title", () => {
 
-    describe("With the 'or' method", () => {
-
-        test("Search user with activity title 'PLACEHOLDER'", () => {
-
-            api.getActivityByActivityTitle.mockImplementation(() =>
-                Promise.resolve({
-                    data: SEARCH_RESPONSE1.slice((activitySearch.vm.$data.currentPage  - 1) * pageSize, activitySearch.vm.$data.currentPage  * pageSize),
-                    status: 200,
-                    headers: {
-                        "total-rows": SEARCH_RESPONSE1.length
-                    }
-                })
-            );
-
-
-
-            activitySearch.setData({
-                selectedActivityNames: [ "PLACEHOLDER" ],
-                searchType: "or"
-            });
-
-            return activitySearch.vm.search().then(() => {
-                expect(activitySearch.vm.api.getActivityByActivityTitle).toHaveBeenCalledWith(["PLACEHOLDER"], "or", activitySearch.vm.$data.currentPage - 1);
-            });
-        });
-
-
-        test("Search activity with two activity titles 'PLACEHOLDER' and 'PLACEHOLDER'", () => {
+    test("Search user with activity title 'PLACEHOLDER'", () => {
 
             api.getActivityByActivityTitle.mockImplementation(() =>
                 Promise.resolve({
@@ -80,15 +136,86 @@ describe("Searching activity based on activity title", () => {
             );
 
             activitySearch.setData({
-                selectedActivityTypes: [ "PLACEHOLDER", "PLACEHOLDER" ],
-                searchType: "and"
+                activityTitle: ["PLACEHOLDER"],
             });
-            return activitySearch.vm.search().then(() => {
-                expect(activitySearch.vm.api.getActivityByActivityTitle).toHaveBeenCalledWith(["PLACEHOLDER", "PLACEHOLDER"], "and", activitySearch.vm.$data.currentPage - 1);
+
+            return activitySearch.vm.getPaginatedActivitiesByActivityTitle().then(() => {
+                expect(activitySearch.vm.api.getActivityByActivityTitle).toHaveBeenCalledWith(["PLACEHOLDER"], activitySearch.vm.$data.currentPage - 1);
             });
         });
 
+    describe("With the '+' method", () => {
+
+        test("Search activity with two activity titles 'PLACEHOLDER' and 'PLACEHOLDERS'", () => {
+
+            api.getActivityByActivityTitle.mockImplementation(() =>
+                Promise.resolve({
+                    data: SEARCH_RESPONSE1.slice((activitySearch.vm.$data.currentPage - 1) * pageSize, activitySearch.vm.$data.currentPage * pageSize),
+                    status: 200,
+                    headers: {
+                        "total-rows": SEARCH_RESPONSE1.length
+                    }
+                })
+            );
+
+            activitySearch.setData({
+                activityTitle: ["PLACEHOLDER + PLACEHOLDERS"],
+            });
+
+            return activitySearch.vm.getPaginatedActivitiesByActivityTitle().then(() => {
+                expect(activitySearch.vm.api.getActivityByActivityTitle).toHaveBeenCalledWith(["PLACEHOLDER + PLACEHOLDERS"], activitySearch.vm.$data.currentPage - 1);
+            });
+        });
     });
+
+    describe("With the '-' method", () => {
+
+        test("Search activity with two activity titles 'PLACEHOLDER' excluding 'PLACEHOLDERS'", () => {
+
+            api.getActivityByActivityTitle.mockImplementation(() =>
+                Promise.resolve({
+                    data: SEARCH_RESPONSE1.slice((activitySearch.vm.$data.currentPage - 1) * pageSize, activitySearch.vm.$data.currentPage * pageSize),
+                    status: 200,
+                    headers: {
+                        "total-rows": SEARCH_RESPONSE1.length
+                    }
+                })
+            );
+
+            activitySearch.setData({
+                activityTitle: ["PLACEHOLDER - PLACEHOLDERS"],
+            });
+
+            return activitySearch.vm.getPaginatedActivitiesByActivityTitle().then(() => {
+                expect(activitySearch.vm.api.getActivityByActivityTitle).toHaveBeenCalledWith(["PLACEHOLDER - PLACEHOLDERS"], activitySearch.vm.$data.currentPage - 1);
+            });
+        });
+    });
+
+    describe('With the "string" method', () => {
+
+        test('Search activity with two activity titles "PLACEHOLDER"', () => {
+
+            api.getActivityByActivityTitle.mockImplementation(() =>
+                Promise.resolve({
+                    data: SEARCH_RESPONSE1.slice((activitySearch.vm.$data.currentPage - 1) * pageSize, activitySearch.vm.$data.currentPage * pageSize),
+                    status: 200,
+                    headers: {
+                        "total-rows": SEARCH_RESPONSE1.length
+                    }
+                })
+            );
+
+            activitySearch.setData({
+                activityTitle: ['"PLACEHOLDER"'],
+            });
+
+            return activitySearch.vm.getPaginatedActivitiesByActivityTitle().then(() => {
+                expect(activitySearch.vm.api.getActivityByActivityTitle).toHaveBeenCalledWith(['"PLACEHOLDER"'], activitySearch.vm.$data.currentPage - 1);
+            });
+        });
+    });
+
 });
 
 
@@ -102,13 +229,5 @@ test('Activity type search box exists', () => {
 
 test('Search button exists', () => {
     expect(activitySearch.find('#searchButton').exists()).toBeTruthy();
-});
-
-test('And search operator radio button exists', () => {
-    expect(activitySearch.find('#andRadioButton').exists()).toBeTruthy();
-});
-
-test('Or search operator radio button exists', () => {
-    expect(activitySearch.find('#orRadioButton').exists()).toBeTruthy();
 });
 

@@ -154,7 +154,7 @@ export default {
          */
         async getPaginatedActivitiesByActivityTitle() {
             let pageNumber = this.currentPage - 1;
-            api.getActivityByActivityTitle(this.activityTitle, this.searchType, pageNumber)
+            api.getActivityByActivityTitle(this.activityTitle, pageNumber)
                 .then(response => {
                     this.activitiesList = response.data;
                     if (this.activityTitle.length != 0 && (response.data).length === 0) {
@@ -201,6 +201,9 @@ export default {
                 if (this.activityTitle.length === 0) {
                     this.errored = true;
                     this.error_message = "Cannot have empty search field, please try again!";
+                } else if (this.activityTitle.length === 75) {
+                    this.errored = true;
+                    this.error_message = "Cannot have more than 75 characters in the search field.";
                 }
                 this.getPaginatedActivitiesByActivityTitle();
             }
