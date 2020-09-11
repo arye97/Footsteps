@@ -1,6 +1,10 @@
-import {shallowMount} from '@vue/test-utils'
+import {mount, createLocalVue} from '@vue/test-utils'
 import HomeLayout from '../components/layout/HomeLayout.vue'
 import 'vue-jest'
+import BootstrapVue from "bootstrap-vue";
+
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
 
 let homeLayout;
 let push;
@@ -19,9 +23,10 @@ beforeEach(() => {
         mocks: {
             $route,
             $router
-        }
+        },
+        localVue
     };
-    homeLayout = shallowMount(HomeLayout, config);
+    homeLayout = mount(HomeLayout, config);
 });
 
 test('Is a vue instance', () => {
@@ -29,7 +34,7 @@ test('Is a vue instance', () => {
 });
 
 test('Logo is on the page', () => {
-    expect(homeLayout.find('#logo').is('img')).toBeTruthy()
+    expect(homeLayout.find('img').exists()).toBeTruthy()
 });
 
 // ----AC1----
@@ -42,5 +47,5 @@ test.each([
     ['register'],
     ['login'],
 ])('AC1 Has a %s button', (button) => {
-    expect(homeLayout.find('#'+ button + 'Button').is('button')).toBeTruthy();
+    expect(homeLayout.find('#'+ button + 'Button').exists()).toBeTruthy();
 });
