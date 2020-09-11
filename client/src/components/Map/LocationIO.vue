@@ -43,11 +43,24 @@
             MapViewer
         },
 
+        watch: {
+            pins: function () {
+                if (this.maxPins) {
+                    for (let i=0; i < this.pins.length - this.maxPins; i++) {
+                        this.pins.shift();  // Can't use splice.  Causes infinite loop with watcher
+                    }
+                }
+            }
+        },
+
         props: {
             viewOnly: {
                 default: false,
                 type: Boolean
             },
+            maxPins: {
+                type: Number
+            }
         },
 
         data() {
