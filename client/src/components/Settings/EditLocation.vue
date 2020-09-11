@@ -148,7 +148,98 @@ export default {
     },
 
     methods: {
-        
+        /**
+         * Checks if a user id from query parameter is logged in with token provided
+         * to prevent a user from editing another user's profile.
+         */
+        async validateUserIdWithToken() {
+            await api.checkProfile(this.$route.params.userId).then(() => {
+                this.isLoggedIn = true;
+                this.profileId = this.$route.params.userId;
+            }).catch(error => {
+                this.profileId = '';
+                this.processError(error);
+            });
+        },
+
+        /**
+         * Populate LocationIO fields to display the user's location.
+         */
+        async populateInputs() {
+            if (!this.isRedirecting) {
+                await api.getAllUserData().then(response => {
+                    this.isLoggedIn = true;
+                    if (response.data.role === 20) {
+                        // Is the global admin
+                        this.$router.push('/home');
+                    } else {
+                        this.publicLocation = response.data.public_location;
+                        this.privateLocation = response.data.private_location;
+                        if (this.publicLocation) {
+                            delete this.publicLocation['id'];
+                        }
+                        if (this.privateLocation) {
+                            delete this.privateLocation['id'];
+                        }
+                    }
+                    this.locationLoading = false;
+                    this.loading = false;
+                }).catch(error => {
+                    this.processError(error);
+                });
+            }
+        },
+
+        /**
+         * Obtains a validated edit location request based on input.
+         * Returns null if input is empty or identical to original location.
+         */
+        getValidatedLocationRequest() {
+            let editedLocation = {};
+            if (this.inputPublicLocation) {
+                this.identicalPublicLocationWarningMessage = null;
+                if (!this.publicLocation) {
+                    editedLocation['public_location'] = this.inputPublicLocation;
+                } else if (this.isModifiedLocation(this.publicLocation, this.inputPublicLocation)) {
+                    editedLocation['public_location'] = this.inputPublicLocation;
+                } else {
+                    this.identicalPublicLocationWarningMessage="This is your previous location!";
+                }
+            }
+
+            if (this.inputPrivateLocation) {
+                this.identicalPrivateLocationWarningMessage = null;
+                if (!this.privateLocation) {
+                    editedLocation['private_location'] = this.inputPrivateLocation;
+                } else if (this.isModifiedLocation(this.privateLocation, this.inputPrivateLocation)) {
+                    editedLocation['private_location'] = this.inputPrivateLocation;
+                } else {
+                    this.identicalPrivateLocationWarningMessage = "This is your previous location!";
+                }
+            }
+
+            if (Object.keys(editedLocation).length === 0) {
+                editedLocation = null;
+                this.inputWarningMessage = "Specify a valid location above to save changes"
+            } else {
+                this.inputWarningMessage = "";
+            }
+            return editedLocation;
+        },
+
+        /**
+         * Checks if initial location has been modified
+         */
+        isModifiedLocation(originalLocation, inputLocation) {
+            const locationKeys = Object.keys(originalLocation);
+            for (let key of locationKeys) {
+                if (originalLocation[key] !== inputLocation[key]) {
+                    return true;
+                }
+            }
+            return false
+        },
+
         /**
          * Validates changes and submits a PUT request to edit a user's public/private locations.
          * If changes have not been made, SAVE button is disabled.
