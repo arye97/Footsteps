@@ -3,7 +3,7 @@
         <keep-alive>
             <GmapMap class="map"
                     ref="mapRef"
-                    :center="center"
+                    :center="currentCenter"
                     :zoom="4.5"
                     map-type-id="terrain"
                     style="width: 500px; height: 300px"
@@ -15,7 +15,7 @@
                         :position="google && new google.maps.LatLng(pin.lat, pin.lng)"
                         :clickable="true"
                         :draggable="true"
-                        @click="center={lat:pin.lat, lng:pin.lng}"
+                        @click="currentCenter={lat:pin.lat, lng:pin.lng}"
                         @dragend="repositionPin($event.latLng, pinIndex)"
                 />
             </GmapMap>
@@ -57,6 +57,7 @@
 
         data() {
             return {
+                currentCenter: this.center  // We shouldn't mutate the prop center
             }
         },
 
@@ -67,8 +68,8 @@
         methods: {
 
             /**
-             * When a pin is dragged to a new location, this function updates the pin Object in the pins Array with
-             * the new lat, lng coordinates.
+             * When a pin is dragged to a new location.  This function updates the pin Object in the pins Array with
+             * the new lat, lng coordinates and emits the new pin, and its index in the Array, back to the parent.
              * @param movePinEvent the event containing lat, lng
              * @param pinIndex the index of the pin in Array pins
              */
@@ -76,6 +77,7 @@
                 if (pinIndex < this.pins.length) {
                     this.pins[pinIndex].lat = movePinEvent.lat();
                     this.pins[pinIndex].lng = movePinEvent.lng();
+                    this.$emit("pin-move", this.pins[pinIndex], pinIndex)
                 }
             },
         }
