@@ -13,7 +13,8 @@ import java.util.Set;
  * - title
  * - description
  * - activity_id
- * - units (this is a set of Unit objects. Look at model.Unit.java for Json params for each of these objects)
+ * - unit_name
+ * - unit_type
  */
 public class OutcomeResponse {
 
