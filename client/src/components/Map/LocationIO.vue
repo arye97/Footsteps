@@ -17,11 +17,11 @@
                             id="gmapAutoComplete"
                             :value="address"
                             :options="{fields: ['geometry', 'formatted_address', 'address_components']}"
-                            @place_changed="getPlaceField"
+                            @place_changed="addMarker"
                             class="form-control" style="width: 100%">
                     </gmap-autocomplete>
 
-                    <b-button id='addMarkerButton' block @click="addMarker">Drop Pin</b-button>
+                    <b-button id='addMarkerButton' block @click="addMarker()">Drop Pin</b-button>
                 </div>
             </div>
             <div v-else>
@@ -54,7 +54,6 @@
             return {
                 isMapVisible: false,
                 pins:[],
-                currentPlace: null,
                 address: ""
             }
         },
@@ -62,28 +61,20 @@
         methods: {
 
             /**
-             * Receives a place object via the autocomplete component
-             * @param place response object from Google API that includes latitude and longitude
+             * Add a marker centred on the coordinates of place, or the center of the map if place is not defined.
+             * @param place object received via the autocomplete component.
              */
-            getPlaceField(place) {
-                this.currentPlace = place;
-            },
-
-            /**
-             * Add a marker centred on the coordinates of this.currentPlace
-             */
-            addMarker() {
+            addMarker(place) {
                 let pin;
 
-                if (this.currentPlace) {
+                if (place && Object.prototype.hasOwnProperty.call(place, 'geometry')) {
                     pin = {
-                        lat: this.currentPlace.geometry.location.lat(),
-                        lng: this.currentPlace.geometry.location.lng()
+                        lat: place.geometry.location.lat(),
+                        lng: place.geometry.location.lng()
                     };
 
                     // Without this the contents of autocomplete is overwritten by the value of this.address
-                    this.address = this.currentPlace.formatted_address;
-                    this.currentPlace = null;
+                    this.address = place.formatted_address;
 
                 } else {
                     pin = {
