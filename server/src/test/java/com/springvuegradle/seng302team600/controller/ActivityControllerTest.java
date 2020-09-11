@@ -777,7 +777,7 @@ class ActivityControllerTest {
                 .header("Page-Number", currentPageNumber);
 
         MvcResult result = mvc.perform(request)
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isNotFound())
                 .andReturn();
 
         JsonNode responseArray = objectMapper.readTree(result.getResponse().getContentAsString());
@@ -793,7 +793,7 @@ class ActivityControllerTest {
                 .header("Page-Number", currentPageNumber);
 
         MvcResult result = mvc.perform(request)
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isNotFound())
                 .andReturn();
 
         JsonNode responseArray = objectMapper.readTree(result.getResponse().getContentAsString());
