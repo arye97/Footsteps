@@ -15,7 +15,7 @@
                         :position="google && new google.maps.LatLng(pin.lat, pin.lng)"
                         :clickable="true"
                         :draggable="true"
-                        @click="currentCenter={lat:pin.lat, lng:pin.lng}"
+                        @click="panToPin(pin)"
                         @dragend="repositionPin($event.latLng, pinIndex)"
                 />
             </GmapMap>
@@ -79,6 +79,16 @@
                     this.pins[pinIndex].lng = movePinEvent.lng();
                     this.$emit("pin-move", this.pins[pinIndex], pinIndex)
                 }
+            },
+
+            /**
+             * Centres the map on a pin using a smooth animation
+             * @param pin object containing lat, lng
+             */
+            panToPin(pin) {
+                this.$refs.mapRef.$mapPromise.then((map) => {
+                    map.panTo(pin)
+                });
             },
         }
     }
