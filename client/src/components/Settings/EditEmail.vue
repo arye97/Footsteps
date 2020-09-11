@@ -501,8 +501,7 @@
                     setTimeout(() => {
                         this.$router.go();
                     }, this.timeout);
-                }
-                else if (error.response.status === 401) {
+                } else if (error.response.status === 401) {
                     this.redirectionMessage = "Sorry, you are no longer logged in,\n" +
                         "Redirecting to the login page.";
                     setTimeout(() => {
