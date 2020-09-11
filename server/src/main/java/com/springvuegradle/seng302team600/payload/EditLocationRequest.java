@@ -1,29 +1,28 @@
 package com.springvuegradle.seng302team600.payload;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.springvuegradle.seng302team600.model.Location;
 
 public class EditLocationRequest {
 
     @JsonProperty("public_location")
-    private LocationPayload publicLocation;
+    private LocationRequest publicLocation;
 
     @JsonProperty("private_location")
-    private LocationPayload privateLocation;
+    private LocationRequest privateLocation;
     
-    public LocationPayload getPublicLocation() {
+    public LocationRequest getPublicLocation() {
         return publicLocation;
     }
 
-    public void setPublicLocation(LocationPayload publicLocation) {
+    public void setPublicLocation(LocationRequest publicLocation) {
         this.publicLocation = publicLocation;
     }
 
-    public LocationPayload getPrivateLocation() {
+    public LocationRequest getPrivateLocation() {
         return privateLocation;
     }
 
-    public void setPrivateLocation(LocationPayload privateLocation) {
+    public void setPrivateLocation(LocationRequest privateLocation) {
         this.privateLocation = privateLocation;
     }
 }

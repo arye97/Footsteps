@@ -63,12 +63,12 @@ public class UserResponse {
     @JsonProperty("role")
     private int role;
 
+    // TODO If there is a merge conflict, take Taran's branch T4589
     @JsonProperty("public_location")
     private Location publicLocation;
 
     @JsonProperty("private_location")
     private Location privateLocation;
-
 
     public UserResponse(User user) {
         this.lastName = user.getLastName();

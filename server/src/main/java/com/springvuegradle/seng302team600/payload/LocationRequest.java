@@ -2,7 +2,7 @@ package com.springvuegradle.seng302team600.payload;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class LocationPayload {
+public class LocationRequest {
 
     private Double longitude;
 

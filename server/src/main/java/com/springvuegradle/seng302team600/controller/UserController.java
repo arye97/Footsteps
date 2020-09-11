@@ -299,17 +299,17 @@ public class UserController {
         String token = request.getHeader("Token");
         User user = userService.findByUserId(token, profileId);
 
-        LocationPayload publicLocationPayload = locationRequest.getPublicLocation();
+        LocationRequest publicLocationRequest = locationRequest.getPublicLocation();
         Location publicLocation;
-        if (publicLocationPayload != null) {
-            publicLocation = new Location(publicLocationPayload);
+        if (publicLocationRequest != null) {
+            publicLocation = new Location(publicLocationRequest);
             user.setPublicLocation(publicLocation);
         }
 
-        LocationPayload privateLocationPayload = locationRequest.getPrivateLocation();
+        LocationRequest privateLocationRequest = locationRequest.getPrivateLocation();
         Location privateLocation;
-        if (privateLocationPayload != null) {
-            privateLocation = new Location(privateLocationPayload);
+        if (privateLocationRequest != null) {
+            privateLocation = new Location(privateLocationRequest);
             user.setPrivateLocation(privateLocation);
         }
 
