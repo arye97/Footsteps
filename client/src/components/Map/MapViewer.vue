@@ -9,13 +9,14 @@
                     style="width: 500px; height: 300px"
             >
                 <GmapMarker
-                        ref="myMarker"
-                        :key="index"
-                        v-for="(pin, index) in pins"
+                        :ref="'marker' + pinIndex"
+                        :key="pinIndex"
+                        v-for="(pin, pinIndex) in pins"
                         :position="google && new google.maps.LatLng(pin.lat, pin.lng)"
                         :clickable="true"
                         :draggable="true"
                         @click="center={lat:pin.lat, lng:pin.lng}"
+                        @dragend="repositionPin($event.latLng, pinIndex)"
                 />
             </GmapMap>
         </keep-alive>
@@ -65,6 +66,18 @@
 
         methods: {
 
+            /**
+             * When a pin is dragged to a new location, this function updates the pin Object in the pins Array with
+             * the new lat, lng coordinates.
+             * @param movePinEvent the event containing lat, lng
+             * @param pinIndex the index of the pin in Array pins
+             */
+            repositionPin(movePinEvent, pinIndex) {
+                if (pinIndex < this.pins.length) {
+                    this.pins[pinIndex].lat = movePinEvent.lat();
+                    this.pins[pinIndex].lng = movePinEvent.lng();
+                }
+            },
         }
     }
 
