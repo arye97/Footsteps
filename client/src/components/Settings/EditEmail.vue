@@ -106,7 +106,7 @@
                                 </table>
                             </form>
                             <div id="confirmationButtons">
-                                <b-button type="submit" variant="success float-left"
+                                <b-button type="submit" variant="secondary float-left"
                                           size="lg" id="back" :key=this.toReload
                                           v-on:click="backAlert">Back</b-button>
                                 <b-button type="submit" variant="success float-right"

@@ -76,7 +76,7 @@
             </b-alert>
 
             <div id="confirmationButtons">
-                <b-button variant="success float-left"
+                <b-button variant="secondary float-left"
                           size="lg" id="back"
                           v-on:click="backToProfile">
                     Back
@@ -253,8 +253,12 @@ export default {
                 this.showAlert()
             } else {
                 await api.editLocation(editedLocationRequest, this.profileId).then(() => {
-                    this.publicLocation = this.inputPublicLocation;
-                    this.privateLocation = this.inputPrivateLocation;
+                    if (this.inputPublicLocation) {
+                        this.publicLocation = this.inputPublicLocation;
+                    }
+                    if (this.inputPrivateLocation) {
+                        this.privateLocation = this.inputPrivateLocation;
+                    }
                     this.message = 'Changes saved successfully';
                     this.alertVariant = 'success';
                     this.showAlert()

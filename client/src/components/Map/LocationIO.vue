@@ -2,7 +2,7 @@
     <div>
         <b-card class="flex-fill" border-variant="secondary">
             <div v-if="isMapVisible">
-                <b-button id="hideMapButton" @click="isMapVisible=false">Hide Map</b-button>
+                <b-button id="hideMapButton" variant="info" @click="isMapVisible=false">Hide Map</b-button>
                     <map-viewer
                             id="mapComponent"
                             :center="center"
@@ -19,11 +19,11 @@
                             class="form-control" style="width: 100%">
                     </gmap-autocomplete>
 
-                    <b-button id='addMarkerButton' block @click="addMarker">Add</b-button>
+                    <b-button id='addMarkerButton' variant="primary" block @click="addMarker">Add</b-button>
                 </div>
             </div>
             <div v-else>
-                <b-button id="showMapButton" @click="isMapVisible=true">Show Map</b-button>
+                <b-button id="showMapButton" variant="info" @click="isMapVisible=true">Show Map</b-button>
             </div>
         </b-card>
     </div>
