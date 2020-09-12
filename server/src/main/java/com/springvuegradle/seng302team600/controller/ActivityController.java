@@ -408,8 +408,9 @@ public class ActivityController {
         Pageable pageWithFiveActivities = PageRequest.of(pageNumber, PAGE_SIZE);
         if (method.toLowerCase().equals("and")) {
             paginatedActivityIds = activityActivityTypeRepository.findByAllActivityTypeIds(activityTypeIds, numActivityTypes, pageWithFiveActivities);
-        } else if (method.toLowerCase().equals("or")) {
-              paginatedActivityIds = activityActivityTypeRepository.findBySomeActivityTypeIds(activityTypeIds, pageWithFiveActivities); //Gets the userIds
+        // TODO for Search ActivityType By "OR" task
+        //} else if (method.toLowerCase().equals("or")) {
+        //      paginatedActivityIds = activityActivityTypeRepository.findBySomeActivityTypeIds(activityTypeIds, pageWithFiveActivities); //Gets the userIds
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Method must be specified as either (AND, OR)");
         }

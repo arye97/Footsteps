@@ -236,7 +236,7 @@ class ActivityControllerTest {
         });
         // FindByActivityId
         when(activityRepository.findByActivityId(Mockito.any(Long.class))).thenAnswer(i -> {
-            for (Activity activity : activityMockTable) {
+            for (Activity activity: activityMockTable) {
                 if (activity.getActivityId() == i.getArgument(0)) {
                     return activity;
                 }
@@ -263,10 +263,12 @@ class ActivityControllerTest {
         });
 
 
+
+
         // Mock ActivityType repository for each activity
         Map<String, Long> activityTypeNameToIdMap = new HashMap<>(4);
         Map<Long, ActivityType> activityTypeIdToObjectMap = new HashMap<>(4);
-        for (ActivityType activityType : dummySearchActivityTypes) {
+        for (ActivityType activityType: dummySearchActivityTypes) {
             activityTypeNameToIdMap.put(activityType.getName().toLowerCase(), activityType.getActivityTypeId());
             activityTypeIdToObjectMap.put(activityType.getActivityTypeId(), activityType);
         }
@@ -274,7 +276,7 @@ class ActivityControllerTest {
         when(activityTypeRepository.findActivityTypeIdsByNames(Mockito.anyList())).thenAnswer(i -> {
             List<String> activityTypeNames = i.getArgument(0);
             List<Long> activityTypeIds = new ArrayList<>();
-            for (String name : activityTypeNames) {
+            for (String name: activityTypeNames) {
                 activityTypeIds.add(activityTypeNameToIdMap.get(name.toLowerCase()));
             }
             return activityTypeIds;
@@ -283,7 +285,7 @@ class ActivityControllerTest {
         when(activityRepository.getActivitiesByIds(Mockito.anyList())).thenAnswer(i -> {
             List<Long> activityIds = i.getArgument(0);
             List<Activity> activities = new ArrayList<>();
-            for (Activity activity : dummySearchActivitiesTable) {
+            for (Activity activity: dummySearchActivitiesTable) {
                 if (activityIds.contains(activity.getActivityId())) {
                     activities.add(activity);
                 }
@@ -299,11 +301,11 @@ class ActivityControllerTest {
             int pageSize = pageWithFiveActivities.getPageSize();
 
             List<ActivityType> activityTypesToMatch = new ArrayList<>();
-            for (Long id : activityTypeIdsToMatch) {
+            for (Long id: activityTypeIdsToMatch) {
                 activityTypesToMatch.add(activityTypeIdToObjectMap.get(id));
             }
             List<Long> activityIdsToSearch = new ArrayList<>();
-            for (Activity activity : dummySearchActivitiesTable) {
+            for (Activity activity: dummySearchActivitiesTable) {
                 if (activity.getActivityTypes().containsAll(activityTypesToMatch)) {
                     activityIdsToSearch.add(activity.getActivityId());
                 }
@@ -323,41 +325,8 @@ class ActivityControllerTest {
                 return null;
             }
         });
-        //Mock the OR functionality
-        when(activityActivityTypeRepository.findBySomeActivityTypeIds(Mockito.anyList(), Mockito.any(Pageable.class))).thenAnswer(i -> {
-            List<Long> activityTypeIdsToMatch = i.getArgument(0);
-            Pageable pageWithFiveActivities = i.getArgument(1);
-            int pageNumber = pageWithFiveActivities.getPageNumber();
-            int pageSize = pageWithFiveActivities.getPageSize();
-
-            List<ActivityType> activityTypesToMatch = new ArrayList<>();
-            for (Long id : activityTypeIdsToMatch) {
-                activityTypesToMatch.add(activityTypeIdToObjectMap.get(id));
-            }
-            List<Long> activityIdsToSearch = new ArrayList<>();
-            for (Activity activity : dummySearchActivitiesTable) {
-                for (ActivityType type : activityTypesToMatch) {
-                    if (activity.getActivityTypes().contains(type)) {
-                        activityIdsToSearch.add(activity.getActivityId());
-                    }
-                }
-            }
-            if (activityIdsToSearch.size() > 0) {
-                int startIndex = pageNumber * pageSize;
-                int endIndex = (pageNumber + 1) * pageSize;
-                List<Long> paginatedActivityIds;
-                if (startIndex > activityIdsToSearch.size()) {
-                    return null;
-                } else if (endIndex > activityIdsToSearch.size()) {
-                    endIndex = activityIdsToSearch.size();
-                }
-                paginatedActivityIds = activityIdsToSearch.subList(startIndex, endIndex);
-                return new PageImpl(paginatedActivityIds);
-            } else {
-                return null;
-            }
-        });
     }
+
 
 
 
@@ -987,6 +956,4 @@ class ActivityControllerTest {
         JsonNode responseString = objectMapper.readTree(result.getResponse().getContentAsString());
         assertEquals(2, responseString.size());
     }
-
-
 }
