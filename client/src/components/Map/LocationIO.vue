@@ -96,6 +96,7 @@
                     };
                 }
                 this.pins.push(pin);
+                this.$refs.mapViewerRef.panToPin(pin);
             },
 
             /**

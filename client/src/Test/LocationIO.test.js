@@ -47,6 +47,8 @@ test('Show map button exists at default', () => {
 
 test('addMarker converts a place object into a pin object', () => {
     const autocompletePlace = {formatted_address: "Somewhere", geometry: {location: {lat: () => 0, lng: () => 0}}};
+    locationIO.vm.$refs.mapViewerRef = {panToPin: () => {}};
+
     locationIO.vm.addMarker(autocompletePlace);
     expect(locationIO.vm.pins.length).toBe(1);
     expect(locationIO.vm.pins[0]).toEqual({lat:0, lng:0})
@@ -54,7 +56,8 @@ test('addMarker converts a place object into a pin object', () => {
 });
 
 test('addMarker converts the center of the map to a pin', () => {
-    locationIO.vm.$refs.mapViewerRef = {currentCenter: {lat:0, lng:0}};
+    locationIO.vm.$refs.mapViewerRef = {currentCenter: {lat:0, lng:0}, panToPin: () => {}};
+
     locationIO.vm.addMarker();
     expect(locationIO.vm.pins.length).toBe(1);
     expect(locationIO.vm.pins[0]).toEqual({lat:0, lng:0})
@@ -63,6 +66,7 @@ test('addMarker converts the center of the map to a pin', () => {
 test('setInputBoxUpdatePins re-positions a pin', () => {
     const origionalAddress = locationIO.vm.address;
     locationIO.vm.pins.push({lat:0, lng:0});
+
     locationIO.vm.setInputBoxUpdatePins({lat:1, lng:1}, 0);
     expect(locationIO.vm.pins[0]).toEqual({lat:1, lng:1});
     expect(locationIO.vm.address).not.toEqual(origionalAddress);
