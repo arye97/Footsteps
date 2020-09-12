@@ -325,6 +325,41 @@ class ActivityControllerTest {
                 return null;
             }
         });
+
+        //Mock the OR functionality
+        when(activityActivityTypeRepository.findBySomeActivityTypeIds(Mockito.anyList(), Mockito.any(Pageable.class))).thenAnswer(i -> {
+            List<Long> activityTypeIdsToMatch = i.getArgument(0);
+            Pageable pageWithFiveActivities = i.getArgument(1);
+            int pageNumber = pageWithFiveActivities.getPageNumber();
+            int pageSize = pageWithFiveActivities.getPageSize();
+
+            List<ActivityType> activityTypesToMatch = new ArrayList<>();
+            for (Long id : activityTypeIdsToMatch) {
+                activityTypesToMatch.add(activityTypeIdToObjectMap.get(id));
+            }
+            List<Long> activityIdsToSearch = new ArrayList<>();
+            for (Activity activity : dummySearchActivitiesTable) {
+                for (ActivityType type : activityTypesToMatch) {
+                    if (activity.getActivityTypes().contains(type)) {
+                        activityIdsToSearch.add(activity.getActivityId());
+                    }
+                }
+            }
+            if (activityIdsToSearch.size() > 0) {
+                int startIndex = pageNumber * pageSize;
+                int endIndex = (pageNumber + 1) * pageSize;
+                List<Long> paginatedActivityIds;
+                if (startIndex > activityIdsToSearch.size()) {
+                    return null;
+                } else if (endIndex > activityIdsToSearch.size()) {
+                    endIndex = activityIdsToSearch.size();
+                }
+                paginatedActivityIds = activityIdsToSearch.subList(startIndex, endIndex);
+                return new PageImpl(paginatedActivityIds);
+            } else {
+                return null;
+            }
+        });
     }
 
 
@@ -737,6 +772,7 @@ class ActivityControllerTest {
         assertEquals(3, responseArray.size());
         assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), ActivityResponse.class));
     }
+
 
     @Test
     void findSomeByOneActivityTypesFailure() throws Exception {
