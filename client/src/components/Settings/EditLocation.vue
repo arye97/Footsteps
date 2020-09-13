@@ -1,5 +1,5 @@
 <template>
-    <b-container class="contents" fluid>
+    <b-container class="contents">
         <section v-if="loading">
             <div v-if="this.isRedirecting">
                 {{ redirectionMessage }}
@@ -13,7 +13,7 @@
             <h2 class="font-weight-bold location-header">My Location</h2>
             <div v-if="!locationLoading">
                 <div class="location-container">
-                    <table>
+                    <table id="public-table">
                         <tr>
                             <th class="location-column-label">
                                 <h3 class="location-field-header">Public Location:</h3>
@@ -28,6 +28,7 @@
                     <p class="location-description">This is the location that other users will see on your profile.</p>
                     <div class="map-pane">
                         <location-i-o class="input-location"
+                                      id="public-location-i-o"
                                       v-on:child-pins="locationPublicValue"
                                       :current-location="publicLocation"
                                       :single-only=true></location-i-o>
@@ -37,14 +38,14 @@
                     </label>
                 </div>
                 <div class="location-container">
-                    <table>
+                    <table id="private-table">
                         <tr>
                             <th class="location-column-label">
                                 <h3 class="location-field-header">Private Location:</h3>
                             </th>
                             <th class="location-column-value">
                                 <h3 v-if="this.inputPrivateLocation" class="font-weight-light"> {{this.inputPrivateLocation.name}} </h3>
-                                <h3 v-else-if="this.privateLocation" class="font-weight-light"> Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch
+                                <h3 v-else-if="this.privateLocation" class="font-weight-light"> {{ this.privateLocation.name }}
                                 </h3>
                                 <h3 v-else class="font-weight-light"> Not Specified </h3>
                             </th>
@@ -53,6 +54,7 @@
                     <p class="location-description">This location will only be visible to you.</p>
                     <div class="map-pane">
                         <location-i-o class="input-location"
+                                      id="private-location-i-o"
                                       v-on:child-pins="locationPrivateValue"
                                       :current-location="privateLocation"
                                       :single-only=true></location-i-o>
@@ -85,6 +87,7 @@
                     Back
                 </b-button>
                 <b-button variant="success float-right"
+                          id="save-changes-btn"
                           size="lg" v-on:click="saveChanges"
                           v-bind:disabled="!checkIfChangesMade">
                     Save Changes
@@ -138,7 +141,7 @@ export default {
         if (this.$route.params.userId !== undefined) {
             await this.validateUserIdWithToken();
         }
-        this.populateInputs();
+        await this.populateInputs();
     },
 
     computed: {
@@ -170,7 +173,7 @@ export default {
          */
         async populateInputs() {
             if (!this.isRedirecting) {
-                await api.getAllUserData().then(response => {
+                await api.getUserData(this.profileId).then(response => {
                     this.isLoggedIn = true;
                     if (response.data.role === 20) {
                         // Is the global admin
@@ -296,13 +299,14 @@ export default {
         processError(error) {
             let timeoutTime = 3000;
             this.isLoggedIn = true;
+            this.loading = true;
             this.isRedirecting = true;
             if (error.response.status === 400) {
                 this.redirectionMessage = "Sorry, the location you saved was invalid,\n" +
                     "Redirecting to your edit locations page.";
                 setTimeout(() => {
                     this.$router.go();
-                }, this.timeout);
+                }, timeoutTime);
             } else if (error.response.status === 401) {
                 this.isLoggedIn = false;
                 this.redirectionMessage = "Sorry, you are no longer logged in,\n" +
