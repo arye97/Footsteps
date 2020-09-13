@@ -55,24 +55,24 @@ test('Show map button exists at default', () => {
     expect(locationIO.find('#showMapButton').exists()).toBeTruthy();
 });
 
-test('Pins obtained from the parent are added to the map', () => {
-    locationIO.setProps({
+test('Pins obtained from the parent are added to the map', async () => {
+    await locationIO.setProps({
         parentPins: [parentPinData],
     });
-    expect(locationIO.vm.$data.pins.includes(parentPinData));
+    expect(locationIO.vm.$data.pins).toContain(parentPinData);
 });
 
 test('Pins are empty by default', () => {
-    expect(locationIO.vm.$data.pins.size === 0);
+    expect(locationIO.vm.$data.pins).toHaveLength(0);
 });
 
-test('Map is centered on the point specified by the parent', () => {
-    locationIO.setProps({
+test('Map is centered on the point specified by the parent', async () => {
+    await locationIO.setProps({
         parentCenter: parentCenterData
     });
-    expect(locationIO.vm.$data.center === parentCenterData);
+    expect(locationIO.vm.$data.center).toBe(parentCenterData)
 });
 
 test('Map center is undefined by default', () => {
-    expect(locationIO.vm.$data.center === undefined);
+    expect(locationIO.vm.$data.center).toBeUndefined();
 });
