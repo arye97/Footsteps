@@ -19,6 +19,7 @@
                            :activity="activity"
                            :outcome-list="outcomeList"
                            :original-outcome-list="originalOutcomeList"
+                           :is-edit="true"
                            @add-outcome="addOutcome"
                            @delete-outcome="deleteOutcome"/>
         </b-container>
