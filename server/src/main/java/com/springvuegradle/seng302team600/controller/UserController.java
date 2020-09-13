@@ -288,7 +288,7 @@ public class UserController {
      * @throws JsonProcessingException thrown if there is an issue when converting the body to an object node
      */
     @PutMapping("/profiles/{profileId}/location")
-    public void editLocation(@Validated @RequestBody EditLocationRequest locationRequest,
+    public void editLocation(@Validated @RequestBody EditUserLocationRequest locationRequest,
                              HttpServletRequest request,
                              HttpServletResponse response,
                              @PathVariable(value = "profileId") Long profileId) throws IOException {

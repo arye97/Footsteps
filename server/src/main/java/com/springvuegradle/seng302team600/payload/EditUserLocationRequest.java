@@ -2,7 +2,7 @@ package com.springvuegradle.seng302team600.payload;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class EditLocationRequest {
+public class EditUserLocationRequest {
 
     @JsonProperty("public_location")
     private LocationRequest publicLocation;
