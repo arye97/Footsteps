@@ -63,10 +63,10 @@ public class UserResponse {
     @JsonProperty("role")
     private int role;
 
-    @JsonProperty("publicLocation")
+    @JsonProperty("public_location")
     private LocationResponse publicLocation;
 
-    @JsonProperty("privateLocation")
+    @JsonProperty("private_location")
     private LocationResponse privateLocation;
 
     public UserResponse(User user) {
