@@ -167,7 +167,17 @@
                         label="Location: *"
                         label-for="input-location"
                 >
-                    <location-i-o id="input-location" v-on:child-pins="locationValue" :single-only=true></location-i-o>
+                    <!-- This gets around an issue where vue will throw a warning that location has not been defined -->
+                    <location-i-o v-if="!this.isEdit || this.activity.location !== null"
+                        id="input-location"
+                        v-on:child-pins="locationValue"
+                        :single-only="true"
+                        :parent-pins="this.isEdit ?
+                            [{lat: this.activity.location.latitude, lng: this.activity.location.longitude}] :  null"
+                        :parent-center="this.isEdit ?
+                            {lat: this.activity.location.latitude, lng: this.activity.location.longitude} : null"
+                    ></location-i-o>
+
                 </b-form-group>
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_location">
                     {{ "Field is mandatory and a location must be set" }}
@@ -293,7 +303,7 @@
      * CreateActivity and EditActivity at the time of writing.
      */
     export default {
-        components: {LocationIO, Multiselect },
+        components: {LocationIO, Multiselect},
         name: "ActivityForm",
         props: {
             activity: {
@@ -321,6 +331,7 @@
                 type: Array
             },
             submitActivityFunc: Function,
+            isEdit:  Boolean,
             startTime: String,
             endTime: String,
         },
@@ -658,6 +669,11 @@
                 })
                 return result;
             },
+          /**
+           * Sets the location of the activity
+           * Called when the pins in the LocationIO child component are changed
+           * @param params a list of pins from LocationIO
+           */
             locationValue: function (params) {
                 this.activity.location = {
                     latitude: params[0].lat,
