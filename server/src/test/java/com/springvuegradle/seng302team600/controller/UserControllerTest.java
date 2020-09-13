@@ -1011,7 +1011,7 @@ class UserControllerTest {
                 .andReturn();
 
         jsonResponseStr = result.getResponse().getContentAsString();
-        User user = objectMapper.readValue(jsonResponseStr, User.class);
+        UserResponse user = objectMapper.readValue(jsonResponseStr, UserResponse.class);
 
         assertEquals(dummyPublicLocation.getLocationName(), user.getPublicLocation().getLocationName());
         assertEquals(dummyPrivateLocation.getLocationName(), user.getPrivateLocation().getLocationName());

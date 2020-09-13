@@ -1,6 +1,7 @@
 package com.springvuegradle.seng302team600.service;
 
 import com.springvuegradle.seng302team600.model.Email;
+import com.springvuegradle.seng302team600.model.Location;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import com.springvuegradle.seng302team600.payload.LoginResponse;
@@ -54,6 +55,8 @@ class UserAuthenticationServiceTest {
                 .build().getTime());
         userData.setGender(User.Gender.MALE);
         dummyUser1.builder(userData);
+        dummyUser1.setPrivateLocation(new Location(-42D, 30D, "public location 1"));
+        dummyUser1.setPublicLocation(new Location(45D, 60D, "public location 1"));
         dummyEmail1 = new Email(dummyUser1.getPrimaryEmail(), true, dummyUser1);
         //This is a valid use of reflection, designed for scenarios like this
         ReflectionTestUtils.setField(dummyEmail1, "emailId", 2L);
@@ -73,6 +76,8 @@ class UserAuthenticationServiceTest {
                 .build().getTime());
         userData.setGender(User.Gender.MALE);
         dummyUser = new User(userData);
+        dummyUser.setPrivateLocation(new Location(1D,2D,"private location"));
+        dummyUser.setPublicLocation(new Location(-3D, 6D,"public location"));
         dummyEmail = new Email(dummyUser.getPrimaryEmail(), true, dummyUser);
         //This is a valid use of reflection, designed for scenarios like this
         ReflectionTestUtils.setField(dummyUser, "userId", 1L);
@@ -208,8 +213,9 @@ class UserAuthenticationServiceTest {
     }
 
     @Test
-    /**Tests that if a user tries to view a user that does exist and is logged in then the user is returned*/
-    public void viewUserByIdSuccess() {
+    /**Tests that if a user tries to view another user that does exist and is logged in then the user is returned
+     * with private location of null*/
+    public void viewUserByIdSuccessOther() {
         String token = "myToken";
         dummyUser.setToken(token);
         dummyUser.setTokenTime();
@@ -217,9 +223,46 @@ class UserAuthenticationServiceTest {
         additionalUser();
         // Check viewing the user
         User result = userService.viewUserById(2L, token);
-        assertEquals("Bob", result.getFirstName());
-        assertEquals("Builder", result.getLastName());
-        assertEquals("bobby@email.com", result.getPrimaryEmail());
-        assertEquals(User.Gender.MALE, result.getGender());
+        assertEquals(dummyUser1.getFirstName(), result.getFirstName());
+        assertEquals(dummyUser1.getLastName(), result.getLastName());
+        assertEquals(dummyUser1.getPrimaryEmail(), result.getPrimaryEmail());
+        assertEquals(dummyUser1.getGender(), result.getGender());
+
+        Location expectedPubLocation = dummyUser1.getPublicLocation();
+        Location resultPubLocation = result.getPublicLocation();
+        assertEquals(null, result.getPrivateLocation());
+        assertEquals(expectedPubLocation.getLatitude(), resultPubLocation.getLatitude());
+        assertEquals(expectedPubLocation.getLongitude(), resultPubLocation.getLongitude());
+        assertEquals(expectedPubLocation.getLocationName(), resultPubLocation.getLocationName());
+    }
+
+
+    @Test
+    /**Tests that if a user tries to view themself and is logged in then the user is returned
+     * with private location not null*/
+    public void viewUserByIdSuccessSelf() {
+        String token = "myToken";
+        dummyUser.setToken(token);
+        dummyUser.setTokenTime();
+        // Set up second user
+        additionalUser();
+        // Check viewing the user
+        User result = userService.viewUserById(1L, token);
+        assertEquals(dummyUser.getFirstName(), result.getFirstName());
+        assertEquals(dummyUser.getLastName(), result.getLastName());
+        assertEquals(dummyUser.getPrimaryEmail(), result.getPrimaryEmail());
+        assertEquals(dummyUser.getGender(), result.getGender());
+
+        Location expectedPubLocation = dummyUser.getPublicLocation();
+        Location resultPubLocation = result.getPublicLocation();
+        assertEquals(expectedPubLocation.getLatitude(), resultPubLocation.getLatitude());
+        assertEquals(expectedPubLocation.getLongitude(), resultPubLocation.getLongitude());
+        assertEquals(expectedPubLocation.getLocationName(), resultPubLocation.getLocationName());
+
+        Location expectedPrivLocation = dummyUser.getPrivateLocation();
+        Location resultPrivLocation = result.getPrivateLocation();
+        assertEquals(expectedPrivLocation.getLatitude(), resultPrivLocation.getLatitude());
+        assertEquals(expectedPrivLocation.getLongitude(), resultPrivLocation.getLongitude());
+        assertEquals(expectedPrivLocation.getLocationName(), resultPrivLocation.getLocationName());
     }
 }
