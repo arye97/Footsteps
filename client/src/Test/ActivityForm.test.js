@@ -1,9 +1,12 @@
 import "vue-jest"
-import {shallowMount} from "@vue/test-utils";
+import {mount, createLocalVue} from "@vue/test-utils";
 import api from "../Api";
 import ActivityForm from "../components/Activities/ActivityForm";
+import { BootstrapVue } from 'bootstrap-vue';
 
-
+jest.mock("../Api");
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
 
 const ACTIVITY1 = {
     profileId: 116,
@@ -17,20 +20,24 @@ const ACTIVITY1 = {
     submitStartTime: "2020-12-16T09:00:00+0000",
     submitEndTime: "2020-12-17T17:00:00+0000"
 };
+const ACTIVITY_TYPES = [
+    {activityTypeId: 1, name: "Hng"},
+    {activityTypeId: 2, name: "Attics"}
+];
 
 let activityForm;
 /**
  * Before each test, mock the necessary properties and methods.
  */
 beforeEach(() => {
-    activityForm = shallowMount(ActivityForm, {
+    api.getActivityTypes.mockImplementation(() => Promise.resolve({data: ACTIVITY_TYPES, status: 200}));
+    activityForm = mount(ActivityForm, {
         propsData: {
             activity: { ACTIVITY1
             }
         },
         mocks: {api},
-        methods: {
-            }
+        localVue
     });
 });
 
@@ -59,5 +66,5 @@ test('Add outcome button exists', () => {
 });
 
 test('Outcomes table exists', () => {
-    expect(activityForm.find('#additionalEmailsTable').exists()).toBeTruthy();
+    expect(activityForm.find('#outcomesTable').exists()).toBeTruthy();
 });

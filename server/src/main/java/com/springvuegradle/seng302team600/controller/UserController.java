@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.springvuegradle.seng302team600.Utilities.UserValidator;
-import com.springvuegradle.seng302team600.Utilities.PasswordValidator;
+import com.springvuegradle.seng302team600.validator.UserValidator;
+import com.springvuegradle.seng302team600.validator.PasswordValidator;
 import com.springvuegradle.seng302team600.model.*;
 import com.springvuegradle.seng302team600.payload.EditPasswordRequest;
 import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
@@ -18,6 +18,9 @@ import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +48,7 @@ public class UserController {
 
     private static Log log = LogFactory.getLog(UserController.class);
 
+    private static final int PAGE_SIZE = 5;
 
     /**
      * The DefaultAdminUser that is added to the Database if one doesn't
@@ -334,7 +338,7 @@ public class UserController {
      * Returns a user's role, based on users id
      * @param request the http request to the endpoint
      * @param response the http response
-     * @profileId the user's id from the request url
+     * @param profileId the user's id from the request url
      */
     @GetMapping("/profiles/{profileId}/role")
     public int getUsersRole(HttpServletRequest request,
@@ -349,27 +353,32 @@ public class UserController {
         }
     }
 
+    /**
+     * Returns a paginated list of 5 users having activity types attributed to their profiles.
+     * Either using AND so all provided activity types MUST be included in returned user or
+     * OR where one or more can be related to a user.
+     * @param activityTypes the list of activity types
+     * @param method the method to use (OR, AND)
+     * @return a list of users
+     */
     @RequestMapping(
             value = "/profiles",
             params = { "activity", "method" },
             method = RequestMethod.GET
     )
-    /**
-     * Returns a list of users having activity types attributed to their profiles
-     * Either using AND so all provided activity types MUST be included in returned user or
-     * OR where one or more can be related to a user
-     * @param activity the list of activity types
-     * @param method the method to use (OR, AND)
-     * @return a list of users
-     */
     public List<UserResponse> getUsersByActivityType(HttpServletRequest request,
                                                      HttpServletResponse response,
                                                      @RequestParam(value="activity") String activityTypes,
                                                      @RequestParam(value="method") String method) {
         String token = request.getHeader("Token");
-        // User validation
-        userService.findByToken(token);
+        int pageNumber;
+        try {
+            pageNumber = request.getIntHeader("Page-Number");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Page-Number must be an integer");
+        }
 
+        userService.findByToken(token);
         if (activityTypes.length() < 1) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Activity Types must be specified");
         }
@@ -386,24 +395,31 @@ public class UserController {
         //Need to get the activityTypeIds from the names
         List<Long> activityTypeIds = activityTypeRepository.findActivityTypeIdsByNames(types);
         int numActivityTypes = activityTypeIds.size();
-        List<Long> userIds;
+
+        Page<Long> paginatedUserIds;
+        Pageable pageWithFiveUsers = PageRequest.of(pageNumber, PAGE_SIZE);
         if (method.toLowerCase().equals("and")) {
-             userIds = userActivityTypeRepository.findByAllActivityTypeIds(activityTypeIds, numActivityTypes); //Gets the userIds
+            paginatedUserIds = userActivityTypeRepository.findByAllActivityTypeIds(activityTypeIds, numActivityTypes, pageWithFiveUsers); //Gets the userIds
         } else if (method.toLowerCase().equals("or")) {
-            userIds = userActivityTypeRepository.findBySomeActivityTypeIds(activityTypeIds); //Gets the userIds
+            paginatedUserIds = userActivityTypeRepository.findBySomeActivityTypeIds(activityTypeIds, pageWithFiveUsers); //Gets the userIds
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Method must be specified as either (AND, OR)");
         }
-        //Change the user objects list to a list of userResponse payloads
-        List<User> userList =  userRepository.getUsersByIds(userIds);
-        if (userList.isEmpty()) {
+
+        if (paginatedUserIds == null || paginatedUserIds.getTotalPages() == 0) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No users have been found");
         }
+
+        List<User> userList =  userRepository.getUsersByIds(paginatedUserIds.getContent());
+
+        //Change the user objects list to a list of userResponse payloads
         List<UserResponse> userSearchList = new ArrayList<>();
         for (User user : userList) {
             user.setTransientEmailStrings();
             userSearchList.add(new UserResponse(user));
         }
+        int totalElements = (int) paginatedUserIds.getTotalElements();
+        response.setIntHeader("Total-Rows", totalElements);
         return userSearchList;
     }
 }

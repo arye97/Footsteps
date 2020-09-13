@@ -18,7 +18,9 @@
             <activity-form :submit-activity-func="submitEditActivity"
                            :activity="activity"
                            :outcome-list="outcomeList"
-                           :original-outcome-list="originalOutcomeList"/>
+                           :original-outcome-list="originalOutcomeList"
+                           @add-outcome="addOutcome"
+                           @delete-outcome="deleteOutcome"/>
         </b-container>
         <br/><br/>
     </div>
@@ -57,11 +59,6 @@
             }
         },
         async created() {
-            // If not logged in
-            if (!sessionStorage.getItem("token")) {
-                this.$router.push('/login'); //Routes to home on logout
-            }
-
             // Get the activityId out of the URL
             let url = window.location.pathname;
             let activityId = url.substring(url.lastIndexOf('/') + 1);
@@ -76,6 +73,25 @@
 
 
         methods: {
+            /**
+             * Adds an outcome to outcomeList
+             * to prevent prop mutation.
+             * @param outcomeToBeAdded Outcome to be added to list
+             */
+            addOutcome(outcomeToBeAdded) {
+                this.outcomeList.push(outcomeToBeAdded);
+            },
+            /**
+             * Removes a specified outcome from outcomeList
+             * @param outcomeToBeRemoved Outcome to be removed from list
+             */
+            deleteOutcome(outcomeToBeRemoved) {
+                this.outcomeList = this.outcomeList.filter(
+                    function(outcome) {
+                        return outcome !== outcomeToBeRemoved;
+                    }
+                );
+            },
 
             /**
              * Makes a PUT request to the back-end to edit an activity
@@ -97,7 +113,6 @@
                   .catch(error => {this.throwError(error, false)});
 
                 await this.editAllOutcomes(this.outcomeList, this.originalOutcomeList, this.activityId);
-
                 this.$router.push({name: 'allActivities', params: {alertMessage: 'Activity modified successfully', alertCount: 5}});
             },
 
@@ -106,18 +121,29 @@
              * Sends all new Outcomes to the backend.  Doesn't re-send outcomes that already exist.  Should be used
              * when submitting an Activity.  Only adds new outcomes, doesn't delete or modify existing ones.
              * In a future story this will likely be modified to support edit and delete.
-             * @param editedOutcomes Array of outcomes belonging to the Activity after editing
+             * @param currentOutcomes Array of outcomes belonging to the Activity after editing
              * @param originalOutcomes Array of outcomes from backend before editing.  Used to prevent duplicates being created.
              * @param activityId id of newly created activities
              */
-            async editAllOutcomes(editedOutcomes, originalOutcomes, activityId) {
+            async editAllOutcomes(currentOutcomes, originalOutcomes, activityId) {
+                let deletedOutcomes = [], createdOutcomes = [], editedOutcomes = [];
+                for (let i = 0; i < currentOutcomes.length; i++) {
+                    if (currentOutcomes[i].isEdited === true && currentOutcomes[i].outcome_id !== undefined) {
+                        editedOutcomes.push(currentOutcomes[i]); // Outcome was edited
+                    } else if (!originalOutcomes.includes(currentOutcomes[i])) {
+                        createdOutcomes.push(currentOutcomes[i]); // Outcome was just created
+                    }
+                }
 
-                // Create an Array containing only new outcomes (like set difference)
-                let outcomes = [...editedOutcomes].filter(o => ![...originalOutcomes].includes(o));
+                for (let i = 0; i < originalOutcomes.length; i++) {
+                    if (!currentOutcomes.includes(originalOutcomes[i])) {
+                        deletedOutcomes.push(originalOutcomes[i]);
+                    }
+                }
 
-                for (let i=0, outcome; i < outcomes.length; i++) {  // Seems to need this type of loop for some reason
-                    outcome = outcomes[i];
-
+                // Created Outcomes
+                for (let i = 0, outcome; i < createdOutcomes.length; i++) {  // Seems to need this type of loop for some reason
+                    outcome = createdOutcomes[i];
                     const outcomeRequest = {
                         activity_id: activityId,
                         title: outcome.title,
@@ -126,6 +152,20 @@
                     };
 
                     await api.createOutcome(outcomeRequest).catch(serverError => {
+                        this.throwError(serverError, false);
+                    });
+                }
+
+                // Edited Outcomes
+                for (let i = 0; i < editedOutcomes.length; i++) {
+                    await api.updateOutcome(editedOutcomes[i]).catch(serverError => {
+                        this.throwError(serverError, false);
+                    });
+                }
+
+                // Deleted Outcomes
+                for (let i = 0; i < deletedOutcomes.length; i++) {  // Seems to need this type of loop for some reason
+                    await api.deleteOutcome(deletedOutcomes[i].outcome_id).catch(serverError => {
                         this.throwError(serverError, false);
                     });
                 }
@@ -160,8 +200,8 @@
                     for (let i = 0; i < response.data.activity_type.length; i++) {
                         this.activity.selectedActivityTypes.push(response.data.activity_type[i].name);
                     }
-                }).catch(() => {
-                    this.$router.push({name: 'allActivities', params: {alertMessage: "Can't get Activity data", alertCount: 5}});
+                }).catch((err) => {
+                    this.throwError(err, true);
                 });
                 await api.getActivityOutcomes(activityId).then(response => {
                     this.originalOutcomeList = [...response.data];
@@ -239,10 +279,22 @@
                             this.$router.push("/login");
                             break;
                         case 403:
-                            this.$router.push({name: 'allActivities'});
+                            this.$router.push({
+                                name: 'allActivities',
+                                params: {
+                                    alertCount: 5,
+                                    alertMessage: "Activity is not editable"
+                                }
+                            });
                             break;
                         default:
-                            this.$router.push({name: 'myProfile'});
+                            this.$router.push({
+                                name: 'allActivities',
+                                params: {
+                                    alertCount: 5,
+                                    alertMessage: "Can't get Activity data"
+                                }
+                            });
                     }
                 }
             }

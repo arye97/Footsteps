@@ -66,11 +66,9 @@ public class Activity {
     @JsonProperty("end_time")
     private Date endTime;
 
-    // ToDO These tags need to be modified in U9 (see  api-minimal-spec2.1.txt)
-    @NotNull(message = "This Activity needs a location")
-    @Column(name = "location", length = NAME_LEN, nullable = false)
+    @OneToOne(cascade = CascadeType.ALL)
     @JsonProperty("location")
-    private String location;   // ToDo change String to Location in U9
+    private Location location;
 
 
     /**
@@ -147,11 +145,11 @@ public class Activity {
         this.endTime = endTime;
     }
 
-    public String getLocation() {
+    public Location getLocation() {
         return location;
     }
 
-    public void setLocation(String location) {
+    public void setLocation(Location location) {
         this.location = location;
     }
 

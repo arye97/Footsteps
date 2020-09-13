@@ -1,9 +1,13 @@
 import 'vue-jest'
-import {shallowMount} from '@vue/test-utils'
+import {mount, createLocalVue} from '@vue/test-utils'
 import CreateActivity from "../views/Activities/CreateActivity";
 import api from "../Api";
 import router from '../index';
+import { BootstrapVue } from 'bootstrap-vue';
 jest.mock("../Api");
+
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
 
 let createActivity;
 let config;
@@ -11,23 +15,6 @@ const DEFAULT_USER_ID = 1;
 const DEFAULT_ACTIVITY_ID = 1;
 
 let receivedOutcomeRequests = [];
-
-beforeAll(() => {
-    config = {
-        router
-    };
-    // This Removes: TypeError: Cannot read property 'then' of undefined
-    api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID, status: 200 }));
-    api.createOutcome.mockImplementation(outcomeRequest => {
-        receivedOutcomeRequests.push(outcomeRequest);
-        Promise.resolve({ data: DEFAULT_USER_ID, status: 200 })
-    });
-    createActivity = shallowMount(CreateActivity, config);
-});
-
-beforeEach(() => {
-    receivedOutcomeRequests = [];
-});
 
 const ACTIVITY1 = {
     activity_name: "Trail Run Arthur's Pass",
@@ -45,8 +32,55 @@ const OUTCOME1 = {
     unit_type: "TEXT"
 };
 
+const OUTCOME2 = {
+    title: "My Awesome Outcome Part too",
+    unit_name: "Eggs",
+    unit_type: "TEXT"
+};
+
+const ACTIVITY_TYPES = [
+    {activityTypeId: 1, name: "Hng"},
+    {activityTypeId: 2, name: "Attics"}
+];
+
+beforeAll(() => {
+    config = {
+        router,
+        localVue,
+        data: function() {
+            return {
+                outcomeList: []
+            }
+        }
+    };
+    // This Removes: TypeError: Cannot read property 'then' of undefined
+    api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID, status: 200 }));
+    api.createOutcome.mockImplementation(outcomeRequest => {
+        receivedOutcomeRequests.push(outcomeRequest);
+        return Promise.resolve({data: DEFAULT_USER_ID, status: 200});
+    });
+    api.getUserId.mockImplementation(() => Promise.resolve({data: 1, status: 200}));
+    api.getActivityTypes.mockImplementation(() => Promise.resolve({data: ACTIVITY_TYPES, status: 200}));
+    createActivity = mount(CreateActivity, config);
+});
+
+beforeEach(() => {
+    receivedOutcomeRequests = [];
+});
+
 test('Is a vue instance', () => {
     expect(createActivity.isVueInstance).toBeTruthy();
+});
+
+test('Adds 2 Outcomes and deletes an Outcome to outcomeList', () => {
+    expect(createActivity.vm.outcomeList.length).toBe(0);
+    createActivity.vm.addOutcome(OUTCOME1);
+    createActivity.vm.addOutcome(OUTCOME2);
+    expect(createActivity.vm.outcomeList.length).toBe(2);
+    createActivity.vm.deleteOutcome(OUTCOME1);
+    expect(createActivity.vm.outcomeList.length).toBe(1);
+    createActivity.vm.deleteOutcome(OUTCOME2);
+    expect(createActivity.vm.outcomeList.length).toBe(0);
 });
 
 test('Catches an http status error of 400 or an invalid activity field when create activity form is submitted and gives user an appropriate alert', () => {
@@ -62,10 +96,11 @@ test('Catches an http status error of 400 or an invalid activity field when crea
         error => expect(error).toEqual(new Error("Entered activity field(s) are invalid")));
 });
 
-test('Catches an http status error of 401 or user not authenticated when create activity form is submitted and takes user to login page', () => {
+test('Catches an http status error of 401 or user not authenticated when create activity form is submitted and takes user to login page', async () => {
     createActivity.setProps({
         ACTIVITY1
     });
+    await createActivity.vm.$router.push('/activities/create');
 
     let networkError = new Error("Mocked Network Error");
     networkError.response = {status: 401};   // Explicitly give the error a response.status
@@ -107,8 +142,8 @@ test('Catches an http status error that isnt 401, 404, 403 and gives the user an
 /**
  * Tests whether a the payload sent to the backend has the required correct fields.
  */
-test('Creates the correct Outcome payload', () => {
-    createActivity.vm.createAllOutcomes([OUTCOME1], DEFAULT_ACTIVITY_ID);
+test('Creates the correct Outcome payload', async () => {
+    await createActivity.vm.createAllOutcomes([OUTCOME1], DEFAULT_ACTIVITY_ID);
     expect(receivedOutcomeRequests.length).toBe(1);
     let outcomeRequest = receivedOutcomeRequests[0];
 
@@ -118,7 +153,4 @@ test('Creates the correct Outcome payload', () => {
     expect(outcomeRequest.unit_type).toBeDefined();
 
     expect(Object.keys(outcomeRequest).length).toBe(4);
-
 });
-
-

@@ -1,4 +1,4 @@
-package com.springvuegradle.seng302team600.Utilities;
+package com.springvuegradle.seng302team600.validator;
 
 import com.springvuegradle.seng302team600.model.ActivityType;
 import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;

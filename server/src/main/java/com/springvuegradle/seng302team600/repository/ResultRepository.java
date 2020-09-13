@@ -13,4 +13,6 @@ public interface ResultRepository extends JpaRepository<Result, Long> {
     List<Result> findByOutcome(Outcome outcome);
 
     boolean existsByOutcomeAndUserId(Outcome outcome, Long userId);
+
+    boolean existsByOutcome(Outcome outcome);
 }

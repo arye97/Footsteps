@@ -1,4 +1,4 @@
-package com.springvuegradle.seng302team600.Utilities;
+package com.springvuegradle.seng302team600.validator;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;

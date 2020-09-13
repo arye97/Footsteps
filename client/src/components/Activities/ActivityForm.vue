@@ -229,39 +229,33 @@
                     </b-col>
                 </b-row>
 
-
                 <section class="outcomesDisplay">
-                    <table id="additionalEmailsTable" class="table table-hover">
+                    <table id="outcomesTable" class="table table-hover">
                         <tr class="outcomesTable" v-for="(outcome, index) in this.outcomeList"
                             v-bind:key="'outcome' + index"
                             :id="'outcome' + index">
                             <td>
-                                    <p :id="'title' + index">
-                                        {{ outcome.title }}
-                                    </p>
+                                <p :id="'title' + index">
+                                    {{ outcome.title }}
+                                </p>
                             </td>
-                                <td>
-                                    <p :id="'unit_name' + index">
-                                        {{ outcome.unit_name }}
-                                    </p>
-                                </td>
-                            <!--Only show edit and delete buttons if this is a newly added Outcome. Uhg O(n^2)-->
-                            <!--This v-if should be removed when we add functionality for editing existing Outcomes-->
-                            <div v-if="!originalOutcomeList.includes(outcome)">
-                                <td class="tableButtonTd">
-                                    <b-button variant="danger" :id="'deleteButton' + index" v-on:click="deleteOutcome(index)">
-                                        <b-icon-trash-fill></b-icon-trash-fill>
-                                    </b-button>
-                                </td>
-                                <td class="tableButtonTd">
-                                    <b-button variant="primary" :id="'editButton' + index" v-on:click="editOutcome(index)">Edit</b-button>
-                                </td>
-                            </div>
+                            <td>
+                                <p :id="'unit_name' + index">
+                                    {{ outcome.unit_name }}
+                                </p>
+                            </td>
+                            <!--Only show edit button if this Outcome does not have results-->
+                            <td class="tableButtonTd">
+                                <b-button variant="danger" :id="'deleteButton' + index" v-on:click="deleteOutcome(index)">
+                                    <b-icon-trash-fill></b-icon-trash-fill>
+                                </b-button>
+                            </td>
+                            <td class="tableButtonTd" v-if="editableOutcomes[index]">
+                                <b-button variant="primary" :id="'editButton' + index" v-on:click="editOutcome(index)">Edit</b-button>
+                            </td>
                         </tr>
                     </table>
                 </section>
-
-
 
                 <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="overall_message" hidden>
                     <p id="alert-message">{{ overallMessageText }}</p>
@@ -350,6 +344,7 @@
 
                 activeOutcome: {title:"", unit_name:""},
                 validOutcome: false,
+                editableOutcomes: [],
 
                 outcomeTitleCharCount: 0,
                 maxOutcomeTitleCharCount: 75,
@@ -361,6 +356,13 @@
         },
         async created() {
             await this.fetchActivityTypes();
+        },
+        watch: {
+            async outcomeList() {
+                if (this.outcomeList.length !== this.editableOutcomes.length) {
+                    await this.checkOutcomesAreEditable();
+                }
+            }
         },
         methods: {
 
@@ -580,39 +582,84 @@
             },
 
             /**
-             * Adds the current outcome to the outcomeList and clears the outcome input fields
+             * Adds the current outcome to the outcomeList through parent component
+             * to prevent prop mutation.
+             * Clears the outcome input fields.
              * (current outcome is the outcome in the input boxes)
              */
             addOutcome() {
-                this.outcomeList.push(this.activeOutcome);
+                this.$emit("add-outcome", this.activeOutcome);
+                this.editableOutcomes.push(true);
                 this.activeOutcome = {title:"", unit_name:""};
                 this.updateOutcomeWordCount();
             },
 
             /**
-             * Removes a specified outcome from the list of outcomes
+             * Removes a specified outcome from the list of outcomes through parent component
+             * to prevent prop mutation.
              * (Active outcome is not part of this list)
              * @param index The index of the outcome, to be deleted, in the outcomeList
              */
-            deleteOutcome (index) {
+            deleteOutcome(index) {
                 let outcomeToBeRemoved = this.outcomeList[index];
-                // Remove outcomeToBeRemoved from this.outcomeList
-                this.outcomeList = this.outcomeList.filter(
-                    function(outcome) {
-                        return outcome !== outcomeToBeRemoved
-                    });
+                this.$emit("delete-outcome", outcomeToBeRemoved);
+                this.editableOutcomes.splice(index, 1);
             },
 
             /**
              * Sets the active outcome to the selected outcome
              * Deletes the to be edited outcome from the outcomeList
              * Updates the outcome input boxes and their respective word counts
+             * Sets isEdited to true for when submitting the final outcome list
              * @param index The index of the outcome, to be edited, in the outcomeList
              */
             editOutcome(index) {
                 this.activeOutcome = this.outcomeList[index];
+                this.activeOutcome.isEdited = true;
                 this.deleteOutcome(index);
-                this.updateOutcomeWordCount();
+                this.editableOutcomes.splice(index, 1);
+                // The prop outcomeList takes time to update within this child.
+                // Therefore, the method updateOutcomeWordCount can't be called as it invalids the outcome each time.
+                // Hence, the three lines below are duplicated code from that method.
+                this.outcomeTitleCharCount = this.activeOutcome.title.length;
+                this.outcomeUnitCharCount = this.activeOutcome.unit_name.length;
+                this.validOutcome = true;
+            },
+
+            /**
+             * Add outcomes which can be edited to the editableOutcomes list
+             */
+            async checkOutcomesAreEditable() {
+                this.editableOutcomes = [];
+                for (let i = 0 ; i < this.outcomeList.length ; i++) {
+                    this.editableOutcomes.push(await this.outcomeIsEditable(i));
+                }
+            },
+
+            /**
+             * Checks whether or not the outcome at the given index can be edited.
+             * @param index The index of the outcome being checked
+             * @return true if outcome is editable, otherwise false
+             */
+            async outcomeIsEditable(index) {
+                let result = false;
+                let outcome = this.outcomeList[index];
+                if (outcome.outcome_id === undefined) {
+                    return true;
+                }
+                await api.getOutcomeResults(outcome.outcome_id).then(response => {
+                    if (response.data.length <= 0) {
+                        result = true;
+                    }
+                }).catch(error => {
+                    if (error.response.status === 401) {
+                        this.logout();
+                    } else {
+                        this.$router.push({name: 'allActivities', params:
+                                {alertMessage: "Sorry, an unknown error occurred while loading the outcomes", alertCount: 5}});
+                    }
+                })
+                return result;
             }
         }
     }
