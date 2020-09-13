@@ -7,7 +7,7 @@
                             id="mapComponent"
                             ref="mapViewerRef"
                             :pins="pins"
-                            @pin-move="updatePins"
+                            @pin-move="(newPins) => this.pins = newPins ? newPins : this.pins"
                             @address-change="(modifiedAddress) => this.address = modifiedAddress"
                     ></map-viewer>
                 <div v-if="!viewOnly">
@@ -18,7 +18,7 @@
                             id="gmapAutoComplete"
                             :value="address"
                             :options="{fields: ['geometry', 'formatted_address', 'address_components']}"
-                            @place_changed="addMarker( placeToPin($event) )"
+                            @place_changed="(place) => addMarker( placeToPin(place) )"
                             class="form-control" style="width: 100%">
                     </gmap-autocomplete>
 
@@ -79,15 +79,13 @@
              * @param pin Object containing lat, lng, name.  (Optional)
              */
             addMarker(pin) {
-                console.log(pin);
 
                 if (pin && ["lat", "lng", "name"].every(key => key in pin)) {
                     this.pins.push(pin);
-
-                    // Without this the contents of autocomplete is overwritten by the value of this.address
                     this.address = pin.name;
 
-                } else {
+                } else if (pin === undefined) {
+
                     pin = {
                         lat: this.$refs.mapViewerRef.currentCenter.lat,
                         lng: this.$refs.mapViewerRef.currentCenter.lng,
@@ -97,18 +95,15 @@
 
                     // Fetches pin.name from API and sets this.address
                     this.$refs.mapViewerRef.repositionPin(pin, this.pins.length - 1);
+
+                } else {
+                    // An error occurred.  This would the place to add a message box "The location can not be found"
+                    return;
                 }
 
                 this.$refs.mapViewerRef.panToPin(pin);
             },
 
-            /**
-             * Syncs this.pins Array with MapViewer.  Called when a pin is repositioned in MapViewer.
-             * @param pins Array of pin Objects containing lat, lng, name.
-             */
-            updatePins(pins) {
-                if (pins) this.pins = pins
-            },
 
             /**
              * Convert a google place object to a pin.
@@ -125,7 +120,7 @@
                         name: place.formatted_address
                     };
                 } catch {
-                    pin = {lat: 0, lng: 0, name: ""}
+                    pin = null
                 }
                 return pin
             }

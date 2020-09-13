@@ -100,8 +100,8 @@
 
             /**
              * Updates this.currentCenter with the current location of the map.
-             * NOTE: It's not practical for this to
-             * return a value and then set it equal to this.currentCenter because the call to get the center is async.
+             * NOTE: It's not practical for this to return a value and then set it equal to this.currentCenter because
+             * the call to get the center is async.
              */
             updateCenter() {
                 this.$refs.mapRef.$mapPromise.then((map) => {
@@ -112,18 +112,24 @@
                 });
             },
 
+            /**
+             * Gives a pin a pin.name.  Mutates the pin.
+             * Uses Google Maps API reverse-geocoding.
+             * NOTE: Because the API call is async and slow, it is easier to mutate the given pin rather than having a
+             * return value.
+             * The changed name is emitted as "address-change"
+             * @param pin Object containing lat, lng.
+             */
             generatePinName(pin) {
                 pin.name = " ";
                 this.$emit("address-change", pin.name);
 
                 this.geoCoder.geocode({ location: pin }, (results, status) => {
-                    console.log(status);
                     if (status === "OK") {
                         pin.name = results[0].formatted_address
                     } else {
                         pin.name = pin.lat.toFixed(5) + ', ' + pin.lng.toFixed(5);
                     }
-                    console.log(pin.name)
                     this.$emit("address-change", pin.name)
                 });
             },
