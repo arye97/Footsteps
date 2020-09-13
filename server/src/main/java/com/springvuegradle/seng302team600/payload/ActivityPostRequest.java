@@ -34,11 +34,11 @@ public class ActivityPostRequest {
     private final Date endTime;
 
     @JsonProperty("location")
-    private final Location location; //TODO change to payload
+    private final LocationRequest location;
 
     public ActivityPostRequest(Long creatorUserId, String name, String description,
                                Set<ActivityType> activityTypes, boolean continuous,
-                               Date startTime, Date endTime, Location location) {
+                               Date startTime, Date endTime, LocationRequest location) {
         this.creatorUserId = creatorUserId;
         this.name = name;
         this.description = description;
@@ -77,7 +77,7 @@ public class ActivityPostRequest {
         return endTime;
     }
 
-    public Location getLocation() {
+    public LocationRequest getLocation() {
         return location;
     }
 }

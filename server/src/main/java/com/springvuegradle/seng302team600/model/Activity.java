@@ -90,7 +90,7 @@ public class Activity {
         continuous = activity.isContinuous();
         startTime = activity.getStartTime();
         endTime = activity.getEndTime();
-        location = activity.getLocation();
+        location = new Location(activity.getLocation());
     }
 
     public Activity(ActivityPutRequest activity) {
@@ -102,7 +102,7 @@ public class Activity {
         continuous = activity.isContinuous();
         startTime = activity.getStartTime();
         endTime = activity.getEndTime();
-        location = activity.getLocation();
+        location = new Location(activity.getLocation());
     }
 
     public Long getActivityId() {
