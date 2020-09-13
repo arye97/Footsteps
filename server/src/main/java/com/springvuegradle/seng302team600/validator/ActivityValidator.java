@@ -109,7 +109,7 @@ public class ActivityValidator {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Location must have a valid longitude value");
         }
         if (location.getLongitude() > 180 || location.getLongitude() < -180) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Location longitude must exist (be between -180 and 180 degrees");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Location longitude must exist (be between -180 and 180 degrees)");
         }
     }
 }
