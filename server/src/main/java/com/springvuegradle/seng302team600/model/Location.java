@@ -1,6 +1,7 @@
 package com.springvuegradle.seng302team600.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.springvuegradle.seng302team600.payload.LocationRequest;
 
 import javax.persistence.*;
 
@@ -52,6 +53,16 @@ public class Location {
         this.longitude = longitude;
         this.latitude = latitude;
         this.locationName = name;
+    }
+
+    /**
+     * Creates a new location by LocationPayload
+     * @param locationRequest payload of location
+     */
+    public Location(LocationRequest locationRequest) {
+        this.longitude = locationRequest.getLongitude();
+        this.latitude = locationRequest.getLatitude();
+        this.locationName = locationRequest.getLocationName();
     }
 
     public Long getLocationId() {
