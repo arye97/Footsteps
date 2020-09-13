@@ -60,6 +60,14 @@
             },
             maxPins: {
                 type: Number
+            },
+            parentPins: {
+              default: function() {return []},
+              type: Array
+            },
+            parentCenter: {
+                default: null,
+                type: Object
             }
         },
 
@@ -67,11 +75,21 @@
             return {
                 isMapVisible: false,
                 pins:[],
+                center:undefined,
                 address: ""
             }
         },
 
-        methods: {
+        mounted() {
+            if (this.parentCenter) {
+                this.center = this.parentCenter;
+            }
+            if (this.parentPins) {
+                this.pins.push(...this.parentPins);
+            }
+        },
+
+      methods: {
 
             /**
              * Add a marker centred on the coordinates of place, or the center of the map if place is not defined.

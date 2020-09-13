@@ -14,6 +14,16 @@ let config;
 
 let locationIO;
 
+const parentPinData = {
+    longitude: 0.0,
+    latitude: 0.0,
+    name: "Activity location"
+};
+const parentCenterData = {
+    longitude: 100.0,
+    latitude: 100.0,
+}
+
 beforeEach(() => {
     config = {
         localVue
@@ -65,9 +75,27 @@ test('addMarker converts the center of the map to a pin', () => {
 
 test('setInputBoxUpdatePins re-positions a pin', () => {
     const origionalAddress = locationIO.vm.address;
-    locationIO.vm.pins.push({lat:0, lng:0});
+    locationIO.vm.pins.push({lat: 0, lng: 0});
 
-    locationIO.vm.setInputBoxUpdatePins({lat:1, lng:1}, 0);
-    expect(locationIO.vm.pins[0]).toEqual({lat:1, lng:1});
+    locationIO.vm.setInputBoxUpdatePins({lat: 1, lng: 1}, 0);
+    expect(locationIO.vm.pins[0]).toEqual({lat: 1, lng: 1});
     expect(locationIO.vm.address).not.toEqual(origionalAddress);
+});
+
+test('Pins obtained from the parent are added to the map', () => {
+    locationIO = mount(LocationIO, {localVue, propsData:{parentPins: [parentPinData]}});
+    expect(locationIO.vm.$data.pins).toContain(parentPinData);
+});
+
+test('Pins are empty by default', () => {
+    expect(locationIO.vm.$data.pins).toHaveLength(0);
+});
+
+test('Map is centered on the point specified by the parent', () => {
+    locationIO = mount(LocationIO, {localVue, propsData:{parentCenter: parentCenterData}});
+    expect(locationIO.vm.$data.center).toBe(parentCenterData)
+});
+
+test('Map center is undefined by default', () => {
+    expect(locationIO.vm.$data.center).toBeUndefined();
 });
