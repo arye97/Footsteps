@@ -9,9 +9,9 @@ import java.util.*;
 
 public class ActivityValidator {
 
-    final static private int NAME_LEN = 75;
-    final static private int DESCRIPTION_LEN = 1500;
-    final static private int MIN_ACTIVITY_TYPE_COUNT = 1;
+    static final private int NAME_LEN = 75;
+    static final private int DESCRIPTION_LEN = 1500;
+    static final private int MIN_ACTIVITY_TYPE_COUNT = 1;
 
     /**
      * Check if the activity's attributes are all valid.
