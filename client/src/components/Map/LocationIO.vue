@@ -65,22 +65,14 @@
             }
         },
 
-
-        watch: {
-            /**
-             * Watches the props so that they can be updated after mounting
-             */
-            parentPins() {
-                if (this.parentPins) {
-                    this.pins.push(...this.parentPins);
-                }
-            },
-            parentCenter() {
-                if (this.parentCenter) {
-                    this.center = this.parentCenter;
-                }
-            }
-        },
+      mounted() {
+        if (this.parentCenter) {
+          this.center = this.parentCenter;
+        }
+        if (this.parentPins) {
+          this.pins.push(...this.parentPins);
+        }
+      },
 
       methods: {
 
