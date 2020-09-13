@@ -3,6 +3,7 @@ package com.springvuegradle.seng302team600.payload;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springvuegradle.seng302team600.model.ActivityType;
+import com.springvuegradle.seng302team600.model.Location;
 import com.springvuegradle.seng302team600.model.User;
 
 import java.util.ArrayList;
@@ -83,12 +84,6 @@ public class UserResponse {
         this.dateOfBirth = user.getDateOfBirth();
         this.bio = user.getBio();
         this.role = user.getRole();
-        if (user.getPublicLocation() != null) {
-            this.publicLocation = new LocationResponse(user.getPublicLocation());
-        }
-        if (user.getPrivateLocation() != null) {
-            this.privateLocation = new LocationResponse(user.getPrivateLocation());
-        }
     }
 
     public UserResponse() {}
@@ -130,6 +125,14 @@ public class UserResponse {
     public Date getDateOfBirth() { return dateOfBirth; }
 
     public String getBio() { return bio; }
+
+    public Location getPublicLocation() {
+        return publicLocation;
+    }
+
+    public Location getPrivateLocation() {
+        return privateLocation;
+    }
 
     @Override
     public String toString() {
