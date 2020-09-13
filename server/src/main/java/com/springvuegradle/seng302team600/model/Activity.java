@@ -2,6 +2,8 @@ package com.springvuegradle.seng302team600.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.springvuegradle.seng302team600.payload.ActivityPostRequest;
+import com.springvuegradle.seng302team600.payload.ActivityPutRequest;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -33,7 +35,8 @@ public class Activity {
     private String description;
 
     @NotNull(message = "This Activity needs one or more ActivityTypes associated with it")
-    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})  // ALL except REMOVE
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    // ALL except REMOVE
     @JoinTable(
             name = "activity_activity_type",
             joinColumns = @JoinColumn(name = "activity_id"),
@@ -41,7 +44,8 @@ public class Activity {
     @JsonProperty("activity_type")
     private Set<ActivityType> activityTypes;
 
-    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})  // ALL except REMOVE
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    // ALL except REMOVE
     @JoinTable(
             name = "activity_participant",
             joinColumns = @JoinColumn(name = "activity_id"),
@@ -55,13 +59,13 @@ public class Activity {
 
     @Column(name = "start_time", columnDefinition = "DATETIME")
     // See here for format pattern: https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
-    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ")
     @Temporal(TemporalType.TIMESTAMP)
     @JsonProperty("start_time")
     private Date startTime;
 
     @Column(name = "end_time", columnDefinition = "DATETIME")
-    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ")
     @Temporal(TemporalType.TIMESTAMP)
     @JsonProperty("end_time")
     private Date endTime;
@@ -75,7 +79,31 @@ public class Activity {
      * Default constructor for Activity.
      * Mandatory for repository actions?
      */
-    public Activity() {}
+    public Activity() {
+    }
+
+    public Activity(ActivityPostRequest activity) {
+        creatorUserId = activity.getCreatorUserId();
+        name = activity.getName();
+        description = activity.getDescription();
+        activityTypes = activity.getActivityTypes();
+        continuous = activity.isContinuous();
+        startTime = activity.getStartTime();
+        endTime = activity.getEndTime();
+        location = activity.getLocation();
+    }
+
+    public Activity(ActivityPutRequest activity) {
+        activityId = activity.getActivityId();
+        creatorUserId = activity.getCreatorUserId();
+        name = activity.getName();
+        description = activity.getDescription();
+        activityTypes = activity.getActivityTypes();
+        continuous = activity.isContinuous();
+        startTime = activity.getStartTime();
+        endTime = activity.getEndTime();
+        location = activity.getLocation();
+    }
 
     public Long getActivityId() {
         return activityId;
@@ -117,13 +145,21 @@ public class Activity {
         return continuous;
     }
 
-    public Set<User> getParticipants() {return participants;}
+    public Set<User> getParticipants() {
+        return participants;
+    }
 
-    public void addParticipant(User user) { this.participants.add(user); }
+    public void addParticipant(User user) {
+        this.participants.add(user);
+    }
 
-    public void removeParticipant(User user) { this.participants.remove(user); }
+    public void removeParticipant(User user) {
+        this.participants.remove(user);
+    }
 
-    public void setParticipants(Set<User> participants) {this.participants = participants;}
+    public void setParticipants(Set<User> participants) {
+        this.participants = participants;
+    }
 
     public void setContinuous(boolean continuous) {
         this.continuous = continuous;
@@ -155,6 +191,7 @@ public class Activity {
 
     /**
      * Return a unique hash based on attributes.
+     *
      * @return hash code
      */
     @Override
@@ -164,6 +201,7 @@ public class Activity {
 
     /**
      * Compare Activities based on attributes
+     *
      * @param obj other Activity to campare
      * @return equality
      */

@@ -2,6 +2,8 @@ package com.springvuegradle.seng302team600.controller;
 
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.User;
+import com.springvuegradle.seng302team600.payload.ActivityPostRequest;
+import com.springvuegradle.seng302team600.payload.ActivityPutRequest;
 import com.springvuegradle.seng302team600.payload.ActivityResponse;
 import com.springvuegradle.seng302team600.payload.ParticipantResponse;
 import com.springvuegradle.seng302team600.repository.ActivityActivityTypeRepository;
@@ -56,16 +58,17 @@ public class ActivityController {
     /**
      * Create a new Activity.
      *
-     * @param newActivity the new Activity
-     * @param response    Used to set status of operation
-     * @param profileId   the Id of the User who created the activity
+     * @param activityRequest the new Activity payload
+     * @param response        Used to set status of operation
+     * @param profileId       the Id of the User who created the activity
      * @return the id of the activity
      */
     @PostMapping("/profiles/{profileId}/activities")
-    public Long newActivity(@Validated @RequestBody Activity newActivity,
+    public Long newActivity(@Validated @RequestBody ActivityPostRequest activityRequest,
                             HttpServletRequest request,
                             HttpServletResponse response,
                             @PathVariable(value = "profileId") Long profileId) {
+        Activity newActivity = new Activity(activityRequest);
         String token = request.getHeader("Token");
         // Throws error if token doesn't match the profileId, i.e. you can't create an activity with a creatorUserId that isn't your own
         userAuthenticationService.findByUserId(token, profileId);
@@ -117,16 +120,17 @@ public class ActivityController {
      * takes from the client only the json object of the to-be-updated inputs
      * and the activity id through put the url mapping.
      *
-     * @param activityId the Id of the Activity to edit
-     * @param activity   the activity object to update
-     * @param profileId  the Id of the User who created the activity
+     * @param activityId      the Id of the Activity to edit
+     * @param activityRequest the activity payload
+     * @param profileId       the Id of the User who created the activity
      */
 
     @PutMapping("/profiles/{profileId}/activities/{activityId}")
     public void editActivity(@PathVariable(value = "profileId") Long profileId,
                              @PathVariable(value = "activityId") Long activityId,
-                             @Validated @RequestBody Activity activity,
+                             @Validated @RequestBody ActivityPutRequest activityRequest,
                              HttpServletRequest request, HttpServletResponse response) {
+        Activity activity = new Activity(activityRequest);
         String token = request.getHeader("Token");
         User author = userAuthenticationService.findByUserId(token, profileId);
         //get old activity to set values
@@ -301,8 +305,8 @@ public class ActivityController {
      * or if we want to exact match it would be /activities?activityKeywords="Climb%20Mount%20Fuji"
      * where we check all activities if they contain any of these words
      *
-     * @param request      the http request with the user token we need
-     * @param response     the http response
+     * @param request          the http request with the user token we need
+     * @param response         the http response
      * @param activityKeywords the word/sentence we need to search for
      * @return a list containing all activities found
      */
@@ -312,8 +316,8 @@ public class ActivityController {
             method = RequestMethod.GET
     )
     public List<ActivityResponse> getActivitiesByKeywords(HttpServletRequest request,
-                                                      HttpServletResponse response,
-                                                      @RequestParam(value="activityKeywords") String activityKeywords) {
+                                                          HttpServletResponse response,
+                                                          @RequestParam(value = "activityKeywords") String activityKeywords) {
         String token = request.getHeader("Token");
         userAuthenticationService.findByToken(token);
 
@@ -377,19 +381,20 @@ public class ActivityController {
      * Obtains a paginated list of 5 activities by activity types.
      * Either using AND so all provided activity types MUST be included in returned user or
      * OR where one or more can be related to a user.
+     *
      * @param activityTypes the list of activity types
-     * @param method the method to use (OR, AND)
+     * @param method        the method to use (OR, AND)
      * @return a list of users
      */
     @RequestMapping(
             value = "/activities",
-            params = { "activity", "method" },
+            params = {"activity", "method"},
             method = RequestMethod.GET
     )
     public List<ActivityResponse> getActivitiesByActivityType(HttpServletRequest request,
-                                                     HttpServletResponse response,
-                                                     @RequestParam(value="activity") String activityTypes,
-                                                     @RequestParam(value="method") String method) {
+                                                              HttpServletResponse response,
+                                                              @RequestParam(value = "activity") String activityTypes,
+                                                              @RequestParam(value = "method") String method) {
         String token = request.getHeader("Token");
         int pageNumber = request.getIntHeader("Page-Number");
         userAuthenticationService.findByToken(token);
@@ -419,7 +424,7 @@ public class ActivityController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No activities have been found");
         }
 
-        List<Activity> activityList =  activityRepository.getActivitiesByIds(paginatedActivityIds.getContent());
+        List<Activity> activityList = activityRepository.getActivitiesByIds(paginatedActivityIds.getContent());
         List<ActivityResponse> activitySearchList = new ArrayList<>();
         for (Activity activity : activityList) {
             activitySearchList.add(new ActivityResponse(activity));
