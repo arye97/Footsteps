@@ -45,12 +45,6 @@
                                 </b-list-group>
                                 <br/>
 
-                                <h3 class="font-weight-light"><strong>Location: </strong></h3><br/>
-                                <div class="map-pane">
-                                    <!--ToDo: Add the user's location to replace these coordinates-->
-                                    <location-i-o :view-only="true"></location-i-o>
-                                </div>
-
                                 <!--Handling for displaying of Fitness Level-->
                                 <h3 class="font-weight-light"><strong>Fitness Level: </strong></h3>
 
@@ -131,11 +125,19 @@
                                 <!-- These are kept separate to make it clearer to the user what each pin means -->
                                 <h3 class="font-weight-light"><strong>Public Location:</strong></h3><br/>
                                 <b-card class="flex-fill" border-variant="secondary">
-                                    <location-i-o :view-only="true"></location-i-o>
+                                    <location-i-o
+                                        :view-only="true"
+                                        :parent-pins="[{lat: this.user.public_location.latitude, lng: this.user.public_location.longitude}]"
+                                        :parent-center="{lat: this.user.public_location.latitude, lng: this.user.public_location.longitude}">
+                                    </location-i-o>
                                 </b-card><br/>
                                 <h3 class="font-weight-light"><strong>Private Location:</strong></h3><br/>
                                 <b-card class="flex-fill" border-variant="secondary">
-                                  <location-i-o v-if="this.user.private_location" :view-only="true"></location-i-o>
+                                    <location-i-o v-if="this.user.private_location"
+                                        :view-only="true"
+                                        :parent-pins="[{lat: this.user.private_location.latitude, lng: this.user.private_location.longitude}]"
+                                        :parent-center="{lat: this.user.private_location.latitude, lng: this.user.private_location.longitude}">
+                                    </location-i-o>
                                 </b-card><br/>
                             </div>
                         </section>
