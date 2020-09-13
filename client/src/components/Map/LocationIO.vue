@@ -52,6 +52,13 @@
             },
             currentLocation: {
                 default: undefined,
+            },
+            parentPins: {
+              default: function() {return []},
+              type: Array
+            },
+            parentCenter: {
+                default: null,
                 type: Object
             }
         },
@@ -79,10 +86,16 @@
                 }
                 this.center = pin;
             }
+
+            if (this.parentCenter) {
+                this.center = this.parentCenter;
+            }
+            if (this.parentPins) {
+                this.pins.push(...this.parentPins);
+            }
         },
 
-
-        methods: {
+      methods: {
 
             /**
              * Receives a place object via the autocomplete component

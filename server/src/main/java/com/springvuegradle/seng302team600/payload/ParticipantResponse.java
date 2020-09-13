@@ -1,11 +1,8 @@
 package com.springvuegradle.seng302team600.payload;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springvuegradle.seng302team600.model.User;
 
-import java.util.List;
-import java.util.Set;
 
 /**
  * The payload to be returned to the front-end for the GET participants endpoint.
