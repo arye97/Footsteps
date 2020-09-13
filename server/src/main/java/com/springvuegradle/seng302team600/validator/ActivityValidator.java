@@ -96,9 +96,6 @@ public class ActivityValidator {
      * @param location the location
      */
     private static void validateLocation(Location location) {
-        if (location.getLocationId() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Location cannot be null");
-        }
         if (location.getLocationName() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Location must have a name");
         }
