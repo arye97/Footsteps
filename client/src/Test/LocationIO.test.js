@@ -63,11 +63,11 @@ test('addMarker converts the center of the map to a pin', () => {
     expect(locationIO.vm.pins[0]).toEqual({lat:0, lng:0})
 });
 
-test('setInputBoxUpdatePins re-positions a pin', () => {
+test('updatePins re-positions a pin', () => {
     const origionalAddress = locationIO.vm.address;
     locationIO.vm.pins.push({lat:0, lng:0});
 
-    locationIO.vm.setInputBoxUpdatePins({lat:1, lng:1}, 0);
+    locationIO.vm.updatePins({lat:1, lng:1}, 0);
     expect(locationIO.vm.pins[0]).toEqual({lat:1, lng:1});
     expect(locationIO.vm.address).not.toEqual(origionalAddress);
 });

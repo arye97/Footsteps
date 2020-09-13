@@ -7,7 +7,8 @@
                             id="mapComponent"
                             ref="mapViewerRef"
                             :pins="pins"
-                            @pin-move="setInputBoxUpdatePins"
+                            @pin-move="updatePins"
+                            @address-change="(modifiedAddress) => this.address = modifiedAddress"
                     ></map-viewer>
                 <div v-if="!viewOnly">
                     <h3 class="font-weight-light"><strong>Search and add a pin</strong></h3>
@@ -17,7 +18,7 @@
                             id="gmapAutoComplete"
                             :value="address"
                             :options="{fields: ['geometry', 'formatted_address', 'address_components']}"
-                            @place_changed="addMarker"
+                            @place_changed="addMarker( placeToPin($event) )"
                             class="form-control" style="width: 100%">
                     </gmap-autocomplete>
 
@@ -75,43 +76,58 @@
 
             /**
              * Add a marker centred on the coordinates of place, or the center of the map if place is not defined.
-             * @param place object received via the autocomplete component.
+             * @param pin Object containing lat, lng, name.  (Optional)
              */
-            addMarker(place) {
-                let pin;
+            addMarker(pin) {
+                console.log(pin);
 
-                if (place && Object.prototype.hasOwnProperty.call(place, 'geometry')) {
-                    pin = {
-                        lat: place.geometry.location.lat(),
-                        lng: place.geometry.location.lng()
-                    };
+                if (pin && ["lat", "lng", "name"].every(key => key in pin)) {
+                    this.pins.push(pin);
 
                     // Without this the contents of autocomplete is overwritten by the value of this.address
-                    this.address = place.formatted_address;
+                    this.address = pin.name;
 
                 } else {
                     pin = {
                         lat: this.$refs.mapViewerRef.currentCenter.lat,
-                        lng: this.$refs.mapViewerRef.currentCenter.lng
+                        lng: this.$refs.mapViewerRef.currentCenter.lng,
+                        name: ""
                     };
+                    this.pins.push(pin);
+
+                    // Fetches pin.name from API and sets this.address
+                    this.$refs.mapViewerRef.repositionPin(pin, this.pins.length - 1);
                 }
-                this.pins.push(pin);
+
                 this.$refs.mapViewerRef.panToPin(pin);
             },
 
             /**
-             * Called when a pin is repositioned in MapViewer.  Sets the input box to contain the location of the
-             * repositioned pin.  Updates that pin in the pins Array.
-             * @param pin the pin that was moved
-             * @param pinIndex the index of this pin in the array
+             * Syncs this.pins Array with MapViewer.  Called when a pin is repositioned in MapViewer.
+             * @param pins Array of pin Objects containing lat, lng, name.
              */
-            setInputBoxUpdatePins(pin, pinIndex) {
-                if (pinIndex < this.pins.length) {
-                    this.pins[pinIndex] = pin
-                }
-                // ToDo replace these coordinates with an address string from the API's Reverse-Geocoding
-                this.address = pin.lat.toFixed(5) + ', ' + pin.lng.toFixed(5);
+            updatePins(pins) {
+                if (pins) this.pins = pins
+            },
 
+            /**
+             * Convert a google place object to a pin.
+             * @param place Object received via the autocomplete component.  Needs fields place.geometry.location.lat(),
+             * place.geometry.location.lng() and place.formatted_address.
+             * @return Object with properties lat, lng, name
+             */
+            placeToPin(place) {
+                let pin;
+                try {
+                    pin = {
+                        lat: place.geometry.location.lat(),
+                        lng: place.geometry.location.lng(),
+                        name: place.formatted_address
+                    };
+                } catch {
+                    pin = {lat: 0, lng: 0, name: ""}
+                }
+                return pin
             }
         }
     }

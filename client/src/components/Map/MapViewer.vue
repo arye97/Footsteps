@@ -17,7 +17,7 @@
                         :clickable="true"
                         :draggable="true"
                         @click="panToPin(pin)"
-                        @dragend="repositionPin($event.latLng, pinIndex)"
+                        @dragend="repositionPin({lat: $event.latLng.lat(), lng: $event.latLng.lng()}, pinIndex)"
                 />
             </GmapMap>
         </keep-alive>
@@ -58,27 +58,31 @@
 
         data() {
             return {
-                currentCenter: this.initialCenter  // We shouldn't mutate the prop initialCenter
+                currentCenter: this.initialCenter,  // We shouldn't mutate the prop initialCenter
+                geoCoder: {geocode: () => {}}
             }
         },
 
         async mounted() {
-
+            await this.$gmapApiPromiseLazy();  // Without this, google could be null
+            this.geoCoder = new this.google.maps.Geocoder();
         },
 
         methods: {
 
             /**
-             * When a pin is dragged to a new location.  This function updates the pin Object in the pins Array with
-             * the new lat, lng coordinates and emits the new pin, and its index in the Array, back to the parent.
-             * @param movePinEvent the event containing lat, lng
+             * This function updates the pin Object in the pins Array with new lat, lng coordinates and emits the
+             * modified pins Array back to the parent.
+             * @param pin Object containing lat, lng
              * @param pinIndex the index of the pin in Array pins
              */
-            repositionPin(movePinEvent, pinIndex) {
+            repositionPin(pin, pinIndex) {
                 if (pinIndex < this.pins.length) {
-                    this.pins[pinIndex].lat = movePinEvent.lat();
-                    this.pins[pinIndex].lng = movePinEvent.lng();
-                    this.$emit("pin-move", this.pins[pinIndex], pinIndex)
+                    this.pins[pinIndex].lat = pin.lat;
+                    this.pins[pinIndex].lng = pin.lng;
+                    this.generatePinName(this.pins[pinIndex]);
+
+                    this.$emit("pin-move", [...this.pins])
                 }
             },
 
@@ -95,7 +99,8 @@
             },
 
             /**
-             * Updates this.currentCenter with the current location from the api.  Its not practical for this to
+             * Updates this.currentCenter with the current location of the map.
+             * NOTE: It's not practical for this to
              * return a value and then set it equal to this.currentCenter because the call to get the center is async.
              */
             updateCenter() {
@@ -105,7 +110,23 @@
 
                     this.currentCenter = {lat: mapCenter && mapCenter.lat(), lng: mapCenter && mapCenter.lng()};
                 });
-            }
+            },
+
+            generatePinName(pin) {
+                pin.name = " ";
+                this.$emit("address-change", pin.name);
+
+                this.geoCoder.geocode({ location: pin }, (results, status) => {
+                    console.log(status);
+                    if (status === "OK") {
+                        pin.name = results[0].formatted_address
+                    } else {
+                        pin.name = pin.lat.toFixed(5) + ', ' + pin.lng.toFixed(5);
+                    }
+                    console.log(pin.name)
+                    this.$emit("address-change", pin.name)
+                });
+            },
         }
     }
 
