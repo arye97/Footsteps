@@ -324,7 +324,13 @@ public class ActivityController {
             return activitiesFound;
         }
 
-        int pageNumber = request.getIntHeader("Page-Number");
+        int pageNumber;
+        try {
+            pageNumber = request.getIntHeader("Page-Number");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Page-Number must be an integer");
+        }
+
         if (pageNumber == -1) {
             pageNumber = 0;
         }

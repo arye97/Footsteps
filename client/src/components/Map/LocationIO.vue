@@ -2,7 +2,7 @@
     <div>
         <b-card class="flex-fill" border-variant="secondary">
             <div v-if="isMapVisible">
-                <b-button id="hideMapButton" @click="isMapVisible=false">Hide Map</b-button>
+                <b-button id="hideMapButton" variant="info" @click="isMapVisible=false">Hide Map</b-button>
                     <map-viewer
                             id="mapComponent"
                             :center="center"
@@ -19,11 +19,11 @@
                             class="form-control" style="width: 100%">
                     </gmap-autocomplete>
 
-                    <b-button id='addMarkerButton' block @click="addMarker">Add</b-button>
+                    <b-button id='addMarkerButton' variant="primary" block @click="addMarker">Add</b-button>
                 </div>
             </div>
             <div v-else>
-                <b-button id="showMapButton" @click="isMapVisible=true">Show Map</b-button>
+                <b-button id="showMapButton" variant="info" @click="isMapVisible=true">Show Map</b-button>
             </div>
         </b-card>
     </div>
@@ -50,6 +50,9 @@
                 default: false,
                 type: Boolean
             },
+            currentLocation: {
+                default: undefined,
+            },
             parentPins: {
               default: function() {return []},
               type: Array
@@ -64,19 +67,33 @@
             return {
                 isMapVisible: false,
                 pins: [],
-                center:undefined,
+                center: undefined,
                 currentPlace: null
             }
         },
 
-      mounted() {
-        if (this.parentCenter) {
-          this.center = this.parentCenter;
-        }
-        if (this.parentPins) {
-          this.pins.push(...this.parentPins);
-        }
-      },
+        mounted() {
+            if (this.currentLocation) {
+                let pin = {
+                    lat: this.currentLocation.latitude,
+                    lng: this.currentLocation.longitude,
+                    name: this.currentLocation.name
+                };
+                if (this.singleOnly && this.pins) {
+                    this.pins[0] = pin;
+                } else {
+                    this.pins.push(pin);
+                }
+                this.center = pin;
+            }
+
+            if (this.parentCenter) {
+                this.center = this.parentCenter;
+            }
+            if (this.parentPins) {
+                this.pins.push(...this.parentPins);
+            }
+        },
 
       methods: {
 

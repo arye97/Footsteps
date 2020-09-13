@@ -3,6 +3,7 @@ package com.springvuegradle.seng302team600.payload;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springvuegradle.seng302team600.model.ActivityType;
+import com.springvuegradle.seng302team600.model.Location;
 import com.springvuegradle.seng302team600.model.User;
 
 import java.util.ArrayList;
@@ -62,6 +63,13 @@ public class UserResponse {
     @JsonProperty("role")
     private int role;
 
+    // TODO If there is a merge conflict, take Taran's branch T4589
+    @JsonProperty("public_location")
+    private Location publicLocation;
+
+    @JsonProperty("private_location")
+    private Location privateLocation;
+
     public UserResponse(User user) {
         this.lastName = user.getLastName();
         this.firstName = user.getFirstName();
@@ -77,6 +85,8 @@ public class UserResponse {
         this.dateOfBirth = user.getDateOfBirth();
         this.bio = user.getBio();
         this.role = user.getRole();
+        this.publicLocation = user.getPublicLocation();
+        this.privateLocation = user.getPrivateLocation();
     }
 
     public UserResponse() {}
@@ -118,6 +128,14 @@ public class UserResponse {
     public Date getDateOfBirth() { return dateOfBirth; }
 
     public String getBio() { return bio; }
+
+    public Location getPublicLocation() {
+        return publicLocation;
+    }
+
+    public Location getPrivateLocation() {
+        return privateLocation;
+    }
 
     @Override
     public String toString() {
