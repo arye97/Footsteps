@@ -357,10 +357,9 @@ public class UserController {
      * @param method the method to use (OR, AND)
      * @return a list of users
      */
-    @RequestMapping(
+    @GetMapping(
             value = "/profiles",
-            params = { "activity", "method" },
-            method = RequestMethod.GET
+            params = { "activity", "method" }
     )
     public List<UserResponse> getUsersByActivityType(HttpServletRequest request,
                                                      HttpServletResponse response,
