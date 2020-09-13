@@ -46,18 +46,39 @@
                 default: false,
                 type: Boolean
             },
+            singleOnly: {
+                default: false,
+                type: Boolean
+            },
+            parentPins: {
+              default: function() {return []},
+              type: Array
+            },
+            parentCenter: {
+                default: null,
+                type: Object
+            }
         },
 
         data() {
             return {
                 isMapVisible: false,
-                pins:[],
+                pins: [],
                 center:undefined,
                 currentPlace: null
             }
         },
 
-        methods: {
+      mounted() {
+        if (this.parentCenter) {
+          this.center = this.parentCenter;
+        }
+        if (this.parentPins) {
+          this.pins.push(...this.parentPins);
+        }
+      },
+
+      methods: {
 
             /**
              * Receives a place object via the autocomplete component
@@ -74,11 +95,17 @@
                 if (this.currentPlace) {
                     const pin = {
                         lat: this.currentPlace.geometry.location.lat(),
-                        lng: this.currentPlace.geometry.location.lng()
+                        lng: this.currentPlace.geometry.location.lng(),
+                        name: this.currentPlace.formatted_address
                     };
-                    this.pins.push(pin);
+                    if (this.singleOnly && this.pins) {
+                        this.pins[0] = pin;
+                    } else {
+                        this.pins.push(pin);
+                    }
                     this.center = pin;
                     this.currentPlace = null;
+                    this.$emit("child-pins", this.pins);
                 }
             }
         }

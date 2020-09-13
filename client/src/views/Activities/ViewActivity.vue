@@ -48,10 +48,17 @@
                             <h3 class="font-weight-light"><strong>Location:</strong></h3><br/>
                             <b-card class="flex-fill" border-variant="secondary" id="location">
                                 <b-card-text class="font-weight-light">
-                                    {{this.location}}
+                                    {{this.location.name}}
                                 </b-card-text>
                             </b-card>
                             <br/>
+                            <div>
+                              <location-i-o
+                                  :view-only="true"
+                                  :parent-pins="[{lat: this.location.latitude, lng: this.location.longitude}]"
+                                  :parent-center="{lat: this.location.latitude, lng: this.location.longitude}">
+                              </location-i-o>
+                            </div>
                             <!-- Time details -> only relevant for duration activities -->
                             <div v-if="!continuous">
                                 <b-row class="mb-1">
@@ -180,10 +187,11 @@
     import ViewParticipants from "../../components/Activities/modals/ViewParticipants";
     import AddResults from "../../components/Activities/modals/AddResults";
     import ViewResults from "../../components/Activities/modals/ViewResults";
+    import LocationIO from "../../components/Map/LocationIO";
 
     export default {
         name: "ViewActivity",
-        components: {ViewResults, AddResults, ViewParticipants, Header},
+        components: {LocationIO, ViewResults, AddResults, ViewParticipants, Header},
         data () {
             return {
                 errored: false,
