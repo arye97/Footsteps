@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
   <file path="/Users/Ben/Desktop/SENG302/project/team-600/client/src/Test/MapViewer.test.js">
+    <testCase name="Is a vue instance" duration="31"/>
+    <testCase name="map pane does not exist at default" duration="13"/>
+    <testCase name="gmap Auto complete does not exist at default" duration="6"/>
+    <testCase name="Add marker button does not exist at default" duration="6"/>
+    <testCase name="Hide map button does not exist at default" duration="7"/>
+    <testCase name="Show map button exists at default" duration="7">
+      <failure message="Error: expect(received).toBeTruthy()"><![CDATA[Error: expect(received).toBeTruthy()
+
+Received: false
+    at Object.<anonymous> (/Users/Ben/Desktop/SENG302/project/team-600/client/src/Test/MapViewer.test.js:48:55)
+    at Object.asyncJestTest (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:100:37)
+    at /Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:45:12
+    at new Promise (<anonymous>)
+    at mapper (/Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:28:19)
+    at /Users/Ben/Desktop/SENG302/project/team-600/client/node_modules/jest-jasmine2/build/queueRunner.js:75:41]]></failure>
+    </testCase>
   </file>
 </testExecutions>

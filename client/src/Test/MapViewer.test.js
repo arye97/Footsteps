@@ -1,16 +1,16 @@
-import {mount, createLocalVue} from '@vue/test-utils'
+import {shallowMount, createLocalVue} from '@vue/test-utils'
 import MapViewer from '../components/Map/MapViewer'
 import {BootstrapVue} from 'bootstrap-vue';
-import { gmapApi } from 'gmap-vue';
+// import { gmapApi } from 'gmap-vue';
 import "vue-jest"
-import * as GmapVue from "gmap-vue";
+import * as GmapMap from "gmap-vue";
 
 jest.mock("gmap-vue");
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 // localVue.use(gmapApi);
-localVue.use(GmapVue);
+// localVue.use(GmapVue, { load: { key: '', }, installComponents: false });
 
 let config;
 
@@ -20,7 +20,7 @@ beforeEach(() => {
     config = {
         localVue
     };
-    mapViewer = mount(MapViewer, config);
+    mapViewer = shallowMount(MapViewer, config);
 });
 
 test('Is a vue instance', () => {
