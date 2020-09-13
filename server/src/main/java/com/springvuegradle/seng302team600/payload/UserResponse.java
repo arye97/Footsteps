@@ -63,10 +63,10 @@ public class UserResponse {
     private int role;
 
     @JsonProperty("publicLocation")
-    private Object publicLocation;
+    private LocationResponse publicLocation;
 
     @JsonProperty("privateLocation")
-    private Object privateLocation;
+    private LocationResponse privateLocation;
 
     public UserResponse(User user) {
         this.lastName = user.getLastName();
@@ -83,8 +83,12 @@ public class UserResponse {
         this.dateOfBirth = user.getDateOfBirth();
         this.bio = user.getBio();
         this.role = user.getRole();
-        this.publicLocation = user.getPublicLocation();
-        this.privateLocation = user.getPrivateLocation();
+        if (user.getPublicLocation() != null) {
+            this.publicLocation = new LocationResponse(user.getPublicLocation());
+        }
+        if (user.getPrivateLocation() != null) {
+            this.privateLocation = new LocationResponse(user.getPrivateLocation());
+        }
     }
 
     public UserResponse() {}
