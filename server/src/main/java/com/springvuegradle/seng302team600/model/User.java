@@ -24,9 +24,9 @@ public class User {
 
     private static int tokenDecayTime = 30000 * 30; // 30 minutes (30 sec * 30 mins = 15 mins)
 
-    final static public int MAX_EMAILS = 5;
+    static final public int MAX_EMAILS = 5;
 
-    final static private int FIELD_LEN = 45;
+    static final private int FIELD_LEN = 45;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

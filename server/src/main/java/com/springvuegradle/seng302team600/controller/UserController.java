@@ -42,7 +42,6 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final EmailRepository emailRepository;
-    private final ActivityActivityTypeRepository activityActivityTypeRepository;
     private final ActivityTypeRepository activityTypeRepository;
     private final UserValidator userValidator;
 
@@ -62,14 +61,12 @@ public class UserController {
 
     public UserController(UserRepository userRepository, EmailRepository emailRepository,
                           UserAuthenticationService userService, ActivityTypeService activityTypeService,
-                          ActivityActivityTypeRepository activityActivityTypeRepository,
                           UserActivityTypeRepository userActivityTypeRepository,
                           ActivityTypeRepository activityTypeRepository, UserValidator userValidator) {
         this.userRepository = userRepository;
         this.emailRepository = emailRepository;
         this.userService = userService;
         this.activityTypeService = activityTypeService;
-        this.activityActivityTypeRepository = activityActivityTypeRepository;
         this.activityTypeRepository = activityTypeRepository;
         this.userValidator = userValidator;
         this.userActivityTypeRepository = userActivityTypeRepository;
@@ -134,7 +131,6 @@ public class UserController {
         user.setTransientEmailStrings();
         // Security breach if password is sent to the client
         user.setPassword(null);
-//        user.setToken(null);
         response.setStatus(HttpServletResponse.SC_OK); //200
         return new UserResponse(user);
     }
@@ -398,9 +394,9 @@ public class UserController {
 
         Page<Long> paginatedUserIds;
         Pageable pageWithFiveUsers = PageRequest.of(pageNumber, PAGE_SIZE);
-        if (method.toLowerCase().equals("and")) {
+        if (method.equalsIgnoreCase("and")) {
             paginatedUserIds = userActivityTypeRepository.findByAllActivityTypeIds(activityTypeIds, numActivityTypes, pageWithFiveUsers); //Gets the userIds
-        } else if (method.toLowerCase().equals("or")) {
+        } else if (method.equalsIgnoreCase("or")) {
             paginatedUserIds = userActivityTypeRepository.findBySomeActivityTypeIds(activityTypeIds, pageWithFiveUsers); //Gets the userIds
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Method must be specified as either (AND, OR)");

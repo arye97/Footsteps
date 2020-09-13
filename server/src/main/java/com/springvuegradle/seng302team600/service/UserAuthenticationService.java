@@ -31,7 +31,7 @@ public class UserAuthenticationService {
      */
     private String generateNewToken() {
         int length = 30;
-        StringBuffer strBuffer = new StringBuffer(length);
+        StringBuilder strBuffer = new StringBuilder(length);
         SecureRandom secureRandom = new SecureRandom();
         for(int i = 0; i < length; i++)
             strBuffer.append(CHAR_LIST.charAt(secureRandom.nextInt(CHAR_LIST.length())));

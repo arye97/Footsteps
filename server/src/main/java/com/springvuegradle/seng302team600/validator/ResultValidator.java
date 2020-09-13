@@ -11,10 +11,10 @@ import org.springframework.web.server.ResponseStatusException;
  */
 public class ResultValidator {
 
-    final static private int COMMENT_LEN = 75;
-    final static private int VALUE_LEN = 1500;
-    final static private String NUMBER_REGEX = "\\d+";
-    final static private String BOOLEAN_REGEX = "(true|false)";
+    private static final int COMMENT_LEN = 75;
+    private static final int VALUE_LEN = 1500;
+    private static final String NUMBER_REGEX = "\\d+";
+    private static final String BOOLEAN_REGEX = "(true|false)";
 
     /**
      * Validates the given Result and the Value objects it contains.
