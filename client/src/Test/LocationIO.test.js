@@ -14,6 +14,16 @@ let config;
 
 let locationIO;
 
+const parentPinData = {
+    longitude: 0.0,
+    latitude: 0.0,
+    name: "Activity location"
+};
+const parentCenterData = {
+    longitude: 100.0,
+    latitude: 100.0,
+}
+
 beforeEach(() => {
     config = {
         localVue
@@ -43,4 +53,22 @@ test('Hide map button does not exist at default', () => {
 
 test('Show map button exists at default', () => {
     expect(locationIO.find('#showMapButton').exists()).toBeTruthy();
+});
+
+test('Pins obtained from the parent are added to the map', () => {
+    locationIO = mount(LocationIO, {localVue, propsData:{parentPins: [parentPinData]}});
+    expect(locationIO.vm.$data.pins).toContain(parentPinData);
+});
+
+test('Pins are empty by default', () => {
+    expect(locationIO.vm.$data.pins).toHaveLength(0);
+});
+
+test('Map is centered on the point specified by the parent', () => {
+    locationIO = mount(LocationIO, {localVue, propsData:{parentCenter: parentCenterData}});
+    expect(locationIO.vm.$data.center).toBe(parentCenterData)
+});
+
+test('Map center is undefined by default', () => {
+    expect(locationIO.vm.$data.center).toBeUndefined();
 });
