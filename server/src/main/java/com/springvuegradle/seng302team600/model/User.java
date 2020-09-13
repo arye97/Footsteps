@@ -458,9 +458,7 @@ public class User {
         return privateLocation;
     }
 
-    public Location getPublicLocation() {
-        return publicLocation;
-    }
+    public Location getPublicLocation() { return publicLocation; }
 
     public void setPrivateLocation(Location privateLocation) {
         this.privateLocation = privateLocation;
