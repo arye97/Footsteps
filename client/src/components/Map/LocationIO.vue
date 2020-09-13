@@ -45,10 +45,8 @@
 
         watch: {
             pins: function () {
-                if (this.maxPins) {
-                    for (let i=0; i < this.pins.length - this.maxPins; i++) {
-                        this.pins.shift();  // Can't use splice.  Causes infinite loop with watcher
-                    }
+                if (this.maxPins >= 0 && this.pins.length > this.maxPins ) {
+                    this.pins.shift();
                 }
             }
         },
