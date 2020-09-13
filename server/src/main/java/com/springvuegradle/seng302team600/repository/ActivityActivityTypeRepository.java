@@ -22,5 +22,7 @@ public interface ActivityActivityTypeRepository extends JpaRepository<Activity, 
     @Query(value="SELECT activity_id FROM activity_activity_type WHERE activity_type_id in ?1 " +
             "GROUP BY activity_id", nativeQuery=true)
     Page<Long> findBySomeActivityTypeIds(@Param("activityTypeIds") List<Long> activityTypeIds,
-                                        Pageable pageable);
+                                         Pageable pageable);
+
+
 }

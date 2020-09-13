@@ -10,6 +10,7 @@ localVue.use(BootstrapVue);
 
 jest.mock('../Api');
 jest.mock('../index');
+jest.mock('gmap-vue')
 
 let viewActivity;
 
@@ -45,8 +46,10 @@ const setValues = () => {
     CONTINUOUS_ACTIVITY_DATA = {
         activity_name: "My activity",
         description: "An activity description",
+        location: {
+            name: "Test Island"
+        },
         creatorUserId: 18,
-        location: "Activity location",
         start_time: new Date(),
         end_time: new Date(),
         activity_type: [
@@ -189,6 +192,10 @@ describe('The view activity page', () => {
 
     test('Shows the activity type', () => {
         expect(viewActivity.find('#activityType').exists()).toBeTruthy();
+    });
+
+    test('The location name is set correctly', () => {
+        expect(viewActivity.get('#location').text()).toBe("Test Island");
     });
 });
 

@@ -757,7 +757,7 @@ class UserControllerTest {
 
         // Check that email is set
         assertNotNull(defaultAdmin.getPrimaryEmail());
-        assertNotEquals(defaultAdmin.getPrimaryEmail(), "");
+        assertNotEquals("", defaultAdmin.getPrimaryEmail());
 
         // Use a private boolean flag to determine whether the default admin was added to the database
         // Can't find any other way to do it :(
