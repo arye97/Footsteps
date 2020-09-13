@@ -47,11 +47,6 @@ const setValues = () => {
         activity_name: "My activity",
         description: "An activity description",
         creatorUserId: 18,
-        location: {
-            longitude: 0.0,
-            latitude: 0.0,
-            name: "Activity location"
-        },
         start_time: new Date(),
         end_time: new Date(),
         activity_type: [
