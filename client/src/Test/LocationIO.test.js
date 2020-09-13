@@ -45,29 +45,31 @@ test('Show map button exists at default', () => {
     expect(locationIO.find('#showMapButton').exists()).toBeTruthy();
 });
 
-test('addMarker converts a place object into a pin object', () => {
+test('placeToPin converts a place object into a pin object', () => {
     const autocompletePlace = {formatted_address: "Somewhere", geometry: {location: {lat: () => 0, lng: () => 0}}};
+    const pin = locationIO.vm.placeToPin(autocompletePlace);
+    expect(pin).toEqual({lat: 0, lng:0, name: "Somewhere"})
+});
+
+test('addMarker adds a valid pin', () => {
+    const pin = {lat: 0, lng:0, name: "Somewhere"};
     locationIO.vm.$refs.mapViewerRef = {panToPin: () => {}};
 
-    locationIO.vm.addMarker(autocompletePlace);
+    locationIO.vm.addMarker(pin);
     expect(locationIO.vm.pins.length).toBe(1);
-    expect(locationIO.vm.pins[0]).toEqual({lat:0, lng:0})
     expect(locationIO.vm.address).toEqual("Somewhere")
 });
 
-test('addMarker converts the center of the map to a pin', () => {
-    locationIO.vm.$refs.mapViewerRef = {currentCenter: {lat:0, lng:0}, panToPin: () => {}};
 
-    locationIO.vm.addMarker();
+test('addMarker adds a pin at the centre of the map when given no arguments', () => {
+    locationIO.vm.$refs.mapViewerRef = {
+        currentCenter: {lat:0, lng:0},
+        panToPin: () => {},
+        repositionPin: () => {}
+    };
+
+    locationIO.vm.addMarker();  // No Args
     expect(locationIO.vm.pins.length).toBe(1);
-    expect(locationIO.vm.pins[0]).toEqual({lat:0, lng:0})
-});
-
-test('updatePins re-positions a pin', () => {
-    const origionalAddress = locationIO.vm.address;
-    locationIO.vm.pins.push({lat:0, lng:0});
-
-    locationIO.vm.updatePins({lat:1, lng:1}, 0);
-    expect(locationIO.vm.pins[0]).toEqual({lat:1, lng:1});
-    expect(locationIO.vm.address).not.toEqual(origionalAddress);
+    expect(locationIO.vm.pins[0].lat).toEqual(0);
+    expect(locationIO.vm.pins[0].lng).toEqual(0);
 });
