@@ -294,14 +294,12 @@ public class UserController {
                              @PathVariable(value = "profileId") Long profileId) throws IOException {
         String token = request.getHeader("Token");
         User user = userService.findByUserId(token, profileId);
-
         LocationRequest publicLocationRequest = locationRequest.getPublicLocation();
         Location publicLocation;
         if (publicLocationRequest != null) {
             publicLocation = new Location(publicLocationRequest);
             user.setPublicLocation(publicLocation);
         }
-
         LocationRequest privateLocationRequest = locationRequest.getPrivateLocation();
         Location privateLocation;
         if (privateLocationRequest != null) {

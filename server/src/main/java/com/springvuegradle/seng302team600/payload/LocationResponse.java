@@ -23,10 +23,38 @@ public class LocationResponse {
     @JsonProperty("name")
     private String locationName;
 
+    public LocationResponse() {
+
+    }
+
     public LocationResponse(Location location) {
         this.locationId = location.getLocationId();
         this.longitude = location.getLongitude();
         this.latitude = location.getLatitude();
         this.locationName = location.getLocationName();
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public String getLocationName() {
+        return locationName;
+    }
+
+    public void setLocationName(String locationName) {
+        this.locationName = locationName;
     }
 }

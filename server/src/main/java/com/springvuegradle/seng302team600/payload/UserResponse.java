@@ -84,6 +84,12 @@ public class UserResponse {
         this.dateOfBirth = user.getDateOfBirth();
         this.bio = user.getBio();
         this.role = user.getRole();
+        if (user.getPublicLocation() != null) {
+            this.publicLocation = new LocationResponse(user.getPublicLocation());
+        }
+        if (user.getPrivateLocation() != null) {
+            this.privateLocation = new LocationResponse(user.getPrivateLocation());
+        }
     }
 
     public UserResponse() {}
@@ -126,11 +132,11 @@ public class UserResponse {
 
     public String getBio() { return bio; }
 
-    public Location getPublicLocation() {
+    public LocationResponse getPublicLocation() {
         return publicLocation;
     }
 
-    public Location getPrivateLocation() {
+    public LocationResponse getPrivateLocation() {
         return privateLocation;
     }
 
