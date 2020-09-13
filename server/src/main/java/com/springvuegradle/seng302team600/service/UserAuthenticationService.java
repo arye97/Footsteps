@@ -138,7 +138,6 @@ public class UserAuthenticationService {
         User activeUser = findByToken(token); // Checks that a user is logged in
         User user = userRepository.findByUserId(id);
         if (user != null) {
-
             if (!(id.equals(activeUser.getUserId()) || hasAdminPrivileges(activeUser))) {
                 user.setPrivateLocation(null);
             }

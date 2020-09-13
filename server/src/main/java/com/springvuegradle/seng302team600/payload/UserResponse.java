@@ -63,7 +63,10 @@ public class UserResponse {
     private int role;
 
     @JsonProperty("publicLocation")
-    private double publicLocationLat;
+    private Object publicLocation;
+
+    @JsonProperty("privateLocation")
+    private Object privateLocation;
 
     public UserResponse(User user) {
         this.lastName = user.getLastName();
@@ -80,7 +83,8 @@ public class UserResponse {
         this.dateOfBirth = user.getDateOfBirth();
         this.bio = user.getBio();
         this.role = user.getRole();
-        this.publicLocationLat = user.getPublicLocation().getLongitude();
+        this.publicLocation = user.getPublicLocation();
+        this.privateLocation = user.getPrivateLocation();
     }
 
     public UserResponse() {}
