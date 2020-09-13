@@ -18,6 +18,7 @@
             <activity-form :submit-activity-func="submitCreateActivity"
                            :activity="activity"
                            :outcome-list="outcomeList"
+                           :is-edit="false"
                            @add-outcome="addOutcome"
                            @delete-outcome="deleteOutcome"/>
         </b-container>
