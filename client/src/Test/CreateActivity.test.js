@@ -1,9 +1,13 @@
 import 'vue-jest'
-import {shallowMount} from '@vue/test-utils'
+import {mount, createLocalVue} from '@vue/test-utils'
 import CreateActivity from "../views/Activities/CreateActivity";
 import api from "../Api";
 import router from '../index';
+import { BootstrapVue } from 'bootstrap-vue';
 jest.mock("../Api");
+
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
 
 let createActivity;
 let config;
@@ -34,9 +38,15 @@ const OUTCOME2 = {
     unit_type: "TEXT"
 };
 
+const ACTIVITY_TYPES = [
+    {activityTypeId: 1, name: "Hng"},
+    {activityTypeId: 2, name: "Attics"}
+];
+
 beforeAll(() => {
     config = {
         router,
+        localVue,
         data: function() {
             return {
                 outcomeList: []
@@ -47,11 +57,11 @@ beforeAll(() => {
     api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID, status: 200 }));
     api.createOutcome.mockImplementation(outcomeRequest => {
         receivedOutcomeRequests.push(outcomeRequest);
-        Promise.resolve({ data: DEFAULT_USER_ID, status: 200 })
+        return Promise.resolve({data: DEFAULT_USER_ID, status: 200});
     });
-    createActivity = shallowMount(CreateActivity, config);
-
-
+    api.getUserId.mockImplementation(() => Promise.resolve({data: 1, status: 200}));
+    api.getActivityTypes.mockImplementation(() => Promise.resolve({data: ACTIVITY_TYPES, status: 200}));
+    createActivity = mount(CreateActivity, config);
 });
 
 beforeEach(() => {
@@ -86,10 +96,11 @@ test('Catches an http status error of 400 or an invalid activity field when crea
         error => expect(error).toEqual(new Error("Entered activity field(s) are invalid")));
 });
 
-test('Catches an http status error of 401 or user not authenticated when create activity form is submitted and takes user to login page', () => {
+test('Catches an http status error of 401 or user not authenticated when create activity form is submitted and takes user to login page', async () => {
     createActivity.setProps({
         ACTIVITY1
     });
+    await createActivity.vm.$router.push('/activities/create');
 
     let networkError = new Error("Mocked Network Error");
     networkError.response = {status: 401};   // Explicitly give the error a response.status
@@ -131,8 +142,8 @@ test('Catches an http status error that isnt 401, 404, 403 and gives the user an
 /**
  * Tests whether a the payload sent to the backend has the required correct fields.
  */
-test('Creates the correct Outcome payload', () => {
-    createActivity.vm.createAllOutcomes([OUTCOME1], DEFAULT_ACTIVITY_ID);
+test('Creates the correct Outcome payload', async () => {
+    await createActivity.vm.createAllOutcomes([OUTCOME1], DEFAULT_ACTIVITY_ID);
     expect(receivedOutcomeRequests.length).toBe(1);
     let outcomeRequest = receivedOutcomeRequests[0];
 

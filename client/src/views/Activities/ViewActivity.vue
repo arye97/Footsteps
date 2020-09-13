@@ -48,10 +48,17 @@
                             <h3 class="font-weight-light"><strong>Location:</strong></h3><br/>
                             <b-card class="flex-fill" border-variant="secondary" id="location">
                                 <b-card-text class="font-weight-light">
-                                    {{this.location}}
+                                    {{this.location.name}}
                                 </b-card-text>
                             </b-card>
                             <br/>
+                            <div>
+                              <location-i-o
+                                  :view-only="true"
+                                  :parent-pins="[{lat: this.location.latitude, lng: this.location.longitude}]"
+                                  :parent-center="{lat: this.location.latitude, lng: this.location.longitude}">
+                              </location-i-o>
+                            </div>
                             <!-- Time details -> only relevant for duration activities -->
                             <div v-if="!continuous">
                                 <b-row class="mb-1">
@@ -106,45 +113,11 @@
                             <!--Add results Modal-->
                             <b-modal id="addResultsModel" centered ok-only ok-variant="secondary" ok-title="Back"
                                      scrollable title="Here are your results">
-                                <b-alert dismissible variant="danger" id="addResultAlert"
-                                         :show="dismissCountDown"
-                                         @dismissed="dismissCountDown=0"
-                                         @dismiss-count-down="countDownChanged">
-                                    {{ this.errorMessage }}
-                                </b-alert>
-                                <section v-for="outcome in this.outcomeList" :key="outcome.outcome_id">
-                                    <b-card id="outcomeAddResultCard" :title="outcome.title">
-                                        <div v-if="outcome.activeUsersResult.submitted">
-                                            <div style="color:red" v-if="outcome.activeUsersResult.did_not_finish" >
-                                                Did not Finish
-                                            </div>
-                                            <b-input-group
-                                                    :append="outcome.unit_name">
-                                                <b-input :id="'submittedInputValue' + outcome.outcome_id"
-                                                         v-model="outcome.activeUsersResult.value"
-                                                         disabled></b-input>
-                                            </b-input-group>
-                                        </div>
-                                        <div v-else>
-                                            <b-input-group
-                                                    :append="outcome.unit_name">
-                                                <b-input :id="'NotSubmittedInputValue' + outcome.outcome_id" v-model="outcome.activeUsersResult.value"
-                                                         placeholder="Input your result here..."></b-input>
-                                            </b-input-group>
-                                            <b-form-checkbox
-                                                    :id="'checkboxDNF' + outcome.outcome_id"
-                                                    v-model="outcome.activeUsersResult.did_not_finish"
-                                                    name="checkboxDNF"
-                                            >
-                                                I did not finish
-                                            </b-form-checkbox>
-                                            <b-button block id="submitResult" variant="success"
-                                                      @click="submitOutcomeResult(outcome.outcome_id)">
-                                                Submit
-                                            </b-button>
-                                        </div>
-                                    </b-card>
-                                </section>
+                                <add-results :outcome-list="outcomeList"
+                                             :dismiss-count-down="dismissCountDown"
+                                             :error-message="errorMessage"
+                                             @count-down-changed="countDownChanged"
+                                             @submit-result="submitOutcomeResult"></add-results>
                             </b-modal>
                             <!-- Add Results/Following Button Group -->
                             <b-button block v-if="(this.isFollowing || this.creatorId === this.activeUserId) && this.hasOutcomes"
@@ -173,15 +146,7 @@
                             </div>
                             <!--View Participants Modal-->
                             <b-modal id="viewParticipantsModal" size="lg" centered ok-only scrollable :title="activityTitle + ' Participants'">
-                                <b-card class="flex-fill" border-variant="secondary" id="viewParticipantsCard">
-                                    <strong>Participants: </strong><br>
-                                    <b-button-group v-for="participant in participants" :key="participant.id" id="viewParticipantsButtonGroup">
-                                        <b-button
-                                                class="participantButton" pill variant="success"
-                                                v-on:click="toUserProfile(participant.id)" id="participant">{{participant.name}}</b-button>
-                                    </b-button-group>
-                                    <p v-if="participants.length === 0" id="noParticipants">No participants to show</p>
-                                </b-card>
+                                <view-participants :participants="participants"></view-participants>
                             </b-modal>
                             <!--View Participants and Results Buttons-->
                             <b-row class="mb-1">
@@ -201,21 +166,7 @@
                                         View Results</b-button>
 
                                     <b-modal id="resultsModal" title="Activity Results" scrollable ok-only ok-variant="secondary" ok-title="Back">
-                                        <div v-for="outcome in this.outcomeList" :key="outcome.outcome_id">
-                                            <b-button v-b-toggle="'collapse' + outcome.outcome_id" variant="success" block>{{outcome.title}}</b-button>
-                                            <b-collapse :id="'collapse' + outcome.outcome_id">
-                                                <div v-if="outcome.results.length > 0">
-                                                    <b-card v-for="result in outcome.results" :key="result.result_id">
-                                                        <div v-if="result.did_not_finish">{{result.user_name}}: Did not finish</div>
-                                                        <div v-else>{{result.user_name}}: {{result.value}} {{outcome.unit_name}}</div>
-                                                        <div v-if="result.comment"> ({{result.comment}})</div>
-                                                    </b-card>
-                                                </div>
-                                                <b-card v-else>
-                                                    This outcome currently has no registered results
-                                                </b-card>
-                                            </b-collapse><br/>
-                                        </div>
+                                        <view-results :outcome-list="outcomeList"></view-results>
                                     </b-modal>
                                 </b-col>
                             </b-row>
@@ -233,10 +184,14 @@
     import Header from "../../components/Header/Header";
     import api from "../../Api";
     import {formatDateTime} from "../../util";
+    import ViewParticipants from "../../components/Activities/modals/ViewParticipants";
+    import AddResults from "../../components/Activities/modals/AddResults";
+    import ViewResults from "../../components/Activities/modals/ViewResults";
+    import LocationIO from "../../components/Map/LocationIO";
 
     export default {
         name: "ViewActivity",
-        components: {Header},
+        components: {LocationIO, ViewResults, AddResults, ViewParticipants, Header},
         data () {
             return {
                 errored: false,
@@ -300,19 +255,6 @@
         },
         methods: {
             /**
-             * Update dismissCountDown
-             */
-            countDownChanged(dismissCountDown) {
-                this.dismissCountDown = dismissCountDown;
-            },
-            /**
-             * Display add result error alert
-             */
-            showAlert() {
-                this.dismissCountDown = this.dismissSecs
-                window.scrollTo(0,0);
-            },
-            /**
              * The initialisation function.
              * Gets all of the data required for the page
              * @returns {Promise<void>}
@@ -334,6 +276,18 @@
                 await this.fetchOutcomesForActivity();
                 await this.fetchResultsForOutcomes();
                 this.loading = false;
+            },
+            /**
+             * Update dismissCountDown
+             */
+            countDownChanged(dismissCountDown) {
+                this.dismissCountDown = dismissCountDown;
+            },
+            /**
+             * Display add result error alert
+             */
+            showAlert() {
+                this.dismissCountDown = this.dismissSecs
             },
             /**
              * Gets and set the details about the activity
@@ -465,13 +419,6 @@
                     this.errorMessage = error.response.data.message;
                 });
                 await this.fetchParticipantsForActivities();
-            },
-            /**
-             * Sends you to the profile page of a specific user
-             * @param id
-             */
-            toUserProfile(id) {
-                this.$router.push({ name: 'profile', params: {userId: id} });
             },
             /**
              * Gets list of participants for the activity
