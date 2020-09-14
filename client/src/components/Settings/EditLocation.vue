@@ -29,7 +29,7 @@
                     <div class="map-pane">
                         <location-i-o class="input-location"
                                       id="public-location-i-o"
-                                      @address-change="locationPublicValue"
+                                      @pin-change="locationPublicValue"
                                       :current-location="publicLocation"
                                       :single-only="true"></location-i-o>
                     </div>
@@ -55,7 +55,7 @@
                     <div class="map-pane">
                         <location-i-o class="input-location"
                                       id="private-location-i-o"
-                                      @address-change="locationPrivateValue"
+                                      @pin-change="locationPrivateValue"
                                       :current-location="privateLocation"
                                       :single-only="true"></location-i-o>
                     </div>

@@ -8,7 +8,7 @@
                             ref="mapViewerRef"
                             :pins="pins"
                             @pin-move="(newPins) => this.pins = newPins ? newPins : this.pins"
-                            @address-change="pinChanged"
+                            @pin-change="pinChanged"
                             :initial-center="center"
                     ></map-viewer>
                 <div v-if="!viewOnly">
@@ -168,12 +168,12 @@
             placeChangedAutocomplete(place) {
                 let pin = this.placeToPin(place);
                 this.addMarker(pin);
-                this.$emit("address-change", pin);
+                this.$emit("pin-change", pin);
             },
 
             pinChanged(pin) {
                 this.address = pin.name;
-                this.$emit("address-change", pin);
+                this.$emit("pin-change", pin);
             }
 
         }
