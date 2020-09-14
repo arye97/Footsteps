@@ -19,7 +19,7 @@
                             id="gmapAutoComplete"
                             :value="address"
                             :options="{fields: ['geometry', 'formatted_address', 'address_components']}"
-                            @place_changed="placeChangedAutocomplete"
+                            @place_changed="(pin) => {addMarker(placeToPin(pin)); pinChanged(placeToPin(pin));}"
                             class="form-control" style="width: 100%">
                     </gmap-autocomplete>
 
@@ -165,12 +165,11 @@
                 return pin
             },
 
-            placeChangedAutocomplete(place) {
-                let pin = this.placeToPin(place);
-                this.addMarker(pin);
-                this.$emit("pin-change", pin);
-            },
 
+            /**
+             * Updates the contents of gmap-autocomplete and emits the changed pin to the parent component.
+             * @param pin Object pin that was changed
+             */
             pinChanged(pin) {
                 this.address = pin.name;
                 this.$emit("pin-change", pin);
