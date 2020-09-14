@@ -15,14 +15,44 @@ let config;
 let locationIO;
 
 const parentPinData = {
-    longitude: 0.0,
-    latitude: 0.0,
+    lng: 0.0,
+    lat: 0.0,
     name: "Activity location"
 };
+
+const pinGeometry = {
+    geometry: {
+        location: {
+            lat: function () {return 10.0},
+            lng: function () {return 25.0},
+        }
+    },
+    formatted_address: "Activity location",
+    data: {
+        lat: 10.0,
+        lng: 25.0,
+        name: "Activity location"
+    }
+};
+const altPinGeometry = {
+    geometry: {
+        location: {
+            lat: function () {return 75.0},
+            lng: function () {return 100.0},
+        }
+    },
+    formatted_address: "Activity destination",
+    data: {
+        lat: 75.0,
+        lng: 100.0,
+        name: "Activity destination"
+    }
+};
+
 const parentCenterData = {
-    longitude: 100.0,
-    latitude: 100.0,
-}
+    lng: 100.0,
+    lat: 100.0,
+};
 
 beforeEach(() => {
     config = {
@@ -61,7 +91,7 @@ test('addMarker converts a place object into a pin object', () => {
 
     locationIO.vm.addMarker(autocompletePlace);
     expect(locationIO.vm.pins.length).toBe(1);
-    expect(locationIO.vm.pins[0]).toEqual({lat:0, lng:0})
+    expect(locationIO.vm.pins[0]).toEqual({lat:0, lng:0, name:"Somewhere"});
     expect(locationIO.vm.address).toEqual("Somewhere")
 });
 
@@ -98,4 +128,33 @@ test('Map is centered on the point specified by the parent', () => {
 
 test('Map center is undefined by default', () => {
     expect(locationIO.vm.$data.center).toBeUndefined();
+});
+
+test.each([
+    {singleOnly: true},
+    {maxPins: 1},
+    {singleOnly: true, maxPins: 1},
+])('Only a single pin can be added in single-only mode and when max-pin == 1', async (props) => {
+    locationIO = mount(LocationIO, {localVue, propsData: props});
+    locationIO.vm.$refs.mapViewerRef = {panToPin: () => {}};
+
+    expect(locationIO.vm.$data.pins).toHaveLength(0);
+    locationIO.vm.addMarker(pinGeometry);
+    await locationIO.vm.$nextTick();  // Need to let the pins watcher update
+    expect(locationIO.vm.$data.pins).toHaveLength(1);
+    expect(locationIO.vm.$data.pins).toContainEqual(pinGeometry.data);
+
+    locationIO.vm.addMarker(altPinGeometry);
+    await locationIO.vm.$nextTick();  // Need to let the pins watcher update
+    expect(locationIO.vm.$data.pins).toHaveLength(1);
+    expect(locationIO.vm.$data.pins).toContainEqual(altPinGeometry.data)
+});
+
+
+
+test('Add marker function emits an event with the list of pins', () => {
+    locationIO.vm.$refs.mapViewerRef = {panToPin: () => {}};
+    locationIO.vm.addMarker(pinGeometry);
+    expect(locationIO.emitted('child-pins')).toHaveLength(1);
+    expect(locationIO.emitted('child-pins')[0][0]).toContainEqual(pinGeometry.data)
 });

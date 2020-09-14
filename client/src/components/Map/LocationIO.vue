@@ -2,11 +2,12 @@
     <div>
         <b-card class="flex-fill" border-variant="secondary">
             <div v-if="isMapVisible">
-                <b-button id="hideMapButton" @click="isMapVisible=false">Hide Map</b-button>
+                <b-button id="hideMapButton" variant="info" @click="isMapVisible=false">Hide Map</b-button>
                     <map-viewer
                             id="mapComponent"
                             ref="mapViewerRef"
                             :pins="pins"
+                            :initial-center="center"
                             @pin-move="setInputBoxUpdatePins"
                     ></map-viewer>
                 <div v-if="!viewOnly">
@@ -21,11 +22,11 @@
                             class="form-control" style="width: 100%">
                     </gmap-autocomplete>
 
-                    <b-button id='addMarkerButton' block @click="addMarker()">Drop Pin</b-button>
+                    <b-button id='addMarkerButton' variant="primary" block @click="addMarker()">Drop Pin</b-button>
                 </div>
             </div>
             <div v-else>
-                <b-button id="showMapButton" @click="isMapVisible=true">Show Map</b-button>
+                <b-button id="showMapButton" variant="primary" @click="isMapVisible=true">Show Map</b-button>
             </div>
         </b-card>
     </div>
@@ -45,7 +46,7 @@
 
         watch: {
             pins: function () {
-                if (this.maxPins >= 0 && this.pins.length > this.maxPins ) {
+                if ((this.singleOnly && this.pins.length > 1) || (this.maxPins >= 0 && this.pins.length > this.maxPins)) {
                     this.pins.shift();
                 }
             }
@@ -58,6 +59,13 @@
             },
             maxPins: {
                 type: Number
+            },
+            singleOnly: {
+                default: false,
+                type: Boolean
+            },
+            currentLocation: {
+                type: Object
             },
             parentPins: {
               default: function() {return []},
@@ -72,13 +80,25 @@
         data() {
             return {
                 isMapVisible: false,
-                pins:[],
-                center:undefined,
-                address: ""
+                address: "",
+                pins: [],
+                center: undefined,
             }
         },
 
         mounted() {
+            if (this.currentLocation) {
+                let pin = {
+                    lat: this.currentLocation.latitude,
+                    lng: this.currentLocation.longitude,
+                    name: this.currentLocation.name
+                };
+                if (this.pins) {
+                    this.pins.push(pin);
+                }
+                this.center = pin;
+            }
+
             if (this.parentCenter) {
                 this.center = this.parentCenter;
             }
@@ -87,7 +107,7 @@
             }
         },
 
-      methods: {
+        methods: {
 
             /**
              * Add a marker centred on the coordinates of place, or the center of the map if place is not defined.
@@ -99,7 +119,8 @@
                 if (place && Object.prototype.hasOwnProperty.call(place, 'geometry')) {
                     pin = {
                         lat: place.geometry.location.lat(),
-                        lng: place.geometry.location.lng()
+                        lng: place.geometry.location.lng(),
+                        name: place.formatted_address
                     };
 
                     // Without this the contents of autocomplete is overwritten by the value of this.address
@@ -113,6 +134,8 @@
                 }
                 this.pins.push(pin);
                 this.$refs.mapViewerRef.panToPin(pin);
+                this.center = pin;
+                this.$emit("child-pins", this.pins);
             },
 
             /**
