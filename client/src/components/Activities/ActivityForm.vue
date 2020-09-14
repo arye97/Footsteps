@@ -170,7 +170,7 @@
                     <!-- This gets around an issue where vue will throw a warning that location has not been defined -->
                     <location-i-o v-if="!this.isEdit || this.activity.location !== null"
                         id="input-location"
-                        v-on:child-pins="locationValue"
+                        @pin-change="locationValue"
                         :single-only="true"
                         :parent-pins="this.isEdit ?
                             [{lat: this.activity.location.latitude, lng: this.activity.location.longitude}] :  null"
@@ -672,13 +672,13 @@
           /**
            * Sets the location of the activity
            * Called when the pins in the LocationIO child component are changed
-           * @param params a list of pins from LocationIO
+           * @param pin Object from LocationIO
            */
-            locationValue: function (params) {
+            locationValue: function (pin) {
                 this.activity.location = {
-                    latitude: params[0].lat,
-                    longitude: params[0].lng,
-                    name: params[0].name,
+                    latitude: pin.lat,
+                    longitude: pin.lng,
+                    name: pin.name,
                 };
             }
         }
