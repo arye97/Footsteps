@@ -67,7 +67,7 @@ test('Show map button exists at default', () => {
     expect(locationIO.find('#showMapButton').exists()).toBeTruthy();
 });
 
-describe("Test placeToPin()", () => {
+describe("Test placeToPin", () => {
 
     test('placeToPin converts a place object into a pin object', () => {
         const autocompletePlace = {formatted_address: "Somewhere", geometry: {location: {lat: () => 0, lng: () => 0}}};
@@ -77,7 +77,7 @@ describe("Test placeToPin()", () => {
 
 });
 
-describe("Test addMarker()", () => {
+describe("Test addMarker", () => {
 
     test('addMarker adds a valid pin', () => {
         const pin = {lat: 0, lng: 0, name: "Somewhere"};
@@ -128,11 +128,13 @@ describe("Test addMarker()", () => {
         expect(locationIO.vm.$data.pins).toContainEqual(pin2)
     });
 
-    test('Add marker function emits an event with the list of pins', () => {
+    test('Add marker function emits an event with the list of pins', async () => {
         locationIO.vm.$refs.mapViewerRef = {panToPin: () => {}};
         locationIO.vm.addMarker(pin1);
-        expect(locationIO.emitted('child-pins')).toHaveLength(1);
-        expect(locationIO.emitted('child-pins')[0][0]).toContainEqual(pin1)
+        await locationIO.vm.$nextTick();
+
+        let numEmits = locationIO.emitted('child-pins').length;
+        expect(locationIO.emitted('child-pins')[numEmits-1][0]).toContainEqual(pin1)  // Check the last emitted event
     });
 
 });

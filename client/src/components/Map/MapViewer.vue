@@ -15,7 +15,7 @@
                         v-for="(pin, pinIndex) in pins"
                         :position="google && new google.maps.LatLng(pin.lat, pin.lng)"
                         :clickable="true"
-                        :draggable="true"
+                        :draggable="draggablePins"
                         @click="panToPin(pin)"
                         @dragend="repositionPin({lat: $event.latLng.lat(), lng: $event.latLng.lng()}, pinIndex)"
                 />
@@ -27,10 +27,20 @@
 <script>
     import { gmapApi } from 'gmap-vue';
 
+    /**
+     * A map pane that displays draggablePins location pins.
+     *
+     * Emitted Events:
+     * @emits child-pins  -  emitted when internal Array of pins is modified.  Returns the Array.
+     * @emits pin-change  -  emitted when a single pin is modified.  Returns the pin Object.
+     */
     export default {
         name: "MapViewer",
 
         props: {
+            /**
+             * Object {lat, lng} to centre map on.
+             */
             initialCenter: {
                 default() {
                     return {lat:-40.9006, lng:174.8860};  // Coordinates of New Zealand
@@ -41,6 +51,9 @@
                     return !isNaN(initialCenter.lat) && !isNaN(initialCenter.lng);
                 }
             },
+            /**
+             * Array of pins to display on map.
+             */
             pins: {
                 default() {
                     return [];
@@ -50,6 +63,13 @@
                     // Each pin must have a lat, lng and id
                     return pins.every(pin => {return !isNaN(pin.lat) && !isNaN(pin.lng);});
                 }
+            },
+            /**
+             * Pins can be dragged.
+             */
+            draggablePins: {
+                default: true,
+                type: Boolean
             }
         },
         computed: {
@@ -82,7 +102,7 @@
                     this.pins[pinIndex].lng = pin.lng;
                     this.generatePinName(this.pins[pinIndex]);
 
-                    this.$emit("pin-move", [...this.pins])
+                    this.$emit("child-pins", [...this.pins])
                 }
             },
 
@@ -121,7 +141,7 @@
              * @param pin Object containing lat, lng.
              */
             generatePinName(pin) {
-                pin.name = " ";
+                pin.name = " ";  // This causes the autocomplete box to be blank while the address is loading
                 this.$emit("pin-change", pin);
 
                 this.geoCoder.geocode({ location: pin }, (results, status) => {

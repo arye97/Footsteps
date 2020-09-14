@@ -7,7 +7,8 @@
                             id="mapComponent"
                             ref="mapViewerRef"
                             :pins="pins"
-                            @pin-move="(newPins) => this.pins = newPins ? newPins : this.pins"
+                            :draggable-pins="!viewOnly"
+                            @child-pins="(newPins) => this.pins = newPins ? newPins : this.pins"
                             @pin-change="pinChanged"
                             :initial-center="center"
                     ></map-viewer>
@@ -19,7 +20,7 @@
                             id="gmapAutoComplete"
                             :value="address"
                             :options="{fields: ['geometry', 'formatted_address', 'address_components']}"
-                            @place_changed="(pin) => {addMarker(placeToPin(pin)); pinChanged(placeToPin(pin));}"
+                            @place_changed="(place) => {addMarker(placeToPin(place)); pinChanged(placeToPin(place));}"
                             class="form-control" style="width: 100%">
                     </gmap-autocomplete>
 
@@ -37,7 +38,13 @@
 <script>
     import MapViewer from "../../components/Map/MapViewer";
 
-
+    /**
+     * A component for viewing or editing a location using a textbox and interactive map.  Composes MapViewer.
+     *
+     * Emitted Events:
+     * @emits child-pins  -  emitted when internal Array of pins is modified.  Returns the Array.
+     * @emits pin-change  -  emitted when a single pin is modified.  Returns the pin Object.
+     */
     export default {
         name: "LocationIO",
 
@@ -45,39 +52,58 @@
             MapViewer
         },
 
+
+        props: {
+
+            /**
+             * When true only displays locations and is un-editable.
+             */
+            viewOnly: {
+                default: false,
+                type: Boolean
+            },
+            /**
+             * Number of pins to display on the map.  If exceeded, the first pin in the Array is removed.
+             */
+            maxPins: {
+                type: Number
+            },
+            /**
+             * Boolean version of maxPins.  Only allows 1 pin when true.
+             */
+            singleOnly: {
+                default: false,
+                type: Boolean
+            },
+            /**
+             * Initial location.
+             */
+            currentLocation: {
+                type: Object
+            },
+            /**
+             * Array of pins to display on map.
+             */
+            parentPins: {
+              default: function() {return []},
+              type: Array
+            },
+            /**
+             * Object {lat, lng} to centre map on.
+             */
+            parentCenter: {
+                default: null,
+                type: Object
+            }
+        },
+
         watch: {
             pins: function () {
                 if ((this.singleOnly && this.pins.length > 1) || (this.maxPins >= 0 && this.pins.length > this.maxPins)) {
                     this.pins.shift();
                 } else {
-                    this.$emit("child-pins", this.pins);
+                    this.$emit("child-pins", [...this.pins]);
                 }
-            }
-        },
-
-
-        props: {
-            viewOnly: {
-                default: false,
-                type: Boolean
-            },
-            maxPins: {
-                type: Number
-            },
-            singleOnly: {
-                default: false,
-                type: Boolean
-            },
-            currentLocation: {
-                type: Object
-            },
-            parentPins: {
-              default: function() {return []},
-              type: Array
-            },
-            parentCenter: {
-                default: null,
-                type: Object
             }
         },
 
@@ -167,7 +193,7 @@
 
 
             /**
-             * Updates the contents of gmap-autocomplete and emits the changed pin to the parent component.
+             * Updates the this.address in gmap-autocomplete and emits the changed pin to the parent component.
              * @param pin Object pin that was changed
              */
             pinChanged(pin) {
