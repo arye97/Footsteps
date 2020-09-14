@@ -156,7 +156,7 @@
                         <p id="alert-message">{{ message }}</p>
                     </div>
                     <div class="text-center">
-                        <b-button type="submit" id="back-btn" size="lg" variant="primary float-left" v-on:click="backToProfile">Back</b-button>
+                        <b-button type="submit" id="back-btn" size="lg" variant="secondary float-left" v-on:click="backToProfile">Back</b-button>
                         <b-button type="submit" id="reset-btn" size="lg" variant="primary" v-on:click="updateInputs">Reset</b-button>
                         <b-button type="submit" id="saveChanges-btn" size="lg" variant="success float-right" v-on:click="saveChanges">Save Changes</b-button>
                     </div>
