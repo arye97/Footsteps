@@ -125,7 +125,7 @@
                                 <!-- These are kept separate to make it clearer to the user what each pin means -->
                                 <div v-if="this.user.public_location">
                                     <h3 class="font-weight-light"><strong>Public Location:</strong></h3><br/>
-                                    <location-i-o
+                                    <location-i-o id="public-location"
                                         :view-only="true"
                                         :parent-pins="[{lat: this.user.public_location.latitude, lng: this.user.public_location.longitude}]"
                                         :parent-center="{lat: this.user.public_location.latitude, lng: this.user.public_location.longitude}">
@@ -134,7 +134,7 @@
                                 <br/>
                                 <div v-if="this.user.private_location">
                                     <h3 class="font-weight-light"><strong>Private Location:</strong></h3><br/>
-                                    <location-i-o
+                                    <location-i-o id="private-location"
                                         :view-only="true"
                                         :parent-pins="[{lat: this.user.private_location.latitude, lng: this.user.private_location.longitude}]"
                                         :parent-center="{lat: this.user.private_location.latitude, lng: this.user.private_location.longitude}">
