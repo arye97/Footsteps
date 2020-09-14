@@ -117,12 +117,12 @@
              * Uses Google Maps API reverse-geocoding.
              * NOTE: Because the API call is async and slow, it is easier to mutate the given pin rather than having a
              * return value.
-             * The changed name is emitted as "address-change"
+             * The changed pin (and its name) is emitted as "address-change"
              * @param pin Object containing lat, lng.
              */
             generatePinName(pin) {
                 pin.name = " ";
-                this.$emit("address-change", pin.name);
+                this.$emit("address-change", pin);
 
                 this.geoCoder.geocode({ location: pin }, (results, status) => {
                     if (status === "OK") {
@@ -130,7 +130,7 @@
                     } else {
                         pin.name = pin.lat.toFixed(5) + ', ' + pin.lng.toFixed(5);
                     }
-                    this.$emit("address-change", pin.name)
+                    this.$emit("address-change", pin)
                 });
             },
         }

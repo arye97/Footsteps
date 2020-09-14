@@ -8,7 +8,7 @@
                             ref="mapViewerRef"
                             :pins="pins"
                             @pin-move="(newPins) => this.pins = newPins ? newPins : this.pins"
-                            @address-change="(modifiedAddress) => this.address = modifiedAddress"
+                            @address-change="pinChanged"
                             :initial-center="center"
                     ></map-viewer>
                 <div v-if="!viewOnly">
@@ -19,7 +19,7 @@
                             id="gmapAutoComplete"
                             :value="address"
                             :options="{fields: ['geometry', 'formatted_address', 'address_components']}"
-                            @place_changed="(place) => addMarker( placeToPin(place) )"
+                            @place_changed="placeChangedAutocomplete"
                             class="form-control" style="width: 100%">
                     </gmap-autocomplete>
 
@@ -49,9 +49,12 @@
             pins: function () {
                 if ((this.singleOnly && this.pins.length > 1) || (this.maxPins >= 0 && this.pins.length > this.maxPins)) {
                     this.pins.shift();
+                } else {
+                    this.$emit("child-pins", this.pins);
                 }
             }
         },
+
 
         props: {
             viewOnly: {
@@ -139,7 +142,6 @@
 
                 this.$refs.mapViewerRef.panToPin(pin);
                 this.center = pin;
-                this.$emit("child-pins", this.pins);
             },
 
 
@@ -161,7 +163,19 @@
                     pin = null
                 }
                 return pin
+            },
+
+            placeChangedAutocomplete(place) {
+                let pin = this.placeToPin(place);
+                this.addMarker(pin);
+                this.$emit("address-change", pin);
+            },
+
+            pinChanged(pin) {
+                this.address = pin.name;
+                this.$emit("address-change", pin);
             }
+
         }
     }
 </script>
