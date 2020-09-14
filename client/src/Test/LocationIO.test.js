@@ -52,7 +52,7 @@ const altPinGeometry = {
 const parentCenterData = {
     lng: 100.0,
     lat: 100.0,
-}
+};
 
 beforeEach(() => {
     config = {
@@ -85,6 +85,33 @@ test('Show map button exists at default', () => {
     expect(locationIO.find('#showMapButton').exists()).toBeTruthy();
 });
 
+test('addMarker converts a place object into a pin object', () => {
+    const autocompletePlace = {formatted_address: "Somewhere", geometry: {location: {lat: () => 0, lng: () => 0}}};
+    locationIO.vm.$refs.mapViewerRef = {panToPin: () => {}};
+
+    locationIO.vm.addMarker(autocompletePlace);
+    expect(locationIO.vm.pins.length).toBe(1);
+    expect(locationIO.vm.pins[0]).toEqual({lat:0, lng:0, name:"Somewhere"});
+    expect(locationIO.vm.address).toEqual("Somewhere")
+});
+
+test('addMarker converts the center of the map to a pin', () => {
+    locationIO.vm.$refs.mapViewerRef = {currentCenter: {lat:0, lng:0}, panToPin: () => {}};
+
+    locationIO.vm.addMarker();
+    expect(locationIO.vm.pins.length).toBe(1);
+    expect(locationIO.vm.pins[0]).toEqual({lat:0, lng:0})
+});
+
+test('setInputBoxUpdatePins re-positions a pin', () => {
+    const origionalAddress = locationIO.vm.address;
+    locationIO.vm.pins.push({lat: 0, lng: 0});
+
+    locationIO.vm.setInputBoxUpdatePins({lat: 1, lng: 1}, 0);
+    expect(locationIO.vm.pins[0]).toEqual({lat: 1, lng: 1});
+    expect(locationIO.vm.address).not.toEqual(origionalAddress);
+});
+
 test('Pins obtained from the parent are added to the map', () => {
     locationIO = mount(LocationIO, {localVue, propsData:{parentPins: [parentPinData]}});
     expect(locationIO.vm.$data.pins).toContain(parentPinData);
@@ -103,22 +130,31 @@ test('Map center is undefined by default', () => {
     expect(locationIO.vm.$data.center).toBeUndefined();
 });
 
-test('Only a single pin can be added in single-only mode', () => {
-    locationIO = mount(LocationIO, {localVue, propsData: {singleOnly: true}});
-    expect(locationIO.vm.$data.pins).toHaveLength(0)
-    locationIO.setData({currentPlace: pinGeometry});
-    locationIO.vm.addMarker();
-    expect(locationIO.vm.$data.pins).toHaveLength(1)
-    expect(locationIO.vm.$data.pins).toContainEqual(pinGeometry.data)
-    locationIO.setData({currentPlace: altPinGeometry});
-    locationIO.vm.addMarker();
-    expect(locationIO.vm.$data.pins).toHaveLength(1)
+test.each([
+    {singleOnly: true},
+    {maxPins: 1},
+    {singleOnly: true, maxPins: 1},
+])('Only a single pin can be added in single-only mode and when max-pin == 1', async (props) => {
+    locationIO = mount(LocationIO, {localVue, propsData: props});
+    locationIO.vm.$refs.mapViewerRef = {panToPin: () => {}};
+
+    expect(locationIO.vm.$data.pins).toHaveLength(0);
+    locationIO.vm.addMarker(pinGeometry);
+    await locationIO.vm.$nextTick();  // Need to let the pins watcher update
+    expect(locationIO.vm.$data.pins).toHaveLength(1);
+    expect(locationIO.vm.$data.pins).toContainEqual(pinGeometry.data);
+
+    locationIO.vm.addMarker(altPinGeometry);
+    await locationIO.vm.$nextTick();  // Need to let the pins watcher update
+    expect(locationIO.vm.$data.pins).toHaveLength(1);
     expect(locationIO.vm.$data.pins).toContainEqual(altPinGeometry.data)
 });
 
+
+
 test('Add marker function emits an event with the list of pins', () => {
-    locationIO.setData({currentPlace: pinGeometry});
-    locationIO.vm.addMarker();
-    expect(locationIO.emitted('child-pins')).toHaveLength(1)
+    locationIO.vm.$refs.mapViewerRef = {panToPin: () => {}};
+    locationIO.vm.addMarker(pinGeometry);
+    expect(locationIO.emitted('child-pins')).toHaveLength(1);
     expect(locationIO.emitted('child-pins')[0][0]).toContainEqual(pinGeometry.data)
 });
