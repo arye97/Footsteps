@@ -2,6 +2,7 @@ package com.springvuegradle.seng302team600.validator;
 
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.ActivityType;
+import com.springvuegradle.seng302team600.model.Location;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -9,9 +10,9 @@ import java.util.*;
 
 public class ActivityValidator {
 
-    final static private int NAME_LEN = 75;
-    final static private int DESCRIPTION_LEN = 1500;
-    final static private int MIN_ACTIVITY_TYPE_COUNT = 1;
+    static final private int NAME_LEN = 75;
+    static final private int DESCRIPTION_LEN = 1500;
+    static final private int MIN_ACTIVITY_TYPE_COUNT = 1;
 
     /**
      * Check if the activity's attributes are all valid.
@@ -24,6 +25,7 @@ public class ActivityValidator {
         validateName(activity.getName());
         validateDescription(activity.getDescription());
         validateActivityTypes(activity.getActivityTypes());
+        validateLocation(activity.getLocation());
         if (!activity.isContinuous()) {
             validateDates(activity.getStartTime(), activity.getEndTime());
         }
@@ -82,6 +84,32 @@ public class ActivityValidator {
         }
         if (start.getTime() < 0 || end.getTime() < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start date and end date must occur after 1970");
+        }
+    }
+
+    /**
+     * Checks the location attached to an activity is valid
+     * A valid location is:
+     * - not null
+     * - latitude must be between -90 and 90
+     * - longitude must be between -180 and 180
+     * @param location the location
+     */
+    private static void validateLocation(Location location) {
+        if (location.getLocationName() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Location must have a name");
+        }
+        if (location.getLatitude() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Location must have a valid latitude value");
+        }
+        if (location.getLatitude() > 90 || location.getLatitude() < -90) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Location latitude must exist (be between -90 and 90 degrees)");
+        }
+        if (location.getLongitude() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Location must have a valid longitude value");
+        }
+        if (location.getLongitude() > 180 || location.getLongitude() < -180) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Location longitude must exist (be between -180 and 180 degrees)");
         }
     }
 }

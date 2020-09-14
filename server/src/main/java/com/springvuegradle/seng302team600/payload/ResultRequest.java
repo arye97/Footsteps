@@ -2,8 +2,6 @@ package com.springvuegradle.seng302team600.payload;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.Set;
-
 public class ResultRequest {
 
     @JsonProperty("user_id")

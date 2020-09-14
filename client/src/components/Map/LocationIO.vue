@@ -2,13 +2,14 @@
     <div>
         <b-card class="flex-fill" border-variant="secondary">
             <div v-if="isMapVisible">
-                <b-button id="hideMapButton" @click="isMapVisible=false">Hide Map</b-button>
+                <b-button id="hideMapButton" variant="info" @click="isMapVisible=false">Hide Map</b-button>
                     <map-viewer
                             id="mapComponent"
                             ref="mapViewerRef"
                             :pins="pins"
                             @pin-move="(newPins) => this.pins = newPins ? newPins : this.pins"
                             @address-change="(modifiedAddress) => this.address = modifiedAddress"
+                            :initial-center="center"
                     ></map-viewer>
                 <div v-if="!viewOnly">
                     <h3 class="font-weight-light"><strong>Search and add a pin</strong></h3>
@@ -22,11 +23,11 @@
                             class="form-control" style="width: 100%">
                     </gmap-autocomplete>
 
-                    <b-button id='addMarkerButton' block @click="addMarker()">Drop Pin</b-button>
+                    <b-button id='addMarkerButton' variant="primary" block @click="addMarker()">Drop Pin</b-button>
                 </div>
             </div>
             <div v-else>
-                <b-button id="showMapButton" @click="isMapVisible=true">Show Map</b-button>
+                <b-button id="showMapButton" variant="primary" @click="isMapVisible=true">Show Map</b-button>
             </div>
         </b-card>
     </div>
@@ -46,10 +47,8 @@
 
         watch: {
             pins: function () {
-                if (this.maxPins) {
-                    for (let i=0; i < this.pins.length - this.maxPins; i++) {
-                        this.pins.shift();  // Can't use splice.  Causes infinite loop with watcher
-                    }
+                if ((this.singleOnly && this.pins.length > 1) || (this.maxPins >= 0 && this.pins.length > this.maxPins)) {
+                    this.pins.shift();
                 }
             }
         },
@@ -61,14 +60,51 @@
             },
             maxPins: {
                 type: Number
+            },
+            singleOnly: {
+                default: false,
+                type: Boolean
+            },
+            currentLocation: {
+                type: Object
+            },
+            parentPins: {
+              default: function() {return []},
+              type: Array
+            },
+            parentCenter: {
+                default: null,
+                type: Object
             }
         },
 
         data() {
             return {
                 isMapVisible: false,
-                pins:[],
-                address: ""
+                address: "",
+                pins: [],
+                center: undefined,
+            }
+        },
+
+        mounted() {
+            if (this.currentLocation) {
+                let pin = {
+                    lat: this.currentLocation.latitude,
+                    lng: this.currentLocation.longitude,
+                    name: this.currentLocation.name
+                };
+                if (this.pins) {
+                    this.pins.push(pin);
+                }
+                this.center = pin;
+            }
+
+            if (this.parentCenter) {
+                this.center = this.parentCenter;
+            }
+            if (this.parentPins) {
+                this.pins.push(...this.parentPins);
             }
         },
 
@@ -102,6 +138,8 @@
                 }
 
                 this.$refs.mapViewerRef.panToPin(pin);
+                this.center = pin;
+                this.$emit("child-pins", this.pins);
             },
 
 
