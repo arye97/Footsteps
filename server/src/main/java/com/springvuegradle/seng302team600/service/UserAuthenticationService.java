@@ -31,7 +31,7 @@ public class UserAuthenticationService {
      */
     private String generateNewToken() {
         int length = 30;
-        StringBuffer strBuffer = new StringBuffer(length);
+        StringBuilder strBuffer = new StringBuilder(length);
         SecureRandom secureRandom = new SecureRandom();
         for(int i = 0; i < length; i++)
             strBuffer.append(CHAR_LIST.charAt(secureRandom.nextInt(CHAR_LIST.length())));
@@ -135,11 +135,16 @@ public class UserAuthenticationService {
      * @return the user requested or ResponseStatusException is the user is not found
      */
     public User viewUserById(Long id, String token) {
-        findByToken(token); // Checks that a user is logged in
+        User activeUser = findByToken(token); // Checks that a user is logged in
         User user = userRepository.findByUserId(id);
         if (user != null) {
+            if (!(id.equals(activeUser.getUserId()) || hasAdminPrivileges(activeUser))) {
+                user.setPrivateLocation(null);
+            }
+
             return user;
         }
+
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with ID: " + id);
     }
 }

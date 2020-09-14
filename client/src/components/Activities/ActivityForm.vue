@@ -167,11 +167,17 @@
                         label="Location: *"
                         label-for="input-location"
                 >
-                    <b-form-input
-                            id="input-location"
-                            v-model="activity.location"
-                            placeholder="Location of your activity..."
-                    ></b-form-input>
+                    <!-- This gets around an issue where vue will throw a warning that location has not been defined -->
+                    <location-i-o v-if="!this.isEdit || this.activity.location !== null"
+                        id="input-location"
+                        @pin-change="locationValue"
+                        :single-only="true"
+                        :parent-pins="this.isEdit ?
+                            [{lat: this.activity.location.latitude, lng: this.activity.location.longitude}] :  null"
+                        :parent-center="this.isEdit ?
+                            {lat: this.activity.location.latitude, lng: this.activity.location.longitude} : null"
+                    ></location-i-o>
+
                 </b-form-group>
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_location">
                     {{ "Field is mandatory and a location must be set" }}
@@ -276,6 +282,7 @@
     import Multiselect from 'vue-multiselect'
     import api from "../../Api";
     import {localTimeZoneToBackEndTime} from "../../util";
+    import LocationIO from "../Map/LocationIO";
 
 
     /**
@@ -296,7 +303,7 @@
      * CreateActivity and EditActivity at the time of writing.
      */
     export default {
-        components: { Multiselect },
+        components: {LocationIO, Multiselect},
         name: "ActivityForm",
         props: {
             activity: {
@@ -307,7 +314,7 @@
                 continuous: Boolean,
                 submitStartTime: String,
                 submitEndTime: String,
-                location: String,
+                location: Object,
                 startTime: String,
                 endTime: String,
             },
@@ -324,6 +331,7 @@
                 type: Array
             },
             submitActivityFunc: Function,
+            isEdit:  Boolean,
             startTime: String,
             endTime: String,
         },
@@ -660,6 +668,18 @@
                     }
                 })
                 return result;
+            },
+          /**
+           * Sets the location of the activity
+           * Called when the pins in the LocationIO child component are changed
+           * @param pin Object from LocationIO
+           */
+            locationValue: function (pin) {
+                this.activity.location = {
+                    latitude: pin.lat,
+                    longitude: pin.lng,
+                    name: pin.name,
+                };
             }
         }
     }
