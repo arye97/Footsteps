@@ -123,22 +123,24 @@
                                 </b-list-group>
                                 <br/>
                                 <!-- These are kept separate to make it clearer to the user what each pin means -->
-                                <h3 class="font-weight-light"><strong>Public Location:</strong></h3><br/>
-                                <b-card class="flex-fill" border-variant="secondary">
+                                <div v-if="this.user.public_location">
+                                    <h3 class="font-weight-light"><strong>Public Location:</strong></h3><br/>
                                     <location-i-o
                                         :view-only="true"
                                         :parent-pins="[{lat: this.user.public_location.latitude, lng: this.user.public_location.longitude}]"
                                         :parent-center="{lat: this.user.public_location.latitude, lng: this.user.public_location.longitude}">
                                     </location-i-o>
-                                </b-card><br/>
-                                <h3 class="font-weight-light"><strong>Private Location:</strong></h3><br/>
-                                <b-card class="flex-fill" border-variant="secondary">
-                                    <location-i-o v-if="this.user.private_location"
+                                </div>
+                                <br/>
+                                <div v-if="this.user.private_location">
+                                    <h3 class="font-weight-light"><strong>Private Location:</strong></h3><br/>
+                                    <location-i-o
                                         :view-only="true"
                                         :parent-pins="[{lat: this.user.private_location.latitude, lng: this.user.private_location.longitude}]"
                                         :parent-center="{lat: this.user.private_location.latitude, lng: this.user.private_location.longitude}">
                                     </location-i-o>
-                                </b-card><br/>
+                                </div>
+                                <br/>
                             </div>
                         </section>
                     </div>
