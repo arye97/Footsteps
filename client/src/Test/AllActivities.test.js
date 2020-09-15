@@ -1,5 +1,5 @@
 import 'vue-jest'
-import {createLocalVue, mount} from "@vue/test-utils";
+import {createLocalVue, shallowMount} from "@vue/test-utils";
 import {BootstrapVue} from "bootstrap-vue";
 import AllActivities from "../views/Activities/AllActivities";
 import router from "../index";
@@ -21,8 +21,7 @@ beforeAll(() => {
             }
         }
     };
-    allActivities = mount(AllActivities, config);
-    window.scrollTo = jest.fn();
+    allActivities = shallowMount(AllActivities, config);
 });
 
 test('Is a vue instance', () => {
