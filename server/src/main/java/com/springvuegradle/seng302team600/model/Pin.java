@@ -10,11 +10,8 @@ public class Pin {
     @JsonProperty("pin_type")
     private PinType pinType;
 
-    @JsonProperty("user_id")
-    private long userId;
-
-    @JsonProperty("activity_id")
-    private long activityId;
+    @JsonProperty("id")
+    private long id;
 
     @JsonProperty("colour")
     private String colour;
@@ -30,13 +27,15 @@ public class Pin {
 
     /**
      * Create a Pin with location specified
+     * @param id The id given to the pin from the front-end, may be of User or Activity
      * @param pinType The type of pin - set by the PinType enum
      * @param colour The colour of the marker represented by a string
      * @param longitude The double value of the longitudinal coordinate
      * @param isFocus A boolean value representing the focus
      * @param latitude The double value of the latitudinal coordinate
      */
-    public Pin(PinType pinType, String colour, Double longitude, boolean isFocus, Double latitude) {
+    public Pin(long id, PinType pinType, String colour, Double longitude, boolean isFocus, Double latitude) {
+        this.id = id;
         this.pinType = pinType;
         this.colour = colour;
         this.longitude = longitude;
@@ -49,9 +48,9 @@ public class Pin {
      */
     public Pin() {}
 
-    public long getUserId() {return userId;}
-
-    public long getActivityId() {return activityId;}
+    public long getId() {
+        return id;
+    }
 
     public PinType getPinType() {
         return pinType;
@@ -87,8 +86,7 @@ public class Pin {
         isFocus = focus;
     }
 
-    public void setUserId(long id) {userId = id;}
+    public void setId(long pinId) {id = pinId;}
 
-    public void setActivityId(long id) {activityId = id;}
 
 }
