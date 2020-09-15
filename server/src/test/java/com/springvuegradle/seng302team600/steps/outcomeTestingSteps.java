@@ -4,21 +4,20 @@ import com.springvuegradle.seng302team600.controller.JsonConverter;
 import com.springvuegradle.seng302team600.controller.OutcomeController;
 import com.springvuegradle.seng302team600.cucumberSpringBase;
 import com.springvuegradle.seng302team600.enumeration.UnitType;
-//import org.junit.jupiter.api.BeforeAll;
+import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.OutcomeRepository;
 import com.springvuegradle.seng302team600.repository.ResultRepository;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import io.cucumber.java.Before;
-import org.junit.runner.RunWith;
+import io.cucumber.java.en.And;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.springvuegradle.seng302team600.model.Outcome;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -30,10 +29,9 @@ import io.cucumber.java.en.When;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -42,47 +40,42 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class outcomeTestingSteps extends cucumberSpringBase {
 
-    @MockBean
+    @Mock
     private UserAuthenticationService userAuthenticationService;
-    @MockBean
+    @Mock
     private OutcomeRepository outcomeRepository;
-    @MockBean
+    @Mock
     private ActivityRepository activityRepository;
-    @MockBean
+    @Mock
     private ResultRepository resultRepository;
     @Autowired
     private MockMvc mvc;
 
     private Outcome dummyOutcome;
+    private Activity dummyActivity;
     private final String validToken = "valid";
-    private static final Long ACTIVITY_ID_1 = 1L;
-    private static final Long OUTCOME_ID_1 = 3L;
+    private static final Long CREATOR_ID = 1L;
+    private static final Long ACTIVITY_ID = 2L;
+    private static final Long OUTCOME_ID = 3L;
     private Long nextOutcomeId = 1L;
 
 
-    private final String successfulEditOutcomeJson = JsonConverter.toJson(true,
+    private final String EditedOutcomeJson = JsonConverter.toJson(true,
             "title", "EditedTitle",
-            "activity_id", ACTIVITY_ID_1,
+            "activity_id", ACTIVITY_ID,
             "unit_name", "EditedUnitName",
             "unit_type", "TEXT"
     );
 
-
-
     private List<Outcome> outcomeTable;
+    private List<Activity> activityTable;
 
     @Before
-    private void setupMocking() {
+    public void setupMocking() {
+        //Manually instantiate mvc - needed to fix NullPointerException error
         MockitoAnnotations.initMocks(this);
-        when(outcomeRepository.findByOutcomeId(Mockito.anyLong())).thenAnswer(i -> {
-            Long outcomeId = i.getArgument(0);
-            for (Outcome outcome : outcomeTable) {
-                if (outcome.getOutcomeId().equals(outcomeId)) {
-                    return outcome;
-                }
-            }
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Could not find outcome.");
-        });
+        OutcomeController outcomeController = new OutcomeController(userAuthenticationService, outcomeRepository, activityRepository, resultRepository);
+        mvc = MockMvcBuilders.standaloneSetup(outcomeController).build();
 
         // Mocking OutcomeRepository
         when(outcomeRepository.findByActivityId(Mockito.any())).thenAnswer(i -> {
@@ -94,6 +87,15 @@ public class outcomeTestingSteps extends cucumberSpringBase {
                 }
             }
             return resultList;
+        });
+        when(outcomeRepository.findByOutcomeId(Mockito.anyLong())).thenAnswer(i -> {
+            Long outcomeId = i.getArgument(0);
+            for (Outcome outcome : outcomeTable) {
+                if (outcome.getOutcomeId().equals(outcomeId)) {
+                    return outcome;
+                }
+            }
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Could not find outcome.");
         });
         when(outcomeRepository.save(Mockito.any())).thenAnswer(i -> {
             Outcome outcome = i.getArgument(0);
@@ -115,37 +117,53 @@ public class outcomeTestingSteps extends cucumberSpringBase {
             return outcome;
         });
 
+        //Mocking ActivityRepository
+        when(activityRepository.findByActivityId(Mockito.anyLong())).thenAnswer(i -> {
+            Long activityId = i.getArgument(0);
+            for (Activity activity : activityTable) {
+                if (activity.getActivityId().equals(activityId)) {
+                    return activity;
+                }
+            }
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Could not find activity.");
+        });
+
     }
 
 
+    @And("I am the creator of a basic activity")
+    public void i_am_the_creator_of_an_activity() {
+        dummyActivity = new Activity();
+        dummyActivity.setCreatorUserId(CREATOR_ID);
+        dummyActivity.setName("Dummy Activity Name");
+        dummyActivity.setDescription("Dummy Activity Description");
+        dummyActivity.setParticipants(new HashSet<>());
+        ReflectionTestUtils.setField(dummyActivity, "activityId", ACTIVITY_ID);
+        activityTable = new ArrayList<>();
+        activityTable.add(dummyActivity);
+    }
 
-
-    @Given("I am the creator of an outcome with the title {string} and unitName {string}")
+    @Given("My activity has an outcome with the title {string} and unitName {string}")
     public void i_am_the_creator_of_an_outcome_with_ID_and_title_and_unitName(String title, String unitName) {
         dummyOutcome = new Outcome();
         dummyOutcome.setTitle(title);
         dummyOutcome.setUnitName(unitName);
         dummyOutcome.setUnitType(UnitType.TEXT);
-        ReflectionTestUtils.setField(dummyOutcome, "activityId", ACTIVITY_ID_1);
-        ReflectionTestUtils.setField(dummyOutcome, "outcomeId", OUTCOME_ID_1);
-
+        ReflectionTestUtils.setField(dummyOutcome, "activityId", ACTIVITY_ID);
+        ReflectionTestUtils.setField(dummyOutcome, "outcomeId", OUTCOME_ID);
         outcomeTable = new ArrayList<>();
         outcomeTable.add(dummyOutcome);
     }
 
     @When("I try to edit my outcome")
     public void i_try_to_edit_my_outcome() throws Exception {
-        //put request to the endpoint
-        System.out.println("outcomeTable is: " + outcomeTable.get(0).getTitle());
-        System.out.println("Dummy outcome is: "+ dummyOutcome);
-
-
+        //Put request to the endpoint
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .put("/activities/{outcomeId}/outcomes", 3L)
                 .header("Token", validToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content(successfulEditOutcomeJson);
+                .content(EditedOutcomeJson);
 
         MvcResult result = mvc.perform(request)
                 .andExpect(status().isOk())
@@ -155,9 +173,10 @@ public class outcomeTestingSteps extends cucumberSpringBase {
 
     @Then("My outcome now has the title {string} and unitName {string}")
     public void myOutcomeNowHasTheTitleAndUnitName(String editedTitle, String editedUnitName) {
-        assertEquals(editedTitle, outcomeTable.get(0).getTitle());
-        assertEquals(editedUnitName, outcomeTable.get(0).getUnitName());
+        assertEquals("EditedTitle", outcomeTable.get(0).getTitle());
+        assertEquals("EditedUnitName", outcomeTable.get(0).getUnitName());
     }
+
 
 
 }
