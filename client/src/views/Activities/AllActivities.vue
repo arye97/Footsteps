@@ -26,10 +26,13 @@
             {{this.alertMessage}}
         </b-alert>
         <div style="text-align: center">
-            <b-button style="margin-bottom: 1.7em; margin-top: 0.8em" variant="primary" v-on:click="goToPage('/activities/create')">Create New Activity</b-button>
+            <b-button id="creatActivityButton" style="margin-bottom: 1.7em; margin-top: 0.8em" variant="primary" v-on:click="goToPage('/activities/create')">Create New Activity</b-button>
+        </div>
+        <div class="map-pane" id="mapPane">
+            <location-i-o :view-only="true"></location-i-o>
         </div>
         <section>
-            <ActivityList v-if="userId !== null" :user-id-prop="this.userId"/>
+            <ActivityList id="activityList" v-if="userId !== null" :user-id-prop="this.userId"/>
         </section>
 
         </b-container>
@@ -41,11 +44,13 @@
     import Header from '../../components/Header/Header.vue';
     import api from "../../Api";
     import ActivityList from "../../components/Activities/ActivityList";
+    import LocationIO from "../../components/Map/LocationIO";
     export default {
         name: "AllActivities",
         components : {
             ActivityList,
-            Header
+            Header,
+            LocationIO
         },
         data() {
             return {
