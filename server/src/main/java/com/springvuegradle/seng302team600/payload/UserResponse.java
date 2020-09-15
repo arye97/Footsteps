@@ -63,12 +63,11 @@ public class UserResponse {
     @JsonProperty("role")
     private int role;
 
-    // TODO If there is a merge conflict, take Taran's branch T4589
     @JsonProperty("public_location")
-    private Location publicLocation;
+    private LocationResponse publicLocation;
 
     @JsonProperty("private_location")
-    private Location privateLocation;
+    private LocationResponse privateLocation;
 
     public UserResponse(User user) {
         this.lastName = user.getLastName();
@@ -85,8 +84,12 @@ public class UserResponse {
         this.dateOfBirth = user.getDateOfBirth();
         this.bio = user.getBio();
         this.role = user.getRole();
-        this.publicLocation = user.getPublicLocation();
-        this.privateLocation = user.getPrivateLocation();
+        if (user.getPublicLocation() != null) {
+            this.publicLocation = new LocationResponse(user.getPublicLocation());
+        }
+        if (user.getPrivateLocation() != null) {
+            this.privateLocation = new LocationResponse(user.getPrivateLocation());
+        }
     }
 
     public UserResponse() {}
@@ -129,11 +132,11 @@ public class UserResponse {
 
     public String getBio() { return bio; }
 
-    public Location getPublicLocation() {
+    public LocationResponse getPublicLocation() {
         return publicLocation;
     }
 
-    public Location getPrivateLocation() {
+    public LocationResponse getPrivateLocation() {
         return privateLocation;
     }
 

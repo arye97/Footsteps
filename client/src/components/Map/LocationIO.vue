@@ -5,8 +5,12 @@
                 <b-button id="hideMapButton" variant="info" @click="isMapVisible=false">Hide Map</b-button>
                     <map-viewer
                             id="mapComponent"
-                            :center="center"
+                            ref="mapViewerRef"
                             :pins="pins"
+                            :draggable-pins="!viewOnly"
+                            @child-pins="(newPins) => this.pins = newPins ? newPins : this.pins"
+                            @pin-change="pinChanged"
+                            :initial-center="center"
                     ></map-viewer>
                 <div v-if="!viewOnly">
                     <h3 class="font-weight-light"><strong>Search and add a pin</strong></h3>
@@ -14,16 +18,17 @@
                     <!--We should add to fields in :options if we want to receive other data from the API-->
                     <gmap-autocomplete
                             id="gmapAutoComplete"
-                                :options="{fields: ['geometry', 'formatted_address', 'address_components']}"
-                            @place_changed="getPlaceField"
+                            :value="address"
+                            :options="{fields: ['geometry', 'formatted_address', 'address_components']}"
+                            @place_changed="(place) => {addMarker(placeToPin(place)); pinChanged(placeToPin(place));}"
                             class="form-control" style="width: 100%">
                     </gmap-autocomplete>
 
-                    <b-button id='addMarkerButton' variant="primary" block @click="addMarker">Add</b-button>
+                    <b-button id='addMarkerButton' variant="primary" block @click="addMarker()">Drop Pin</b-button>
                 </div>
             </div>
             <div v-else>
-                <b-button id="showMapButton" variant="info" @click="isMapVisible=true">Show Map</b-button>
+                <b-button id="showMapButton" variant="primary" @click="isMapVisible=true">Show Map</b-button>
             </div>
         </b-card>
     </div>
@@ -33,7 +38,13 @@
 <script>
     import MapViewer from "../../components/Map/MapViewer";
 
-
+    /**
+     * A component for viewing or editing a location using a textbox and interactive map.  Composes MapViewer.
+     *
+     * Emitted Events:
+     * @emits child-pins  -  emitted when internal Array of pins is modified.  Returns the Array.
+     * @emits pin-change  -  emitted when a single pin is modified.  Returns the pin Object.
+     */
     export default {
         name: "LocationIO",
 
@@ -41,34 +52,67 @@
             MapViewer
         },
 
+
         props: {
+
+            /**
+             * When true only displays locations and is un-editable.
+             */
             viewOnly: {
                 default: false,
                 type: Boolean
             },
+            /**
+             * Number of pins to display on the map.  If exceeded, the first pin in the Array is removed.
+             */
+            maxPins: {
+                type: Number
+            },
+            /**
+             * Boolean version of maxPins.  Only allows 1 pin when true.
+             */
             singleOnly: {
                 default: false,
                 type: Boolean
             },
+            /**
+             * Initial location.
+             */
             currentLocation: {
-                default: undefined,
+                type: Object
             },
+            /**
+             * Array of pins to display on map.
+             */
             parentPins: {
               default: function() {return []},
               type: Array
             },
+            /**
+             * Object {lat, lng} to centre map on.
+             */
             parentCenter: {
                 default: null,
                 type: Object
             }
         },
 
+        watch: {
+            pins: function () {
+                if ((this.singleOnly && this.pins.length > 1) || (this.maxPins >= 0 && this.pins.length > this.maxPins)) {
+                    this.pins.shift();
+                } else {
+                    this.$emit("child-pins", [...this.pins]);
+                }
+            }
+        },
+
         data() {
             return {
                 isMapVisible: false,
+                address: "",
                 pins: [],
                 center: undefined,
-                currentPlace: null
             }
         },
 
@@ -79,9 +123,7 @@
                     lng: this.currentLocation.longitude,
                     name: this.currentLocation.name
                 };
-                if (this.singleOnly && this.pins) {
-                    this.pins[0] = pin;
-                } else {
+                if (this.pins) {
                     this.pins.push(pin);
                 }
                 this.center = pin;
@@ -95,36 +137,70 @@
             }
         },
 
-      methods: {
+        methods: {
 
             /**
-             * Receives a place object via the autocomplete component
-             * @param place response object from Google API that includes latitude and longitude
+             * Add a marker centred on the coordinates of place, or the center of the map if place is not defined.
+             * @param pin Object containing lat, lng, name.  (Optional)
              */
-            getPlaceField(place) {
-                this.currentPlace = place;
+            addMarker(pin) {
+
+                if (pin && ["lat", "lng", "name"].every(key => key in pin)) {
+                    this.pins.push(pin);
+                    this.address = pin.name;
+
+                } else if (pin === undefined) {
+
+                    pin = {
+                        lat: this.$refs.mapViewerRef.currentCenter.lat,
+                        lng: this.$refs.mapViewerRef.currentCenter.lng,
+                        name: ""
+                    };
+                    this.pins.push(pin);
+
+                    // Fetches pin.name from API and sets this.address
+                    this.$refs.mapViewerRef.repositionPin(pin, this.pins.length - 1);
+
+                } else {
+                    // An error occurred.  This would the place to add a message box "The location can not be found"
+                    return;
+                }
+
+                this.$refs.mapViewerRef.panToPin(pin);
+                this.center = pin;
             },
 
+
             /**
-             * Add a marker centred on the coordinates of this.currentPlace
+             * Convert a google place object to a pin.
+             * @param place Object received via the autocomplete component.  Needs fields place.geometry.location.lat(),
+             * place.geometry.location.lng() and place.formatted_address.
+             * @return Object with properties lat, lng, name
              */
-            addMarker() {
-                if (this.currentPlace) {
-                    const pin = {
-                        lat: this.currentPlace.geometry.location.lat(),
-                        lng: this.currentPlace.geometry.location.lng(),
-                        name: this.currentPlace.formatted_address
+            placeToPin(place) {
+                let pin;
+                try {
+                    pin = {
+                        lat: place.geometry.location.lat(),
+                        lng: place.geometry.location.lng(),
+                        name: place.formatted_address
                     };
-                    if (this.singleOnly && this.pins) {
-                        this.pins[0] = pin;
-                    } else {
-                        this.pins.push(pin);
-                    }
-                    this.center = pin;
-                    this.currentPlace = null;
-                    this.$emit("child-pins", this.pins);
+                } catch {
+                    pin = null
                 }
+                return pin
+            },
+
+
+            /**
+             * Updates the this.address in gmap-autocomplete and emits the changed pin to the parent component.
+             * @param pin Object pin that was changed
+             */
+            pinChanged(pin) {
+                this.address = pin.name;
+                this.$emit("pin-change", pin);
             }
+
         }
     }
 </script>
