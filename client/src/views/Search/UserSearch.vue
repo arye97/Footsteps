@@ -69,7 +69,7 @@ import Multiselect from "vue-multiselect";
 import api from "../../Api";
 
 export default {
-    name: "UserSearch.vue",
+    name: "UserSearch",
     components: {
         UserCard,
         Multiselect

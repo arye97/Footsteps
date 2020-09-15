@@ -16,6 +16,7 @@
     "axios": "^0.19.2",
     "bootstrap-vue": "^2.16.0",
     "core-js": "^3.6.5",
+    "gmap-vue": "^1.4.0",
     "jquery": "^3.5.1",
     "serve": "^11.3.2",
     "vue": "^2.6.11",
@@ -67,11 +68,9 @@
       "^.+\\.vue$": "vue-jest",
       "^.+\\.js$": "babel-jest"
     },
-    "jestSonar": {
-      "reportPath": "coverage",
-      "reportFile": "test-report.xml",
-      "indent": 4
-    },
+    "transformIgnorePatterns": [
+      "<rootDir>/node_modules/(?!gmap-vue/.*)"
+    ],
     "moduleNameMapper": {
       "\\.(css|less)$": "<rootDir>/assets/css/__mocks__/styleMock.js"
     },
@@ -84,9 +83,17 @@
       "node",
       "vue"
     ],
+    "setupFiles": [
+      "./src/Test/SessionStorageMock.js"
+    ],
     "setupFilesAfterEnv": [
       "./src/Test/LiveBackEnd/setup.js"
     ],
     "globalSetup": "<rootDir>/jest-setup-global.js"
+  },
+  "jestSonar": {
+    "reportPath": "coverage",
+    "reportFile": "test-report.xml",
+    "indent": 4
   }
 }

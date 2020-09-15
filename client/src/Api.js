@@ -51,6 +51,7 @@ export default {
   getActivityTypes: () => server.get('/activity-types', getTokenHeader()),
   getParticipants: (activityId) => server.get(`/activities/${activityId}/participants`, getTokenHeader()),
   editProfile: (userData, profileId) => server.put(`profiles/${profileId}`, userData, getTokenHeader()),
+  editLocation: (locationData, profileId) => server.put(`/profiles/${profileId}/location`, locationData, getTokenHeader()),
   getUserData: (profileId) => server.get(`/profiles/${profileId}`, getTokenHeader()),
   checkProfile: (profileId) => server.get(`/check-profile/`.concat(profileId), getTokenHeader()),
   getUserEmails: (profileId) => server.get(`/profiles/${profileId}/emails`, getTokenHeader()),
@@ -83,6 +84,7 @@ export default {
   getActivityOutcomes: (activityId) => server.get(`/activities/${activityId}/outcomes`, getTokenHeader()),
   getOutcomeResults: (outcomeId) => server.get(`/outcomes/${outcomeId}/results`, getTokenHeader()),
   createResult: (resultData, outcomeId) => server.post(`/outcomes/${outcomeId}/results`, resultData, getTokenHeader()),
+  updateOutcome: (outcomeData) => server.put(`/activities/outcomes`, outcomeData, getTokenHeader()),
   getActivityByActivityType: (activityTypes, method, pageNumber) => {    // method denotes "and" or "or"
     let activityTypesStr = activityTypes.map(a => a.replace(/\s/g, '-')).join(' ');  // Use RegEx to replace ALL spaces with dashes (because str.replace is stupid)
     console.log(activityTypesStr, method, pageNumber);
@@ -90,5 +92,4 @@ export default {
     return null;
     //return server.get(`activities?activity=${activityTypesStr}&method=${method}`, getExtendedPageNumberTokenHeader(pageNumber))
     //todo: confirm the url for this request
-  },
 }

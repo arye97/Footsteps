@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
-  <file path="C:\Users\games\Documents\2020\SENG302\SENG302 Project\team-600\client\src\Test\ActivitySearch.test.js">
-    <testCase name="Is a vue instance" duration="117"/>
-    <testCase name="Activities search box exists" duration="65"/>
-    <testCase name="Search button exists" duration="44"/>
-    <testCase name="And search operator radio button exists" duration="30"/>
-    <testCase name="Or search operator radio button exists" duration="38"/>
+  <file path="D:\Documents\UC 300\SENG 302\team-600\client\src\Test\LocationIO.test.js">
+    <testCase name="Is a vue instance" duration="23"/>
+    <testCase name="map pane does not exist at default" duration="15"/>
+    <testCase name="gmap Auto complete does not exist at default" duration="7"/>
+    <testCase name="Add marker button does not exist at default" duration="8"/>
+    <testCase name="Hide map button does not exist at default" duration="11"/>
+    <testCase name="Show map button exists at default" duration="11"/>
   </file>
 </testExecutions>

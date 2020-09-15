@@ -4,12 +4,15 @@
             <br/>
             <div>
                 <b-row>
-                    <b-col cols="8">
+                    <b-col cols="8" v-if="searchMode==='activityType'">
                         <multiselect v-model="selectedActivityTypes" id="searchBoxActivities"
                                      :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
                                      placeholder="Select your activity types">
                             <template slot="noResult">Invalid activity type</template>
                         </multiselect>
+                    </b-col>
+                    <b-col cols="8" v-if="searchMode==='activityName'">
+                        <b-form-input id="searchBoxActivityTitle" v-model="activityTitle" placeholder="Search activity by title"></b-form-input>
                     </b-col>
                     <b-col cols="4">
                         <b-form-select id="searchModeSelect" v-model="searchMode" :options="searchModes"></b-form-select>
@@ -46,8 +49,8 @@
                 <br/>
             </section>
             <section v-else v-for="activity in this.activitiesList" :key="activity.id">
-                <!-- User List -->
-                <activity-card v-bind:activity="activity" v-bind:activity-types-searched-for="activityTypesSearchedFor"/>
+                <!-- Activity List -->
+                <activity-card v-bind:activity="activity" v-bind:activity-types-searched-for="activityTypesSearchedFor"></activity-card>
                 <br>
             </section>
             <!-- Pagination Nav Bar -->
@@ -65,27 +68,39 @@
 <script>
 import Multiselect from "vue-multiselect";
 import api from "../../Api";
+import ActivityCard from "./ActivityCard";
 
 export default {
     name: "ActivitySearch",
     components: {
+        ActivityCard,
         Multiselect
     },
     data() {
         return {
             activitiesPerPage: 5,
             currentPage: 1,
-            activitiesList: [],
+            activitiesList: [{ // ToDo remove this placeholder when actual activity search is implemented
+                id: 1,
+                creatorUserId: 1,
+                activity_name: "Snow trip",
+                description: "A fun Snow skiing trip. With lots of snow and scary looking tricks. Don't be late.",
+                activity_type: [{activity_type_id: 1, name: 'Skiing'}],
+                continuous: false,
+                start_time: new Date(),
+                end_time: new Date(),
+                location: "Queenstown"
+            }],
             searchMode: 'activityType',
             searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
                 { value: 'activityType', text: 'Activity Type'},
-                { value: 'name', text: 'Name'}
+                { value: 'activityName', text: 'Activity Name'}
             ],
             // These are the ActivityTypes selected in the Multiselect
             selectedActivityTypes : [],
             // These are a copy of selectedActivityTypes passed to the UserCard (to avoid mutation after clicking search)
-            activityTypesSearchedFor : [],
-
+            activityTypesSearchedFor : ['Skiing'], // ToDo remove this placeholder when actual activity search is implemented
+            activityTitle: "",
             activityTypes: [],
             searchType: "and",
             errored: false,

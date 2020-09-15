@@ -79,6 +79,10 @@ class UserControllerTest {
     private String validToken = "valid";
     private boolean defaultAdminIsRegistered;
 
+    private Location dummyPublicLocation = new Location(6.0, 9.0, "Puerto Rico");
+    private Location dummyPrivateLocation = new Location(5.0, 2.0, "Paris");
+
+
     @BeforeEach
     void setUp() {
         defaultAdminIsRegistered = false;
@@ -131,6 +135,7 @@ class UserControllerTest {
         });
         ReflectionTestUtils.setField(dummyUser1, "userId", DEFAULT_USER_ID);
         ReflectionTestUtils.setField(dummyEmail, "emailId", DEFAULT_EMAIL_ID);
+
         when(userAuthenticationService.login(Mockito.anyString(),Mockito.anyString())).thenAnswer(i -> {
                 if (i.getArgument(0).equals(dummyEmail.getEmail()) && dummyUser1.checkPassword(i.getArgument(1))) return new LoginResponse("ValidToken", dummyUser1.getUserId());
                 else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
@@ -170,7 +175,7 @@ class UserControllerTest {
 
             Collection<Long> allActivityTypeIds = activityNameToIdMap.values();
             if (allActivityTypeIds.containsAll(activityTypeIdsToMatch)) {   // Contains all
-                Page<FeedEvent> result = new PageImpl(Arrays.asList(dummyUser1.getUserId()));
+                Page<Long> result = new PageImpl(Arrays.asList(dummyUser1.getUserId()));
                 return result;
             } else {
                 return null;
@@ -185,7 +190,7 @@ class UserControllerTest {
 
             Collection<Long> allActivityTypeIds = activityNameToIdMap.values();
             if (!Collections.disjoint(allActivityTypeIds, activityTypeIdsToMatch)) {  // Contains any
-                Page<FeedEvent> result = new PageImpl(Arrays.asList(dummyUser1.getUserId()));
+                Page<Long> result = new PageImpl(Arrays.asList(dummyUser1.getUserId()));
                 return result;
             } else {
                 return null;
@@ -757,7 +762,7 @@ class UserControllerTest {
 
         // Check that email is set
         assertNotNull(defaultAdmin.getPrimaryEmail());
-        assertNotEquals(defaultAdmin.getPrimaryEmail(), "");
+        assertNotEquals("", defaultAdmin.getPrimaryEmail());
 
         // Use a private boolean flag to determine whether the default admin was added to the database
         // Can't find any other way to do it :(
@@ -916,7 +921,6 @@ class UserControllerTest {
                 .header("Token", validToken)
                 .header("Page-Number", pageNumber);
 
-
         //---Test-AND-Response----
         MvcResult requestAND = mvc.perform(httpReqAND).andExpect(status().isOk()).andReturn();
 
@@ -959,5 +963,61 @@ class UserControllerTest {
 
         // Should be null because this user has ONLY Baseball and Softball, not Rock Climbing
         assertNull(requestAND.getResponse().getContentType());
+    }
+
+    private final String userWithNoLocations = JsonConverter.toJson(true,
+            "lastname", "Bobman",
+            "middlename", "Cindy",
+            "firstname", "Papu",
+            "nickname", "Patty",
+            "primary_email", "patty@google.com",
+            "password", "QwErRTY1234",
+            "bio", "Cindy loves to ride my bike on crazy rivers!",
+            "date_of_birth", "1999-12-20",
+            "gender", "Female"
+    );
+
+    private final String publicAndPrivateLocations = JsonConverter.toJson(true,
+            "public_location", dummyPublicLocation,
+            "private_location", dummyPrivateLocation
+    );
+
+    @Test
+    public void editLocationOfUserWithNoLocationsSuccess() throws Exception {
+        setupMocking(userWithNoLocations);
+        MockHttpServletRequestBuilder getRequest = MockMvcRequestBuilders.get("/profiles")
+                .header("Token", validToken);
+        MvcResult result = mvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andReturn();
+        String jsonResponseStr = result.getResponse().getContentAsString();
+        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
+        Long userId = jsonNode.get("id").asLong();
+
+        MockHttpServletRequestBuilder editLocationRequest = MockMvcRequestBuilders.put("/profiles/{profileId}/location", userId)
+                .header("Token", validToken)
+                .content(publicAndPrivateLocations)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mvc.perform(editLocationRequest)
+                .andExpect(status().isOk());
+
+
+        getRequest = MockMvcRequestBuilders.get("/profiles")
+                .header("Token", validToken);
+        result = mvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        jsonResponseStr = result.getResponse().getContentAsString();
+        UserResponse user = objectMapper.readValue(jsonResponseStr, UserResponse.class);
+
+        assertEquals(dummyPublicLocation.getLocationName(), user.getPublicLocation().getLocationName());
+        assertEquals(dummyPrivateLocation.getLocationName(), user.getPrivateLocation().getLocationName());
+        assertEquals(dummyPublicLocation.getLatitude(), user.getPublicLocation().getLatitude());
+        assertEquals(dummyPrivateLocation.getLatitude(), user.getPrivateLocation().getLatitude());
+        assertEquals(dummyPublicLocation.getLongitude(), user.getPublicLocation().getLongitude());
+        assertEquals(dummyPrivateLocation.getLongitude(), user.getPrivateLocation().getLongitude());
     }
 }

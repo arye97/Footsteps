@@ -106,7 +106,7 @@
                                 </table>
                             </form>
                             <div id="confirmationButtons">
-                                <b-button type="submit" variant="success float-left"
+                                <b-button type="submit" variant="secondary float-left"
                                           size="lg" id="back" :key=this.toReload
                                           v-on:click="backAlert">Back</b-button>
                                 <b-button type="submit" variant="success float-right"
@@ -211,16 +211,12 @@
              */
             addEmail() {
                 if (this.additionalEmails.length >= 4) {
-                    // Can't exceed length of 5 emails
-                    console.log('Error: maximum number of emails reached. Please remove an email before adding any more (Limit 5)')
+                    this.error = 'Maximum number of emails reached. Please remove an email before adding any more (Limit 5)';
                 } else if (this.additionalEmails.includes(this.insertedEmail) || (this.primaryEmail === this.insertedEmail)) {
-                    //Can't have duplicate emails
-                    console.log("Error: Can't add duplicate email");
+                    this.error = "Can't add duplicate email";
                 } else if (!(/(.+)@(.+){2,}\.(.+){2,}/).test(this.insertedEmail)) {
-                    //Email's not valid
-                    console.log('Error: Invalid email. Please change to proper email format and try again')
+                    this.error = 'Invalid email. Please change to proper email format and try again';
                 } else {
-                    //Email is valid
                     this.additionalEmails.push(this.insertedEmail);
                     this.emailCount++;
                     this.setEmailCountMessage();
@@ -373,7 +369,6 @@
                         this.updateOriginalAdditionalEmails();
                         this.checkIfChangesMade();
                     }).catch(async error => {
-                        console.log(error)
                         await this.processGetError(error);
                         this.primaryEmail = this.originalPrimaryEmail;
                         this.additionalEmails = Array.from(this.originalAdditionalEmails);
@@ -506,8 +501,7 @@
                     setTimeout(() => {
                         this.$router.go();
                     }, this.timeout);
-                }
-                else if (error.response.status === 401) {
+                } else if (error.response.status === 401) {
                     this.redirectionMessage = "Sorry, you are no longer logged in,\n" +
                         "Redirecting to the login page.";
                     setTimeout(() => {

@@ -5,13 +5,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.springvuegradle.seng302team600.payload.*;
 import com.springvuegradle.seng302team600.validator.UserValidator;
 import com.springvuegradle.seng302team600.validator.PasswordValidator;
 import com.springvuegradle.seng302team600.model.*;
-import com.springvuegradle.seng302team600.payload.EditPasswordRequest;
-import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
-import com.springvuegradle.seng302team600.payload.LoginResponse;
-import com.springvuegradle.seng302team600.payload.UserResponse;
 import com.springvuegradle.seng302team600.repository.*;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
@@ -42,7 +39,6 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final EmailRepository emailRepository;
-    private final ActivityActivityTypeRepository activityActivityTypeRepository;
     private final ActivityTypeRepository activityTypeRepository;
     private final UserValidator userValidator;
 
@@ -62,14 +58,12 @@ public class UserController {
 
     public UserController(UserRepository userRepository, EmailRepository emailRepository,
                           UserAuthenticationService userService, ActivityTypeService activityTypeService,
-                          ActivityActivityTypeRepository activityActivityTypeRepository,
                           UserActivityTypeRepository userActivityTypeRepository,
                           ActivityTypeRepository activityTypeRepository, UserValidator userValidator) {
         this.userRepository = userRepository;
         this.emailRepository = emailRepository;
         this.userService = userService;
         this.activityTypeService = activityTypeService;
-        this.activityActivityTypeRepository = activityActivityTypeRepository;
         this.activityTypeRepository = activityTypeRepository;
         this.userValidator = userValidator;
         this.userActivityTypeRepository = userActivityTypeRepository;
@@ -134,7 +128,6 @@ public class UserController {
         user.setTransientEmailStrings();
         // Security breach if password is sent to the client
         user.setPassword(null);
-//        user.setToken(null);
         response.setStatus(HttpServletResponse.SC_OK); //200
         return new UserResponse(user);
     }
@@ -286,6 +279,39 @@ public class UserController {
     }
 
     /**
+     * Edits the private and public locations of a user.
+     * Since it is a PUT request, it completely replaces
+     * @param locationRequest the payload containing the locations (public, private)
+     * @param request the http request to the endpoint
+     * @param response the http response
+     * @param profileId user id obtained from the request url
+     * @throws JsonProcessingException thrown if there is an issue when converting the body to an object node
+     */
+    @PutMapping("/profiles/{profileId}/location")
+    public void editLocation(@Validated @RequestBody EditUserLocationRequest locationRequest,
+                             HttpServletRequest request,
+                             HttpServletResponse response,
+                             @PathVariable(value = "profileId") Long profileId) throws IOException {
+        String token = request.getHeader("Token");
+        User user = userService.findByUserId(token, profileId);
+        LocationRequest publicLocationRequest = locationRequest.getPublicLocation();
+        Location publicLocation;
+        if (publicLocationRequest != null) {
+            publicLocation = new Location(publicLocationRequest);
+            user.setPublicLocation(publicLocation);
+        }
+        LocationRequest privateLocationRequest = locationRequest.getPrivateLocation();
+        Location privateLocation;
+        if (privateLocationRequest != null) {
+            privateLocation = new Location(privateLocationRequest);
+            user.setPrivateLocation(privateLocation);
+        }
+
+        userRepository.save(user);
+        response.setStatus(HttpServletResponse.SC_OK); //200
+    }
+
+    /**
      * Takes a token and a user id and queries the repository
      * to check if a user is logged in with a provided token.
      * @param request the http request to the endpoint
@@ -361,17 +387,22 @@ public class UserController {
      * @param method the method to use (OR, AND)
      * @return a list of users
      */
-    @RequestMapping(
+    @GetMapping(
             value = "/profiles",
-            params = { "activity", "method" },
-            method = RequestMethod.GET
+            params = { "activity", "method" }
     )
     public List<UserResponse> getUsersByActivityType(HttpServletRequest request,
                                                      HttpServletResponse response,
                                                      @RequestParam(value="activity") String activityTypes,
                                                      @RequestParam(value="method") String method) {
         String token = request.getHeader("Token");
-        int pageNumber = request.getIntHeader("Page-Number");
+        int pageNumber;
+        try {
+            pageNumber = request.getIntHeader("Page-Number");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Page-Number must be an integer");
+        }
+
         userService.findByToken(token);
         if (activityTypes.length() < 1) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Activity Types must be specified");
@@ -392,9 +423,9 @@ public class UserController {
 
         Page<Long> paginatedUserIds;
         Pageable pageWithFiveUsers = PageRequest.of(pageNumber, PAGE_SIZE);
-        if (method.toLowerCase().equals("and")) {
+        if (method.equalsIgnoreCase("and")) {
             paginatedUserIds = userActivityTypeRepository.findByAllActivityTypeIds(activityTypeIds, numActivityTypes, pageWithFiveUsers); //Gets the userIds
-        } else if (method.toLowerCase().equals("or")) {
+        } else if (method.equalsIgnoreCase("or")) {
             paginatedUserIds = userActivityTypeRepository.findBySomeActivityTypeIds(activityTypeIds, pageWithFiveUsers); //Gets the userIds
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Method must be specified as either (AND, OR)");

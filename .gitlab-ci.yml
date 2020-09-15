@@ -91,6 +91,7 @@ deploy-test-client:
     # Update bash script and restart service
     - rm -f /home/gitlab-runner/runTestClient.sh || true
     - cp ../deployment-scripts/runTestClient.sh /home/gitlab-runner/runTestClient.sh
+    - echo "export GOOGLE_MAPS_API_KEY=$GOOGLE_MAPS_API_KEY" > envVars.txt
     - sudo systemctl restart testClient
   only:
     refs:
@@ -133,6 +134,7 @@ deploy-prod-client:
     # Update bash script and restart service
     - rm -f /home/gitlab-runner/runProdClient.sh || true
     - cp ../deployment-scripts/runProdClient.sh /home/gitlab-runner/runProdClient.sh
+    - echo "export GOOGLE_MAPS_API_KEY=$GOOGLE_MAPS_API_KEY" > envVars.txt
     - sudo systemctl restart prodClient
   only:
     refs:

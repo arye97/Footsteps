@@ -22,7 +22,7 @@ public class ActivityTypeProperties implements CommandLineRunner {
     private final List<ActivityType> activityTypes;
 
     /** Compares ActivityTypes alphabetically, case insensitive */
-    private final static Comparator<ActivityType> alphaComparator = Comparator.comparing(o -> o.getName().toLowerCase());
+    private static final Comparator<ActivityType> alphaComparator = Comparator.comparing(o -> o.getName().toLowerCase());
 
 
     public ActivityTypeProperties(List<ActivityType> activityTypes) {

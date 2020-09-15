@@ -24,9 +24,9 @@ public class User {
 
     private static int tokenDecayTime = 30000 * 30; // 30 minutes (30 sec * 30 mins = 15 mins)
 
-    final static public int MAX_EMAILS = 5;
+    static final public int MAX_EMAILS = 5;
 
-    final static private int FIELD_LEN = 45;
+    static final private int FIELD_LEN = 45;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -127,6 +127,16 @@ public class User {
             @JsonProperty("Non-Binary")
                 NON_BINARY
     }
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "private_location", referencedColumnName = "location_id")
+    @JsonProperty("private_location")
+    private Location privateLocation;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "public_location", referencedColumnName = "location_id")
+    @JsonProperty("public_location")
+    private Location publicLocation;
 
     //Can implement later, makes more sense in the long run
     public enum FitnessLevel {
@@ -438,6 +448,20 @@ public class User {
 
     public int getRole() {
         return role;
+    }
+
+    public Location getPrivateLocation() {
+        return privateLocation;
+    }
+
+    public Location getPublicLocation() { return publicLocation; }
+
+    public void setPrivateLocation(Location privateLocation) {
+        this.privateLocation = privateLocation;
+    }
+
+    public void setPublicLocation(Location publicLocation) {
+        this.publicLocation = publicLocation;
     }
 
 

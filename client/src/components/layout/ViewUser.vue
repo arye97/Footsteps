@@ -45,6 +45,12 @@
                                 </b-list-group>
                                 <br/>
 
+                                <h3 class="font-weight-light"><strong>Location: </strong></h3><br/>
+                                <div class="map-pane">
+                                    <!--ToDo: Add the user's location to replace these coordinates-->
+                                    <location-i-o :view-only="true"></location-i-o>
+                                </div>
+
                                 <!--Handling for displaying of Fitness Level-->
                                 <h3 class="font-weight-light"><strong>Fitness Level: </strong></h3>
 
@@ -127,7 +133,7 @@
                     </div>
                 </div>
                 <section v-if="pageUrl === '/search/users' && userDataLoaded">
-                    <ActivityList :user_-id="userId"/>
+                    <ActivityList :user-id-prop="userId"/>
                 </section>
             </div>
         </b-container>
@@ -140,24 +146,27 @@
     import {fitnessLevels} from '../../constants'
     import Header from '../../components/Header/Header';
     import ActivityList from "../Activities/ActivityList";
+    import LocationIO from "../../components/Map/LocationIO";
 
     export default {
         name: "ViewUser",
         components: {
             ActivityList,
-            Header
+            Header,
+            LocationIO
         },
         props: {
             modalView: {
                 default: false,
                 type: Boolean
             },
-            userId: {
+            userIdProp: {
                 default: ''
             }
         },
         data() {
             return {
+                userId: this.userIdProp,
                 user: null,
                 loading: true,
                 errored: false,
