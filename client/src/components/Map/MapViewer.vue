@@ -19,6 +19,13 @@
                         @click="panToPin(pin)"
                         @dragend="repositionPin({lat: $event.latLng.lat(), lng: $event.latLng.lng()}, pinIndex)"
                 />
+                <GmapInfoWindow
+                    :key="pinIndex"
+                    v-for="(pin, pinIndex) in pins"
+                    :opened="pin.windowOpen || true"
+                >
+                    {{  pin.hoverContent  }}
+                </GmapInfoWindow>
             </GmapMap>
         </keep-alive>
     </div>
