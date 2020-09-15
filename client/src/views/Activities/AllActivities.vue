@@ -1,11 +1,11 @@
 <template>
     <div>
-        <header class="masthead">
+        <header class="masthead" >
             <br/><br/><br/>
             <div class="container h-100">
                 <div class="row h-100 align-items-center">
                     <div class="col-12 text-center">
-                        <Header/>
+                        <Header id="header"/>
                         <br/>
                     </div>
                 </div>
@@ -28,7 +28,7 @@
         <div style="text-align: center">
             <b-button id="creatActivityButton" style="margin-bottom: 1.7em; margin-top: 0.8em" variant="primary" v-on:click="goToPage('/activities/create')">Create New Activity</b-button>
         </div>
-        <div class="map-pane" id="mapPane">
+        <div class="map-pane" id="mapComponent">
             <location-i-o :view-only="true"></location-i-o>
         </div>
         <section>
@@ -54,8 +54,7 @@
         },
         data() {
             return {
-                userId : null,
-                isHovered: false
+                userId : null
             }
         },
         props: {
@@ -72,9 +71,6 @@
             this.userId = await this.getUserId();
         },
         methods: {
-            footerHover(hovered) {
-                this.isHovered = hovered;
-            },
             /**
              * Get the Id of the current Logged in user.
              * @returns {Promise<*>}
