@@ -86,7 +86,7 @@ public class User {
 
     @NotNull(message = "Please provide a date of birth")
     @Column(name = "date_of_birth", nullable = false, columnDefinition = "DATE")
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @JsonProperty("date_of_birth")
     private Date dateOfBirth;
 
@@ -101,14 +101,15 @@ public class User {
 
     @ElementCollection
     @CollectionTable(
-            name="passport_countries",
-            joinColumns=@JoinColumn(name="user_id")
+            name = "passport_countries",
+            joinColumns = @JoinColumn(name = "user_id")
     )
-    @Column(name="passport_countries")
+    @Column(name = "passport_countries")
     @JsonProperty("passports")
     private List<String> passports;
 
-    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})  // ALL except REMOVE
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    // ALL except REMOVE
     @JoinTable(
             name = "user_activity_type",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -116,16 +117,16 @@ public class User {
     @JsonProperty("activityTypes")
     private Set<ActivityType> activityTypes;
 
-        @ManyToMany(mappedBy = "participants")
-        Set<Activity> activitiesParticipatingIn;
+    @ManyToMany(mappedBy = "participants")
+    Set<Activity> activitiesParticipatingIn;
 
-        public enum Gender {
-            @JsonProperty("Male")
-                MALE,
-            @JsonProperty("Female")
-                FEMALE,
-            @JsonProperty("Non-Binary")
-                NON_BINARY
+    public enum Gender {
+        @JsonProperty("Male")
+        MALE,
+        @JsonProperty("Female")
+        FEMALE,
+        @JsonProperty("Non-Binary")
+        NON_BINARY
     }
 
     @OneToOne(cascade = CascadeType.ALL)
@@ -153,6 +154,7 @@ public class User {
 
     /**
      * Builds user from the payload, using getters and setters.  Use when creating new user from data.
+     *
      * @param userData payload for registering.
      */
     public User(UserRegisterRequest userData) {
@@ -162,6 +164,7 @@ public class User {
 
     /**
      * Builds user from the payload, using getters and setters.  Use when preserving UserId and token, etc.
+     *
      * @param userData payload for registering.
      * @return the built user.
      */
@@ -254,12 +257,17 @@ public class User {
         return primaryEmail;
     }
 
-    public Set<ActivityType> getActivityTypes() { return activityTypes; }
+    public Set<ActivityType> getActivityTypes() {
+        return activityTypes;
+    }
 
-    public void setActivityTypes(Set<ActivityType> activityTypes) { this.activityTypes = activityTypes; }
+    public void setActivityTypes(Set<ActivityType> activityTypes) {
+        this.activityTypes = activityTypes;
+    }
 
     /**
      * Sets primary email of User
+     *
      * @param newPrimaryEmail an email to be set primary
      */
     public void setPrimaryEmail(String newPrimaryEmail) {
@@ -312,9 +320,10 @@ public class User {
      * adds each string to the list of additional emails,
      * before appending them to a list of Email objects.
      * If primary email has not been set in User throw ResponseStatusException
+     *
      * @param newAdditionalEmails a String list of additional emails
      * @throws ResponseStatusException if primary email has not been set
-     * if maximum emails limit reached
+     *                                 if maximum emails limit reached
      */
     public void setAdditionalEmails(List<String> newAdditionalEmails) {
         // Call this function to set up primaryEmail and additional Emails string from existing Email objects
@@ -327,7 +336,7 @@ public class User {
 
         List<String> removals = new ArrayList<>();
         boolean remove = false;
-        for (String email: additionalEmails) {
+        for (String email : additionalEmails) {
             if (!newAdditionalEmails.contains(email)) {
                 removals.add(email);
                 remove = true;
@@ -335,12 +344,12 @@ public class User {
         }
 
         if (remove) {
-            for (String email: removals) {
+            for (String email : removals) {
                 deleteAdditionalEmail(email);
             }
         }
 
-        for (String email: newAdditionalEmails) {
+        for (String email : newAdditionalEmails) {
             // If email in newAdditionalEmails is a duplicate from additionalEmails
             if (additionalEmails.contains(email) || primaryEmail.equals(email)) {
                 continue;
@@ -357,6 +366,7 @@ public class User {
     /**
      * Removes additional email from String list of additional emails
      * and Email object list of emails
+     *
      * @param removedAdditionalEmail additional email to be removed
      */
     public void deleteAdditionalEmail(String removedAdditionalEmail) {
@@ -364,7 +374,7 @@ public class User {
         setTransientEmailStrings();
 
         additionalEmails.remove(removedAdditionalEmail);
-        for (Email email: emails) {
+        for (Email email : emails) {
             if (email.getEmail().equals(removedAdditionalEmail)) {
                 emails.remove(email);
                 break;
@@ -385,7 +395,7 @@ public class User {
     public void setTransientEmailStrings() {
         primaryEmail = null;
         additionalEmails.clear();
-        for (Email e: emails) {
+        for (Email e : emails) {
             if (e.getIsPrimary()) {
                 primaryEmail = e.getEmail();
             } else {
@@ -454,7 +464,9 @@ public class User {
         return privateLocation;
     }
 
-    public Location getPublicLocation() { return publicLocation; }
+    public Location getPublicLocation() {
+        return publicLocation;
+    }
 
     public void setPrivateLocation(Location privateLocation) {
         this.privateLocation = privateLocation;
@@ -468,6 +480,7 @@ public class User {
     /**
      * Equate users by their ids, if they are null, user the super classes equals method (checking memory address I think).
      * NOTE java.util.Objects.equals checks for equality without throwing null pointer exception if a field is null
+     *
      * @return users are equal
      */
     @Override
@@ -485,6 +498,7 @@ public class User {
 
     /**
      * Hash the user using userId if not null, else user super class hash.
+     *
      * @return hash code
      */
     @Override

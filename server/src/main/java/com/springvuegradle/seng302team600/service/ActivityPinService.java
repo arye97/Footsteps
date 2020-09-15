@@ -26,6 +26,9 @@ public class ActivityPinService {
      * @return a list of pins with the user's pin at the very front of the list followed by all activity pins
      */
     public List<Pin> getPins(User user) {
+        if (user.getUserId() == null) {
+            return new ArrayList<>();
+        }
         List<Activity> activityList = activityRepository.findAllByUserId(user.getUserId());
         List<Pin> pins;
         pins = convertActivityList(activityList, user.getUserId());

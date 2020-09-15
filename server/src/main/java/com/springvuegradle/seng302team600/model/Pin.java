@@ -51,6 +51,7 @@ public class Pin {
 
     public Pin(Activity activity, Long userId) {
         this.pinType = PinType.ACTIVITY;
+        this.id = activity.getActivityId();
         this.longitude = activity.getLocation().getLongitude();
         this.latitude = activity.getLocation().getLatitude();
         this.isFocus = false;
@@ -63,7 +64,8 @@ public class Pin {
     }
 
     public Pin(User user) {
-        this.pinType = PinType.ACTIVITY;
+        this.pinType = PinType.USER;
+        this.id = user.getUserId();
         List<Double> coords = getUserCoords(user);
         this.latitude = coords.get(0);
         this.longitude = coords.get(1);
