@@ -3,18 +3,22 @@ package com.springvuegradle.seng302team600.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springvuegradle.seng302team600.enumeration.PinType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class Pin {
+
+    private static final String BLUE = "blue";
+    private static final String RED = "red";
+    private static final String GREEN = "green";
 
 
     @JsonProperty("pin_type")
     private PinType pinType;
 
-    @JsonProperty("user_id")
-    private long userId;
-
-    @JsonProperty("activity_id")
-    private long activityId;
+    @JsonProperty("id")
+    private Long id;
 
     @JsonProperty("colour")
     private String colour;
@@ -30,11 +34,12 @@ public class Pin {
 
     /**
      * Create a Pin with location specified
-     * @param pinType The type of pin - set by the PinType enum
-     * @param colour The colour of the marker represented by a string
+     *
+     * @param pinType   The type of pin - set by the PinType enum
+     * @param colour    The colour of the marker represented by a string
      * @param longitude The double value of the longitudinal coordinate
-     * @param isFocus A boolean value representing the focus
-     * @param latitude The double value of the latitudinal coordinate
+     * @param isFocus   A boolean value representing the focus
+     * @param latitude  The double value of the latitudinal coordinate
      */
     public Pin(PinType pinType, String colour, Double longitude, boolean isFocus, Double latitude) {
         this.pinType = pinType;
@@ -44,20 +49,67 @@ public class Pin {
         this.latitude = latitude;
     }
 
+    public Pin(Activity activity, Long userId) {
+        this.pinType = PinType.ACTIVITY;
+        this.longitude = activity.getLocation().getLongitude();
+        this.latitude = activity.getLocation().getLatitude();
+        this.isFocus = false;
+
+        if (userId.equals(activity.getCreatorUserId())) {
+            this.colour = BLUE;
+        } else {
+            this.colour = GREEN;
+        }
+    }
+
+    public Pin(User user) {
+        this.pinType = PinType.ACTIVITY;
+        List<Double> coords = getUserCoords(user);
+        this.latitude = coords.get(0);
+        this.longitude = coords.get(1);
+        this.isFocus = false;
+        this.colour = RED;
+    }
+
+    /**
+     * Get the users coords based from their location
+     *
+     * @param user the user to get the location from
+     * @return a list of the lat, long coords
+     */
+    private List<Double> getUserCoords(User user) {
+        List<Double> coords = new ArrayList<>();
+        if (user.getPrivateLocation() != null) {
+            coords.add(user.getPrivateLocation().getLatitude());
+            coords.add(user.getPrivateLocation().getLongitude());
+        } else if (user.getPublicLocation() != null) {
+            coords.add(user.getPublicLocation().getLatitude());
+            coords.add(user.getPublicLocation().getLongitude());
+        } else {
+            //new zealand coords
+            coords.add(-40.9006);
+            coords.add(174.8860);
+        }
+        return coords;
+    }
+
     /**
      * Default constructor for pins
      */
-    public Pin() {}
+    public Pin() {
+    }
 
-    public long getUserId() {return userId;}
-
-    public long getActivityId() {return activityId;}
+    public long getId() {
+        return id;
+    }
 
     public PinType getPinType() {
         return pinType;
     }
 
-    public String getColour() { return colour; }
+    public String getColour() {
+        return colour;
+    }
 
     public Double getLongitude() {
         return longitude;
@@ -87,8 +139,8 @@ public class Pin {
         isFocus = focus;
     }
 
-    public void setUserId(long id) {userId = id;}
-
-    public void setActivityId(long id) {activityId = id;}
+    public void setActivityId(long newId) {
+        id = newId;
+    }
 
 }
