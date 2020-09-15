@@ -443,18 +443,9 @@
 </script>
 
 <style scoped>
-    .footSteps {
-        width: 7.5%;
-        height: 7.5%;
-    }
-
     .noMore {
         text-align: center;
 
-    }
-
-    .text-justified {
-        text-align: justify;
     }
 
     .activity-button-group {

@@ -97,36 +97,8 @@
 </script>
 
 <style scoped>
-    .noMore {
-        text-align: center;
-
-    }
-    .text-justified {
-        text-align: justify;
-    }
-
-    .activity-button-group {
-        padding-top: 7.5%;
-        padding-right: 40%;
-        padding-bottom: 7.5%;
-    }
-
     .activity-button-group button {
         margin-left: 35.5%;
         width: 110%;
-    }
-
-    .footerButton {
-        width: 100%;
-    }
-
-    .footSteps {
-        width: 7.5%;
-        height: 7.5%;
-    }
-
-    .footStepsSimplified {
-        width: 16%;
-        height: 16%;
     }
 </style>
