@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springvuegradle.seng302team600.enumeration.UnitType;
 import com.springvuegradle.seng302team600.model.Outcome;
 
-import java.util.Set;
-
 /**
  * The payload to be returned to the front-end for the GET outcome endpoint.
  * Json should be formatted as follows:

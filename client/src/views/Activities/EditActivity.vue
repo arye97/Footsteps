@@ -19,6 +19,7 @@
                            :activity="activity"
                            :outcome-list="outcomeList"
                            :original-outcome-list="originalOutcomeList"
+                           :is-edit="true"
                            @add-outcome="addOutcome"
                            @delete-outcome="deleteOutcome"/>
         </b-container>
@@ -59,11 +60,6 @@
             }
         },
         async created() {
-            // If not logged in
-            if (!sessionStorage.getItem("token")) {
-                this.$router.push('/login'); //Routes to home on logout
-            }
-
             // Get the activityId out of the URL
             let url = window.location.pathname;
             let activityId = url.substring(url.lastIndexOf('/') + 1);
@@ -93,7 +89,7 @@
             deleteOutcome(outcomeToBeRemoved) {
                 this.outcomeList = this.outcomeList.filter(
                     function(outcome) {
-                        return outcome !== outcomeToBeRemoved
+                        return outcome !== outcomeToBeRemoved;
                     }
                 );
             },
@@ -205,8 +201,8 @@
                     for (let i = 0; i < response.data.activity_type.length; i++) {
                         this.activity.selectedActivityTypes.push(response.data.activity_type[i].name);
                     }
-                }).catch(() => {
-                    this.$router.push({name: 'allActivities', params: {alertMessage: "Can't get Activity data", alertCount: 5}});
+                }).catch((err) => {
+                    this.throwError(err, true);
                 });
                 await api.getActivityOutcomes(activityId).then(response => {
                     this.originalOutcomeList = [...response.data];
@@ -284,10 +280,22 @@
                             this.$router.push("/login");
                             break;
                         case 403:
-                            this.$router.push({name: 'allActivities'});
+                            this.$router.push({
+                                name: 'allActivities',
+                                params: {
+                                    alertCount: 5,
+                                    alertMessage: "Activity is not editable"
+                                }
+                            });
                             break;
                         default:
-                            this.$router.push({name: 'myProfile'});
+                            this.$router.push({
+                                name: 'allActivities',
+                                params: {
+                                    alertCount: 5,
+                                    alertMessage: "Can't get Activity data"
+                                }
+                            });
                     }
                 }
             }

@@ -12,7 +12,6 @@ import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -157,7 +156,12 @@ public class FeedEventController {
     public List<FeedEvent> getFeedEvents(HttpServletRequest request, HttpServletResponse response,
                                          @PathVariable Long profileId) {
         String token = request.getHeader("Token");
-        int pageNumber = request.getIntHeader("Page-Number");
+        int pageNumber;
+        try {
+            pageNumber = request.getIntHeader("Page-Number");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Page-Number must be an integer");
+        }
         userAuthenticationService.findByUserId(token, profileId);
         // Instantiate pagination
         Pageable pageWithFiveFeedEvents = PageRequest.of(pageNumber, PAGE_SIZE);
