@@ -41,7 +41,8 @@ public class Pin {
      * @param isFocus   A boolean value representing the focus
      * @param latitude  The double value of the latitudinal coordinate
      */
-    public Pin(PinType pinType, String colour, Double longitude, boolean isFocus, Double latitude) {
+    public Pin(long id, PinType pinType, String colour, Double longitude, boolean isFocus, Double latitude) {
+        this.id = id;
         this.pinType = pinType;
         this.colour = colour;
         this.longitude = longitude;
@@ -141,8 +142,7 @@ public class Pin {
         isFocus = focus;
     }
 
-    public void setActivityId(long newId) {
-        id = newId;
-    }
+    public void setId(long pinId) {id = pinId;}
+
 
 }
