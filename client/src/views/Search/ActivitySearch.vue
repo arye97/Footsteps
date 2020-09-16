@@ -12,18 +12,16 @@
                         </multiselect>
                     </b-col>
                     <b-col cols="8" v-if="searchMode==='activityName'">
-                        <b-form-input id="searchBoxActivityTitle" v-model="activityTitle" placeholder="Search activity by title"></b-form-input>
+                        <b-form-input id="searchBoxActivityTitle" v-model="activityTitle" placeholder="Search activity by title"></b-form-input><br>
+                        <ul>
+                            <li>All searches are case insensitive including "" searches</li>
+                            <li>Use quotation marks to search for whole matches of the string within ("run" could return run to Mars but NOT running to Venus)</li>
+                            <li>Use "+" to include both strings in the search (any leading or tailing spaces are trimmed) (CSSE + fun will return any activity with the names CSSE and fun)</li>
+                            <li>Use "-" for splitting strings. Anything following the "-" will be excluded from the search (CSSE - fun would search for anything including CSSE that does not contain fun)</li>
+                        </ul>
                     </b-col>
                     <b-col cols="4">
                         <b-form-select id="searchModeSelect" v-model="searchMode" :options="searchModes"></b-form-select>
-                    </b-col>
-                </b-row>
-                <b-row style="margin-bottom: 1.7em; margin-top: 0.8em">
-                    <b-col cols="6" align-self="center">
-                        <b-form-radio id="andRadioButton" v-model="searchType" name="andType" value="and">Must include all selections</b-form-radio>
-                    </b-col>
-                    <b-col cols="6" align-self="center">
-                        <b-form-radio id="orRadioButton" v-model="searchType" name="orType" value="or">Must include one selection</b-form-radio>
                     </b-col>
                 </b-row>
                 <b-row>
@@ -80,17 +78,7 @@ export default {
         return {
             activitiesPerPage: 5,
             currentPage: 1,
-            activitiesList: [{ // ToDo remove this placeholder when actual activity search is implemented
-                id: 1,
-                creatorUserId: 1,
-                activity_name: "Snow trip",
-                description: "A fun Snow skiing trip. With lots of snow and scary looking tricks. Don't be late.",
-                activity_type: [{activity_type_id: 1, name: 'Skiing'}],
-                continuous: false,
-                start_time: new Date(),
-                end_time: new Date(),
-                location: "Queenstown"
-            }],
+            activitiesList: [],
             searchMode: 'activityType',
             searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
                 { value: 'activityType', text: 'Activity Type'},
@@ -99,7 +87,7 @@ export default {
             // These are the ActivityTypes selected in the Multiselect
             selectedActivityTypes : [],
             // These are a copy of selectedActivityTypes passed to the UserCard (to avoid mutation after clicking search)
-            activityTypesSearchedFor : ['Skiing'], // ToDo remove this placeholder when actual activity search is implemented
+            activityTypesSearchedFor : [],
             activityTitle: "",
             activityTypes: [],
             searchType: "and",
@@ -153,6 +141,67 @@ export default {
                     this.logout()
                 }, 3000);
             });
+        },
+
+        /**
+         * Fetches a paginated list of activities, filtered by specified activity name,
+         * through an API call.
+         */
+        async getPaginatedActivitiesByActivityTitle() {
+            let pageNumber = this.currentPage - 1;
+            api.getActivityByActivityTitle(this.activityTitle, pageNumber)
+                .then(response => {
+                    this.activitiesList = response.data;
+                    if (this.activityTitle.length != 0 && (response.data).length === 0) {
+                        this.errored = true;
+                        this.error_message = "No activities with activity names ".concat(this.activityTitle) + " have been found!"
+                    }
+                    this.rows = response.headers["total-rows"];
+                    this.loading = false;
+                    this.resultsFound = true;
+                }).catch(error => {
+                    this.loading = false;
+                    this.errored = true;
+                    this.userList = [];
+                    if ((error.code === "ECONNREFUSED") || (error.code === "ECONNABORTED")) {
+                        this.error_message = "Cannot connect to server - please try again later!";
+                    } else {
+                        if (error.response.status === 401) {
+                            this.error_message = "You aren't logged in! You're being redirected!";
+                            setTimeout(() => {this.logout()}, 3000)
+                        } else if (error.response.status === 400) {
+                            this.error_message = error.response.data.message;
+                        } else if (error.response.status === 404) {
+                            this.error_message = "No activities with activity names ".concat(this.activityTitle) + " have been found!"
+                        } else {
+                            this.error_message = "Something went wrong! Please try again."
+                        }
+                    }
+                });
+        },
+
+        /**
+         * Searches a activity based on a string of activity types or an activity name by the AND or OR method
+         */
+        async search() {
+            // Converts list of activity types into string
+            // e.g. ["Hiking", "Biking"] into "Hiking Biking"
+            this.errored = false;
+            this.loading = true;
+            if (this.searchMode === 'activityType') {
+                // Set is as a copy so the User card is only updated after clicking search
+                this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
+                //this.getPaginatedActivitiesByActivityType();
+            } else if (this.searchMode === 'activityName') {
+                if (this.activityTitle.length === 0) {
+                    this.errored = true;
+                    this.error_message = "Cannot have empty search field, please try again!";
+                } else if (this.activityTitle.length === 75) {
+                    this.errored = true;
+                    this.error_message = "Cannot have more than 75 characters in the search field.";
+                }
+                this.getPaginatedActivitiesByActivityTitle();
+            }
         }
     }
 }
@@ -161,6 +210,6 @@ export default {
 <style scoped>
 .searchButton {
     width: 200%;
+    margin-top: 1rem !important;
 }
-
 </style>

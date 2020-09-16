@@ -811,7 +811,7 @@ class ActivityControllerTest {
         when(activityRepository.findAllByKeyword(Mockito.anyString(), Mockito.any())).thenAnswer(i -> {
             String keyword = i.getArgument(0);
             List<Activity> foundActivities = new ArrayList<>();
-            if (keyword.equals("Climb%")) {
+            if (keyword.contains("Climb")) {
                 Activity dumActivity1 = new Activity();
                 ReflectionTestUtils.setField(dumActivity1, "activityId", 1L);
                 Activity dumActivity2 = new Activity();
@@ -825,7 +825,13 @@ class ActivityControllerTest {
             return result;
         });
 
-        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityKeywords=Climb"))
+        URI uri = new URI(
+                null,
+                null,
+                "/activities",
+                "activityKeywords=Climb",
+                null);
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(uri)
                 .header("Token", validToken);
 
         MvcResult result = mvc.perform(httpReq)
