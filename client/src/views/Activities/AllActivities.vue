@@ -40,6 +40,9 @@
                         :parent-pins="pins"
                         :max-pins="rows"
                 ></location-i-o>
+                <p class="light-info-message">
+                    Your location is red, created activities are blue and following activities are green.
+                </p>
             </div>
             <section>
                 <ActivityList id="activityList" v-if="userId !== null" :user-id-prop="userId"/>
@@ -170,5 +173,9 @@
 
     .align-centre {
         text-align: center;
+    }
+
+    .light-info-message {
+        color: dimgrey;
     }
 </style>

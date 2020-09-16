@@ -28,7 +28,7 @@
                 </div>
             </div>
             <div v-else>
-                <b-button id="showMapButton" variant="primary" @click="isMapVisible=true">Show Map</b-button>
+                <b-button id="showMapButton" variant="info" @click="isMapVisible=true">Show Map</b-button>
             </div>
         </b-card>
     </div>
