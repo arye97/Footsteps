@@ -79,7 +79,7 @@ public class Pin {
      * Get the users coords based from their location
      *
      * @param user the user to get the location from
-     * @return a list of the lat, long coords
+     * @return a list of the lat, long coords where index 0 is latitude and index 1 is longitude
      */
     private List<Double> getUserCoords(User user) {
         List<Double> coords = new ArrayList<>();
