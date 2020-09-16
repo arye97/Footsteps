@@ -121,10 +121,10 @@ test('Is a vue instance', () => {
     expect(viewUser.isVueInstance).toBeTruthy();
 });
 
-test('Private location is hidden when not defined', () => {
+test('Private location is hidden when private location does not exist', () => {
     expect(viewUser.find('#private-location').exists()).toBeFalsy();
 });
-test('Public location is hidden when not defined', () => {
+test('Public location is hidden when public location does not exist', () => {
     expect(viewUser.find('#public-location').exists()).toBeFalsy();
 });
 
