@@ -12,23 +12,18 @@
                         </multiselect>
                     </b-col>
                     <b-col cols="8" v-if="searchMode==='activityName'">
-                        <b-form-input id="searchBoxActivityTitle" v-model="activityTitle" placeholder="Search activity by title"></b-form-input>
+                        <b-form-input id="searchBoxActivityTitle" v-model="activityTitle" placeholder="Search activity by title"></b-form-input><br>
+                        <ul>
+                            <li>All searches are case insensitive including "" searches</li>
+                            <li>Use quotation marks to search for whole matches of the string within ("run" could return run to Mars but NOT running to Venus)</li>
+                            <li>Use "+" to include both strings in the search (any leading or tailing spaces are trimmed) (CSSE + fun will return any activity with the names CSSE and fun)</li>
+                            <li>Use "-" for splitting strings. Anything following the "-" will be excluded from the search (CSSE - fun would search for anything including CSSE that does not contain fun)</li>
+                        </ul>
                     </b-col>
                     <b-col cols="4">
                         <b-form-select id="searchModeSelect" v-model="searchMode" :options="searchModes"></b-form-select>
                     </b-col>
                 </b-row>
-                <h4 class="text-center">
-                    Search rules:<br/>
-                </h4>
-                <footer>
-                    <ul>
-                        <li>All searches are case insensitive including "" searches</li>
-                        <li>Use quotation marks to search for whole matches of the string within ("run" could return run to Mars but NOT running to Venus)</li>
-                        <li>Use "+" to include both strings in the search (any leading or tailing spaces are trimmed) (CSSE + fun will return any activity with the names CSSE and fun)</li>
-                        <li>Use "-" for splitting strings but only including answer without the string following the "-" (CSSE - fun would search for anything including CSSE that does not contain fun)</li>
-                    </ul>
-                </footer><br/>
                 <b-row>
                     <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
                         Search
@@ -215,10 +210,6 @@ export default {
 <style scoped>
 .searchButton {
     width: 200%;
-    margin-top: 0rem !important;
-}
-h4 {
     margin-top: 1rem !important;
 }
-
 </style>

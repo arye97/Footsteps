@@ -121,9 +121,9 @@ beforeEach(() => {
 });
 
 
-describe("Searching activity based on activity title", () => {
+describe("Search for activities by keywords", () => {
 
-    test("Search user with activity title 'PLACEHOLDER'", () => {
+    test("Search user with activity keyword 'PLACEHOLDER'", () => {
 
             api.getActivityByActivityTitle.mockImplementation(() =>
                 Promise.resolve({
@@ -146,7 +146,7 @@ describe("Searching activity based on activity title", () => {
 
     describe("With the '+' method", () => {
 
-        test("Search activity with two activity titles 'PLACEHOLDER' and 'PLACEHOLDERS'", () => {
+        test("Search activity with two activity keywords 'PLACEHOLDER' and 'PLACEHOLDERS'", () => {
 
             api.getActivityByActivityTitle.mockImplementation(() =>
                 Promise.resolve({
@@ -170,7 +170,7 @@ describe("Searching activity based on activity title", () => {
 
     describe("With the '-' method", () => {
 
-        test("Search activity with two activity titles 'PLACEHOLDER' excluding 'PLACEHOLDERS'", () => {
+        test("Search activity with two activity keywords 'PLACEHOLDER' excluding 'PLACEHOLDERS'", () => {
 
             api.getActivityByActivityTitle.mockImplementation(() =>
                 Promise.resolve({
@@ -194,7 +194,7 @@ describe("Searching activity based on activity title", () => {
 
     describe('With the "string" method', () => {
 
-        test('Search activity with two activity titles "PLACEHOLDER"', () => {
+        test('Search activity with exact activity keyword "PLACEHOLDER"', () => {
 
             api.getActivityByActivityTitle.mockImplementation(() =>
                 Promise.resolve({
