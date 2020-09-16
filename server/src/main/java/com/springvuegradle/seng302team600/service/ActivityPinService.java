@@ -31,7 +31,7 @@ public class ActivityPinService {
         }
         List<Activity> activityList = activityRepository.findAllByUserId(user.getUserId());
         List<Pin> pins;
-        pins = convertActivityList(activityList, user.getUserId());
+        pins = activitiesToPins(activityList, user.getUserId());
         pins.add(0, new Pin(user));
         return pins;
     }
@@ -44,7 +44,7 @@ public class ActivityPinService {
      * @param userId       the id of the current logged in user
      * @return a list of map pins
      */
-    private List<Pin> convertActivityList(List<Activity> activityList, Long userId) {
+    private List<Pin> activitiesToPins(List<Activity> activityList, Long userId) {
         List<Pin> pinList = new ArrayList<>();
         for (Activity activity : activityList) {
             pinList.add(new Pin(activity, userId));

@@ -36,6 +36,7 @@ public class Pin {
      * Create a Pin with location specified
      *
      * @param pinType   The type of pin - set by the PinType enum
+     * @param id        The id of the activity or user, which is defined by the pinType
      * @param colour    The colour of the marker represented by a string
      * @param longitude The double value of the longitudinal coordinate
      * @param isFocus   A boolean value representing the focus
