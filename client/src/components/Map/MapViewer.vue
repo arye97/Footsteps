@@ -18,14 +18,21 @@
                         :draggable="draggablePins"
                         @click="panToPin(pin)"
                         @dragend="repositionPin({lat: $event.latLng.lat(), lng: $event.latLng.lng()}, pinIndex)"
-                />
-                <GmapInfoWindow
-                    :key="pinIndex"
-                    v-for="(pin, pinIndex) in pins"
-                    :opened="pin.windowOpen || true"
+                        @mouseover="toggleInfoWindow(pin, true)"
+                        @mouseout="toggleInfoWindow(pin, false)"
                 >
-                    {{  pin.hoverContent  }}
-                </GmapInfoWindow>
+                    <GmapInfoWindow
+                        :key="pinIndex + 'window'"
+                        :opened="pins[pinIndex].windowOpen"
+                        :position="google && new google.maps.LatLng(pin.lat, pin.lng)"
+                        @closeclick="toggleInfoWindowHold(pin, false); toggleInfoWindow(pin, false)"
+                    >
+                        <div v-html="pin.windowContent"></div>
+                        <!--<div v-if="pin.windowContent">
+                            <component :is="pin.windowContent"></component>
+                        </div>-->
+                    </GmapInfoWindow>
+                </GmapMarker>
             </GmapMap>
         </keep-alive>
     </div>
@@ -93,6 +100,7 @@
         async mounted() {
             await this.$gmapApiPromiseLazy();  // Without this, google could be null
             this.geoCoder = new this.google.maps.Geocoder();
+            console.log(this.pins)
         },
 
         methods: {
@@ -160,6 +168,33 @@
                     this.$emit("pin-change", pin)
                 });
             },
+            /**
+             * Toggles the info for a map marker
+             * @param pin the map marker to toggle that info window for
+             * @param show true if the window should open; false otherwise
+             */
+            toggleInfoWindow(pin, show) {
+                if (!pin.windowHold) {
+                    if (show) {
+                        pin.windowOpen = true;
+                    } else{
+                        pin.windowOpen = false;
+                    }
+                    this.$forceUpdate()
+                }
+            },
+            /**
+             * Toggles whether or not a window should be held open even when the mouse is no longer hovering over it
+             * @param pin the map marker to hold the info window of
+             * @param hold true if the window should be held; false otherwise
+             */
+            toggleInfoWindowHold(pin, hold) {
+                if (hold) {
+                    pin.windowHold = true;
+                } else {
+                    pin.windowHold = false;
+                }
+            }
         }
     }
 
