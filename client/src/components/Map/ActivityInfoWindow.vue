@@ -1,9 +1,9 @@
 <template>
     <div>
-        <h1>{{  activity.activity_name  }}</h1>
-        <h2>{{  activity.location.name  }}</h2>
+        <b>{{  data.title  }}</b><br/>
+        <i>{{  data.location.name  }}</i><br/>
         <div>
-            {{  activity.description  }}
+            {{  data.description  }}
         </div>
     </div>
 </template>
@@ -12,7 +12,7 @@
 export default {
 name: "ActivityInfoWindow",
     props: {
-        activity: {
+        data: {
             type: Object
         }
     }

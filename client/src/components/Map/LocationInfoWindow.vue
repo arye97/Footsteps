@@ -13,7 +13,7 @@
 export default {
 name: "LocationInfoWindow",
     props: {
-        location: {
+        data: {
             type: Object
         }
     }

@@ -20,19 +20,24 @@
                         @dragend="repositionPin({lat: $event.latLng.lat(), lng: $event.latLng.lng()}, pinIndex)"
                         @mouseover="toggleInfoWindow(pin, true)"
                         @mouseout="toggleInfoWindow(pin, false)"
+                />
+                <GmapInfoWindow
+                    v-for="(pin, pinIndex) in pins"
+                    :key="pinIndex + 'window'"
+                    :opened="pins[pinIndex].windowOpen"
+                    :options="{
+                        pixelOffset: {
+                            width: 0,
+                            height: -35
+                      }
+                    }"
+                    @mouseover="toggleInfoWindow(pin, true)"
+                    @mouseout="toggleInfoWindow(pin, false)"
+                    :position="google && new google.maps.LatLng(pin.lat, pin.lng)"
+                    @closeclick="toggleInfoWindowHold(pin, false); toggleInfoWindow(pin, false)"
                 >
-                    <GmapInfoWindow
-                        :key="pinIndex + 'window'"
-                        :opened="pins[pinIndex].windowOpen"
-                        :position="google && new google.maps.LatLng(pin.lat, pin.lng)"
-                        @closeclick="toggleInfoWindowHold(pin, false); toggleInfoWindow(pin, false)"
-                    >
-                        <div v-html="pin.windowContent"></div>
-                        <!--<div v-if="pin.windowContent">
-                            <component :is="pin.windowContent"></component>
-                        </div>-->
-                    </GmapInfoWindow>
-                </GmapMarker>
+                    <component :is="getWindowTemplate(pin)"  :data="pin.windowContent"></component>
+                </GmapInfoWindow>
             </GmapMap>
         </keep-alive>
     </div>
@@ -40,6 +45,9 @@
 
 <script>
     import { gmapApi } from 'gmap-vue';
+    import ActivityInfoWindow from "./ActivityInfoWindow";
+    import LocationInfoWindow from "./LocationInfoWindow";
+    import ErrorInfoWindow from "./ErrorInfoWindow";
 
     /**
      * A map pane that displays draggablePins location pins.
@@ -193,6 +201,15 @@
                     pin.windowHold = true;
                 } else {
                     pin.windowHold = false;
+                }
+            },
+            getWindowTemplate(pin) {
+                if (pin.windowContent.type  === 'activity') {
+                    return ActivityInfoWindow;
+                } else if (pin.windowContent.type  === 'location') {
+                    return LocationInfoWindow;
+                } else {
+                    return ErrorInfoWindow;
                 }
             }
         }
