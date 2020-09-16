@@ -4,8 +4,15 @@ package com.springvuegradle.seng302team600.service;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.Pin;
 import com.springvuegradle.seng302team600.model.User;
+import com.springvuegradle.seng302team600.payload.ActivityResponse;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,25 +22,41 @@ public class ActivityPinService {
 
     private final ActivityRepository activityRepository;
 
+    private static final int PAGE_SIZE = 5;
+
     public ActivityPinService(ActivityRepository activityRepository) {
         this.activityRepository = activityRepository;
     }
 
     /**
-     * Finds activity geo-map pins relevant to this specific user and also the users geo-map pin
+     * Takes a list of activities and returns geo-map pins for the specified activities.
      *
-     * @param user the user to gather pin data from
-     * @return a list of pins with the user's pin at the very front of the list followed by all activity pins
+     * @param activityList list of activities to derive pins from
+     * @return a list of activity pins
      */
-    public List<Pin> getPins(User user) {
-        if (user.getUserId() == null) {
-            return new ArrayList<>();
-        }
-        List<Activity> activityList = activityRepository.findAllByUserId(user.getUserId());
+    public List<Pin> getPins(User user, List<Activity> activityList) {
         List<Pin> pins;
         pins = activitiesToPins(activityList, user.getUserId());
-        pins.add(0, new Pin(user));
         return pins;
+    }
+
+    /**
+     * Obtains a paginated slice of activities associated with a user.
+     * @param user       creator/follower of activities
+     * @param pageNumber page number requested
+     * @return a paginated slice of activities
+     */
+    public Slice<Activity> getPaginatedActivityList(User user, int pageNumber) {
+//        if (user.getUserId() == null) {
+//            return new ArrayList<>();
+//        }
+        Slice<Activity> paginatedActivityList;
+        Pageable pageWithFiveActivities = PageRequest.of(pageNumber, PAGE_SIZE);
+        paginatedActivityList = activityRepository.findAllByUserId(user.getUserId(), pageWithFiveActivities);
+        if (paginatedActivityList == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No activities have been found for this user");
+        }
+        return paginatedActivityList;
     }
 
     /**
