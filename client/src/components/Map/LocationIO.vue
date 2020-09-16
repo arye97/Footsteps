@@ -135,6 +135,9 @@
             if (this.parentPins) {
                 this.pins.push(...this.parentPins);
             }
+            this.pins.forEach(function (element) {
+                element.windowOpen = false;
+            });
         },
 
         methods: {
@@ -154,7 +157,8 @@
                     pin = {
                         lat: this.$refs.mapViewerRef.currentCenter.lat,
                         lng: this.$refs.mapViewerRef.currentCenter.lng,
-                        name: ""
+                        name: "",
+                        windowOpen: false
                     };
                     this.pins.push(pin);
 
@@ -183,7 +187,8 @@
                     pin = {
                         lat: place.geometry.location.lat(),
                         lng: place.geometry.location.lng(),
-                        name: place.formatted_address
+                        name: place.formatted_address,
+                        windowOpen: false
                     };
                 } catch {
                     pin = null
