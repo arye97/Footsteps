@@ -11,7 +11,8 @@ import com.springvuegradle.seng302team600.model.Outcome;
  * - title
  * - description
  * - activity_id
- * - units (this is a set of Unit objects. Look at model.Unit.java for Json params for each of these objects)
+ * - unit_name
+ * - unit_type
  */
 public class OutcomeResponse {
 

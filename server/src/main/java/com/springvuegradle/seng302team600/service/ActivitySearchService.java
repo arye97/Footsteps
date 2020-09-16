@@ -70,7 +70,7 @@ public class ActivitySearchService {
                 searchString = searchString.trim();
             }
         } else {
-            String newQuery = "";
+            String newQuery = "%";
             List<String> searchTerms =  Arrays.asList(searchString.split(" "));
             for (String term : searchTerms) {
                 newQuery = String.format("%s%s%s", newQuery, term, "%");
