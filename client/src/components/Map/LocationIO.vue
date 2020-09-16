@@ -134,7 +134,7 @@
                 this.center = this.parentCenter;
             }
             if (this.parentPins) {
-                this.parentPins.forEach(i => this.pins.push(i));
+                this.pins = this.pins.concat(this.parentPins);
             }
         },
 
@@ -149,7 +149,7 @@
                 if (pin && ["lat", "lng", "name"].every(key => key in pin)) {
                     this.pins.push(pin);
                     this.address = pin.name;
-                    if ("colour" in pin) {
+                    if (!("colour" in pin)) {
                         pin.colour = 'red';
                     }
 

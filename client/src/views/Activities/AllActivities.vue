@@ -22,24 +22,27 @@
                     </div>
                 </div>
             </div>
-            <b-alert variant="success" dismissible fade :show=this.alertCount>
-                {{this.alertMessage}}
+            <b-alert class="align-centre" variant="success" dismissible fade :show=alertCount>
+                {{ alertMessage }}
             </b-alert>
-            <div style="text-align: center">
+            <b-alert class="align-centre" variant="danger" dismissible fade :show=isErrorAlert>
+                {{ errorAlertMessage }}
+            </b-alert>
+            <div class="align-centre">
                 <b-button id="creatActivityButton" style="margin-bottom: 1.7em; margin-top: 0.8em" variant="primary"
                           v-on:click="goToPage('/activities/create')">Create New Activity
                 </b-button>
             </div>
-            <div class="map-pane" id="mapComponent">
+            <div class="align-centre" id="mapComponent" v-if="!loading">
                 <location-i-o
                         :view-only="true"
-                        :parent-center="{lat: userPin.latitude, lng: userPin.longitude}"
+                        :parent-center="{lat: userPin.lat, lng: userPin.lng}"
                         :parent-pins="pins"
                         :max-pins="rows"
                 ></location-i-o>
             </div>
             <section>
-                <ActivityList id="activityList" v-if="userId !== null" :user-id-prop="this.userId"/>
+                <ActivityList id="activityList" v-if="userId !== null" :user-id-prop="userId"/>
             </section>
 
         </b-container>
@@ -62,11 +65,14 @@
         },
         data() {
             return {
+                isErrorAlert: false,
+                errorAlertMessage: '',
                 pinsPerBlock: 20,
                 rows: null,
                 userPin: null,
                 pins: [],
                 pinBlock: 0,
+                loading: true,
                 userId: null
             }
         },
@@ -90,11 +96,17 @@
              * Gets pins in blocks of 20. The first block contains the user at the front of the list.
              */
             async getPins() {
+                this.loading = true;
                 let pinBlock = 0;
                 let pins = await this.requestPinBlock(pinBlock);
+                if (pins.length < 1) {
+                    pins = [{lat: -40.9006, lng: 174.8860, colour: 'red'}] // No pins received, default to New Zealand
+                    this.rows = 1;
+                }
+                this.loading = false;
                 this.userPin = pins[0];
                 this.pins = pins;
-                for (pinBlock = 1; pinBlock < this.rows / this.pinsPerBlock; pinBlock++) {
+                for (pinBlock = 1; pinBlock < Math.floor(this.rows / this.pinsPerBlock) + 1; pinBlock++) {
                     pins = await this.requestPinBlock(pinBlock);
                     this.pins = this.pins.concat(pins);
                 }
@@ -117,8 +129,8 @@
                     } else if (error.response.status === 403) {
                         this.$router.go(); // Reloads the page
                     } else {
-                        this.alertMessage = 'Could not load map pins, please try again';
-                        this.alertCount = 5;
+                        this.errorAlertMessage = "Could not load the map markers, please try again";
+                        this.isErrorAlert = true;
                     }
                 });
                 return pins;
@@ -154,5 +166,9 @@
     .activity-button-group button {
         margin-left: 35.5%;
         width: 110%;
+    }
+
+    .align-centre {
+        text-align: center;
     }
 </style>
