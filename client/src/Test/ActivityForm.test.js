@@ -83,8 +83,8 @@ test('Outcomes table exists', () => {
     expect(activityForm.find('#outcomesTable').exists()).toBeTruthy();
 });
 
-test('Form catches emitted child-pins event', async () => {
-    activityForm.find('#input-location').vm.$emit('child-pins', [pinData])
-    await activityForm.vm.$nextTick()
+test('Form catches emitted pin-change event', async () => {
+    activityForm.find('#input-location').vm.$emit('pin-change', pinData);
+    await activityForm.vm.$nextTick();
     expect(activityForm.vm.$props.activity.location).toStrictEqual(pinLocationData);
 });

@@ -29,9 +29,9 @@
                     <div class="map-pane">
                         <location-i-o class="input-location"
                                       id="public-location-i-o"
-                                      v-on:child-pins="locationPublicValue"
+                                      @pin-change="locationPublicValue"
                                       :current-location="publicLocation"
-                                      :single-only=true></location-i-o>
+                                      :single-only="true"></location-i-o>
                     </div>
                     <label v-if="this.inputPublicLocation !== this.publicLocation" class="errorMessage">
                         {{ identicalPublicLocationWarningMessage }}
@@ -55,9 +55,9 @@
                     <div class="map-pane">
                         <location-i-o class="input-location"
                                       id="private-location-i-o"
-                                      v-on:child-pins="locationPrivateValue"
+                                      @pin-change="locationPrivateValue"
                                       :current-location="privateLocation"
-                                      :single-only=true></location-i-o>
+                                      :single-only="true"></location-i-o>
                     </div>
                     <label v-if="this.inputPrivateLocation !== this.privateLocation" class="errorMessage">
                         {{ identicalPrivateLocationWarningMessage }}
@@ -340,22 +340,22 @@ export default {
         /**
          * Function emitted from LocationIO.vue to set inputPublicLocation
          */
-        locationPublicValue: function (params) {
+        locationPublicValue(pin) {
             this.inputPublicLocation = {
-                latitude: params[0].lat,
-                longitude: params[0].lng,
-                name: params[0].name,
+                latitude: pin.lat,
+                longitude: pin.lng,
+                name: pin.name,
             };
         },
 
         /**
          * Function emitted from LocationIO.vue to set inputPrivateLocation
          */
-        locationPrivateValue: function (params) {
+        locationPrivateValue(pin) {
             this.inputPrivateLocation = {
-                latitude: params[0].lat,
-                longitude: params[0].lng,
-                name: params[0].name,
+                latitude: pin.lat,
+                longitude: pin.lng,
+                name: pin.name,
             };
         },
 

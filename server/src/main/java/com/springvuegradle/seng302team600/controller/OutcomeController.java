@@ -104,18 +104,20 @@ public class OutcomeController {
                                        HttpServletRequest request, HttpServletResponse response) {
 
         String token = request.getHeader("Token");
-
         //Get old outcome and check that it's not null
         Outcome oldOutcome = outcomeRepository.findByOutcomeId(outcomeId);
         if(oldOutcome == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Outcome not found");
         }
 
-        //Get required info & check user is allowed to edit
+        //Pull through the outcome creator's profile ID
         Long activityId = oldOutcome.getActivityId();
         Activity activity = activityRepository.findByActivityId(activityId);
         Long profileId = activity.getCreatorUserId();
+
+        //Validate you have permission to edit (Due to being creator or admin)
         userAuthenticationService.findByUserId(token, profileId);
+
         if(resultRepository.existsByOutcome(oldOutcome)){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "Cannot edit outcome ID " + outcomeId + " due to results already existing");

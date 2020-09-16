@@ -123,6 +123,7 @@
                                 </b-list-group>
                                 <br/>
                                 <!-- These are kept separate to make it clearer to the user what each pin means -->
+                                <!-- TODO:Merge into a single pane once they can be distinguished by colour -->
                                 <div v-if="this.user.public_location">
                                     <h3 class="font-weight-light"><strong>Public Location:</strong></h3><br/>
                                     <location-i-o id="public-location"
