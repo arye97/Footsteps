@@ -8,6 +8,7 @@ import com.springvuegradle.seng302team600.model.*;
 import com.springvuegradle.seng302team600.payload.ActivityResponse;
 import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
 import com.springvuegradle.seng302team600.repository.*;
+import com.springvuegradle.seng302team600.service.ActivityPinService;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
 import com.springvuegradle.seng302team600.service.FeedEventService;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
@@ -56,6 +57,8 @@ class ActivityControllerTest {
     private ActivityActivityTypeRepository activityActivityTypeRepository;
     @MockBean
     private ActivityTypeRepository activityTypeRepository;
+    @MockBean
+    private ActivityPinService activityPinService;
     @Autowired
     private MockMvc mvc;
 
