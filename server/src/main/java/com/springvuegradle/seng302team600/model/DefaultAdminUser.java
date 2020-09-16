@@ -53,7 +53,7 @@ public class DefaultAdminUser extends User {
 
     @Override
     public void setPrimaryEmail(String newPrimaryEmail) {
-        log.error(UnavailableMethodErrorStr("setPrimaryEmail"));
+        log.error(unavailableMethodErrorStr("setPrimaryEmail"));
     }
 
     @Override
@@ -62,13 +62,13 @@ public class DefaultAdminUser extends User {
         if (password == null) {
             super.setPassword(null);
         } else {
-            log.error(UnavailableMethodErrorStr("setPassword"));
+            log.error(unavailableMethodErrorStr("setPassword"));
         }
     }
 
     @Override
     public void setAdditionalEmails(List<String> newAdditionalEmails) {
-        log.error(UnavailableMethodErrorStr("setAdditionalEmails"));
+        log.error(unavailableMethodErrorStr("setAdditionalEmails"));
     }
 
 
@@ -77,7 +77,7 @@ public class DefaultAdminUser extends User {
      * @param methodName The name of the method that is trying to be called
      * @return an error message
      */
-    private String UnavailableMethodErrorStr(String methodName) {
+    private String unavailableMethodErrorStr(String methodName) {
         return String.format("%s can't be called on Default Admins.", methodName);
     }
 }

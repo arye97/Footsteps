@@ -51,6 +51,7 @@ export default {
   getActivityTypes: () => server.get('/activity-types', getTokenHeader()),
   getParticipants: (activityId) => server.get(`/activities/${activityId}/participants`, getTokenHeader()),
   editProfile: (userData, profileId) => server.put(`profiles/${profileId}`, userData, getTokenHeader()),
+  editLocation: (locationData, profileId) => server.put(`/profiles/${profileId}/location`, locationData, getTokenHeader()),
   getUserData: (profileId) => server.get(`/profiles/${profileId}`, getTokenHeader()),
   checkProfile: (profileId) => server.get(`/check-profile/`.concat(profileId), getTokenHeader()),
   getUserEmails: (profileId) => server.get(`/profiles/${profileId}/emails`, getTokenHeader()),

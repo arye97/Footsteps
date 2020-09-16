@@ -325,6 +325,41 @@ class ActivityControllerTest {
                 return null;
             }
         });
+
+        //Mock the OR functionality
+        when(activityActivityTypeRepository.findBySomeActivityTypeIds(Mockito.anyList(), Mockito.any(Pageable.class))).thenAnswer(i -> {
+            List<Long> activityTypeIdsToMatch = i.getArgument(0);
+            Pageable pageWithFiveActivities = i.getArgument(1);
+            int pageNumber = pageWithFiveActivities.getPageNumber();
+            int pageSize = pageWithFiveActivities.getPageSize();
+
+            List<ActivityType> activityTypesToMatch = new ArrayList<>();
+            for (Long id : activityTypeIdsToMatch) {
+                activityTypesToMatch.add(activityTypeIdToObjectMap.get(id));
+            }
+            List<Long> activityIdsToSearch = new ArrayList<>();
+            for (Activity activity : dummySearchActivitiesTable) {
+                for (ActivityType type : activityTypesToMatch) {
+                    if (activity.getActivityTypes().contains(type)) {
+                        activityIdsToSearch.add(activity.getActivityId());
+                    }
+                }
+            }
+            if (activityIdsToSearch.size() > 0) {
+                int startIndex = pageNumber * pageSize;
+                int endIndex = (pageNumber + 1) * pageSize;
+                List<Long> paginatedActivityIds;
+                if (startIndex > activityIdsToSearch.size()) {
+                    return null;
+                } else if (endIndex > activityIdsToSearch.size()) {
+                    endIndex = activityIdsToSearch.size();
+                }
+                paginatedActivityIds = activityIdsToSearch.subList(startIndex, endIndex);
+                return new PageImpl(paginatedActivityIds);
+            } else {
+                return null;
+            }
+        });
     }
 
 
@@ -705,6 +740,71 @@ class ActivityControllerTest {
     // TODO Testing with OR should be almost identical to the ones above
     // TODO Should test OR with 1 activity type eating which has a single Activity as a response
     // TODO and test OR with 2 activity types hiking and biking which should have three Activities as a response
+
+    @Test
+    void findSomeByOneActivityTypesSuccessful() throws Exception {
+        currentPageNumber = 0;
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities?activity=eating&method=OR"))
+                .header("Token", validToken)
+                .header("Page-Number", currentPageNumber);
+
+        MvcResult result = mvc.perform(request)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        JsonNode responseArray = objectMapper.readTree(result.getResponse().getContentAsString());
+        assertEquals(1, responseArray.size());
+        assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), ActivityResponse.class));
+    }
+
+    @Test
+    void findSomeByTwoActivityTypesSuccessful() throws Exception {
+        currentPageNumber = 0;
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities?activity=hiking%20biking&method=OR"))
+                .header("Token", validToken)
+                .header("Page-Number", currentPageNumber);
+
+        MvcResult result = mvc.perform(request)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        JsonNode responseArray = objectMapper.readTree(result.getResponse().getContentAsString());
+        assertEquals(3, responseArray.size());
+        assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), ActivityResponse.class));
+    }
+
+
+    @Test
+    void findSomeByOneActivityTypesFailure() throws Exception {
+        currentPageNumber = 0;
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities?activity=smile&method=OR"))
+                .header("Token", validToken)
+                .header("Page-Number", currentPageNumber);
+
+        MvcResult result = mvc.perform(request)
+                .andExpect(status().isNotFound())
+                .andReturn();
+
+        JsonNode responseArray = objectMapper.readTree(result.getResponse().getContentAsString());
+        assertEquals(0, responseArray.size());
+        assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), ActivityResponse.class));
+    }
+
+    @Test
+    void findSomeByTwoActivityTypesFailure() throws Exception {
+        currentPageNumber = 0;
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities?activity=smile%20crying&method=OR"))
+                .header("Token", validToken)
+                .header("Page-Number", currentPageNumber);
+
+        MvcResult result = mvc.perform(request)
+                .andExpect(status().isNotFound())
+                .andReturn();
+
+        JsonNode responseArray = objectMapper.readTree(result.getResponse().getContentAsString());
+        assertEquals(0, responseArray.size());
+        assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), ActivityResponse.class));
+    }
 
     @Test
     void getActivitiesByAKeyword() throws Exception {

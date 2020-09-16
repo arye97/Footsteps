@@ -41,9 +41,9 @@ public class ActivitySearchService {
         List<String> name = Arrays.asList(searchString.split("\\+"));
         List<String> queries = new ArrayList<>();
         for (String terms : name) {
-            List<String> total_terms = Arrays.asList(terms.split(" "));
+            List<String> totalTerms = Arrays.asList(terms.split(" "));
             String newQuery = "";
-            for (String term : total_terms) {
+            for (String term : totalTerms) {
                 newQuery = String.format("%s%s%s", newQuery, term, "%");
             }
             queries.add(newQuery);

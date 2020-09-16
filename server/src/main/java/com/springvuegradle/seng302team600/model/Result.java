@@ -1,7 +1,6 @@
 package com.springvuegradle.seng302team600.model;
 
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springvuegradle.seng302team600.payload.ResultRequest;
 

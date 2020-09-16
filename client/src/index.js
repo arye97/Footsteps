@@ -37,10 +37,11 @@ function guardMyroute(to, from, next)
 
     //uses sessionstorage to figure out if a user is logged in or not, goes through
     //if not assigns false to boolean variable to show that user is not logged in
-    if(sessionStorage.getItem("token"))
+    if(sessionStorage.getItem("token")) {
         isAuthenticated = true;
-    else
-        isAuthenticated= false;
+    } else {
+        isAuthenticated = false;
+    }
     //Checks if the user is authenticated, if user is authenticated will go to home page
     //because you shouldn't be able to access the login page if so
     if(!isAuthenticated)
