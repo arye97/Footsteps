@@ -22,7 +22,7 @@ public class ActivityPinService {
 
     private final ActivityRepository activityRepository;
 
-    private static final int PAGE_SIZE = 5;
+    private static final int BLOCK_SIZE = 20;
 
     public ActivityPinService(ActivityRepository activityRepository) {
         this.activityRepository = activityRepository;
@@ -41,22 +41,23 @@ public class ActivityPinService {
     }
 
     /**
-     * Obtains a paginated slice of activities associated with a user.
-     * @param user       creator/follower of activities
+     * Obtains a paginated block of activities associated with a user.
+     *
+     * @param user creator/follower of activities
      * @param pageNumber page number requested
-     * @return a paginated slice of activities
+     * @return a paginated block of activities
      */
     public Slice<Activity> getPaginatedActivityList(User user, int pageNumber) {
 //        if (user.getUserId() == null) {
 //            return new ArrayList<>();
 //        }
-        Slice<Activity> paginatedActivityList;
-        Pageable pageWithFiveActivities = PageRequest.of(pageNumber, PAGE_SIZE);
-        paginatedActivityList = activityRepository.findAllByUserId(user.getUserId(), pageWithFiveActivities);
-        if (paginatedActivityList == null) {
+        Slice<Activity> paginatedBlockOfActivities;
+        Pageable blockWithFiveActivities = PageRequest.of(pageNumber, BLOCK_SIZE);
+        paginatedBlockOfActivities = activityRepository.findAllByUserId(user.getUserId(), blockWithFiveActivities);
+        if (paginatedBlockOfActivities == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No activities have been found for this user");
         }
-        return paginatedActivityList;
+        return paginatedBlockOfActivities;
     }
 
     /**

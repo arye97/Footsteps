@@ -437,9 +437,10 @@ public class ActivityController {
 
 
     /**
-     * Obtains a paginated list of five activity geo-map pins associated
-     * with to a specific user.
-     * Adds an additional user pin when the first page is requested.
+     * Obtains a paginated block of activity geo-map pins associated to a specific user.
+     * A block is defined as a paginated list of 20 activity pins.
+     * Adds an additional user pin when the first block of pins are requested.
+     *
      * @param profileId the id of the user
      * @return a list of pins
      */
@@ -459,13 +460,13 @@ public class ActivityController {
             pageNumber = 0;
         }
 
-        Slice<Activity> paginatedActivityList = activityPinService.getPaginatedActivityList(user, pageNumber);
-        List<Pin> pins = activityPinService.getPins(user, paginatedActivityList.getContent());
+        Slice<Activity> paginatedBlockOfActivities = activityPinService.getPaginatedActivityList(user, pageNumber);
+        List<Pin> paginatedBlockOfPins = activityPinService.getPins(user, paginatedBlockOfActivities.getContent());
         if (pageNumber == 0) {
-            pins.add(0, new Pin(user));
+            paginatedBlockOfPins.add(0, new Pin(user));
         }
-        boolean hasNext = paginatedActivityList.hasNext();
+        boolean hasNext = paginatedBlockOfActivities.hasNext();
         response.setHeader("Has-Next", Boolean.toString(hasNext));
-        return pins;
+        return paginatedBlockOfPins;
     }
 }

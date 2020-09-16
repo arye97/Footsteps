@@ -105,29 +105,28 @@ class ActivityPinServiceTest {
     }
 
     @Test
-    void getPinsByUserIdSuccess() throws Exception {
-        List<Pin> pins = activityPinService.getPins(dummyUser1);
+    void getActivityPinsByUserIdAndActivityListSuccess() throws Exception {
+        List<Pin> pins = activityPinService.getPins(dummyUser1, activityList);
+        System.out.println(pins.get(0).getLatitude());
+        System.out.println(pins.get(1).getLatitude());
+        System.out.println(pins.get(2).getLatitude());
 
         assertNotNull(pins);
-        assertEquals(3, pins.size()); // 2 for the activities + 1 for the user
+        assertEquals(3, pins.size());
 
-        //not equals as this has a private address set
-        assertNotEquals(LONDON_LAT, pins.get(0).getLatitude());
-        assertNotEquals(LONDON_LON, pins.get(0).getLongitude());
+        assertEquals(BERLIN_LAT, pins.get(0).getLatitude());
+        assertEquals(BERLIN_LON, pins.get(0).getLongitude());
 
-        assertEquals(0D, pins.get(0).getLatitude());
-        assertEquals(0D, pins.get(0).getLongitude());
+        assertEquals(WARSAW_LAT, pins.get(1).getLatitude());
+        assertEquals(WARSAW_LON, pins.get(1).getLongitude());
 
-        assertEquals(BERLIN_LAT, pins.get(1).getLatitude());
-        assertEquals(BERLIN_LON, pins.get(1).getLongitude());
-
-        assertEquals(WARSAW_LAT, pins.get(2).getLatitude());
-        assertEquals(WARSAW_LON, pins.get(2).getLongitude());
+        assertEquals(MOSCOW_LAT, pins.get(2).getLatitude());
+        assertEquals(MOSCOW_LON, pins.get(2).getLongitude());
     }
 
     @Test
-    void getPinsByUserIdFailure() throws Exception {
-        List<Pin> pins = activityPinService.getPins(new User());
+    void getActivityPinsByUserIdAndActivityListFailure() throws Exception {
+        List<Pin> pins = activityPinService.getPins(new User(), new ArrayList<>());
         assertNotNull(pins);
         assertEquals(0, pins.size());
     }
