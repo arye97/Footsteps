@@ -102,7 +102,7 @@
                 if ((this.singleOnly && this.pins.length > 1) || (this.maxPins >= 0 && this.pins.length > this.maxPins)) {
                     this.pins.shift();
                 } else {
-                    this.$emit("child-pins", [...this.pins]);
+                    this.$emit("child-pins", this.pins);
                 }
             }
         },
@@ -119,6 +119,7 @@
         mounted() {
             if (this.currentLocation) {
                 let pin = {
+                    colour: 'red',
                     lat: this.currentLocation.latitude,
                     lng: this.currentLocation.longitude,
                     name: this.currentLocation.name
@@ -133,7 +134,7 @@
                 this.center = this.parentCenter;
             }
             if (this.parentPins) {
-                this.pins.push(...this.parentPins);
+                this.parentPins.forEach(i => this.pins.push(i));
             }
         },
 
@@ -148,10 +149,14 @@
                 if (pin && ["lat", "lng", "name"].every(key => key in pin)) {
                     this.pins.push(pin);
                     this.address = pin.name;
+                    if ("colour" in pin) {
+                        pin.colour = 'red';
+                    }
 
                 } else if (pin === undefined) {
 
                     pin = {
+                        colour: 'red',
                         lat: this.$refs.mapViewerRef.currentCenter.lat,
                         lng: this.$refs.mapViewerRef.currentCenter.lng,
                         name: ""
@@ -175,12 +180,13 @@
              * Convert a google place object to a pin.
              * @param place Object received via the autocomplete component.  Needs fields place.geometry.location.lat(),
              * place.geometry.location.lng() and place.formatted_address.
-             * @return Object with properties lat, lng, name
+             * @return Object with properties colour, lat, lng, name
              */
             placeToPin(place) {
                 let pin;
                 try {
                     pin = {
+                        colour: 'red',
                         lat: place.geometry.location.lat(),
                         lng: place.geometry.location.lng(),
                         name: place.formatted_address

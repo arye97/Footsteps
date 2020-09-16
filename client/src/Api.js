@@ -85,4 +85,5 @@ export default {
   getOutcomeResults: (outcomeId) => server.get(`/outcomes/${outcomeId}/results`, getTokenHeader()),
   createResult: (resultData, outcomeId) => server.post(`/outcomes/${outcomeId}/results`, resultData, getTokenHeader()),
   updateOutcome: (outcomeData) => server.put(`/activities/outcomes`, outcomeData, getTokenHeader()),
+  getActivityPins: (profileId, pageNumber)  => server.get(`/profiles/${profileId}/activities/pins`, getExtendedPageNumberTokenHeader(pageNumber)),
 }

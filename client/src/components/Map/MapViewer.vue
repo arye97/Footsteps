@@ -16,6 +16,7 @@
                         :position="google && new google.maps.LatLng(pin.lat, pin.lng)"
                         :clickable="true"
                         :draggable="draggablePins"
+                        :icon="'http://maps.google.com/mapfiles/ms/icons/' + pin.colour + '-dot.png'"
                         @click="panToPin(pin)"
                         @dragend="repositionPin({lat: $event.latLng.lat(), lng: $event.latLng.lng()}, pinIndex)"
                 />
@@ -60,7 +61,7 @@
                 },
                 type: Array,
                 validator: function (pins) {
-                    // Each pin must have a lat, lng and id
+                    // Each pin must have lat and lng
                     return pins.every(pin => {return !isNaN(pin.lat) && !isNaN(pin.lng);});
                 }
             },
@@ -102,7 +103,7 @@
                     this.pins[pinIndex].lng = pin.lng;
                     this.generatePinName(this.pins[pinIndex]);
 
-                    this.$emit("child-pins", [...this.pins])
+                    this.$emit("child-pins", this.pins);
                 }
             },
 
