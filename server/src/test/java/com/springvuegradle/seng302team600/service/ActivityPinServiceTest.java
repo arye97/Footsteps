@@ -38,6 +38,18 @@ class ActivityPinServiceTest {
     private final Long DUMMY_ACTIVITY_ID_2 = 2L;
     private final Long DUMMY_ACTIVITY_ID_3 = 3L;
 
+    private final Double LONDON_LAT = 51.507351D;
+    private final Double LONDON_LON = -0.127758D;
+
+    private final Double BERLIN_LAT = 52.520008D;
+    private final Double BERLIN_LON = 13.404954D;
+
+    private final Double WARSAW_LAT = 52.229675D;
+    private final Double WARSAW_LON = 21.012230D;
+
+    private final Double MOSCOW_LAT = 37.617298D;
+    private final Double MOSCOW_LON = 55.755825D;
+
     private User dummyUser1;
 
     /**
@@ -48,17 +60,17 @@ class ActivityPinServiceTest {
         dummyUser1 = new User();
         ReflectionTestUtils.setField(dummyUser1, "userId", 1L);
         dummyUser1.setPrivateLocation(new Location(0D, 0D, "Nigerian Coast"));
-        dummyUser1.setPublicLocation(new Location(-0.127758D, 51.507351D, "London"));
+        dummyUser1.setPublicLocation(new Location(LONDON_LON, LONDON_LAT, "London"));
 
         Activity dummyActivity1 = new Activity();
         ReflectionTestUtils.setField(dummyActivity1, "activityId", DUMMY_ACTIVITY_ID_1);
-        dummyActivity1.setLocation(new Location(13.404954D, 52.520008D, "Berlin"));
+        dummyActivity1.setLocation(new Location(BERLIN_LON, BERLIN_LAT, "Berlin"));
         Activity dummyActivity2 = new Activity();
         ReflectionTestUtils.setField(dummyActivity2, "activityId", DUMMY_ACTIVITY_ID_2);
-        dummyActivity2.setLocation(new Location(21.012230D, 52.229675D, "Warsaw"));
+        dummyActivity2.setLocation(new Location(WARSAW_LON, WARSAW_LAT, "Warsaw"));
         Activity dummyActivity3 = new Activity();
         ReflectionTestUtils.setField(dummyActivity3, "activityId", DUMMY_ACTIVITY_ID_3);
-        dummyActivity3.setLocation(new Location(37.617298D, 55.755825D, "Moscow"));
+        dummyActivity3.setLocation(new Location(MOSCOW_LON, MOSCOW_LAT, "Moscow"));
 
         dummyActivity1.setCreatorUserId(DUMMY_USER_ID_1);
         dummyActivity2.setCreatorUserId(DUMMY_USER_ID_1);
@@ -99,12 +111,6 @@ class ActivityPinServiceTest {
         assertNotNull(pins);
         assertEquals(3, pins.size()); // 2 for the activities + 1 for the user
 
-        Double LONDON_LAT = 51.507351D;
-        Double LONDON_LON = -0.127758D;
-
-        Double BERLIN_LAT = 52.520008D;
-        Double BERLIN_LON = 13.404954D;
-
         //not equals as this has a private address set
         assertNotEquals(LONDON_LAT, pins.get(0).getLatitude());
         assertNotEquals(LONDON_LON, pins.get(0).getLongitude());
@@ -114,6 +120,9 @@ class ActivityPinServiceTest {
 
         assertEquals(BERLIN_LAT, pins.get(1).getLatitude());
         assertEquals(BERLIN_LON, pins.get(1).getLongitude());
+
+        assertEquals(WARSAW_LAT, pins.get(2).getLatitude());
+        assertEquals(WARSAW_LON, pins.get(2).getLongitude());
     }
 
     @Test
