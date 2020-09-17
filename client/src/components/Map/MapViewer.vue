@@ -16,7 +16,7 @@
                         :position="google && new google.maps.LatLng(pin.lat, pin.lng)"
                         :clickable="true"
                         :draggable="draggablePins"
-                        :icon="'http://maps.google.com/mapfiles/ms/icons/' + pin.colour + '-dot.png'"
+                        :icon="'http://maps.google.com/mapfiles/ms/icons/' + pin.colour.toLowerCase() + '-dot.png'"
                         @click="panToPin(pin)"
                         @dragend="repositionPin({lat: $event.latLng.lat(), lng: $event.latLng.lng()}, pinIndex)"
                 />
