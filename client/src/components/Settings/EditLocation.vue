@@ -21,7 +21,7 @@
                     <div class="map-pane">
                         <location-i-o class="input-location"
                                       id="public-location-i-o"
-                                      @pin-change="locationPublicValue"
+                                      @pin-change="setLocationPublic"
                                       @child-pins="(pins) => pins.length === 0 && (publicLocation = inputPublicLocation = null)"
                                       :current-location="publicLocation"
                                       :single-only="true"></location-i-o>
@@ -41,7 +41,7 @@
                     <div class="map-pane">
                         <location-i-o class="input-location"
                                       id="private-location-i-o"
-                                      @pin-change="locationPrivateValue"
+                                      @pin-change="setLocationPrivate"
                                       @child-pins="(pins) => pins.length === 0 && (privateLocation = inputPrivateLocation = null)"
                                       :current-location="privateLocation"
                                       :single-only="true"></location-i-o>
@@ -189,26 +189,22 @@ export default {
          */
         getValidatedLocationRequest() {
             let editedLocation = {};
-            if (this.inputPublicLocation) {
-                this.identicalPublicLocationWarningMessage = null;
-                if (!this.publicLocation) {
-                    editedLocation['public_location'] = this.inputPublicLocation;
-                } else if (this.isModifiedLocation(this.publicLocation, this.inputPublicLocation)) {
-                    editedLocation['public_location'] = this.inputPublicLocation;
-                } else {
-                    this.identicalPublicLocationWarningMessage="This is your previous location!";
-                }
+            this.identicalPublicLocationWarningMessage = null;
+            if (!this.publicLocation) {
+                editedLocation['public_location'] = this.inputPublicLocation;
+            } else if (this.isModifiedLocation(this.publicLocation, this.inputPublicLocation)) {
+                editedLocation['public_location'] = this.inputPublicLocation;
+            } else {
+                this.identicalPublicLocationWarningMessage="This is your current location!";
             }
 
-            if (this.inputPrivateLocation) {
-                this.identicalPrivateLocationWarningMessage = null;
-                if (!this.privateLocation) {
-                    editedLocation['private_location'] = this.inputPrivateLocation;
-                } else if (this.isModifiedLocation(this.privateLocation, this.inputPrivateLocation)) {
-                    editedLocation['private_location'] = this.inputPrivateLocation;
-                } else {
-                    this.identicalPrivateLocationWarningMessage = "This is your previous location!";
-                }
+            this.identicalPrivateLocationWarningMessage = null;
+            if (!this.privateLocation) {
+                editedLocation['private_location'] = this.inputPrivateLocation;
+            } else if (this.isModifiedLocation(this.privateLocation, this.inputPrivateLocation)) {
+                editedLocation['private_location'] = this.inputPrivateLocation;
+            } else {
+                this.identicalPrivateLocationWarningMessage = "This is your current location!";
             }
 
             if (Object.keys(editedLocation).length === 0) {
@@ -224,6 +220,9 @@ export default {
          * Checks if initial location has been modified
          */
         isModifiedLocation(originalLocation, inputLocation) {
+            if (!originalLocation && !inputLocation) return false;
+            if ((!originalLocation || !inputLocation) && originalLocation !== inputLocation) return true;
+
             const locationKeys = Object.keys(originalLocation);
             for (let key of locationKeys) {
                 if (originalLocation[key] !== inputLocation[key]) {
@@ -246,12 +245,9 @@ export default {
                 this.showAlert()
             } else {
                 await api.editLocation(editedLocationRequest, this.profileId).then(() => {
-                    if (this.inputPublicLocation) {
-                        this.publicLocation = this.inputPublicLocation;
-                    }
-                    if (this.inputPrivateLocation) {
-                        this.privateLocation = this.inputPrivateLocation;
-                    }
+                    this.publicLocation = this.inputPublicLocation;
+                    this.privateLocation = this.inputPrivateLocation;
+
                     this.message = 'Changes saved successfully';
                     this.alertVariant = 'success';
                     this.showAlert()
@@ -327,7 +323,7 @@ export default {
         /**
          * Function emitted from LocationIO.vue to set inputPublicLocation
          */
-        locationPublicValue(pin) {
+        setLocationPublic(pin) {
             this.inputPublicLocation = {
                 latitude: pin.lat,
                 longitude: pin.lng,
@@ -338,7 +334,7 @@ export default {
         /**
          * Function emitted from LocationIO.vue to set inputPrivateLocation
          */
-        locationPrivateValue(pin) {
+        setLocationPrivate(pin) {
             this.inputPrivateLocation = {
                 latitude: pin.lat,
                 longitude: pin.lng,
