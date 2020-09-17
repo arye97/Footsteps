@@ -1,13 +1,13 @@
 <template>
     <div>
         <div class="address" v-if="publicLocation">
-            <h3 v-if="publicLocation" class="font-weight-light"> {{publicLocation.name}} </h3>
+            <h3 id="public-Name" v-if="publicLocation" class="font-weight-light"> {{publicLocation.name}} </h3>
         </div>
         <div class="address" v-else-if="privateLocation">
-            <h3 class="font-weight-light"> {{privateLocation.name}} </h3>
+            <h3 id="private-Name" class="font-weight-light"> {{privateLocation.name}} </h3>
         </div>
         <div v-else>
-            <h3 class="font-weight-light"> Location Not Yet Specified </h3>
+            <h3 id="notExist" class="font-weight-light"> Location Not Yet Specified </h3>
         </div>
     </div>
 </template>
