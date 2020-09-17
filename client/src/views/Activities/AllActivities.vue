@@ -70,11 +70,10 @@
             return {
                 isErrorAlert: false,
                 errorAlertMessage: '',
-                pinsPerBlock: 20,
-                rows: null,
+                rows: 0,
+                hasNext: false,
                 userPin: null,
                 pins: [],
-                pinBlock: 0,
                 loading: true,
                 userId: null
             }
@@ -109,7 +108,8 @@
                 this.loading = false;
                 this.userPin = pins[0];
                 this.pins = pins;
-                for (pinBlock = 1; pinBlock < Math.floor(this.rows / this.pinsPerBlock) + 1; pinBlock++) {
+                while (this.hasNext) {
+                    pinBlock++;
                     pins = await this.requestPinBlock(pinBlock);
                     this.pins = this.pins.concat(pins);
                 }
@@ -124,8 +124,10 @@
                 let pins = [];
                 await api.getActivityPins(this.userId, pinBlock).then(response => {
                     pins = response.data;
-                    this.rows = response.headers['total-rows'];
+                    this.hasNext = response.headers['has-next'] === 'true';
+                    this.rows += pins.length
                 }).catch(error => {
+                    this.hasNext = false;
                     if (error.response.status === 401) {
                         sessionStorage.clear();
                         this.$router.push('/login');

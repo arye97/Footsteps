@@ -20,14 +20,14 @@ const ACTIVITY_ID_2 = 22;
 const ACTIVITY_ID_3 = 23;
 const ACTIVITY_ID_4 = 24;
 const ACTIVITY_ID_5 = 25;
+const USER_PIN = {
+    lat: 1.0,
+    lng: -1.0,
+    colour: 'red',
+    pin_type: 'USER',
+    id: USER_ID
+}
 const PINS = [
-    {
-        lat: 1.0,
-        lng: -1.0,
-        colour: 'red',
-        pin_type: 'USER',
-        id: USER_ID
-    },
     {
         lat: 1.0,
         lng: -1.0,
@@ -65,32 +65,43 @@ const PINS = [
     }
 ];
 
+/**
+ * A function to cause a delay before a promise is resolved
+ * @param milliseconds time to delay
+ * @returns {Promise<any>} code to execute after delay
+ */
+const sleep = (milliseconds) => {
+    return new Promise(resolve => setTimeout(resolve, milliseconds))
+};
+
 beforeAll(() => {
-    api.getUserId.mockImplementation(() => {
-        return Promise.resolve({data: USER_ID, status: 200});
-    });
-    api.getActivityPins.mockImplementation((userId, blockNumber) => {
-        if (userId === USER_ID) {
-            let pins = [];
-            if (blockNumber === 0) {
-                pins.push(PINS[0]) // First block, so include the user
+    return new Promise(resolve => {
+        api.getUserId.mockImplementation(() => {
+            return Promise.resolve({data: USER_ID, status: 200});
+        });
+        api.getActivityPins.mockImplementation((userId, blockNumber) => {
+            if (userId === USER_ID) {
+                let pins = [];
+                if (blockNumber === 0) {
+                    pins.push(USER_PIN) // First block, so include the user
+                }
+                let leftIndex = blockNumber * PINS_PER_BLOCK;
+                let rightIndex = leftIndex + PINS_PER_BLOCK;
+                if (rightIndex > PINS.length) {
+                    rightIndex = PINS.length;
+                }
+                pins = pins.concat(PINS.slice(leftIndex, rightIndex));
+                let header = {'has-next': rightIndex >= PINS.length ? 'false' : 'true'};
+                return Promise.resolve({data: pins, status: 200, headers: header});
             }
-            let leftIndex = blockNumber * PINS_PER_BLOCK + 1;
-            let rightIndex = leftIndex + PINS_PER_BLOCK;
-            pins = pins.concat(PINS.slice(leftIndex, rightIndex))
-            return Promise.resolve({data: pins, status: 200, headers: {'total-rows': PINS.length}});
-        }
+        });
+        config = {
+            router,
+            localVue
+        };
+        allActivities = shallowMount(AllActivities, config);
+        sleep(150).then(() => resolve());
     });
-    config = {
-        router,
-        localVue,
-        data() {
-            return {
-                pinsPerBlock: PINS_PER_BLOCK
-            }
-        }
-    };
-    allActivities = shallowMount(AllActivities, config);
 });
 
 test('Is a vue instance', () => {
@@ -111,6 +122,10 @@ test('Create new activity button exists on all activities page', () => {
 
 test('Header exists on all activities page', () => {
     expect(allActivities.find('#header').exists()).toBeTruthy();
+});
+
+test('Receive the user pin', () => {
+    expect(allActivities.vm.$data.pins).toContain(USER_PIN);
 });
 
 test.each(PINS)('Receive pin %o', (pin) => {
