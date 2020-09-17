@@ -72,7 +72,7 @@ describe("Test placeToPin", () => {
     test('placeToPin converts a place object into a pin object', () => {
         const autocompletePlace = {formatted_address: "Somewhere", geometry: {location: {lat: () => 0, lng: () => 0}}};
         const pin = locationIO.vm.placeToPin(autocompletePlace);
-        expect(pin).toEqual({lat: 0, lng: 0, name: "Somewhere", windowOpen: false})
+        expect(pin).toEqual({lat: 0, lng: 0, name: "Somewhere", colour: 'red', windowOpen: false})
     });
 
 });
@@ -88,7 +88,7 @@ describe("Test addMarker", () => {
 
         locationIO.vm.addMarker(pin);
         expect(locationIO.vm.pins.length).toBe(1);
-        expect(locationIO.vm.pins[0]).toEqual({lat: 0, lng: 0, name: "Somewhere"});
+        expect(locationIO.vm.pins[0]).toEqual({lat: 0, lng: 0, name: "Somewhere", colour: 'red'});
         expect(locationIO.vm.address).toEqual("Somewhere")
     });
 
@@ -106,6 +106,7 @@ describe("Test addMarker", () => {
         expect(locationIO.vm.pins.length).toBe(1);
         expect(locationIO.vm.pins[0].lat).toEqual(0);
         expect(locationIO.vm.pins[0].lng).toEqual(0);
+        expect(locationIO.vm.pins[0].colour).toEqual('red');
     });
 
     test.each([
