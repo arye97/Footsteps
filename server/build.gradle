@@ -48,8 +48,7 @@ test {
 
 // Task used for just running cucumber tests, and can specify tags with -Ptags="@sometags"
 task cucumber() {
-	dependsOn assemble, compileTestJava
-	String selectedTags = findProperty("tags") ?: ""
+	dependsOn assemble, compileTestJava, testClasses
 
 	doLast {
 		javaexec {
@@ -57,10 +56,9 @@ task cucumber() {
 			classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
 			args = [
 					'--plugin', 'pretty', // How to format test report, "pretty" is good for human eyes
-					'--glue', 'library_app.steps', // Where to look for your tests' steps
-					'src/test/resources/library_app/features/', // Where to look for your features
+					'--glue', 'com/springvuegradle/seng302team600/steps', // Where to look for your tests' steps
+					'src/test/resources/features/', // Where to look for your features
 					'--strict', // Causes cucumber to fail if any step definitions are still undefined
-					'--tags', selectedTags // Only runs certain tagged scenarios of tags arg is given
 			]
 		}
 	}
