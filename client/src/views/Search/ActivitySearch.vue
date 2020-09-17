@@ -24,6 +24,16 @@
                         <b-form-select id="searchModeSelect" v-model="searchMode" :options="searchModes"></b-form-select>
                     </b-col>
                 </b-row>
+                <div v-if="searchMode==='activityType'">
+                    <b-row style="margin-bottom: 1.7em; margin-top: 0.8em">
+                        <b-col cols="6" align-self="center">
+                            <b-form-radio id="andRadioButton" v-model="searchType" name="andType" value="and">Must include all selections</b-form-radio>
+                        </b-col>
+                        <b-col cols="6" align-self="center">
+                            <b-form-radio id="orRadioButton" v-model="searchType" name="orType" value="or">Must include one selection</b-form-radio>
+                        </b-col>
+                    </b-row>
+                </div>
                 <b-row>
                     <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
                         Search
@@ -181,30 +191,6 @@ export default {
         },
 
         /**
-         * Searches a activity based on a string of activity types or an activity name by the AND or OR method
-         */
-        async search() {
-            // Converts list of activity types into string
-            // e.g. ["Hiking", "Biking"] into "Hiking Biking"
-            this.errored = false;
-            this.loading = true;
-            if (this.searchMode === 'activityType') {
-                // Set is as a copy so the User card is only updated after clicking search
-                this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
-                //this.getPaginatedActivitiesByActivityType();
-            } else if (this.searchMode === 'activityName') {
-                if (this.activityTitle.length === 0) {
-                    this.errored = true;
-                    this.error_message = "Cannot have empty search field, please try again!";
-                } else if (this.activityTitle.length === 75) {
-                    this.errored = true;
-                    this.error_message = "Cannot have more than 75 characters in the search field.";
-                }
-                this.getPaginatedActivitiesByActivityTitle();
-            }
-        },
-
-        /**
          * Fetches a paginated list of activities, filtered by specified activity types,
          * through an API call.
          */
@@ -236,6 +222,30 @@ export default {
                     }
                 }
             });
+        },
+
+        /**
+         * Searches a activity based on a string of activity types or an activity name by the AND or OR method
+         */
+        async search() {
+            // Converts list of activity types into string
+            // e.g. ["Hiking", "Biking"] into "Hiking Biking"
+            this.errored = false;
+            this.loading = true;
+            if (this.searchMode === 'activityType') {
+                // Set is as a copy so the User card is only updated after clicking search
+                this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
+                this.getPaginatedActivitiesByActivityType();
+            } else if (this.searchMode === 'activityName') {
+                if (this.activityTitle.length === 0) {
+                    this.errored = true;
+                    this.error_message = "Cannot have empty search field, please try again!";
+                } else if (this.activityTitle.length === 75) {
+                    this.errored = true;
+                    this.error_message = "Cannot have more than 75 characters in the search field.";
+                }
+                this.getPaginatedActivitiesByActivityTitle();
+            }
         }
 
     }
