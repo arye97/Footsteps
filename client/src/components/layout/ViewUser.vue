@@ -301,20 +301,20 @@
                 userPins.push({
                     lat: this.user.public_location.latitude,
                     lng: this.user.public_location.longitude,
+                    colour: 'red',
                     windowContent: {
                         title: 'Public Location',
                         location: this.user.public_location,
-                        type: 'location'
                     }
                 });
                 if (this.user.private_location) {
                     userPins.push({
                         lat: this.user.private_location.latitude,
                         lng: this.user.private_location.longitude,
+                        colour:'green',
                         windowContent: {
                             title: 'Private Location',
                             location: this.user.private_location,
-                            type: 'location'
                         }
                     });
                 }

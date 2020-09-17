@@ -58,11 +58,10 @@
                                   :parent-pins="[{
                                       lat: this.location.latitude,
                                       lng: this.location.longitude,
+                                      colour: 'red',
                                       windowContent: {
                                           title: this.activityTitle,
-                                          description: this.description,
                                           location: this.location,
-                                          type: 'activity'
                                       }
                                   }]"
                                   :parent-center="{lat: this.location.latitude, lng: this.location.longitude}">

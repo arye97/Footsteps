@@ -37,7 +37,7 @@
                         :position="google && new google.maps.LatLng(pin.lat, pin.lng)"
                         @closeclick="toggleInfoWindowHold(pin, false); toggleInfoWindow(pin, false)"
                     >
-                        <component :is="getWindowTemplate(pin)"  :data="pin.windowContent"></component>
+                        <InfoWindow  :data="pin.windowContent"></InfoWindow>
                     </GmapInfoWindow>
                 </a>
             </GmapMap>
@@ -47,9 +47,7 @@
 
 <script>
     import { gmapApi } from 'gmap-vue';
-    import ActivityInfoWindow from "./ActivityInfoWindow";
-    import LocationInfoWindow from "./LocationInfoWindow";
-    import ErrorInfoWindow from "./ErrorInfoWindow";
+    import InfoWindow from "./InfoWindow";
 
     /**
      * A map pane that displays draggablePins location pins.
@@ -60,7 +58,7 @@
      */
     export default {
         name: "MapViewer",
-
+        components: {InfoWindow},
         props: {
             /**
              * Object {lat, lng} to centre map on.
@@ -205,15 +203,6 @@
                     pin.windowHold = false;
                 }
             },
-            getWindowTemplate(pin) {
-                if (pin.windowContent.type  === 'activity') {
-                    return ActivityInfoWindow;
-                } else if (pin.windowContent.type  === 'location') {
-                    return LocationInfoWindow;
-                } else {
-                    return ErrorInfoWindow;
-                }
-            }
         }
     }
 
