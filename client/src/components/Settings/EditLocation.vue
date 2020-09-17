@@ -13,9 +13,10 @@
             <div v-if="!locationLoading">
                 <div class="location-container">
                     <h2 class="font-weight-bold location-header">My Private Location</h2>
-                    <FormattedAddress
-                        :publicLocation="publicLocation"
-                    />
+                    <div class="address" v-if="publicLocation">
+                        <h3 id="public-Name" v-if="publicLocation" class="font-weight-light"> {{publicLocation.name}} </h3>
+                        <h3 v-else class="font-weight-light">Location not yet specified</h3>
+                    </div>
                     <p class="location-description">This is the location that other users will see on your profile.</p>
                     <div class="map-pane">
                         <location-i-o class="input-location"
@@ -31,9 +32,10 @@
                 <hr/>
                 <div class="location-container">
                     <h2 class="font-weight-bold location-header">My Public Location</h2>
-                    <FormattedAddress
-                        :privateLocation="privateLocation"
-                    />
+                    <div class="address" v-if="privateLocation">
+                        <h3 id="private-Name" v-if="privateLocation" class="font-weight-light"> {{privateLocation.name}} </h3>
+                        <h3 v-else class="font-weight-light">Location not yet specified</h3>
+                    </div>
                     <p class="location-description">This location will only be visible to you.</p>
                     <div class="map-pane">
                         <location-i-o class="input-location"
@@ -83,14 +85,12 @@
 <script>
 import api from "../../Api";
 import LocationIO from "../../components/Map/LocationIO";
-import FormattedAddress from "../Map/FormattedUserAddress"
 
 const TIMEOUT_DURATION = 5;   // Time for error/success messages to disappear
 
 export default {
     name: "EditLocation",
     components: {
-        FormattedAddress,
         LocationIO
     },
     data() {
@@ -355,6 +355,12 @@ export default {
 </script>
 
 <style scoped>
+
+    .address {
+        text-align: center;
+        width: 100%;
+    }
+
     .location-header {
         margin-top: 25px;
         font-size: 30px;
