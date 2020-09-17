@@ -10,21 +10,12 @@
             </div>
         </section>
         <section v-if="isLoggedIn">
-            <h2 class="font-weight-bold location-header">My Location</h2>
             <div v-if="!locationLoading">
                 <div class="location-container">
-                    <table id="public-table">
-                        <tr>
-                            <th class="location-column-label">
-                                <h3 class="location-field-header">Public Location:</h3>
-                            </th>
-                            <th class="location-column-value">
-                                <h3 v-if="this.inputPublicLocation" class="font-weight-light"> {{this.inputPublicLocation.name}} </h3>
-                                <h3 v-else-if="this.publicLocation" class="font-weight-light"> {{this.publicLocation.name}} </h3>
-                                <h3 v-else class="font-weight-light"> Not Specified </h3>
-                            </th>
-                        </tr>
-                    </table>
+                    <h2 class="font-weight-bold location-header">My Private Location</h2>
+                    <FormattedAddress
+                        :publicLocation="publicLocation"
+                    />
                     <p class="location-description">This is the location that other users will see on your profile.</p>
                     <div class="map-pane">
                         <location-i-o class="input-location"
@@ -37,20 +28,12 @@
                         {{ identicalPublicLocationWarningMessage }}
                     </label>
                 </div>
+                <hr/>
                 <div class="location-container">
-                    <table id="private-table">
-                        <tr>
-                            <th class="location-column-label">
-                                <h3 class="location-field-header">Private Location:</h3>
-                            </th>
-                            <th class="location-column-value">
-                                <h3 v-if="this.inputPrivateLocation" class="font-weight-light"> {{this.inputPrivateLocation.name}} </h3>
-                                <h3 v-else-if="this.privateLocation" class="font-weight-light"> {{ this.privateLocation.name }}
-                                </h3>
-                                <h3 v-else class="font-weight-light"> Not Specified </h3>
-                            </th>
-                        </tr>
-                    </table>
+                    <h2 class="font-weight-bold location-header">My Public Location</h2>
+                    <FormattedAddress
+                        :privateLocation="privateLocation"
+                    />
                     <p class="location-description">This location will only be visible to you.</p>
                     <div class="map-pane">
                         <location-i-o class="input-location"
@@ -65,7 +48,7 @@
                 </div>
             </div>
 
-            <label class="errorMessage">
+            <label class="warningMessage">
                 {{ inputWarningMessage }}
             </label>
 
@@ -100,12 +83,14 @@
 <script>
 import api from "../../Api";
 import LocationIO from "../../components/Map/LocationIO";
+import FormattedAddress from "../Map/FormattedUserAddress"
 
 const TIMEOUT_DURATION = 5;   // Time for error/success messages to disappear
 
 export default {
     name: "EditLocation",
     components: {
+        FormattedAddress,
         LocationIO
     },
     data() {
@@ -423,6 +408,11 @@ export default {
     .errorMessage {
         margin-top: 10px;
         color: red;
+    }
+
+    .warningMessage {
+        margin-top: 10px;
+        color: yellowgreen;
     }
 
     #locationAlert {
