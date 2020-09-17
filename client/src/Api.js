@@ -90,4 +90,5 @@ export default {
     activityNamesStr = activityNamesStr.replace(/\+/, '%2b');
     return server.get(`/activities?activityKeywords=${activityNamesStr}`, getExtendedPageNumberTokenHeader(pageNumber))
   },
+  getActivityPins: (profileId, pageNumber)  => server.get(`/profiles/${profileId}/activities/pins`, getExtendedPageNumberTokenHeader(pageNumber)),
 }

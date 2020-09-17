@@ -3,6 +3,9 @@
         <b-card class="flex-fill" border-variant="secondary">
             <div v-if="isMapVisible">
                 <b-button id="hideMapButton" variant="info" @click="isMapVisible=false">Hide Map</b-button>
+                <div v-if="!viewOnly">
+                    <br/>
+                </div>
                     <map-viewer
                             id="mapComponent"
                             ref="mapViewerRef"
@@ -13,8 +16,8 @@
                             :initial-center="center"
                     ></map-viewer>
                 <div v-if="!viewOnly">
+                    <br/>
                     <h3 class="font-weight-light"><strong>Search and add a pin</strong></h3>
-
                     <!--We should add to fields in :options if we want to receive other data from the API-->
                     <gmap-autocomplete
                             id="gmapAutoComplete"
@@ -23,12 +26,13 @@
                             @place_changed="(place) => {addMarker(placeToPin(place)); pinChanged(placeToPin(place));}"
                             class="form-control" style="width: 100%">
                     </gmap-autocomplete>
-
+                    <br/>
                     <b-button id='addMarkerButton' variant="primary" block @click="addMarker()">Drop Pin</b-button>
                 </div>
             </div>
             <div v-else>
-                <b-button id="showMapButton" variant="primary" @click="isMapVisible=true">Show Map</b-button>
+                <b-button id="showMapButton" variant="info" @click="isMapVisible=true">Show Map</b-button>
+                <br/>
             </div>
         </b-card>
     </div>
@@ -102,7 +106,7 @@
                 if ((this.singleOnly && this.pins.length > 1) || (this.maxPins >= 0 && this.pins.length > this.maxPins)) {
                     this.pins.shift();
                 } else {
-                    this.$emit("child-pins", [...this.pins]);
+                    this.$emit("child-pins", this.pins);
                 }
             }
         },
@@ -119,6 +123,7 @@
         mounted() {
             if (this.currentLocation) {
                 let pin = {
+                    colour: 'red',
                     lat: this.currentLocation.latitude,
                     lng: this.currentLocation.longitude,
                     name: this.currentLocation.name
@@ -133,7 +138,7 @@
                 this.center = this.parentCenter;
             }
             if (this.parentPins) {
-                this.pins.push(...this.parentPins);
+                this.pins = this.pins.concat(this.parentPins);
             }
         },
 
@@ -148,10 +153,14 @@
                 if (pin && ["lat", "lng", "name"].every(key => key in pin)) {
                     this.pins.push(pin);
                     this.address = pin.name;
+                    if (!("colour" in pin)) {
+                        pin.colour = 'red';
+                    }
 
                 } else if (pin === undefined) {
 
                     pin = {
+                        colour: 'red',
                         lat: this.$refs.mapViewerRef.currentCenter.lat,
                         lng: this.$refs.mapViewerRef.currentCenter.lng,
                         name: ""
@@ -175,12 +184,13 @@
              * Convert a google place object to a pin.
              * @param place Object received via the autocomplete component.  Needs fields place.geometry.location.lat(),
              * place.geometry.location.lng() and place.formatted_address.
-             * @return Object with properties lat, lng, name
+             * @return Object with properties colour, lat, lng, name
              */
             placeToPin(place) {
                 let pin;
                 try {
                     pin = {
+                        colour: 'red',
                         lat: place.geometry.location.lat(),
                         lng: place.geometry.location.lng(),
                         name: place.formatted_address
