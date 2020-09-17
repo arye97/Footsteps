@@ -13,9 +13,9 @@
             <div v-if="!locationLoading">
                 <div class="location-container">
                     <h2 class="font-weight-bold location-header">My Private Location</h2>
-                    <div class="address" v-if="publicLocation">
+                    <div class="address">
                         <h3 id="public-Name" v-if="publicLocation" class="font-weight-light"> {{publicLocation.name}} </h3>
-                        <h3 v-else class="font-weight-light">Location not yet specified</h3>
+                        <h3 v-else id="public-Name-Unspecified1" class="font-weight-light">Location not yet specified</h3>
                     </div>
                     <p class="location-description">This is the location that other users will see on your profile.</p>
                     <div class="map-pane">
@@ -32,9 +32,9 @@
                 <hr/>
                 <div class="location-container">
                     <h2 class="font-weight-bold location-header">My Public Location</h2>
-                    <div class="address" v-if="privateLocation">
+                    <div class="address">
                         <h3 id="private-Name" v-if="privateLocation" class="font-weight-light"> {{privateLocation.name}} </h3>
-                        <h3 v-else class="font-weight-light">Location not yet specified</h3>
+                        <h3 v-else id="private-Name-Unspecified2" class="font-weight-light">Location not yet specified</h3>
                     </div>
                     <p class="location-description">This location will only be visible to you.</p>
                     <div class="map-pane">

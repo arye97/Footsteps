@@ -99,12 +99,24 @@ describe('User starts with no location data', () => {
         });
     });
 
+    test('Displays public location as Not Specified', () => {
+        expect(editLocation.find('#public-Name-Unspecified1').text()).toBe('Location not yet specified');
+    });
+
+    test('Displays private location as Not Specified', () => {
+        expect(editLocation.find('#private-Name-Unspecified2').text()).toBe('Location not yet specified');
+    });
+
     test('User can add a public location', async () => {
         setValues();
         editLocation.vm.inputPublicLocation = USER_DATA.public_location;
         await editLocation.vm.$nextTick().then(() => {
             editLocation.find('#save-changes-btn').trigger('click');
             expect(api.editLocation).toBeCalledTimes(1);
+
+        });
+        await editLocation.vm.$nextTick().then(() => {
+            expect(editLocation.find('#public-Name').text()).toBe(USER_DATA.public_location.name);
         });
     });
 
@@ -115,6 +127,20 @@ describe('User starts with no location data', () => {
             editLocation.find('#save-changes-btn').trigger('click');
             expect(api.editLocation).toBeCalledTimes(1);
         });
+        await editLocation.vm.$nextTick().then(() => {
+            expect(editLocation.find('#private-Name').text()).toBe(USER_DATA.private_location.name);
+        });
     });
 });
 
+describe('User starts with location data', () => {
+
+    test("Displays public location as 'Windsor, ON, Canada'", () => {
+        expect(editLocation.find('#public-Name').text()).toBe(USER_DATA.public_location.name);
+    });
+
+    test("Displays private location as 'Hisar, Haryana, India'", () => {
+        expect(editLocation.find('#private-Name').text()).toBe(USER_DATA.private_location.name);
+    });
+
+});
