@@ -339,7 +339,7 @@ public class ActivityController {
             pageNumber = 0;
         }
 
-        List<Activity> activities;
+        //List<Activity> activities;
         List<String> searchStrings;
         Page<Activity> paginatedActivities;
         Pageable pageWithFiveActivities = PageRequest.of(pageNumber, PAGE_SIZE);
@@ -347,13 +347,13 @@ public class ActivityController {
         if (activityKeywords.contains("-")) {
             //this gives <searchQuery, exclusions>
             searchStrings = ActivitySearchService.handleMinusSpecialCaseString(activityKeywords);
-            activities = activityRepository.findAllByKeywordExcludingTerm(searchStrings.get(0), searchStrings.get(1));
-
-            for (Activity activity : activities) {
-                activitiesFound.add(new ActivityResponse(activity));
-            }
-
-            return activitiesFound;
+            paginatedActivities = activityRepository.findAllByKeywordExcludingTerm(searchStrings.get(0), searchStrings.get(1), pageWithFiveActivities);
+//
+//            for (Activity activity : activities) {
+//                activitiesFound.add(new ActivityResponse(activity));
+//            }
+//
+//            return activitiesFound;
         } else if (activityKeywords.contains("%2b") || (activityKeywords.contains("+"))) {
             //this gives a list of all separate search queries
             searchStrings = ActivitySearchService.handlePlusSpecialCaseString(activityKeywords);
