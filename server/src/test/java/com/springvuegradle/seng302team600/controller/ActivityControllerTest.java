@@ -90,6 +90,7 @@ class ActivityControllerTest {
     private final int PAGE_ONE = 0;
     private final int PAGE_TWO = 1;
     private final int BLOCK_SIZE = 20;
+    int INITIAL_ACTIVITIES_COUNT = 3;
 
     private static Long activityCount = 0L;
     private int currentPageNumber = 0;
@@ -129,9 +130,6 @@ class ActivityControllerTest {
         dummyUserStub = new User();
         dummyUserStub.setToken(anotherValidToken);
         ReflectionTestUtils.setField(dummyUserStub, "userId", DUMMY_USER_STUB_ID);
-
-        int initialActivitiesCount = 3;
-        populateDummyActivityList(initialActivitiesCount);
 
         // Mocking ActivityTypeService
         when(activityTypeService.getMatchingEntitiesFromRepository(Mockito.any())).thenAnswer(i -> i.getArgument(0));
@@ -185,18 +183,20 @@ class ActivityControllerTest {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
             }
         });
-        when(activityPinService.getPaginatedActivityList(Mockito.any(User.class), Mockito.any(Integer.class))).thenAnswer(i -> {
-            User user = i.getArgument(0);
-            int pageNumber = i.getArgument(1);
-            int blockSize = 20;
-            Pageable blockWithFiveActivities = PageRequest.of(pageNumber, blockSize);
+
+
+        when(activityRepository.findAllByUserId(Mockito.any(Long.class), Mockito.any(Pageable.class))).thenAnswer(i -> {
+            Long userId = i.getArgument(0);
+            Pageable pageable = i.getArgument(1);
+            int pageNumber = pageable.getPageNumber();
+            int blockSize = pageable.getPageSize();
             List<Activity> foundActivities = new ArrayList<>();
             for (Activity activity : dummyActivitiesTable) {
-                if (activity.getCreatorUserId().equals(user.getUserId())) {
+                if (activity.getCreatorUserId().equals(userId)) {
                     foundActivities.add(activity);
                 } else {
                     for (User participant : activity.getParticipants()) {
-                        if (participant.getUserId().equals(user.getUserId())) {
+                        if (participant.getUserId().equals(userId)) {
                             foundActivities.add(activity);
                         }
                     }
@@ -208,18 +208,26 @@ class ActivityControllerTest {
                 boolean hasNext = true;
                 List<Activity> paginatedActivityBlocks;
                 if (startIndex > foundActivities.size()) {
-                    hasNext = false;
                     return null;
                 } else if (endIndex > foundActivities.size()) {
                     hasNext = false;
                     endIndex = foundActivities.size();
                 }
                 paginatedActivityBlocks = foundActivities.subList(startIndex, endIndex);
-                Slice<Activity> slice = new SliceImpl<>(paginatedActivityBlocks, blockWithFiveActivities, hasNext);
+                Slice<Activity> slice = new SliceImpl<>(paginatedActivityBlocks, pageable, hasNext);
                 return slice;
             } else {
                 return null;
             }
+        });
+
+
+        when(activityPinService.getPaginatedActivityList(Mockito.any(User.class), Mockito.any(Integer.class))).thenAnswer(i -> {
+            User user = i.getArgument(0);
+            int pageNumber = i.getArgument(1);
+            int blockSize = 20;
+            Pageable blockWithFiveActivities = PageRequest.of(pageNumber, blockSize);
+            return activityRepository.findAllByUserId(user.getUserId(), blockWithFiveActivities);
         });
         when(activityPinService.getPins(Mockito.any(User.class), Mockito.any(List.class))).thenAnswer(i -> {
             User user = i.getArgument(0);
@@ -1060,9 +1068,8 @@ class ActivityControllerTest {
         assertEquals(2, responseString.size());
     }
 
-
     @Test
-    void getPageOneOfPaginatedBlockActivityListSuccess() throws Exception {
+    void getPageOneOfPaginatedBlockOfPinsWithNoActivitiesSuccess() throws Exception {
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/profiles/4/activities/pins"))
                 .header("Token", anotherValidToken)
                 .header("Page-Number", PAGE_ONE);
@@ -1070,27 +1077,49 @@ class ActivityControllerTest {
         MvcResult response = mvc.perform(request)
                 .andExpect(status().isOk())
                 .andReturn();
-        String responseHeader = response.getResponse().getHeader("Has-Next");
+        String hasNext = response.getResponse().getHeader("Has-Next");
+
+        JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
+        assertEquals(1, responseArray.size());
+        assertFalse(Boolean.parseBoolean(hasNext));
+        assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), Pin.class));
+    }
+
+    @Test
+    void getPageOneOfPaginatedBlockOfPinsSuccess() throws Exception {
+        populateDummyActivityList(INITIAL_ACTIVITIES_COUNT);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/profiles/4/activities/pins"))
+                .header("Token", anotherValidToken)
+                .header("Page-Number", PAGE_ONE);
+
+        MvcResult response = mvc.perform(request)
+                .andExpect(status().isOk())
+                .andReturn();
+        String hasNext = response.getResponse().getHeader("Has-Next");
 
         JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
         assertEquals(dummyActivitiesTable.size() + 1, responseArray.size());
-        assertFalse(Boolean.parseBoolean(responseHeader));
+        assertFalse(Boolean.parseBoolean(hasNext));
         assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), Pin.class));
     }
 
     @Test
-    void getEmptyPageTwoOfPaginatedBlockActivityListError() throws Exception {
+    void getEmptyPageTwoOfPaginatedBlockOfPins() throws Exception {
+        populateDummyActivityList(INITIAL_ACTIVITIES_COUNT);
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/profiles/4/activities/pins"))
                 .header("Token", anotherValidToken)
                 .header("Page-Number", PAGE_TWO);
 
-        mvc.perform(request)
-                .andExpect(status().isNotFound());
+        MvcResult response = mvc.perform(request)
+                .andExpect(status().isOk())
+                .andReturn();
+        JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
+        assertEquals(0, responseArray.size());
     }
 
     @Test
-    void getPopulatedPageOneOfPaginatedBlockActivityListSuccess() throws Exception {
-        populateDummyActivityList(20);
+    void getPopulatedPageOneOfPaginatedBlockOfPinsSuccess() throws Exception {
+        populateDummyActivityList(INITIAL_ACTIVITIES_COUNT + 20);
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/profiles/4/activities/pins"))
                 .header("Token", anotherValidToken)
                 .header("Page-Number", PAGE_ONE);
@@ -1098,17 +1127,17 @@ class ActivityControllerTest {
         MvcResult response = mvc.perform(request)
                 .andExpect(status().isOk())
                 .andReturn();
-        String responseHeader = response.getResponse().getHeader("Has-Next");
+        String hasNext = response.getResponse().getHeader("Has-Next");
 
         JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
         assertEquals(BLOCK_SIZE + 1, responseArray.size());
-        assertTrue(Boolean.parseBoolean(responseHeader));
+        assertTrue(Boolean.parseBoolean(hasNext));
         assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), Pin.class));
     }
 
     @Test
-    void getPopulatedPageTwoOfPaginatedBlockActivityListSuccess() throws Exception {
-        populateDummyActivityList(20);
+    void getPopulatedPageTwoOfPaginatedBlockOfPinsSuccess() throws Exception {
+        populateDummyActivityList(INITIAL_ACTIVITIES_COUNT + 20);
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/profiles/4/activities/pins"))
                 .header("Token", anotherValidToken)
                 .header("Page-Number", PAGE_TWO);
@@ -1116,11 +1145,11 @@ class ActivityControllerTest {
         MvcResult response = mvc.perform(request)
                 .andExpect(status().isOk())
                 .andReturn();
-        String responseHeader = response.getResponse().getHeader("Has-Next");
+        String hasNext = response.getResponse().getHeader("Has-Next");
 
         JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
         assertEquals(dummyActivitiesTable.size() - BLOCK_SIZE, responseArray.size());
-        assertFalse(Boolean.parseBoolean(responseHeader));
+        assertFalse(Boolean.parseBoolean(hasNext));
         assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), Pin.class));
     }
 

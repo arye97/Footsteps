@@ -6,10 +6,7 @@ import com.springvuegradle.seng302team600.model.Pin;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.ActivityResponse;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -51,9 +48,6 @@ public class ActivityPinService {
         Slice<Activity> paginatedBlockOfActivities;
         Pageable blockWithFiveActivities = PageRequest.of(pageNumber, BLOCK_SIZE);
         paginatedBlockOfActivities = activityRepository.findAllByUserId(user.getUserId(), blockWithFiveActivities);
-        if (paginatedBlockOfActivities == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No activities have been found for this user");
-        }
         return paginatedBlockOfActivities;
     }
 

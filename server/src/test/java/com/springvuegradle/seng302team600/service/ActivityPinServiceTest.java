@@ -162,14 +162,9 @@ class ActivityPinServiceTest {
     }
 
     @Test
-    void getEmptyPageTwoOfPaginatedBlockActivityListError() {
-        Exception exception = assertThrows(ResponseStatusException.class, () -> {
-            activityPinService.getPaginatedActivityList(dummyUser1, PAGE_TWO);
-        });
-
-        String expectedMessage = "404 NOT_FOUND \"No activities have been found for this user\"";
-        String actualMessage = exception.getMessage();
-        assertEquals(expectedMessage, actualMessage);
+    void getEmptyPageTwoOfPaginatedBlockActivityListNull() {
+        Slice<Activity> blockOfActivities = activityPinService.getPaginatedActivityList(dummyUser1, PAGE_TWO);
+        assertNull(blockOfActivities);
     }
 
     @Test

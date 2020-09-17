@@ -460,14 +460,14 @@ public class ActivityController {
             pageNumber = 0;
         }
         Slice<Activity> paginatedBlockOfActivities = activityPinService.getPaginatedActivityList(user, pageNumber);
-        if (paginatedBlockOfActivities == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No activities have been found for this user");
-        }
-        List<Pin> paginatedBlockOfPins = activityPinService.getPins(user, paginatedBlockOfActivities.getContent());
+        List<Pin> paginatedBlockOfPins = new ArrayList<>();
+        boolean hasNext = false;
+        if (paginatedBlockOfActivities != null) {
+            paginatedBlockOfPins = activityPinService.getPins(user, paginatedBlockOfActivities.getContent());
+            hasNext = paginatedBlockOfActivities.hasNext();        }
         if (pageNumber == 0) {
             paginatedBlockOfPins.add(0, new Pin(user));
         }
-        boolean hasNext = paginatedBlockOfActivities.hasNext();
         response.setHeader("Has-Next", Boolean.toString(hasNext));
         return paginatedBlockOfPins;
     }
