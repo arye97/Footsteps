@@ -17,7 +17,7 @@ let viewUser;
 let ACTIVE_USER_ID;
 let USER_DATA;
 let ACTIVITY_TYPES;
-let USER_DATA_COMPLETE_LOCATION;
+let USER_DATA_PRIVATE_LOCATION;
 let USER_DATA_LOCATION;
 
 let config;
@@ -63,8 +63,8 @@ const setValues = () => {
             longitude: 174.8860
         }
     };
-    USER_DATA_COMPLETE_LOCATION = {
-        ...USER_DATA_LOCATION,
+    USER_DATA_PRIVATE_LOCATION = {
+        ...USER_DATA,
         private_location: {
             name: 'Windsor, ON, Canada',
             latitude: -40.9006,
@@ -121,20 +121,18 @@ test('Is a vue instance', () => {
     expect(viewUser.isVueInstance).toBeTruthy();
 });
 
-test('Private location is hidden when private location does not exist', () => {
-    expect(viewUser.find('#private-location').exists()).toBeFalsy();
-});
-test('Public location is hidden when public location does not exist', () => {
-    expect(viewUser.find('#public-location').exists()).toBeFalsy();
+test('Location is hidden when public location does not exist', () => {
+    expect(viewUser.find('#location').exists()).toBeFalsy();
 });
 
-test('Private location is visible when defined', async () => {
-    viewUser.setData({user: USER_DATA_COMPLETE_LOCATION});
+test('Location is hidden when only private location is defined', async () => {
+    viewUser.setData({user: USER_DATA_PRIVATE_LOCATION});
     await viewUser.vm.$nextTick();
-    expect(viewUser.find('#private-location').exists()).toBeTruthy();
+    expect(viewUser.find('#location').exists()).toBeFalsy();
 });
-test('Public location is visible when defined', async () => {
+
+test('Location is visible when public location is defined', async () => {
     viewUser.setData({user: USER_DATA_LOCATION});
     await viewUser.vm.$nextTick();
-    expect(viewUser.find('#public-location').exists()).toBeTruthy();
+    expect(viewUser.find('#location').exists()).toBeTruthy();
 });
