@@ -317,8 +317,9 @@ public class ActivityController {
                                                       HttpServletResponse response,
                                                       @RequestParam(value="activityKeywords") String activityKeywords) {
         String token = request.getHeader(TOKEN_DECLARATION);
-        userAuthenticationService.findByToken(token);
-
+        User user = userAuthenticationService.findByToken(token);
+        System.out.println(user.getPublicLocation());
+        String sortByDistance = request.getHeader("sortByDistance");
         List<ActivityResponse> activitiesFound = new ArrayList<>();
         if (activityKeywords.length() == 0) {
             return activitiesFound;
@@ -372,10 +373,15 @@ public class ActivityController {
         }
 
         List<Activity> pageActivities = paginatedActivities.getContent();
+        if (sortByDistance.equals("true")) {
+            System.out.println("Sorting the list!!");
+            ActivitySearchService.sortActivitiesByNearestLocationToUser(pageActivities, user);
+        }
         pageActivities.forEach(i -> activitiesFound.add(new ActivityResponse(i)));
 
         int totalElements = (int) paginatedActivities.getTotalElements();
         response.setIntHeader("Total-Rows", totalElements);
+
 
         return activitiesFound;
     }
