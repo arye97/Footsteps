@@ -1006,7 +1006,7 @@ class ActivityControllerTest {
         activities.add(dumActivity1);
         activities.add(dumActivity2);
 
-        when(activityRepository.findAllByKeywordExcludingTerm(Mockito.anyString(), Mockito.anyString())).thenAnswer(i -> {
+        when(activityRepository.findAllByKeywordExcludingTerm(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenAnswer(i -> {
             List<Activity> foundActivities = new ArrayList<>();
             String keyword = i.getArgument(0);
             String exclusion = i.getArgument(1);
@@ -1018,7 +1018,8 @@ class ActivityControllerTest {
                     foundActivities.add(activity);
                 }
             }
-            return foundActivities;
+            Page<Activity> result = new PageImpl(foundActivities);
+            return result;
         });
 
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityKeywords=Climb%20-%20Fuji"))
