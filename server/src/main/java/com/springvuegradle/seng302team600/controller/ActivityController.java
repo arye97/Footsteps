@@ -12,6 +12,7 @@ import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
 import com.springvuegradle.seng302team600.service.*;
 import com.springvuegradle.seng302team600.validator.ActivityValidator;
+import com.sun.xml.bind.v2.runtime.output.SAXOutput;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -348,24 +349,13 @@ public class ActivityController {
             //this gives <searchQuery, exclusions>
             searchStrings = ActivitySearchService.handleMinusSpecialCaseString(activityKeywords);
             paginatedActivities = activityRepository.findAllByKeywordExcludingTerm(searchStrings.get(0), searchStrings.get(1), pageWithFiveActivities);
-//
-//            for (Activity activity : activities) {
-//                activitiesFound.add(new ActivityResponse(activity));
-//            }
-//
-//            return activitiesFound;
         } else if (activityKeywords.contains("%2b") || (activityKeywords.contains("+"))) {
             //this gives a list of all separate search queries
             searchStrings = ActivitySearchService.handlePlusSpecialCaseString(activityKeywords);
-            Set<Activity> setToRemoveDuplicates = new HashSet<>();
+            paginatedActivities = activityRepository.findAllByKeywordIncludingTerm(searchStrings.get(0), searchStrings.get(1), pageWithFiveActivities);
 
-            for (String term : searchStrings) {
-                Page<Activity> currPage = activityRepository.findAllByKeyword(term, pageWithFiveActivities);
-                setToRemoveDuplicates.addAll(currPage.getContent());
-            }
-
-            List<Activity> listedActivities = new ArrayList<>(setToRemoveDuplicates);
-            paginatedActivities = new PageImpl<>(listedActivities);
+//            List<Activity> listedActivities = new ArrayList<>(setToRemoveDuplicates);
+//            paginatedActivities = new PageImpl<>(listedActivities);
         } else {
             activityKeywords = ActivitySearchService.getSearchQuery(activityKeywords);
             paginatedActivities = activityRepository.findAllByKeyword(activityKeywords, pageWithFiveActivities);

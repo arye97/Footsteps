@@ -67,5 +67,9 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
     @Query(value = "" +
             "SELECT * FROM activity WHERE activity_name LIKE ?1 AND activity_name NOT LIKE ?2", nativeQuery = true)
     Page<Activity> findAllByKeywordExcludingTerm(@Param("keyword") String keyword, @Param("term") String term, Pageable pageable);
+
+    @Query(value = "" +
+            "SELECT * FROM activity WHERE activity_name LIKE ?1 AND activity_name LIKE ?2", nativeQuery = true)
+    Page<Activity> findAllByKeywordIncludingTerm(@Param("keyword") String keyword, @Param("term") String term, Pageable pageable);
     
 }
