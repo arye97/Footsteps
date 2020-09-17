@@ -563,6 +563,7 @@ class ActivityControllerTest {
     private final String newActivityWrongDateFormatJson = JsonConverter.toJson(true,
             "activity_name", "Port Hills Rock Climbing",
             "description", "Cattlestop Crag lead climbing",
+            "creatorUserId", 1L,
             "activity_type", new Object[]{
                     "Rock Climbing", "Mountaineering"
             },
