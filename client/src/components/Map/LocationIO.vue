@@ -2,6 +2,9 @@
     <div>
         <b-card class="flex-fill" border-variant="secondary">
             <div v-if="isMapVisible">
+                <b-button id="clearPinsButton" variant="info" @click="clearPins">
+                    {{singleOnly || maxPins === 1 ? "Clear Location" : "Clear Pins"}}
+                </b-button>
                 <b-button id="hideMapButton" variant="info" @click="isMapVisible=false">Hide Map</b-button>
                 <div v-if="!viewOnly">
                     <br/>
@@ -209,6 +212,15 @@
             pinChanged(pin) {
                 this.address = pin.name;
                 this.$emit("pin-change", pin);
+            },
+
+
+            /**
+             * Remove all pins.
+             */
+            clearPins() {
+                this.pins = [];
+                this.address = "";
             }
 
         }
