@@ -21,23 +21,24 @@
                         @mouseover="toggleInfoWindow(pin, true)"
                         @mouseout="toggleInfoWindow(pin, false)"
                 />
-                <GmapInfoWindow
-                    v-for="(pin, pinIndex) in pins"
-                    :key="pinIndex + 'window'"
-                    :opened="pins[pinIndex].windowOpen"
-                    :options="{
-                        pixelOffset: {
-                            width: 0,
-                            height: -35
-                      }
-                    }"
-                    @mouseover="toggleInfoWindow(pin, true)"
-                    @mouseout="toggleInfoWindow(pin, false)"
-                    :position="google && new google.maps.LatLng(pin.lat, pin.lng)"
-                    @closeclick="toggleInfoWindowHold(pin, false); toggleInfoWindow(pin, false)"
-                >
-                    <component :is="getWindowTemplate(pin)"  :data="pin.windowContent"></component>
-                </GmapInfoWindow>
+                <a v-for="(pin, pinIndex) in pins" :key="pinIndex + 'window'">
+                    <GmapInfoWindow
+                        v-if="pin.windowContent"
+                        :opened="pins[pinIndex].windowOpen"
+                        :options="{
+                            pixelOffset: {
+                                width: 0,
+                                height: -35
+                          }
+                        }"
+                        @mouseover="toggleInfoWindow(pin, true)"
+                        @mouseout="toggleInfoWindow(pin, false)"
+                        :position="google && new google.maps.LatLng(pin.lat, pin.lng)"
+                        @closeclick="toggleInfoWindowHold(pin, false); toggleInfoWindow(pin, false)"
+                    >
+                        <component :is="getWindowTemplate(pin)"  :data="pin.windowContent"></component>
+                    </GmapInfoWindow>
+                </a>
             </GmapMap>
         </keep-alive>
     </div>

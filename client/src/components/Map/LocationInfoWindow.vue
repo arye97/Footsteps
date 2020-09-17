@@ -1,10 +1,10 @@
 <template>
     <div>
-        <h1 v-if="location.type">{{  location.type  }}</h1>
-        <div>{{  location.name  }}</div>
+        <h3 v-if="data.title">{{  data.title  }}</h3>
+        <div>{{  data.location.name  }}</div>
         <div>
-            Latitude: {{  location.latitude  }}
-            Longitude: {{  location.longitude  }}
+            Latitude: {{  data.location.latitude  }}<br/>
+            Longitude: {{  data.location.longitude  }}
         </div>
     </div>
 </template>

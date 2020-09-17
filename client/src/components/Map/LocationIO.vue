@@ -136,7 +136,7 @@
                 this.pins.push(...this.parentPins);
             }
             this.pins.forEach(function (element) {
-                element.windowOpen = true;
+                element.windowOpen = false;
             });
         },
 
