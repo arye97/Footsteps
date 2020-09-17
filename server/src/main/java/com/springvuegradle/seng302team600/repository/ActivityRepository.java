@@ -3,6 +3,7 @@ package com.springvuegradle.seng302team600.repository;
 import com.springvuegradle.seng302team600.model.Activity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,6 +24,22 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
             "WHERE creator_user_id = :userId OR user_id = :userId " +
             "ORDER BY A.activity_id ASC", nativeQuery = true)
     List<Activity> findAllByUserId(@Param("userId") Long userId);
+
+    @Query(value =
+            "SELECT DISTINCT A.* " +
+            "FROM activity AS A LEFT JOIN activity_participant AS AP " +
+            "ON A.activity_id = AP.activity_id " +
+            "WHERE creator_user_id = :userId OR user_id = :userId " +
+            "ORDER BY A.activity_id ASC", nativeQuery = true)
+    Slice<Activity> findAllByUserId(@Param("userId") Long userId, Pageable pageable);
+
+    @Query(value =
+            "SELECT COUNT(DISTINCT A.activity_id) " +
+                    "FROM activity AS A LEFT JOIN activity_participant AS AP " +
+                    "ON A.activity_id = AP.activity_id " +
+                    "WHERE creator_user_id = :userId OR user_id = :userId " +
+                    "ORDER BY A.activity_id ASC", nativeQuery = true)
+    Integer countAllByUserId(@Param("userId") Long userId);
 
     @Query(value =
             "SELECT DISTINCT A.* " +
