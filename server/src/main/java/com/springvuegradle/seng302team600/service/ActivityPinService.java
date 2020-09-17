@@ -48,9 +48,6 @@ public class ActivityPinService {
      * @return a paginated block of activities
      */
     public Slice<Activity> getPaginatedActivityList(User user, int pageNumber) {
-//        if (user.getUserId() == null) {
-//            return new ArrayList<>();
-//        }
         Slice<Activity> paginatedBlockOfActivities;
         Pageable blockWithFiveActivities = PageRequest.of(pageNumber, BLOCK_SIZE);
         paginatedBlockOfActivities = activityRepository.findAllByUserId(user.getUserId(), blockWithFiveActivities);

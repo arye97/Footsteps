@@ -459,8 +459,10 @@ public class ActivityController {
         if (pageNumber < 0) {
             pageNumber = 0;
         }
-
         Slice<Activity> paginatedBlockOfActivities = activityPinService.getPaginatedActivityList(user, pageNumber);
+        if (paginatedBlockOfActivities == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No activities have been found for this user");
+        }
         List<Pin> paginatedBlockOfPins = activityPinService.getPins(user, paginatedBlockOfActivities.getContent());
         if (pageNumber == 0) {
             paginatedBlockOfPins.add(0, new Pin(user));

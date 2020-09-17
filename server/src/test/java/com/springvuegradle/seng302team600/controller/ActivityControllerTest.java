@@ -19,9 +19,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -32,6 +30,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -82,6 +81,16 @@ class ActivityControllerTest {
     private static final Long DEFAULT_ACTIVITY_TYPE_ID_3 = 3L;
     private static final Long DEFAULT_ACTIVITY_TYPE_ID_4 = 4L;
 
+    private final Double DUMMY_LAT = 12.345678D;
+    private final Double DUMMY_LON = 12.345678D;
+    private Long DUMMY_ACTIVITY_STUB_ID = 8L;
+    private final Long DUMMY_USER_STUB_ID = 4L;
+    private User dummyUserStub;
+    private final List<Activity> dummyActivitiesTable = new ArrayList<>();
+    private final int PAGE_ONE = 0;
+    private final int PAGE_TWO = 1;
+    private final int BLOCK_SIZE = 20;
+
     private static Long activityCount = 0L;
     private int currentPageNumber = 0;
 
@@ -117,6 +126,13 @@ class ActivityControllerTest {
         dummyUser3.setToken(anotherValidToken);
         ReflectionTestUtils.setField(dummyUser3, "userId", DEFAULT_USER_ID_3);
 
+        dummyUserStub = new User();
+        dummyUserStub.setToken(anotherValidToken);
+        ReflectionTestUtils.setField(dummyUserStub, "userId", DUMMY_USER_STUB_ID);
+
+        int initialActivitiesCount = 3;
+        populateDummyActivityList(initialActivitiesCount);
+
         // Mocking ActivityTypeService
         when(activityTypeService.getMatchingEntitiesFromRepository(Mockito.any())).thenAnswer(i -> i.getArgument(0));
 
@@ -144,6 +160,8 @@ class ActivityControllerTest {
                 case anotherValidToken:
                     if (userId.equals(DEFAULT_USER_ID_3)) {
                         return dummyUser3;
+                    } else if (userId.equals(DUMMY_USER_STUB_ID)) {
+                        return dummyUserStub;
                     } else if (userId.equals(DEFAULT_USER_ID) || userId.equals(DEFAULT_USER_ID_2)) {
                         throw new ResponseStatusException(HttpStatus.FORBIDDEN);
                     } else {
@@ -166,6 +184,51 @@ class ActivityControllerTest {
             } else {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
             }
+        });
+        when(activityPinService.getPaginatedActivityList(Mockito.any(User.class), Mockito.any(Integer.class))).thenAnswer(i -> {
+            User user = i.getArgument(0);
+            int pageNumber = i.getArgument(1);
+            int blockSize = 20;
+            Pageable blockWithFiveActivities = PageRequest.of(pageNumber, blockSize);
+            List<Activity> foundActivities = new ArrayList<>();
+            for (Activity activity : dummyActivitiesTable) {
+                if (activity.getCreatorUserId().equals(user.getUserId())) {
+                    foundActivities.add(activity);
+                } else {
+                    for (User participant : activity.getParticipants()) {
+                        if (participant.getUserId().equals(user.getUserId())) {
+                            foundActivities.add(activity);
+                        }
+                    }
+                }
+            }
+            if (foundActivities.size() > 0) {
+                int startIndex = pageNumber * blockSize;
+                int endIndex = (pageNumber + 1) * blockSize;
+                boolean hasNext = true;
+                List<Activity> paginatedActivityBlocks;
+                if (startIndex > foundActivities.size()) {
+                    hasNext = false;
+                    return null;
+                } else if (endIndex > foundActivities.size()) {
+                    hasNext = false;
+                    endIndex = foundActivities.size();
+                }
+                paginatedActivityBlocks = foundActivities.subList(startIndex, endIndex);
+                Slice<Activity> slice = new SliceImpl<>(paginatedActivityBlocks, blockWithFiveActivities, hasNext);
+                return slice;
+            } else {
+                return null;
+            }
+        });
+        when(activityPinService.getPins(Mockito.any(User.class), Mockito.any(List.class))).thenAnswer(i -> {
+            User user = i.getArgument(0);
+            List<Activity> activityList = i.getArgument(1);
+            List<Pin> pinList = new ArrayList<>();
+            for (Activity activity : activityList) {
+                pinList.add(new Pin(activity, user.getUserId()));
+            }
+            return pinList;
         });
     }
 
@@ -264,7 +327,6 @@ class ActivityControllerTest {
             }
             return activities;
         });
-
 
 
 
@@ -740,10 +802,6 @@ class ActivityControllerTest {
                 .andReturn();
     }
 
-    // TODO Testing with OR should be almost identical to the ones above
-    // TODO Should test OR with 1 activity type eating which has a single Activity as a response
-    // TODO and test OR with 2 activity types hiking and biking which should have three Activities as a response
-
     @Test
     void findSomeByOneActivityTypesSuccessful() throws Exception {
         currentPageNumber = 0;
@@ -1001,4 +1059,85 @@ class ActivityControllerTest {
         JsonNode responseString = objectMapper.readTree(result.getResponse().getContentAsString());
         assertEquals(2, responseString.size());
     }
+
+
+    @Test
+    void getPageOneOfPaginatedBlockActivityListSuccess() throws Exception {
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/profiles/4/activities/pins"))
+                .header("Token", anotherValidToken)
+                .header("Page-Number", PAGE_ONE);
+
+        MvcResult response = mvc.perform(request)
+                .andExpect(status().isOk())
+                .andReturn();
+        String responseHeader = response.getResponse().getHeader("Has-Next");
+
+        JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
+        assertEquals(dummyActivitiesTable.size() + 1, responseArray.size());
+        assertFalse(Boolean.parseBoolean(responseHeader));
+        assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), Pin.class));
+    }
+
+    @Test
+    void getEmptyPageTwoOfPaginatedBlockActivityListError() throws Exception {
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/profiles/4/activities/pins"))
+                .header("Token", anotherValidToken)
+                .header("Page-Number", PAGE_TWO);
+
+        mvc.perform(request)
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getPopulatedPageOneOfPaginatedBlockActivityListSuccess() throws Exception {
+        populateDummyActivityList(20);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/profiles/4/activities/pins"))
+                .header("Token", anotherValidToken)
+                .header("Page-Number", PAGE_ONE);
+
+        MvcResult response = mvc.perform(request)
+                .andExpect(status().isOk())
+                .andReturn();
+        String responseHeader = response.getResponse().getHeader("Has-Next");
+
+        JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
+        assertEquals(BLOCK_SIZE + 1, responseArray.size());
+        assertTrue(Boolean.parseBoolean(responseHeader));
+        assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), Pin.class));
+    }
+
+    @Test
+    void getPopulatedPageTwoOfPaginatedBlockActivityListSuccess() throws Exception {
+        populateDummyActivityList(20);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/profiles/4/activities/pins"))
+                .header("Token", anotherValidToken)
+                .header("Page-Number", PAGE_TWO);
+
+        MvcResult response = mvc.perform(request)
+                .andExpect(status().isOk())
+                .andReturn();
+        String responseHeader = response.getResponse().getHeader("Has-Next");
+
+        JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
+        assertEquals(dummyActivitiesTable.size() - BLOCK_SIZE, responseArray.size());
+        assertFalse(Boolean.parseBoolean(responseHeader));
+        assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), Pin.class));
+    }
+
+    /**
+     * Helper function that populates dummyActivityList with a number of dummy activities for testing pagination
+     *
+     * @param activitiesCount number of dummy activities
+     */
+    public void populateDummyActivityList(int activitiesCount) {
+        for (int i = 0; i < activitiesCount; i++) {
+            Activity dummyActivityStub = new Activity();
+            ReflectionTestUtils.setField(dummyActivityStub, "activityId", DUMMY_ACTIVITY_STUB_ID);
+            dummyActivityStub.setLocation(new Location(DUMMY_LAT, DUMMY_LON, "Qatar"));
+            dummyActivityStub.setCreatorUserId(DUMMY_USER_STUB_ID);
+            dummyActivitiesTable.add(dummyActivityStub);
+            DUMMY_ACTIVITY_STUB_ID++;
+        }
+    }
 }
+

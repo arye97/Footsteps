@@ -10,7 +10,12 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -31,12 +36,16 @@ class ActivityPinServiceTest {
 
     private List<Activity> activityList = new ArrayList<>();
 
+    private final int PAGE_ONE = 0;
+    private final int PAGE_TWO = 1;
+
     private final Long DUMMY_USER_ID_1 = 1L;
     private final Long DUMMY_USER_ID_2 = 2L;
 
     private final Long DUMMY_ACTIVITY_ID_1 = 1L;
     private final Long DUMMY_ACTIVITY_ID_2 = 2L;
     private final Long DUMMY_ACTIVITY_ID_3 = 3L;
+    private Long DUMMY_ACTIVITY_STUB_ID = 4L;
 
     private final Double LONDON_LAT = 51.507351D;
     private final Double LONDON_LON = -0.127758D;
@@ -49,6 +58,9 @@ class ActivityPinServiceTest {
 
     private final Double MOSCOW_LAT = 37.617298D;
     private final Double MOSCOW_LON = 55.755825D;
+
+    private final Double DUMMY_LAT = 12.345678D;
+    private final Double DUMMY_LON = 12.345678D;
 
     private User dummyUser1;
 
@@ -74,28 +86,43 @@ class ActivityPinServiceTest {
 
         dummyActivity1.setCreatorUserId(DUMMY_USER_ID_1);
         dummyActivity2.setCreatorUserId(DUMMY_USER_ID_1);
-        dummyActivity3.setCreatorUserId(DUMMY_USER_ID_2);
+        dummyActivity3.setCreatorUserId(DUMMY_USER_ID_1);
 
         activityList.add(dummyActivity1);
         activityList.add(dummyActivity2);
         activityList.add(dummyActivity3);
 
-        // findAllByUserId
-        when(activityRepository.findAllByUserId(Mockito.anyLong())).thenAnswer(i -> {
+        when(activityRepository.findAllByUserId(Mockito.anyLong(), Mockito.any(Pageable.class))).thenAnswer(i -> {
             Long userId = i.getArgument(0);
-            List<Activity> foundActivites = new ArrayList<>();
+            Pageable pageWithTwentyActivities = i.getArgument(1);
+            int pageNumber = pageWithTwentyActivities.getPageNumber();
+            int pageSize = pageWithTwentyActivities.getPageSize();
+            List<Activity> foundActivities = new ArrayList<>();
             for (Activity activity : activityList) {
                 if (activity.getCreatorUserId().equals(userId)) {
-                    foundActivites.add(activity);
+                    foundActivities.add(activity);
                 } else {
                     for (User participant : activity.getParticipants()) {
                         if (participant.getUserId().equals(userId)) {
-                            foundActivites.add(activity);
+                            foundActivities.add(activity);
                         }
                     }
                 }
             }
-            return foundActivites;
+            if (foundActivities.size() > 0) {
+                int startIndex = pageNumber * pageSize;
+                int endIndex = (pageNumber + 1) * pageSize;
+                List<Activity> paginatedActivityBlocks;
+                if (startIndex > foundActivities.size()) {
+                    return null;
+                } else if (endIndex > foundActivities.size()) {
+                    endIndex = foundActivities.size();
+                }
+                paginatedActivityBlocks = foundActivities.subList(startIndex, endIndex);
+                return new PageImpl(paginatedActivityBlocks);
+            } else {
+                return null;
+            }
         });
     }
 
@@ -107,9 +134,6 @@ class ActivityPinServiceTest {
     @Test
     void getActivityPinsByUserIdAndActivityListSuccess() throws Exception {
         List<Pin> pins = activityPinService.getPins(dummyUser1, activityList);
-        System.out.println(pins.get(0).getLatitude());
-        System.out.println(pins.get(1).getLatitude());
-        System.out.println(pins.get(2).getLatitude());
 
         assertNotNull(pins);
         assertEquals(3, pins.size());
@@ -129,5 +153,51 @@ class ActivityPinServiceTest {
         List<Pin> pins = activityPinService.getPins(new User(), new ArrayList<>());
         assertNotNull(pins);
         assertEquals(0, pins.size());
+    }
+
+    @Test
+    void getPageOneOfPaginatedBlockActivityListSuccess() {
+        Slice<Activity> blockOfActivities = activityPinService.getPaginatedActivityList(dummyUser1, PAGE_ONE);
+        assertEquals(3, blockOfActivities.getSize());
+    }
+
+    @Test
+    void getEmptyPageTwoOfPaginatedBlockActivityListError() {
+        Exception exception = assertThrows(ResponseStatusException.class, () -> {
+            activityPinService.getPaginatedActivityList(dummyUser1, PAGE_TWO);
+        });
+
+        String expectedMessage = "404 NOT_FOUND \"No activities have been found for this user\"";
+        String actualMessage = exception.getMessage();
+        assertEquals(expectedMessage, actualMessage);
+    }
+
+    @Test
+    void getPopulatedPageOneOfPaginatedBlockActivityListSuccess() {
+        populateActivityList();
+        Slice<Activity> blockOfActivities = activityPinService.getPaginatedActivityList(dummyUser1, PAGE_ONE);
+        assertEquals(20, blockOfActivities.getSize());
+    }
+
+    @Test
+    void getPopulatedPageTwoOfPaginatedBlockActivityListSuccess() {
+        populateActivityList();
+        Slice<Activity> blockOfActivities = activityPinService.getPaginatedActivityList(dummyUser1, PAGE_TWO);
+        assertEquals(3, blockOfActivities.getSize());
+    }
+
+    /**
+     * Populates activityList with an extra 20 activities for testing pagination
+     */
+    public void populateActivityList() {
+        int EXTRA_ACTIVITIES_COUNT = 20;
+        for (int i = 0; i < EXTRA_ACTIVITIES_COUNT; i++) {
+            Activity dummyActivityStub = new Activity();
+            ReflectionTestUtils.setField(dummyActivityStub, "activityId", DUMMY_ACTIVITY_STUB_ID);
+            dummyActivityStub.setLocation(new Location(DUMMY_LAT, DUMMY_LON, "Qatar"));
+            dummyActivityStub.setCreatorUserId(DUMMY_USER_ID_1);
+            activityList.add(dummyActivityStub);
+            DUMMY_ACTIVITY_STUB_ID++;
+        }
     }
 }
