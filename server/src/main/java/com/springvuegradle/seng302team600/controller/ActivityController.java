@@ -1,21 +1,18 @@
 package com.springvuegradle.seng302team600.controller;
 
 import com.springvuegradle.seng302team600.model.Activity;
+import com.springvuegradle.seng302team600.model.Pin;
 import com.springvuegradle.seng302team600.model.User;
+import com.springvuegradle.seng302team600.payload.ActivityPostRequest;
+import com.springvuegradle.seng302team600.payload.ActivityPutRequest;
 import com.springvuegradle.seng302team600.payload.ActivityResponse;
 import com.springvuegradle.seng302team600.payload.ParticipantResponse;
 import com.springvuegradle.seng302team600.repository.ActivityActivityTypeRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
-import com.springvuegradle.seng302team600.service.ActivityTypeService;
-import com.springvuegradle.seng302team600.service.FeedEventService;
-import com.springvuegradle.seng302team600.service.UserAuthenticationService;
-import com.springvuegradle.seng302team600.service.ActivitySearchService;
+import com.springvuegradle.seng302team600.service.*;
 import com.springvuegradle.seng302team600.validator.ActivityValidator;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +35,7 @@ public class ActivityController {
     private final FeedEventService feedEventService;
     private final ActivityTypeRepository activityTypeRepository;
     private final ActivityActivityTypeRepository activityActivityTypeRepository;
+    private final ActivityPinService activityPinService;
 
     private static final int PAGE_SIZE = 5;
     private static final String CONTINUOUS = "CONTINUOUS";
@@ -47,28 +45,33 @@ public class ActivityController {
     private static final String NOT_FOUND = "Activity not found";
 
     public ActivityController(ActivityRepository activityRepository, UserAuthenticationService userAuthenticationService,
-                              ActivityTypeService activityTypeService, FeedEventService feedEventService, ActivityTypeRepository activityTypeRepository, ActivityActivityTypeRepository activityActivityTypeRepository) {
+                              ActivityTypeService activityTypeService, FeedEventService feedEventService,
+                              ActivityTypeRepository activityTypeRepository,
+                              ActivityActivityTypeRepository activityActivityTypeRepository,
+                              ActivityPinService activityPinService) {
         this.activityRepository = activityRepository;
         this.userAuthenticationService = userAuthenticationService;
         this.activityTypeService = activityTypeService;
         this.feedEventService = feedEventService;
         this.activityTypeRepository = activityTypeRepository;
         this.activityActivityTypeRepository = activityActivityTypeRepository;
+        this.activityPinService = activityPinService;
     }
 
     /**
      * Create a new Activity.
      *
-     * @param newActivity the new Activity
-     * @param response    Used to set status of operation
-     * @param profileId   the Id of the User who created the activity
+     * @param activityRequest the new Activity payload
+     * @param response        Used to set status of operation
+     * @param profileId       the Id of the User who created the activity
      * @return the id of the activity
      */
     @PostMapping("/profiles/{profileId}/activities")
-    public Long newActivity(@Validated @RequestBody Activity newActivity,
+    public Long newActivity(@Validated @RequestBody ActivityPostRequest activityRequest,
                             HttpServletRequest request,
                             HttpServletResponse response,
                             @PathVariable(value = "profileId") Long profileId) {
+        Activity newActivity = new Activity(activityRequest);
         String token = request.getHeader(TOKEN_DECLARATION);
         // Throws error if token doesn't match the profileId, i.e. you can't create an activity with a creatorUserId that isn't your own
         userAuthenticationService.findByUserId(token, profileId);
@@ -120,17 +123,18 @@ public class ActivityController {
      * takes from the client only the json object of the to-be-updated inputs
      * and the activity id through put the url mapping.
      *
-     * @param activityId the Id of the Activity to edit
-     * @param activity   the activity object to update
-     * @param profileId  the Id of the User who created the activity
+     * @param activityId      the Id of the Activity to edit
+     * @param activityRequest the activity payload
+     * @param profileId       the Id of the User who created the activity
      */
 
     @PutMapping("/profiles/{profileId}/activities/{activityId}")
     public void editActivity(@PathVariable(value = "profileId") Long profileId,
                              @PathVariable(value = "activityId") Long activityId,
-                             @Validated @RequestBody Activity activity,
+                             @Validated @RequestBody ActivityPutRequest activityRequest,
                              HttpServletRequest request, HttpServletResponse response) {
         String token = request.getHeader(TOKEN_DECLARATION);
+        Activity activity = new Activity(activityRequest);
         User author = userAuthenticationService.findByUserId(token, profileId);
         //get old activity to set values
         Activity oldActivity = activityRepository.findByActivityId(activityId);
@@ -304,8 +308,8 @@ public class ActivityController {
      * or if we want to exact match it would be /activities?activityKeywords="Climb%20Mount%20Fuji"
      * where we check all activities if they contain any of these words
      *
-     * @param request      the http request with the user token we need
-     * @param response     the http response
+     * @param request          the http request with the user token we need
+     * @param response         the http response
      * @param activityKeywords the word/sentence we need to search for
      * @return a list containing all activities found
      */
@@ -375,8 +379,6 @@ public class ActivityController {
 
         int totalElements = (int) paginatedActivities.getTotalElements();
         response.setIntHeader("Total-Rows", totalElements);
-
-
         return activitiesFound;
     }
 
@@ -385,8 +387,9 @@ public class ActivityController {
      * Obtains a paginated list of 5 activities by activity types.
      * Either using AND so all provided activity types MUST be included in returned user or
      * OR where one or more can be related to a user.
+     *
      * @param activityTypes the list of activity types
-     * @param method the method to use (OR, AND)
+     * @param method        the method to use (OR, AND)
      * @return a list of users
      */
     @GetMapping(
@@ -426,7 +429,7 @@ public class ActivityController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No activities have been found");
         }
 
-        List<Activity> activityList =  activityRepository.getActivitiesByIds(paginatedActivityIds.getContent());
+        List<Activity> activityList = activityRepository.getActivitiesByIds(paginatedActivityIds.getContent());
         List<ActivityResponse> activitySearchList = new ArrayList<>();
         for (Activity activity : activityList) {
             activitySearchList.add(new ActivityResponse(activity));
@@ -434,5 +437,42 @@ public class ActivityController {
         int totalElements = (int) paginatedActivityIds.getTotalElements();
         response.setIntHeader("Total-Rows", totalElements);
         return activitySearchList;
+    }
+
+
+    /**
+     * Obtains a paginated block of activity geo-map pins associated to a specific user.
+     * A block is defined as a paginated list of 20 activity pins.
+     * Adds an additional user pin when the first block of pins are requested.
+     *
+     * @param profileId the id of the user
+     * @return a list of pins
+     */
+    @GetMapping("/profiles/{profileId}/activities/pins")
+    public List<Pin> getActivityPins(HttpServletRequest request,
+                                     HttpServletResponse response,
+                                     @PathVariable Long profileId) {
+        String token = request.getHeader(TOKEN_DECLARATION);
+        User user = userAuthenticationService.findByUserId(token, profileId);
+        int pageNumber;
+        try {
+            pageNumber = request.getIntHeader("Page-Number");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Page-Number must be an integer");
+        }
+        if (pageNumber < 0) {
+            pageNumber = 0;
+        }
+        Slice<Activity> paginatedBlockOfActivities = activityPinService.getPaginatedActivityList(user, pageNumber);
+        List<Pin> paginatedBlockOfPins = new ArrayList<>();
+        boolean hasNext = false;
+        if (paginatedBlockOfActivities != null) {
+            paginatedBlockOfPins = activityPinService.getPins(user, paginatedBlockOfActivities.getContent());
+            hasNext = paginatedBlockOfActivities.hasNext();        }
+        if (pageNumber == 0) {
+            paginatedBlockOfPins.add(0, new Pin(user));
+        }
+        response.setHeader("Has-Next", Boolean.toString(hasNext));
+        return paginatedBlockOfPins;
     }
 }
