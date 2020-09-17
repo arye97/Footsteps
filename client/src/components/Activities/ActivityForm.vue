@@ -251,7 +251,7 @@
                                 </p>
                             </td>
                             <!--Only show edit button if this Outcome does not have results-->
-                            <td class="tableButtonTd">
+                            <td class="tableButtonTd" v-if="editableOutcomes[index]">
                                 <b-button variant="danger" :id="'deleteButton' + index" v-on:click="deleteOutcome(index)">
                                     <b-icon-trash-fill></b-icon-trash-fill>
                                 </b-button>
