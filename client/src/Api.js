@@ -85,6 +85,11 @@ export default {
   getOutcomeResults: (outcomeId) => server.get(`/outcomes/${outcomeId}/results`, getTokenHeader()),
   createResult: (resultData, outcomeId) => server.post(`/outcomes/${outcomeId}/results`, resultData, getTokenHeader()),
   updateOutcome: (outcomeData) => server.put(`/activities/outcomes`, outcomeData, getTokenHeader()),
+  getActivityByActivityTitle: (activityNames, pageNumber) => {
+    let activityNamesStr = activityNames.replace(/\s/g, '%20');  // Use RegEx to replace ALL spaces with dashes
+    activityNamesStr = activityNamesStr.replace(/\+/, '%2b');
+    return server.get(`/activities?activityKeywords=${activityNamesStr}`, getExtendedPageNumberTokenHeader(pageNumber))
+  },
   getActivityByActivityType: (activityTypes, method, pageNumber) => {    // method denotes "and" or "or"
     let activityTypesStr = activityTypes.map(a => a.replace(/\s/g, '-')).join(' ');  // Use RegEx to replace ALL spaces with dashes (because str.replace is stupid)
     console.log(activityTypesStr, method, pageNumber);

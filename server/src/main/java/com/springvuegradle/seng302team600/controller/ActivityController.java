@@ -1,21 +1,16 @@
 package com.springvuegradle.seng302team600.controller;
 
 import com.springvuegradle.seng302team600.model.Activity;
+import com.springvuegradle.seng302team600.model.Pin;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.ActivityResponse;
 import com.springvuegradle.seng302team600.payload.ParticipantResponse;
 import com.springvuegradle.seng302team600.repository.ActivityActivityTypeRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
-import com.springvuegradle.seng302team600.service.ActivityTypeService;
-import com.springvuegradle.seng302team600.service.FeedEventService;
-import com.springvuegradle.seng302team600.service.UserAuthenticationService;
-import com.springvuegradle.seng302team600.service.ActivitySearchService;
+import com.springvuegradle.seng302team600.service.*;
 import com.springvuegradle.seng302team600.validator.ActivityValidator;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +33,7 @@ public class ActivityController {
     private final FeedEventService feedEventService;
     private final ActivityTypeRepository activityTypeRepository;
     private final ActivityActivityTypeRepository activityActivityTypeRepository;
+    private final ActivityPinService activityPinService;
 
     private static final int PAGE_SIZE = 5;
     private static final String CONTINUOUS = "CONTINUOUS";
@@ -47,13 +43,17 @@ public class ActivityController {
     private static final String NOT_FOUND = "Activity not found";
 
     public ActivityController(ActivityRepository activityRepository, UserAuthenticationService userAuthenticationService,
-                              ActivityTypeService activityTypeService, FeedEventService feedEventService, ActivityTypeRepository activityTypeRepository, ActivityActivityTypeRepository activityActivityTypeRepository) {
+                              ActivityTypeService activityTypeService, FeedEventService feedEventService,
+                              ActivityTypeRepository activityTypeRepository,
+                              ActivityActivityTypeRepository activityActivityTypeRepository,
+                              ActivityPinService activityPinService) {
         this.activityRepository = activityRepository;
         this.userAuthenticationService = userAuthenticationService;
         this.activityTypeService = activityTypeService;
         this.feedEventService = feedEventService;
         this.activityTypeRepository = activityTypeRepository;
         this.activityActivityTypeRepository = activityActivityTypeRepository;
+        this.activityPinService = activityPinService;
     }
 
     /**
@@ -376,7 +376,6 @@ public class ActivityController {
 
         int totalElements = (int) paginatedActivities.getTotalElements();
         response.setIntHeader("Total-Rows", totalElements);
-
         return activitiesFound;
     }
 
@@ -434,5 +433,42 @@ public class ActivityController {
         int totalElements = (int) paginatedActivityIds.getTotalElements();
         response.setIntHeader("Total-Rows", totalElements);
         return activitySearchList;
+    }
+
+
+    /**
+     * Obtains a paginated block of activity geo-map pins associated to a specific user.
+     * A block is defined as a paginated list of 20 activity pins.
+     * Adds an additional user pin when the first block of pins are requested.
+     *
+     * @param profileId the id of the user
+     * @return a list of pins
+     */
+    @GetMapping("/profiles/{profileId}/activities/pins")
+    public List<Pin> getActivityPins(HttpServletRequest request,
+                                     HttpServletResponse response,
+                                     @PathVariable Long profileId) {
+        String token = request.getHeader(TOKEN_DECLARATION);
+        User user = userAuthenticationService.findByUserId(token, profileId);
+        int pageNumber;
+        try {
+            pageNumber = request.getIntHeader("Page-Number");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Page-Number must be an integer");
+        }
+        if (pageNumber < 0) {
+            pageNumber = 0;
+        }
+        Slice<Activity> paginatedBlockOfActivities = activityPinService.getPaginatedActivityList(user, pageNumber);
+        List<Pin> paginatedBlockOfPins = new ArrayList<>();
+        boolean hasNext = false;
+        if (paginatedBlockOfActivities != null) {
+            paginatedBlockOfPins = activityPinService.getPins(user, paginatedBlockOfActivities.getContent());
+            hasNext = paginatedBlockOfActivities.hasNext();        }
+        if (pageNumber == 0) {
+            paginatedBlockOfPins.add(0, new Pin(user));
+        }
+        response.setHeader("Has-Next", Boolean.toString(hasNext));
+        return paginatedBlockOfPins;
     }
 }
