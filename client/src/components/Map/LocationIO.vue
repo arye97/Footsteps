@@ -3,6 +3,9 @@
         <b-card class="flex-fill" border-variant="secondary">
             <div v-if="isMapVisible">
                 <b-button id="hideMapButton" variant="info" @click="isMapVisible=false">Hide Map</b-button>
+                <div v-if="!viewOnly">
+                    <br/>
+                </div>
                     <map-viewer
                             id="mapComponent"
                             ref="mapViewerRef"
@@ -13,8 +16,8 @@
                             :initial-center="center"
                     ></map-viewer>
                 <div v-if="!viewOnly">
+                    <br/>
                     <h3 class="font-weight-light"><strong>Search and add a pin</strong></h3>
-
                     <!--We should add to fields in :options if we want to receive other data from the API-->
                     <gmap-autocomplete
                             id="gmapAutoComplete"
@@ -23,12 +26,13 @@
                             @place_changed="(place) => {addMarker(placeToPin(place)); pinChanged(placeToPin(place));}"
                             class="form-control" style="width: 100%">
                     </gmap-autocomplete>
-
+                    <br/>
                     <b-button id='addMarkerButton' variant="primary" block @click="addMarker()">Drop Pin</b-button>
                 </div>
             </div>
             <div v-else>
                 <b-button id="showMapButton" variant="primary" @click="isMapVisible=true">Show Map</b-button>
+                <br/>
             </div>
         </b-card>
     </div>
