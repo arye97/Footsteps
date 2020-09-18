@@ -231,3 +231,26 @@ test('Search button exists', () => {
     expect(activitySearch.find('#searchButton').exists()).toBeTruthy();
 });
 
+describe("Search for activities by activity type", () => {
+
+    test("Search activity with activity type 'Archery','Climbing'", () => {
+
+        api.getActivityByActivityType.mockImplementation(() =>
+            Promise.resolve({
+                data: SEARCH_RESPONSE1.slice((activitySearch.vm.$data.currentPage - 1) * pageSize, activitySearch.vm.$data.currentPage * pageSize),
+                status: 200,
+                headers: {
+                    "total-rows": SEARCH_RESPONSE1.length
+                }
+            })
+        );
+
+        activitySearch.setData({
+            activityTypesSearchedFor: ["Archery","Climbing"],
+        });
+
+        return activitySearch.vm.getPaginatedActivitiesByActivityType().then(() => {
+            expect(activitySearch.vm.api.getActivityByActivityType).toHaveBeenCalledWith(["Archery","Climbing"],"and", activitySearch.vm.$data.currentPage - 1);
+        });
+    });
+});
