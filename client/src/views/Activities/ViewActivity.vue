@@ -515,7 +515,6 @@
                     outcomes[0].activeUsersResult.submitted = true;
                     outcomes[0].results.push(outcomes[0].activeUsersResult);
                     this.count++;
-                    console.log(this.count)
                     this.$forceUpdate();
                 }).catch(error => {
                     this.processPostError(error);
