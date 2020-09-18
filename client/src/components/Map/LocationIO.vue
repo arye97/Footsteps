@@ -132,7 +132,8 @@
                     name: this.currentLocation.name
                 };
                 if (this.pins) {
-                    this.pins.push(pin);
+                    this.addMarker(pin);
+                    this.pinChanged(pin);
                 }
                 this.center = pin;
             }
