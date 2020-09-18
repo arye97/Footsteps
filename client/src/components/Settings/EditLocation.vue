@@ -22,7 +22,7 @@
                         <location-i-o class="input-location"
                                       id="public-location-i-o"
                                       @pin-change="setLocationPublic"
-                                      @child-pins="(pins) => pins.length === 0 && (publicLocation = inputPublicLocation = null)"
+                                      @child-pins="(pins) => pins.length === 0 && (inputPublicLocation = null)"
                                       :current-location="publicLocation"
                                       :single-only="true"></location-i-o>
                     </div>
@@ -42,7 +42,7 @@
                         <location-i-o class="input-location"
                                       id="private-location-i-o"
                                       @pin-change="setLocationPrivate"
-                                      @child-pins="(pins) => pins.length === 0 && (privateLocation = inputPrivateLocation = null)"
+                                      @child-pins="(pins) => pins.length === 0 && (inputPrivateLocation = null)"
                                       :current-location="privateLocation"
                                       :single-only="true"></location-i-o>
                     </div>
