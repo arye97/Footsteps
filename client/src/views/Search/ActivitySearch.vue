@@ -13,12 +13,7 @@
                     </b-col>
                     <b-col cols="8" v-if="searchMode==='activityName'">
                         <b-form-input id="searchBoxActivityTitle" v-model="activityTitle" placeholder="Search activity by title"></b-form-input><br>
-                        <ul>
-                            <li>All searches are case insensitive including "" searches</li>
-                            <li>Use quotation marks to search for whole matches of the string within ("run" could return run to Mars but NOT running to Venus)</li>
-                            <li>Use "+" to include both strings in the search (any leading or tailing spaces are trimmed) (CSSE + fun will return any activity with the names CSSE and fun)</li>
-                            <li>Use "-" for splitting strings. Anything following the "-" will be excluded from the search (CSSE - fun would search for anything including CSSE that does not contain fun)</li>
-                        </ul>
+
                     </b-col>
                     <b-col cols="4">
                         <b-form-select id="searchModeSelect" v-model="searchMode" :options="searchModes"></b-form-select>
@@ -35,6 +30,11 @@
                     </b-row>
                 </div>
                 <b-row>
+                    <ul v-if="searchMode==='activityName'">
+                        <li>To exact match your search, wrap the entire query with "" (double quotations)</li>
+                        <li>Use "+" to include multiple required keywords in your search</li>
+                        <li>Use "-" for excluding a specific keyword in your search</li>
+                    </ul>
                     <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
                         Search
                     </b-button>
