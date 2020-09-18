@@ -77,12 +77,10 @@ public class OutcomeController {
 
         List<Outcome> outcomes = outcomeRepository.findByActivityId(activityId);
 
-        // Return an empty list of OutcomeResponses if null
         if (outcomes == null) {
             return new ArrayList<>();
         }
 
-        // Convert Outcomes to OutcomeResponse
         List<OutcomeResponse> outcomeResponses = new ArrayList<>(outcomes.size());
         for (Outcome outcome : outcomes) {
             outcomeResponses.add(new OutcomeResponse(outcome));
@@ -95,36 +93,34 @@ public class OutcomeController {
      * Put request for editing an outcome created by a user
      * Checks all possible inputs to see if it is there and needs updating
      * Will throw an error if the outcome you're trying to edit has results already
-     * @param outcome the Outcome object we are updating
+     *
+     * @param outcome   the Outcome object we are updating
      * @param outcomeId the ID of the outcome we are editing
      */
     @PutMapping("/activities/{outcomeId}/outcomes")
     public void updateActivityOutcomes(@Validated @RequestBody OutcomeRequest outcome,
                                        @PathVariable Long outcomeId,
-                                       HttpServletRequest request, HttpServletResponse response) {
+                                       HttpServletRequest request) {
 
         String token = request.getHeader("Token");
-        //Get old outcome and check that it's not null
         Outcome oldOutcome = outcomeRepository.findByOutcomeId(outcomeId);
-        if(oldOutcome == null){
+        if (oldOutcome == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Outcome not found");
         }
 
-        //Pull through the outcome creator's profile ID
         Long activityId = oldOutcome.getActivityId();
         Activity activity = activityRepository.findByActivityId(activityId);
-        Long profileId = activity.getCreatorUserId();
+        Long creatorUserId = activity.getCreatorUserId();
 
         //Validate you have permission to edit (Due to being creator or admin)
-        userAuthenticationService.findByUserId(token, profileId);
+        userAuthenticationService.findByUserId(token, creatorUserId);
 
-        if(resultRepository.existsByOutcome(oldOutcome)){
+        if (resultRepository.existsByOutcome(oldOutcome)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "Cannot edit outcome ID " + outcomeId + " due to results already existing");
         }
         OutcomeValidator.validate(new Outcome(outcome));
 
-        //Overwrite old outcome data with new data and save
         oldOutcome.setTitle(outcome.getTitle());
         oldOutcome.setUnitName(outcome.getUnitName());
         oldOutcome.setUnitType(outcome.getUnitType());
@@ -135,20 +131,27 @@ public class OutcomeController {
      * Removes the outcome identified by its outcomeId.
      * The user requesting the outcomes removal must be the author of the activity the outcome belongs too
      * - or is an admin.
+     *
      * @param outcomeId the ID of the outcome that is to be deleted
-     * @param request the request that contains the current user token
+     * @param request   the request that contains the current user token
      */
     @DeleteMapping("/activities/{outcomeId}/outcomes")
     public void deleteActivityOutcomes(@PathVariable Long outcomeId, HttpServletRequest request) {
         Outcome outcome = outcomeRepository.findByOutcomeId(outcomeId);
         if (outcome == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Outcome with id " + outcomeId.toString() + "could not be found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Outcome with id " + outcomeId.toString() + "could not be found");
         }
         Activity activity = activityRepository.findByActivityId(outcome.getActivityId());
         String token = request.getHeader("Token");
         User user = userAuthenticationService.findByUserId(token, activity.getCreatorUserId());
         if (user == null || !user.getUserId().equals(activity.getCreatorUserId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is forbidden from removing this outcome.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "User is forbidden from removing this outcome.");
+        }
+        if (resultRepository.existsByOutcome(outcome)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Cannot delete outcome ID " + outcomeId + " due to results already existing");
         }
         outcomeRepository.delete(outcome);
     }
