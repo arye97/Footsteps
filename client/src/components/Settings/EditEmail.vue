@@ -220,7 +220,7 @@
                     this.additionalEmails.push(this.insertedEmail);
                     this.emailCount++;
                     this.setEmailCountMessage();
-                    this.checkIfChangesMade();
+                    this.changesMade();
                     if (this.insertedEmail === this.primaryEmail || this.additionalEmails.includes(this.insertedEmail)) {
                         // Disable add button if user already assigned to email
                         this.duplicateEmailError = "";
@@ -243,7 +243,7 @@
                 // Set Primary Email Candidate
                 this.primaryEmail = candidatePrimaryEmail;
                 // Disables/Enables the SAVE button
-                this.checkIfChangesMade();
+                this.changesMade();
             },
 
             /**
@@ -332,7 +332,7 @@
              * Otherwise redirects the user back to the profile screen.
              */
             backAlert() {
-                this.checkIfChangesMade();
+                this.changesMade();
                 if (this.changesHaveBeenMade) {
                     if (confirm("Cancel changes?")) {
                         this.backToProfile();
@@ -353,7 +353,7 @@
              * of the SAVE button.
              */
             async saveChanges() {
-                this.checkIfChangesMade();
+                this.changesMade();
                 if (!this.changesHaveBeenMade) {
                     return
                 }
@@ -367,7 +367,7 @@
                     api.setAdditionalEmails(savedEmails, this.userId).then(() => {
                         window.alert("Successfully saved changes!");
                         this.updateOriginalAdditionalEmails();
-                        this.checkIfChangesMade();
+                        this.changesMade();
                     }).catch(async error => {
                         await this.processGetError(error);
                         this.primaryEmail = this.originalPrimaryEmail;
@@ -385,7 +385,7 @@
                         window.alert("Successfully saved changes!");
                         this.updateOriginalPrimaryEmail();
                         this.updateOriginalAdditionalEmails();
-                        this.checkIfChangesMade();
+                        this.changesMade();
                     }).catch(async error => {
                         await this.processGetError(error);
                         this.primaryEmail = this.originalPrimaryEmail;
@@ -399,7 +399,7 @@
              * to set up mechanisms associated with the disabling/enabling
              * of the SAVE button.
              */
-            checkIfChangesMade() {
+            changesMade() {
                 this.changesHaveBeenMade = false;
                 if (this.primaryEmail !== this.originalPrimaryEmail) {
                     this.changesHaveBeenMade = true

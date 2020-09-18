@@ -76,7 +76,7 @@
                 <b-button variant="success float-right"
                           id="save-changes-btn"
                           size="lg" v-on:click="saveChanges"
-                          v-bind:disabled="!checkIfChangesMade">
+                          v-bind:disabled="!changesMade">
                     Save Changes
                 </b-button>
             </div>
@@ -87,6 +87,7 @@
 <script>
 import api from "../../Api";
 import LocationIO from "../../components/Map/LocationIO";
+import { compareObjs } from "../../util"
 
 const TIMEOUT_DURATION = 5;   // Time for error/success messages to disappear
 
@@ -113,6 +114,9 @@ export default {
             inputPublicLocation: null,
             inputPrivateLocation: null,
 
+            savedPublicLocation: null,
+            savedPrivateLocation: null,
+
             identicalPublicLocationWarningMessage: "",
             identicalPrivateLocationWarningMessage: "",
 
@@ -135,9 +139,9 @@ export default {
         /**
          * Computed property that checks if changes have been made
          */
-        checkIfChangesMade() {
-            return this.getValidatedLocationRequest();
-        },
+        changesMade() {
+            return !compareObjs(this.inputPublicLocation, this.savedPublicLocation) || !compareObjs(this.inputPrivateLocation, this.savedPrivateLocation);
+        }
     },
 
     methods: {
@@ -176,6 +180,8 @@ export default {
                         }
                         this.inputPublicLocation = this.publicLocation;
                         this.inputPrivateLocation = this.privateLocation;
+                        this.savedPublicLocation = this.publicLocation;
+                        this.savedPrivateLocation = this.privateLocation;
                     }
                     this.locationLoading = false;
                     this.loading = false;
@@ -251,6 +257,9 @@ export default {
                 await api.editLocation(editedLocationRequest, this.profileId).then(() => {
                     this.publicLocation = this.inputPublicLocation;
                     this.privateLocation = this.inputPrivateLocation;
+
+                    this.savedPublicLocation = this.publicLocation;
+                    this.savedPrivateLocation = this.privateLocation;
 
                     this.message = 'Changes saved successfully';
                     this.alertVariant = 'success';
