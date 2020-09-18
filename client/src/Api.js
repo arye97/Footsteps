@@ -91,7 +91,7 @@ export default {
     return server.get(`/activities?activityKeywords=${activityNamesStr}`, getExtendedPageNumberTokenHeader(pageNumber))
   },
   getActivityByActivityType: (activityTypes, method, pageNumber) => {    // method denotes "and" or "or"
-    let activityTypesStr = activityTypes.map(a => a.replace(/\s/g, '-')).join(' ');  // Use RegEx to replace ALL spaces with dashes (because str.replace is stupid)
+    let activityTypesStr = activityTypes.map(a => a.replace(/\s/g, '-')).join(' ');  // Use RegEx to replace ALL spaces with dashes
     return server.get(`activities?activity=${activityTypesStr}&method=${method}`, getExtendedPageNumberTokenHeader(pageNumber))
   },
   getActivityPins: (profileId, pageNumber)  => server.get(`/profiles/${profileId}/activities/pins`, getExtendedPageNumberTokenHeader(pageNumber)),

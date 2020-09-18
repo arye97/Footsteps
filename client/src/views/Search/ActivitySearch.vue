@@ -195,7 +195,6 @@ export default {
          * through an API call.
          */
         async getPaginatedActivitiesByActivityType() {
-            console.log('searching for activity by type');
             let pageNumber = this.currentPage - 1;
             api.getActivityByActivityType(this.activityTypesSearchedFor, this.searchType, pageNumber)
                 .then(response => {
