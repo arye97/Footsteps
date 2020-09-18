@@ -197,25 +197,18 @@ export default {
          */
         getValidatedLocationRequest() {
             let editedLocation = {};
-            this.identicalPublicLocationWarningMessage = null;
-            if (!this.publicLocation) {
-                editedLocation['public_location'] = this.inputPublicLocation;
-            } else if (this.isModifiedLocation(this.publicLocation, this.inputPublicLocation)) {
-                editedLocation['public_location'] = this.inputPublicLocation;
-            } else {
-                this.identicalPublicLocationWarningMessage="This is your current location!";
-            }
-            editedLocation['public_location'] = this.inputPublicLocation;   //ToDo fix the if statements above
 
             this.identicalPrivateLocationWarningMessage = null;
-            if (!this.privateLocation) {
-                editedLocation['private_location'] = this.inputPrivateLocation;
-            } else if (this.isModifiedLocation(this.privateLocation, this.inputPrivateLocation)) {
-                editedLocation['private_location'] = this.inputPrivateLocation;
-            } else {
+            if (!this.isModifiedLocation(this.publicLocation, this.inputPublicLocation)) {
                 this.identicalPrivateLocationWarningMessage = "This is your current location!";
             }
-            editedLocation['private_location'] = this.inputPrivateLocation;  //ToDo fix the if statements above
+            editedLocation['public_location'] = this.inputPublicLocation;
+
+            this.identicalPrivateLocationWarningMessage = null;
+            if (!this.isModifiedLocation(this.privateLocation, this.inputPrivateLocation)) {
+                this.identicalPrivateLocationWarningMessage = "This is your current location!";
+            }
+            editedLocation['private_location'] = this.inputPrivateLocation;
 
             if (Object.keys(editedLocation).length === 0) {
                 editedLocation = null;
