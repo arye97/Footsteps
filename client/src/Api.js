@@ -91,4 +91,6 @@ export default {
     return server.get(`/activities?activityKeywords=${activityNamesStr}`, getExtendedPageNumberTokenHeader(pageNumber))
   },
   getActivityPins: (profileId, pageNumber)  => server.get(`/profiles/${profileId}/activities/pins`, getExtendedPageNumberTokenHeader(pageNumber)),
+  getActivityByLocation: (coordinates, activityTypes, cutoffDistance, method, pageNumber) =>
+      server.get(`/activities?coordinates=${coordinates}&activityTypes=${activityTypes}&cutoffDistance=${cutoffDistance}&method=${method}`, getExtendedPageNumberTokenHeader(pageNumber)),
 }
