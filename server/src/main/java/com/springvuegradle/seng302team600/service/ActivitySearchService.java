@@ -70,7 +70,6 @@ public class ActivitySearchService {
                 newQuery = String.format("%s%s%s", newQuery, term, "%");
             }
         }
-        System.out.println(newQuery);
         return newQuery;
     }
 
