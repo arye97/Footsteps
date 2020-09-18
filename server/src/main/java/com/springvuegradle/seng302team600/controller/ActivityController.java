@@ -320,6 +320,15 @@ public class ActivityController {
     public List<ActivityResponse> getActivitiesByKeywords(HttpServletRequest request,
                                                       HttpServletResponse response,
                                                       @RequestParam(value="activityKeywords") String activityKeywords) {
+
+        if (activityKeywords.equals("-") ||
+                activityKeywords.equals("\\+") ||
+                activityKeywords.equals("%2b") ||
+                activityKeywords.equals("%20") ||
+                activityKeywords.equals(" ")) {
+            return new ArrayList<>();
+        }
+
         String token = request.getHeader(TOKEN_DECLARATION);
         userAuthenticationService.findByToken(token);
 
@@ -335,7 +344,7 @@ public class ActivityController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Page-Number must be an integer");
         }
 
-        if (pageNumber == -1) {
+        if (pageNumber <= -1) {
             pageNumber = 0;
         }
 
@@ -343,9 +352,9 @@ public class ActivityController {
         List<String> searchStrings;
         Page<Activity> paginatedActivities;
         Pageable pageWithFiveActivities = PageRequest.of(pageNumber, PAGE_SIZE);
-
         if (activityKeywords.contains("-")) {
             //this gives <searchQuery, exclusions>
+            //Todo: implement pagination here!
             searchStrings = ActivitySearchService.handleMinusSpecialCaseString(activityKeywords);
             activities = activityRepository.findAllByKeywordExcludingTerm(searchStrings.get(0), searchStrings.get(1));
 
@@ -354,18 +363,12 @@ public class ActivityController {
             }
 
             return activitiesFound;
-        } else if (activityKeywords.contains("%2b") || (activityKeywords.contains("+"))) {
+        } else if (activityKeywords.contains("+")) {
             //this gives a list of all separate search queries
-            searchStrings = ActivitySearchService.handlePlusSpecialCaseString(activityKeywords);
+            String searchString = ActivitySearchService.handlePlusSpecialCaseString(activityKeywords);
             Set<Activity> setToRemoveDuplicates = new HashSet<>();
 
-            for (String term : searchStrings) {
-                Page<Activity> currPage = activityRepository.findAllByKeyword(term, pageWithFiveActivities);
-                setToRemoveDuplicates.addAll(currPage.getContent());
-            }
-
-            List<Activity> listedActivities = new ArrayList<>(setToRemoveDuplicates);
-            paginatedActivities = new PageImpl<>(listedActivities);
+            paginatedActivities = activityRepository.findAllByKeyword(searchString, pageWithFiveActivities);
         } else {
             activityKeywords = ActivitySearchService.getSearchQuery(activityKeywords);
             paginatedActivities = activityRepository.findAllByKeyword(activityKeywords, pageWithFiveActivities);
