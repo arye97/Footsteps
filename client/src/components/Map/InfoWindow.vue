@@ -1,7 +1,7 @@
 <template>
     <div>
         <b>{{  data.title  }}</b><br/>
-        <i>{{  data.location.name  }}</i><br/>
+        <i v-if="data.location.name">{{  data.location.name  }}</i><br/>
         <div>
             Latitude: {{  data.location.latitude  }}<br/>
             Longitude: {{  data.location.longitude  }}
@@ -14,7 +14,8 @@ export default {
 name: "InfoWindow",
     props: {
         data: {
-            type: Object
+            type: Object,
+            title: String
         }
     }
 }

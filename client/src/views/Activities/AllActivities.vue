@@ -37,7 +37,7 @@
                 <location-i-o
                         :view-only="true"
                         :parent-center="{lat: userPin.lat, lng: userPin.lng}"
-                        :parent-pins="pins"
+                        :parent-pins.sync="pins"
                         :max-pins="rows"
                 ></location-i-o>
                 <p class="light-info-message">
@@ -45,7 +45,7 @@
                 </p>
             </div>
             <section>
-                <ActivityList id="activityList" v-if="userId !== null" :user-id-prop="userId"/>
+                <ActivityList id="activityList" v-if="userId !== null" @activities-fetched="passActivities" :user-id-prop="userId"/>
             </section>
 
         </b-container>
@@ -159,7 +159,35 @@
                 });
                 return userId
             },
-
+            /**
+             * Adds the activities fetched by the activity list to the pins
+             * @param activities a list of the activities fetched
+             */
+            passActivities(activities) {
+                this.pins.forEach(pin => {
+                    if (pin.pin_type  === "ACTIVITY") {
+                        let activity = activities.filter(obj => {
+                            return obj.id === pin.id;
+                        })[0];
+                        if (activity) {
+                            pin.windowContent = {
+                                location: activity.location,
+                                title: activity.activity_name
+                            }
+                        }
+                    } else {
+                        pin.windowContent = {
+                            location: {
+                                latitude: pin.lat,
+                                longitude: pin.lng,
+                                name: 'Your house'
+                            },
+                            title: 'Your Location'
+                        }
+                    }
+                });
+                this.$emit('update:parent-pins', this.pins);
+            },
             goToPage(url) {
                 this.$router.push(url);
             },

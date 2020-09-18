@@ -207,7 +207,6 @@
             await this.getActiveUserId();
             await this.getListOfActivities(true);
             await this.getListOfActivities(false);
-
             await this.getCreatorNamesForActivities(true);
             await this.getCreatorNamesForActivities(false);
 
@@ -215,6 +214,8 @@
             await this.getFollowingStatusForActivity(false);
             this.loading = false;
             this.isTabLoading = false;
+            const completeList = [...this.continuousActivityList, ...this.durationActivityList]
+            this.$emit('activities-fetched', completeList);
         },
         methods: {
             /**
