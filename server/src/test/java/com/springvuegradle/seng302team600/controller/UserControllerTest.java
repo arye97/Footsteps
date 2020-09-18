@@ -79,8 +79,8 @@ class UserControllerTest {
     private String validToken = "valid";
     private boolean defaultAdminIsRegistered;
 
-    private Location dummyPublicLocation = new Location(6.0, 9.0, "Puerto Rico");
-    private Location dummyPrivateLocation = new Location(5.0, 2.0, "Paris");
+    private final Location dummyPublicLocation = new Location(6.0, 9.0, "Puerto Rico");
+    private final Location dummyPrivateLocation = new Location(5.0, 2.0, "Paris");
 
 
     @BeforeEach
@@ -1019,5 +1019,59 @@ class UserControllerTest {
         assertEquals(dummyPrivateLocation.getLatitude(), user.getPrivateLocation().getLatitude());
         assertEquals(dummyPublicLocation.getLongitude(), user.getPublicLocation().getLongitude());
         assertEquals(dummyPrivateLocation.getLongitude(), user.getPrivateLocation().getLongitude());
+    }
+
+
+    private final String nullLocations = JsonConverter.toJson(true,
+            "public_location", null,
+            "private_location", null
+    );
+
+    /**
+     * Test setting a user's locations to null.
+     * @throws Exception
+     */
+    @Test
+    public void removeLocationOfUserWithLocationsSuccess() throws Exception {
+        setupMocking(userWithNoLocations);
+        MockHttpServletRequestBuilder getRequest = MockMvcRequestBuilders.get("/profiles")
+                .header("Token", validToken);
+        MvcResult result = mvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andReturn();
+        String jsonResponseStr = result.getResponse().getContentAsString();
+        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
+        Long userId = jsonNode.get("id").asLong();
+
+        MockHttpServletRequestBuilder editLocationRequest = MockMvcRequestBuilders.put("/profiles/{profileId}/location", userId)
+                .header("Token", validToken)
+                .content(publicAndPrivateLocations)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mvc.perform(editLocationRequest)
+                .andExpect(status().isOk());
+
+        editLocationRequest = MockMvcRequestBuilders.put("/profiles/{profileId}/location", userId)
+                .header("Token", validToken)
+                .content(nullLocations)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mvc.perform(editLocationRequest)
+                .andExpect(status().isOk());
+
+
+        getRequest = MockMvcRequestBuilders.get("/profiles")
+                .header("Token", validToken);
+        result = mvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        jsonResponseStr = result.getResponse().getContentAsString();
+        UserResponse user = objectMapper.readValue(jsonResponseStr, UserResponse.class);
+
+        assertNull(user.getPublicLocation());
+        assertNull(user.getPrivateLocation());
     }
 }
