@@ -1048,13 +1048,19 @@ class ActivityControllerTest {
             List<Activity> foundActivities = new ArrayList<>();
             Page<Activity> pagedFoundActivities;
             String keyword = i.getArgument(0);
-            keyword = keyword.replaceAll("[^a-zA-Z0-9\\\\s+]", "");
+            keyword = keyword.replaceAll("[^a-zA-Z0-9\\\\s+]", " ");
+            keyword = keyword.trim();
+            List<String> keywords = Arrays.asList(keyword.split(" "));
             for (Activity activity : activities) {
                 List<String> name = Arrays.asList(activity.getName().split(" "));
-                if (name.contains(keyword)) {
-                    foundActivities.add(activity);
+                for (String key : keywords) {
+                    if (name.contains(key)) {
+                        foundActivities.add(activity);
+                    }
                 }
+
             }
+
             pagedFoundActivities = new PageImpl<>(foundActivities);
             return pagedFoundActivities;
         });
