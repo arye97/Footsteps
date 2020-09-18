@@ -100,11 +100,11 @@ describe('User starts with no location data', () => {
     });
 
     test('Displays public location as Not Specified', () => {
-        expect(editLocation.find('#public-table').text()).toBe('Public Location:  Not Specified');
+        expect(editLocation.find('#public-Name-Unspecified1').text()).toBe('Location not yet specified');
     });
 
     test('Displays private location as Not Specified', () => {
-        expect(editLocation.find('#private-table').text()).toBe('Private Location:  Not Specified');
+        expect(editLocation.find('#private-Name-Unspecified2').text()).toBe('Location not yet specified');
     });
 
     test('User can add a public location', async () => {
@@ -113,7 +113,10 @@ describe('User starts with no location data', () => {
         await editLocation.vm.$nextTick().then(() => {
             editLocation.find('#save-changes-btn').trigger('click');
             expect(api.editLocation).toBeCalledTimes(1);
-            expect(editLocation.find('#public-table').text()).toBe('Public Location:  ' + USER_DATA.public_location.name);
+
+        });
+        await editLocation.vm.$nextTick().then(() => {
+            expect(editLocation.find('#public-Name').text()).toBe(USER_DATA.public_location.name);
         });
     });
 
@@ -123,7 +126,9 @@ describe('User starts with no location data', () => {
         await editLocation.vm.$nextTick().then(() => {
             editLocation.find('#save-changes-btn').trigger('click');
             expect(api.editLocation).toBeCalledTimes(1);
-            expect(editLocation.find('#private-table').text()).toBe('Private Location:  ' + USER_DATA.private_location.name);
+        });
+        await editLocation.vm.$nextTick().then(() => {
+            expect(editLocation.find('#private-Name').text()).toBe(USER_DATA.private_location.name);
         });
     });
 });
@@ -131,11 +136,11 @@ describe('User starts with no location data', () => {
 describe('User starts with location data', () => {
 
     test("Displays public location as 'Windsor, ON, Canada'", () => {
-        expect(editLocation.find('#public-table').text()).toBe('Public Location:  ' + USER_DATA.public_location.name);
+        expect(editLocation.find('#public-Name').text()).toBe(USER_DATA.public_location.name);
     });
 
     test("Displays private location as 'Hisar, Haryana, India'", () => {
-        expect(editLocation.find('#private-table').text()).toBe('Private Location:  ' + USER_DATA.private_location.name);
+        expect(editLocation.find('#private-Name').text()).toBe(USER_DATA.private_location.name);
     });
 
 });

@@ -36,7 +36,7 @@ const ACTIVITY = {
     continuous: false,
     start_time: 'Wed, 02 Sep 2020 03:41 PM',
     end_time: 'Wed, 02 Sep 2020 04:43 PM',
-    location: 'Queenstown, New Zealand'
+    location: {name: "Queenstown, New Zealand" }
 };
 
 let activityCard;
@@ -110,7 +110,7 @@ describe('The ActivityCard elements', () => {
 
     test('Displays activity info', () => {
         let names = activityCard.find('#activity' + ACTIVITY_ID + 'Card').text();
-        expect(names).toContain(ACTIVITY.location);
+        expect(names).toContain(ACTIVITY.location.name);
         expect(names).toContain(ACTIVITY.start_time);
         expect(names).toContain(ACTIVITY.end_time);
         expect(names).toContain(ACTIVITY.description);
