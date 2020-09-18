@@ -4,12 +4,15 @@
             <br/>
             <div>
                 <b-row>
-                    <b-col cols="8" v-if="searchMode==='activityType'">
+                    <b-col cols="8" v-if="searchMode==='activityType' || searchMode==='activityLocation'">
                         <multiselect v-model="selectedActivityTypes" id="searchBoxActivities"
                                      :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
                                      placeholder="Select your activity types">
                             <template slot="noResult">Invalid activity type</template>
                         </multiselect>
+                    </b-col>
+                    <b-col cols="8" v-if="searchMode==='activityLocation'">
+                        <!--TODO Add locationIO into here-->
                     </b-col>
                     <b-col cols="8" v-if="searchMode==='activityName'">
                         <b-form-input id="searchBoxActivityTitle" v-model="activityTitle" placeholder="Search activity by title"></b-form-input><br>
@@ -24,6 +27,16 @@
                         <b-form-select id="searchModeSelect" v-model="searchMode" :options="searchModes"></b-form-select>
                     </b-col>
                 </b-row>
+                <div v-if="searchMode==='activityType'">
+                    <b-row style="margin-bottom: 1.7em; margin-top: 0.8em">
+                        <b-col cols="6" align-self="center">
+                            <b-form-radio id="andRadioButton" v-model="searchType" name="andType" value="and">Must include all selections</b-form-radio>
+                        </b-col>
+                        <b-col cols="6" align-self="center">
+                            <b-form-radio id="orRadioButton" v-model="searchType" name="orType" value="or">Must include one selection</b-form-radio>
+                        </b-col>
+                    </b-row>
+                </div>
                 <b-row>
                     <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
                         Search
@@ -82,7 +95,8 @@ export default {
             searchMode: 'activityType',
             searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
                 { value: 'activityType', text: 'Activity Type'},
-                { value: 'activityName', text: 'Activity Name'}
+                { value: 'activityName', text: 'Activity Name'},
+                { value: 'activityLocation', text: 'Location'}
             ],
             // These are the ActivityTypes selected in the Multiselect
             selectedActivityTypes : [],
@@ -181,6 +195,39 @@ export default {
         },
 
         /**
+         * Fetches a paginated list of activities, filtered by specified activity types,
+         * through an API call.
+         */
+        async getPaginatedActivitiesByActivityType() {
+            let pageNumber = this.currentPage - 1;
+            api.getActivityByActivityType(this.activityTypesSearchedFor, this.searchType, pageNumber)
+                .then(response => {
+                    this.activitiesList = response.data;
+                    this.rows = response.headers["total-rows"];
+                    this.loading = false;
+                    this.resultsFound = true;
+                }).catch(error => {
+                this.loading = false;
+                this.errored = true;
+                this.userList = [];
+                if ((error.code === "ECONNREFUSED") || (error.code === "ECONNABORTED")) {
+                    this.error_message = "Cannot connect to server - please try again later!";
+                } else {
+                    if (error.response.status === 401) {
+                        this.error_message = "You aren't logged in! You're being redirected!";
+                        setTimeout(() => {this.logout()}, 3000)
+                    } else if (error.response.status === 400) {
+                        this.error_message = error.response.data.message;
+                    } else if (error.response.status === 404) {
+                        this.error_message = "No activities with activity types ".concat(this.selectedActivityTypes) + " have been found!"
+                    } else {
+                        this.error_message = "Something went wrong! Please try again."
+                    }
+                }
+            });
+        },
+
+        /**
          * Searches a activity based on a string of activity types or an activity name by the AND or OR method
          */
         async search() {
@@ -191,7 +238,7 @@ export default {
             if (this.searchMode === 'activityType') {
                 // Set is as a copy so the User card is only updated after clicking search
                 this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
-                //this.getPaginatedActivitiesByActivityType();
+                this.getPaginatedActivitiesByActivityType();
             } else if (this.searchMode === 'activityName') {
                 if (this.activityTitle.length === 0) {
                     this.errored = true;
@@ -203,6 +250,7 @@ export default {
                 this.getPaginatedActivitiesByActivityTitle();
             }
         }
+
     }
 }
 </script>
