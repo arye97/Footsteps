@@ -108,7 +108,6 @@
         async mounted() {
             await this.$gmapApiPromiseLazy();  // Without this, google could be null
             this.geoCoder = new this.google.maps.Geocoder();
-            console.log(this.pins)
         },
 
         methods: {

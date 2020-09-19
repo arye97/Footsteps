@@ -174,15 +174,26 @@
                                 location: activity.location,
                                 title: activity.activity_name
                             }
+                            if (activity.start_time) {
+                                pin.windowContent.start_time = activity.start_time;
+                                pin.windowContent.end_time = activity.end_time;
+                            }
+                        } else {
+                            pin.windowContent = {
+                                error: true
+                            }
                         }
-                    } else {
+                    } else if (pin.pin_type  === "USER") {
                         pin.windowContent = {
                             location: {
                                 latitude: pin.lat,
                                 longitude: pin.lng,
-                                name: 'Your house'
                             },
                             title: 'Your Location'
+                        }
+                    } else {
+                        pin.windowContent = {
+                            error: true
                         }
                     }
                 });
