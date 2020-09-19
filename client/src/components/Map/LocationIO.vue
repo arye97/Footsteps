@@ -98,6 +98,10 @@
             parentCenter: {
                 default: null,
                 type: Object
+            },
+            parentAddress: {
+                default: null,
+                type: String
             }
         },
 
@@ -139,6 +143,9 @@
             }
             if (this.parentPins) {
                 this.pins = this.pins.concat(this.parentPins);
+            }
+            if (this.parentAddress) {
+                this.address = this.parentAddress;
             }
         },
 
