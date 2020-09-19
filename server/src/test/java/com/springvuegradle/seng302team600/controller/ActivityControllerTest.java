@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.model.*;
-import com.springvuegradle.seng302team600.payload.ActivityResponse;
-import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
+import com.springvuegradle.seng302team600.payload.response.ActivityResponse;
+import com.springvuegradle.seng302team600.payload.request.UserRegisterRequest;
 import com.springvuegradle.seng302team600.repository.*;
 import com.springvuegradle.seng302team600.service.ActivityPinService;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
@@ -30,7 +30,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
