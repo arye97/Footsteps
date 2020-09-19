@@ -1,6 +1,9 @@
 <template>
     <div id="app">
-        <h1><br/><br/></h1>
+        <h1>
+            <br/>
+            <br/>
+        </h1>
         <b-container class="contents" fluid>
             <div class="container">
                 <Header v-if="!modalView" :userId="this.userId"/>
@@ -8,27 +11,44 @@
                     <div class="col-12 text-center">
                         <section v-if="errored">
                             <p class="font-weight-light">{{this.error}}</p>
-                            <p class="font-weight-light">Sorry, please log in to access your profile, or try again later.</p>
+                            <p class="font-weight-light">Sorry, please log in to access your profile, or try again
+                                later.
+                            </p>
                         </section>
                         <section v-else>
-                            <div v-if="loading"> Loading... <br/><br/><b-spinner variant="primary" label="Spinning"></b-spinner></div>
+                            <div v-if="loading">Loading...
+                                <br/>
+                                <br/>
+                                <b-spinner variant="primary" label="Spinning"></b-spinner>
+                            </div>
                             <div v-else class="font-weight-light">
                                 <br/>
-                                <h1 class="font-weight-light"><strong>{{this.user.firstname}} {{this.user.middlename}} {{this.user.lastname}}</strong></h1>
+                                <h1 class="font-weight-light">
+                                    <strong>{{this.user.firstname}} {{this.user.middlename}} {{this.user.lastname}}
+                                    </strong>
+                                </h1>
                                 <h1 class="font-weight-light" v-if="this.user.nickname">{{this.user.nickname}}</h1>
                                 <br/>
-                                <h5 class="font-weight-light" v-if="this.user.bio">"{{ this.user.bio }}"<br/></h5>
+                                <h5 class="font-weight-light" v-if="this.user.bio">"{{ this.user.bio }}"
+                                    <br/>
+                                </h5>
                                 <br/>
 
                                 <b-button type="submit" variant="success" size="med"
-                                          v-if="this.isEditable" v-on:click="editProfile">Edit Profile</b-button>
-                                <br/><br/>
+                                          v-if="this.isEditable" v-on:click="editProfile">Edit Profile
+                                </b-button>
+                                <br/>
+                                <br/>
 
                                 <!-- Handling for displaying Passport Countries -->
-                                <h3 class="font-weight-light"><strong>Passport countries: </strong></h3><br/>
+                                <h3 class="font-weight-light">
+                                    <strong>Passport countries:</strong>
+                                </h3>
+                                <br/>
 
                                 <b-list-group v-if="this.user.passports.length >= 1">
-                                    <b-card v-for="country in this.user.passports" v-bind:key="country" class="flex-fill" border-variant="secondary">
+                                    <b-card v-for="country in this.user.passports" v-bind:key="country"
+                                            class="flex-fill" border-variant="secondary">
                                         <b-card-text class="font-weight-light">
                                             {{country}}
                                         </b-card-text>
@@ -46,7 +66,9 @@
                                 <br/>
 
                                 <!--Handling for displaying of Fitness Level-->
-                                <h3 class="font-weight-light"><strong>Fitness Level: </strong></h3>
+                                <h3 class="font-weight-light">
+                                    <strong>Fitness Level:</strong>
+                                </h3>
 
                                 <b-list-group v-if="this.user.fitness >= 0">
                                     <b-card class="flex-fill" border-variant="secondary">
@@ -68,7 +90,9 @@
                                 <br/>
 
                                 <!--Handling for displaying of Emails -->
-                                <h3 class="font-weight-light"><strong> Email(s): </strong></h3>
+                                <h3 class="font-weight-light">
+                                    <strong>Email(s):</strong>
+                                </h3>
 
                                 <b-list-group>
                                     <b-card class="flex-fill" border-variant="secondary">
@@ -76,7 +100,8 @@
                                             {{this.user.primary_email}} (Primary)
                                         </b-card-text>
                                     </b-card>
-                                    <b-card v-for="email in this.user.additional_email" v-bind:key="email" class="flex-fill" border-variant="secondary">
+                                    <b-card v-for="email in this.user.additional_email" v-bind:key="email"
+                                            class="flex-fill" border-variant="secondary">
                                         <b-card-text class="font-weight-light">
                                             {{email}}
                                         </b-card-text>
@@ -86,7 +111,9 @@
 
                                 <br/>
 
-                                <h3 class="font-weight-light"><strong> Gender: </strong></h3>
+                                <h3 class="font-weight-light">
+                                    <strong>Gender:</strong>
+                                </h3>
                                 <b-card class="flex-fill" border-variant="secondary">
                                     <b-card-text class="font-weight-light">
                                         {{this.user.gender}}
@@ -94,19 +121,26 @@
                                 </b-card>
                                 <br/>
 
-                                <h3 class="font-weight-light"><strong> Date of Birth: </strong></h3>
+                                <h3 class="font-weight-light">
+                                    <strong>Date of Birth:</strong>
+                                </h3>
 
                                 <b-card class="flex-fill" border-variant="secondary">
                                     <b-card-text class="font-weight-light">
                                         {{this.user.date_of_birth}}
                                     </b-card-text>
-                                </b-card><br/>
+                                </b-card>
+                                <br/>
 
                                 <!-- Handling for displaying Activity Types -->
-                                <h3 class="font-weight-light"><strong>Activity Types: </strong></h3><br/>
+                                <h3 class="font-weight-light">
+                                    <strong>Activity Types:</strong>
+                                </h3>
+                                <br/>
 
                                 <b-list-group v-if="this.user.activityTypes.length >= 1">
-                                    <b-card v-for="activityType in this.user.activityTypes" v-bind:key="activityType.name" class="flex-fill" border-variant="secondary">
+                                    <b-card v-for="activityType in this.user.activityTypes"
+                                            v-bind:key="activityType.name" class="flex-fill" border-variant="secondary">
                                         <b-card-text class="font-weight-light">
                                             {{activityType.name}}
                                         </b-card-text>
@@ -125,20 +159,36 @@
                                 <!-- These are kept separate to make it clearer to the user what each pin means -->
                                 <!-- TODO:Merge into a single pane once they can be distinguished by colour -->
                                 <div v-if="this.user.public_location">
-                                    <h3 class="font-weight-light"><strong>Public Location:</strong></h3><br/>
+                                    <h3 class="font-weight-light">
+                                        <strong>Public Location:</strong>
+                                    </h3>
+                                    <br/>
+                                    <b-card class="flex-fill" border-variant="secondary">
+                                        <b-card-text id="public-Name" class="font-weight-light">
+                                            {{user.public_location.name}}
+                                        </b-card-text>
+                                    </b-card>
                                     <location-i-o id="public-location"
-                                        :view-only="true"
-                                        :parent-pins="[{lat: this.user.public_location.latitude, lng: this.user.public_location.longitude}]"
-                                        :parent-center="{lat: this.user.public_location.latitude, lng: this.user.public_location.longitude}">
+                                                  :view-only="true"
+                                                  :parent-pins="[{lat: this.user.public_location.latitude, lng: this.user.public_location.longitude}]"
+                                                  :parent-center="{lat: this.user.public_location.latitude, lng: this.user.public_location.longitude}">
                                     </location-i-o>
                                 </div>
                                 <br/>
                                 <div v-if="this.user.private_location">
-                                    <h3 class="font-weight-light"><strong>Private Location:</strong></h3><br/>
+                                    <h3 class="font-weight-light">
+                                        <strong>Private Location:</strong>
+                                    </h3>
+                                    <br/>
+                                    <b-card class="flex-fill" border-variant="secondary">
+                                        <b-card-text id="private-Name" class="font-weight-light">
+                                            {{user.private_location.name}}
+                                        </b-card-text>
+                                    </b-card>
                                     <location-i-o id="private-location"
-                                        :view-only="true"
-                                        :parent-pins="[{lat: this.user.private_location.latitude, lng: this.user.private_location.longitude}]"
-                                        :parent-center="{lat: this.user.private_location.latitude, lng: this.user.private_location.longitude}">
+                                                  :view-only="true"
+                                                  :parent-pins="[{lat: this.user.private_location.latitude, lng: this.user.private_location.longitude}]"
+                                                  :parent-center="{lat: this.user.private_location.latitude, lng: this.user.private_location.longitude}">
                                     </location-i-o>
                                 </div>
                                 <br/>
@@ -151,7 +201,8 @@
                 </section>
             </div>
         </b-container>
-        <br/><br/>
+        <br/>
+        <br/>
     </div>
 </template>
 
@@ -204,10 +255,10 @@
                 this.errored = false;
                 this.error = null;
                 this.fitness = null;
-                if(this.$route.params.userId) {
+                if (this.$route.params.userId) {
                     this.userId = this.$route.params.userId;
                 } else if (this.userId === undefined || isNaN(this.userId)) {  // Check if the inputted userId prop wasn't used
-                        this.userId = this.getUserId();
+                    this.userId = this.getUserId();
                 }
                 this.loading = true;
                 await this.fetchActivityTypes();
@@ -223,7 +274,9 @@
                 let id = null;
                 api.getUserId().then(response => {
                     id = response.data;
-                }).catch(()=> {id = '';})
+                }).catch(() => {
+                    id = '';
+                });
                 return id;
             },
             /**
@@ -241,33 +294,33 @@
                 });
             },
             async getProfile() {
-              await api.getUserData(this.userId).then(response => {
-                if (response.status === 200) {
-                  //user is set to the user data retrieved
-                  this.user = response.data;
-                  this.userId = this.user.id;
-                  for (let i = 0; i < fitnessLevels.length; i++) {
-                    if (fitnessLevels[i].value === this.user.fitness) {
-                      this.fitness = fitnessLevels[i].desc;
+                await api.getUserData(this.userId).then(response => {
+                    if (response.status === 200) {
+                        //user is set to the user data retrieved
+                        this.user = response.data;
+                        this.userId = this.user.id;
+                        for (let i = 0; i < fitnessLevels.length; i++) {
+                            if (fitnessLevels[i].value === this.user.fitness) {
+                                this.fitness = fitnessLevels[i].desc;
+                            }
+                        }
+                        if (this.user.role === 20) {
+                            // Is the global admin
+                            this.$router.push('/home');
+                            return;
+                        }
+                        this.userDataLoaded = true;
                     }
-                  }
-                  if (this.user.role === 20) {
-                      // Is the global admin
-                      this.$router.push('/home');
-                      return;
-                  }
-                  this.userDataLoaded = true;
-                }
-              }).catch(error => {
-                this.errored = true;
-                this.error = error.response.data.message;
-                if (error.response.data.status === 404 && sessionStorage.getItem('token') !== null) {
-                  this.$router.push({ name: 'myProfile' });
-                  this.init();
-                } else {
-                  this.logout();
-                }
-              });
+                }).catch(error => {
+                    this.errored = true;
+                    this.error = error.response.data.message;
+                    if (error.response.data.status === 404 && sessionStorage.getItem('token') !== null) {
+                        this.$router.push({name: 'myProfile'});
+                        this.init();
+                    } else {
+                        this.logout();
+                    }
+                });
             },
             logout() {
                 api.logout().then(() => {
@@ -283,8 +336,8 @@
                     this.$router.push('/login'); //Routes to home on logout
                 })
             },
-            editProfile () {
-                this.$router.push({name: 'editProfile', params:  { userId: this.userId }});
+            editProfile() {
+                this.$router.push({name: 'editProfile', params: {userId: this.userId}});
             },
 
             /**
