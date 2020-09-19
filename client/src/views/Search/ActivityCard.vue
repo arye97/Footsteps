@@ -20,7 +20,7 @@
                     <b-card-text :id="'activity' + activity.id + 'Card'">
                         <strong>Location:</strong>
                         <br>
-                        {{ activity.location }}
+                        {{ activity.location.name  }}
                         <br/>
                         <div v-if="!activity.continuous">
                             <strong>Start Date:</strong>
