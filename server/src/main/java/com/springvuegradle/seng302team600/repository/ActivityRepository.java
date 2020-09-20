@@ -78,7 +78,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
             "         * COS(RADIANS(:userLongitude - l.Longitude)) " +
             "         + SIN(RADIANS(:userLatitude)) " +
             "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance " +
-            "GROUP BY activity_id HAVING COUNT(activity_id) = :numOfActivityTypes", nativeQuery = true)
+            "GROUP BY activity_id", nativeQuery = true)
     Slice<Activity> findAllWithinDistance(@Param ("userLatitude") Double userLatitude,
                                          @Param ("userLongitude") Double userLongitude,
                                          @Param ("maxDistance") Double maxDistance,
@@ -104,4 +104,25 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
                                           @Param ("maxDistance") Double maxDistance,
                                           @Param ("activityTypeIds") List<Long> activityTypeIds,
                                           Pageable pageable);
+
+    @Query(value = "SELECT a.*" +
+            "FROM activity as a " +
+            "LEFT OUTER JOIN location as l " +
+            "ON (a.location_location_id = l.location_id) " +
+            "LEFT OUTER JOIN activity_activity_type as act " +
+            "ON (act.activity_type_id IN :activityTypeIds) " +
+            "WHERE " +
+            "   111.111 * " +
+            "    DEGREES(ACOS(LEAST(1.0, COS(RADIANS(:userLatitude)) " +
+            "         * COS(RADIANS(l.Latitude)) " +
+            "         * COS(RADIANS(:userLongitude - l.Longitude)) " +
+            "         + SIN(RADIANS(:userLatitude)) " +
+            "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance " +
+            "GROUP BY activity_id HAVING COUNT(activity_id) = :numActivityTypes", nativeQuery = true)
+    Slice<Activity> findAllWithinDistanceByAllActivityTypeIds(@Param ("userLatitude") Double userLatitude,
+                                                               @Param ("userLongitude") Double userLongitude,
+                                                               @Param ("maxDistance") Double maxDistance,
+                                                               @Param ("activityTypeIds") List<Long> activityTypeIds,
+                                                               @Param ("numActivityTypes") int numActivityTypes,
+                                                               Pageable pageable);
 }
