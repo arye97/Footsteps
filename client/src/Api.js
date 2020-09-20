@@ -87,7 +87,6 @@ export default {
   updateOutcome: (outcomeData) => server.put(`/activities/outcomes`, outcomeData, getTokenHeader()),
   getActivityByActivityTitle: (activityNames, pageNumber) => {
     let uri = encodeURIComponent(activityNames);
-    console.log(uri);
     return server.get(`/activities?activityKeywords=${uri}`, getExtendedPageNumberTokenHeader(pageNumber))
   },
   getActivityByActivityType: (activityTypes, method, pageNumber) => {    // method denotes "and" or "or"
