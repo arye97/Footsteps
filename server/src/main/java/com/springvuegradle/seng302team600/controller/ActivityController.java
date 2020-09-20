@@ -1,8 +1,9 @@
 package com.springvuegradle.seng302team600.controller;
 
 import com.springvuegradle.seng302team600.model.Activity;
-import com.springvuegradle.seng302team600.model.Pin;
+import com.springvuegradle.seng302team600.payload.pins.Pin;
 import com.springvuegradle.seng302team600.model.User;
+import com.springvuegradle.seng302team600.payload.pins.UserPin;
 import com.springvuegradle.seng302team600.payload.request.ActivityPostRequest;
 import com.springvuegradle.seng302team600.payload.request.ActivityPutRequest;
 import com.springvuegradle.seng302team600.payload.response.ActivityResponse;
@@ -471,7 +472,7 @@ public class ActivityController {
             paginatedBlockOfPins = activityPinService.getPins(user, paginatedBlockOfActivities.getContent());
             hasNext = paginatedBlockOfActivities.hasNext();        }
         if (pageNumber == 0) {
-            paginatedBlockOfPins.add(0, new Pin(user));
+            paginatedBlockOfPins.add(0, new UserPin(user));
         }
         response.setHeader("Has-Next", Boolean.toString(hasNext));
         return paginatedBlockOfPins;
