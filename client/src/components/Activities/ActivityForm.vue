@@ -11,7 +11,7 @@
             </div>
         </header>
         <div>
-            <b-form @submit="onSubmit" id="form">
+            <b-form @submit="onSubmit">
                 <b-form-group
                         id="input-group-1"
                         label="Name of activity: *"
