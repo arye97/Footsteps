@@ -344,21 +344,36 @@ public class ActivityController {
         List<String> searchStrings;
         Page<Activity> paginatedActivities;
         Pageable pageWithFiveActivities = PageRequest.of(pageNumber, PAGE_SIZE);
+        int totalElements = 0;
 
         if (activityKeywords.contains("-")) {
             //this gives <searchQuery, exclusions>
             searchStrings = ActivitySearchService.handleMinusSpecialCaseString(activityKeywords);
             paginatedActivities = activityRepository.findAllByKeywordExcludingTerm(searchStrings.get(0), searchStrings.get(1), pageWithFiveActivities);
+            totalElements = (int) paginatedActivities.getTotalElements();
         } else if (activityKeywords.contains("%2b") || (activityKeywords.contains("+"))) {
             //this gives a list of all separate search queries
             searchStrings = ActivitySearchService.handlePlusSpecialCaseString(activityKeywords);
-            paginatedActivities = activityRepository.findAllByKeywordIncludingTerm(searchStrings.get(0), searchStrings.get(1), pageWithFiveActivities);
 
-//            List<Activity> listedActivities = new ArrayList<>(setToRemoveDuplicates);
-//            paginatedActivities = new PageImpl<>(listedActivities);
+            Set<Activity> setToRemoveDuplicates = new HashSet<>();
+            for (String term : searchStrings) {
+                Page<Activity> currPage = activityRepository.findAllByKeyword(term, pageWithFiveActivities);
+                setToRemoveDuplicates.addAll(currPage.getContent());
+            }
+            List<Activity> listedActivities = new ArrayList<>(setToRemoveDuplicates);
+            totalElements = (int) listedActivities.size();
+
+            int minIndex = PAGE_SIZE * pageNumber;
+            int maxIndex = minIndex + PAGE_SIZE;
+            if (maxIndex > totalElements) {
+                maxIndex = totalElements;
+            }
+
+            paginatedActivities = new PageImpl<>(listedActivities.subList(minIndex, maxIndex));
         } else {
             activityKeywords = ActivitySearchService.getSearchQuery(activityKeywords);
             paginatedActivities = activityRepository.findAllByKeyword(activityKeywords, pageWithFiveActivities);
+            totalElements = (int) paginatedActivities.getTotalElements();
         }
 
         if (paginatedActivities == null || paginatedActivities.getTotalPages() == 0) {
@@ -368,8 +383,8 @@ public class ActivityController {
         List<Activity> pageActivities = paginatedActivities.getContent();
         pageActivities.forEach(i -> activitiesFound.add(new ActivityResponse(i)));
 
-        int totalElements = (int) paginatedActivities.getTotalElements();
         response.setIntHeader("Total-Rows", totalElements);
+
         return activitiesFound;
     }
 
