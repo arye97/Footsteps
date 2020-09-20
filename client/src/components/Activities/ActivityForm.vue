@@ -685,14 +685,11 @@
                 };
             },
             /**
-             *
-             * @param inFocus
+             * Toggles the submitDisabled boolean
+             * @param inFocus true if the user is using the gmap-autocomplete field, false otherwise
              */
             setLocationFocus(inFocus) {
                 this.submitDisabled = inFocus;
-                let form = document.getElementById('form')
-                console.log(form);
-                console.log(this.submitDisabled);
             }
         }
     }
