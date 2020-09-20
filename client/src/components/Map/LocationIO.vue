@@ -119,7 +119,6 @@
                 address: "",
                 pins: [],
                 center: undefined,
-                acValue: null,
             }
         },
 

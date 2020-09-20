@@ -381,16 +381,19 @@
              */
             async onSubmit(evt) {
                 evt.preventDefault();
-                if (!this.submitDisabled) {
-                    this.isValidFormFlag = true;
-                    await this.validateActivityInputs();
-                    if (this.isValidFormFlag) {
-                        this.formatDurationActivity();
-                        try {
-                            await this.submitActivityFunc();
-                        } catch (errResponse) {
-                            this.processPostError(errResponse);
-                        }
+
+                if (this.submitDisabled) {
+                    return;
+                }
+
+                this.isValidFormFlag = true;
+                await this.validateActivityInputs();
+                if (this.isValidFormFlag) {
+                    this.formatDurationActivity();
+                    try {
+                        await this.submitActivityFunc();
+                    } catch (errResponse) {
+                        this.processPostError(errResponse);
                     }
                 }
             },
