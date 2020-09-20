@@ -11,7 +11,7 @@
             </div>
         </header>
         <div>
-            <b-form @submit="onSubmit">
+            <b-form @submit="onSubmit" id="form">
                 <b-form-group
                         id="input-group-1"
                         label="Name of activity: *"
@@ -171,6 +171,7 @@
                     <location-i-o v-if="!this.isEdit || this.activity.location !== null"
                         id="input-location"
                         @pin-change="locationValue"
+                        @locationIO-focus="setLocationFocus"
                         :single-only="true"
                         :parent-pins="this.isEdit ?
                             [{lat: this.activity.location.latitude, lng: this.activity.location.longitude}] :  null"
@@ -359,7 +360,8 @@
                 outcomeUnitCharCount: 0,
                 maxOutcomeUnitCharCount: 15,
                 errored: false,
-                error_message: "Something went wrong"
+                error_message: "Something went wrong",
+                submitDisabled: false
             }
         },
         async created() {
@@ -373,21 +375,22 @@
             }
         },
         methods: {
-
             /**
              * Called when submit button is pressed.  Validates the form input, then calls the function passed in
              * through props.  This way the form can be used to edit and create activities.
              */
             async onSubmit(evt) {
                 evt.preventDefault();
-                this.isValidFormFlag = true;
-                await this.validateActivityInputs();
-                if (this.isValidFormFlag) {
-                    this.formatDurationActivity();
-                    try {
-                        await this.submitActivityFunc();
-                    } catch(errResponse) {
-                        this.processPostError(errResponse);
+                if (!this.submitDisabled) {
+                    this.isValidFormFlag = true;
+                    await this.validateActivityInputs();
+                    if (this.isValidFormFlag) {
+                        this.formatDurationActivity();
+                        try {
+                            await this.submitActivityFunc();
+                        } catch (errResponse) {
+                            this.processPostError(errResponse);
+                        }
                     }
                 }
             },
@@ -680,6 +683,16 @@
                     longitude: pin.lng,
                     name: pin.name,
                 };
+            },
+            /**
+             *
+             * @param inFocus
+             */
+            setLocationFocus(inFocus) {
+                this.submitDisabled = inFocus;
+                let form = document.getElementById('form')
+                console.log(form);
+                console.log(this.submitDisabled);
             }
         }
     }
