@@ -35,7 +35,7 @@
                         @mouseover="toggleInfoWindow(pin, true)"
                         @mouseout="toggleInfoWindow(pin, false)"
                         :position="google && new google.maps.LatLng(pin.lat, pin.lng)"
-                        @closeclick="toggleInfoWindowHold(pin, false); toggleInfoWindow(pin, false)"
+                        @closeclick="toggleInfoWindow(pin, false)"
                     >
                         <InfoWindow  :data="pin"></InfoWindow>
                     </GmapInfoWindow>
@@ -181,26 +181,9 @@
              * @param show true if the window should open; false otherwise
              */
             toggleInfoWindow(pin, show) {
-                if (!pin.windowHold) {
-                    if (show) {
-                        pin.windowOpen = true;
-                    } else{
-                        pin.windowOpen = false;
-                    }
-                    this.$forceUpdate()
-                }
-            },
-            /**
-             * Toggles whether or not a window should be held open even when the mouse is no longer hovering over it
-             * @param pin the map marker to hold the info window of
-             * @param hold true if the window should be held; false otherwise
-             */
-            toggleInfoWindowHold(pin, hold) {
-                if (hold) {
-                    pin.windowHold = true;
-                } else {
-                    pin.windowHold = false;
-                }
+                pin.windowOpen = show;
+                //Needs to update the screen because it is not done automatically
+                this.$forceUpdate();
             },
         }
     }
