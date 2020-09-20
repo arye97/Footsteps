@@ -45,7 +45,7 @@
                 </p>
             </div>
             <section>
-                <ActivityList id="activityList" v-if="userId !== null" @activities-fetched="passActivities" :user-id-prop="userId"/>
+                <ActivityList id="activityList" v-if="userId !== null" :user-id-prop="userId"/>
             </section>
 
         </b-container>
@@ -125,7 +125,7 @@
                 await api.getActivityPins(this.userId, pinBlock).then(response => {
                     pins = response.data;
                     this.hasNext = response.headers['has-next'] === 'true';
-                    this.rows += pins.length
+                    this.rows += pins.length;
                 }).catch(error => {
                     this.hasNext = false;
                     if (error.response.status === 401) {
@@ -158,46 +158,6 @@
                     }
                 });
                 return userId
-            },
-            /**
-             * Adds the activities fetched by the activity list to the pins
-             * @param activities a list of the activities fetched
-             */
-            passActivities(activities) {
-                this.pins.forEach(pin => {
-                    if (pin.pin_type  === "ACTIVITY") {
-                        let activity = activities.filter(obj => {
-                            return obj.id === pin.id;
-                        })[0];
-                        if (activity) {
-                            pin.windowContent = {
-                                location: activity.location,
-                                title: activity.activity_name
-                            }
-                            if (activity.start_time) {
-                                pin.windowContent.start_time = activity.start_time;
-                                pin.windowContent.end_time = activity.end_time;
-                            }
-                        } else {
-                            pin.windowContent = {
-                                error: true
-                            }
-                        }
-                    } else if (pin.pin_type  === "USER") {
-                        pin.windowContent = {
-                            location: {
-                                latitude: pin.lat,
-                                longitude: pin.lng,
-                            },
-                            title: 'Your Location'
-                        }
-                    } else {
-                        pin.windowContent = {
-                            error: true
-                        }
-                    }
-                });
-                this.$emit('update:parent-pins', this.pins);
             },
             goToPage(url) {
                 this.$router.push(url);

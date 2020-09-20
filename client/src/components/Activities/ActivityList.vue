@@ -214,8 +214,6 @@
             await this.getFollowingStatusForActivity(false);
             this.loading = false;
             this.isTabLoading = false;
-            const completeList = [...this.continuousActivityList, ...this.durationActivityList]
-            this.$emit('activities-fetched', completeList);
         },
         methods: {
             /**

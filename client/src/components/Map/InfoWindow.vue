@@ -5,14 +5,14 @@
         </div>
         <div v-else>
             <b>{{  data.title  }}</b><br/>
-            <i v-if="data.location.name">{{  data.location.name  }}</i><br/>
+            <i v-if="data.location_name">{{  data.location_name  }}</i><br/>
             <div v-if="data.start_time">
                 Starts: {{  this.dateToHRDate(data.start_time)  }}<br/>
                 Ends: {{  this.dateToHRDate(data.end_time)  }}
             </div>
             <div>
-                Latitude: {{  data.location.latitude  }}<br/>
-                Longitude: {{  data.location.longitude  }}
+                Latitude: {{  data.lat  }}<br/>
+                Longitude: {{  data.lng  }}
             </div>
         </div>
     </div>
@@ -26,6 +26,10 @@ name: "InfoWindow",
     props: {
         data: {
             type: Object,
+            location_name: {
+                type: String
+            },
+
         },
     },
     methods: {

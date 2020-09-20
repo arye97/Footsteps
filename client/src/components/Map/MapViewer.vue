@@ -24,7 +24,7 @@
                 />
                 <a v-for="(pin, pinIndex) in pins" :key="pinIndex + 'window'">
                     <GmapInfoWindow
-                        v-if="pin.windowContent"
+                        v-if="pin.title"
                         :opened="pins[pinIndex].windowOpen"
                         :options="{
                             pixelOffset: {
@@ -37,7 +37,7 @@
                         :position="google && new google.maps.LatLng(pin.lat, pin.lng)"
                         @closeclick="toggleInfoWindowHold(pin, false); toggleInfoWindow(pin, false)"
                     >
-                        <InfoWindow  :data="pin.windowContent"></InfoWindow>
+                        <InfoWindow  :data="pin"></InfoWindow>
                     </GmapInfoWindow>
                 </a>
             </GmapMap>
