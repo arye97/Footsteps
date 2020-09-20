@@ -1,12 +1,13 @@
 package com.springvuegradle.seng302team600.controller;
 
 import com.springvuegradle.seng302team600.model.Activity;
-import com.springvuegradle.seng302team600.model.Pin;
+import com.springvuegradle.seng302team600.payload.pins.Pin;
 import com.springvuegradle.seng302team600.model.User;
-import com.springvuegradle.seng302team600.payload.ActivityPostRequest;
-import com.springvuegradle.seng302team600.payload.ActivityPutRequest;
-import com.springvuegradle.seng302team600.payload.ActivityResponse;
-import com.springvuegradle.seng302team600.payload.ParticipantResponse;
+import com.springvuegradle.seng302team600.payload.pins.UserPin;
+import com.springvuegradle.seng302team600.payload.request.ActivityPostRequest;
+import com.springvuegradle.seng302team600.payload.request.ActivityPutRequest;
+import com.springvuegradle.seng302team600.payload.response.ActivityResponse;
+import com.springvuegradle.seng302team600.payload.response.ParticipantResponse;
 import com.springvuegradle.seng302team600.repository.ActivityActivityTypeRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
@@ -471,7 +472,7 @@ public class ActivityController {
             paginatedBlockOfPins = activityPinService.getPins(user, paginatedBlockOfActivities.getContent());
             hasNext = paginatedBlockOfActivities.hasNext();        }
         if (pageNumber == 0) {
-            paginatedBlockOfPins.add(0, new Pin(user));
+            paginatedBlockOfPins.add(0, new UserPin(user));
         }
         response.setHeader("Has-Next", Boolean.toString(hasNext));
         return paginatedBlockOfPins;
