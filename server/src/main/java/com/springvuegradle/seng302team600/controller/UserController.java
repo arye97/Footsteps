@@ -5,7 +5,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.springvuegradle.seng302team600.payload.*;
+import com.springvuegradle.seng302team600.payload.request.EditPasswordRequest;
+import com.springvuegradle.seng302team600.payload.request.EditUserLocationRequest;
+import com.springvuegradle.seng302team600.payload.request.LocationRequest;
+import com.springvuegradle.seng302team600.payload.request.UserRegisterRequest;
+import com.springvuegradle.seng302team600.payload.response.LoginResponse;
+import com.springvuegradle.seng302team600.payload.response.UserResponse;
 import com.springvuegradle.seng302team600.validator.UserValidator;
 import com.springvuegradle.seng302team600.validator.PasswordValidator;
 import com.springvuegradle.seng302team600.model.*;
@@ -93,7 +98,7 @@ public class UserController {
      */
     @GetMapping("/profiles")
     public UserResponse findUserData(HttpServletRequest request,
-                             HttpServletResponse response) {
+                                     HttpServletResponse response) {
         String token = request.getHeader("Token");
         User user = userService.findByToken(token);
         user.setTransientEmailStrings();

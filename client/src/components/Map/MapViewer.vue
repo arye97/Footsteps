@@ -15,8 +15,8 @@
                         v-for="(pin, pinIndex) in pins"
                         :position="google && new google.maps.LatLng(pin.lat, pin.lng)"
                         :clickable="true"
-                        :draggable="(draggablePins) ? true : (pin.draggable === true)"
-                        :icon="'http://maps.google.com/mapfiles/ms/icons/'.concat((!pin.colour) ? 'red' : pin.colour.toLowerCase()) + '-dot.png'"
+                        :draggable="draggablePins"
+                        :icon="'http://maps.google.com/mapfiles/ms/icons/'.concat((!pin.colour) ? 'red' :  pin.colour.toLowerCase()) + '-dot.png'"
                         @click="panToPin(pin)"
                         @dragend="repositionPin({lat: $event.latLng.lat(), lng: $event.latLng.lng()}, pinIndex)"
                 />

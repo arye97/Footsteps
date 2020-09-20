@@ -116,6 +116,7 @@
                                 <add-results :outcome-list="outcomeList"
                                              :dismiss-count-down="dismissCountDown"
                                              :error-message="errorMessage"
+                                             :key="count"
                                              @count-down-changed="countDownChanged"
                                              @submit-result="submitOutcomeResult"></add-results>
                             </b-modal>
@@ -194,6 +195,7 @@
         components: {LocationIO, ViewResults, AddResults, ViewParticipants, Header},
         data () {
             return {
+                count: 0,
                 errored: false,
                 errorMessage: "",
                 dismissSecs: 5,
@@ -512,6 +514,7 @@
                 await api.createResult(outcomes[0].activeUsersResult, outcomeId).then(() => {
                     outcomes[0].activeUsersResult.submitted = true;
                     outcomes[0].results.push(outcomes[0].activeUsersResult);
+                    this.count++;
                     this.$forceUpdate();
                 }).catch(error => {
                     this.processPostError(error);

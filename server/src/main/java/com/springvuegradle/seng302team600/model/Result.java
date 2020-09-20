@@ -2,7 +2,7 @@ package com.springvuegradle.seng302team600.model;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.springvuegradle.seng302team600.payload.ResultRequest;
+import com.springvuegradle.seng302team600.payload.request.ResultRequest;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
