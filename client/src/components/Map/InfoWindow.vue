@@ -29,7 +29,24 @@ name: "InfoWindow",
             location_name: {
                 type: String
             },
-
+            title: {
+                type: String
+            },
+            error: {
+                type: Boolean
+            },
+            start_time: {
+                type: Date
+            },
+            end_time: {
+                type: Date
+            },
+            lat: {
+                type: Number
+            },
+            lng: {
+                type: Number
+            }
         },
     },
     methods: {
