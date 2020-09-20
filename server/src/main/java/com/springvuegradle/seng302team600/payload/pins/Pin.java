@@ -1,7 +1,9 @@
-package com.springvuegradle.seng302team600.model;
+package com.springvuegradle.seng302team600.payload.pins;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springvuegradle.seng302team600.enumeration.PinType;
+import com.springvuegradle.seng302team600.model.Activity;
+import com.springvuegradle.seng302team600.model.User;
 
 import java.util.ArrayList;
 import java.util.List;

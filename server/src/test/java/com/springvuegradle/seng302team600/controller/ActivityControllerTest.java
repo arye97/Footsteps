@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.model.*;
+import com.springvuegradle.seng302team600.payload.pins.Pin;
+import com.springvuegradle.seng302team600.payload.pins.UserPin;
 import com.springvuegradle.seng302team600.payload.response.ActivityResponse;
 import com.springvuegradle.seng302team600.payload.request.UserRegisterRequest;
 import com.springvuegradle.seng302team600.repository.*;
@@ -1082,7 +1084,7 @@ class ActivityControllerTest {
         JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
         assertEquals(1, responseArray.size());
         assertFalse(Boolean.parseBoolean(hasNext));
-        assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), Pin.class));
+        assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), UserPin.class));
     }
 
     @Test
@@ -1100,7 +1102,7 @@ class ActivityControllerTest {
         JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
         assertEquals(dummyActivitiesTable.size() + 1, responseArray.size());
         assertFalse(Boolean.parseBoolean(hasNext));
-        assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), Pin.class));
+        assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), UserPin.class));
     }
 
     @Test
@@ -1132,7 +1134,7 @@ class ActivityControllerTest {
         JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
         assertEquals(BLOCK_SIZE + 1, responseArray.size());
         assertTrue(Boolean.parseBoolean(hasNext));
-        assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), Pin.class));
+        assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), UserPin.class));
     }
 
     @Test
@@ -1150,7 +1152,7 @@ class ActivityControllerTest {
         JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
         assertEquals(dummyActivitiesTable.size() - BLOCK_SIZE, responseArray.size());
         assertFalse(Boolean.parseBoolean(hasNext));
-        assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), Pin.class));
+        assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), UserPin.class));
     }
 
     /**
