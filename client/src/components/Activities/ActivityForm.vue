@@ -176,6 +176,7 @@
                             [{lat: this.activity.location.latitude, lng: this.activity.location.longitude}] :  null"
                         :parent-center="this.isEdit ?
                             {lat: this.activity.location.latitude, lng: this.activity.location.longitude} : null"
+                        :parent-address="this.isEdit ? this.activity.location.name : null"
                     ></location-i-o>
 
                 </b-form-group>
