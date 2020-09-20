@@ -225,7 +225,6 @@
                     }).catch(error => {
                     this.loading = false;
                     this.errored = true;
-                    this.userList = [];
                     if ((error.code === "ECONNREFUSED") || (error.code === "ECONNABORTED")) {
                         this.error_message = "Cannot connect to server - please try again later!";
                     } else {
@@ -260,7 +259,6 @@
                     }).catch(error => {
                     this.loading = false;
                     this.errored = true;
-                    this.userList = [];
                     if ((error.code === "ECONNREFUSED") || (error.code === "ECONNABORTED")) {
                         this.error_message = "Cannot connect to server - please try again later!";
                     } else {
@@ -286,7 +284,11 @@
              */
             async getPaginatedActivitiesByLocation() {
                 let pageNumber = this.currentPage - 1;
-                api.getActivitiesByLocation(this.cutoffDistance, pageNumber)
+                let coordinates = {
+                    "lat": this.currentLocation.lat,
+                    "lng": this.currentLocation.lng
+                };
+                api.getActivitiesByLocation(coordinates, this.activityTypesSearchedFor, this.cutoffDistance, pageNumber)
                     .then(response => {
                         this.activitiesList = response.data;
                         this.rows = response.headers["total-rows"];
@@ -295,7 +297,6 @@
                     }).catch(error => {
                     this.loading = false;
                     this.errored = true;
-                    this.userList = [];
                     if ((error.code === "ECONNREFUSED") || (error.code === "ECONNABORTED")) {
                         this.error_message = "Cannot connect to server - please try again later!";
                     } else {
