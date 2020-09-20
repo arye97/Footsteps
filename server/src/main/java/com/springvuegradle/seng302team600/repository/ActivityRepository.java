@@ -82,7 +82,6 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
     Slice<Activity> findAllWithinDistance(@Param ("userLatitude") Double userLatitude,
                                          @Param ("userLongitude") Double userLongitude,
                                          @Param ("maxDistance") Double maxDistance,
-                                         @Param ("numOfActivityTypes") int numOfActivityTypes,
                                          Pageable pageable);
 
     @Query(value = "SELECT a.*" +
