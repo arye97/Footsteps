@@ -355,6 +355,7 @@ public class ActivityController {
         if (activityKeywords.contains("-")) {
             //this gives <searchQuery, exclusions>
             //Todo: implement pagination here!
+
             searchStrings = ActivitySearchService.handleMinusSpecialCaseString(activityKeywords);
             activities = activityRepository.findAllByKeywordExcludingTerm(searchStrings.get(0), searchStrings.get(1));
 
@@ -366,8 +367,6 @@ public class ActivityController {
         } else if (activityKeywords.contains("+")) {
             //this gives a list of all separate search queries
             String searchString = ActivitySearchService.handlePlusSpecialCaseString(activityKeywords);
-            Set<Activity> setToRemoveDuplicates = new HashSet<>();
-
             paginatedActivities = activityRepository.findAllByKeyword(searchString, pageWithFiveActivities);
         } else {
             activityKeywords = ActivitySearchService.getSearchQuery(activityKeywords);

@@ -31,11 +31,15 @@ public class ActivitySearchService {
             exclusions = String.format("%s%s%s", exclusions, exclusion, "%");
         }
 
-        List<String> searchQueryList = Arrays.asList(searchQuery.split(" "));
+        List<String> searchQueryList = Arrays.asList(searchQuery.split("\\+"));
+
         searchQuery = "%";
 
+
         for (String searchWord : searchQueryList) {
+            searchWord = searchWord.trim();
             searchQuery = String.format("%s%s%s", searchQuery, searchWord, "%");
+            searchQuery = searchQuery.trim();
         }
 
         if (searchQuery.equals("%")) {
