@@ -6,10 +6,13 @@ import com.springvuegradle.seng302team600.model.User;
 public class UserPin extends Pin {
 
     @JsonProperty("title")
-    private final String title;
+    private String title;
 
     @JsonProperty("location_name")
-    private final String locationName;
+    private String locationName;
+
+    public UserPin() {
+    }
 
     public UserPin(User user) {
         super(user);
@@ -23,5 +26,21 @@ public class UserPin extends Pin {
             this.title = "";
             this.locationName = "New Zealand";
         }
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getLocationName() {
+        return locationName;
+    }
+
+    public void setLocationName(String locationName) {
+        this.locationName = locationName;
     }
 }
