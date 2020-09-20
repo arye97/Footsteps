@@ -31,9 +31,13 @@
                 </div>
                 <b-row>
                     <ul v-if="searchMode==='activityName'">
+                        <li>Searching is NOT case sensitive</li>
                         <li>To exact match your search, wrap the entire query with "" (double quotations)</li>
-                        <li>Use "+" to include multiple required keywords in your search</li>
-                        <li>Use "-" for excluding a specific keyword in your search</li>
+                        <li>Search terms are order sensitive -  eg 'sn +w +o' will not return the same results as 'sn +o +w'</li>
+                        <li>Use + to include a required keyword in your search</li>
+                        <li>Use - to exclude a specific keyword in your search</li>
+                        <li>'My Favourite + Activity - Walk' will search for anything including 'My Favourite' which also MUST
+                        include 'Activity' and also MUST not include 'Walk'</li>
                     </ul>
                     <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
                         Search
