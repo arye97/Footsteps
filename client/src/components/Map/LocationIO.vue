@@ -24,6 +24,8 @@
                             :value="address"
                             :options="{fields: ['geometry', 'formatted_address', 'address_components']}"
                             @place_changed="(place) => {addMarker(placeToPin(place)); pinChanged(placeToPin(place));}"
+                            @focusin="emitFocus(true)"
+                            @focusout="emitFocus(false)"
                             class="form-control" style="width: 100%">
                     </gmap-autocomplete>
                     <br/>
@@ -207,8 +209,12 @@
                 }
                 return pin
             },
-
-
+            /**
+             * Emits an event when the gmap-autocomplete field is focused
+             */
+            emitFocus(inFocus) {
+                this.$emit('locationIO-focus', inFocus)
+            },
             /**
              * Updates the this.address in gmap-autocomplete and emits the changed pin to the parent component.
              * @param pin Object pin that was changed
