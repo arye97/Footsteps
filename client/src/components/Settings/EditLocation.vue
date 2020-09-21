@@ -52,8 +52,8 @@
                 </div>
             </div>
 
-            <label class="warningMessage">
-                {{ inputWarningMessage }}
+            <label v-if="!changesMade" class="warningMessage">
+                Specify a valid location above to save changes
             </label>
 
             <b-alert
@@ -142,7 +142,8 @@ export default {
          * Computed property that checks if changes have been made
          */
         changesMade() {
-            return !compareObjs(this.inputPublicLocation, this.savedPublicLocation) || !compareObjs(this.inputPrivateLocation, this.savedPrivateLocation);
+            return !compareObjs(this.inputPublicLocation, this.savedPublicLocation) ||
+                !compareObjs(this.inputPrivateLocation, this.savedPrivateLocation);
         }
     },
 
@@ -197,19 +198,13 @@ export default {
          * Obtains a validated edit location request based on input.
          * Returns null if input is empty or identical to original location.
          */
-        getValidatedLocationRequest() {
+        getLocationRequest() {
             let editedLocation = {};
 
             editedLocation['public_location'] = this.inputPublicLocation;
 
             editedLocation['private_location'] = this.inputPrivateLocation;
 
-            if (Object.keys(editedLocation).length === 0) {
-                editedLocation = null;
-                this.inputWarningMessage = "Specify a valid location above to save changes"  //ToDo fix the functionality of this
-            } else {
-                this.inputWarningMessage = "";
-            }
             return editedLocation;
         },
 
@@ -220,7 +215,7 @@ export default {
          */
         async saveChanges() {
             // If input location is none, then dont modify location
-            let editedLocationRequest = this.getValidatedLocationRequest();
+            let editedLocationRequest = this.getLocationRequest();
             if (!editedLocationRequest) {
                 this.message = 'Changes have not been made';
                 this.alertVariant = 'danger';
