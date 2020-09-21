@@ -44,8 +44,6 @@
                                 <h3 class="font-weight-light">
                                     <strong>Passport countries:</strong>
                                 </h3>
-                                <br/>
-
                                 <b-list-group v-if="this.user.passports.length >= 1">
                                     <b-card v-for="country in this.user.passports" v-bind:key="country"
                                             class="flex-fill" border-variant="secondary">
@@ -136,8 +134,6 @@
                                 <h3 class="font-weight-light">
                                     <strong>Activity Types:</strong>
                                 </h3>
-                                <br/>
-
                                 <b-list-group v-if="this.user.activityTypes.length >= 1">
                                     <b-card v-for="activityType in this.user.activityTypes"
                                             v-bind:key="activityType.name" class="flex-fill" border-variant="secondary">
@@ -157,7 +153,7 @@
                                 </b-list-group>
                                 <br/>
                                 <div v-if="this.user.public_location || this.user.private_location">
-                                    <h3 class="font-weight-light"><strong>Location:</strong></h3><br/>
+                                    <h3 class="font-weight-light"><strong>Location:</strong></h3>
                                     <location-i-o id="location"
                                         :view-only="true"
                                         :parent-pins="getPinData()"
@@ -334,8 +330,9 @@
                 });
             },
             getPinData() {
+                console.log(this.user);
                 let userPins = []
-                if (this.user.private_location) {
+                if (this.user.public_location) {
                     userPins.push({
                         lat: this.user.public_location.latitude,
                         lng: this.user.public_location.longitude,
@@ -360,7 +357,7 @@
                     return {lat: this.user.public_location.latitude, lng: this.user.public_location.longitude}
                 }
                 if (this.user.private_location) {
-                    return {lat: this.user.public_location.latitude, lng: this.user.public_location.longitude}
+                    return {lat: this.user.private_location.latitude, lng: this.user.private_location.longitude}
                 }
             }
         }
