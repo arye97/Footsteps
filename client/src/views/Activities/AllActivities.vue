@@ -39,10 +39,9 @@
                         :parent-center="{lat: userPin.lat, lng: userPin.lng}"
                         :parent-pins.sync="pins"
                         :max-pins="rows"
+                        :description="'Your location is red, created activities are blue and following activities are green.'"
                 ></location-i-o>
-                <p class="light-info-message">
-                    Your location is red, created activities are blue and following activities are green.
-                </p>
+                <br/>
             </div>
             <section>
                 <ActivityList id="activityList" v-if="userId !== null" :user-id-prop="userId"/>

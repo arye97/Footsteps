@@ -31,6 +31,10 @@
                     <br/>
                     <b-button id='addMarkerButton' variant="primary" block @click="addMarker()">Drop Pin</b-button>
                 </div>
+                <br/>
+                <p class="light-info-message" v-if="this.description">
+                    {{  this.description  }}
+                </p>
             </div>
             <div v-else>
                 <b-button id="showMapButton" variant="info" @click="isMapVisible=true">Show Map</b-button>
@@ -102,6 +106,10 @@
                 type: Object
             },
             parentAddress: {
+                default: null,
+                type: String
+            },
+            description: {
                 default: null,
                 type: String
             }
