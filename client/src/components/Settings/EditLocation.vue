@@ -22,11 +22,11 @@
                         <location-i-o class="input-location"
                                       id="public-location-i-o"
                                       @pin-change="setLocationPublic"
-                                      @child-pins="(pins) => pins.length === 0 && (inputPublicLocation = null)"
+                                      @child-pins="(pins) => pins.length === 0 && setLocationPublic(null)"
                                       :current-location="publicLocation"
                                       :single-only="true"></location-i-o>
                     </div>
-                    <label v-if="this.inputPublicLocation !== this.publicLocation" class="errorMessage">
+                    <label v-if="identicalPublicLocationWarningMessage && identicalPublicLocationWarningMessage.length > 0" class="errorMessage">
                         {{ identicalPublicLocationWarningMessage }}
                     </label>
                 </div>
@@ -42,11 +42,11 @@
                         <location-i-o class="input-location"
                                       id="private-location-i-o"
                                       @pin-change="setLocationPrivate"
-                                      @child-pins="(pins) => pins.length === 0 && (inputPrivateLocation = null)"
+                                      @child-pins="(pins) => pins.length === 0 && setLocationPrivate(null)"
                                       :current-location="privateLocation"
                                       :single-only="true"></location-i-o>
                     </div>
-                    <label v-if="this.inputPrivateLocation !== this.privateLocation" class="errorMessage">
+                    <label v-if="identicalPrivateLocationWarningMessage && identicalPrivateLocationWarningMessage.length > 0" class="errorMessage">
                         {{ identicalPrivateLocationWarningMessage }}
                     </label>
                 </div>
@@ -133,6 +133,8 @@ export default {
             await this.validateUserIdWithToken();
         }
         await this.populateInputs();
+        this.identicalPrivateLocationWarningMessage = "";
+        this.identicalPublicLocationWarningMessage = "";
     },
 
     computed: {
@@ -198,42 +200,19 @@ export default {
         getValidatedLocationRequest() {
             let editedLocation = {};
 
-            this.identicalPrivateLocationWarningMessage = null;
-            if (!this.isModifiedLocation(this.publicLocation, this.inputPublicLocation)) {
-                this.identicalPrivateLocationWarningMessage = "This is your current location!";
-            }
             editedLocation['public_location'] = this.inputPublicLocation;
 
-            this.identicalPrivateLocationWarningMessage = null;
-            if (!this.isModifiedLocation(this.privateLocation, this.inputPrivateLocation)) {
-                this.identicalPrivateLocationWarningMessage = "This is your current location!";
-            }
             editedLocation['private_location'] = this.inputPrivateLocation;
 
             if (Object.keys(editedLocation).length === 0) {
                 editedLocation = null;
-                this.inputWarningMessage = "Specify a valid location above to save changes"
+                this.inputWarningMessage = "Specify a valid location above to save changes"  //ToDo fix the functionality of this
             } else {
                 this.inputWarningMessage = "";
             }
             return editedLocation;
         },
 
-        /**
-         * Checks if initial location has been modified
-         */
-        isModifiedLocation(originalLocation, inputLocation) {
-            if (!originalLocation && !inputLocation) return false;
-            if ((!originalLocation || !inputLocation) && originalLocation !== inputLocation) return true;
-
-            const locationKeys = Object.keys(originalLocation);
-            for (let key of locationKeys) {
-                if (originalLocation[key] !== inputLocation[key]) {
-                    return true;
-                }
-            }
-            return false
-        },
 
         /**
          * Validates changes and submits a PUT request to edit a user's public/private locations.
@@ -330,22 +309,40 @@ export default {
          * Function emitted from LocationIO.vue to set inputPublicLocation
          */
         setLocationPublic(pin) {
-            this.inputPublicLocation = {
-                latitude: pin.lat,
-                longitude: pin.lng,
-                name: pin.name,
-            };
+            if (pin) {
+                this.inputPublicLocation = {
+                    latitude: pin.lat,
+                    longitude: pin.lng,
+                    name: pin.name,
+                };
+            } else {
+                this.inputPublicLocation = null;
+            }
+
+            this.identicalPublicLocationWarningMessage = null;
+            if (compareObjs(this.publicLocation, this.inputPublicLocation)) {
+                this.identicalPublicLocationWarningMessage = "This is your current location!";
+            }
         },
 
         /**
          * Function emitted from LocationIO.vue to set inputPrivateLocation
          */
         setLocationPrivate(pin) {
-            this.inputPrivateLocation = {
-                latitude: pin.lat,
-                longitude: pin.lng,
-                name: pin.name,
-            };
+            if (pin) {
+                this.inputPrivateLocation = {
+                    latitude: pin.lat,
+                    longitude: pin.lng,
+                    name: pin.name,
+                };
+            } else {
+                this.inputPrivateLocation = null;
+            }
+
+            this.identicalPrivateLocationWarningMessage = null;
+            if (compareObjs(this.privateLocation, this.inputPrivateLocation)) {
+                this.identicalPrivateLocationWarningMessage = "This is your current location!";
+            }
         },
 
         /**
