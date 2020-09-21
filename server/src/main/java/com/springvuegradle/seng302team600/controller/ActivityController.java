@@ -13,6 +13,7 @@ import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
 import com.springvuegradle.seng302team600.service.*;
 import com.springvuegradle.seng302team600.validator.ActivityValidator;
+import com.sun.xml.bind.v2.runtime.output.SAXOutput;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -349,22 +350,19 @@ public class ActivityController {
             pageNumber = 0;
         }
 
-        List<Activity> activities;
+        //List<Activity> activities;
         List<String> searchStrings;
         Page<Activity> paginatedActivities;
         Pageable pageWithFiveActivities = PageRequest.of(pageNumber, PAGE_SIZE);
+        int totalElements = 0;
+
         if (activityKeywords.contains("-")) {
             //this gives <searchQuery, exclusions>
             //Todo: implement pagination here!
 
             searchStrings = ActivitySearchService.handleMinusSpecialCaseString(activityKeywords);
-            activities = activityRepository.findAllByKeywordExcludingTerm(searchStrings.get(0), searchStrings.get(1));
-
-            for (Activity activity : activities) {
-                activitiesFound.add(new ActivityResponse(activity));
-            }
-
-            return activitiesFound;
+            paginatedActivities = activityRepository.findAllByKeywordExcludingTerm(searchStrings.get(0), searchStrings.get(1), pageWithFiveActivities);
+            totalElements = (int) paginatedActivities.getTotalElements();
         } else if (activityKeywords.contains("+")) {
             //this gives a list of all separate search queries
             String searchString = ActivitySearchService.handlePlusSpecialCaseString(activityKeywords);
@@ -372,6 +370,7 @@ public class ActivityController {
         } else {
             activityKeywords = ActivitySearchService.getSearchQuery(activityKeywords);
             paginatedActivities = activityRepository.findAllByKeyword(activityKeywords, pageWithFiveActivities);
+            totalElements = (int) paginatedActivities.getTotalElements();
         }
 
         if (paginatedActivities == null || paginatedActivities.getTotalPages() == 0) {
@@ -381,8 +380,8 @@ public class ActivityController {
         List<Activity> pageActivities = paginatedActivities.getContent();
         pageActivities.forEach(i -> activitiesFound.add(new ActivityResponse(i)));
 
-        int totalElements = (int) paginatedActivities.getTotalElements();
         response.setIntHeader("Total-Rows", totalElements);
+
         return activitiesFound;
     }
 
