@@ -4,12 +4,15 @@
             <br/>
             <div>
                 <b-row>
-                    <b-col cols="8" v-if="searchMode==='activityType'">
+                    <b-col cols="8" v-if="searchMode==='activityType' || searchMode==='activityLocation'">
                         <multiselect v-model="selectedActivityTypes" id="searchBoxActivities"
                                      :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
                                      placeholder="Select your activity types">
                             <template slot="noResult">Invalid activity type</template>
                         </multiselect>
+                    </b-col>
+                    <b-col cols="8" v-if="searchMode==='activityLocation'">
+                        <!--TODO Add locationIO into here-->
                     </b-col>
                     <b-col cols="8" v-if="searchMode==='activityName'">
                         <b-form-input id="searchBoxActivityTitle" v-model="activityTitle" placeholder="Search activity by title"></b-form-input><br>
@@ -97,7 +100,8 @@ export default {
             searchMode: 'activityType',
             searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
                 { value: 'activityType', text: 'Activity Type'},
-                { value: 'activityName', text: 'Activity Name'}
+                { value: 'activityName', text: 'Activity Name'},
+                { value: 'activityLocation', text: 'Location'}
             ],
             // These are the ActivityTypes selected in the Multiselect
             selectedActivityTypes : [],

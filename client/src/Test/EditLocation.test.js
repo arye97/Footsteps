@@ -131,7 +131,7 @@ describe('User starts with no location data', () => {
             expect(editLocation.find('#private-Name').text()).toBe(USER_DATA.private_location.name);
         });
     });
-});
+ });
 
 describe('User starts with location data', () => {
 

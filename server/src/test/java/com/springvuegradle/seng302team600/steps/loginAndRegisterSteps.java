@@ -2,7 +2,7 @@ package com.springvuegradle.seng302team600.steps;
 
 import com.springvuegradle.seng302team600.cucumberSpringBase;
 import com.springvuegradle.seng302team600.model.User;
-import com.springvuegradle.seng302team600.payload.LoginResponse;
+import com.springvuegradle.seng302team600.payload.response.LoginResponse;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;

@@ -5,7 +5,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.springvuegradle.seng302team600.payload.*;
+import com.springvuegradle.seng302team600.payload.request.EditPasswordRequest;
+import com.springvuegradle.seng302team600.payload.request.EditUserLocationRequest;
+import com.springvuegradle.seng302team600.payload.request.LocationRequest;
+import com.springvuegradle.seng302team600.payload.request.UserRegisterRequest;
+import com.springvuegradle.seng302team600.payload.response.LoginResponse;
+import com.springvuegradle.seng302team600.payload.response.UserResponse;
 import com.springvuegradle.seng302team600.validator.UserValidator;
 import com.springvuegradle.seng302team600.validator.PasswordValidator;
 import com.springvuegradle.seng302team600.model.*;
@@ -93,7 +98,7 @@ public class UserController {
      */
     @GetMapping("/profiles")
     public UserResponse findUserData(HttpServletRequest request,
-                             HttpServletResponse response) {
+                                     HttpServletResponse response) {
         String token = request.getHeader("Token");
         User user = userService.findByToken(token);
         user.setTransientEmailStrings();
@@ -281,31 +286,35 @@ public class UserController {
     /**
      * Edits the private and public locations of a user.
      * Since it is a PUT request, it completely replaces
-     * @param locationRequest the payload containing the locations (public, private)
+     * @param userLocationsRequest the payload containing the locations (public, private)
      * @param request the http request to the endpoint
      * @param response the http response
      * @param profileId user id obtained from the request url
      * @throws JsonProcessingException thrown if there is an issue when converting the body to an object node
      */
     @PutMapping("/profiles/{profileId}/location")
-    public void editLocation(@Validated @RequestBody EditUserLocationRequest locationRequest,
+    public void editLocation(@Validated @RequestBody EditUserLocationRequest userLocationsRequest,
                              HttpServletRequest request,
                              HttpServletResponse response,
                              @PathVariable(value = "profileId") Long profileId) throws IOException {
         String token = request.getHeader("Token");
         User user = userService.findByUserId(token, profileId);
-        LocationRequest publicLocationRequest = locationRequest.getPublicLocation();
-        Location publicLocation;
+
+
+        LocationRequest publicLocationRequest = userLocationsRequest.getPublicLocation();
         if (publicLocationRequest != null) {
-            publicLocation = new Location(publicLocationRequest);
-            user.setPublicLocation(publicLocation);
+            user.setPublicLocation(new Location(publicLocationRequest));
+        } else {
+            user.setPublicLocation(null);
         }
-        LocationRequest privateLocationRequest = locationRequest.getPrivateLocation();
-        Location privateLocation;
+
+        LocationRequest privateLocationRequest = userLocationsRequest.getPrivateLocation();
         if (privateLocationRequest != null) {
-            privateLocation = new Location(privateLocationRequest);
-            user.setPrivateLocation(privateLocation);
+            user.setPrivateLocation(new Location(privateLocationRequest));
+        } else {
+            user.setPrivateLocation(null);
         }
+
 
         userRepository.save(user);
         response.setStatus(HttpServletResponse.SC_OK); //200

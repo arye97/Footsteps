@@ -1,8 +1,11 @@
-package com.springvuegradle.seng302team600.payload;
+package com.springvuegradle.seng302team600.payload.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.springvuegradle.seng302team600.model.Result;
+import com.springvuegradle.seng302team600.model.User;
 
-public class ResultRequest {
+public class ResultResponse {
+
 
     @JsonProperty("user_id")
     private Long userId;
@@ -16,7 +19,16 @@ public class ResultRequest {
     @JsonProperty("comment")
     private String comment;
 
-    public ResultRequest() {}
+    @JsonProperty("user_name")
+    private String userName;
+
+    public ResultResponse(Result result, User user) {
+        userId = result.getUserId();
+        value = result.getValue();
+        didNotFinish = result.isDidNotFinish();
+        comment = result.getComment();
+        userName = user.getFirstName() + " " + user.getLastName();
+    }
 
     public Long getUserId() {
         return userId;
@@ -49,4 +61,5 @@ public class ResultRequest {
     public void setDidNotFinish(boolean didNotFinish) {
         this.didNotFinish = didNotFinish;
     }
+
 }

@@ -4,7 +4,7 @@ import com.springvuegradle.seng302team600.enumeration.FeedPostType;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.FeedEvent;
 import com.springvuegradle.seng302team600.model.User;
-import com.springvuegradle.seng302team600.payload.IsFollowingResponse;
+import com.springvuegradle.seng302team600.payload.response.IsFollowingResponse;
 import com.springvuegradle.seng302team600.repository.ActivityParticipantRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.FeedEventRepository;
