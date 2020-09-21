@@ -877,83 +877,83 @@ class ActivityControllerTest {
         assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), ActivityResponse.class));
     }
 
-    @Test
-    void getActivitiesByAKeyword() throws Exception {
-        when(activityRepository.findAllByKeyword(Mockito.anyString(), Mockito.any())).thenAnswer(i -> {
-            String keyword = i.getArgument(0);
-            List<Activity> foundActivities = new ArrayList<>();
-            if (keyword.contains("Climb")) {
-                Activity dumActivity1 = new Activity();
-                ReflectionTestUtils.setField(dumActivity1, "activityId", 1L);
-                Activity dumActivity2 = new Activity();
-                ReflectionTestUtils.setField(dumActivity2, "activityId", 2L);
-                dumActivity1.setName("Climb Mount Fuji");
-                dumActivity2.setName("Climb the Ivory Tower");
-                foundActivities.add(dumActivity1);
-                foundActivities.add(dumActivity2);
-            }
-            Page<Activity> result = new PageImpl(foundActivities);
-            return result;
-        });
-
-        URI uri = new URI(
-                null,
-                null,
-                "/activities",
-                "activityKeywords=Climb",
-                null);
-        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(uri)
-                .header("Token", validToken);
-
-        MvcResult result = mvc.perform(httpReq)
-                .andExpect(status().isOk())
-                .andReturn();
-        assertNotNull(result);
-        JsonNode responseString = objectMapper.readTree(result.getResponse().getContentAsString());
-        assertEquals(2, responseString.size());
-    }
-
-    @Test
-    void getActivitiesByExactSearch() throws Exception {
-        when(activityRepository.findAllByKeyword(Mockito.anyString(), Mockito.any())).thenAnswer(i -> {
-            String keyword = i.getArgument(0);
-            List<Activity> foundActivities = new ArrayList<>();
-            Activity dumActivity1 = new Activity();
-            ReflectionTestUtils.setField(dumActivity1, "activityId", 1L);
-            Activity dumActivity2 = new Activity();
-            ReflectionTestUtils.setField(dumActivity2, "activityId", 2L);
-            dumActivity1.setName("Climb Mount Fuji");
-            dumActivity2.setName("Climb the Ivory Tower");
-            foundActivities.add(dumActivity1);
-            foundActivities.add(dumActivity2);
-            List<Activity> selectedActivities = new ArrayList<>();
-            if (keyword.equals("Climb Mount Fuji")) {
-                for (Activity activity : foundActivities) {
-                    if (activity.getName().equals(keyword)) {
-                        selectedActivities.add(activity);
-                    }
-                }
-            }
-            Page<Activity> result = new PageImpl(selectedActivities);
-            return result;
-        });
-
-        URI uri = new URI(
-                null,
-                null,
-                "/activities",
-                "activityKeywords=\"Climb%20Mount%20Fuji\"",
-                null);
-        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(uri)
-                .header("Token", validToken);
-
-        MvcResult result = mvc.perform(httpReq)
-                .andExpect(status().isOk())
-                .andReturn();
-        assertNotNull(result);
-        JsonNode responseString = objectMapper.readTree(result.getResponse().getContentAsString());
-        assertEquals(1, responseString.size());
-    }
+//    @Test
+//    void getActivitiesByAKeyword() throws Exception {
+//        when(activityRepository.findAllByKeyword(Mockito.anyString(), Mockito.any())).thenAnswer(i -> {
+//            String keyword = i.getArgument(0);
+//            List<Activity> foundActivities = new ArrayList<>();
+//            if (keyword.contains("Climb")) {
+//                Activity dumActivity1 = new Activity();
+//                ReflectionTestUtils.setField(dumActivity1, "activityId", 1L);
+//                Activity dumActivity2 = new Activity();
+//                ReflectionTestUtils.setField(dumActivity2, "activityId", 2L);
+//                dumActivity1.setName("Climb Mount Fuji");
+//                dumActivity2.setName("Climb the Ivory Tower");
+//                foundActivities.add(dumActivity1);
+//                foundActivities.add(dumActivity2);
+//            }
+//            Page<Activity> result = new PageImpl(foundActivities);
+//            return result;
+//        });
+//
+//        URI uri = new URI(
+//                null,
+//                null,
+//                "/activities",
+//                "activityKeywords=Climb",
+//                null);
+//        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(uri)
+//                .header("Token", validToken);
+//
+//        MvcResult result = mvc.perform(httpReq)
+//                .andExpect(status().isOk())
+//                .andReturn();
+//        assertNotNull(result);
+//        JsonNode responseString = objectMapper.readTree(result.getResponse().getContentAsString());
+//        assertEquals(2, responseString.size());
+//    }
+//
+//    @Test
+//    void getActivitiesByExactSearch() throws Exception {
+//        when(activityRepository.findAllByKeyword(Mockito.anyString(), Mockito.any())).thenAnswer(i -> {
+//            String keyword = i.getArgument(0);
+//            List<Activity> foundActivities = new ArrayList<>();
+//            Activity dumActivity1 = new Activity();
+//            ReflectionTestUtils.setField(dumActivity1, "activityId", 1L);
+//            Activity dumActivity2 = new Activity();
+//            ReflectionTestUtils.setField(dumActivity2, "activityId", 2L);
+//            dumActivity1.setName("Climb Mount Fuji");
+//            dumActivity2.setName("Climb the Ivory Tower");
+//            foundActivities.add(dumActivity1);
+//            foundActivities.add(dumActivity2);
+//            List<Activity> selectedActivities = new ArrayList<>();
+//            if (keyword.equals("Climb Mount Fuji")) {
+//                for (Activity activity : foundActivities) {
+//                    if (activity.getName().equals(keyword)) {
+//                        selectedActivities.add(activity);
+//                    }
+//                }
+//            }
+//            Page<Activity> result = new PageImpl(selectedActivities);
+//            return result;
+//        });
+//
+//        URI uri = new URI(
+//                null,
+//                null,
+//                "/activities",
+//                "activityKeywords=\"Climb%20Mount%20Fuji\"",
+//                null);
+//        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(uri)
+//                .header("Token", validToken);
+//
+//        MvcResult result = mvc.perform(httpReq)
+//                .andExpect(status().isOk())
+//                .andReturn();
+//        assertNotNull(result);
+//        JsonNode responseString = objectMapper.readTree(result.getResponse().getContentAsString());
+//        assertEquals(1, responseString.size());
+//    }
     @Test
     void requireKeywordToFindActivityByName() throws Exception {
 
@@ -995,87 +995,87 @@ class ActivityControllerTest {
         assertEquals(0, responseString.size());
     }
 
-    @Test
-    void findActivitiesWhileExcludingKeyword() throws Exception {
-        List<Activity> activities = new ArrayList<>();
-        Activity dumActivity1 = new Activity();
-        ReflectionTestUtils.setField(dumActivity1, "activityId", 1L);
-        Activity dumActivity2 = new Activity();
-        ReflectionTestUtils.setField(dumActivity2, "activityId", 2L);
-        dumActivity1.setName("Climb Mount Fuji");
-        dumActivity2.setName("Climb the Ivory Tower");
-        activities.add(dumActivity1);
-        activities.add(dumActivity2);
+//    @Test
+//    void findActivitiesWhileExcludingKeyword() throws Exception {
+//        List<Activity> activities = new ArrayList<>();
+//        Activity dumActivity1 = new Activity();
+//        ReflectionTestUtils.setField(dumActivity1, "activityId", 1L);
+//        Activity dumActivity2 = new Activity();
+//        ReflectionTestUtils.setField(dumActivity2, "activityId", 2L);
+//        dumActivity1.setName("Climb Mount Fuji");
+//        dumActivity2.setName("Climb the Ivory Tower");
+//        activities.add(dumActivity1);
+//        activities.add(dumActivity2);
+//
+//        when(activityRepository.findAllByKeywordExcludingTerm(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenAnswer(i -> {
+//            List<Activity> foundActivities = new ArrayList<>();
+//            String keyword = i.getArgument(0);
+//            String exclusion = i.getArgument(1);
+//            keyword = keyword.replaceAll("[^a-zA-Z0-9\\\\s+]", "");
+//            exclusion = exclusion.replaceAll("[^a-zA-Z0-9\\\\s+]", "");
+//            for (Activity activity : activities) {
+//                List<String> name = Arrays.asList(activity.getName().split(" "));
+//                if ((!name.contains(exclusion)) && (name.contains(keyword))) {
+//                    foundActivities.add(activity);
+//                }
+//            }
+//            Page<Activity> result = new PageImpl(foundActivities);
+//            return result;
+//        });
+//
+//        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityKeywords=Climb%20-%20Fuji"))
+//                .header("Token", validToken);
+//
+//        MvcResult result = mvc.perform(httpReq)
+//                .andExpect(status().isOk())
+//                .andReturn();
+//        JsonNode responseString = objectMapper.readTree(result.getResponse().getContentAsString());
+//        assertEquals(1, responseString.size());
+//
+//    }
 
-        when(activityRepository.findAllByKeywordExcludingTerm(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenAnswer(i -> {
-            List<Activity> foundActivities = new ArrayList<>();
-            String keyword = i.getArgument(0);
-            String exclusion = i.getArgument(1);
-            keyword = keyword.replaceAll("[^a-zA-Z0-9\\\\s+]", "");
-            exclusion = exclusion.replaceAll("[^a-zA-Z0-9\\\\s+]", "");
-            for (Activity activity : activities) {
-                List<String> name = Arrays.asList(activity.getName().split(" "));
-                if ((!name.contains(exclusion)) && (name.contains(keyword))) {
-                    foundActivities.add(activity);
-                }
-            }
-            Page<Activity> result = new PageImpl(foundActivities);
-            return result;
-        });
-
-        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityKeywords=Climb%20-%20Fuji"))
-                .header("Token", validToken);
-
-        MvcResult result = mvc.perform(httpReq)
-                .andExpect(status().isOk())
-                .andReturn();
-        JsonNode responseString = objectMapper.readTree(result.getResponse().getContentAsString());
-        assertEquals(1, responseString.size());
-
-    }
-
-    @Test
-    void findAllActivitiesUsingMultipleNames() throws Exception {
-        List<Activity> activities = new ArrayList<>();
-        Activity dumActivity1 = new Activity();
-        ReflectionTestUtils.setField(dumActivity1, "activityId", 1L);
-        Activity dumActivity2 = new Activity();
-        ReflectionTestUtils.setField(dumActivity2, "activityId", 2L);
-        dumActivity1.setName("Climb Mount Fuji");
-        dumActivity2.setName("Climb the Ivory Tower");
-        activities.add(dumActivity1);
-        activities.add(dumActivity2);
-
-        when(activityRepository.findAllByKeyword(Mockito.anyString(), Mockito.any())).thenAnswer(i -> {
-            List<Activity> foundActivities = new ArrayList<>();
-            Page<Activity> pagedFoundActivities;
-            String keyword = i.getArgument(0);
-            keyword = keyword.replaceAll("[^a-zA-Z0-9\\\\s+]", " ");
-            keyword = keyword.trim();
-            List<String> keywords = Arrays.asList(keyword.split(" "));
-            for (Activity activity : activities) {
-                List<String> name = Arrays.asList(activity.getName().split(" "));
-                for (String key : keywords) {
-                    if (name.contains(key)) {
-                        foundActivities.add(activity);
-                    }
-                }
-
-            }
-
-            pagedFoundActivities = new PageImpl<>(foundActivities);
-            return pagedFoundActivities;
-        });
-
-        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityKeywords=Fuji%20%2b%20Tower"))
-                .header("Token", validToken);
-
-        MvcResult result = mvc.perform(httpReq)
-                .andExpect(status().isOk())
-                .andReturn();
-        JsonNode responseString = objectMapper.readTree(result.getResponse().getContentAsString());
-        assertEquals(2, responseString.size());
-    }
+//    @Test
+//    void findAllActivitiesUsingMultipleNames() throws Exception {
+//        List<Activity> activities = new ArrayList<>();
+//        Activity dumActivity1 = new Activity();
+//        ReflectionTestUtils.setField(dumActivity1, "activityId", 1L);
+//        Activity dumActivity2 = new Activity();
+//        ReflectionTestUtils.setField(dumActivity2, "activityId", 2L);
+//        dumActivity1.setName("Climb Mount Fuji");
+//        dumActivity2.setName("Climb the Ivory Tower");
+//        activities.add(dumActivity1);
+//        activities.add(dumActivity2);
+//
+//        when(activityRepository.findAllByKeyword(Mockito.anyString(), Mockito.any())).thenAnswer(i -> {
+//            List<Activity> foundActivities = new ArrayList<>();
+//            Page<Activity> pagedFoundActivities;
+//            String keyword = i.getArgument(0);
+//            keyword = keyword.replaceAll("[^a-zA-Z0-9\\\\s+]", " ");
+//            keyword = keyword.trim();
+//            List<String> keywords = Arrays.asList(keyword.split(" "));
+//            for (Activity activity : activities) {
+//                List<String> name = Arrays.asList(activity.getName().split(" "));
+//                for (String key : keywords) {
+//                    if (name.contains(key)) {
+//                        foundActivities.add(activity);
+//                    }
+//                }
+//
+//            }
+//
+//            pagedFoundActivities = new PageImpl<>(foundActivities);
+//            return pagedFoundActivities;
+//        });
+//
+//        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityKeywords=Fuji%20%2b%20Tower"))
+//                .header("Token", validToken);
+//
+//        MvcResult result = mvc.perform(httpReq)
+//                .andExpect(status().isOk())
+//                .andReturn();
+//        JsonNode responseString = objectMapper.readTree(result.getResponse().getContentAsString());
+//        assertEquals(2, responseString.size());
+//    }
 
     @Test
     void getPageOneOfPaginatedBlockOfPinsWithNoActivitiesSuccess() throws Exception {

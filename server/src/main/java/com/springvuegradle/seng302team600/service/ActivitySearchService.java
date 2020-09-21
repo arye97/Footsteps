@@ -11,98 +11,32 @@ public class ActivitySearchService {
      * @param searchString the string query to parse
      * @return a list of two strings, one is the query and one is the term to be excluded from the search
      */
-    public static List<String> handleMinusSpecialCaseString(String searchString) {
+    private static List<String> fetchLeadingCharacter(String searchString, String regex, String remove) {
+        List<String> terms = new ArrayList<>();
+        List<String> allKeywords = Arrays.asList(searchString.split(regex));
+        List<String> termKeywords = new ArrayList<>();
 
-        String searchQuery;
-        String exclusions = "%";
-        List<String> queries = new ArrayList<>();
+        termKeywords.addAll(allKeywords);
+        termKeywords.remove(0);
 
-        List<String> allKeywords = Arrays.asList(searchString.split("-"));
-        List<String> exclusionKeywords = new ArrayList<>();
-
-        searchQuery = allKeywords.get(0);
-        searchQuery = searchQuery.trim();
-
-        exclusionKeywords.addAll(allKeywords);
-        exclusionKeywords.remove(0);
-
-        for (String exclusion : exclusionKeywords) {
-            exclusion = exclusion.trim();
-            exclusions = String.format("%s%s%s", exclusions, exclusion, "%");
+        for (String term : termKeywords) {
+            term = term.trim();
+            List<String> temp = Arrays.asList(term.split(remove));
+            if (temp.size() == 0 || remove.isEmpty()) {
+                terms.add(Arrays.asList(term.split(" ")).get(0));
+            }
         }
-
-        List<String> searchQueryList = Arrays.asList(searchQuery.split("\\+"));
-
-        searchQuery = "%";
-
-
-        for (String searchWord : searchQueryList) {
-            searchWord = searchWord.trim();
-            searchQuery = String.format("%s%s%s", searchQuery, searchWord, "%");
-            searchQuery = searchQuery.trim();
-        }
-
-        if (searchQuery.equals("%")) {
-            searchQuery = "";
-        }
-
-        if (exclusions.equals("%")) {
-            searchQuery = "";
-        }
-
-        queries.add(searchQuery);
-        queries.add(exclusions);
-
-        return queries;
+        return terms;
     }
 
-    /**
-     * This function handles the case when multiple separate search queries are to be linked together
-     * which is denoted by the inclusion of a '+' character in the search string
-     * @param searchString the string query to parse
-     * @return a list of two strings, one is the query and one is the term to be excluded from the search
-     */
-    public static String handlePlusSpecialCaseString(String searchString) {
-        List<String> name = Arrays.asList(searchString.split("\\+"));
-        List<String> queries = new ArrayList<>();
-        String newQuery = "%";
-        for (String terms : name) {
-            terms = terms.trim();
-            List<String> totalTerms = Arrays.asList(terms.split(" "));
-            for (String term : totalTerms) {
-                term = term.trim();
-                newQuery = String.format("%s%s%s", newQuery, term, "%");
-            }
-        }
-        return newQuery;
-    }
-
-    /**
-     * This function handles generic searches, and exact string matching.
-     * Exact matches are denoted by double quotes encompassing the ENTIRE query, not just a single word/term
-     * @param searchString the string query to parse
-     * @return a query string to be used in an SQL query
-     */
-    public static String getSearchQuery(String searchString) {
-        if (searchString.startsWith("\"") && searchString.endsWith("\"")){
-            //then the user has chosen exact match!
-            searchString = searchString.substring(1, searchString.length() - 1);
-            if (searchString.contains("%20")) {
-                List<String> searchTerms =  Arrays.asList(searchString.split("%20")); //underscore is our space char
-                searchString = "";
-                for (String term : searchTerms) {
-                    searchString = String.format("%s%s%s", searchString, term, " ");
-                }
-                searchString = searchString.trim();
-            }
-        } else {
-            String newQuery = "%";
-            List<String> searchTerms =  Arrays.asList(searchString.split(" "));
-            for (String term : searchTerms) {
-                newQuery = String.format("%s%s%s", newQuery, term, "%");
-            }
-            searchString = newQuery;
-        }
-        return searchString;
+    public static ActivitySearchParsed parseSearchQuery(String query) {
+        List<String> inclusions = fetchLeadingCharacter(query, "\\+", "");
+        List<String> exclusions = fetchLeadingCharacter(query, "-", "");
+        List<String> general    = fetchLeadingCharacter(" " + query, " ", "[^-\\+]");
+        ActivitySearchParsed response = new ActivitySearchParsed(inclusions, exclusions, general);
+        System.out.println(inclusions);
+        System.out.println(exclusions);
+        System.out.println(general);
+        return response;
     }
 }

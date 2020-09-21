@@ -12,9 +12,12 @@ import com.springvuegradle.seng302team600.repository.ActivityActivityTypeReposit
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
 import com.springvuegradle.seng302team600.service.*;
+import com.springvuegradle.seng302team600.specifications.ContainsFragment;
+import com.springvuegradle.seng302team600.specifications.DoesNotContainsFragment;
 import com.springvuegradle.seng302team600.validator.ActivityValidator;
 import com.sun.xml.bind.v2.runtime.output.SAXOutput;
 import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -353,34 +356,59 @@ public class ActivityController {
         //List<Activity> activities;
         List<String> searchStrings;
         Page<Activity> paginatedActivities;
+        Specification<Activity> baseSpec = new ContainsFragment("");
+        Specification<Activity> includeSpec = new ContainsFragment("");
+        Specification<Activity> excludeSpec = new ContainsFragment("");
+        Specification<Activity> generalSpec = new ContainsFragment("");
         Pageable pageWithFiveActivities = PageRequest.of(pageNumber, PAGE_SIZE);
         int totalElements = 0;
 
-        if (activityKeywords.contains("-")) {
-            //this gives <searchQuery, exclusions>
-            //Todo: implement pagination here!
+//        if (activityKeywords.contains("-")) {
+//            //this gives <searchQuery, exclusions>
+//            //Todo: implement pagination here!
+//            searchStrings = ActivitySearchService.handleMinusSpecialCaseString(activityKeywords);
+//            paginatedActivities = activityRepository.findAllByKeywordExcludingTerm(searchStrings.get(0), searchStrings.get(1), pageWithFiveActivities);
+//            totalElements = (int) paginatedActivities.getTotalElements();
+//        } else if (activityKeywords.contains("+")) {
+//            //this gives a list of all separate search queries
+//            String searchString = ActivitySearchService.handlePlusSpecialCaseString(activityKeywords);
+//            paginatedActivities = activityRepository.findAllByKeyword(searchString, pageWithFiveActivities);
+//        } else {
+//            activityKeywords = ActivitySearchService.getSearchQuery(activityKeywords);
+//            paginatedActivities = activityRepository.findAllByKeyword(activityKeywords, pageWithFiveActivities);
+//            totalElements = (int) paginatedActivities.getTotalElements();
+//        }
+//
+//        if (paginatedActivities == null || paginatedActivities.getTotalPages() == 0) {
+//            return activitiesFound;
+//        }
+//
+//        List<Activity> pageActivities = paginatedActivities.getContent();
+//        pageActivities.forEach(i -> activitiesFound.add(new ActivityResponse(i)));
+//
+//        response.setIntHeader("Total-Rows", totalElements);
+        ActivitySearchParsed query = ActivitySearchService.parseSearchQuery(activityKeywords);
+        List<String> exclusions = query.getExclusions();
+        List<String> inclusions = query.getInclusions();
+        List<String> generals = query.getGeneral();
 
-            searchStrings = ActivitySearchService.handleMinusSpecialCaseString(activityKeywords);
-            paginatedActivities = activityRepository.findAllByKeywordExcludingTerm(searchStrings.get(0), searchStrings.get(1), pageWithFiveActivities);
-            totalElements = (int) paginatedActivities.getTotalElements();
-        } else if (activityKeywords.contains("+")) {
-            //this gives a list of all separate search queries
-            String searchString = ActivitySearchService.handlePlusSpecialCaseString(activityKeywords);
-            paginatedActivities = activityRepository.findAllByKeyword(searchString, pageWithFiveActivities);
-        } else {
-            activityKeywords = ActivitySearchService.getSearchQuery(activityKeywords);
-            paginatedActivities = activityRepository.findAllByKeyword(activityKeywords, pageWithFiveActivities);
-            totalElements = (int) paginatedActivities.getTotalElements();
+
+        for (String exclusion : exclusions) {
+            Specification<Activity> exclusionSpec = new DoesNotContainsFragment(exclusion);
+            excludeSpec = exclusionSpec.and(exclusionSpec);
         }
-
-        if (paginatedActivities == null || paginatedActivities.getTotalPages() == 0) {
-            return activitiesFound;
+        for (String inclusion : inclusions) {
+            Specification<Activity> inclusionSpec = new ContainsFragment(inclusion);
+            includeSpec = inclusionSpec.and(inclusionSpec);
         }
-
-        List<Activity> pageActivities = paginatedActivities.getContent();
+        for (String general : generals) {
+            Specification<Activity> inclusionSpec = new ContainsFragment(general);
+            generalSpec = generalSpec.or(inclusionSpec);
+        }
+        baseSpec = baseSpec.and(generalSpec).and(excludeSpec).and(includeSpec);
+        List<Activity> pageActivities = activityRepository.findAll(baseSpec);
         pageActivities.forEach(i -> activitiesFound.add(new ActivityResponse(i)));
-
-        response.setIntHeader("Total-Rows", totalElements);
+        response.setIntHeader("Total-Rows", 1);
 
         return activitiesFound;
     }
