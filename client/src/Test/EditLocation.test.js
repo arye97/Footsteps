@@ -131,50 +131,6 @@ describe('User starts with no location data', () => {
             expect(editLocation.find('#private-Name').text()).toBe(USER_DATA.private_location.name);
         });
     });
-
-    //ToDo needs fixing
-    // test('User can remove a public location', async () => {
-    //     setValues();
-    //     editLocation = mount(EditLocation, {
-    //         mocks: {
-    //             $route
-    //         },
-    //         computed: {
-    //             changesMade() {
-    //                 return true
-    //             }
-    //         },
-    //         router,
-    //         localVue
-    //     });
-    //     editLocation.vm.publicLocation = USER_DATA.public_location;
-    //     //editLocation.vm.savedPublicLocation = USER_DATA.public_location;
-    //     editLocation.vm.inputPublicLocation = null;
-    //     await editLocation.vm.$nextTick().then(() => {
-    //         editLocation.find('#save-changes-btn').trigger('click');
-    //         expect(api.editLocation).toBeCalledTimes(1);
-    //
-    //     });
-    //     await editLocation.vm.$nextTick();
-    //
-    //     editLocation.vm.publicLocation = null;
-    //     //expect(editLocation.vm.savedPublicLocation).toBeNull();
-    //     expect(editLocation.find('#public-Name-Unspecified1').text()).toBe("Location not yet specified");
-    //
-    // });
-
-//     test('User can remove a private location', async () => {
-//         setValues();
-//         editLocation.vm.privateLocation = USER_DATA.private_location;
-//         editLocation.vm.inputPrivateLocation = null;
-//         await editLocation.vm.$nextTick().then(() => {
-//             editLocation.find('#save-changes-btn').trigger('click');
-//             expect(api.editLocation).toBeCalledTimes(1);
-//         });
-//         await editLocation.vm.$nextTick().then(() => {
-//             expect(editLocation.find('#private-Name').text()).toBe("Location not yet specified");
-//         });
-//     });
  });
 
 describe('User starts with location data', () => {
