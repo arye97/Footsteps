@@ -3,46 +3,50 @@
         <div>
             <br/>
             <div>
-                <b-row>
-                    <b-col cols="8" v-if="searchMode==='activityType' || searchMode==='activityLocation'">
-                        <multiselect v-model="selectedActivityTypes" id="searchBoxActivities"
-                                     :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
-                                     placeholder="Select your activity types">
-                            <template slot="noResult">Invalid activity type</template>
-                        </multiselect>
-                    </b-col>
-                    <b-col cols="8" v-if="searchMode==='activityLocation'">
-                        <!--TODO Add locationIO into here-->
-                    </b-col>
-                    <b-col cols="8" v-if="searchMode==='activityName'">
-                        <b-form-input id="searchBoxActivityTitle" v-model="activityTitle" placeholder="Search activity by title"></b-form-input><br>
-                        <ul>
-                            <li>All searches are case insensitive including "" searches</li>
-                            <li>Use quotation marks to search for whole matches of the string within ("run" could return run to Mars but NOT running to Venus)</li>
-                            <li>Use "+" to include both strings in the search (any leading or tailing spaces are trimmed) (CSSE + fun will return any activity with the names CSSE and fun)</li>
-                            <li>Use "-" for splitting strings. Anything following the "-" will be excluded from the search (CSSE - fun would search for anything including CSSE that does not contain fun)</li>
-                        </ul>
-                    </b-col>
-                    <b-col cols="4">
-                        <b-form-select id="searchModeSelect" v-model="searchMode" :options="searchModes"></b-form-select>
-                    </b-col>
-                </b-row>
-                <div v-if="searchMode==='activityType'">
-                    <b-row style="margin-bottom: 1.7em; margin-top: 0.8em">
-                        <b-col cols="6" align-self="center">
-                            <b-form-radio id="andRadioButton" v-model="searchType" name="andType" value="and">Must include all selections</b-form-radio>
+                <!-- Uses keydown.enter rather than submit.prevent to extend the number of components that will trigger the search
+                     Still needs submit.prevent to stop the page redirect though -->
+                <b-form @submit.prevent @keydown.enter="search()">
+                    <b-row>
+                        <b-col cols="8" v-if="searchMode==='activityType' || searchMode==='activityLocation'">
+                            <multiselect v-model="selectedActivityTypes" id="searchBoxActivities"
+                                         :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
+                                         placeholder="Select your activity types">
+                                <template slot="noResult">Invalid activity type</template>
+                            </multiselect>
                         </b-col>
-                        <b-col cols="6" align-self="center">
-                            <b-form-radio id="orRadioButton" v-model="searchType" name="orType" value="or">Must include one selection</b-form-radio>
+                        <b-col cols="8" v-if="searchMode==='activityLocation'">
+                            <!--TODO Add locationIO into here-->
+                        </b-col>
+                        <b-col cols="8" v-if="searchMode==='activityName'">
+                            <b-form-input id="searchBoxActivityTitle" v-model="activityTitle" placeholder="Search activity by title"></b-form-input><br>
+                            <ul>
+                                <li>All searches are case insensitive including "" searches</li>
+                                <li>Use quotation marks to search for whole matches of the string within ("run" could return run to Mars but NOT running to Venus)</li>
+                                <li>Use "+" to include both strings in the search (any leading or tailing spaces are trimmed) (CSSE + fun will return any activity with the names CSSE and fun)</li>
+                                <li>Use "-" for splitting strings. Anything following the "-" will be excluded from the search (CSSE - fun would search for anything including CSSE that does not contain fun)</li>
+                            </ul>
+                        </b-col>
+                        <b-col cols="4">
+                            <b-form-select id="searchModeSelect" v-model="searchMode" :options="searchModes"></b-form-select>
                         </b-col>
                     </b-row>
-                </div>
-                <b-row>
-                    <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
-                        Search
-                    </b-button>
-                    <br/>
-                </b-row>
+                    <div v-if="searchMode==='activityType'">
+                        <b-row style="margin-bottom: 1.7em; margin-top: 0.8em">
+                            <b-col cols="6" align-self="center">
+                                <b-form-radio id="andRadioButton" v-model="searchType" name="andType" value="and">Must include all selections</b-form-radio>
+                            </b-col>
+                            <b-col cols="6" align-self="center">
+                                <b-form-radio id="orRadioButton" v-model="searchType" name="orType" value="or">Must include one selection</b-form-radio>
+                            </b-col>
+                        </b-row>
+                    </div>
+                    <b-row>
+                        <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
+                            Search
+                        </b-button>
+                        <br/>
+                    </b-row>
+                </b-form>
             </div>
             <div v-if="resultsFound">
                 <hr/>

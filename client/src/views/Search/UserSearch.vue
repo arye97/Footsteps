@@ -3,32 +3,36 @@
         <div>
             <br/>
             <div>
-                <b-row>
-                    <b-col cols="8">
-                        <multiselect v-model="selectedActivityTypes" id="searchBoxActivities"
-                                     :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
-                                     placeholder="Select your activity types">
-                            <template slot="noResult">Invalid activity type</template>
-                        </multiselect>
-                    </b-col>
-                    <b-col cols="4">
-                        <b-form-select id="searchModeSelect" v-model="searchMode" :options="searchModes"></b-form-select>
-                    </b-col>
-                </b-row>
-                <b-row style="margin-bottom: 1.7em; margin-top: 0.8em">
-                    <b-col cols="6" align-self="center">
-                        <b-form-radio id="andRadioButton" v-model="searchType" name="andType" value="and">Must include all selections</b-form-radio>
-                    </b-col>
-                    <b-col cols="6" align-self="center">
-                        <b-form-radio id="orRadioButton" v-model="searchType" name="orType" value="or">Must include one selection</b-form-radio>
-                    </b-col>
-                </b-row>
-                <b-row>
-                    <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
-                        Search
-                    </b-button>
-                    <br/>
-                </b-row>
+                <!-- Uses keydown.enter rather than submit.prevent to extend the number of components that will trigger the search
+                     Still needs submit.prevent to stop the page redirect though -->
+                <b-form @submit.prevent @keydown.enter="search()">
+                    <b-row>
+                        <b-col cols="8">
+                            <multiselect v-model="selectedActivityTypes" id="searchBoxActivities"
+                                         :options="activityTypes" :multiple="true" :searchable="true" :close-on-select="false"
+                                         placeholder="Select your activity types">
+                                <template slot="noResult">Invalid activity type</template>
+                            </multiselect>
+                        </b-col>
+                        <b-col cols="4">
+                            <b-form-select id="searchModeSelect" v-model="searchMode" :options="searchModes"></b-form-select>
+                        </b-col>
+                    </b-row>
+                    <b-row style="margin-bottom: 1.7em; margin-top: 0.8em">
+                        <b-col cols="6" align-self="center">
+                            <b-form-radio id="andRadioButton" v-model="searchType" name="andType" value="and">Must include all selections</b-form-radio>
+                        </b-col>
+                        <b-col cols="6" align-self="center">
+                            <b-form-radio id="orRadioButton" v-model="searchType" name="orType" value="or">Must include one selection</b-form-radio>
+                        </b-col>
+                    </b-row>
+                    <b-row>
+                        <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
+                            Search
+                        </b-button>
+                        <br/>
+                    </b-row>
+                </b-form>
             </div>
             <div v-if="resultsFound">
                 <hr/>
