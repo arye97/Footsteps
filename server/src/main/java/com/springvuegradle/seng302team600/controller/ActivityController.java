@@ -1,11 +1,14 @@
 package com.springvuegradle.seng302team600.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.payload.pins.Pin;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.pins.UserPin;
 import com.springvuegradle.seng302team600.payload.request.ActivityPostRequest;
 import com.springvuegradle.seng302team600.payload.request.ActivityPutRequest;
+import com.springvuegradle.seng302team600.payload.request.Coordinates;
 import com.springvuegradle.seng302team600.payload.response.ActivityResponse;
 import com.springvuegradle.seng302team600.payload.response.ParticipantResponse;
 import com.springvuegradle.seng302team600.repository.ActivityActivityTypeRepository;
@@ -39,6 +42,9 @@ public class ActivityController {
     private final ActivityPinService activityPinService;
 
     private static final int PAGE_SIZE = 5;
+    private static final int PIN_BLOCK_SIZE = 20;
+    private static final Double MAX_CUTOFF_DISTANCE = 10000.0;
+    private static final Double MAX_DISTANCE = 45000.0;
     private static final String CONTINUOUS = "CONTINUOUS";
     private static final String DURATION = "DURATION";
 
@@ -473,6 +479,86 @@ public class ActivityController {
             hasNext = paginatedBlockOfActivities.hasNext();        }
         if (pageNumber == 0) {
             paginatedBlockOfPins.add(0, new UserPin(user));
+        }
+        response.setHeader("Has-Next", Boolean.toString(hasNext));
+        return paginatedBlockOfPins;
+    }
+
+
+    /**
+     * Takes some properties to search for activities by location.
+     * The activities are converted into pins.
+     * Pagination is preformed on the repo in blocks/pages of 20.
+     * @param request the http request
+     * @param response the http response
+     * @param strCoordinates a string to be converted into a Coordinates object containing latitude and longitude
+     * @param activityTypes a list of activity types
+     * @param cutoffDistance the max distance to search by
+     * @param method the type of activity type filtering
+     * @return A list of activity pins
+     */
+    @GetMapping(
+            value = "/activities/pins",
+            params = { "coordinates", "activityTypes", "cutoffDistance", "method" })
+    public List<Pin> getActivityPinsByLocation(HttpServletRequest request, HttpServletResponse response,
+                                               @RequestParam(value="coordinates") String strCoordinates,
+                                               @RequestParam(value="activityTypes") String activityTypes,
+                                               @RequestParam(value="cutoffDistance") Double cutoffDistance,
+                                               @RequestParam(value="method") String method) throws JsonProcessingException {
+        Coordinates coordinates = new ObjectMapper().readValue(strCoordinates, Coordinates.class);
+        String token = request.getHeader(TOKEN_DECLARATION);
+        User user = userAuthenticationService.findByToken(token);
+        int pageNumber;
+        try {
+            pageNumber = request.getIntHeader("Page-Number");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Page-Number must be an integer");
+        }
+        if (pageNumber < 0) {
+            pageNumber = 0;
+        }
+        Pageable blockWith20Activities = PageRequest.of(pageNumber, PIN_BLOCK_SIZE);
+        if (coordinates.getLatitude() > 90 || coordinates.getLatitude() < -90) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Latitude must exist (be between -90 and 90 degrees)");
+        }
+        if (coordinates.getLongitude() > 180 || coordinates.getLongitude() < -180) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Longitude must exist (be between -180 and 180 degrees)");
+        }
+        if (cutoffDistance >= MAX_CUTOFF_DISTANCE) {
+            cutoffDistance = MAX_DISTANCE;
+        }
+        Slice<Activity> paginatedActivities;
+        if (activityTypes.length() >= 1) {
+            List<String> typesWithDashes = Arrays.asList(activityTypes.split(" "));
+            List<String> types = typesWithDashes.stream()
+                    .map(a -> a.replace('-', ' '))
+                    .collect(Collectors.toList());
+            List<Long> activityTypeIds = activityTypeRepository.findActivityTypeIdsByNames(types);
+            int numActivityTypes = activityTypeIds.size();
+            if (method.equalsIgnoreCase("and")) {
+                paginatedActivities = activityRepository.findAllWithinDistanceByAllActivityTypeIds(
+                        coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance,
+                        activityTypeIds, numActivityTypes, blockWith20Activities);
+            } else if (method.equalsIgnoreCase("or")) {
+                paginatedActivities = activityRepository.findAllWithinDistanceBySomeActivityTypeIds(
+                        coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance,
+                        activityTypeIds, blockWith20Activities);
+            } else {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Method must be specified as either (AND, OR)");
+            }
+        } else {
+            paginatedActivities = activityRepository.findAllWithinDistance(
+                    coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance, blockWith20Activities);
+        }
+        List<Pin> paginatedBlockOfPins = new ArrayList<>();
+        boolean hasNext = false;
+        if (paginatedActivities != null) {
+            paginatedBlockOfPins = activityPinService.getPins(user, paginatedActivities.getContent());
+            hasNext = paginatedActivities.hasNext();
         }
         response.setHeader("Has-Next", Boolean.toString(hasNext));
         return paginatedBlockOfPins;
