@@ -156,12 +156,12 @@
                                     </b-card>
                                 </b-list-group>
                                 <br/>
-                                <div v-if="this.user.public_location">
+                                <div v-if="this.user.public_location || this.user.private_location">
                                     <h3 class="font-weight-light"><strong>Location:</strong></h3><br/>
                                     <location-i-o id="location"
                                         :view-only="true"
                                         :parent-pins="getPinData()"
-                                        :parent-center="{lat: this.user.public_location.latitude, lng: this.user.public_location.longitude}">
+                                        :parent-center="getMapCenter()">
                                     </location-i-o>
                                 </div>
                                 <br/>
@@ -335,13 +335,15 @@
             },
             getPinData() {
                 let userPins = []
-                userPins.push({
-                    lat: this.user.public_location.latitude,
-                    lng: this.user.public_location.longitude,
-                    colour: 'red',
-                    title: 'Public Location',
-                    location_name: this.user.public_location.name,
-                });
+                if (this.user.private_location) {
+                    userPins.push({
+                        lat: this.user.public_location.latitude,
+                        lng: this.user.public_location.longitude,
+                        colour: 'red',
+                        title: 'Public Location',
+                        location_name: this.user.public_location.name,
+                    });
+                }
                 if (this.user.private_location) {
                     userPins.push({
                         lat: this.user.private_location.latitude,
@@ -352,6 +354,14 @@
                     });
                 }
                 return userPins;
+            },
+            getMapCenter() {
+                if (this.user.public_location) {
+                    return {lat: this.user.public_location.latitude, lng: this.user.public_location.longitude}
+                }
+                if (this.user.private_location) {
+                    return {lat: this.user.public_location.latitude, lng: this.user.public_location.longitude}
+                }
             }
         }
     }
