@@ -121,14 +121,14 @@ test('Is a vue instance', () => {
     expect(viewUser.isVueInstance).toBeTruthy();
 });
 
-test('Location is hidden when public location does not exist', () => {
+test('Location is hidden when no location exists', () => {
     expect(viewUser.find('#location').exists()).toBeFalsy();
 });
 
-test('Location is hidden when only private location is defined', async () => {
+test('Location is visible when only private location is defined', async () => {
     viewUser.setData({user: USER_DATA_PRIVATE_LOCATION});
     await viewUser.vm.$nextTick();
-    expect(viewUser.find('#location').exists()).toBeFalsy();
+    expect(viewUser.find('#location').exists()).toBeTruthy();
 });
 
 test('Location is visible when public location is defined', async () => {

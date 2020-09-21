@@ -330,7 +330,6 @@
                 });
             },
             getPinData() {
-                console.log(this.user);
                 let userPins = []
                 if (this.user.public_location) {
                     userPins.push({
