@@ -86,24 +86,32 @@
 
                 <div v-if="activity.continuous === false">
                     <b-form-group>
-                        <div v-if="has_start_time === false" >
-                            <label id="input-start-label" for="input-start">Start Date: *</label>
-                            <input type="date" class="form-control"
-                                   :value="activity.startTime && activity.startTime.split('T')[0]"
-                                   @input="activity.startTime = dateIntoDateTimeStr($event.target.value, activity.startTime)"
-                                   id="input-start">
-                        </div>
-                        <div v-else>
-                            <label id="input-start-time-label" for="input-start-time">Start Date: *</label>
-                            <input type="datetime-local" class="form-control"
-                                   :value="activity.startTime"
-                                   @input="activity.startTime = $event.target.value === '' ? activity.startTime : $event.target.value"
-                                   id="input-start-time">
-                        </div>
+<!--                        <label id="input-start-label">Start Date: *</label>-->
+                        <b-form-datepicker v-model="startDate" class="mb-2"></b-form-datepicker>
+                        <p>Value: '{{ startDate }}'</p>
+                        <b-form-timepicker v-model="startTime" :disabled="!has_start_time" locale="en"></b-form-timepicker>
+                        <p>Value: '{{ startTime }}'</p>
+
+<!--                        <div v-if="has_start_time === false" >-->
+<!--                            <label id="input-start-label" for="input-start">Start Date: *</label>-->
+<!--                            <input type="date" class="form-control"-->
+<!--                                   :value="activity.startTime && activity.startTime.split('T')[0]"-->
+<!--                                   @input="activity.startTime = dateIntoDateTimeStr($event.target.value, activity.startTime)"-->
+<!--                                   id="input-start">-->
+
+<!--                                                </div>-->
+<!--                        <div v-else>-->
+<!--                            <label id="input-start-time-label" for="input-start-time">Start Date: *</label>-->
+<!--                            <input type="datetime-local" class="form-control"-->
+<!--                                   :value="activity.startTime"-->
+<!--                                   @input="activity.startTime = $event.target.value === '' ? activity.startTime : $event.target.value"-->
+<!--                                   id="input-start-time">-->
+<!--                        </div>-->
                         <b-form-checkbox
                                 class="checkbox-time"
                                 size="sm"
                                 v-model="has_start_time"
+                                @change="this.disabledStart"
                         >
                             Include starting time
                         </b-form-checkbox>
@@ -333,11 +341,15 @@
             },
             submitActivityFunc: Function,
             isEdit:  Boolean,
-            startTime: String,
-            endTime: String,
+            // startTime: String,
+            // endTime: String,
         },
         data() {
             return {
+                startDate: null,
+                startTime: "12:00",
+                endTime: String,
+
                 activityTypes: [],
                 nameCharCount: 0,
                 maxNameCharCount: 75,
@@ -375,6 +387,14 @@
         },
         methods: {
 
+            disabledStart(checked) {
+                if (!checked) {
+                    this.startTime = null;
+                } else {
+                    this.startTime = "12:00"
+                }
+            },
+
             /**
              * Called when submit button is pressed.  Validates the form input, then calls the function passed in
              * through props.  This way the form can be used to edit and create activities.
@@ -382,15 +402,16 @@
             async onSubmit(evt) {
                 evt.preventDefault();
                 this.isValidFormFlag = true;
+                console.log("fuck off")
                 await this.validateActivityInputs();
-                if (this.isValidFormFlag) {
-                    this.formatDurationActivity();
-                    try {
-                        await this.submitActivityFunc();
-                    } catch(errResponse) {
-                        this.processPostError(errResponse);
-                    }
-                }
+                // if (this.isValidFormFlag) {
+                //     this.formatDurationActivity();
+                //     try {
+                //         await this.submitActivityFunc();
+                //     } catch(errResponse) {
+                //         this.processPostError(errResponse);
+                //     }
+                // }
             },
 
             /**
@@ -439,6 +460,8 @@
              * @param dateTimeStr string of the format yyyy-MM-ddThh:mm
              */
             dateIntoDateTimeStr(dateStr, dateTimeStr) {
+                console.log(dateStr)
+                console.log(dateTimeStr)
                 if (dateStr === null || dateStr === "") {
                     return dateTimeStr;
                 }
@@ -449,6 +472,7 @@
                     dateTimeArr = dateTimeStr.split('T');
                 }
                 dateTimeArr[0] = dateStr;
+                console.log(dateTimeArr)
                 return dateTimeArr.join('T');
             },
 
@@ -456,9 +480,23 @@
              * Validate activity inputs, called when onSubmit is called
              */
             async validateActivityInputs() {
+                // Todo if statement if has start time alg add T if doesnt then add that T shit and 12:00
+                // console.log("FUCK UP")
+                // console.log(this.has_start_time)
+                if (!this.has_start_time) {
+                    this.startTime = "12:00";
+                }
+                // console.log(this.startDate);
+                // console.log(this.startTime);
+                this.activity.startTime = this.startDate + "T" + this.startTime;
+                // console.log(this.activity.startTime);
+                // console.log(this.activity.endTime);
+
                 this.activity.submitStartTime = this.activity.startTime;
                 let startTime = new Date(this.activity.startTime);
                 this.activity.submitEndTime = this.activity.endTime;
+
+                console.log(this.activity.endTime)
                 let endTime = new Date(this.activity.endTime);
 
                 if (!this.activity.activityName || this.nameCharCount > this.maxNameCharCount) {
@@ -713,5 +751,17 @@
 
     .addOutcomesButton {
         margin-bottom: 5px;
+    }
+
+    .input-date-time-table {
+        width: 100%;
+    }
+
+    .input-date-label {
+        width: 30%;
+    }
+
+    .input-time-label {
+        width: 20%;
     }
 </style>
