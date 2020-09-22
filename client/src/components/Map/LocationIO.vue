@@ -34,6 +34,9 @@
             </b-button>
           </b-button-group>
         </div>
+        <p class="light-info-message" v-if="this.description">
+            {{  this.description  }}
+        </p>
       </div>
       <div v-else>
         <b-button id="showMapButton" variant="info" @click="isMapVisible=true">Show Map</b-button>
@@ -107,6 +110,10 @@
             parentAddress: {
                 default: null,
                 type: String
+            },
+            description: {
+                default: null,
+                type: String
             }
         },
 
@@ -153,6 +160,9 @@
             if (this.parentAddress) {
                 this.address = this.parentAddress;
             }
+            this.pins.forEach(function (element) {
+                element.windowOpen = false;
+            });
         },
 
         methods: {
@@ -176,7 +186,8 @@
                         colour: 'red',
                         lat: this.$refs.mapViewerRef.currentCenter.lat,
                         lng: this.$refs.mapViewerRef.currentCenter.lng,
-                        name: ""
+                        name: "",
+                        windowOpen: false
                     };
                     this.pins.push(pin);
 
@@ -206,7 +217,8 @@
                         colour: 'red',
                         lat: place.geometry.location.lat(),
                         lng: place.geometry.location.lng(),
-                        name: place.formatted_address
+                        name: place.formatted_address,
+                        windowOpen: false
                     };
                 } catch {
                     pin = null
