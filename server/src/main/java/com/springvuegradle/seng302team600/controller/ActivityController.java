@@ -527,4 +527,50 @@ public class ActivityController {
         response.setHeader("Has-Next", Boolean.toString(hasNext));
         return paginatedBlockOfPins;
     }
+
+    /**
+     * Takes some properties to search for activity pins by location.
+     * Calls the service function to find activities by location, then converts this to pins
+     * Pagination is preformed on the repo in blocks/pages of 20.
+     *
+     * @param request        the http request
+     * @param response       the http response
+     * @param strCoordinates a string to be converted into a Coordinates object containing latitude and longitude
+     * @param activityTypes  a list of activity types
+     * @param cutoffDistance the max distance to search by
+     * @param method         the type of activity type filtering
+     * @return A list of activity pins
+     */
+    @GetMapping(
+            value = "/activities",
+            params = {"coordinates", "activityTypes", "cutoffDistance", "method"})
+    public List<ActivityResponse> getActivitiesByLocation(HttpServletRequest request, HttpServletResponse response,
+                                               @RequestParam(value = "coordinates") String strCoordinates,
+                                               @RequestParam(value = "activityTypes") String activityTypes,
+                                               @RequestParam(value = "cutoffDistance") Double cutoffDistance,
+                                               @RequestParam(value = "method") String method) throws JsonProcessingException {
+
+        String token = request.getHeader(TOKEN_DECLARATION);
+        User user = userAuthenticationService.findByToken(token);
+        int pageNumber;
+        try {
+            pageNumber = request.getIntHeader("Page-Number");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Page-Number must be an integer");
+        }
+
+        Slice<Activity> paginatedActivities = locationSearchService.getActivitiesByLocation(strCoordinates, activityTypes,
+                cutoffDistance, method, PAGE_SIZE, pageNumber);
+
+        List<ActivityResponse> activitiesFound = new ArrayList<>();
+        boolean hasNext = false;
+        if (paginatedActivities != null) {
+            paginatedActivities.forEach(i -> activitiesFound.add(new ActivityResponse(i)));
+            hasNext = paginatedActivities.hasNext();
+        }
+
+        response.setHeader("Has-Next", Boolean.toString(hasNext));
+        return activitiesFound;
+    }
 }

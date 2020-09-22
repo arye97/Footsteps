@@ -1167,7 +1167,7 @@ class ActivityControllerTest {
     }
 
     @Test
-    public void successfullyGetActivitiesByLocation() throws Exception {
+    public void successfullyGetPinsByLocation() throws Exception {
         populateDummyActivityList(INITIAL_ACTIVITIES_COUNT + BLOCK_SIZE);
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities/pins"))
                 .param("coordinates",
@@ -1187,6 +1187,29 @@ class ActivityControllerTest {
         assertEquals(BLOCK_SIZE, responseArray.size());
         assertFalse(Boolean.parseBoolean(hasNext));
         assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), ActivityPin.class));
+    }
+
+    @Test
+    public void successfullyGetActivityByLocation() throws Exception {
+        populateDummyActivityList(INITIAL_ACTIVITIES_COUNT + BLOCK_SIZE);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities"))
+                .param("coordinates",
+                        "%7B%22lat%22%3A%22-45.8667783%22%2C%22lng%22%3A%22170.4910567%22%7D")
+                .param("activityTypes", "smile")
+                .param("cutoffDistance", "1000")
+                .param("method", "OR")
+                .header("Token", validToken)
+                .header("Page-Number", PAGE_ONE);
+
+        MvcResult response = mvc.perform(request)
+                .andExpect(status().isOk())
+                .andReturn();
+        String hasNext = response.getResponse().getHeader("Has-Next");
+
+        JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
+        assertEquals(BLOCK_SIZE, responseArray.size());
+        assertFalse(Boolean.parseBoolean(hasNext));
+        assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), ActivityResponse.class));
     }
 
     /**
