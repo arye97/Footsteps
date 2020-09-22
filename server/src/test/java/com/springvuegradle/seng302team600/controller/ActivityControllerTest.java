@@ -10,10 +10,7 @@ import com.springvuegradle.seng302team600.payload.pins.UserPin;
 import com.springvuegradle.seng302team600.payload.response.ActivityResponse;
 import com.springvuegradle.seng302team600.payload.request.UserRegisterRequest;
 import com.springvuegradle.seng302team600.repository.*;
-import com.springvuegradle.seng302team600.service.ActivityPinService;
-import com.springvuegradle.seng302team600.service.ActivityTypeService;
-import com.springvuegradle.seng302team600.service.FeedEventService;
-import com.springvuegradle.seng302team600.service.UserAuthenticationService;
+import com.springvuegradle.seng302team600.service.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -59,6 +56,8 @@ class ActivityControllerTest {
     private ActivityTypeRepository activityTypeRepository;
     @MockBean
     private ActivityPinService activityPinService;
+    @MockBean
+    private LocationSearchService locationSearchService;
     @Autowired
     private MockMvc mvc;
 
