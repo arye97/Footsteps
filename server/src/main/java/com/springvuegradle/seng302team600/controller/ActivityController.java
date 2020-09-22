@@ -39,7 +39,6 @@ public class ActivityController {
     private final ActivityPinService activityPinService;
 
 
-
     private static final int PAGE_SIZE = 5;
     private static final String CONTINUOUS = "CONTINUOUS";
     private static final String DURATION = "DURATION";
@@ -315,23 +314,22 @@ public class ActivityController {
      * @param request          the http request with the user token we need
      * @param response         the http response
      * @param activityKeywords the word/sentence we need to search for
-     * @param method           the method AND/OR for searching
      * @return a list containing all activities found
      */
     @GetMapping(
             value = "/activities",
-            params = {"activityKeywords", "method"}
+            params = {"activityKeywords"}
     )
     public List<ActivityResponse> getActivitiesByKeywords(HttpServletRequest request,
                                                           HttpServletResponse response,
-                                                          @RequestParam(value = "activityKeywords") String activityKeywords,
-                                                          @RequestParam(value = "method") String method) {
+                                                          @RequestParam(value = "activityKeywords") String activityKeywords) {
 
         if (activityKeywords.equals("-") ||
                 activityKeywords.equals("\\+") ||
                 activityKeywords.equals("%2b") ||
                 activityKeywords.equals("%20") ||
-                activityKeywords.equals(" ")) {
+                activityKeywords.equals(" ") ||
+                activityKeywords.length() == 0) {
             return new ArrayList<>();
         }
 
@@ -354,22 +352,24 @@ public class ActivityController {
             pageNumber = 0;
         }
 
-        Page<Activity> paginatedActivities = null;
+        Page<Activity> paginatedActivities;
         Pageable pageWithFiveActivities = PageRequest.of(pageNumber, PAGE_SIZE);
         int totalElements = 0;
-
         if (activityKeywords.contains("AND")) {
 
-            List<String> searchStrings = ActivitySearchService.handleANDSpecialCaseString(activityKeywords);
-            paginatedActivities = activityRepository.findAllByKeyword(searchStrings, "AND", pageWithFiveActivities);
+            String searchStrings = ActivitySearchService.handleANDSpecialCaseString(activityKeywords);
+            paginatedActivities = activityRepository.findAllByKeywordUsingMethod(searchStrings, "AND", pageWithFiveActivities);
 
         } else if ((activityKeywords.contains("OR")) ||
-        (!(activityKeywords.contains("OR")) && !(activityKeywords.contains("AND")))) {
+                (!(activityKeywords.contains("OR")) && !(activityKeywords.contains("AND")))) {
 
             activityKeywords = ActivitySearchService.getSearchQuery(activityKeywords);
+            System.out.println(activityKeywords);
             paginatedActivities = activityRepository.findAllByKeyword(activityKeywords, pageWithFiveActivities);
             totalElements = (int) paginatedActivities.getTotalElements();
 
+        } else {
+            return new ArrayList<>();
         }
 
         if (paginatedActivities == null || paginatedActivities.getTotalPages() == 0) {

@@ -12,7 +12,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import java.util.List;
 
 @RepositoryRestResource
-public interface ActivityRepository extends JpaRepository<Activity, Long> {
+public interface ActivityRepository extends JpaRepository<Activity, Long>, ActivityRepositoryCustom {
 
     Activity findByActivityId(Long id);
 
@@ -62,8 +62,12 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
 
     @Query(value =
             "SELECT * FROM activity WHERE activity_name LIKE ?1", nativeQuery = true)
-    Page<Activity> findAllByKeyword(@Param("keyword") List<String> keywords, String method, Pageable pageable);
-    
+    Page<Activity> findAllByKeyword(@Param("keyword") String keyword, Pageable pageable);
+
+    @Query(value =
+            "SELECT * FROM activity WHERE activity_name LIKE ?1", nativeQuery = true)
+    Page<Activity> findAllByKeywordUsingMethod(@Param("keyword") List<String> keywords, String method, Pageable pageable);
+
     @Query(value = "SELECT a.*" +
             "FROM activity as a " +
             "LEFT OUTER JOIN location as l " +

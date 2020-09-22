@@ -10,32 +10,38 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-public abstract class ActivityRepositoryImpl implements ActivityRepository {
+public class ActivityRepositoryCustomImpl implements ActivityRepositoryCustom {
 
     @PersistenceContext
     private EntityManager entityManager;
 
     @Override
-    public Page<Activity> findAllByKeyword(@Param("keywords") List<String> keywords, String method, Pageable pageable) {
+    public Page<Activity> findAllByKeywordUsingMethod(@Param("keywords") String keywords, String method, Pageable pageable) {
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Activity> query = cb.createQuery(Activity.class);
         Root<Activity> activity = query.from(Activity.class);
 
-        Path<String> activity_name = activity.get("activity_name");
-
+        Path<String> activity_name = activity.get("name");
         List<Predicate> predicates = new ArrayList<>();
-        for (String keyword : keywords) {
+        List<String> keywordsList = Arrays.asList(keywords.split("-"));
+        for (String keyword : keywordsList) {
+            keyword = "%" + keyword + "%";
             predicates.add(cb.like(activity_name, keyword));
+        }
+
+        if ((predicates.size() != keywordsList.size()) && (method.equals("AND"))) {
+            return new PageImpl<>(new ArrayList<>());
         }
         query.select(activity)
                 .where(cb.or(predicates.toArray(new Predicate[predicates.size()])));
 
         List<Activity> toReturn = entityManager.createQuery(query)
                 .getResultList();
-
+        System.out.println(entityManager.createQuery(query));
         return new PageImpl<>(toReturn);
     }
 

@@ -11,17 +11,17 @@ public class ActivitySearchService {
      * @param searchString the string query to parse
      * @return a list of two strings, one is the query and one is the term to be excluded from the search
      */
-    public static List<String> handleANDSpecialCaseString(String searchString) {
+    public static String handleANDSpecialCaseString(String searchString) {
         List<String> name = Arrays.asList(searchString.split("AND"));
-        String newQuery = "%";
-        List<String> queryTerms = new ArrayList<>();
+        String newQuery = "";
         for (String terms : name) {
             terms = terms.trim();
-            String newTerm = "%";
-            newTerm = newTerm + terms + "%";
-            queryTerms.add(newTerm);
+            newQuery += terms;
+            if (!terms.equals(name.get(name.size()-1))) {
+                newQuery += "-";
+            }
         }
-        return queryTerms;
+        return newQuery;
     }
 
     /**
@@ -32,15 +32,18 @@ public class ActivitySearchService {
      */
     public static String getSearchQuery(String searchString) {
         if (searchString.startsWith("\"") && searchString.endsWith("\"")){
+
             //then the user has chosen exact match!
             searchString = searchString.substring(1, searchString.length() - 1);
-            if (searchString.contains("%20")) {
+            System.out.println(searchString);
+            if (searchString.contains(" ")) {
                 List<String> searchTerms =  Arrays.asList(searchString.split(" "));
                 searchString = "";
                 for (String term : searchTerms) {
                     searchString = String.format("%s%s%s", searchString, term, " ");
                 }
                 searchString = searchString.trim();
+                System.out.println(searchString);
             }
         } else {
             String newQuery = "%";

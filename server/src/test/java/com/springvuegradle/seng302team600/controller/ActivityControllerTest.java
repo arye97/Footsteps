@@ -995,44 +995,6 @@ class ActivityControllerTest {
         assertEquals(0, responseString.size());
     }
 
-    @Test
-    void findActivitiesWhileExcludingKeyword() throws Exception {
-        List<Activity> activities = new ArrayList<>();
-        Activity dumActivity1 = new Activity();
-        ReflectionTestUtils.setField(dumActivity1, "activityId", 1L);
-        Activity dumActivity2 = new Activity();
-        ReflectionTestUtils.setField(dumActivity2, "activityId", 2L);
-        dumActivity1.setName("Climb Mount Fuji");
-        dumActivity2.setName("Climb the Ivory Tower");
-        activities.add(dumActivity1);
-        activities.add(dumActivity2);
-
-        when(activityRepository.findAllByKeywordExcludingTerm(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenAnswer(i -> {
-            List<Activity> foundActivities = new ArrayList<>();
-            String keyword = i.getArgument(0);
-            String exclusion = i.getArgument(1);
-            keyword = keyword.replaceAll("[^a-zA-Z0-9\\\\s+]", "");
-            exclusion = exclusion.replaceAll("[^a-zA-Z0-9\\\\s+]", "");
-            for (Activity activity : activities) {
-                List<String> name = Arrays.asList(activity.getName().split(" "));
-                if ((!name.contains(exclusion)) && (name.contains(keyword))) {
-                    foundActivities.add(activity);
-                }
-            }
-            Page<Activity> result = new PageImpl(foundActivities);
-            return result;
-        });
-
-        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityKeywords=Climb%20-%20Fuji"))
-                .header("Token", validToken);
-
-        MvcResult result = mvc.perform(httpReq)
-                .andExpect(status().isOk())
-                .andReturn();
-        JsonNode responseString = objectMapper.readTree(result.getResponse().getContentAsString());
-        assertEquals(1, responseString.size());
-
-    }
 
     @Test
     void findAllActivitiesUsingMultipleNames() throws Exception {
