@@ -100,7 +100,7 @@
     import Multiselect from "vue-multiselect";
     import api from "../../Api";
     import ActivityCard from "./ActivityCard";
-    import LocationIO from "../../components/Map/LocationIO";
+    //import LocationIO from "../../components/Map/LocationIO";
 
 export default {
     name: "ActivitySearch",
@@ -115,14 +115,14 @@ export default {
             activitiesList: [],
             searchMode: 'activityType',
             searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
-                { value: 'activityType', text: 'Activity Type'},
-                { value: 'activityName', text: 'Activity Name'},
-                { value: 'activityLocation', text: 'Location'}
+                {value: 'activityType', text: 'Activity Type'},
+                {value: 'activityName', text: 'Activity Name'},
+                {value: 'activityLocation', text: 'Location'}
             ],
             // These are the ActivityTypes selected in the Multiselect
-            selectedActivityTypes : [],
+            selectedActivityTypes: [],
             // These are a copy of selectedActivityTypes passed to the UserCard (to avoid mutation after clicking search)
-            activityTypesSearchedFor : [],
+            activityTypesSearchedFor: [],
             activityTitle: "",
             activityTypes: [],
             searchType: "and",
@@ -321,31 +321,33 @@ export default {
                 });
             },
 
-        /**
-         * Searches a activity based on a string of activity types or an activity name by the AND or OR method
-         */
-        async search() {
-            // Converts list of activity types into string
-            // e.g. ["Hiking", "Biking"] into "Hiking Biking"
-            this.errored = false;
-            this.loading = true;
-            this.currentPage = 1;
-            if (this.searchMode === 'activityType') {
-                // Set is as a copy so the User card is only updated after clicking search
-                this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
-                this.getPaginatedActivitiesByActivityType();
-            } else if (this.searchMode === 'activityName') {
-                if (this.activityTitle.length === 0) {
-                    this.errored = true;
-                    this.error_message = "Cannot have empty search field, please try again!";
-                } else if (this.activityTitle.length === 75) {
-                    this.errored = true;
-                    this.error_message = "Cannot have more than 75 characters in the search field.";
+            /**
+             * Searches a activity based on a string of activity types or an activity name by the AND or OR method
+             */
+            async search() {
+                // Converts list of activity types into string
+                // e.g. ["Hiking", "Biking"] into "Hiking Biking"
+                this.errored = false;
+                this.loading = true;
+                this.currentPage = 1;
+                if (this.searchMode === 'activityType') {
+                    // Set is as a copy so the User card is only updated after clicking search
+                    this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
+                    this.getPaginatedActivitiesByActivityType();
+                } else if (this.searchMode === 'activityName') {
+                    if (this.activityTitle.length === 0) {
+                        this.errored = true;
+                        this.error_message = "Cannot have empty search field, please try again!";
+                    } else if (this.activityTitle.length === 75) {
+                        this.errored = true;
+                        this.error_message = "Cannot have more than 75 characters in the search field.";
+                    }
                 }
-            }
 
+            }
         }
     }
+}
 </script>
 
 <style scoped>

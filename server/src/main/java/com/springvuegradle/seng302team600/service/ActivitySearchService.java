@@ -36,7 +36,6 @@ public class ActivitySearchService {
 
             //then the user has chosen exact match!
             searchString = searchString.substring(1, searchString.length() - 1);
-            System.out.println(searchString);
             if (searchString.contains(" ")) {
                 List<String> searchTerms =  Arrays.asList(searchString.split(" "));
                 searchString = "";

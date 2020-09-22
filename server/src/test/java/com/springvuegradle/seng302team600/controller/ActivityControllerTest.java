@@ -927,6 +927,7 @@ class ActivityControllerTest {
             foundActivities.add(dumActivity1);
             foundActivities.add(dumActivity2);
             List<Activity> selectedActivities = new ArrayList<>();
+            keyword = keyword.replaceAll("%20", " ");
             if (keyword.equals("Climb Mount Fuji")) {
                 for (Activity activity : foundActivities) {
                     if (activity.getName().equals(keyword)) {
