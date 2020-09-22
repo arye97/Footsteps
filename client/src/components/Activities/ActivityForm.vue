@@ -147,6 +147,7 @@
                     <location-i-o v-if="!this.isEdit || this.activity.location !== null"
                         id="input-location"
                         @pin-change="locationValue"
+                        @locationIO-focus="setLocationFocus"
                         :single-only="true"
                         :parent-pins="this.isEdit ?
                             [{lat: this.activity.location.latitude, lng: this.activity.location.longitude}] :  null"
@@ -340,6 +341,7 @@
                 maxOutcomeUnitCharCount: 15,
                 errored: false,
                 error_message: "Something went wrong",
+                submitDisabled: false
             }
         },
         async created() {
@@ -383,13 +385,18 @@
              */
             async onSubmit(evt) {
                 evt.preventDefault();
+
+                if (this.submitDisabled) {
+                    return;
+                }
+
                 this.isValidFormFlag = true;
                 await this.validateActivityInputs();
                 if (this.isValidFormFlag) {
                     this.formatDurationActivity();
                     try {
                         await this.submitActivityFunc();
-                    } catch(errResponse) {
+                    } catch (errResponse) {
                         this.processPostError(errResponse);
                     }
                 }
@@ -671,6 +678,13 @@
                     longitude: pin.lng,
                     name: pin.name,
                 };
+            },
+            /**
+             * Toggles the submitDisabled boolean
+             * @param inFocus true if the user is using the gmap-autocomplete field, false otherwise
+             */
+            setLocationFocus(inFocus) {
+                this.submitDisabled = inFocus;
             }
         }
     }
@@ -704,5 +718,4 @@
     .addOutcomesButton {
         margin-bottom: 5px;
     }
-
 </style>

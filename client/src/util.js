@@ -245,3 +245,31 @@ export function clearPageCaches(pageNames) {
         }
     });
 }
+
+/**
+ * Does a deep comparision of two objects
+ * @param obj1 Object
+ * @param obj2 Object
+ * @return {boolean} if the two object's properties are equal
+ */
+export function compareObjs(obj1, obj2) {
+    if (obj1 === obj2) return true;
+
+    if (typeof obj1 != 'object' || typeof obj2 != 'object' || obj1 == null || obj2 == null) return false;
+
+    let keys1 = Object.keys(obj1), keys2 = Object.keys(obj2);
+
+    if (keys1.length != keys2.length) return false;
+
+    for (let key of keys1) {
+        if (!keys2.includes(key)) return false;
+
+        if (typeof obj1[key] === 'function' || typeof obj2[key] === 'function') {
+            if (obj1[key].toString() != obj2[key].toString()) return false;
+        } else {
+            if (!compareObjs(obj1[key], obj2[key])) return false;
+        }
+    }
+
+    return true;
+}
