@@ -10,5 +10,5 @@ import java.util.List;
 
 @RepositoryRestResource
 public interface ActivityRepositoryCustom {
-    Page<Activity> findAllByKeywordUsingMethod(@Param("keywords") String keywords, String method, Pageable pageable);
+    List<Activity> findAllByKeywordUsingMethod(@Param("keywords") String keywords, String method);
 }

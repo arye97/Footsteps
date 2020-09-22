@@ -19,7 +19,7 @@ public class ActivityRepositoryCustomImpl implements ActivityRepositoryCustom {
     private EntityManager entityManager;
 
     @Override
-    public Page<Activity> findAllByKeywordUsingMethod(@Param("keywords") String keywords, String method, Pageable pageable) {
+    public List<Activity> findAllByKeywordUsingMethod(@Param("keywords") String keywords, String method) {
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Activity> query = cb.createQuery(Activity.class);
@@ -34,7 +34,7 @@ public class ActivityRepositoryCustomImpl implements ActivityRepositoryCustom {
         }
 
         if ((predicates.size() != keywordsList.size()) && (method.equals("AND"))) {
-            return new PageImpl<>(new ArrayList<>());
+            return new ArrayList<Activity>();
         }
 
         if (method.equals("AND")) {
@@ -45,10 +45,8 @@ public class ActivityRepositoryCustomImpl implements ActivityRepositoryCustom {
                     .where(cb.or(predicates.toArray(new Predicate[predicates.size()])));
         }
 
-        List<Activity> toReturn = entityManager.createQuery(query)
+        return entityManager.createQuery(query)
                 .getResultList();
-
-        return new PageImpl<>(toReturn);
     }
 
 }

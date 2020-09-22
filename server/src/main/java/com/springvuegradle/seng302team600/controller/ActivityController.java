@@ -352,34 +352,35 @@ public class ActivityController {
             pageNumber = 0;
         }
 
-        Page<Activity> paginatedActivities;
-        Pageable pageWithFiveActivities = PageRequest.of(pageNumber, PAGE_SIZE);
-        int totalElements = 0;
+        List<Activity> returnedActivities = null;
         if (activityKeywords.contains("AND")) {
-
             String searchStrings = ActivitySearchService.handleMethodSpecialCaseString(activityKeywords, "AND");
-            paginatedActivities = activityRepository.findAllByKeywordUsingMethod(searchStrings, "AND", pageWithFiveActivities);
-
+            returnedActivities = activityRepository.findAllByKeywordUsingMethod(searchStrings, "AND");
         } else if (activityKeywords.contains("OR")) {
-
             activityKeywords = ActivitySearchService.handleMethodSpecialCaseString(activityKeywords, "OR");
-            paginatedActivities = activityRepository.findAllByKeywordUsingMethod(activityKeywords, "OR", pageWithFiveActivities);
-            totalElements = (int) paginatedActivities.getTotalElements();
-
+            returnedActivities = activityRepository.findAllByKeywordUsingMethod(activityKeywords, "OR");
         } else if (activityKeywords.length() > 1) {
             activityKeywords = ActivitySearchService.getSearchQuery(activityKeywords);
-            paginatedActivities = activityRepository.findAllByKeyword(activityKeywords,  pageWithFiveActivities);
-            totalElements = (int) paginatedActivities.getTotalElements();
+            returnedActivities = activityRepository.findAllByKeyword(activityKeywords);
         } else {
             return new ArrayList<>();
         }
 
-        if (paginatedActivities == null || paginatedActivities.getTotalPages() == 0) {
+        if (returnedActivities == null || returnedActivities.size() == 0) {
             return activitiesFound;
         }
 
-        List<Activity> pageActivities = paginatedActivities.getContent();
-        pageActivities.forEach(i -> activitiesFound.add(new ActivityResponse(i)));
+        int totalElements = returnedActivities.size();
+
+        int minIndex = pageNumber * PAGE_SIZE;
+        int maxIndex = minIndex + PAGE_SIZE;
+        if (maxIndex > totalElements) {
+            maxIndex = totalElements;
+        }
+
+        List<Activity> activities = returnedActivities.subList(minIndex, maxIndex);
+
+        activities.forEach(i -> activitiesFound.add(new ActivityResponse(i)));
 
         response.setIntHeader("Total-Rows", totalElements);
 
