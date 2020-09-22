@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="col-12 text-center">
     <b-card class="flex-fill" border-variant="secondary">
       <div v-if="isMapVisible">
         <b-button id="hideMapButton" variant="info" @click="isMapVisible=false">Hide Map</b-button>
