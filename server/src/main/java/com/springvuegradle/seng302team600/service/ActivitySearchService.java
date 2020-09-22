@@ -7,12 +7,12 @@ public class ActivitySearchService {
 
     /**
      * This function handles the case when multiple separate search queries are to be linked together
-     * which is denoted by the inclusion of a 'AND' operator in the search string
+     * which is denoted by the inclusion of a 'AND' or 'OR' operator in the search string
      * @param searchString the string query to parse
-     * @return a list of two strings, one is the query and one is the term to be excluded from the search
+     * @return the string to be used and parsed in the SQL query
      */
-    public static String handleANDSpecialCaseString(String searchString) {
-        List<String> name = Arrays.asList(searchString.split("AND"));
+    public static String handleMethodSpecialCaseString(String searchString, String method) {
+        List<String> name = Arrays.asList(searchString.split(method));
         String newQuery = "";
         for (String terms : name) {
             terms = terms.trim();
@@ -23,6 +23,7 @@ public class ActivitySearchService {
         }
         return newQuery;
     }
+
 
     /**
      * This function handles generic searches, and exact string matching.

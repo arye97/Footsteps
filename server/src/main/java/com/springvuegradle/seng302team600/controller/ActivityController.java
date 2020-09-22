@@ -357,17 +357,19 @@ public class ActivityController {
         int totalElements = 0;
         if (activityKeywords.contains("AND")) {
 
-            String searchStrings = ActivitySearchService.handleANDSpecialCaseString(activityKeywords);
+            String searchStrings = ActivitySearchService.handleMethodSpecialCaseString(activityKeywords, "AND");
             paginatedActivities = activityRepository.findAllByKeywordUsingMethod(searchStrings, "AND", pageWithFiveActivities);
 
-        } else if ((activityKeywords.contains("OR")) ||
-                (!(activityKeywords.contains("OR")) && !(activityKeywords.contains("AND")))) {
+        } else if (activityKeywords.contains("OR")) {
 
-            activityKeywords = ActivitySearchService.getSearchQuery(activityKeywords);
-            System.out.println(activityKeywords);
-            paginatedActivities = activityRepository.findAllByKeyword(activityKeywords, pageWithFiveActivities);
+            activityKeywords = ActivitySearchService.handleMethodSpecialCaseString(activityKeywords, "OR");
+            paginatedActivities = activityRepository.findAllByKeywordUsingMethod(activityKeywords, "OR", pageWithFiveActivities);
             totalElements = (int) paginatedActivities.getTotalElements();
 
+        } else if (activityKeywords.length() > 1) {
+            activityKeywords = ActivitySearchService.getSearchQuery(activityKeywords);
+            paginatedActivities = activityRepository.findAllByKeyword(activityKeywords,  pageWithFiveActivities);
+            totalElements = (int) paginatedActivities.getTotalElements();
         } else {
             return new ArrayList<>();
         }

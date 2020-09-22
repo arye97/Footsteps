@@ -36,12 +36,18 @@ public class ActivityRepositoryCustomImpl implements ActivityRepositoryCustom {
         if ((predicates.size() != keywordsList.size()) && (method.equals("AND"))) {
             return new PageImpl<>(new ArrayList<>());
         }
-        query.select(activity)
-                .where(cb.or(predicates.toArray(new Predicate[predicates.size()])));
+
+        if (method.equals("AND")) {
+            query.select(activity)
+                    .where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
+        } else if (method.equals("OR")) {
+            query.select(activity)
+                    .where(cb.or(predicates.toArray(new Predicate[predicates.size()])));
+        }
 
         List<Activity> toReturn = entityManager.createQuery(query)
                 .getResultList();
-        System.out.println(entityManager.createQuery(query));
+
         return new PageImpl<>(toReturn);
     }
 
