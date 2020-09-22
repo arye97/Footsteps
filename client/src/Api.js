@@ -60,7 +60,7 @@ export default {
   setEmails: (emails, profileId) => server.put(`/profiles/${profileId}/emails`, emails, getTokenHeader()),
   logout: () => server.post('/logout', null, getTokenHeader()),
   updatePassword: (userId, oldPass, newPass, repeatPass) => server.put(`/profiles/${userId}/password`,
-      {'old_password': oldPass, 'new_password': newPass, 'repeat_password': repeatPass}, getTokenHeader()),
+    {'old_password': oldPass, 'new_password': newPass, 'repeat_password': repeatPass}, getTokenHeader()),
   getAllUserData: () => server.get('/profiles', getTokenHeader()),
   getUserActivities: (profileId, pageNumber, searchFilter) => server.get(`/profiles/${profileId}/activities`, getExtendedSearchFilterPageNumberTokenHeader(pageNumber, searchFilter)),
   getUserId: () => server.get(`/profiles/userId`, getTokenHeader()),
@@ -76,7 +76,7 @@ export default {
   },
   getCountries: () => server.get(getCountryNames),
   getUserSubscribed: (activityId, userId) => server.get(`/profiles/${userId}/subscriptions/activities/${activityId}`, getTokenHeader()),
-  setUserSubscribed: (activityId, userId) => server.post(`/profiles/${userId}/subscriptions/activities/${activityId}`, null, getTokenHeader()),
+  setUserSubscribed: (activityId, userId) => server.post( `/profiles/${userId}/subscriptions/activities/${activityId}`, null, getTokenHeader()),
   deleteUserSubscribed: (activityId, userId) => server.delete(`/profiles/${userId}/subscriptions/activities/${activityId}`, getTokenHeader()),
   createOutcome: (outcome) => server.post(`/activities/outcomes`, outcome, getTokenHeader()),
   deleteOutcome: (outcomeId) => server.delete(`/activities/${outcomeId}/outcomes`, getTokenHeader()),
@@ -85,20 +85,17 @@ export default {
   getOutcomeResults: (outcomeId) => server.get(`/outcomes/${outcomeId}/results`, getTokenHeader()),
   createResult: (resultData, outcomeId) => server.post(`/outcomes/${outcomeId}/results`, resultData, getTokenHeader()),
   updateOutcome: (outcomeData) => server.put(`/activities/outcomes`, outcomeData, getTokenHeader()),
-  getActivityByActivityTitle: (activityNames, minFitnessLevel, maxFitnessLevel, pageNumber) => {
+  getActivityByActivityTitle: (activityNames, pageNumber) => {
     let activityNamesStr = activityNames.replace(/\s/g, '%20');  // Use RegEx to replace ALL spaces with dashes
     activityNamesStr = activityNamesStr.replace(/\+/, '%2b');
-    return server.get(`/activities?activityKeywords=${activityNamesStr}&fitnessMin=${minFitnessLevel}&fitnessMax=${maxFitnessLevel}`, getExtendedPageNumberTokenHeader(pageNumber))
+    return server.get(`/activities?activityKeywords=${activityNamesStr}`, getExtendedPageNumberTokenHeader(pageNumber))
   },
-  getActivityByActivityType: (activityTypes, method, minFitnessLevel, maxFitnessLevel, pageNumber) => {    // method denotes "and" or "or"
+  getActivityByActivityType: (activityTypes, method, pageNumber) => {    // method denotes "and" or "or"
     let activityTypesStr = activityTypes.map(a => a.replace(/\s/g, '-')).join(' ');  // Use RegEx to replace ALL spaces with dashes
-    return server.get(`activities?activity=${activityTypesStr}&method=${method}&fitnessMin=${minFitnessLevel}&fitnessMax=${maxFitnessLevel}`, getExtendedPageNumberTokenHeader(pageNumber))
+    return server.get(`activities?activity=${activityTypesStr}&method=${method}`, getExtendedPageNumberTokenHeader(pageNumber))
   },
-  getActivityPins: (profileId, pageNumber) => server.get(`/profiles/${profileId}/activities/pins`, getExtendedPageNumberTokenHeader(pageNumber)),
-  getActivityByLocation: (coordinates, minFitnessLevel, maxFitnessLevel, activityTypes, cutoffDistance, method, pageNumber) => {
-    return server.get(`/activities?coordinates=${coordinates}&activityTypes=${activityTypes}&cutoffDistance=${cutoffDistance}&method=${method}&fitnessMin=${minFitnessLevel}&fitnessMax=${maxFitnessLevel}`, getExtendedPageNumberTokenHeader(pageNumber))
-  },
-  getPinsByLocation: (coordinates, minFitnessLevel, maxFitnessLevel, activityTypes, cutoffDistance, method, pageNumber) => {
-    return server.get(`/activities/pins?coordinates=${coordinates}&activityTypes=${activityTypes}&cutoffDistance=${cutoffDistance}&method=${method}&fitnessMin=${minFitnessLevel}&fitnessMax=${maxFitnessLevel}`, getExtendedPageNumberTokenHeader(pageNumber))
+  getActivityPins: (profileId, pageNumber)  => server.get(`/profiles/${profileId}/activities/pins`, getExtendedPageNumberTokenHeader(pageNumber)),
+  getActivityByLocation: (coordinates, activityTypes, cutoffDistance, method, pageNumber) => {
+    return server.get(`/activities?coordinates=${coordinates}&activityTypes=${activityTypes}&cutoffDistance=${cutoffDistance}&method=${method}`, getExtendedPageNumberTokenHeader(pageNumber))
   }
 }
