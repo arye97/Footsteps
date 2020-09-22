@@ -236,8 +236,6 @@
              * @param pin Object pin that was changed
              */
             pinChanged(pin) {
-                console.log("LocationIO emitted a pin:");
-                console.log(pin);
                 this.address = pin.name;
                 this.$emit("pin-change", pin);
             },

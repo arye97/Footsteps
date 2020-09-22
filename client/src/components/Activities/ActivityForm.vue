@@ -168,16 +168,21 @@
                         label-for="input-location"
                 >
                     <!-- This gets around an issue where vue will throw a warning that location has not been defined -->
-                    <location-i-o v-if="!this.isEdit || this.activity.location !== null"
+                    <!--Without checking that activity.profileId is defined, there will be a race condition, the -->
+                    <!--activity data won't have been loaded, and the LocationIO won't receive the location-->
+                    <location-i-o v-if="!this.isEdit || this.activity.profileId"
                         id="input-location"
                         @pin-change="locationValue"
                         @locationIO-focus="setLocationFocus"
                         :single-only="true"
-                        :parent-pins="this.isEdit ?
-                            [{lat: this.activity.location.latitude, lng: this.activity.location.longitude}] :  null"
-                        :parent-center="this.isEdit ?
-                            {lat: this.activity.location.latitude, lng: this.activity.location.longitude} : null"
-                        :parent-address="this.isEdit ? this.activity.location.name : null"
+                        :parent-pins="this.isEdit && this.activity.location ?
+                            [{lat: this.activity.location.latitude, lng: this.activity.location.longitude}] :  undefined"
+
+                        :parent-center="this.isEdit && this.activity.location ?
+                            {lat: this.activity.location.latitude, lng: this.activity.location.longitude} : undefined"
+
+                        :parent-address="this.isEdit && this.activity.location ?
+                            this.activity.location.name : undefined"
                     ></location-i-o>
 
                 </b-form-group>
@@ -673,7 +678,7 @@
                         this.$router.push({name: 'allActivities', params:
                                 {alertMessage: "Sorry, an unknown error occurred while loading the outcomes", alertCount: 5}});
                     }
-                })
+                });
                 return result;
             },
           /**
@@ -682,8 +687,6 @@
            * @param pin Object from LocationIO
            */
             locationValue: function (pin) {
-                console.log("Activity Form got a pin:");
-                console.log(pin);
                 this.activity.location = pinToLocation(pin);
             },
             /**
