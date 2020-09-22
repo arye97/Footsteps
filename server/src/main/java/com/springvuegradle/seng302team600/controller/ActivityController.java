@@ -325,9 +325,8 @@ public class ActivityController {
     public List<ActivityResponse> getActivitiesByKeywords(HttpServletRequest request,
                                                       HttpServletResponse response,
                                                       @RequestParam(value="activityKeywords") String activityKeywords) {
-
         if (activityKeywords.equals("-") ||
-                activityKeywords.equals("\\+") ||
+                activityKeywords.equals("+") ||
                 activityKeywords.equals("%2b") ||
                 activityKeywords.equals("%20") ||
                 activityKeywords.equals(" ")) {
@@ -353,40 +352,12 @@ public class ActivityController {
             pageNumber = 0;
         }
 
-        //List<Activity> activities;
-        List<String> searchStrings;
         Page<Activity> paginatedActivities;
-        Specification<Activity> baseSpec = new ContainsFragment("");
         Specification<Activity> includeSpec = new ContainsFragment("");
         Specification<Activity> excludeSpec = new ContainsFragment("");
-        Specification<Activity> generalSpec = new ContainsFragment("");
+        Specification<Activity> generalSpec = new DoesNotContainsFragment("");
         Pageable pageWithFiveActivities = PageRequest.of(pageNumber, PAGE_SIZE);
         int totalElements = 0;
-
-//        if (activityKeywords.contains("-")) {
-//            //this gives <searchQuery, exclusions>
-//            //Todo: implement pagination here!
-//            searchStrings = ActivitySearchService.handleMinusSpecialCaseString(activityKeywords);
-//            paginatedActivities = activityRepository.findAllByKeywordExcludingTerm(searchStrings.get(0), searchStrings.get(1), pageWithFiveActivities);
-//            totalElements = (int) paginatedActivities.getTotalElements();
-//        } else if (activityKeywords.contains("+")) {
-//            //this gives a list of all separate search queries
-//            String searchString = ActivitySearchService.handlePlusSpecialCaseString(activityKeywords);
-//            paginatedActivities = activityRepository.findAllByKeyword(searchString, pageWithFiveActivities);
-//        } else {
-//            activityKeywords = ActivitySearchService.getSearchQuery(activityKeywords);
-//            paginatedActivities = activityRepository.findAllByKeyword(activityKeywords, pageWithFiveActivities);
-//            totalElements = (int) paginatedActivities.getTotalElements();
-//        }
-//
-//        if (paginatedActivities == null || paginatedActivities.getTotalPages() == 0) {
-//            return activitiesFound;
-//        }
-//
-//        List<Activity> pageActivities = paginatedActivities.getContent();
-//        pageActivities.forEach(i -> activitiesFound.add(new ActivityResponse(i)));
-//
-//        response.setIntHeader("Total-Rows", totalElements);
         ActivitySearchParsed query = ActivitySearchService.parseSearchQuery(activityKeywords);
         List<String> exclusions = query.getExclusions();
         List<String> inclusions = query.getInclusions();
@@ -394,21 +365,22 @@ public class ActivityController {
 
 
         for (String exclusion : exclusions) {
-            Specification<Activity> exclusionSpec = new DoesNotContainsFragment(exclusion);
-            excludeSpec = exclusionSpec.and(exclusionSpec);
+            Specification<Activity> excludeFragment = new DoesNotContainsFragment(exclusion);
+            excludeSpec = excludeSpec.and(excludeFragment);
         }
         for (String inclusion : inclusions) {
-            Specification<Activity> inclusionSpec = new ContainsFragment(inclusion);
-            includeSpec = inclusionSpec.and(inclusionSpec);
+            Specification<Activity> includeFragment = new ContainsFragment(inclusion);
+            includeSpec = includeSpec.and(includeFragment);
         }
         for (String general : generals) {
-            Specification<Activity> inclusionSpec = new ContainsFragment(general);
-            generalSpec = generalSpec.or(inclusionSpec);
+            Specification<Activity> orFragment = new ContainsFragment(general);
+            generalSpec = generalSpec.or(orFragment);
         }
-        baseSpec = baseSpec.and(generalSpec).and(excludeSpec).and(includeSpec);
-        List<Activity> pageActivities = activityRepository.findAll(baseSpec);
-        pageActivities.forEach(i -> activitiesFound.add(new ActivityResponse(i)));
-        response.setIntHeader("Total-Rows", 1);
+        Specification<Activity> searchSpecification = generalSpec.and(excludeSpec).and(includeSpec);
+        paginatedActivities = activityRepository.findAll(searchSpecification, pageWithFiveActivities);
+        paginatedActivities.forEach(i -> activitiesFound.add(new ActivityResponse(i)));
+        totalElements = (int) paginatedActivities.getTotalElements();
+        response.setIntHeader("Total-Rows", totalElements);
 
         return activitiesFound;
     }
