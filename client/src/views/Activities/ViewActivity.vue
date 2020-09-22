@@ -55,7 +55,15 @@
                             <div>
                               <location-i-o
                                   :view-only="true"
-                                  :parent-pins="[{lat: this.location.latitude, lng: this.location.longitude}]"
+                                  :parent-pins="[{
+                                      lat: this.location.latitude,
+                                      lng: this.location.longitude,
+                                      colour: 'red',
+                                      windowContent: {
+                                          title: this.activityTitle,
+                                          location: this.location,
+                                      }
+                                  }]"
                                   :parent-center="{lat: this.location.latitude, lng: this.location.longitude}">
                               </location-i-o>
                             </div>
