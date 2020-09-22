@@ -21,11 +21,12 @@
                     <div class="map-pane">
                         <location-i-o class="input-location"
                                       id="public-location-i-o"
-                                      @pin-change="locationPublicValue"
+                                      @pin-change="setLocationPublic"
+                                      @child-pins="(pins) => pins.length === 0 && setLocationPublic(null)"
                                       :current-location="publicLocation"
                                       :single-only="true"></location-i-o>
                     </div>
-                    <label v-if="this.inputPublicLocation !== this.publicLocation" class="errorMessage">
+                    <label v-if="identicalPublicLocationWarningMessage && identicalPublicLocationWarningMessage.length > 0" class="errorMessage">
                         {{ identicalPublicLocationWarningMessage }}
                     </label>
                 </div>
@@ -40,18 +41,19 @@
                     <div class="map-pane">
                         <location-i-o class="input-location"
                                       id="private-location-i-o"
-                                      @pin-change="locationPrivateValue"
+                                      @pin-change="setLocationPrivate"
+                                      @child-pins="(pins) => pins.length === 0 && setLocationPrivate(null)"
                                       :current-location="privateLocation"
                                       :single-only="true"></location-i-o>
                     </div>
-                    <label v-if="this.inputPrivateLocation !== this.privateLocation" class="errorMessage">
+                    <label v-if="identicalPrivateLocationWarningMessage && identicalPrivateLocationWarningMessage.length > 0" class="errorMessage">
                         {{ identicalPrivateLocationWarningMessage }}
                     </label>
                 </div>
             </div>
 
-            <label class="warningMessage">
-                {{ inputWarningMessage }}
+            <label v-if="!changesMade" class="warningMessage">
+                Specify a valid location above to save changes
             </label>
 
             <b-alert
@@ -74,7 +76,7 @@
                 <b-button variant="success float-right"
                           id="save-changes-btn"
                           size="lg" v-on:click="saveChanges"
-                          v-bind:disabled="!checkIfChangesMade">
+                          v-bind:disabled="!changesMade">
                     Save Changes
                 </b-button>
             </div>
@@ -85,6 +87,7 @@
 <script>
 import api from "../../Api";
 import LocationIO from "../../components/Map/LocationIO";
+import { compareObjs } from "../../util"
 
 const TIMEOUT_DURATION = 5;   // Time for error/success messages to disappear
 
@@ -111,6 +114,9 @@ export default {
             inputPublicLocation: null,
             inputPrivateLocation: null,
 
+            savedPublicLocation: null,
+            savedPrivateLocation: null,
+
             identicalPublicLocationWarningMessage: "",
             identicalPrivateLocationWarningMessage: "",
 
@@ -127,15 +133,18 @@ export default {
             await this.validateUserIdWithToken();
         }
         await this.populateInputs();
+        this.identicalPrivateLocationWarningMessage = "";
+        this.identicalPublicLocationWarningMessage = "";
     },
 
     computed: {
         /**
          * Computed property that checks if changes have been made
          */
-        checkIfChangesMade() {
-            return this.getValidatedLocationRequest();
-        },
+        changesMade() {
+            return !compareObjs(this.inputPublicLocation, this.savedPublicLocation) ||
+                !compareObjs(this.inputPrivateLocation, this.savedPrivateLocation);
+        }
     },
 
     methods: {
@@ -172,6 +181,10 @@ export default {
                         if (this.privateLocation) {
                             delete this.privateLocation['id'];
                         }
+                        this.inputPublicLocation = this.publicLocation;
+                        this.inputPrivateLocation = this.privateLocation;
+                        this.savedPublicLocation = this.publicLocation;
+                        this.savedPrivateLocation = this.privateLocation;
                     }
                     this.locationLoading = false;
                     this.loading = false;
@@ -185,51 +198,16 @@ export default {
          * Obtains a validated edit location request based on input.
          * Returns null if input is empty or identical to original location.
          */
-        getValidatedLocationRequest() {
+        getLocationRequest() {
             let editedLocation = {};
-            if (this.inputPublicLocation) {
-                this.identicalPublicLocationWarningMessage = null;
-                if (!this.publicLocation) {
-                    editedLocation['public_location'] = this.inputPublicLocation;
-                } else if (this.isModifiedLocation(this.publicLocation, this.inputPublicLocation)) {
-                    editedLocation['public_location'] = this.inputPublicLocation;
-                } else {
-                    this.identicalPublicLocationWarningMessage="This is your previous location!";
-                }
-            }
 
-            if (this.inputPrivateLocation) {
-                this.identicalPrivateLocationWarningMessage = null;
-                if (!this.privateLocation) {
-                    editedLocation['private_location'] = this.inputPrivateLocation;
-                } else if (this.isModifiedLocation(this.privateLocation, this.inputPrivateLocation)) {
-                    editedLocation['private_location'] = this.inputPrivateLocation;
-                } else {
-                    this.identicalPrivateLocationWarningMessage = "This is your previous location!";
-                }
-            }
+            editedLocation['public_location'] = this.inputPublicLocation;
 
-            if (Object.keys(editedLocation).length === 0) {
-                editedLocation = null;
-                this.inputWarningMessage = "Specify a valid location above to save changes"
-            } else {
-                this.inputWarningMessage = "";
-            }
+            editedLocation['private_location'] = this.inputPrivateLocation;
+
             return editedLocation;
         },
 
-        /**
-         * Checks if initial location has been modified
-         */
-        isModifiedLocation(originalLocation, inputLocation) {
-            const locationKeys = Object.keys(originalLocation);
-            for (let key of locationKeys) {
-                if (originalLocation[key] !== inputLocation[key]) {
-                    return true;
-                }
-            }
-            return false
-        },
 
         /**
          * Validates changes and submits a PUT request to edit a user's public/private locations.
@@ -237,19 +215,19 @@ export default {
          */
         async saveChanges() {
             // If input location is none, then dont modify location
-            let editedLocationRequest = this.getValidatedLocationRequest();
+            let editedLocationRequest = this.getLocationRequest();
             if (!editedLocationRequest) {
                 this.message = 'Changes have not been made';
                 this.alertVariant = 'danger';
                 this.showAlert()
             } else {
                 await api.editLocation(editedLocationRequest, this.profileId).then(() => {
-                    if (this.inputPublicLocation) {
-                        this.publicLocation = this.inputPublicLocation;
-                    }
-                    if (this.inputPrivateLocation) {
-                        this.privateLocation = this.inputPrivateLocation;
-                    }
+                    this.publicLocation = this.inputPublicLocation;
+                    this.privateLocation = this.inputPrivateLocation;
+
+                    this.savedPublicLocation = this.publicLocation;
+                    this.savedPrivateLocation = this.privateLocation;
+
                     this.message = 'Changes saved successfully';
                     this.alertVariant = 'success';
                     this.showAlert()
@@ -325,23 +303,41 @@ export default {
         /**
          * Function emitted from LocationIO.vue to set inputPublicLocation
          */
-        locationPublicValue(pin) {
-            this.inputPublicLocation = {
-                latitude: pin.lat,
-                longitude: pin.lng,
-                name: pin.name,
-            };
+        setLocationPublic(pin) {
+            if (pin) {
+                this.inputPublicLocation = {
+                    latitude: pin.lat,
+                    longitude: pin.lng,
+                    name: pin.name,
+                };
+            } else {
+                this.inputPublicLocation = null;
+            }
+
+            this.identicalPublicLocationWarningMessage = null;
+            if (compareObjs(this.publicLocation, this.inputPublicLocation)) {
+                this.identicalPublicLocationWarningMessage = "This is your current location!";
+            }
         },
 
         /**
          * Function emitted from LocationIO.vue to set inputPrivateLocation
          */
-        locationPrivateValue(pin) {
-            this.inputPrivateLocation = {
-                latitude: pin.lat,
-                longitude: pin.lng,
-                name: pin.name,
-            };
+        setLocationPrivate(pin) {
+            if (pin) {
+                this.inputPrivateLocation = {
+                    latitude: pin.lat,
+                    longitude: pin.lng,
+                    name: pin.name,
+                };
+            } else {
+                this.inputPrivateLocation = null;
+            }
+
+            this.identicalPrivateLocationWarningMessage = null;
+            if (compareObjs(this.privateLocation, this.inputPrivateLocation)) {
+                this.identicalPrivateLocationWarningMessage = "This is your current location!";
+            }
         },
 
         /**

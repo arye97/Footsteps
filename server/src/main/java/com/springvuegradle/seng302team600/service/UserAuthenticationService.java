@@ -3,7 +3,7 @@ package com.springvuegradle.seng302team600.service;
 import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.model.UserRole;
-import com.springvuegradle.seng302team600.payload.LoginResponse;
+import com.springvuegradle.seng302team600.payload.response.LoginResponse;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

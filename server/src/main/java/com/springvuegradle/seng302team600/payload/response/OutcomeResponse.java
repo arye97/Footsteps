@@ -1,4 +1,4 @@
-package com.springvuegradle.seng302team600.payload;
+package com.springvuegradle.seng302team600.payload.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springvuegradle.seng302team600.enumeration.UnitType;

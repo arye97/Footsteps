@@ -1,7 +1,7 @@
 package com.springvuegradle.seng302team600.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.springvuegradle.seng302team600.payload.LocationRequest;
+import com.springvuegradle.seng302team600.payload.request.LocationRequest;
 
 import javax.persistence.*;
 
@@ -30,17 +30,7 @@ public class Location {
     @JsonProperty("name")
     private String locationName;
 
-    /**
-     * Creates a new location with a name
-     * Has a longitude and latitude of 1 (Rather than 0 to show that this is temporarily intended behaviour)
-     * @param name the name of the location
-     */
-    public Location(String name) {
-        //TODO: Remove this behaviour once the map inputs are completed
-        this.longitude = 1.0;
-        this.latitude = 1.0;
-        this.locationName = name;
-    }
+
     public Location() {}
 
     /**

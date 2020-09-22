@@ -2,8 +2,8 @@ package com.springvuegradle.seng302team600.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.springvuegradle.seng302team600.payload.ActivityPostRequest;
-import com.springvuegradle.seng302team600.payload.ActivityPutRequest;
+import com.springvuegradle.seng302team600.payload.request.ActivityPostRequest;
+import com.springvuegradle.seng302team600.payload.request.ActivityPutRequest;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;

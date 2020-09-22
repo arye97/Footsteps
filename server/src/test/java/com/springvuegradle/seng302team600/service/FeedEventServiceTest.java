@@ -2,9 +2,7 @@ package com.springvuegradle.seng302team600.service;
 
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.FeedEvent;
-import com.springvuegradle.seng302team600.model.Outcome;
 import com.springvuegradle.seng302team600.model.User;
-import com.springvuegradle.seng302team600.payload.OutcomeRequest;
 import com.springvuegradle.seng302team600.repository.FeedEventRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;

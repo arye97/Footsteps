@@ -1,9 +1,8 @@
-package com.springvuegradle.seng302team600.payload;
+package com.springvuegradle.seng302team600.payload.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springvuegradle.seng302team600.model.ActivityType;
-import com.springvuegradle.seng302team600.model.Location;
 import com.springvuegradle.seng302team600.model.User;
 
 import java.util.ArrayList;
