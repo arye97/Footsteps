@@ -35,10 +35,10 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
 
     @Query(value =
             "SELECT COUNT(DISTINCT A.activity_id) " +
-                    "FROM activity AS A LEFT JOIN activity_participant AS AP " +
-                    "ON A.activity_id = AP.activity_id " +
-                    "WHERE creator_user_id = :userId OR user_id = :userId " +
-                    "ORDER BY A.activity_id ASC", nativeQuery = true)
+            "FROM activity AS A LEFT JOIN activity_participant AS AP " +
+            "ON A.activity_id = AP.activity_id " +
+            "WHERE creator_user_id = :userId OR user_id = :userId " +
+            "ORDER BY A.activity_id ASC", nativeQuery = true)
     Integer countAllByUserId(@Param("userId") Long userId);
 
     @Query(value =
@@ -57,7 +57,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
             "ORDER BY A.activity_id ASC", nativeQuery = true)
     List<Activity> findAllDurationByUserId(@Param("userId") Long userId);
 
-    @Query(value="SELECT * FROM activity WHERE activity_id in ?1", nativeQuery=true)
+    @Query(value = "SELECT * FROM activity WHERE activity_id in ?1", nativeQuery = true)
     List<Activity> getActivitiesByIds(@Param("userIds") List<Long> activityIds);
 
     @Query(value =
@@ -66,10 +66,10 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
 
     @Query(value = "SELECT DISTINCT * FROM activity WHERE activity_name LIKE ?1 AND activity_name NOT LIKE ?2", nativeQuery = true)
     List<Activity> findAllByKeywordExcludingTerm(@Param("keyword") String keyword, @Param("term") String term);
-    
+
     @Query(value = "SELECT a.*" +
             "FROM activity as a " +
-            "LEFT OUTER JOIN location as l " +
+            "INNER JOIN location as l " +
             "ON (a.location_location_id = l.location_id) " +
             "WHERE " +
             "   111.111 * " +
@@ -79,37 +79,17 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
             "         + SIN(RADIANS(:userLatitude)) " +
             "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance " +
             "GROUP BY activity_id", nativeQuery = true)
-    Slice<Activity> findAllWithinDistance(@Param ("userLatitude") Double userLatitude,
-                                         @Param ("userLongitude") Double userLongitude,
-                                         @Param ("maxDistance") Double maxDistance,
-                                         Pageable pageable);
-
-    @Query(value = "SELECT a.*" +
-            "FROM activity as a " +
-            "LEFT OUTER JOIN location as l " +
-            "ON (a.location_location_id = l.location_id) " +
-            "LEFT OUTER JOIN activity_activity_type as act " +
-            "ON (act.activity_type_id IN :activityTypeIds) " +
-            "WHERE " +
-            "   111.111 * " +
-            "    DEGREES(ACOS(LEAST(1.0, COS(RADIANS(:userLatitude)) " +
-            "         * COS(RADIANS(l.Latitude)) " +
-            "         * COS(RADIANS(:userLongitude - l.Longitude)) " +
-            "         + SIN(RADIANS(:userLatitude)) " +
-            "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance " +
-            "GROUP BY activity_id ", nativeQuery = true)
-    Slice<Activity> findAllWithinDistanceBySomeActivityTypeIds(@Param ("userLatitude") Double userLatitude,
-                                          @Param ("userLongitude") Double userLongitude,
-                                          @Param ("maxDistance") Double maxDistance,
-                                          @Param ("activityTypeIds") List<Long> activityTypeIds,
+    Slice<Activity> findAllWithinDistance(@Param("userLatitude") Double userLatitude,
+                                          @Param("userLongitude") Double userLongitude,
+                                          @Param("maxDistance") Double maxDistance,
                                           Pageable pageable);
 
     @Query(value = "SELECT a.*" +
             "FROM activity as a " +
-            "LEFT OUTER JOIN location as l " +
+            "INNER JOIN location as l " +
             "ON (a.location_location_id = l.location_id) " +
-            "LEFT OUTER JOIN activity_activity_type as act " +
-            "ON (act.activity_type_id IN :activityTypeIds) " +
+            "INNER JOIN activity_activity_type as act " +
+            "ON (act.activity_type_id IN :activityTypeIds AND act.activity_id = a.activity_id) " +
             "WHERE " +
             "   111.111 * " +
             "    DEGREES(ACOS(LEAST(1.0, COS(RADIANS(:userLatitude)) " +
@@ -117,11 +97,31 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
             "         * COS(RADIANS(:userLongitude - l.Longitude)) " +
             "         + SIN(RADIANS(:userLatitude)) " +
             "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance " +
-            "GROUP BY activity_id HAVING COUNT(activity_id) = :numActivityTypes", nativeQuery = true)
-    Slice<Activity> findAllWithinDistanceByAllActivityTypeIds(@Param ("userLatitude") Double userLatitude,
-                                                               @Param ("userLongitude") Double userLongitude,
-                                                               @Param ("maxDistance") Double maxDistance,
-                                                               @Param ("activityTypeIds") List<Long> activityTypeIds,
-                                                               @Param ("numActivityTypes") int numActivityTypes,
+            "GROUP BY a.activity_id ", nativeQuery = true)
+    Slice<Activity> findAllWithinDistanceBySomeActivityTypeIds(@Param("userLatitude") Double userLatitude,
+                                                               @Param("userLongitude") Double userLongitude,
+                                                               @Param("maxDistance") Double maxDistance,
+                                                               @Param("activityTypeIds") List<Long> activityTypeIds,
                                                                Pageable pageable);
+
+    @Query(value = "SELECT a.*" +
+            "FROM activity as a " +
+            "INNER JOIN location as l " +
+            "ON (a.location_location_id = l.location_id) " +
+            "INNER JOIN activity_activity_type as act " +
+            "ON (act.activity_type_id IN :activityTypeIds AND act.activity_id = a.activity_id) " +
+            "WHERE " +
+            "   111.111 * " +
+            "    DEGREES(ACOS(LEAST(1.0, COS(RADIANS(:userLatitude)) " +
+            "         * COS(RADIANS(l.Latitude)) " +
+            "         * COS(RADIANS(:userLongitude - l.Longitude)) " +
+            "         + SIN(RADIANS(:userLatitude)) " +
+            "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance " +
+            "GROUP BY a.activity_id HAVING COUNT(a.activity_id) = :numActivityTypes", nativeQuery = true)
+    Slice<Activity> findAllWithinDistanceByAllActivityTypeIds(@Param("userLatitude") Double userLatitude,
+                                                              @Param("userLongitude") Double userLongitude,
+                                                              @Param("maxDistance") Double maxDistance,
+                                                              @Param("activityTypeIds") List<Long> activityTypeIds,
+                                                              @Param("numActivityTypes") int numActivityTypes,
+                                                              Pageable pageable);
 }

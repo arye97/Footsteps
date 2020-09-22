@@ -171,6 +171,7 @@
                     <location-i-o v-if="!this.isEdit || this.activity.location !== null"
                         id="input-location"
                         @pin-change="locationValue"
+                        @locationIO-focus="setLocationFocus"
                         :single-only="true"
                         :parent-pins="this.isEdit ?
                             [{lat: this.activity.location.latitude, lng: this.activity.location.longitude}] :  null"
@@ -360,7 +361,8 @@
                 outcomeUnitCharCount: 0,
                 maxOutcomeUnitCharCount: 15,
                 errored: false,
-                error_message: "Something went wrong"
+                error_message: "Something went wrong",
+                submitDisabled: false
             }
         },
         async created() {
@@ -374,20 +376,24 @@
             }
         },
         methods: {
-
             /**
              * Called when submit button is pressed.  Validates the form input, then calls the function passed in
              * through props.  This way the form can be used to edit and create activities.
              */
             async onSubmit(evt) {
                 evt.preventDefault();
+
+                if (this.submitDisabled) {
+                    return;
+                }
+
                 this.isValidFormFlag = true;
                 await this.validateActivityInputs();
                 if (this.isValidFormFlag) {
                     this.formatDurationActivity();
                     try {
                         await this.submitActivityFunc();
-                    } catch(errResponse) {
+                    } catch (errResponse) {
                         this.processPostError(errResponse);
                     }
                 }
@@ -681,6 +687,13 @@
                     longitude: pin.lng,
                     name: pin.name,
                 };
+            },
+            /**
+             * Toggles the submitDisabled boolean
+             * @param inFocus true if the user is using the gmap-autocomplete field, false otherwise
+             */
+            setLocationFocus(inFocus) {
+                this.submitDisabled = inFocus;
             }
         }
     }

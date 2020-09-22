@@ -2,6 +2,9 @@
     <div>
         <b-card class="flex-fill" border-variant="secondary">
             <div v-if="isMapVisible">
+                <b-button v-if="!viewOnly" id="clearPinsButton" variant="info" @click="clearPins" v-bind:disabled="pins.length === 0">
+                    {{singleOnly || maxPins === 1 ? "Clear Location" : "Clear Pins"}}
+                </b-button>
                 <b-button id="hideMapButton" variant="info" @click="isMapVisible=false">Hide Map</b-button>
                 <div v-if="!viewOnly">
                     <br/>
@@ -24,11 +27,17 @@
                             :value="address"
                             :options="{fields: ['geometry', 'formatted_address', 'address_components']}"
                             @place_changed="(place) => {addMarker(placeToPin(place)); pinChanged(placeToPin(place));}"
+                            @focusin="emitFocus(true)"
+                            @focusout="emitFocus(false)"
                             class="form-control" style="width: 100%">
                     </gmap-autocomplete>
                     <br/>
                     <b-button id='addMarkerButton' variant="primary" block @click="addMarker()">Drop Pin</b-button>
                 </div>
+                <br/>
+                <p class="light-info-message" v-if="this.description">
+                    {{  this.description  }}
+                </p>
             </div>
             <div v-else>
                 <b-button id="showMapButton" variant="info" @click="isMapVisible=true">Show Map</b-button>
@@ -102,6 +111,10 @@
             parentAddress: {
                 default: null,
                 type: String
+            },
+            description: {
+                default: null,
+                type: String
             }
         },
 
@@ -132,8 +145,9 @@
                     lng: this.currentLocation.longitude,
                     name: this.currentLocation.name
                 };
-                if (this.pins) {
+                if (this.pins && pin) {
                     this.pins.push(pin);
+                    this.pinChanged(pin);
                 }
                 this.center = pin;
             }
@@ -147,6 +161,9 @@
             if (this.parentAddress) {
                 this.address = this.parentAddress;
             }
+            this.pins.forEach(function (element) {
+                element.windowOpen = false;
+            });
         },
 
         methods: {
@@ -170,7 +187,8 @@
                         colour: 'red',
                         lat: this.$refs.mapViewerRef.currentCenter.lat,
                         lng: this.$refs.mapViewerRef.currentCenter.lng,
-                        name: ""
+                        name: "",
+                        windowOpen: false
                     };
                     this.pins.push(pin);
 
@@ -200,15 +218,20 @@
                         colour: 'red',
                         lat: place.geometry.location.lat(),
                         lng: place.geometry.location.lng(),
-                        name: place.formatted_address
+                        name: place.formatted_address,
+                        windowOpen: false
                     };
                 } catch {
                     pin = null
                 }
                 return pin
             },
-
-
+            /**
+             * Emits an event when the gmap-autocomplete field is focused
+             */
+            emitFocus(inFocus) {
+                this.$emit('locationIO-focus', inFocus)
+            },
             /**
              * Updates the this.address in gmap-autocomplete and emits the changed pin to the parent component.
              * @param pin Object pin that was changed
@@ -216,6 +239,15 @@
             pinChanged(pin) {
                 this.address = pin.name;
                 this.$emit("pin-change", pin);
+            },
+
+
+            /**
+             * Remove all pins.
+             */
+            clearPins() {
+                this.pins = [];
+                this.address = "";
             }
 
         }
