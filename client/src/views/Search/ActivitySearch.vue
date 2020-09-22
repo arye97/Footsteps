@@ -38,7 +38,9 @@
                     </b-row>
                 </div>
                 <section v-if="filterSearch">
+                    <label>Minimum Fitness Level</label>
                     <b-form-input id="minimumFitnessLevel" type="range" min="0" max="4" focus></b-form-input>
+                    <label>Maximum Fitness Level</label>
                     <b-form-input id="maximumFitnessLevel" type="range" min="0" max="4" focus></b-form-input>
                 </section>
                 <b-row>
