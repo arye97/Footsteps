@@ -10,9 +10,12 @@ import java.util.*;
 
 public class ActivityValidator {
 
-    static final private int NAME_LEN = 75;
-    static final private int DESCRIPTION_LEN = 1500;
-    static final private int MIN_ACTIVITY_TYPE_COUNT = 1;
+    private static final int NAME_LEN = 75;
+    private static final int DESCRIPTION_LEN = 1500;
+    private static final int MIN_ACTIVITY_TYPE_COUNT = 1;
+    private static final int MIN_FITNESS_LEVEL = -1;
+    private static final int MAX_FITNESS_LEVEL = 4;
+
 
     /**
      * Check if the activity's attributes are all valid.
@@ -26,6 +29,7 @@ public class ActivityValidator {
         validateDescription(activity.getDescription());
         validateActivityTypes(activity.getActivityTypes());
         validateLocation(activity.getLocation());
+        validateFitness(activity.getFitnessLevel());
         if (!activity.isContinuous()) {
             validateDates(activity.getStartTime(), activity.getEndTime());
         }
@@ -43,6 +47,17 @@ public class ActivityValidator {
         }
         if (name.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Activity name is blank");
+        }
+    }
+
+    /**
+     * Check activity fitness level so that they do not exceed -1 to 4. If invalid throw ResponseStatusException
+     * @param fitnessLevel the fitness level to be checked
+     * @throws ResponseStatusException if invalid then bad request (400) should be returned
+     */
+    private static void validateFitness(int fitnessLevel) {
+        if (fitnessLevel > MAX_FITNESS_LEVEL || fitnessLevel < MIN_FITNESS_LEVEL) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Activity fitness level does not exist");
         }
     }
 
