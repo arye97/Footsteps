@@ -1,14 +1,12 @@
 package com.springvuegradle.seng302team600.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.payload.pins.Pin;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.payload.pins.UserPin;
 import com.springvuegradle.seng302team600.payload.request.ActivityPostRequest;
 import com.springvuegradle.seng302team600.payload.request.ActivityPutRequest;
-import com.springvuegradle.seng302team600.payload.request.Coordinates;
 import com.springvuegradle.seng302team600.payload.response.ActivityResponse;
 import com.springvuegradle.seng302team600.payload.response.ParticipantResponse;
 import com.springvuegradle.seng302team600.repository.ActivityActivityTypeRepository;
@@ -40,11 +38,10 @@ public class ActivityController {
     private final ActivityTypeRepository activityTypeRepository;
     private final ActivityActivityTypeRepository activityActivityTypeRepository;
     private final ActivityPinService activityPinService;
+    private final LocationSearchService locationSearchService;
 
     private static final int PAGE_SIZE = 5;
     private static final int PIN_BLOCK_SIZE = 20;
-    private static final Double MAX_CUTOFF_DISTANCE = 10000.0;
-    private static final Double MAX_DISTANCE = 45000.0;
     private static final String CONTINUOUS = "CONTINUOUS";
     private static final String DURATION = "DURATION";
 
@@ -55,7 +52,7 @@ public class ActivityController {
                               ActivityTypeService activityTypeService, FeedEventService feedEventService,
                               ActivityTypeRepository activityTypeRepository,
                               ActivityActivityTypeRepository activityActivityTypeRepository,
-                              ActivityPinService activityPinService) {
+                              ActivityPinService activityPinService, LocationSearchService locationSearchService) {
         this.activityRepository = activityRepository;
         this.userAuthenticationService = userAuthenticationService;
         this.activityTypeService = activityTypeService;
@@ -63,6 +60,7 @@ public class ActivityController {
         this.activityTypeRepository = activityTypeRepository;
         this.activityActivityTypeRepository = activityActivityTypeRepository;
         this.activityPinService = activityPinService;
+        this.locationSearchService = locationSearchService;
     }
 
     /**
@@ -415,7 +413,6 @@ public class ActivityController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Activity Types must be specified");
         }
         List<String> typesWithDashes = Arrays.asList(activityTypes.split(" "));
-
         List<String> types = typesWithDashes.stream()
                 .map(a -> a.replace('-', ' '))
                 .collect(Collectors.toList());
@@ -486,8 +483,8 @@ public class ActivityController {
 
 
     /**
-     * Takes some properties to search for activities by location.
-     * The activities are converted into pins.
+     * Takes some properties to search for activity pins by location.
+     * Calls the service function to find activities by location, then converts this to pins
      * Pagination is preformed on the repo in blocks/pages of 20.
      * @param request the http request
      * @param response the http response
@@ -505,55 +502,13 @@ public class ActivityController {
                                                @RequestParam(value="activityTypes") String activityTypes,
                                                @RequestParam(value="cutoffDistance") Double cutoffDistance,
                                                @RequestParam(value="method") String method) throws JsonProcessingException {
-        Coordinates coordinates = new ObjectMapper().readValue(strCoordinates, Coordinates.class);
+
         String token = request.getHeader(TOKEN_DECLARATION);
         User user = userAuthenticationService.findByToken(token);
-        int pageNumber;
-        try {
-            pageNumber = request.getIntHeader("Page-Number");
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Page-Number must be an integer");
-        }
-        if (pageNumber < 0) {
-            pageNumber = 0;
-        }
-        Pageable blockWith20Activities = PageRequest.of(pageNumber, PIN_BLOCK_SIZE);
-        if (coordinates.getLatitude() > 90 || coordinates.getLatitude() < -90) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Latitude must exist (be between -90 and 90 degrees)");
-        }
-        if (coordinates.getLongitude() > 180 || coordinates.getLongitude() < -180) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Longitude must exist (be between -180 and 180 degrees)");
-        }
-        if (cutoffDistance >= MAX_CUTOFF_DISTANCE) {
-            cutoffDistance = MAX_DISTANCE;
-        }
-        Slice<Activity> paginatedActivities;
-        if (activityTypes.length() >= 1) {
-            List<String> typesWithDashes = Arrays.asList(activityTypes.split(" "));
-            List<String> types = typesWithDashes.stream()
-                    .map(a -> a.replace('-', ' '))
-                    .collect(Collectors.toList());
-            List<Long> activityTypeIds = activityTypeRepository.findActivityTypeIdsByNames(types);
-            int numActivityTypes = activityTypeIds.size();
-            if (method.equalsIgnoreCase("and")) {
-                paginatedActivities = activityRepository.findAllWithinDistanceByAllActivityTypeIds(
-                        coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance,
-                        activityTypeIds, numActivityTypes, blockWith20Activities);
-            } else if (method.equalsIgnoreCase("or")) {
-                paginatedActivities = activityRepository.findAllWithinDistanceBySomeActivityTypeIds(
-                        coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance,
-                        activityTypeIds, blockWith20Activities);
-            } else {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "Method must be specified as either (AND, OR)");
-            }
-        } else {
-            paginatedActivities = activityRepository.findAllWithinDistance(
-                    coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance, blockWith20Activities);
-        }
+
+        Slice<Activity> paginatedActivities = locationSearchService.getLocationsHelper(strCoordinates, activityTypes,
+                                                                    cutoffDistance, method, PIN_BLOCK_SIZE, request);
+
         List<Pin> paginatedBlockOfPins = new ArrayList<>();
         boolean hasNext = false;
         if (paginatedActivities != null) {
