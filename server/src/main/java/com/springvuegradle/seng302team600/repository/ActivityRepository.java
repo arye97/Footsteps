@@ -69,7 +69,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
 
     @Query(value = "SELECT a.*" +
             "FROM activity as a " +
-            "LEFT OUTER JOIN location as l " +
+            "INNER JOIN location as l " +
             "ON (a.location_location_id = l.location_id) " +
             "WHERE " +
             "   111.111 * " +
@@ -86,10 +86,10 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
 
     @Query(value = "SELECT a.*" +
             "FROM activity as a " +
-            "LEFT OUTER JOIN location as l " +
+            "INNER JOIN location as l " +
             "ON (a.location_location_id = l.location_id) " +
-            "LEFT OUTER JOIN activity_activity_type as act " +
-            "ON (act.activity_type_id IN :activityTypeIds) " +
+            "INNER JOIN activity_activity_type as act " +
+            "ON (act.activity_type_id IN :activityTypeIds AND act.activity_id = a.activity_id) " +
             "WHERE " +
             "   111.111 * " +
             "    DEGREES(ACOS(LEAST(1.0, COS(RADIANS(:userLatitude)) " +
@@ -106,10 +106,10 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
 
     @Query(value = "SELECT a.*" +
             "FROM activity as a " +
-            "LEFT OUTER JOIN location as l " +
+            "INNER JOIN location as l " +
             "ON (a.location_location_id = l.location_id) " +
-            "LEFT OUTER JOIN activity_activity_type as act " +
-            "ON (act.activity_type_id IN :activityTypeIds) " +
+            "INNER JOIN activity_activity_type as act " +
+            "ON (act.activity_type_id IN :activityTypeIds AND act.activity_id = a.activity_id) " +
             "WHERE " +
             "   111.111 * " +
             "    DEGREES(ACOS(LEAST(1.0, COS(RADIANS(:userLatitude)) " +
