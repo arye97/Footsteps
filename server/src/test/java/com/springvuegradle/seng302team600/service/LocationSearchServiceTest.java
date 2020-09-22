@@ -1,8 +1,10 @@
 package com.springvuegradle.seng302team600.service;
 
 import com.springvuegradle.seng302team600.model.Activity;
+import com.springvuegradle.seng302team600.model.ActivityType;
 import com.springvuegradle.seng302team600.model.Location;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
+import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +15,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.Mockito.when;
 
@@ -23,10 +27,14 @@ public class LocationSearchServiceTest {
         @MockBean
         private ActivityRepository activityRepository;
 
+        @MockBean
+        private ActivityTypeRepository activityTypeRepository;
+
         @Autowired
         private ActivityPinService LocationSearchService;
 
     private List<Activity> activityList = new ArrayList<>();
+    private Set<ActivityType> activityTypeSet = new HashSet<>();
 
     private final int PAGE_ONE = 0;
     private final int PAGE_TWO = 1;
@@ -35,6 +43,10 @@ public class LocationSearchServiceTest {
     private final Long DUMMY_ACTIVITY_ID_2 = 2L;
     private final Long DUMMY_ACTIVITY_ID_3 = 3L;
     private Long DUMMY_ACTIVITY_STUB_ID = 4L;
+
+    private final Long DUMMY_TYPE_ID_1 = 1L;
+    private final Long DUMMY_TYPE_ID_2 = 2L;
+    private final Long DUMMY_TYPE_ID_3 = 3L;
 
     private final Double LONDON_LAT = 51.507351D;
     private final Double LONDON_LON = -0.127758D;
@@ -71,8 +83,36 @@ public class LocationSearchServiceTest {
         activityList.add(dummyActivity2);
         activityList.add(dummyActivity3);
 
+        ActivityType dummyActivityType1 = new ActivityType("Hiking");
+        ReflectionTestUtils.setField(dummyActivityType1, "activityTypeId", DUMMY_TYPE_ID_1);
+        ActivityType dummyActivityType2 = new ActivityType("Biking");
+        ReflectionTestUtils.setField(dummyActivityType2, "activityTypeId", DUMMY_TYPE_ID_2);
+        ActivityType dummyActivityType3 = new ActivityType("Kiting");
+        ReflectionTestUtils.setField(dummyActivityType3, "activityTypeId", DUMMY_TYPE_ID_3);
+
+        activityTypeSet.add(dummyActivityType1);
+        dummyActivity1.setActivityTypes(activityTypeSet);
+
+        activityTypeSet.add(dummyActivityType2);
+        dummyActivity2.setActivityTypes(activityTypeSet);
+
+        activityTypeSet.add(dummyActivityType3);
+        dummyActivity3.setActivityTypes(activityTypeSet);
+
         //todo: Mock:
         // activityTypeRepository.findActivityTypeIdsByNames(types)
+        when(activityTypeRepository.findActivityTypeIdsByNames(Mockito.anyList())).thenAnswer(i -> {
+            List<String> activityTypeStrings = i.getArgument(0);
+            List<Long> resultList = new ArrayList<>();
+            List<ActivityType> allActivityTypes = new ArrayList<>();
+            allActivityTypes.addAll(activityTypeSet);
+            for (ActivityType activityType : allActivityTypes) {
+                if (activityTypeStrings.contains(activityType.getName())) {
+                    resultList.add(activityType.getActivityTypeId());
+                }
+            }
+            return resultList;
+        });
 
         //todo: Mock:
         // activityRepository.findAllWithinDistanceByAllActivityTypeIds(
