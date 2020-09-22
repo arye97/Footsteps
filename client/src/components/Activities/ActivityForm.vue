@@ -86,11 +86,9 @@
 
                 <div v-if="activity.continuous === false">
                     <b-form-group>
-<!--                        <label id="input-start-label">Start Date: *</label>-->
+                        <label id="input-start-label">Start Date: *</label>
                         <b-form-datepicker v-model="startDate" class="mb-2"></b-form-datepicker>
-                        <p>Value: '{{ startDate }}'</p>
                         <b-form-timepicker v-model="startTime" :disabled="!has_start_time" locale="en"></b-form-timepicker>
-                        <p>Value: '{{ startTime }}'</p>
 
 <!--                        <div v-if="has_start_time === false" >-->
 <!--                            <label id="input-start-label" for="input-start">Start Date: *</label>-->
@@ -130,24 +128,28 @@
                     </div>
 
                     <b-form-group>
-                        <div v-if="has_end_time === false" >
-                            <label id="input-end-label" for="input-end">End Date: *</label>
-                            <input type="date" class="form-control"
-                                   :value="activity.endTime && activity.endTime.split('T')[0]"
-                                   @input="activity.endTime = dateIntoDateTimeStr($event.target.value, activity.endTime)"
-                                   id="input-end">
-                        </div>
-                        <div v-else>
-                            <label id="input-end-time-label" for="input-end-time">End Date: *</label>
-                            <input type="datetime-local" class="form-control"
-                                   :value="activity.endTime"
-                                   @input="activity.endTime = $event.target.value === '' ? activity.endTime : $event.target.value"
-                                   id="input-end-time">
-                        </div>
+                        <label id="input-end-label">End Date: *</label>
+                        <b-form-datepicker v-model="endDate" class="mb-2"></b-form-datepicker>
+                        <b-form-timepicker v-model="endTime" :disabled="!has_end_time" locale="en"></b-form-timepicker>
+<!--                        <div v-if="has_end_time === false" >-->
+<!--                            <label id="input-end-label" for="input-end">End Date: *</label>-->
+<!--                            <input type="date" class="form-control"-->
+<!--                                   :value="activity.endTime && activity.endTime.split('T')[0]"-->
+<!--                                   @input="activity.endTime = dateIntoDateTimeStr($event.target.value, activity.endTime)"-->
+<!--                                   id="input-end">-->
+<!--                        </div>-->
+<!--                        <div v-else>-->
+<!--                            <label id="input-end-time-label" for="input-end-time">End Date: *</label>-->
+<!--                            <input type="datetime-local" class="form-control"-->
+<!--                                   :value="activity.endTime"-->
+<!--                                   @input="activity.endTime = $event.target.value === '' ? activity.endTime : $event.target.value"-->
+<!--                                   id="input-end-time">-->
+<!--                        </div>-->
                         <b-form-checkbox
                                 class="checkbox-time"
                                 size="sm"
                                 v-model="has_end_time"
+                                @change="this.disabledEnd"
                         >
                             Include ending time
                         </b-form-checkbox>
@@ -341,14 +343,15 @@
             },
             submitActivityFunc: Function,
             isEdit:  Boolean,
-            // startTime: String,
-            // endTime: String,
         },
         data() {
             return {
                 startDate: null,
                 startTime: "12:00",
-                endTime: String,
+                inputStartTime: null,
+                endDate: null,
+                endTime: "12:00",
+                inputEndTime: null,
 
                 activityTypes: [],
                 nameCharCount: 0,
@@ -372,7 +375,7 @@
                 outcomeUnitCharCount: 0,
                 maxOutcomeUnitCharCount: 15,
                 errored: false,
-                error_message: "Something went wrong"
+                error_message: "Something went wrong",
             }
         },
         async created() {
@@ -389,9 +392,19 @@
 
             disabledStart(checked) {
                 if (!checked) {
+                    this.inputStartTime = this.startTime;
                     this.startTime = null;
                 } else {
-                    this.startTime = "12:00"
+                    this.startTime = this.inputStartTime
+                }
+            },
+
+            disabledEnd(checked) {
+                if (!checked) {
+                    this.inputEndTime = this.endTime;
+                    this.endTime = null;
+                } else {
+                    this.endTime = this.inputEndTime
                 }
             },
 
@@ -402,16 +415,15 @@
             async onSubmit(evt) {
                 evt.preventDefault();
                 this.isValidFormFlag = true;
-                console.log("fuck off")
                 await this.validateActivityInputs();
-                // if (this.isValidFormFlag) {
-                //     this.formatDurationActivity();
-                //     try {
-                //         await this.submitActivityFunc();
-                //     } catch(errResponse) {
-                //         this.processPostError(errResponse);
-                //     }
-                // }
+                if (this.isValidFormFlag) {
+                    this.formatDurationActivity();
+                    try {
+                        await this.submitActivityFunc();
+                    } catch(errResponse) {
+                        this.processPostError(errResponse);
+                    }
+                }
             },
 
             /**
@@ -452,51 +464,46 @@
                 this.$router.push('/login');
             },
 
-            /**
-             * Takes a date string of the form yyyy-MM-dd and inserts it into a date and time string of the
-             * format yyyy-MM-ddThh:mm.  Helper method used in DOM.
-             * (wish this could be a function)
-             * @param dateStr string of the format yyyy-MM-dd
-             * @param dateTimeStr string of the format yyyy-MM-ddThh:mm
-             */
-            dateIntoDateTimeStr(dateStr, dateTimeStr) {
-                console.log(dateStr)
-                console.log(dateTimeStr)
-                if (dateStr === null || dateStr === "") {
-                    return dateTimeStr;
-                }
-                let dateTimeArr;
-                if (dateTimeStr === null || dateTimeStr === "") {
-                    dateTimeArr = ["", this.defaultTime]   // 12:00
-                } else {
-                    dateTimeArr = dateTimeStr.split('T');
-                }
-                dateTimeArr[0] = dateStr;
-                console.log(dateTimeArr)
-                return dateTimeArr.join('T');
-            },
+            // /**
+            //  * Takes a date string of the form yyyy-MM-dd and inserts it into a date and time string of the
+            //  * format yyyy-MM-ddThh:mm.  Helper method used in DOM.
+            //  * (wish this could be a function)
+            //  * @param dateStr string of the format yyyy-MM-dd
+            //  * @param dateTimeStr string of the format yyyy-MM-ddThh:mm
+            //  */
+            // dateIntoDateTimeStr(dateStr, dateTimeStr) {
+            //     if (dateStr === null || dateStr === "") {
+            //         return dateTimeStr;
+            //     }
+            //     let dateTimeArr;
+            //     if (dateTimeStr === null || dateTimeStr === "") {
+            //         dateTimeArr = ["", this.defaultTime]   // 12:00
+            //     } else {
+            //         dateTimeArr = dateTimeStr.split('T');
+            //     }
+            //     dateTimeArr[0] = dateStr;
+            //     return dateTimeArr.join('T');
+            // },
 
             /**
              * Validate activity inputs, called when onSubmit is called
              */
             async validateActivityInputs() {
-                // Todo if statement if has start time alg add T if doesnt then add that T shit and 12:00
-                // console.log("FUCK UP")
-                // console.log(this.has_start_time)
                 if (!this.has_start_time) {
-                    this.startTime = "12:00";
+                    this.activity.startTime = this.startDate + "T" + this.defaultTime;
+                } else {
+                    this.activity.startTime = this.startDate + "T" + this.startTime.substr(0,5);
                 }
-                // console.log(this.startDate);
-                // console.log(this.startTime);
-                this.activity.startTime = this.startDate + "T" + this.startTime;
-                // console.log(this.activity.startTime);
-                // console.log(this.activity.endTime);
-
                 this.activity.submitStartTime = this.activity.startTime;
                 let startTime = new Date(this.activity.startTime);
-                this.activity.submitEndTime = this.activity.endTime;
 
-                console.log(this.activity.endTime)
+
+                if (!this.has_end_time) {
+                    this.activity.endTime = this.endDate + "T" + this.defaultTime;
+                } else {
+                    this.activity.endTime = this.endDate + "T" + this.endTime.substr(0,5);
+                }
+                this.activity.submitEndTime = this.activity.endTime;
                 let endTime = new Date(this.activity.endTime);
 
                 if (!this.activity.activityName || this.nameCharCount > this.maxNameCharCount) {

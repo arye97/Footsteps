@@ -99,12 +99,12 @@
                     start_time: this.activity.submitStartTime,
                     end_time: this.activity.submitEndTime
                 };
-                console.log(activityForm.end_time)
 
                 // Send the activityForm to the server to create a new activity, and get it's id
                 await api.createActivity(activityForm, this.activity.profileId).then(response => {
                     activityId = response.data;
                 }).catch(error => {
+                    console.log(error.response)
                     this.throwError(error.response, false)
                     return;
                 });
