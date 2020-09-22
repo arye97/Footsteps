@@ -237,6 +237,7 @@
             clearPins() {
                 this.pins = [];
                 this.address = "";
+                this.$emit("pin-change", null);
             }
 
         }

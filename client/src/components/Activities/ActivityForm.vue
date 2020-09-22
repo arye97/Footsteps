@@ -182,7 +182,7 @@
 
                 </b-form-group>
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_location">
-                    {{ "Field is mandatory and a location must be set" }}
+                    Field is mandatory and a location must be set
                 </div>
 
 
@@ -283,7 +283,7 @@
 <script>
     import Multiselect from 'vue-multiselect'
     import api from "../../Api";
-    import {localTimeZoneToBackEndTime} from "../../util";
+    import {localTimeZoneToBackEndTime, pinToLocation} from "../../util";
     import LocationIO from "../Map/LocationIO";
 
 
@@ -677,18 +677,14 @@
                 return result;
             },
           /**
-           * Sets the location of the activity
+           * Sets the location of the activity.  Converts a pin to a location object used by the backend.
            * Called when the pins in the LocationIO child component are changed
            * @param pin Object from LocationIO
            */
             locationValue: function (pin) {
                 console.log("Activity Form got a pin:");
                 console.log(pin);
-                this.activity.location = {
-                    latitude: pin.lat,
-                    longitude: pin.lng,
-                    name: pin.name,
-                };
+                this.activity.location = pinToLocation(pin);
             },
             /**
              * Toggles the submitDisabled boolean
