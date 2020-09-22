@@ -682,6 +682,8 @@
            * @param pin Object from LocationIO
            */
             locationValue: function (pin) {
+                console.log("Activity Form got a pin:");
+                console.log(pin);
                 this.activity.location = {
                     latitude: pin.lat,
                     longitude: pin.lng,
