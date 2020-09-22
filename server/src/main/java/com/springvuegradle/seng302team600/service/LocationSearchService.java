@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,30 +34,23 @@ public class LocationSearchService {
     /**
      * Takes some properties to search for activities by location.
      * Pagination is preformed on the repo in blocks/pages of blockSize.
-     * @param request the http request
+     *
+     * @param pageNumber     the page number, starting at zero
      * @param strCoordinates a string to be converted into a Coordinates object containing latitude and longitude
-     * @param activityTypes a list of activity types
+     * @param activityTypes  a list of activity types
      * @param cutoffDistance the max distance to search by
-     * @param method the type of activity type filtering
-     * @param blockSize the size of the blocks for the repo to page by
+     * @param method         the type of activity type filtering
+     * @param blockSize      the size of the blocks for the repo to page by
      * @return A list of activity activities
      */
-    public Slice<Activity> getLocationsHelper(String strCoordinates, String activityTypes,
-                                              Double cutoffDistance, String method,
-                                              int blockSize, HttpServletRequest request)
+    public Slice<Activity> getActivitiesByLocation(String strCoordinates, String activityTypes,
+                                                   Double cutoffDistance, String method,
+                                                   int blockSize, int pageNumber)
             throws JsonProcessingException {
         Coordinates coordinates = new ObjectMapper().readValue(strCoordinates, Coordinates.class);
-        int pageNumber;
-        try {
-            pageNumber = request.getIntHeader("Page-Number");
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Page-Number must be an integer");
-        }
         if (pageNumber < 0) {
             pageNumber = 0;
         }
-
         Pageable activitiesBlock = PageRequest.of(pageNumber, blockSize);
         if (coordinates.getLatitude() > 90 || coordinates.getLatitude() < -90) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,

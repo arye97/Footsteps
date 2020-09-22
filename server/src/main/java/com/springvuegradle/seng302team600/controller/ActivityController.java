@@ -323,8 +323,8 @@ public class ActivityController {
             params = {"activityKeywords"}
     )
     public List<ActivityResponse> getActivitiesByKeywords(HttpServletRequest request,
-                                                      HttpServletResponse response,
-                                                      @RequestParam(value="activityKeywords") String activityKeywords) {
+                                                          HttpServletResponse response,
+                                                          @RequestParam(value = "activityKeywords") String activityKeywords) {
         String token = request.getHeader(TOKEN_DECLARATION);
         userAuthenticationService.findByToken(token);
 
@@ -400,12 +400,12 @@ public class ActivityController {
      */
     @GetMapping(
             value = "/activities",
-            params = { "activity", "method" }
+            params = {"activity", "method"}
     )
     public List<ActivityResponse> getActivitiesByActivityType(HttpServletRequest request,
-                                                     HttpServletResponse response,
-                                                     @RequestParam(value="activity") String activityTypes,
-                                                     @RequestParam(value="method") String method) {
+                                                              HttpServletResponse response,
+                                                              @RequestParam(value = "activity") String activityTypes,
+                                                              @RequestParam(value = "method") String method) {
         String token = request.getHeader(TOKEN_DECLARATION);
         int pageNumber = request.getIntHeader("Page-Number");
         userAuthenticationService.findByToken(token);
@@ -473,7 +473,8 @@ public class ActivityController {
         boolean hasNext = false;
         if (paginatedBlockOfActivities != null) {
             paginatedBlockOfPins = activityPinService.getPins(user, paginatedBlockOfActivities.getContent());
-            hasNext = paginatedBlockOfActivities.hasNext();        }
+            hasNext = paginatedBlockOfActivities.hasNext();
+        }
         if (pageNumber == 0) {
             paginatedBlockOfPins.add(0, new UserPin(user));
         }
@@ -486,28 +487,36 @@ public class ActivityController {
      * Takes some properties to search for activity pins by location.
      * Calls the service function to find activities by location, then converts this to pins
      * Pagination is preformed on the repo in blocks/pages of 20.
-     * @param request the http request
-     * @param response the http response
+     *
+     * @param request        the http request
+     * @param response       the http response
      * @param strCoordinates a string to be converted into a Coordinates object containing latitude and longitude
-     * @param activityTypes a list of activity types
+     * @param activityTypes  a list of activity types
      * @param cutoffDistance the max distance to search by
-     * @param method the type of activity type filtering
+     * @param method         the type of activity type filtering
      * @return A list of activity pins
      */
     @GetMapping(
             value = "/activities/pins",
-            params = { "coordinates", "activityTypes", "cutoffDistance", "method" })
+            params = {"coordinates", "activityTypes", "cutoffDistance", "method"})
     public List<Pin> getActivityPinsByLocation(HttpServletRequest request, HttpServletResponse response,
-                                               @RequestParam(value="coordinates") String strCoordinates,
-                                               @RequestParam(value="activityTypes") String activityTypes,
-                                               @RequestParam(value="cutoffDistance") Double cutoffDistance,
-                                               @RequestParam(value="method") String method) throws JsonProcessingException {
+                                               @RequestParam(value = "coordinates") String strCoordinates,
+                                               @RequestParam(value = "activityTypes") String activityTypes,
+                                               @RequestParam(value = "cutoffDistance") Double cutoffDistance,
+                                               @RequestParam(value = "method") String method) throws JsonProcessingException {
 
         String token = request.getHeader(TOKEN_DECLARATION);
         User user = userAuthenticationService.findByToken(token);
+        int pageNumber;
+        try {
+            pageNumber = request.getIntHeader("Page-Number");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Page-Number must be an integer");
+        }
 
-        Slice<Activity> paginatedActivities = locationSearchService.getLocationsHelper(strCoordinates, activityTypes,
-                                                                    cutoffDistance, method, PIN_BLOCK_SIZE, request);
+        Slice<Activity> paginatedActivities = locationSearchService.getActivitiesByLocation(strCoordinates, activityTypes,
+                cutoffDistance, method, PIN_BLOCK_SIZE, pageNumber);
 
         List<Pin> paginatedBlockOfPins = new ArrayList<>();
         boolean hasNext = false;
