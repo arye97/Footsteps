@@ -879,7 +879,7 @@ class ActivityControllerTest {
 
     @Test
     void getActivitiesByAKeyword() throws Exception {
-        when(activityRepository.findAllByKeyword(Mockito.anyString(), Mockito.any())).thenAnswer(i -> {
+        when(activityRepository.findAllByKeyword(Mockito.anyString())).thenAnswer(i -> {
             String keyword = i.getArgument(0);
             List<Activity> foundActivities = new ArrayList<>();
             if (keyword.contains("Climb")) {
@@ -892,8 +892,7 @@ class ActivityControllerTest {
                 foundActivities.add(dumActivity1);
                 foundActivities.add(dumActivity2);
             }
-            Page<Activity> result = new PageImpl(foundActivities);
-            return result;
+            return foundActivities;
         });
 
         URI uri = new URI(
@@ -915,7 +914,7 @@ class ActivityControllerTest {
 
     @Test
     void getActivitiesByExactSearch() throws Exception {
-        when(activityRepository.findAllByKeyword(Mockito.anyString(), Mockito.any())).thenAnswer(i -> {
+        when(activityRepository.findAllByKeyword(Mockito.anyString())).thenAnswer(i -> {
             String keyword = i.getArgument(0);
             List<Activity> foundActivities = new ArrayList<>();
             Activity dumActivity1 = new Activity();
@@ -935,8 +934,7 @@ class ActivityControllerTest {
                     }
                 }
             }
-            Page<Activity> result = new PageImpl(selectedActivities);
-            return result;
+            return selectedActivities;
         });
 
         URI uri = new URI(
@@ -970,7 +968,7 @@ class ActivityControllerTest {
 
     @Test
     void cannotFindActivitiesByKeyword() throws Exception {
-        when(activityRepository.findAllByKeyword(Mockito.anyString(), Mockito.any())).thenAnswer(i -> {
+        when(activityRepository.findAllByKeyword(Mockito.anyString())).thenAnswer(i -> {
             String keyword = i.getArgument(0);
             List<Activity> foundActivities = new ArrayList<>();
             if (keyword.equals("Climb") || keyword.equals("%Climb%")) {
@@ -983,8 +981,7 @@ class ActivityControllerTest {
                 foundActivities.add(dumActivity1);
                 foundActivities.add(dumActivity2);
             }
-            Page<Activity> result = new PageImpl(foundActivities);
-            return result;
+            return foundActivities;
         });
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityKeywords=keyword"))
                 .header("Token", validToken);
@@ -1009,7 +1006,7 @@ class ActivityControllerTest {
         activities.add(dumActivity1);
         activities.add(dumActivity2);
 
-        when(activityRepository.findAllByKeyword(Mockito.anyString(), Mockito.any())).thenAnswer(i -> {
+        when(activityRepository.findAllByKeyword(Mockito.anyString())).thenAnswer(i -> {
             List<Activity> foundActivities = new ArrayList<>();
             Page<Activity> pagedFoundActivities;
             String keyword = i.getArgument(0);
@@ -1025,9 +1022,7 @@ class ActivityControllerTest {
                 }
 
             }
-
-            pagedFoundActivities = new PageImpl<>(foundActivities);
-            return pagedFoundActivities;
+            return foundActivities;
         });
 
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityKeywords=Fuji%20%2b%20Tower"))
