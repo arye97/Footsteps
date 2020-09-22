@@ -162,7 +162,15 @@ export default {
         this.mapLoading = false;
         await this.fetchActivityTypes();
     },
-
+    watch: {
+        /**
+         * Watcher is called whenever currentPage is changed, via searching new query
+         * or the pagination bar.
+         */
+        currentPage() {
+            this.getPaginatedActivitiesByActivityTitle();
+        }
+    },
     methods: {
         pinsChanged(pins) {
             this.maxPins = pins.length;
@@ -288,6 +296,7 @@ export default {
             // e.g. ["Hiking", "Biking"] into "Hiking Biking"
             this.errored = false;
             this.loading = true;
+            this.currentPage = 1;
             if (this.searchMode === 'activityType') {
                 // Set is as a copy so the User card is only updated after clicking search
                 this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
