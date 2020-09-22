@@ -106,9 +106,7 @@
                 await api.createActivity(activityForm, this.activity.profileId).then(response => {
                     activityId = response.data;
                 }).catch(error => {
-                    console.log(error.response)
-                    this.throwError(error.response, false)
-                    return;
+                    this.throwError(error.response, false);
                 });
 
                 // Send the outcomes to the server.  Adds the activityId to the outcomes.
