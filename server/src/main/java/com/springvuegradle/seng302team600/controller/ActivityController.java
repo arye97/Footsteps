@@ -378,7 +378,9 @@ public class ActivityController {
         }
         Specification<Activity> searchSpecification = generalSpec.and(excludeSpec).and(includeSpec);
         paginatedActivities = activityRepository.findAll(searchSpecification, pageWithFiveActivities);
-        paginatedActivities.forEach(i -> activitiesFound.add(new ActivityResponse(i)));
+        if (paginatedActivities == null) return activitiesFound;
+        List<Activity> pageActivities = paginatedActivities.getContent();
+        pageActivities.forEach(i -> activitiesFound.add(new ActivityResponse(i)));
         totalElements = (int) paginatedActivities.getTotalElements();
         response.setIntHeader("Total-Rows", totalElements);
 
