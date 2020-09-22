@@ -15,11 +15,31 @@
                         v-for="(pin, pinIndex) in pins"
                         :position="google && new google.maps.LatLng(pin.lat, pin.lng)"
                         :clickable="true"
-                        :draggable="draggablePins"
-                        :icon="'http://maps.google.com/mapfiles/ms/icons/'.concat((!pin.colour) ? 'red' :  pin.colour.toLowerCase()) + '-dot.png'"
+                        :draggable="(draggablePins) ? true : (pin.draggable === true)"
+                        :icon="'http://maps.google.com/mapfiles/ms/icons/'.concat((!pin.colour) ? 'red' : pin.colour.toLowerCase()) + '-dot.png'"
                         @click="panToPin(pin)"
                         @dragend="repositionPin({lat: $event.latLng.lat(), lng: $event.latLng.lng()}, pinIndex)"
+                        @mouseover="toggleInfoWindow(pin, true)"
+                        @mouseout="toggleInfoWindow(pin, false)"
                 />
+                <a v-for="(pin, pinIndex) in pins" :key="pinIndex + 'window'">
+                    <GmapInfoWindow
+                        v-if="pin.title"
+                        :opened="pins[pinIndex].windowOpen"
+                        :options="{
+                            pixelOffset: {
+                                width: 0,
+                                height: -35
+                          }
+                        }"
+                        @mouseover="toggleInfoWindow(pin, true)"
+                        @mouseout="toggleInfoWindow(pin, false)"
+                        :position="google && new google.maps.LatLng(pin.lat, pin.lng)"
+                        @closeclick="toggleInfoWindow(pin, false)"
+                    >
+                        <InfoWindow  :data="pin"></InfoWindow>
+                    </GmapInfoWindow>
+                </a>
             </GmapMap>
         </keep-alive>
     </div>
@@ -27,6 +47,7 @@
 
 <script>
     import { gmapApi } from 'gmap-vue';
+    import InfoWindow from "./InfoWindow";
 
     /**
      * A map pane that displays draggablePins location pins.
@@ -37,7 +58,7 @@
      */
     export default {
         name: "MapViewer",
-
+        components: {InfoWindow},
         props: {
             /**
              * Object {lat, lng} to centre map on.
@@ -153,6 +174,16 @@
                     }
                     this.$emit("pin-change", pin)
                 });
+            },
+            /**
+             * Toggles the info for a map marker
+             * @param pin the map marker to toggle that info window for
+             * @param show true if the window should open; false otherwise
+             */
+            toggleInfoWindow(pin, show) {
+                pin.windowOpen = show;
+                //Needs to update the screen because it is not done automatically
+                this.$forceUpdate();
             },
         }
     }

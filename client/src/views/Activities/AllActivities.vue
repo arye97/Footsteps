@@ -37,12 +37,11 @@
                 <location-i-o
                         :view-only="true"
                         :parent-center="{lat: userPin.lat, lng: userPin.lng}"
-                        :parent-pins="pins"
+                        :parent-pins.sync="pins"
                         :max-pins="rows"
+                        :description="'Your location is red, created activities are blue and following activities are green.'"
                 ></location-i-o>
-                <p class="light-info-message">
-                    Your location is red, created activities are blue and following activities are green.
-                </p>
+                <br/>
             </div>
             <section>
                 <ActivityList id="activityList" v-if="userId !== null" :user-id-prop="userId"/>
@@ -125,7 +124,7 @@
                 await api.getActivityPins(this.userId, pinBlock).then(response => {
                     pins = response.data;
                     this.hasNext = response.headers['has-next'] === 'true';
-                    this.rows += pins.length
+                    this.rows += pins.length;
                 }).catch(error => {
                     this.hasNext = false;
                     if (error.response.status === 401) {
@@ -159,7 +158,6 @@
                 });
                 return userId
             },
-
             goToPage(url) {
                 this.$router.push(url);
             },
