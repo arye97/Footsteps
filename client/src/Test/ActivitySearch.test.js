@@ -1,13 +1,12 @@
 import "vue-jest"
 import api from '../Api'
-import {shallowMount, createLocalVue, mount} from "@vue/test-utils";
+import {shallowMount, createLocalVue} from "@vue/test-utils";
 import router from "../index";
 
 import ActivitySearch from "../views/Search/ActivitySearch";
 import "jest";
 import BootstrapVue from "bootstrap-vue";
 import {gmapApi} from "gmap-vue";
-import LocationIO from "../components/Map/LocationIO";
 
 jest.mock('../Api');
 jest.mock("gmap-vue");
@@ -21,19 +20,6 @@ const ACTIVITY_TYPES = [
 ];
 
 let pageSize = 5;
-
-const parentCenterData = {
-    lng: 100.0,
-    lat: 100.0,
-    name: "ll",
-    draggable: false,
-};
-
-const parentPinData = {
-    lng: 0.0,
-    lat: 0.0,
-    name: "Activity location"
-};
 
 const userData = {
     "private_location": {
@@ -300,13 +286,13 @@ test('Add marker button does not exist at default', () => {
 });
 
 test('Pins are empty by default', () => {
-    api.getAllUserData.mockImplementation(() => Promise.resolve({status:200}));
+    api.getAllUserData.mockImplementation(() => Promise.resolve({data: userData, status:200}));
     activitySearch = shallowMount(ActivitySearch, {localVue, mocks: {api}});
     expect(activitySearch.vm.$data.pins).toHaveLength(0);
 });
 
 test('Map center is undefined by default', () => {
-    api.getAllUserData.mockImplementation(() => Promise.resolve({status:200}));
+    api.getAllUserData.mockImplementation(() => Promise.resolve({data: userData, status:200}));
     activitySearch = shallowMount(ActivitySearch, {localVue, mocks: {api}});
     expect(activitySearch.vm.$data.currentLocation.lat).toBeUndefined();
     expect(activitySearch.vm.$data.currentLocation.lng).toBeUndefined();
