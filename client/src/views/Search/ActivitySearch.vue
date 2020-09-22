@@ -37,6 +37,10 @@
                         </b-col>
                     </b-row>
                 </div>
+                <section v-if="filterSearch">
+                    <label for="minimumFitnessLevel">Minimum Fitness Level</label>
+                    <input type="range" class="custom-range" min="0" max="4" id="minimumFitnessLevel">
+                </section>
                 <b-row>
                     <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
                         Search
@@ -109,7 +113,8 @@ export default {
             error_message: "Something went wrong! Please try again.",
             loading: false,
             rows: null,
-            resultsFound: false
+            resultsFound: false,
+            filterSearch: true
         }
     },
     async mounted() {
