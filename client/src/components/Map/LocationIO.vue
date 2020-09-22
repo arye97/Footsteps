@@ -1,49 +1,46 @@
 <template>
-    <div>
-        <b-card class="flex-fill" border-variant="secondary">
-            <div v-if="isMapVisible">
-                <b-button id="hideMapButton" variant="info" @click="isMapVisible=false">Hide Map</b-button>
-
-                <div v-if="!viewOnly">
-                    <br/>
-                </div>
-                    <map-viewer
-                            id="mapComponent"
-                            ref="mapViewerRef"
-                            :pins="pins"
-                            :draggable-pins="!viewOnly"
-                            @child-pins="(newPins) => this.pins = newPins ? newPins : this.pins"
-                            @pin-change="pinChanged"
-                            :initial-center="center"
-                    ></map-viewer>
-                <div v-if="!viewOnly">
-                    <br/>
-                    <h3 class="font-weight-light"><strong>Search and add a pin</strong></h3>
-                    <!--We should add to fields in :options if we want to receive other data from the API-->
-                    <gmap-autocomplete
-                            id="gmapAutoComplete"
-                            :value="address"
-                            :options="{fields: ['geometry', 'formatted_address', 'address_components']}"
-                            @place_changed="(place) => {addMarker(placeToPin(place)); pinChanged(placeToPin(place));}"
-                            @focusin="emitFocus(true)"
-                            @focusout="emitFocus(false)"
-                            class="form-control" style="width: 100%">
-                    </gmap-autocomplete>
-                    <br/>
-                  <b-button-group id="mapButtons">
-                    <b-button id='addMarkerButton' variant="primary" block @click="addMarker()">Drop Pin</b-button>
-                  <b-button v-if="!viewOnly" id="clearPinsButton" variant="danger" @click="clearPins" v-bind:disabled="pins.length === 0">
-                    <b-icon-trash-fill />
-                  </b-button>
-                  </b-button-group>
-                </div>
-            </div>
-            <div v-else>
-                <b-button id="showMapButton" variant="info" @click="isMapVisible=true">Show Map</b-button>
-                <br/>
-            </div>
-        </b-card>
-    </div>
+  <div>
+    <b-card class="flex-fill" border-variant="secondary">
+      <div v-if="isMapVisible">
+        <b-button id="hideMapButton" variant="info" @click="isMapVisible=false">Hide Map</b-button>
+        <br/><br/>
+        <map-viewer
+                id="mapComponent"
+                ref="mapViewerRef"
+                :pins="pins"
+                :draggable-pins="!viewOnly"
+                @child-pins="(newPins) => this.pins = newPins ? newPins : this.pins"
+                @pin-change="pinChanged"
+                :initial-center="center"
+        ></map-viewer>
+        <div v-if="!viewOnly">
+          <br/>
+          <h3 class="font-weight-light"><strong>Search and add a pin</strong></h3>
+          <!--We should add to fields in :options if we want to receive other data from the API-->
+          <gmap-autocomplete
+              id="gmapAutoComplete"
+              :value="address"
+              :options="{fields: ['geometry', 'formatted_address', 'address_components']}"
+              @place_changed="(place) => {addMarker(placeToPin(place)); pinChanged(placeToPin(place));}"
+              @focusin="emitFocus(true)"
+              @focusout="emitFocus(false)"
+              class="form-control" style="width: 100%">
+          </gmap-autocomplete>
+          <br/>
+          <b-button-group id="mapButtons">
+            <b-button id='addMarkerButton' variant="primary" block @click="addMarker()">Drop Pin</b-button>
+            <b-button v-if="!viewOnly" id="clearPinsButton" variant="danger" @click="clearPins" v-bind:disabled="pins.length === 0">
+              <b-icon-trash-fill />
+            </b-button>
+          </b-button-group>
+        </div>
+      </div>
+      <div v-else>
+        <b-button id="showMapButton" variant="info" @click="isMapVisible=true">Show Map</b-button>
+        <br/>
+      </div>
+    </b-card>
+  </div>
 
 </template>
 
