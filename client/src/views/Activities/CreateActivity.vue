@@ -48,8 +48,10 @@
                     continuous: true,
                     submitStartTime: null,
                     submitEndTime: null,
-                    startTime: null,
-                    endTime: null,
+                    startDate: null,
+                    startTime: "12:00",
+                    endDate: null,
+                    endTime: "12:00",
                     location: null
                 },
                 outcomeList: []

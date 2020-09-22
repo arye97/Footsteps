@@ -87,8 +87,8 @@
                 <div v-if="activity.continuous === false">
                     <b-form-group>
                         <label id="input-start-label">Start Date: *</label>
-                        <b-form-datepicker v-model="startDate" class="mb-2"></b-form-datepicker>
-                        <b-form-timepicker v-model="startTime" :disabled="!has_start_time" locale="en"></b-form-timepicker>
+                        <b-form-datepicker v-model="activity.startDate" class="mb-2"></b-form-datepicker>
+                        <b-form-timepicker v-model="activity.startTime" :disabled="!has_start_time" locale="en"></b-form-timepicker>
 
 <!--                        <div v-if="has_start_time === false" >-->
 <!--                            <label id="input-start-label" for="input-start">Start Date: *</label>-->
@@ -129,8 +129,8 @@
 
                     <b-form-group>
                         <label id="input-end-label">End Date: *</label>
-                        <b-form-datepicker v-model="endDate" class="mb-2"></b-form-datepicker>
-                        <b-form-timepicker v-model="endTime" :disabled="!has_end_time" locale="en"></b-form-timepicker>
+                        <b-form-datepicker v-model="activity.endDate" class="mb-2"></b-form-datepicker>
+                        <b-form-timepicker v-model="activity.endTime" :disabled="!has_end_time" locale="en"></b-form-timepicker>
 <!--                        <div v-if="has_end_time === false" >-->
 <!--                            <label id="input-end-label" for="input-end">End Date: *</label>-->
 <!--                            <input type="date" class="form-control"-->
@@ -326,7 +326,9 @@
                 submitStartTime: String,
                 submitEndTime: String,
                 location: Object,
+                startDate: String,
                 startTime: String,
+                endDate: String,
                 endTime: String,
             },
             outcomeList: {
@@ -346,11 +348,11 @@
         },
         data() {
             return {
-                startDate: null,
-                startTime: "12:00",
+                // startDate: null,
+                // startTime: "12:00",
                 inputStartTime: null,
-                endDate: null,
-                endTime: "12:00",
+                // endDate: null,
+                // endTime: "12:00",
                 inputEndTime: null,
 
                 activityTypes: [],
@@ -380,6 +382,7 @@
         },
         async created() {
             await this.fetchActivityTypes();
+            console.log(this.activity)
         },
         watch: {
             async outcomeList() {
@@ -389,22 +392,22 @@
             }
         },
         methods: {
-
             disabledStart(checked) {
+                console.log(this.activity)
                 if (!checked) {
-                    this.inputStartTime = this.startTime;
-                    this.startTime = null;
+                    this.inputStartTime = this.activity.startTime;
+                    this.activity.startTime = null;
                 } else {
-                    this.startTime = this.inputStartTime
+                    this.activity.startTime = this.inputStartTime
                 }
             },
 
             disabledEnd(checked) {
                 if (!checked) {
-                    this.inputEndTime = this.endTime;
-                    this.endTime = null;
+                    this.inputEndTime = this.activity.endTime;
+                    this.activity.endTime = null;
                 } else {
-                    this.endTime = this.inputEndTime
+                    this.activity.endTime = this.inputEndTime
                 }
             },
 
@@ -490,21 +493,18 @@
              */
             async validateActivityInputs() {
                 if (!this.has_start_time) {
-                    this.activity.startTime = this.startDate + "T" + this.defaultTime;
+                    this.activity.submitStartTime = this.activity.startDate + "T" + this.defaultTime;
                 } else {
-                    this.activity.startTime = this.startDate + "T" + this.startTime.substr(0,5);
+                    this.activity.submitStartTime = this.activity.startDate + "T" + this.activity.startTime.substr(0,5);
                 }
-                this.activity.submitStartTime = this.activity.startTime;
-                let startTime = new Date(this.activity.startTime);
-
+                let startTime = new Date(this.activity.submitStartTime);
 
                 if (!this.has_end_time) {
-                    this.activity.endTime = this.endDate + "T" + this.defaultTime;
+                    this.activity.submitEndTime = this.activity.endDate + "T" + this.defaultTime;
                 } else {
-                    this.activity.endTime = this.endDate + "T" + this.endTime.substr(0,5);
+                    this.activity.submitEndTime = this.activity.endDate + "T" + this.activity.endTime.substr(0,5);
                 }
-                this.activity.submitEndTime = this.activity.endTime;
-                let endTime = new Date(this.activity.endTime);
+                let endTime = new Date(this.activity.submitEndTime);
 
                 if (!this.activity.activityName || this.nameCharCount > this.maxNameCharCount) {
                     showError('alert_activity_name');

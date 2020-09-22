@@ -50,9 +50,12 @@
                     submitStartTime: null,
                     submitEndTime: null,
                     location: null,
+                    startDate: null,
                     startTime: null,
+                    endDate: null,
                     endTime: null,
                 },
+                defaultTime: "12:00",
                 activityId: null,
                 show: true,
                 outcomeList: [],
@@ -222,8 +225,17 @@
                     this.activity.submitStartTime = null;
                     this.activity.submitEndTime = null;
                 }
-                this.activity.startTime = this.activity.submitStartTime;
-                this.activity.endTime = this.activity.submitEndTime;
+                if (this.activity.submitStartTime) {
+                    let startArray = this.activity.submitStartTime.split("T");
+                    let endArray = this.activity.submitEndTime.split("T");
+                    this.activity.startDate = startArray[0];
+                    this.activity.startTime = startArray[1];
+                    this.activity.endDate = endArray[0];
+                    this.activity.endTime = endArray[1];
+                } else {
+                    this.activity.startTime = this.defaultTime;
+                    this.activity.endTime = this.defaultTime;
+                }
             },
 
             /**
