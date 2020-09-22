@@ -1,17 +1,13 @@
-package com.springvuegradle.seng302team600.payload;
+package com.springvuegradle.seng302team600.payload.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springvuegradle.seng302team600.model.ActivityType;
-import com.springvuegradle.seng302team600.model.Location;
 
 import java.util.Date;
 import java.util.Set;
 
-public class ActivityPutRequest {
-
-    @JsonProperty("id")
-    private final Long activityId;
+public class ActivityPostRequest {
 
     @JsonProperty("creatorUserId")
     private final Long creatorUserId;
@@ -39,10 +35,9 @@ public class ActivityPutRequest {
     @JsonProperty("location")
     private final LocationRequest location;
 
-    public ActivityPutRequest(Long activityId, Long creatorUserId, String name,
-                              String description, Set<ActivityType> activityTypes,
-                              boolean continuous, Date startTime, Date endTime, LocationRequest location) {
-        this.activityId = activityId;
+    public ActivityPostRequest(Long creatorUserId, String name, String description,
+                               Set<ActivityType> activityTypes, boolean continuous,
+                               Date startTime, Date endTime, LocationRequest location) {
         this.creatorUserId = creatorUserId;
         this.name = name;
         this.description = description;
@@ -51,10 +46,6 @@ public class ActivityPutRequest {
         this.startTime = startTime;
         this.endTime = endTime;
         this.location = location;
-    }
-
-    public Long getActivityId() {
-        return activityId;
     }
 
     public Long getCreatorUserId() {

@@ -2,14 +2,12 @@ package com.springvuegradle.seng302team600.service;
 
 
 import com.springvuegradle.seng302team600.model.Activity;
-import com.springvuegradle.seng302team600.model.Pin;
+import com.springvuegradle.seng302team600.payload.pins.ActivityPin;
+import com.springvuegradle.seng302team600.payload.pins.Pin;
 import com.springvuegradle.seng302team600.model.User;
-import com.springvuegradle.seng302team600.payload.ActivityResponse;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import org.springframework.data.domain.*;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +60,7 @@ public class ActivityPinService {
     private List<Pin> activitiesToPins(List<Activity> activityList, Long userId) {
         List<Pin> pinList = new ArrayList<>();
         for (Activity activity : activityList) {
-            pinList.add(new Pin(activity, userId));
+            pinList.add(new ActivityPin(activity, userId));
         }
         return pinList;
     }
