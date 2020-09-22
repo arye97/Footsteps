@@ -13,7 +13,6 @@ import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
 import com.springvuegradle.seng302team600.service.*;
 import com.springvuegradle.seng302team600.validator.ActivityValidator;
-import com.sun.xml.bind.v2.runtime.output.SAXOutput;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -39,12 +38,15 @@ public class ActivityController {
     private final ActivityActivityTypeRepository activityActivityTypeRepository;
     private final ActivityPinService activityPinService;
 
+
+
     private static final int PAGE_SIZE = 5;
     private static final String CONTINUOUS = "CONTINUOUS";
     private static final String DURATION = "DURATION";
 
     private static final String TOKEN_DECLARATION = "Token";
     private static final String NOT_FOUND = "Activity not found";
+
 
     public ActivityController(ActivityRepository activityRepository, UserAuthenticationService userAuthenticationService,
                               ActivityTypeService activityTypeService, FeedEventService feedEventService,
@@ -313,15 +315,17 @@ public class ActivityController {
      * @param request          the http request with the user token we need
      * @param response         the http response
      * @param activityKeywords the word/sentence we need to search for
+     * @param method           the method AND/OR for searching
      * @return a list containing all activities found
      */
     @GetMapping(
             value = "/activities",
-            params = {"activityKeywords"}
+            params = {"activityKeywords", "method"}
     )
     public List<ActivityResponse> getActivitiesByKeywords(HttpServletRequest request,
-                                                      HttpServletResponse response,
-                                                      @RequestParam(value="activityKeywords") String activityKeywords) {
+                                                          HttpServletResponse response,
+                                                          @RequestParam(value = "activityKeywords") String activityKeywords,
+                                                          @RequestParam(value = "method") String method) {
 
         if (activityKeywords.equals("-") ||
                 activityKeywords.equals("\\+") ||
@@ -350,27 +354,22 @@ public class ActivityController {
             pageNumber = 0;
         }
 
-        //List<Activity> activities;
-        List<String> searchStrings;
-        Page<Activity> paginatedActivities;
+        Page<Activity> paginatedActivities = null;
         Pageable pageWithFiveActivities = PageRequest.of(pageNumber, PAGE_SIZE);
         int totalElements = 0;
 
-        if (activityKeywords.contains("-")) {
-            //this gives <searchQuery, exclusions>
-            //Todo: implement pagination here!
+        if (activityKeywords.contains("AND")) {
 
-            searchStrings = ActivitySearchService.handleMinusSpecialCaseString(activityKeywords);
-            paginatedActivities = activityRepository.findAllByKeywordExcludingTerm(searchStrings.get(0), searchStrings.get(1), pageWithFiveActivities);
-            totalElements = (int) paginatedActivities.getTotalElements();
-        } else if (activityKeywords.contains("+")) {
-            //this gives a list of all separate search queries
-            String searchString = ActivitySearchService.handlePlusSpecialCaseString(activityKeywords);
-            paginatedActivities = activityRepository.findAllByKeyword(searchString, pageWithFiveActivities);
-        } else {
+            List<String> searchStrings = ActivitySearchService.handleANDSpecialCaseString(activityKeywords);
+            paginatedActivities = activityRepository.findAllByKeyword(searchStrings, "AND", pageWithFiveActivities);
+
+        } else if ((activityKeywords.contains("OR")) ||
+        (!(activityKeywords.contains("OR")) && !(activityKeywords.contains("AND")))) {
+
             activityKeywords = ActivitySearchService.getSearchQuery(activityKeywords);
             paginatedActivities = activityRepository.findAllByKeyword(activityKeywords, pageWithFiveActivities);
             totalElements = (int) paginatedActivities.getTotalElements();
+
         }
 
         if (paginatedActivities == null || paginatedActivities.getTotalPages() == 0) {
@@ -397,12 +396,12 @@ public class ActivityController {
      */
     @GetMapping(
             value = "/activities",
-            params = { "activity", "method" }
+            params = {"activity", "method"}
     )
     public List<ActivityResponse> getActivitiesByActivityType(HttpServletRequest request,
-                                                     HttpServletResponse response,
-                                                     @RequestParam(value="activity") String activityTypes,
-                                                     @RequestParam(value="method") String method) {
+                                                              HttpServletResponse response,
+                                                              @RequestParam(value = "activity") String activityTypes,
+                                                              @RequestParam(value = "method") String method) {
         String token = request.getHeader(TOKEN_DECLARATION);
         int pageNumber = request.getIntHeader("Page-Number");
         userAuthenticationService.findByToken(token);
@@ -471,7 +470,8 @@ public class ActivityController {
         boolean hasNext = false;
         if (paginatedBlockOfActivities != null) {
             paginatedBlockOfPins = activityPinService.getPins(user, paginatedBlockOfActivities.getContent());
-            hasNext = paginatedBlockOfActivities.hasNext();        }
+            hasNext = paginatedBlockOfActivities.hasNext();
+        }
         if (pageNumber == 0) {
             paginatedBlockOfPins.add(0, new UserPin(user));
         }
