@@ -3,8 +3,6 @@
         <div>
             <br/>
             <div>
-                <!-- Uses keydown.enter rather than submit.prevent to extend the number of components that will trigger the search
-                     Still needs submit.prevent to stop the page redirect though -->
                 <b-form @submit.prevent @keydown.enter="search()">
                     <b-row>
                         <b-col cols="8">
