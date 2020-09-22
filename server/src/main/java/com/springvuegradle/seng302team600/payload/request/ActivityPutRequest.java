@@ -92,5 +92,7 @@ public class ActivityPutRequest {
         return location;
     }
 
-    public int getFitnessLevel() { return fitnessLevel; }
+    public int getFitnessLevel() {
+        return fitnessLevel;
+    }
 }
