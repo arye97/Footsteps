@@ -35,7 +35,7 @@ public class ActivityPostRequest {
     @JsonProperty("location")
     private final LocationRequest location;
 
-    @JsonProperty("fitness_level")
+    @JsonProperty("fitness")
     private final int fitnessLevel;
 
     public ActivityPostRequest(Long creatorUserId, String name, String description,
