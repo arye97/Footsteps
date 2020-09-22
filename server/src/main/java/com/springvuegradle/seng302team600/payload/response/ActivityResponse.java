@@ -40,6 +40,9 @@ public class ActivityResponse {
     @JsonProperty("location")
     private Location location;
 
+    @JsonProperty("fitness")
+    private final int fitnessLevel;
+
     public ActivityResponse() { }
 
     public ActivityResponse(Activity activity) {
@@ -52,5 +55,6 @@ public class ActivityResponse {
         startTime = activity.getStartTime();
         endTime = activity.getEndTime();
         location = activity.getLocation();
+        fitnessLevel = activity.getFitnessLevel();
     }
 }
