@@ -72,7 +72,7 @@ describe("Test placeToPin", () => {
     test('placeToPin converts a place object into a pin object', () => {
         const autocompletePlace = {formatted_address: "Somewhere", geometry: {location: {lat: () => 0, lng: () => 0}}};
         const pin = locationIO.vm.placeToPin(autocompletePlace);
-        expect(pin).toEqual({lat: 0, lng: 0, name: "Somewhere", colour: 'red'})
+        expect(pin).toEqual({lat: 0, lng: 0, name: "Somewhere", colour: 'red', windowOpen: false})
     });
 
 });
