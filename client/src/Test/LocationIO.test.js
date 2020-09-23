@@ -1,14 +1,13 @@
 import {mount, createLocalVue} from '@vue/test-utils'
 import LocationIO from '../components/Map/LocationIO.vue'
 import {BootstrapVue} from 'bootstrap-vue';
-import { gmapApi } from 'gmap-vue';
 import "vue-jest"
-
-jest.mock("gmap-vue");
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(gmapApi);
+
+import EmptyComponent from "./EmptyComponent.vue";
+localVue.component('GmapAutocomplete', EmptyComponent);
 
 let config;
 
@@ -51,10 +50,6 @@ test('map pane does not exist at default', () => {
     expect(locationIO.find('#mapComponent').exists()).toBeFalsy();
 });
 
-test('gmap Auto complete does not exist at default', () => {
-    expect(locationIO.find('#gmapAutoComplete').exists()).toBeFalsy();
-});
-
 test('Add marker button does not exist at default', () => {
     expect(locationIO.find('#addMarkerButton').exists()).toBeFalsy();
 });
@@ -72,7 +67,7 @@ describe("Test placeToPin", () => {
     test('placeToPin converts a place object into a pin object', () => {
         const autocompletePlace = {formatted_address: "Somewhere", geometry: {location: {lat: () => 0, lng: () => 0}}};
         const pin = locationIO.vm.placeToPin(autocompletePlace);
-        expect(pin).toEqual({lat: 0, lng: 0, name: "Somewhere", colour: 'red'})
+        expect(pin).toEqual({lat: 0, lng: 0, name: "Somewhere", colour: 'red', windowOpen: false})
     });
 
 });

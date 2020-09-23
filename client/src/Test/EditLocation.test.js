@@ -4,13 +4,17 @@ import api from '../Api';
 import 'vue-jest';
 import "jest";
 import router from '../index';
-import {BootstrapVue} from 'bootstrap-vue';
+import {BootstrapVue, BootstrapVueIcons, IconsPlugin} from 'bootstrap-vue';
 
 jest.mock('../Api');
 jest.mock('../index');
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
+localVue.use(BootstrapVueIcons);
+localVue.use(IconsPlugin);
+import EmptyComponent from "./EmptyComponent.vue";
+localVue.component('GmapAutocomplete', EmptyComponent);
 
 let editLocation;
 

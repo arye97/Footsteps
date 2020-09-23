@@ -44,8 +44,6 @@
                                 <h3 class="font-weight-light">
                                     <strong>Passport countries:</strong>
                                 </h3>
-                                <br/>
-
                                 <b-list-group v-if="this.user.passports.length >= 1">
                                     <b-card v-for="country in this.user.passports" v-bind:key="country"
                                             class="flex-fill" border-variant="secondary">
@@ -136,8 +134,6 @@
                                 <h3 class="font-weight-light">
                                     <strong>Activity Types:</strong>
                                 </h3>
-                                <br/>
-
                                 <b-list-group v-if="this.user.activityTypes.length >= 1">
                                     <b-card v-for="activityType in this.user.activityTypes"
                                             v-bind:key="activityType.name" class="flex-fill" border-variant="secondary">
@@ -156,39 +152,12 @@
                                     </b-card>
                                 </b-list-group>
                                 <br/>
-                                <!-- These are kept separate to make it clearer to the user what each pin means -->
-                                <!-- TODO:Merge into a single pane once they can be distinguished by colour -->
-                                <div v-if="this.user.public_location">
-                                    <h3 class="font-weight-light">
-                                        <strong>Public Location:</strong>
-                                    </h3>
-                                    <br/>
-                                    <b-card class="flex-fill" border-variant="secondary">
-                                        <b-card-text id="public-Name" class="font-weight-light">
-                                            {{user.public_location.name}}
-                                        </b-card-text>
-                                    </b-card>
-                                    <location-i-o id="public-location"
-                                                  :view-only="true"
-                                                  :parent-pins="[{lat: this.user.public_location.latitude, lng: this.user.public_location.longitude}]"
-                                                  :parent-center="{lat: this.user.public_location.latitude, lng: this.user.public_location.longitude}">
-                                    </location-i-o>
-                                </div>
-                                <br/>
-                                <div v-if="this.user.private_location">
-                                    <h3 class="font-weight-light">
-                                        <strong>Private Location:</strong>
-                                    </h3>
-                                    <br/>
-                                    <b-card class="flex-fill" border-variant="secondary">
-                                        <b-card-text id="private-Name" class="font-weight-light">
-                                            {{user.private_location.name}}
-                                        </b-card-text>
-                                    </b-card>
-                                    <location-i-o id="private-location"
-                                                  :view-only="true"
-                                                  :parent-pins="[{lat: this.user.private_location.latitude, lng: this.user.private_location.longitude}]"
-                                                  :parent-center="{lat: this.user.private_location.latitude, lng: this.user.private_location.longitude}">
+                                <div v-if="this.user.public_location || this.user.private_location">
+                                    <h3 class="font-weight-light"><strong>Location:</strong></h3>
+                                    <location-i-o id="location"
+                                        :view-only="true"
+                                        :parent-pins="getPinData()"
+                                        :parent-center="getMapCenter()">
                                     </location-i-o>
                                 </div>
                                 <br/>
@@ -359,6 +328,36 @@
                         this.logout();
                     }
                 });
+            },
+            getPinData() {
+                let userPins = []
+                if (this.user.public_location) {
+                    userPins.push({
+                        lat: this.user.public_location.latitude,
+                        lng: this.user.public_location.longitude,
+                        colour: 'red',
+                        title: 'Public Location',
+                        location_name: this.user.public_location.name,
+                    });
+                }
+                if (this.user.private_location) {
+                    userPins.push({
+                        lat: this.user.private_location.latitude,
+                        lng: this.user.private_location.longitude,
+                        colour:'green',
+                        title: 'Private Location',
+                        location_name: this.user.private_location.name,
+                    });
+                }
+                return userPins;
+            },
+            getMapCenter() {
+                if (this.user.public_location) {
+                    return {lat: this.user.public_location.latitude, lng: this.user.public_location.longitude}
+                }
+                if (this.user.private_location) {
+                    return {lat: this.user.private_location.latitude, lng: this.user.private_location.longitude}
+                }
             }
         }
     }

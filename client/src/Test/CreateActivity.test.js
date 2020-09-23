@@ -3,11 +3,15 @@ import {mount, createLocalVue} from '@vue/test-utils'
 import CreateActivity from "../views/Activities/CreateActivity";
 import api from "../Api";
 import router from '../index';
-import { BootstrapVue } from 'bootstrap-vue';
+import {BootstrapVue, BootstrapVueIcons, IconsPlugin} from 'bootstrap-vue';
 jest.mock("../Api");
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
+localVue.use(BootstrapVueIcons);
+localVue.use(IconsPlugin);
+import EmptyComponent from "./EmptyComponent.vue";
+localVue.component('GmapAutocomplete', EmptyComponent);
 
 let createActivity;
 let config;

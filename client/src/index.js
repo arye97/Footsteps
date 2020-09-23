@@ -12,6 +12,18 @@ import EditActivity from "./views/Activities/EditActivity";
 import AllActivities from "./views/Activities/AllActivities";
 import EditProfile from "./views/Settings/EditProfile";
 import Search from "./views/Search/Search";
+
+const routerPush = Router.prototype.push;
+Router.prototype.push = function push(location) {
+    return routerPush.call(this, location).catch(error => {
+        if (error.name !== "NavigationDuplicated") {
+            throw error;
+        } else {
+            window.location.reload();
+        }
+    });
+};
+
 Vue.use(Router);
 Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
@@ -111,7 +123,7 @@ export default new Router({
             component: EditProfile
         },
         {
-            path: '/search/users',
+            path: '/search',
             name: 'searchPage',
             component: Search
         },
