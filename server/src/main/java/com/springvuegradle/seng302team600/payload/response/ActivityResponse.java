@@ -41,7 +41,7 @@ public class ActivityResponse {
     private Location location;
 
     @JsonProperty("fitness")
-    private int fitnessLevel;
+    private Integer fitnessLevel;
 
     public ActivityResponse() { }
 
