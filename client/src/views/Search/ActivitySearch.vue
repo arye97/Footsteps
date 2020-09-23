@@ -54,7 +54,7 @@
                     </b-button>
                 </b-row>
                 <br/>
-                <b-row>
+                <b-row v-if="searchMode==='activityName'">
                     <ul style="align-content: center;">
                         <li>All searches are case insensitive including exact match searches</li>
                         <li>Use double quotes around your search for exact matching</li>
