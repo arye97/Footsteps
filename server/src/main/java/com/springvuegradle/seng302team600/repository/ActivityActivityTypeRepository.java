@@ -14,7 +14,7 @@ import java.util.List;
 public interface ActivityActivityTypeRepository extends JpaRepository<Activity, Long> {
 
     @Query(value="SELECT activity_id FROM activity_activity_type WHERE activity_type_id in ?1 " +
-            "GROUP BY activity_id HAVING COUNT(DISTINCT activity_id) = ?2", nativeQuery=true)
+            "GROUP BY activity_id HAVING COUNT(activity_id) = ?2", nativeQuery=true)
     Page<Long> findByAllActivityTypeIds(@Param("activityTypeIds") List<Long> activityTypeIds,
                                         @Param("numOfActivityTypes") int numOfActivityTypes,
                                         Pageable pageable);
