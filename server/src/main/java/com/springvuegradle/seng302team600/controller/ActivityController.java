@@ -498,13 +498,12 @@ public class ActivityController {
      */
     @GetMapping(
             value = "/activities/pins",
-            params = {"coordinates", "activityTypes", "cutoffDistance", "method"})
+            params = {"coordinates", "activity", "cutoffDistance", "method"})
     public List<Pin> getActivityPinsByLocation(HttpServletRequest request, HttpServletResponse response,
                                                @RequestParam(value = "coordinates") String strCoordinates,
-                                               @RequestParam(value = "activityTypes") String activityTypes,
+                                               @RequestParam(value = "activity") String activityTypes,
                                                @RequestParam(value = "cutoffDistance") Double cutoffDistance,
                                                @RequestParam(value = "method") String method) throws JsonProcessingException {
-
         String token = request.getHeader(TOKEN_DECLARATION);
         User user = userAuthenticationService.findByToken(token);
         int pageNumber;
