@@ -18,6 +18,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.util.*;
 import java.util.function.Function;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @WebMvcTest(LocationSearchService.class)
@@ -52,6 +53,14 @@ public class LocationSearchServiceTest {
     private final Double MEDIUM_DISTANCE = 4300D;
     private final Double LONG_DISTANCE = 8900D;
     private final Double VERY_LONG_DISTANCE = 11000D;
+
+    private final Double LAT_A = -45.8667783;
+    private final Double LNG_A = 170.4910567;
+    private final String STRING_COORDINATES_A = "{\"lat\":\"-45.8667783\",\"lng\":\"170.4910567\"}";
+//            "%7B%22lat%22%3A%22" + LAT_A + "%22%2C%22lng%22%3A%22" + LNG_A + "%22%7D";
+    private final Double LAT_B = 5.8667783;
+    private final Double LNG_B = -89.810567;
+    private final String STRING_COORDINATES_B = "%7B%22lat%22%3A%22" + LAT_B + "%22%2C%22lng%22%3A%22" + LNG_B + "%22%7D";
 
     private final Double LONDON_LAT = 51.507351D;
     private final Double LONDON_LON = -0.127758D;
@@ -99,14 +108,23 @@ public class LocationSearchServiceTest {
         ActivityType dummyActivityType3 = new ActivityType("Kiting");
         ReflectionTestUtils.setField(dummyActivityType3, "activityTypeId", DUMMY_TYPE_ID_3);
 
-        activityTypeSet.add(dummyActivityType1);
-        dummyActivity1.setActivityTypes(activityTypeSet);
+        //Hiking Biking
+        Set<ActivityType> HBset = new HashSet<>();
+        HBset.add(dummyActivityType1);
+        HBset.add(dummyActivityType2);
+        dummyActivity1.setActivityTypes(HBset);
 
-        activityTypeSet.add(dummyActivityType2);
-        dummyActivity2.setActivityTypes(activityTypeSet);
+        //Biking Kiting
+        Set<ActivityType> BKset = new HashSet<>();
+        BKset.add(dummyActivityType2);
+        BKset.add(dummyActivityType3);
+        dummyActivity2.setActivityTypes(BKset);
 
-        activityTypeSet.add(dummyActivityType3);
-        dummyActivity3.setActivityTypes(activityTypeSet);
+        //Kiting Hiking
+        Set<ActivityType> KHset = new HashSet<>();
+        KHset.add(dummyActivityType3);
+        KHset.add(dummyActivityType1);
+        dummyActivity3.setActivityTypes(KHset);
 
 
         when(activityTypeRepository.findActivityTypeIdsByNames(Mockito.anyList())).thenAnswer(i -> {
@@ -172,9 +190,15 @@ public class LocationSearchServiceTest {
                 }
             }
 
-            int leftIndex = PAGE_ONE * BLOCK_SIZE;
-            int rightIndex = PAGE_TWO * BLOCK_SIZE + BLOCK_SIZE;
-            return new SliceImpl<>(resultList.subList(leftIndex, rightIndex), pageable, false);
+            Slice<Activity> resultSlice;
+            if (resultList.size()>BLOCK_SIZE) {
+                int leftIndex = PAGE_ONE * BLOCK_SIZE;
+                int rightIndex = PAGE_TWO * BLOCK_SIZE + BLOCK_SIZE;
+                resultSlice = new SliceImpl<>(resultList.subList(leftIndex, rightIndex), pageable, true);
+            } else {
+                resultSlice = new SliceImpl<>(resultList, pageable, false);
+            }
+            return resultSlice;
         });
 
 
@@ -187,9 +211,15 @@ public class LocationSearchServiceTest {
 
             resultList.addAll(activityList);
 
-            int leftIndex = PAGE_ONE * BLOCK_SIZE;
-            int rightIndex = PAGE_TWO * BLOCK_SIZE + BLOCK_SIZE;
-            return new SliceImpl<>(resultList.subList(leftIndex, rightIndex), pageable, false);
+            Slice<Activity> resultSlice;
+            if (resultList.size()>BLOCK_SIZE) {
+                int leftIndex = PAGE_ONE * BLOCK_SIZE;
+                int rightIndex = PAGE_TWO * BLOCK_SIZE + BLOCK_SIZE;
+                resultSlice = new SliceImpl<>(resultList.subList(leftIndex, rightIndex), pageable, true);
+            } else {
+                resultSlice = new SliceImpl<>(resultList, pageable, false);
+            }
+            return resultSlice;
         });
     }
 
@@ -202,7 +232,10 @@ public class LocationSearchServiceTest {
     @Test
     void getOrActivityByLocationSuccess() throws Exception {
         String method = "or";
-        locationSearchService.getActivitiesByLocation(String strCoordinates, String activityTypes,
+        String activitiesString = "Kiting Hiking";
+        Slice<Activity> resultSlice = locationSearchService.getActivitiesByLocation(STRING_COORDINATES_A, activitiesString,
                 MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE);
+        assertTrue(resultSlice.getSize()<=BLOCK_SIZE);
+        assertEquals(3, resultSlice); // All 3 activities in activityList are expected to return
     }
 }
