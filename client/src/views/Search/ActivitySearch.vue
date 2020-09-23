@@ -62,10 +62,10 @@
                 </b-col>
                 <section v-if="filterSearch">
                     <b-button id="clearFiltersButton" size="sm" variant="link" align-self="end" v-on:click="filterSearch=false">Clear Filters</b-button><br/>
-                    <label>Minimum Fitness Level: {{this.minFitness}}</label>
+                    <label>Minimum Fitness Level: {{convertFitnessToString(this.minFitness)}}</label>
                     <b-form-input id="minimumFitnessLevel" type="range" min="0" max="4"
                                   focus v-model="minFitness"></b-form-input>
-                    <label>Maximum Fitness Level: {{this.maxFitness}}</label>
+                    <label>Maximum Fitness Level: {{convertFitnessToString(this.maxFitness)}}</label>
                     <b-form-input id="maximumFitnessLevel" type="range" min="0" max="4"
                                   focus v-model="maxFitness"></b-form-input>
                 </section>
@@ -118,6 +118,7 @@
     import api from "../../Api";
     import ActivityCard from "./ActivityCard";
     import LocationIO from "../../components/Map/LocationIO";
+    import {fitnessLevels} from "../../constants";
 
 export default {
     name: "ActivitySearch",
@@ -157,8 +158,8 @@ export default {
             rows: null,
             resultsFound: false,
             filterSearch: false,
-            minFitness: "0",
-            maxFitness: "4"
+            minFitness: 0,
+            maxFitness: 4
         }
     },
     async mounted() {
@@ -319,8 +320,23 @@ export default {
                     }
                     this.getPaginatedActivitiesByActivityTitle();
                 }
-            }
+            },
 
+            /**
+             * Convert fitness level to fitness level string
+             * @param the fitness level as an integer
+             * @return String the fitness level string
+             */
+            convertFitnessToString(fitness) {
+                fitness = Number(fitness);
+                let fitnessString = "No fitness level";
+                for (const option in fitnessLevels) {
+                    if (fitnessLevels[option].value === fitness) {
+                        fitnessString = fitnessLevels[option].desc;
+                    }
+                }
+                return fitnessString;
+            }
         }
     }
 </script>
