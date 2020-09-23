@@ -120,9 +120,6 @@
                 searchPin: null,
                 mapLoading: true,
                 maxPins: 1,
-                //TODO These fitness level fields need to have proper inits after the end points have been made for the backend to deal with these passed through vars
-                minFitnessLevel: -1,
-                maxFitnessLevel: 4,
                 pins: [],
                 MAX_DISTANCE: 10000,
                 activitiesPerPage: 5,
