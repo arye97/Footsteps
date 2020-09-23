@@ -4,7 +4,7 @@
             <GmapMap class="map"
                     ref="mapRef"
                     :center="initialCenter"
-                    :zoom="4.5"
+                    :zoom="10"
                     map-type-id="terrain"
                     style="width: 500px; height: 300px"
                     @dragend="updateCenter"
