@@ -308,6 +308,21 @@ describe("Filter search", () => {
         expect(activitySearch.find('#minimumFitnessLevel').exists()).toBeTruthy();
         expect(activitySearch.find('#maximumFitnessLevel').exists()).toBeTruthy();
     });
+
+    test("When the user can filter, they should be able to access the checkbox for including unleveled activities", () => {
+        activitySearch = shallowMount(ActivitySearch, {
+            router,
+            mocks: {api},
+            localVue,
+            data() {
+                return {
+                    filterSearch: true
+                }
+            }
+        });
+        expect(activitySearch.find('#clearFiltersButton').exists()).toBeTruthy();
+        expect(activitySearch.find('#includeUnleveledBox').exists()).toBeTruthy();
+    })
 });
 
 test('map pane does not exist at default', () => {
