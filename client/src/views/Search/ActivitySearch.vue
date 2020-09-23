@@ -16,13 +16,6 @@
                         <b-form-input id="searchBoxActivityTitle" v-model="activityTitle"
                                       placeholder="Search activity by title"></b-form-input>
                         <br>
-                        <ul>
-                            <li>All searches are case insensitive including exact match searches</li>
-                            <li>Use double quotes around your search for exact matching</li>
-                            <li>Use OR between keywords to search for anything with any of the keywords</li>
-                            <li>Use AND between keywords to search for anything with all of the keywords</li>
-                            <li>AND and OR keywords must be spelt with capitals</li>
-                        </ul>
                     </b-col>
                     <b-col class="multi-search" cols=4>
                         <b-form-select id="searchModeSelect" v-model="searchMode"
@@ -58,7 +51,16 @@
                     <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
                         Search
                     </b-button>
-                    <br/>
+                </b-row>
+                <br/>
+                <b-row>
+                    <ul style="align-content: center;">
+                        <li>All searches are case insensitive including exact match searches</li>
+                        <li>Use double quotes around your search for exact matching</li>
+                        <li>Use OR between keywords to search for anything with any of the keywords</li>
+                        <li>Use AND between keywords to search for anything with all of the keywords</li>
+                        <li>AND and OR keywords must be spelt with capitals</li>
+                    </ul>
                 </b-row>
             </div>
             <div v-if="resultsFound">
@@ -315,7 +317,6 @@ export default {
 <style scoped>
 .searchButton {
     width: 200%;
-    margin-top: 1rem !important;
 }
 
 .distanceSlider {
