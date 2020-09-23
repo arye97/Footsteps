@@ -74,11 +74,6 @@ public class Activity {
     @JsonProperty("location")
     private Location location;
 
-    @JsonProperty("fitness")
-    @Column(name = "fitness")
-    private int fitnessLevel;
-
-
     /**
      * Default constructor for Activity.
      * Mandatory for repository actions?
@@ -95,7 +90,7 @@ public class Activity {
         startTime = activity.getStartTime();
         endTime = activity.getEndTime();
         location = new Location(activity.getLocation());
-        fitnessLevel = activity.getFitnessLevel();
+        //fitnessLevel = activity.getFitnessLevel();
     }
 
     public Activity(ActivityPutRequest activity) {
@@ -108,7 +103,7 @@ public class Activity {
         startTime = activity.getStartTime();
         endTime = activity.getEndTime();
         location = new Location(activity.getLocation());
-        fitnessLevel = activity.getFitnessLevel();
+        //fitnessLevel = activity.getFitnessLevel();
     }
 
     public Long getActivityId() {
@@ -145,14 +140,6 @@ public class Activity {
 
     public void setActivityTypes(Set<ActivityType> activityTypes) {
         this.activityTypes = activityTypes;
-    }
-
-    public int getFitnessLevel() {
-        return fitnessLevel;
-    }
-
-    public void setFitnessLevel(int fitnessLevel) {
-        this.fitnessLevel = fitnessLevel;
     }
 
     public boolean isContinuous() {
