@@ -62,10 +62,14 @@
                 </b-col>
                 <section v-if="filterSearch">
                     <b-button id="clearFiltersButton" size="sm" variant="link" align-self="end" v-on:click="filterSearch=false">Clear Filters</b-button><br/>
-                    <label>Minimum Fitness Level: {{convertFitnessToString(this.minFitness)}}</label>
+                    <label>Minimum Fitness Level:
+                        <p>{{convertFitnessToString(this.minFitness)}}</p>
+                    </label>
                     <b-form-input id="minimumFitnessLevel" type="range" min="0" max="4"
                                   focus v-model="minFitness"></b-form-input>
-                    <label>Maximum Fitness Level: {{convertFitnessToString(this.maxFitness)}}</label>
+                    <label>Maximum Fitness Level:
+                        <p>{{convertFitnessToString(this.maxFitness)}}</p>
+                    </label>
                     <b-form-input id="maximumFitnessLevel" type="range" min="0" max="4"
                                   focus v-model="maxFitness"></b-form-input>
                 </section>
