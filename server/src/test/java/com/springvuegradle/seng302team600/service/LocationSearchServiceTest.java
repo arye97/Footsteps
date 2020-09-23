@@ -221,6 +221,47 @@ public class LocationSearchServiceTest {
             }
             return resultSlice;
         });
+
+
+        when(activityRepository.countAllWithinDistance(
+                Mockito.anyDouble(), Mockito.anyDouble(), Mockito.anyDouble())).thenAnswer(i -> activityList.size());
+
+
+        when(activityRepository.countAllWithinDistanceByAllActivityTypeIds(Mockito.anyDouble(), Mockito.anyDouble(),
+                Mockito.anyDouble(), Mockito.anyList(), Mockito.anyInt())).thenAnswer(i -> {
+            List<Long> activityTypeIds = i.getArgument(3);
+            int numActivityTypes = i.getArgument(4);
+            List<Activity> resultList = new ArrayList<>();
+            int matchCount = 0;
+            for (Activity activity : activityList) {
+                for (ActivityType activityType : activity.getActivityTypes()) {
+                    if (activityTypeIds.contains(activityType.getActivityTypeId())) {
+                        matchCount++;
+                    }
+                }
+                if (matchCount == numActivityTypes) {
+                    resultList.add(activity);
+                }
+                matchCount = 0;
+            }
+            return resultList.size();
+        });
+
+
+        when(activityRepository.countAllWithinDistanceBySomeActivityTypeIds(Mockito.anyDouble(), Mockito.anyDouble(),
+                Mockito.anyDouble(), Mockito.anyList())).thenAnswer(i -> {
+            List<Long> activityTypeIds = i.getArgument(3);
+            List<Activity> resultList = new ArrayList<>();
+            for (Activity activity : activityList) {
+                for (ActivityType activityType : activity.getActivityTypes()) {
+                    if (activityTypeIds.contains(activityType.getActivityTypeId())) {
+                        resultList.add(activity);
+                        break;
+                    }
+                }
+            }
+            return resultList.size();
+        });
     }
 
 //    ---- Tests ----
