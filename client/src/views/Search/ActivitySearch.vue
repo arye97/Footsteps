@@ -62,10 +62,12 @@
                 </b-col>
                 <section v-if="filterSearch">
                     <b-button id="clearFiltersButton" size="sm" variant="link" align-self="end" v-on:click="filterSearch=false">Clear Filters</b-button><br/>
-                    <label>Minimum Fitness Level</label>
-                    <b-form-input id="minimumFitnessLevel" type="range" min="0" max="4" focus :value="minFitness"></b-form-input>
-                    <label>Maximum Fitness Level</label>
-                    <b-form-input id="maximumFitnessLevel" type="range" min="0" max="4" focus :value="maxFitness"></b-form-input>
+                    <label>Minimum Fitness Level: {{this.minFitness}}</label>
+                    <b-form-input id="minimumFitnessLevel" type="range" min="0" max="4"
+                                  focus v-model="minFitness"></b-form-input>
+                    <label>Maximum Fitness Level: {{this.maxFitness}}</label>
+                    <b-form-input id="maximumFitnessLevel" type="range" min="0" max="4"
+                                  focus v-model="maxFitness"></b-form-input>
                 </section>
                 <section v-else>
                     <b-button id="filterSearchButton" size="sm" variant="link" align-self="end" v-on:click="filterSearch=true">Filter Search</b-button><br/>
