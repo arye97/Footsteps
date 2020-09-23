@@ -94,7 +94,7 @@ public class LocationSearchService {
      * @param activityTypes     A space delimited string of the activity types
      * @return activityTypeIds  The list of activity type ids for the provided activity types
      */
-    public List<Long> getActivityTypeIds(String activityTypes) {
+    private List<Long> getActivityTypeIds(String activityTypes) {
         List<String> typesWithDashes = Arrays.asList(activityTypes.split(" "));
         List<String> types = typesWithDashes.stream()
                 .map(a -> a.replace('-', ' '))

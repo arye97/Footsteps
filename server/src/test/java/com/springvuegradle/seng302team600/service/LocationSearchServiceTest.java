@@ -6,6 +6,7 @@ import com.springvuegradle.seng302team600.model.Location;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class LocationSearchServiceTest {
         private ActivityTypeRepository activityTypeRepository;
 
         @Autowired
-        private ActivityPinService LocationSearchService;
+        private LocationSearchService locationSearchService;
 
     private List<Activity> activityList = new ArrayList<>();
     private Set<ActivityType> activityTypeSet = new HashSet<>();
@@ -47,17 +48,26 @@ public class LocationSearchServiceTest {
     private final Long DUMMY_TYPE_ID_2 = 2L;
     private final Long DUMMY_TYPE_ID_3 = 3L;
 
+    private final Double SHORT_DISTANCE = 120D;
+    private final Double MEDIUM_DISTANCE = 4300D;
+    private final Double LONG_DISTANCE = 8900D;
+    private final Double VERY_LONG_DISTANCE = 11000D;
+
     private final Double LONDON_LAT = 51.507351D;
     private final Double LONDON_LON = -0.127758D;
+    private final Location LONDON = new Location(LONDON_LON, LONDON_LAT, "London");
 
     private final Double BERLIN_LAT = 52.520008D;
     private final Double BERLIN_LON = 13.404954D;
+    private final Location BERLIN = new Location(BERLIN_LON, BERLIN_LAT, "Berlin");
 
     private final Double WARSAW_LAT = 52.229675D;
     private final Double WARSAW_LON = 21.012230D;
+    private final Location WARSAW = new Location(WARSAW_LON, WARSAW_LAT, "Warsaw");
 
     private final Double MOSCOW_LAT = 37.617298D;
     private final Double MOSCOW_LON = 55.755825D;
+    private final Location MOSCOW = new Location(MOSCOW_LON, MOSCOW_LAT, "Moscow");
 
     private final Double DUMMY_LAT = 12.345678D;
     private final Double DUMMY_LON = 12.345678D;
@@ -70,13 +80,13 @@ public class LocationSearchServiceTest {
 
         Activity dummyActivity1 = new Activity();
         ReflectionTestUtils.setField(dummyActivity1, "activityId", DUMMY_ACTIVITY_ID_1);
-        dummyActivity1.setLocation(new Location(BERLIN_LON, BERLIN_LAT, "Berlin"));
+        dummyActivity1.setLocation(BERLIN);
         Activity dummyActivity2 = new Activity();
         ReflectionTestUtils.setField(dummyActivity2, "activityId", DUMMY_ACTIVITY_ID_2);
-        dummyActivity2.setLocation(new Location(WARSAW_LON, WARSAW_LAT, "Warsaw"));
+        dummyActivity2.setLocation(WARSAW);
         Activity dummyActivity3 = new Activity();
         ReflectionTestUtils.setField(dummyActivity3, "activityId", DUMMY_ACTIVITY_ID_3);
-        dummyActivity3.setLocation(new Location(MOSCOW_LON, MOSCOW_LAT, "Moscow"));
+        dummyActivity3.setLocation(MOSCOW);
 
         activityList.add(dummyActivity1);
         activityList.add(dummyActivity2);
@@ -112,7 +122,7 @@ public class LocationSearchServiceTest {
             return resultList;
         });
 
-        //todo: Mock:
+
         // activityRepository.findAllWithinDistanceByAllActivityTypeIds(
         //                        coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance,
         //                        activityTypeIds, numActivityTypes, activitiesBlock)
@@ -143,7 +153,7 @@ public class LocationSearchServiceTest {
             return new SliceImpl<>(resultList.subList(leftIndex, rightIndex), pageable, false);
         });
 
-        //todo: Mock:
+
         // activityRepository.findAllWithinDistanceBySomeActivityTypeIds(
         //                        coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance,
         //                        activityTypeIds, activitiesBlock);
@@ -167,7 +177,7 @@ public class LocationSearchServiceTest {
             return new SliceImpl<>(resultList.subList(leftIndex, rightIndex), pageable, false);
         });
 
-        //todo: Mock:
+
         // activityRepository.findAllWithinDistance(
         //                    coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance, activitiesBlock);
         when(activityRepository.findAllWithinDistance(Mockito.anyDouble(), Mockito.anyDouble(),
@@ -189,5 +199,10 @@ public class LocationSearchServiceTest {
         MockitoAnnotations.initMocks(this);
     }
 
-
+    @Test
+    void getOrActivityByLocationSuccess() throws Exception {
+        String method = "or";
+        locationSearchService.getActivitiesByLocation(String strCoordinates, String activityTypes,
+                MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE);
+    }
 }
