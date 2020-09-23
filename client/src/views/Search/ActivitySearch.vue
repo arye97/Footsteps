@@ -72,6 +72,7 @@
                     </label>
                     <b-form-input id="maximumFitnessLevel" type="range" min="0" max="4"
                                   focus v-model="maxFitness"></b-form-input>
+                    <b-form-checkbox>Include activities without fitness levels?</b-form-checkbox>
                 </section>
                 <section v-else>
                     <b-button id="filterSearchButton" size="sm" variant="link" align-self="end" v-on:click="filterSearch=true">Filter Search</b-button><br/>
