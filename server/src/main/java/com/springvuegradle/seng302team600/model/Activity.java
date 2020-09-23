@@ -76,7 +76,7 @@ public class Activity {
 
     @JsonProperty("fitness")
     @Column(name = "fitness")
-    private int fitnessLevel;
+    private Integer fitnessLevel;
 
 
     /**
@@ -147,11 +147,11 @@ public class Activity {
         this.activityTypes = activityTypes;
     }
 
-    public int getFitnessLevel() {
+    public Integer getFitnessLevel() {
         return fitnessLevel;
     }
 
-    public void setFitnessLevel(int fitnessLevel) {
+    public void setFitnessLevel(Integer fitnessLevel) {
         this.fitnessLevel = fitnessLevel;
     }
 
