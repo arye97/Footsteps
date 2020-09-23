@@ -1,14 +1,13 @@
 import {mount, createLocalVue} from '@vue/test-utils'
 import LocationIO from '../components/Map/LocationIO.vue'
 import {BootstrapVue} from 'bootstrap-vue';
-import { gmapApi } from 'gmap-vue';
 import "vue-jest"
-
-jest.mock("gmap-vue");
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(gmapApi);
+
+import EmptyComponent from "./EmptyComponent.vue";
+localVue.component('GmapAutocomplete', EmptyComponent);
 
 let config;
 
@@ -49,10 +48,6 @@ test('Is a vue instance', () => {
 
 test('map pane does not exist at default', () => {
     expect(locationIO.find('#mapComponent').exists()).toBeFalsy();
-});
-
-test('gmap Auto complete does not exist at default', () => {
-    expect(locationIO.find('#gmapAutoComplete').exists()).toBeFalsy();
 });
 
 test('Add marker button does not exist at default', () => {
