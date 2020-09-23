@@ -64,9 +64,6 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
             "SELECT * FROM activity WHERE activity_name LIKE ?1", nativeQuery = true)
     List<Activity> findAllByKeyword(@Param("keyword") String keyword);
 
-    @Query(value = "SELECT DISTINCT * FROM activity WHERE activity_name LIKE ?1 AND activity_name NOT LIKE ?2", nativeQuery = true)
-    List<Activity> findAllByKeywordExcludingTerm(@Param("keyword") String keyword, @Param("term") String term);
-
     @Query(value = "SELECT a.*" +
             "FROM activity as a " +
             "INNER JOIN location as l " +

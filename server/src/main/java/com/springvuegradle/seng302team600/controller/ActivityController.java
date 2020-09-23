@@ -412,6 +412,7 @@ public class ActivityController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Activity Types must be specified");
         }
         List<String> typesWithDashes = Arrays.asList(activityTypes.split(" "));
+
         List<String> types = typesWithDashes.stream()
                 .map(a -> a.replace('-', ' '))
                 .collect(Collectors.toList());
