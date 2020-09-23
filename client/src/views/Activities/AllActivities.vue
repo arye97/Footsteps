@@ -125,6 +125,7 @@
                 let pins = [];
                 await api.getActivityPins(this.userId, pinBlock).then(response => {
                     for (let pin of response.data) {
+                        pin.windowOpen = false;
                         if (!("name" in pin)) {
                             pin["name"] = pin["location_name"];
                         }
