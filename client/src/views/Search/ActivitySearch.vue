@@ -60,6 +60,16 @@
                     <LocationIO v-if="!mapLoading" :parent-center="currentLocation" :max-pins="maxPins"
                                 :parent-pins="pins" :draggable="true" @child-pins="pinsChanged"></LocationIO>
                 </b-col>
+                <section v-if="filterSearch">
+                    <b-button id="clearFiltersButton" size="sm" variant="link" align-self="end" v-on:click="filterSearch=false">Clear Filters</b-button><br/>
+                    <label>Minimum Fitness Level</label>
+                    <b-form-input id="minimumFitnessLevel" type="range" min="0" max="4" focus :value="minFitness"></b-form-input>
+                    <label>Maximum Fitness Level</label>
+                    <b-form-input id="maximumFitnessLevel" type="range" min="0" max="4" focus :value="maxFitness"></b-form-input>
+                </section>
+                <section v-else>
+                    <b-button id="filterSearchButton" size="sm" variant="link" align-self="end" v-on:click="filterSearch=true">Filter Search</b-button><br/>
+                </section>
                 <b-row>
                     <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
                         Search
@@ -107,63 +117,66 @@
     import ActivityCard from "./ActivityCard";
     import LocationIO from "../../components/Map/LocationIO";
 
-    export default {
-        name: "ActivitySearch",
-        components: {
-            LocationIO,
-            ActivityCard,
-            Multiselect
-        },
-        data() {
-            return {
-                currentLocation: {draggable: false},
-                searchPin: null,
-                mapLoading: true,
-                maxPins: 1,
-                pins: [],
-                MAX_DISTANCE: 10000,
-                activitiesPerPage: 5,
-                cutoffDistance: 1,
-                currentPage: 1,
-                activitiesList: [],
-                searchMode: 'activityType',
-                searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
-                    {value: 'activityType', text: 'Activity Type'},
-                    {value: 'activityName', text: 'Activity Name'},
-                    {value: 'activityLocation', text: 'Location'}
-                ],
-                // These are the ActivityTypes selected in the Multiselect
-                selectedActivityTypes: [],
-                // These are a copy of selectedActivityTypes passed to the UserCard (to avoid mutation after clicking search)
-                activityTypesSearchedFor: [],
-                activityTitle: "",
-                activityTypes: [],
-                searchType: "and",
-                errored: false,
-                error_message: "Something went wrong! Please try again.",
-                loading: false,
-                rows: null,
-                resultsFound: false
+export default {
+    name: "ActivitySearch",
+    components: {
+        LocationIO,
+        ActivityCard,
+        Multiselect
+    },
+    data() {
+        return {
+            currentLocation: {draggable: false},
+            searchPin: null,
+            mapLoading: true,
+            maxPins: 1,
+            pins: [],
+            MAX_DISTANCE: 10000,
+            activitiesPerPage: 5,
+            cutoffDistance: 1,
+            currentPage: 1,
+            activitiesList: [],
+            searchMode: 'activityType',
+            searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
+                { value: 'activityType', text: 'Activity Type'},
+                { value: 'activityName', text: 'Activity Name'},
+                { value: 'activityLocation', text: 'Location'}
+            ],
+            // These are the ActivityTypes selected in the Multiselect
+            selectedActivityTypes : [],
+            // These are a copy of selectedActivityTypes passed to the UserCard (to avoid mutation after clicking search)
+            activityTypesSearchedFor : [],
+            activityTitle: "",
+            activityTypes: [],
+            searchType: "and",
+            errored: false,
+            error_message: "Something went wrong! Please try again.",
+            loading: false,
+            rows: null,
+            resultsFound: false,
+            filterSearch: false,
+            minFitness: "0",
+            maxFitness: "4"
+        }
+    },
+    async mounted() {
+        // If not logged in
+        await api.getUserId().catch(() => this.logout());
+        await api.getAllUserData().then(response => {
+            if (response.data.private_location !== null) {
+                this.currentLocation.lng = response.data.private_location.longitude;
+                this.currentLocation.lat = response.data.private_location.latitude;
+                this.currentLocation.name = response.data.private_location.name;
+            } else if (response.data.public_location !== null) {
+                this.currentLocation.lng = response.data.public_location.longitude;
+                this.currentLocation.lat = response.data.public_location.latitude;
+                this.currentLocation.name = response.data.public_location.name;
             }
-        },
-        async mounted() {
-            // If not logged in
-            await api.getUserId().catch(() => this.logout())
-            await api.getAllUserData().then(response => {
-                if (response.data.private_location !== null) {
-                    this.currentLocation.lng = response.data.private_location.longitude;
-                    this.currentLocation.lat = response.data.private_location.latitude;
-                    this.currentLocation.name = response.data.private_location.name;
-                } else if (response.data.public_location !== null) {
-                    this.currentLocation.lng = response.data.public_location.longitude;
-                    this.currentLocation.lat = response.data.public_location.latitude;
-                    this.currentLocation.name = response.data.public_location.name;
-                }
-            });
-            this.pins.push(this.currentLocation);
-            this.mapLoading = false;
-            await this.fetchActivityTypes();
-        },
+        });
+        this.pins.push(this.currentLocation);
+        this.mapLoading = false;
+        await this.fetchActivityTypes();
+    },
 
         methods: {
             pinsChanged(pins) {
