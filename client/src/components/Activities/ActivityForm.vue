@@ -86,24 +86,14 @@
 
                 <div v-if="activity.continuous === false">
                     <b-form-group>
-                        <div v-if="has_start_time === false" >
-                            <label id="input-start-label" for="input-start">Start Date: *</label>
-                            <input type="date" class="form-control"
-                                   :value="activity.startTime && activity.startTime.split('T')[0]"
-                                   @input="activity.startTime = dateIntoDateTimeStr($event.target.value, activity.startTime)"
-                                   id="input-start">
-                        </div>
-                        <div v-else>
-                            <label id="input-start-time-label" for="input-start-time">Start Date: *</label>
-                            <input type="datetime-local" class="form-control"
-                                   :value="activity.startTime"
-                                   @input="activity.startTime = $event.target.value === '' ? activity.startTime : $event.target.value"
-                                   id="input-start-time">
-                        </div>
+                        <label id="input-start-label">Start Date: *</label>
+                        <b-form-datepicker v-model="activity.startDate" class="mb-2"></b-form-datepicker>
+                        <b-form-timepicker v-model="activity.startTime" :disabled="!has_start_time" locale="en"></b-form-timepicker>
                         <b-form-checkbox
                                 class="checkbox-time"
                                 size="sm"
                                 v-model="has_start_time"
+                                @change="this.disabledStart"
                         >
                             Include starting time
                         </b-form-checkbox>
@@ -122,24 +112,14 @@
                     </div>
 
                     <b-form-group>
-                        <div v-if="has_end_time === false" >
-                            <label id="input-end-label" for="input-end">End Date: *</label>
-                            <input type="date" class="form-control"
-                                   :value="activity.endTime && activity.endTime.split('T')[0]"
-                                   @input="activity.endTime = dateIntoDateTimeStr($event.target.value, activity.endTime)"
-                                   id="input-end">
-                        </div>
-                        <div v-else>
-                            <label id="input-end-time-label" for="input-end-time">End Date: *</label>
-                            <input type="datetime-local" class="form-control"
-                                   :value="activity.endTime"
-                                   @input="activity.endTime = $event.target.value === '' ? activity.endTime : $event.target.value"
-                                   id="input-end-time">
-                        </div>
+                        <label id="input-end-label">End Date: *</label>
+                        <b-form-datepicker v-model="activity.endDate" class="mb-2"></b-form-datepicker>
+                        <b-form-timepicker v-model="activity.endTime" :disabled="!has_end_time" locale="en"></b-form-timepicker>
                         <b-form-checkbox
                                 class="checkbox-time"
                                 size="sm"
                                 v-model="has_end_time"
+                                @change="this.disabledEnd"
                         >
                             Include ending time
                         </b-form-checkbox>
@@ -157,10 +137,6 @@
                        {{"A date cannot be set before 1st Jan, 1970"}}
                     </div>
                 </div>
-
-
-
-
 
                 <b-form-group
                         id="input-group-location"
@@ -322,7 +298,9 @@
                 submitStartTime: String,
                 submitEndTime: String,
                 location: Object,
+                startDate: String,
                 startTime: String,
+                endDate: String,
                 endTime: String,
             },
             outcomeList: {
@@ -339,11 +317,12 @@
             },
             submitActivityFunc: Function,
             isEdit:  Boolean,
-            startTime: String,
-            endTime: String,
         },
         data() {
             return {
+                inputStartTime: null,
+                inputEndTime: null,
+
                 activityTypes: [],
                 nameCharCount: 0,
                 maxNameCharCount: 75,
@@ -381,6 +360,38 @@
             }
         },
         methods: {
+            /**
+             * Helper function when checking/unchecking enable start time tick box
+             * @param checked status of tick box
+             */
+            disabledStart(checked) {
+                if (!checked) {
+                    this.inputStartTime = this.activity.startTime;
+                    this.activity.startTime = null;
+                } else {
+                    if (this.inputStartTime === null) {
+                        this.inputStartTime = this.defaultTime;
+                    }
+                    this.activity.startTime = this.inputStartTime;
+                }
+            },
+
+            /**
+             * Helper function when checking/unchecking enable end time tick box
+             * @param checked status of tick box
+             */
+            disabledEnd(checked) {
+                if (!checked) {
+                    this.inputEndTime = this.activity.endTime;
+                    this.activity.endTime = null;
+                } else {
+                    if (this.inputEndTime === null) {
+                        this.inputEndTime = this.defaultTime;
+                    }
+                    this.activity.endTime = this.inputEndTime
+                }
+            },
+
             /**
              * Called when submit button is pressed.  Validates the form input, then calls the function passed in
              * through props.  This way the form can be used to edit and create activities.
@@ -443,34 +454,22 @@
             },
 
             /**
-             * Takes a date string of the form yyyy-MM-dd and inserts it into a date and time string of the
-             * format yyyy-MM-ddThh:mm.  Helper method used in DOM.
-             * (wish this could be a function)
-             * @param dateStr string of the format yyyy-MM-dd
-             * @param dateTimeStr string of the format yyyy-MM-ddThh:mm
-             */
-            dateIntoDateTimeStr(dateStr, dateTimeStr) {
-                if (dateStr === null || dateStr === "") {
-                    return dateTimeStr;
-                }
-                let dateTimeArr;
-                if (dateTimeStr === null || dateTimeStr === "") {
-                    dateTimeArr = ["", this.defaultTime]   // 12:00
-                } else {
-                    dateTimeArr = dateTimeStr.split('T');
-                }
-                dateTimeArr[0] = dateStr;
-                return dateTimeArr.join('T');
-            },
-
-            /**
              * Validate activity inputs, called when onSubmit is called
              */
             async validateActivityInputs() {
-                this.activity.submitStartTime = this.activity.startTime;
-                let startTime = new Date(this.activity.startTime);
-                this.activity.submitEndTime = this.activity.endTime;
-                let endTime = new Date(this.activity.endTime);
+                if (!this.has_start_time) {
+                    this.activity.submitStartTime = this.activity.startDate + "T" + this.defaultTime;
+                } else {
+                    this.activity.submitStartTime = this.activity.startDate + "T" + this.activity.startTime.substr(0,5);
+                }
+                let startTime = new Date(this.activity.submitStartTime);
+
+                if (!this.has_end_time) {
+                    this.activity.submitEndTime = this.activity.endDate + "T" + this.defaultTime;
+                } else {
+                    this.activity.submitEndTime = this.activity.endDate + "T" + this.activity.endTime.substr(0,5);
+                }
+                let endTime = new Date(this.activity.submitEndTime);
 
                 if (!this.activity.activityName || this.nameCharCount > this.maxNameCharCount) {
                     showError('alert_activity_name');
