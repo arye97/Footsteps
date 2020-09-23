@@ -355,6 +355,10 @@
             }
         },
         methods: {
+            /**
+             * Helper function when checking/unchecking enable start time tick box
+             * @param checked status of tick box
+             */
             disabledStart(checked) {
                 if (!checked) {
                     this.inputStartTime = this.activity.startTime;
@@ -367,6 +371,10 @@
                 }
             },
 
+            /**
+             * Helper function when checking/unchecking enable end time tick box
+             * @param checked status of tick box
+             */
             disabledEnd(checked) {
                 if (!checked) {
                     this.inputEndTime = this.activity.endTime;
