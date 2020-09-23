@@ -476,6 +476,7 @@ public class ActivityController {
             hasNext = paginatedBlockOfActivities.hasNext();
         }
         if (pageNumber == 0) {
+            if (user.getPrivateLocation() != null && user.getPublicLocation() != null)
             paginatedBlockOfPins.add(0, new UserPin(user));
         }
         response.setHeader("Has-Next", Boolean.toString(hasNext));
