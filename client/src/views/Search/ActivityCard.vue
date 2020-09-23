@@ -42,7 +42,7 @@
                     </b-card-text>
                 </b-col>
                 <b-col v-if="activity.activity_type.length >= 1">
-                    <div v-if="activity.fitnessLevel" style="text-align: left; padding-left: 7px">
+                    <div v-if="activity.fitness" style="text-align: left; padding-left: 7px">
                         <strong>Fitness Level:</strong>
                         <br>
                         <b-card-text :id="'fitnessLevel' + activity.id">
@@ -97,7 +97,8 @@
                 errored: false,
                 errorMessage: 'An error occurred when loading this activity, please try again',
                 creatorName: '',
-                fitness: ""
+                fitness: "",
+                myFitness: null
             }
         },
 
@@ -123,17 +124,19 @@
                 if (this.fitness === "No fitness level") {
                     return null;
                 }
-                let myFitness;
                 await api.getAllUserData().then(response => {
-                    myFitness = response.data.fitness;
-                }).catch(error => {
+                    this.myFitness = response.data.fitness;
+                }).catch(() => {
                     this.errored = true;
-                    this.error = error.response.data.message;
                 });
+                this.setFitnessColour();
+            },
+
+            setFitnessColour() {
                 let fitnessLevelsElement = document.getElementById('fitnessLevel' + this.activity.id);
-                if (myFitness === -1) {
+                if (this.myFitness === -1) {
                     fitnessLevelsElement.style["color"] = "black";
-                } else if (myFitness <= this.fitness) {
+                } else if (this.myFitness <= this.fitness) {
                     fitnessLevelsElement.style["color"] = "green";
                 } else {
                     fitnessLevelsElement.style["color"] = "red";
