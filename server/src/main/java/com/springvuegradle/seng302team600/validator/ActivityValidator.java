@@ -13,8 +13,8 @@ public class ActivityValidator {
     private static final int NAME_LEN = 75;
     private static final int DESCRIPTION_LEN = 1500;
     private static final int MIN_ACTIVITY_TYPE_COUNT = 1;
-    private static final int MIN_FITNESS_LEVEL = -1;
-    private static final int MAX_FITNESS_LEVEL = 4;
+    private static final Integer MIN_FITNESS_LEVEL = -1;
+    private static final Integer MAX_FITNESS_LEVEL = 4;
 
 
     /**
@@ -55,7 +55,7 @@ public class ActivityValidator {
      * @param fitnessLevel the fitness level to be checked
      * @throws ResponseStatusException if invalid then bad request (400) should be returned
      */
-    private static void validateFitness(int fitnessLevel) {
+    private static void validateFitness(Integer fitnessLevel) {
         if (fitnessLevel > MAX_FITNESS_LEVEL || fitnessLevel < MIN_FITNESS_LEVEL) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Activity fitness level does not exist");
         }
