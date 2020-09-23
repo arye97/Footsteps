@@ -108,6 +108,10 @@ public class LocationSearchServiceTest {
         ActivityType dummyActivityType3 = new ActivityType("Kiting");
         ReflectionTestUtils.setField(dummyActivityType3, "activityTypeId", DUMMY_TYPE_ID_3);
 
+        activityTypeSet.add(dummyActivityType1);
+        activityTypeSet.add(dummyActivityType2);
+        activityTypeSet.add(dummyActivityType3);
+
         //Hiking Biking
         Set<ActivityType> HBset = new HashSet<>();
         HBset.add(dummyActivityType1);
@@ -130,8 +134,7 @@ public class LocationSearchServiceTest {
         when(activityTypeRepository.findActivityTypeIdsByNames(Mockito.anyList())).thenAnswer(i -> {
             List<String> activityTypeStrings = i.getArgument(0);
             List<Long> resultList = new ArrayList<>();
-            List<ActivityType> allActivityTypes = new ArrayList<>();
-            allActivityTypes.addAll(activityTypeSet);
+            List<ActivityType> allActivityTypes = new ArrayList<>(activityTypeSet);
             for (ActivityType activityType : allActivityTypes) {
                 if (activityTypeStrings.contains(activityType.getName())) {
                     resultList.add(activityType.getActivityTypeId());
@@ -151,7 +154,6 @@ public class LocationSearchServiceTest {
 
             Pageable pageable = i.getArgument(5);
             List<Activity> resultList = new ArrayList<>();
-            Set<ActivityType> activitiesTypes= new HashSet<>();
             int matchCount = 0;
 
             for (Activity activity : activityList) {
@@ -207,9 +209,7 @@ public class LocationSearchServiceTest {
         when(activityRepository.findAllWithinDistance(Mockito.anyDouble(), Mockito.anyDouble(),
                 Mockito.anyDouble(), Mockito.any(Pageable.class))).thenAnswer(i -> {
             Pageable pageable = i.getArgument(3);
-            List<Activity> resultList = new ArrayList<>();
-
-            resultList.addAll(activityList);
+            List<Activity> resultList = new ArrayList<>(activityList);
 
             Slice<Activity> resultSlice;
             if (resultList.size()>BLOCK_SIZE) {
@@ -235,7 +235,8 @@ public class LocationSearchServiceTest {
         String activitiesString = "Kiting Hiking";
         Slice<Activity> resultSlice = locationSearchService.getActivitiesByLocation(STRING_COORDINATES_A, activitiesString,
                 MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE);
-        assertTrue(resultSlice.getSize()<=BLOCK_SIZE);
-        assertEquals(3, resultSlice); // All 3 activities in activityList are expected to return
+        List<Activity> activities = resultSlice.getContent();
+        assertTrue(activities.size()<=BLOCK_SIZE);
+        assertEquals(3, activities.size()); // All 3 activities in activityList are expected to return
     }
 }
