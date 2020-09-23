@@ -15,7 +15,7 @@
         ></map-viewer>
         <br/>
         <b-button-group id="mapButtons" v-if="!viewOnly">
-          <b-button id='addMarkerButton' variant="primary" block @click="addMarker()">Drop Pin</b-button>
+          <b-button id='addMarkerButton' v-b-popover.hover.top="'Place Pin in Exact Center of the Map'" variant="primary" block @click="addMarker()">Drop Pin</b-button>
         </b-button-group>
         <p class="light-info-message" v-if="this.description">
             {{  this.description  }}
