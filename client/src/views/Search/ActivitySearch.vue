@@ -295,9 +295,10 @@
                 });
             },
 
+
+
             /**
-             * Fetches a paginated list of activities, filtered by specified location,
-             * through an API call.
+             * Fetches blocks of pins within the specified current location.
              */
             async getActivityPinBlocksByLocation() {
                 this.$refs.mapComponentRef.clearPins();
@@ -320,9 +321,16 @@
                 this.loading = false;
             },
 
-            async requestActivityPinsByBlock(pinBlock, urlCoordinates) {
+            /**
+             * Fetches pins in blocks of 20 through an api call, filtered by the specified current coordinates.
+             * Works exactly like pagination, but instead uses refers to pages as 'blocks'.
+             *
+             * @param blockNumber block number to be retrieved
+             * @param urlCoordinates coordinates of current location
+             */
+            async requestActivityPinsByBlock(blockNumber, urlCoordinates) {
                 let pins = [];
-                await api.getActivityPinsByLocation(urlCoordinates, this.activityTypesSearchedFor, this.cutoffDistance, this.searchType, pinBlock)
+                await api.getActivityPinsByLocation(urlCoordinates, this.activityTypesSearchedFor, this.cutoffDistance, this.searchType, blockNumber)
                     .then(response => {
                         for (let pin of response.data) {
                             if (!("name" in pin)) {
@@ -348,6 +356,12 @@
                 return pins;
             },
 
+            /**
+             * Helper function called when 'pin-changed' is emitted by LocationIO
+             * to clear all activity pins (non-red pins).
+             * 
+             * @param pin a moved pin
+             */
             clearSearchResults(pin) {
                 if (pin.colour !== "red") return;
                 this.currentLocation = pin;
@@ -378,7 +392,8 @@
                     }
                     this.getPaginatedActivitiesByActivityTitle();
                 } else {
-                    this.getActivityPinBlocksByLocation();
+                    await this.getActivityPinBlocksByLocation();
+
                 }
             }
         }
