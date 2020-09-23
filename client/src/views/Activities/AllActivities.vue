@@ -37,7 +37,7 @@
                 <location-i-o
                         ref="mapComponentRef"
                         :view-only="true"
-                        :parent-center="{lat: userPin.lat, lng: userPin.lng}"
+                        :parent-center="{lat: centerPin.lat, lng: centerPin.lng}"
                         :parent-pins.sync="pins"
                         :max-pins="rows"
                         :description="'Your location is red, created activities are blue and following activities are green.'"
@@ -72,7 +72,7 @@
                 errorAlertMessage: '',
                 rows: 0,
                 hasNext: false,
-                userPin: null,
+                centerPin: null,
                 pins: [],
                 loading: true,
                 userId: null
@@ -91,6 +91,7 @@
         async mounted() {
             this.userId = await this.getUserId();
             await this.getPins();
+            await this.checkUserPin();
             this.addPinsToMap(this.pins.reverse());  // reverse() Puts the user's location at end of the array
         },
         methods: {
@@ -103,11 +104,11 @@
                 let pinBlock = 0;
                 let pins = await this.requestPinBlock(pinBlock);
                 if (pins.length < 1) {
-                    pins = [{lat: -40.9006, lng: 174.8860, colour: 'red'}]; // No pins received, default to New Zealand
-                    this.rows = 1;
+                    pins = [null];
                 }
                 this.loading = false;
-                this.userPin = pins[0];
+                this.centerPin = pins[0];
+                console.log(this.centerPin);
                 this.pins = pins;
                 while (this.hasNext) {
                     pinBlock++;
@@ -129,9 +130,10 @@
                         if (!("name" in pin)) {
                             pin["name"] = pin["location_name"];
                         }
-                        pins.push(pin);
+                        if (pin.pin_type !== "USER") {
+                            pins.push(pin);
+                        }
                     }
-                    pins = response.data;
                     this.hasNext = response.headers['has-next'] === 'true';
                     this.rows += pins.length;
                 }).catch(error => {
@@ -178,6 +180,28 @@
              */
             addPinsToMap(pins) {
                 this.$refs.mapComponentRef.addMarkers(pins);
+            },
+
+            /**
+             * Checking the value of user pin
+             * This method allows validation that the user pin matches the user location
+             */
+            async checkUserPin() {
+                await api.getAllUserData().then(response => {
+                    let user = response.data;
+                    if (user.private_location !== null) {
+                        this.centerPin = user.private_location;
+                    } else if (user.public_location !== null) {
+                        this.centerPin = user.public_location;
+                    }
+                }).catch( error => {
+                    if (error.response.status === 401) {
+                        sessionStorage.clear();
+                        this.$router.push("/login");
+                    } else {
+                        throw new Error("Unknown error has occurred")
+                    }
+                });
             }
         }
     }
