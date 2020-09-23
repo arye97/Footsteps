@@ -138,12 +138,17 @@ class ActivityControllerTest {
         when(locationSearchService.getActivitiesByLocation(Mockito.anyString(), Mockito.anyString(), Mockito.anyDouble(),
                 Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> {
             int pageNumber = i.getArgument(5);
+            if (pageNumber < 0) {
+                pageNumber = 0;
+            }
             Pageable pageable = PageRequest.of(0, BLOCK_SIZE);
             int leftIndex = pageNumber * BLOCK_SIZE;
             int rightIndex = pageNumber * BLOCK_SIZE + BLOCK_SIZE;
             Slice<Activity> slice = new SliceImpl<>(dummyActivitiesTable.subList(leftIndex, rightIndex), pageable, false);
             return slice;
         });
+        when(locationSearchService.getRowsForActivityByLocation(Mockito.anyString(), Mockito.anyString(),
+                Mockito.anyDouble(), Mockito.anyString())).thenAnswer(i -> dummyActivitiesTable.size());
 
         // Mocking ActivityTypeService
         when(activityTypeService.getMatchingEntitiesFromRepository(Mockito.any())).thenAnswer(i -> i.getArgument(0));
@@ -1210,6 +1215,24 @@ class ActivityControllerTest {
         assertEquals(BLOCK_SIZE, responseArray.size());
         assertFalse(Boolean.parseBoolean(hasNext));
         assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), ActivityResponse.class));
+    }
+
+    @Test
+    public void successfullyGetNumberOfRowsForActivityByLocation() throws Exception {
+        populateDummyActivityList(INITIAL_ACTIVITIES_COUNT + BLOCK_SIZE);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities/rows"))
+                .param("coordinates",
+                        "%7B%22lat%22%3A%22-45.8667783%22%2C%22lng%22%3A%22170.4910567%22%7D")
+                .param("activityTypes", "smile")
+                .param("cutoffDistance", "1000")
+                .param("method", "OR")
+                .header("Token", validToken);
+
+        MvcResult response = mvc.perform(request)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        assertEquals(dummyActivitiesTable.size(), Integer.parseInt(response.getResponse().getContentAsString()));
     }
 
     /**

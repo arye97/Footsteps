@@ -551,7 +551,7 @@ public class ActivityController {
                                                @RequestParam(value = "method") String method) throws JsonProcessingException {
 
         String token = request.getHeader(TOKEN_DECLARATION);
-        User user = userAuthenticationService.findByToken(token);
+        userAuthenticationService.findByToken(token);
         int pageNumber;
         try {
             pageNumber = request.getIntHeader("Page-Number");
@@ -580,7 +580,6 @@ public class ActivityController {
      * Calls the service function to find the count of activities by location.
      *
      * @param request        the http request
-     * @param response       the http response
      * @param strCoordinates a string to be converted into a Coordinates object containing latitude and longitude
      * @param activityTypes  a list of activity types
      * @param cutoffDistance the max distance to search by
@@ -588,15 +587,15 @@ public class ActivityController {
      * @return the count of activities searched for
      */
     @GetMapping(
-            value = "/activities",
+            value = "/activities/rows",
             params = {"coordinates", "activityTypes", "cutoffDistance", "method"})
-    public int getRowsForActivityByLocation(HttpServletRequest request, HttpServletResponse response,
+    public int getNumberOfRowsForActivityByLocation(HttpServletRequest request,
                                             @RequestParam(value = "coordinates") String strCoordinates,
                                             @RequestParam(value = "activityTypes") String activityTypes,
                                             @RequestParam(value = "cutoffDistance") Double cutoffDistance,
                                             @RequestParam(value = "method") String method) throws JsonProcessingException {
         String token = request.getHeader(TOKEN_DECLARATION);
-        User user = userAuthenticationService.findByToken(token);
+        userAuthenticationService.findByToken(token);
 
         return locationSearchService.getRowsForActivityByLocation(strCoordinates, activityTypes,
                 cutoffDistance, method);
