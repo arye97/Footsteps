@@ -207,7 +207,6 @@
             await this.getActiveUserId();
             await this.getListOfActivities(true);
             await this.getListOfActivities(false);
-
             await this.getCreatorNamesForActivities(true);
             await this.getCreatorNamesForActivities(false);
 
