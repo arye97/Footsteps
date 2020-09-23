@@ -17,7 +17,7 @@
                         :clickable="true"
                         :draggable="(draggablePins) ? true : (pin.draggable === true)"
                         :icon="'http://maps.google.com/mapfiles/ms/icons/'.concat((!pin.colour) ? 'red' : pin.colour.toLowerCase()) + '-dot.png'"
-                        @click="panToPin(pin)"
+                        @click="directToPage(pin)"
                         @dragend="repositionPin({lat: $event.latLng.lat(), lng: $event.latLng.lng()}, pinIndex)"
                         @mouseover="toggleInfoWindow(pin, true)"
                         @mouseout="toggleInfoWindow(pin, false)"
@@ -129,10 +129,16 @@
             },
 
             /**
-             * Centres the map on a pin using a smooth animation
-             * @param pin object containing lat, lng
+             * Redirects the user to the page associated with the pin shown
+             * If the pin is not associated with an activity,
+             * the map is redirected to be centered on this pin
+             * @param pin object
              */
-            panToPin(pin) {
+            directToPage(pin) {
+                if (pin.pin_type === "ACTIVITY") {
+                    this.$router.push(`/activity/${pin.id}`);
+                    return;
+                }
                 // NOTE there are timing considerations with this function because it's async
                 this.$refs.mapRef.$mapPromise.then((map) => {
                     map.panTo(pin)

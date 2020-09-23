@@ -40,7 +40,7 @@
                         :parent-center="{lat: userPin.lat, lng: userPin.lng}"
                         :parent-pins.sync="pins"
                         :max-pins="rows"
-                        :description="'Your location is red, created activities are blue and following activities are green.'"
+                        :description="'Your location is red, created activities are blue and following activities are green. If you click an activity pin you will be directed to the page for that activity.'"
                 ></location-i-o>
                 <br/>
             </div>
