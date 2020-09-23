@@ -227,7 +227,7 @@ export default {
              */
             async getPaginatedActivitiesByActivityTitle() {
                 let pageNumber = this.currentPage - 1;
-                api.getActivityByActivityTitle(this.activityTitle, this.minFitnessLevel, this.maxFitnessLevel, pageNumber)
+                api.getActivityByActivityTitle(this.activityTitle, this.minFitness, this.maxFitness, pageNumber)
                     .then(response => {
                         this.activitiesList = response.data;
                         if (this.activityTitle.length != 0 && (response.data).length === 0) {
@@ -266,7 +266,7 @@ export default {
              */
             async getPaginatedActivitiesByActivityType() {
                 let pageNumber = this.currentPage - 1;
-                api.getActivityByActivityType(this.activityTypesSearchedFor, this.searchType, this.minFitnessLevel, this.maxFitnessLevel, pageNumber)
+                api.getActivityByActivityType(this.activityTypesSearchedFor, this.searchType, this.minFitness, this.maxFitness, pageNumber)
                     .then(response => {
                         this.activitiesList = response.data;
                         this.rows = response.headers["total-rows"];
