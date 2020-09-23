@@ -54,7 +54,10 @@ public class LocationSearchService {
 
         Coordinates coordinates = validateCoordinates(strCoordinates);
 
-        if (cutoffDistance >= MAX_CUTOFF_DISTANCE) {
+        if (cutoffDistance < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Cutoff distance must be 0 or greater");
+        } else  if (cutoffDistance >= MAX_CUTOFF_DISTANCE) {
             cutoffDistance = MAX_DISTANCE;
         }
 
