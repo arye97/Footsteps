@@ -78,7 +78,13 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
             "         * COS(RADIANS(:userLongitude - l.Longitude)) " +
             "         + SIN(RADIANS(:userLatitude)) " +
             "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance " +
-            "GROUP BY activity_id", nativeQuery = true)
+            "GROUP BY activity_id " +
+            "ORDER BY 111.111 * " +
+            "    DEGREES(ACOS(LEAST(1.0, COS(RADIANS(:userLatitude)) " +
+            "         * COS(RADIANS(l.Latitude)) " +
+            "         * COS(RADIANS(:userLongitude - l.Longitude)) " +
+            "         + SIN(RADIANS(:userLatitude)) " +
+            "         * SIN(RADIANS(l.Latitude)))))", nativeQuery = true)
     Slice<Activity> findAllWithinDistance(@Param("userLatitude") Double userLatitude,
                                           @Param("userLongitude") Double userLongitude,
                                           @Param("maxDistance") Double maxDistance,
@@ -97,7 +103,13 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
             "         * COS(RADIANS(:userLongitude - l.Longitude)) " +
             "         + SIN(RADIANS(:userLatitude)) " +
             "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance " +
-            "GROUP BY a.activity_id ", nativeQuery = true)
+            "GROUP BY a.activity_id " +
+            "ORDER BY 111.111 * " +
+            "    DEGREES(ACOS(LEAST(1.0, COS(RADIANS(:userLatitude)) " +
+            "         * COS(RADIANS(l.Latitude)) " +
+            "         * COS(RADIANS(:userLongitude - l.Longitude)) " +
+            "         + SIN(RADIANS(:userLatitude)) " +
+            "         * SIN(RADIANS(l.Latitude)))))", nativeQuery = true)
     Slice<Activity> findAllWithinDistanceBySomeActivityTypeIds(@Param("userLatitude") Double userLatitude,
                                                                @Param("userLongitude") Double userLongitude,
                                                                @Param("maxDistance") Double maxDistance,
@@ -117,7 +129,13 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
             "         * COS(RADIANS(:userLongitude - l.Longitude)) " +
             "         + SIN(RADIANS(:userLatitude)) " +
             "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance " +
-            "GROUP BY a.activity_id HAVING COUNT(a.activity_id) = :numActivityTypes", nativeQuery = true)
+            "GROUP BY a.activity_id HAVING COUNT(a.activity_id) = :numActivityTypes " +
+            "ORDER BY 111.111 * " +
+            "    DEGREES(ACOS(LEAST(1.0, COS(RADIANS(:userLatitude)) " +
+            "         * COS(RADIANS(l.Latitude)) " +
+            "         * COS(RADIANS(:userLongitude - l.Longitude)) " +
+            "         + SIN(RADIANS(:userLatitude)) " +
+            "         * SIN(RADIANS(l.Latitude)))))", nativeQuery = true)
     Slice<Activity> findAllWithinDistanceByAllActivityTypeIds(@Param("userLatitude") Double userLatitude,
                                                               @Param("userLongitude") Double userLongitude,
                                                               @Param("maxDistance") Double maxDistance,
