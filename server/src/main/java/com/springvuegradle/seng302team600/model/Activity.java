@@ -74,7 +74,6 @@ public class Activity {
     @JsonProperty("location")
     private Location location;
 
-
     /**
      * Default constructor for Activity.
      * Mandatory for repository actions?
@@ -91,6 +90,7 @@ public class Activity {
         startTime = activity.getStartTime();
         endTime = activity.getEndTime();
         location = new Location(activity.getLocation());
+        //fitnessLevel = activity.getFitnessLevel();
     }
 
     public Activity(ActivityPutRequest activity) {
@@ -103,6 +103,7 @@ public class Activity {
         startTime = activity.getStartTime();
         endTime = activity.getEndTime();
         location = new Location(activity.getLocation());
+        //fitnessLevel = activity.getFitnessLevel();
     }
 
     public Long getActivityId() {

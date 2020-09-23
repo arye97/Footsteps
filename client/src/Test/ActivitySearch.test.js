@@ -6,17 +6,33 @@ import router from "../index";
 import ActivitySearch from "../views/Search/ActivitySearch";
 import "jest";
 import BootstrapVue from "bootstrap-vue";
+import {gmapApi} from "gmap-vue";
+
+jest.mock('../Api');
+jest.mock("gmap-vue");
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-
-jest.mock('../Api');
+localVue.use(gmapApi);
 
 const ACTIVITY_TYPES = [
     "Biking", "Hiking", "Athletics"
 ];
 
 let pageSize = 5;
+
+const userData = {
+    "private_location": {
+        "name": "private_location",
+        "lng": 10.0,
+        "lat": 10.0,
+    },
+    "public_location": {
+        "name": "public_location",
+        "lng": 15.0,
+        "lat": 15.0,
+    }
+}
 
 const SEARCH_RESPONSE1 = [
     {
@@ -109,6 +125,7 @@ beforeEach(() => {
         })
     );
 
+    api.getAllUserData.mockImplementation(() => Promise.resolve({data: userData, status: 200}))
     api.getUserId.mockImplementation(() => Promise.resolve({status: 200}));
 
     api.logout.mockImplementation(() => Promise.resolve({status:200}));
@@ -253,4 +270,30 @@ describe("Search for activities by activity type", () => {
             expect(activitySearch.vm.api.getActivityByActivityType).toHaveBeenCalledWith(["Archery","Climbing"],"and", activitySearch.vm.$data.currentPage - 1);
         });
     });
+});
+
+
+test('map pane does not exist at default', () => {
+    expect(activitySearch.find('#mapComponent').exists()).toBeFalsy();
+});
+
+test('gmap Auto complete does not exist at default', () => {
+    expect(activitySearch.find('#gmapAutoComplete').exists()).toBeFalsy();
+});
+
+test('Add marker button does not exist at default', () => {
+    expect(activitySearch.find('#addMarkerButton').exists()).toBeFalsy();
+});
+
+test('Pins are empty by default', () => {
+    api.getAllUserData.mockImplementation(() => Promise.resolve({data: userData, status:200}));
+    activitySearch = shallowMount(ActivitySearch, {localVue, mocks: {api}});
+    expect(activitySearch.vm.$data.pins).toHaveLength(0);
+});
+
+test('Map center is undefined by default', () => {
+    api.getAllUserData.mockImplementation(() => Promise.resolve({data: userData, status:200}));
+    activitySearch = shallowMount(ActivitySearch, {localVue, mocks: {api}});
+    expect(activitySearch.vm.$data.currentLocation.lat).toBeUndefined();
+    expect(activitySearch.vm.$data.currentLocation.lng).toBeUndefined();
 });

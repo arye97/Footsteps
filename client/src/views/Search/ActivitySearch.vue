@@ -3,6 +3,7 @@
         <div>
             <br/>
             <div>
+                <b-form @submit.prevent @keydown.enter="search()">
                 <b-row>
                     <b-col cols="8" v-if="searchMode==='activityType' || searchMode==='activityLocation'">
                         <multiselect v-model="selectedActivityTypes" id="searchBoxActivities"
@@ -16,18 +17,6 @@
                         <b-form-input id="searchBoxActivityTitle" v-model="activityTitle"
                                       placeholder="Search activity by title"></b-form-input>
                         <br>
-                        <ul>
-                            <li>All searches are case insensitive including "" searches</li>
-                            <li>Use quotation marks to search for whole matches of the string within ("run" could return
-                                run to Mars but NOT running to Venus)
-                            </li>
-                            <li>Use "+" to include both strings in the search (any leading or tailing spaces are
-                                trimmed) (CSSE + fun will return any activity with the names CSSE and fun)
-                            </li>
-                            <li>Use "-" for splitting strings. Anything following the "-" will be excluded from the
-                                search (CSSE - fun would search for anything including CSSE that does not contain fun)
-                            </li>
-                        </ul>
                     </b-col>
                     <b-col class="multi-search" cols=4>
                         <b-form-select id="searchModeSelect" v-model="searchMode"
@@ -68,8 +57,18 @@
                     <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
                         Search
                     </b-button>
-                    <br/>
                 </b-row>
+                <br/>
+                <b-row v-if="searchMode==='activityName'">
+                    <ul style="align-content: center;">
+                        <li>All searches are case insensitive including exact match searches</li>
+                        <li>Use double quotes around your search for exact matching</li>
+                        <li>Use OR between keywords to search for anything with any of the keywords</li>
+                        <li>Use AND between keywords to search for anything with all of the keywords</li>
+                        <li>AND and OR keywords must be spelt with capitals</li>
+                    </ul>
+                </b-row>
+                </b-form>
             </div>
             <div v-if="resultsFound">
                 <hr/>
@@ -94,11 +93,11 @@
             </section>
             <!-- Pagination Nav Bar -->
             <b-pagination
-                    v-if="!errored && !loading && activitiesList.length >= 1"
-                    align="fill"
-                    v-model="currentPage"
-                    :total-rows="rows"
-                    :per-page="activitiesPerPage"
+                v-if="!errored && !loading && activitiesList.length >= 1"
+                align="fill"
+                v-model="currentPage"
+                :total-rows="rows"
+                :per-page="activitiesPerPage"
             ></b-pagination>
         </div>
     </div>
@@ -168,7 +167,15 @@
             this.mapLoading = false;
             await this.fetchActivityTypes();
         },
-
+        watch: {
+            /**
+             * Watcher is called whenever currentPage is changed, via searching new query
+             * or the pagination bar.
+             */
+            currentPage() {
+                this.getPaginatedActivitiesByActivityTitle();
+            }
+        },
         methods: {
             pinsChanged(pins) {
                 this.maxPins = pins.length;
@@ -331,6 +338,7 @@
                 // e.g. ["Hiking", "Biking"] into "Hiking Biking"
                 this.errored = false;
                 this.loading = true;
+                this.currentPage = 1;
                 if (this.searchMode === 'activityType') {
                     // Set is as a copy so the User card is only updated after clicking search
                     this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
@@ -348,7 +356,6 @@
                     this.getActivityPinBlocksByLocation();
                 }
             }
-
         }
     }
 </script>

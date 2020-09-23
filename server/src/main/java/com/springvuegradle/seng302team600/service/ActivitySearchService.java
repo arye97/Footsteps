@@ -6,50 +6,25 @@ import java.util.List;
 public class ActivitySearchService {
 
     /**
-     * This function handles the case when a search query needs to have an
-     * excluded term seperated from the main body, which is denoted by a '-' character in the search string
+     * This function handles the case when multiple separate search queries are to be linked together
+     * which is denoted by the inclusion of a 'AND' or 'OR' operator in the search string
      * @param searchString the string query to parse
-     * @return a list of two strings, one is the query and one is the term to be excluded from the search
+     * @param method the method to split the searchString by : eg 'AND' or 'OR'
+     * @return the string to be used and parsed in the SQL query
      */
-    public static List<String> handleMinusSpecialCaseString(String searchString) {
-        String searchQuery = "%";
-        String exclusion = "%";
-        List<String> queries = new ArrayList<>();
-        List<String> name = Arrays.asList(searchString.split(" "));
-        int i = 0;
-        while (!name.get(i).equals("-")) {
-            searchQuery = String.format("%s%s%s", searchQuery, name.get(i), "%");
-            i++;
+    public static String handleMethodSpecialCaseString(String searchString, String method) {
+        List<String> name = Arrays.asList(searchString.split(method));
+        String newQuery = "";
+        for (String terms : name) {
+            terms = terms.trim();
+            newQuery += terms;
+            if (!terms.equals(name.get(name.size()-1))) {
+                newQuery += "-";
+            }
         }
-        i++; //get past the - sign
-        while (name.size() > i) {
-            exclusion = String.format("%s%s%s", exclusion, name.get(i), "%");
-            i++;
-        }
-        queries.add(searchQuery);
-        queries.add(exclusion);
-        return queries;
+        return newQuery;
     }
 
-    /**
-     * This function handles the case when multiple separate search queries are to be linked together
-     * which is denoted by the inclusion of a '+' character in the search string
-     * @param searchString the string query to parse
-     * @return a list of two strings, one is the query and one is the term to be excluded from the search
-     */
-    public static List<String> handlePlusSpecialCaseString(String searchString) {
-        List<String> name = Arrays.asList(searchString.split("\\+"));
-        List<String> queries = new ArrayList<>();
-        for (String terms : name) {
-            List<String> totalTerms = Arrays.asList(terms.split(" "));
-            String newQuery = "";
-            for (String term : totalTerms) {
-                newQuery = String.format("%s%s%s", newQuery, term, "%");
-            }
-            queries.add(newQuery);
-        }
-        return queries;
-    }
 
     /**
      * This function handles generic searches, and exact string matching.
@@ -59,10 +34,11 @@ public class ActivitySearchService {
      */
     public static String getSearchQuery(String searchString) {
         if (searchString.startsWith("\"") && searchString.endsWith("\"")){
+
             //then the user has chosen exact match!
             searchString = searchString.substring(1, searchString.length() - 1);
-            if (searchString.contains("%20")) {
-                List<String> searchTerms =  Arrays.asList(searchString.split("%20")); //underscore is our space char
+            if (searchString.contains(" ")) {
+                List<String> searchTerms =  Arrays.asList(searchString.split(" "));
                 searchString = "";
                 for (String term : searchTerms) {
                     searchString = String.format("%s%s%s", searchString, term, " ");

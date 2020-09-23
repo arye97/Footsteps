@@ -4,14 +4,16 @@ import {BootstrapVue} from "bootstrap-vue";
 import AllActivities from "../views/Activities/AllActivities";
 import router from "../index";
 import api from "../Api";
+import { config } from "@vue/test-utils"
 
-jest.mock("../Api")
+config.showDeprecationWarnings = false;
+jest.mock("../Api");
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 
 let allActivities;
-let config;
+let wrapperConfig;
 
 const PINS_PER_BLOCK = 2;
 const USER_ID = 1;
@@ -95,11 +97,15 @@ beforeAll(() => {
                 return Promise.resolve({data: pins, status: 200, headers: header});
             }
         });
-        config = {
+        const addPinsToMap = jest.fn();
+        wrapperConfig = {
             router,
-            localVue
+            localVue,
+            methods: {
+                addPinsToMap
+            }
         };
-        allActivities = shallowMount(AllActivities, config);
+        allActivities = shallowMount(AllActivities, wrapperConfig);
         sleep(150).then(() => resolve());
     });
 });
