@@ -46,11 +46,12 @@
                         {{ (cutoffDistance != MAX_DISTANCE)?cutoffDistance:MAX_DISTANCE.toString().concat("+") }}
                     </div>
                     <location-i-o
+                            ref="mapComponentRef"
                             v-if="!mapLoading"
                             :parent-center="currentLocation"
-                            :max-pins="maxPins"
-                            :parent-pins.sync="pins"
+                            :parent-pins="pins"
                             :draggable="true"
+                            @pin-change="clearSearchResults"
                             @child-pins="pinsChanged"></location-i-o>
                 </b-col>
                 <b-row>
@@ -121,7 +122,6 @@
                 currentLocation: {draggable: false},
                 searchPin: null,
                 mapLoading: true,
-                maxPins: 1,
                 pins: [],
                 MAX_DISTANCE: 10000,
                 activitiesPerPage: 5,
@@ -157,13 +157,14 @@
                     this.currentLocation.lng = response.data.private_location.longitude;
                     this.currentLocation.lat = response.data.private_location.latitude;
                     this.currentLocation.name = response.data.private_location.name;
+                    this.pins.push(this.currentLocation);
                 } else if (response.data.public_location !== null) {
                     this.currentLocation.lng = response.data.public_location.longitude;
                     this.currentLocation.lat = response.data.public_location.latitude;
                     this.currentLocation.name = response.data.public_location.name;
+                    this.pins.push(this.currentLocation);
                 }
             });
-            this.pins.push(this.currentLocation);
             this.mapLoading = false;
             await this.fetchActivityTypes();
         },
@@ -178,7 +179,6 @@
         },
         methods: {
             pinsChanged(pins) {
-                this.maxPins = pins.length;
                 this.pins = pins;
             },
             goToPage(url) {
@@ -296,6 +296,10 @@
              * through an API call.
              */
             async getActivityPinBlocksByLocation() {
+                this.$refs.mapComponentRef.clearPins();
+                console.log(this.currentLocation)
+                this.$refs.mapComponentRef.addMarker(this.currentLocation);
+
                 let pinBlock = 0;
                 let coordinates = {
                     "lat": this.currentLocation.lat,
@@ -307,27 +311,39 @@
                 while (this.hasNext) {
                     pins = await this.requestActivityPinsByBlock(pinBlock, urlCoordinates);
                     this.pins = this.pins.concat(pins);
+                    this.$refs.mapComponentRef.addMarkers(pins);
                     pinBlock++;
                 }
                 console.log(this.pins)
-                console.log(this.maxPins)
                 this.loading = false;
-                // this.resultsFound = true;
             },
 
             async requestActivityPinsByBlock(pinBlock, urlCoordinates) {
                 let pins = [];
                 await api.getActivityPinsByLocation(urlCoordinates, this.activityTypesSearchedFor, this.cutoffDistance, this.searchType, pinBlock)
                     .then(response => {
-                        // this.activitiesList = response.data;
-                        pins = response.data;
+                        for (let pin of response.data) {
+                            if (!("name" in pin)) {
+                                pin["name"] = pin["location_name"];
+                            }
+                            pin.draggable = false;
+                            pin.windowOpen = false;
+                            console.log(pin)
+                            pins.push(pin);
+                        }
                         this.hasNext = response.headers['has-next'] === 'true';
-                        this.maxPins += pins.length
                     }).catch(error => {
                         console.log(error)
                         //TODO this
                     });
                 return pins;
+            },
+
+            clearSearchResults(pin) {
+                if (pin.colour !== "red") return;
+                this.currentLocation = pin;
+                this.$refs.mapComponentRef.clearPins();
+                this.$refs.mapComponentRef.addMarker(pin);
             },
 
             /**
