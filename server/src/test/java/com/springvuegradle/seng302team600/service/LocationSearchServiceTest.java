@@ -24,14 +24,14 @@ import static org.mockito.Mockito.when;
 @WebMvcTest(LocationSearchService.class)
 public class LocationSearchServiceTest {
 
-        @MockBean
-        private ActivityRepository activityRepository;
+    @MockBean
+    private ActivityRepository activityRepository;
 
-        @MockBean
-        private ActivityTypeRepository activityTypeRepository;
+    @MockBean
+    private ActivityTypeRepository activityTypeRepository;
 
-        @Autowired
-        private LocationSearchService locationSearchService;
+    @Autowired
+    private LocationSearchService locationSearchService;
 
     private List<Activity> activityList = new ArrayList<>();
     private Set<ActivityType> activityTypeSet = new HashSet<>();
@@ -57,7 +57,7 @@ public class LocationSearchServiceTest {
     private final Double LAT_A = -45.8667783;
     private final Double LNG_A = 170.4910567;
     private final String STRING_COORDINATES_A = "{\"lat\":\"-45.8667783\",\"lng\":\"170.4910567\"}";
-//            "%7B%22lat%22%3A%22" + LAT_A + "%22%2C%22lng%22%3A%22" + LNG_A + "%22%7D";
+    //            "%7B%22lat%22%3A%22" + LAT_A + "%22%2C%22lng%22%3A%22" + LNG_A + "%22%7D";
     private final Double LAT_B = 5.8667783;
     private final Double LNG_B = -89.810567;
     private final String STRING_COORDINATES_B = "%7B%22lat%22%3A%22" + LAT_B + "%22%2C%22lng%22%3A%22" + LNG_B + "%22%7D";
@@ -85,7 +85,7 @@ public class LocationSearchServiceTest {
      * Mock Activity repository actions
      */
     @BeforeEach
-    void setupActivityPinRepository() {
+    public void setupActivityPinRepository() {
 
         Activity dummyActivity1 = new Activity();
         ReflectionTestUtils.setField(dummyActivity1, "activityId", DUMMY_ACTIVITY_ID_1);
@@ -193,7 +193,7 @@ public class LocationSearchServiceTest {
             }
 
             Slice<Activity> resultSlice;
-            if (resultList.size()>BLOCK_SIZE) {
+            if (resultList.size() > BLOCK_SIZE) {
                 int leftIndex = PAGE_ONE * BLOCK_SIZE;
                 int rightIndex = PAGE_TWO * BLOCK_SIZE + BLOCK_SIZE;
                 resultSlice = new SliceImpl<>(resultList.subList(leftIndex, rightIndex), pageable, true);
@@ -212,7 +212,7 @@ public class LocationSearchServiceTest {
             List<Activity> resultList = new ArrayList<>(activityList);
 
             Slice<Activity> resultSlice;
-            if (resultList.size()>BLOCK_SIZE) {
+            if (resultList.size() > BLOCK_SIZE) {
                 int leftIndex = PAGE_ONE * BLOCK_SIZE;
                 int rightIndex = PAGE_TWO * BLOCK_SIZE + BLOCK_SIZE;
                 resultSlice = new SliceImpl<>(resultList.subList(leftIndex, rightIndex), pageable, true);
@@ -264,20 +264,47 @@ public class LocationSearchServiceTest {
         });
     }
 
-//    ---- Tests ----
+    //    ---- Tests ----
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 
     @Test
-    void getOrActivityByLocationSuccess() throws Exception {
+    public void getOrActivityByLocationSuccess() throws Exception {
         String method = "or";
         String activitiesString = "Kiting Hiking";
         Slice<Activity> resultSlice = locationSearchService.getActivitiesByLocation(STRING_COORDINATES_A, activitiesString,
                 MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE);
         List<Activity> activities = resultSlice.getContent();
-        assertTrue(activities.size()<=BLOCK_SIZE);
+        assertTrue(activities.size() <= BLOCK_SIZE);
         assertEquals(3, activities.size()); // All 3 activities in activityList are expected to return
+    }
+
+    @Test
+    public void getOrNumberOfActivitiesByLocation() throws Exception {
+        String method = "or";
+        String activitiesString = "Kiting Hiking";
+        int numberOfActivities = locationSearchService.getRowsForActivityByLocation(STRING_COORDINATES_A, activitiesString,
+                MEDIUM_DISTANCE, method);
+        assertEquals(3, numberOfActivities);
+    }
+
+    @Test
+    public void getAndNumberOfActivitiesByLocation() throws Exception {
+        String method = "and";
+        String activitiesString = "Kiting Hiking";
+        int numberOfActivities = locationSearchService.getRowsForActivityByLocation(STRING_COORDINATES_A, activitiesString,
+                MEDIUM_DISTANCE, method);
+        assertEquals(1, numberOfActivities);
+    }
+
+    @Test
+    public void getNumberOfActivitiesByLocation() throws Exception {
+        String method = "Doesn't matter";
+        String activitiesString = ""; // Leave empty
+        int numberOfActivities = locationSearchService.getRowsForActivityByLocation(STRING_COORDINATES_A, activitiesString,
+                MEDIUM_DISTANCE, method);
+        assertEquals(3, numberOfActivities);
     }
 }
