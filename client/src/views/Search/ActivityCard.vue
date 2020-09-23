@@ -18,6 +18,13 @@
             <b-row no-gutters>
                 <b-col cols="6">
                     <b-card-text :id="'activity' + activity.id + 'Card'">
+                        <div v-if="activity.fitnessLevel">
+                            <strong>Fitness Level:</strong>
+                            <br>
+                            <b-card-text>
+                            {{ this.fitness }}
+                            </b-card-text>
+                        </div>
                         <strong>Location:</strong>
                         <br>
                         {{ activity.location.name  }}
@@ -60,6 +67,7 @@
 <script>
     import api from "../../Api";
     import {formatDateTime} from "../../util";
+    import {fitnessLevels} from "../../constants";
 
     export default {
         name: "ActivityCard",
@@ -73,7 +81,8 @@
                 continuous: Boolean,
                 start_time: Date,
                 end_time: Date,
-                location: String
+                location: String,
+                fitness: Number
             },
             activityTypesSearchedFor: {
                 default() {
@@ -87,12 +96,15 @@
             return {
                 errored: false,
                 errorMessage: 'An error occurred when loading this activity, please try again',
-                creatorName: ''
+                creatorName: '',
+                fitnessColour: "green",
+                fitness: ""
             }
         },
 
         async mounted() {
             await this.getCreatorName();
+            await this.getFitnessLevel();
         },
 
         methods: {
@@ -100,6 +112,31 @@
              * Imports formatDateTime function from util.js
              */
             getDateTime: formatDateTime,
+            /**
+             * Function to get the string and colour for fitness level
+             */
+            async getFitnessLevel() {
+                for (let i = 0; i < fitnessLevels.length; i++) {
+                    if (fitnessLevels[i].value === this.activity.fitness) {
+                        this.fitness = fitnessLevels[i].desc;
+                    }
+                }
+                if (this.fitness === null) {
+                    return null
+                }
+                let myFitness = 0;
+                await api.getAllUserData().then(response => {
+                    myFitness = response.data.fitness;
+                }).catch(error => {
+                    this.errored = true;
+                    this.error = error.response.data.message;
+                });
+                if (myFitness < this.fitness) {
+                    this.fitnessColour = "red";
+                } else {
+                    this.fitnessColour = "green";
+                }
+            },
             /**
              * Function for redirecting to view activity page via activity's ID
              */
