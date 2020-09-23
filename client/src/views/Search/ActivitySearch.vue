@@ -131,14 +131,14 @@
                 currentPage: 1,
                 activitiesList: [],
                 searchMode: 'activityType',
-                searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
+                searchModes: [
                     {value: 'activityType', text: 'Activity Type'},
                     {value: 'activityName', text: 'Activity Name'},
                     {value: 'activityLocation', text: 'Location'}
                 ],
                 // These are the ActivityTypes selected in the Multiselect
                 selectedActivityTypes: [],
-                // These are a copy of selectedActivityTypes passed to the UserCard (to avoid mutation after clicking search)
+                // These are a copy of selectedActivityTypes passed to the Activity Card (to avoid mutation after clicking search)
                 activityTypesSearchedFor: [],
                 activityTitle: "",
                 activityTypes: [],
@@ -379,19 +379,20 @@
                 this.loading = true;
                 this.currentPage = 1;
                 if (this.searchMode === 'activityType') {
-                    // Set is as a copy so the User card is only updated after clicking search
+                    // Set is as a copy so the Activity card is only updated after clicking search
                     this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
                     this.getPaginatedActivitiesByActivityType();
                 } else if (this.searchMode === 'activityName') {
                     if (this.activityTitle.length === 0) {
                         this.errored = true;
                         this.error_message = "Cannot have empty search field, please try again!";
-                    } else if (this.activityTitle.length === 75) {
+                    } else if (this.activityTitle.length >= 75) {
                         this.errored = true;
                         this.error_message = "Cannot have more than 75 characters in the search field.";
                     }
                     this.getPaginatedActivitiesByActivityTitle();
                 } else {
+                    this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
                     await this.getActivityPinBlocksByLocation();
 
                 }
