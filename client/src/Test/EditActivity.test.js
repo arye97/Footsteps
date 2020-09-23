@@ -69,10 +69,7 @@ beforeEach(() => {
                 outcomeList: []
             }
         },
-        localVue,
-        stubs: {
-
-        }
+        localVue
     };
     // This Removes: TypeError: Cannot read property 'then' of undefined
     api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID, status: 200 }));
