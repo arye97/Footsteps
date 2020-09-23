@@ -120,6 +120,9 @@
                 searchPin: null,
                 mapLoading: true,
                 maxPins: 1,
+                //TODO These fitness level fields need to have proper inits after the end points have been made for the backend to deal with these passed through vars
+                minFitnessLevel: -1,
+                maxFitnessLevel: 4,
                 pins: [],
                 MAX_DISTANCE: 10000,
                 activitiesPerPage: 5,
@@ -214,7 +217,7 @@
              */
             async getPaginatedActivitiesByActivityTitle() {
                 let pageNumber = this.currentPage - 1;
-                api.getActivityByActivityTitle(this.activityTitle, pageNumber)
+                api.getActivityByActivityTitle(this.activityTitle, this.minFitnessLevel, this.maxFitnessLevel, pageNumber)
                     .then(response => {
                         this.activitiesList = response.data;
                         if (this.activityTitle.length != 0 && (response.data).length === 0) {
@@ -253,7 +256,7 @@
              */
             async getPaginatedActivitiesByActivityType() {
                 let pageNumber = this.currentPage - 1;
-                api.getActivityByActivityType(this.activityTypesSearchedFor, this.searchType, pageNumber)
+                api.getActivityByActivityType(this.activityTypesSearchedFor, this.searchType, this.minFitnessLevel, this.maxFitnessLevel, pageNumber)
                     .then(response => {
                         this.activitiesList = response.data;
                         this.rows = response.headers["total-rows"];
