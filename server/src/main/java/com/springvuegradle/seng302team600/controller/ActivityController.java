@@ -527,9 +527,9 @@ public class ActivityController {
     }
 
     /**
-     * Takes some properties to search for activity pins by location.
-     * Calls the service function to find activities by location, then converts this to pins
-     * Pagination is preformed on the repo in blocks/pages of 20.
+     * Takes some properties to search for activities by location.
+     * Calls the service function to find activities by location.
+     * Pagination is preformed on the repo in pages of 5.
      *
      * @param request        the http request
      * @param response       the http response
@@ -537,7 +537,7 @@ public class ActivityController {
      * @param activityTypes  a list of activity types
      * @param cutoffDistance the max distance to search by
      * @param method         the type of activity type filtering
-     * @return A list of activity pins
+     * @return A list of activities
      */
     @GetMapping(
             value = "/activities",
@@ -549,7 +549,7 @@ public class ActivityController {
                                                @RequestParam(value = "method") String method) throws JsonProcessingException {
 
         String token = request.getHeader(TOKEN_DECLARATION);
-        User user = userAuthenticationService.findByToken(token);
+        userAuthenticationService.findByToken(token);
         int pageNumber;
         try {
             pageNumber = request.getIntHeader("Page-Number");
@@ -570,5 +570,33 @@ public class ActivityController {
 
         response.setHeader("Has-Next", Boolean.toString(hasNext));
         return activitiesFound;
+    }
+
+
+    /**
+     * Takes some properties to search for activities by location.
+     * Calls the service function to find the count of activities by location.
+     * Gets the length of the search results.
+     *
+     * @param request        the http request
+     * @param strCoordinates a string to be converted into a Coordinates object containing latitude and longitude
+     * @param activityTypes  a list of activity types
+     * @param cutoffDistance the max distance to search by
+     * @param method         the type of activity type filtering
+     * @return the count of activities searched for
+     */
+    @GetMapping(
+            value = "/activities/rows",
+            params = {"coordinates", "activityTypes", "cutoffDistance", "method"})
+    public int getNumberOfRowsForActivityByLocation(HttpServletRequest request,
+                                            @RequestParam(value = "coordinates") String strCoordinates,
+                                            @RequestParam(value = "activityTypes") String activityTypes,
+                                            @RequestParam(value = "cutoffDistance") Double cutoffDistance,
+                                            @RequestParam(value = "method") String method) throws JsonProcessingException {
+        String token = request.getHeader(TOKEN_DECLARATION);
+        userAuthenticationService.findByToken(token);
+
+        return locationSearchService.getRowsForActivityByLocation(strCoordinates, activityTypes,
+                cutoffDistance, method);
     }
 }

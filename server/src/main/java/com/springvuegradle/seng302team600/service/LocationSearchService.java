@@ -47,11 +47,37 @@ public class LocationSearchService {
                                                    Double cutoffDistance, String method,
                                                    int blockSize, int pageNumber)
             throws JsonProcessingException {
-        Coordinates coordinates = new ObjectMapper().readValue(strCoordinates, Coordinates.class);
         if (pageNumber < 0) {
             pageNumber = 0;
         }
         Pageable activitiesBlock = PageRequest.of(pageNumber, blockSize);
+
+        Coordinates coordinates = validateCoordinates(strCoordinates);
+
+        if (cutoffDistance >= MAX_CUTOFF_DISTANCE) {
+            cutoffDistance = MAX_DISTANCE;
+        }
+
+        Slice<Activity> paginatedActivities;
+        if (activityTypes.length() >= 1) {
+            List<Long> activityTypeIds = getActivityTypeIds(activityTypes);
+            paginatedActivities = getPaginatedActivities(method, coordinates,
+                    cutoffDistance, activityTypeIds, activitiesBlock);
+        } else {
+            paginatedActivities = activityRepository.findAllWithinDistance(
+                    coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance, activitiesBlock);
+        }
+        return paginatedActivities;
+    }
+
+    /**
+     * Parses the string coordinates to a Coordinate object and validates the coordinates
+     * @param strCoordinates    The string representation of the coordinates from the request
+     * @return coordinates      The Coordinate object made from the string
+     * @throws JsonProcessingException
+     */
+    private Coordinates validateCoordinates(String strCoordinates) throws JsonProcessingException {
+        Coordinates coordinates = new ObjectMapper().readValue(strCoordinates, Coordinates.class);
         if (coordinates.getLatitude() > 90 || coordinates.getLatitude() < -90) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Latitude must exist (be between -90 and 90 degrees)");
@@ -60,10 +86,71 @@ public class LocationSearchService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Longitude must exist (be between -180 and 180 degrees)");
         }
+        return coordinates;
+    }
+
+    /**
+     * Retrieves the list of activity type ids from the repo
+     * @param activityTypes     A space delimited string of the activity types
+     * @return activityTypeIds  The list of activity type ids for the provided activity types
+     */
+    private List<Long> getActivityTypeIds(String activityTypes) {
+        List<String> typesWithDashes = Arrays.asList(activityTypes.split(" "));
+        List<String> types = typesWithDashes.stream()
+                .map(a -> a.replace('-', ' '))
+                .collect(Collectors.toList());
+        List<Long> activityTypeIds = activityTypeRepository.findActivityTypeIdsByNames(types);
+
+        return activityTypeIds;
+    }
+
+    /**
+     * Retrieves a paginated slice of activities from the repo
+     * Uses slightly differing repo functions depending on method
+     * @param method            Method of search (strictly "and" or "or"
+     * @param coordinates       Coordinates to center the search on
+     * @param cutoffDistance    Radius of search area
+     * @param activityTypeIds   Ids of activity types to search for
+     * @param activitiesBlock   Pageable object containing the page number and max items per page
+     * @return paginatedActivities  Paginated Slice of activities retried based on search parameters
+     */
+    private Slice<Activity> getPaginatedActivities(String method, Coordinates coordinates, Double cutoffDistance,
+                           List<Long> activityTypeIds, Pageable activitiesBlock) {
+        Slice<Activity> paginatedActivities;
+        if (method.equalsIgnoreCase("and")) {
+            int numActivityTypes = activityTypeIds.size();
+            paginatedActivities = activityRepository.findAllWithinDistanceByAllActivityTypeIds(
+                    coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance,
+                    activityTypeIds, numActivityTypes, activitiesBlock);
+        } else if (method.equalsIgnoreCase("or")) {
+            paginatedActivities = activityRepository.findAllWithinDistanceBySomeActivityTypeIds(
+                    coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance,
+                    activityTypeIds, activitiesBlock);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Method must be specified as either (AND, OR)");
+        }
+        return paginatedActivities;
+    }
+
+    /**
+     * Takes some properties to search for activities by location.
+     * Gets the length of the search results.
+     *
+     * @param strCoordinates a string to be converted into a Coordinates object containing latitude and longitude
+     * @param activityTypes  a list of activity types
+     * @param cutoffDistance the max distance to search by
+     * @param method         the type of activity type filtering
+     * @return the count of activities searched for
+     * @throws JsonProcessingException thrown if error occurs when converting strCoordinates to coordinates
+     */
+    public int getRowsForActivityByLocation(String strCoordinates, String activityTypes,
+                                 Double cutoffDistance, String method) throws JsonProcessingException {
+        Coordinates coordinates = validateCoordinates(strCoordinates);
         if (cutoffDistance >= MAX_CUTOFF_DISTANCE) {
             cutoffDistance = MAX_DISTANCE;
         }
-        Slice<Activity> paginatedActivities;
+        int numberOfRows;
         if (activityTypes.length() >= 1) {
             List<String> typesWithDashes = Arrays.asList(activityTypes.split(" "));
             List<String> types = typesWithDashes.stream()
@@ -72,21 +159,21 @@ public class LocationSearchService {
             List<Long> activityTypeIds = activityTypeRepository.findActivityTypeIdsByNames(types);
             int numActivityTypes = activityTypeIds.size();
             if (method.equalsIgnoreCase("and")) {
-                paginatedActivities = activityRepository.findAllWithinDistanceByAllActivityTypeIds(
+                numberOfRows = activityRepository.countAllWithinDistanceByAllActivityTypeIds(
                         coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance,
-                        activityTypeIds, numActivityTypes, activitiesBlock);
+                        activityTypeIds, numActivityTypes);
             } else if (method.equalsIgnoreCase("or")) {
-                paginatedActivities = activityRepository.findAllWithinDistanceBySomeActivityTypeIds(
+                numberOfRows = activityRepository.countAllWithinDistanceBySomeActivityTypeIds(
                         coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance,
-                        activityTypeIds, activitiesBlock);
+                        activityTypeIds);
             } else {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "Method must be specified as either (AND, OR)");
             }
         } else {
-            paginatedActivities = activityRepository.findAllWithinDistance(
-                    coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance, activitiesBlock);
+            numberOfRows = activityRepository.countAllWithinDistance(
+                    coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance);
         }
-        return paginatedActivities;
+        return numberOfRows;
     }
 }
