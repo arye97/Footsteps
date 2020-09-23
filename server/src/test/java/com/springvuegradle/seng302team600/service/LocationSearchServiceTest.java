@@ -6,6 +6,7 @@ import com.springvuegradle.seng302team600.model.Location;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.util.*;
 import java.util.function.Function;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @WebMvcTest(LocationSearchService.class)
@@ -29,7 +31,7 @@ public class LocationSearchServiceTest {
         private ActivityTypeRepository activityTypeRepository;
 
         @Autowired
-        private ActivityPinService LocationSearchService;
+        private LocationSearchService locationSearchService;
 
     private List<Activity> activityList = new ArrayList<>();
     private Set<ActivityType> activityTypeSet = new HashSet<>();
@@ -47,17 +49,34 @@ public class LocationSearchServiceTest {
     private final Long DUMMY_TYPE_ID_2 = 2L;
     private final Long DUMMY_TYPE_ID_3 = 3L;
 
+    private final Double SHORT_DISTANCE = 120D;
+    private final Double MEDIUM_DISTANCE = 4300D;
+    private final Double LONG_DISTANCE = 8900D;
+    private final Double VERY_LONG_DISTANCE = 11000D;
+
+    private final Double LAT_A = -45.8667783;
+    private final Double LNG_A = 170.4910567;
+    private final String STRING_COORDINATES_A = "{\"lat\":\"-45.8667783\",\"lng\":\"170.4910567\"}";
+//            "%7B%22lat%22%3A%22" + LAT_A + "%22%2C%22lng%22%3A%22" + LNG_A + "%22%7D";
+    private final Double LAT_B = 5.8667783;
+    private final Double LNG_B = -89.810567;
+    private final String STRING_COORDINATES_B = "%7B%22lat%22%3A%22" + LAT_B + "%22%2C%22lng%22%3A%22" + LNG_B + "%22%7D";
+
     private final Double LONDON_LAT = 51.507351D;
     private final Double LONDON_LON = -0.127758D;
+    private final Location LONDON = new Location(LONDON_LON, LONDON_LAT, "London");
 
     private final Double BERLIN_LAT = 52.520008D;
     private final Double BERLIN_LON = 13.404954D;
+    private final Location BERLIN = new Location(BERLIN_LON, BERLIN_LAT, "Berlin");
 
     private final Double WARSAW_LAT = 52.229675D;
     private final Double WARSAW_LON = 21.012230D;
+    private final Location WARSAW = new Location(WARSAW_LON, WARSAW_LAT, "Warsaw");
 
     private final Double MOSCOW_LAT = 37.617298D;
     private final Double MOSCOW_LON = 55.755825D;
+    private final Location MOSCOW = new Location(MOSCOW_LON, MOSCOW_LAT, "Moscow");
 
     private final Double DUMMY_LAT = 12.345678D;
     private final Double DUMMY_LON = 12.345678D;
@@ -70,13 +89,13 @@ public class LocationSearchServiceTest {
 
         Activity dummyActivity1 = new Activity();
         ReflectionTestUtils.setField(dummyActivity1, "activityId", DUMMY_ACTIVITY_ID_1);
-        dummyActivity1.setLocation(new Location(BERLIN_LON, BERLIN_LAT, "Berlin"));
+        dummyActivity1.setLocation(BERLIN);
         Activity dummyActivity2 = new Activity();
         ReflectionTestUtils.setField(dummyActivity2, "activityId", DUMMY_ACTIVITY_ID_2);
-        dummyActivity2.setLocation(new Location(WARSAW_LON, WARSAW_LAT, "Warsaw"));
+        dummyActivity2.setLocation(WARSAW);
         Activity dummyActivity3 = new Activity();
         ReflectionTestUtils.setField(dummyActivity3, "activityId", DUMMY_ACTIVITY_ID_3);
-        dummyActivity3.setLocation(new Location(MOSCOW_LON, MOSCOW_LAT, "Moscow"));
+        dummyActivity3.setLocation(MOSCOW);
 
         activityList.add(dummyActivity1);
         activityList.add(dummyActivity2);
@@ -90,20 +109,32 @@ public class LocationSearchServiceTest {
         ReflectionTestUtils.setField(dummyActivityType3, "activityTypeId", DUMMY_TYPE_ID_3);
 
         activityTypeSet.add(dummyActivityType1);
-        dummyActivity1.setActivityTypes(activityTypeSet);
-
         activityTypeSet.add(dummyActivityType2);
-        dummyActivity2.setActivityTypes(activityTypeSet);
-
         activityTypeSet.add(dummyActivityType3);
-        dummyActivity3.setActivityTypes(activityTypeSet);
+
+        //Hiking Biking
+        Set<ActivityType> HBset = new HashSet<>();
+        HBset.add(dummyActivityType1);
+        HBset.add(dummyActivityType2);
+        dummyActivity1.setActivityTypes(HBset);
+
+        //Biking Kiting
+        Set<ActivityType> BKset = new HashSet<>();
+        BKset.add(dummyActivityType2);
+        BKset.add(dummyActivityType3);
+        dummyActivity2.setActivityTypes(BKset);
+
+        //Kiting Hiking
+        Set<ActivityType> KHset = new HashSet<>();
+        KHset.add(dummyActivityType3);
+        KHset.add(dummyActivityType1);
+        dummyActivity3.setActivityTypes(KHset);
 
 
         when(activityTypeRepository.findActivityTypeIdsByNames(Mockito.anyList())).thenAnswer(i -> {
             List<String> activityTypeStrings = i.getArgument(0);
             List<Long> resultList = new ArrayList<>();
-            List<ActivityType> allActivityTypes = new ArrayList<>();
-            allActivityTypes.addAll(activityTypeSet);
+            List<ActivityType> allActivityTypes = new ArrayList<>(activityTypeSet);
             for (ActivityType activityType : allActivityTypes) {
                 if (activityTypeStrings.contains(activityType.getName())) {
                     resultList.add(activityType.getActivityTypeId());
@@ -112,7 +143,7 @@ public class LocationSearchServiceTest {
             return resultList;
         });
 
-        //todo: Mock:
+
         // activityRepository.findAllWithinDistanceByAllActivityTypeIds(
         //                        coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance,
         //                        activityTypeIds, numActivityTypes, activitiesBlock)
@@ -123,7 +154,6 @@ public class LocationSearchServiceTest {
 
             Pageable pageable = i.getArgument(5);
             List<Activity> resultList = new ArrayList<>();
-            Set<ActivityType> activitiesTypes= new HashSet<>();
             int matchCount = 0;
 
             for (Activity activity : activityList) {
@@ -143,7 +173,7 @@ public class LocationSearchServiceTest {
             return new SliceImpl<>(resultList.subList(leftIndex, rightIndex), pageable, false);
         });
 
-        //todo: Mock:
+
         // activityRepository.findAllWithinDistanceBySomeActivityTypeIds(
         //                        coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance,
         //                        activityTypeIds, activitiesBlock);
@@ -162,24 +192,34 @@ public class LocationSearchServiceTest {
                 }
             }
 
-            int leftIndex = PAGE_ONE * BLOCK_SIZE;
-            int rightIndex = PAGE_TWO * BLOCK_SIZE + BLOCK_SIZE;
-            return new SliceImpl<>(resultList.subList(leftIndex, rightIndex), pageable, false);
+            Slice<Activity> resultSlice;
+            if (resultList.size()>BLOCK_SIZE) {
+                int leftIndex = PAGE_ONE * BLOCK_SIZE;
+                int rightIndex = PAGE_TWO * BLOCK_SIZE + BLOCK_SIZE;
+                resultSlice = new SliceImpl<>(resultList.subList(leftIndex, rightIndex), pageable, true);
+            } else {
+                resultSlice = new SliceImpl<>(resultList, pageable, false);
+            }
+            return resultSlice;
         });
 
-        //todo: Mock:
+
         // activityRepository.findAllWithinDistance(
         //                    coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance, activitiesBlock);
         when(activityRepository.findAllWithinDistance(Mockito.anyDouble(), Mockito.anyDouble(),
                 Mockito.anyDouble(), Mockito.any(Pageable.class))).thenAnswer(i -> {
             Pageable pageable = i.getArgument(3);
-            List<Activity> resultList = new ArrayList<>();
+            List<Activity> resultList = new ArrayList<>(activityList);
 
-            resultList.addAll(activityList);
-
-            int leftIndex = PAGE_ONE * BLOCK_SIZE;
-            int rightIndex = PAGE_TWO * BLOCK_SIZE + BLOCK_SIZE;
-            return new SliceImpl<>(resultList.subList(leftIndex, rightIndex), pageable, false);
+            Slice<Activity> resultSlice;
+            if (resultList.size()>BLOCK_SIZE) {
+                int leftIndex = PAGE_ONE * BLOCK_SIZE;
+                int rightIndex = PAGE_TWO * BLOCK_SIZE + BLOCK_SIZE;
+                resultSlice = new SliceImpl<>(resultList.subList(leftIndex, rightIndex), pageable, true);
+            } else {
+                resultSlice = new SliceImpl<>(resultList, pageable, false);
+            }
+            return resultSlice;
         });
     }
 
@@ -189,5 +229,14 @@ public class LocationSearchServiceTest {
         MockitoAnnotations.initMocks(this);
     }
 
-
+    @Test
+    void getOrActivityByLocationSuccess() throws Exception {
+        String method = "or";
+        String activitiesString = "Kiting Hiking";
+        Slice<Activity> resultSlice = locationSearchService.getActivitiesByLocation(STRING_COORDINATES_A, activitiesString,
+                MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE);
+        List<Activity> activities = resultSlice.getContent();
+        assertTrue(activities.size()<=BLOCK_SIZE);
+        assertEquals(3, activities.size()); // All 3 activities in activityList are expected to return
+    }
 }
