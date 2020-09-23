@@ -186,6 +186,11 @@
                 this.$forceUpdate();
             },
 
+            /**
+             * If the pin has an attribute draggable, return that value, else return the value of this.draggablePins.
+             * @param pin Object with optional draggable key
+             * @return {*} Boolean
+             */
             isDraggable(pin) {
                 if ("draggable" in pin) {
                     return pin.draggable;
