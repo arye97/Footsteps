@@ -3,11 +3,16 @@ import {createLocalVue, mount} from '@vue/test-utils'
 import EditActivity from "../views/Activities/EditActivity";
 import api from "../Api";
 import router from '../index';
-import {BootstrapVue} from 'bootstrap-vue';
+import {BootstrapVue, BootstrapVueIcons, IconsPlugin} from 'bootstrap-vue';
 jest.mock("../Api");
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
+localVue.use(BootstrapVueIcons);
+localVue.use(IconsPlugin);
+import EmptyComponent from "./EmptyComponent.vue";
+localVue.component('GmapAutocomplete', EmptyComponent);
+
 
 let editActivity;
 let config;
@@ -64,7 +69,10 @@ beforeEach(() => {
                 outcomeList: []
             }
         },
-        localVue
+        localVue,
+        stubs: {
+
+        }
     };
     // This Removes: TypeError: Cannot read property 'then' of undefined
     api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID, status: 200 }));

@@ -32,7 +32,7 @@
             <b-container>
             <b-row no-gutters>
             <b-col>
-                <gmap-autocomplete
+                <GmapAutocomplete
                     id="gmapAutoComplete"
                     :value="address"
                     :options="{fields: ['geometry', 'formatted_address', 'address_components']}"
@@ -40,7 +40,7 @@
                     @focusin="emitFocus(true)"
                     @focusout="emitFocus(false)"
                     class="form-control">
-                </gmap-autocomplete>
+                </GmapAutocomplete>
             </b-col>
                 <b-col cols="1">
                 <b-button id="clearPinsButton" variant="danger" @click="clearPins" v-bind:disabled="pins.length === 0">
