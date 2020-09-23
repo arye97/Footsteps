@@ -137,7 +137,7 @@
 
         data() {
             return {
-                isMapVisible: false,
+                isMapVisible: true,
                 address: "",
                 pins: [],
                 center: undefined,

@@ -232,7 +232,7 @@
                 api.getActivityByActivityTitle(this.activityTitle, pageNumber)
                     .then(response => {
                         this.activitiesList = response.data;
-                        if (this.activityTitle.length != 0 && (response.data).length === 0) {
+                        if (this.activityTitle.length !== 0 && (response.data).length === 0) {
                             this.errored = true;
                             this.error_message = "No activities with activity names ".concat(this.activityTitle) + " have been found!"
                         }
