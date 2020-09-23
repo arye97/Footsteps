@@ -18,13 +18,6 @@
             <b-row no-gutters>
                 <b-col cols="6">
                     <b-card-text :id="'activity' + activity.id + 'Card'">
-                        <div v-if="activity.fitnessLevel">
-                            <strong>Fitness Level:</strong>
-                            <br>
-                            <b-card-text>
-                            {{ this.fitness }}
-                            </b-card-text>
-                        </div>
                         <strong>Location:</strong>
                         <br>
                         {{ activity.location.name  }}
@@ -49,6 +42,13 @@
                     </b-card-text>
                 </b-col>
                 <b-col v-if="activity.activity_type.length >= 1">
+                    <div v-if="activity.fitnessLevel" style="text-align: left; padding-left: 7px">
+                        <strong>Fitness Level:</strong>
+                        <br>
+                        <b-card-text :id="'fitnessLevel' + activity.id">
+                            this.fitness
+                        </b-card-text>
+                    </div>
                     <b-list-group class="mx-2" id="matchingActivityTypes">
                         <section v-for="activityType in activity.activity_type" v-bind:key="activityType.name">
                             <!-- Only display queried activity types -->
@@ -97,7 +97,6 @@
                 errored: false,
                 errorMessage: 'An error occurred when loading this activity, please try again',
                 creatorName: '',
-                fitnessColour: "green",
                 fitness: ""
             }
         },
@@ -121,20 +120,23 @@
                         this.fitness = fitnessLevels[i].desc;
                     }
                 }
-                if (this.fitness === null) {
-                    return null
+                if (this.fitness === "No fitness level") {
+                    return null;
                 }
-                let myFitness = 0;
+                let myFitness;
                 await api.getAllUserData().then(response => {
                     myFitness = response.data.fitness;
                 }).catch(error => {
                     this.errored = true;
                     this.error = error.response.data.message;
                 });
-                if (myFitness < this.fitness) {
-                    this.fitnessColour = "red";
+                let fitnessLevelsElement = document.getElementById('fitnessLevel' + this.activity.id);
+                if (myFitness === -1) {
+                    fitnessLevelsElement.style["color"] = "black";
+                } else if (myFitness <= this.fitness) {
+                    fitnessLevelsElement.style["color"] = "green";
                 } else {
-                    this.fitnessColour = "green";
+                    fitnessLevelsElement.style["color"] = "red";
                 }
             },
             /**
