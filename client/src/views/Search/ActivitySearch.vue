@@ -3,6 +3,7 @@
         <div>
             <br/>
             <div>
+                <b-form @submit.prevent @keydown.enter="search()">
                 <b-row>
                     <b-col cols="8" v-if="searchMode==='activityType' || searchMode==='activityLocation'">
                         <multiselect v-model="selectedActivityTypes" id="searchBoxActivities"
@@ -65,6 +66,7 @@
                     </b-button>
                     <br/>
                 </b-row>
+                </b-form>
             </div>
             <div v-if="resultsFound">
                 <hr/>
