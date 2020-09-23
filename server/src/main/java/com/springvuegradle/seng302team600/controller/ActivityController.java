@@ -578,6 +578,7 @@ public class ActivityController {
     /**
      * Takes some properties to search for activities by location.
      * Calls the service function to find the count of activities by location.
+     * Gets the length of the search results.
      *
      * @param request        the http request
      * @param strCoordinates a string to be converted into a Coordinates object containing latitude and longitude

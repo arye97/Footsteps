@@ -133,17 +133,20 @@ public class LocationSearchService {
         return paginatedActivities;
     }
 
+    /**
+     * Takes some properties to search for activities by location.
+     * Gets the length of the search results.
+     *
+     * @param strCoordinates a string to be converted into a Coordinates object containing latitude and longitude
+     * @param activityTypes  a list of activity types
+     * @param cutoffDistance the max distance to search by
+     * @param method         the type of activity type filtering
+     * @return the count of activities searched for
+     * @throws JsonProcessingException thrown if error occurs when converting strCoordinates to coordinates
+     */
     public int getRowsForActivityByLocation(String strCoordinates, String activityTypes,
                                  Double cutoffDistance, String method) throws JsonProcessingException {
-        Coordinates coordinates = new ObjectMapper().readValue(strCoordinates, Coordinates.class);
-        if (coordinates.getLatitude() > 90 || coordinates.getLatitude() < -90) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Latitude must exist (be between -90 and 90 degrees)");
-        }
-        if (coordinates.getLongitude() > 180 || coordinates.getLongitude() < -180) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Longitude must exist (be between -180 and 180 degrees)");
-        }
+        Coordinates coordinates = validateCoordinates(strCoordinates);
         if (cutoffDistance >= MAX_CUTOFF_DISTANCE) {
             cutoffDistance = MAX_DISTANCE;
         }
