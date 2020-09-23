@@ -182,11 +182,11 @@
             addMarker(pin) {
 
                 if (pin && ["lat", "lng", "name"].every(key => key in pin)) {
-                    this.pins.push(pin);
-                    this.address = pin.name;
                     if (!("colour" in pin)) {
                         pin.colour = 'red';
                     }
+                    this.pins.push(pin);
+                    this.address = pin.name;
 
                 } else if (pin === undefined) {
 
@@ -212,6 +212,25 @@
                 this.center = pin;
             },
 
+            /**
+             * Adds an Array of pins to the map
+             * @param pins Array of pin Objects containing lat, lng, name.
+             */
+            addMarkers(pins) {
+                for (let pin of pins) {
+
+                    if (pin && ["lat", "lng"].every(key => key in pin)) {
+                        if (!("name" in pin)) {
+                            pin["name"] = pin.lat.toFixed(5) + ', ' + pin.lng.toFixed(5);
+                        }
+                        if (!("colour" in pin)) {
+                            pin.colour = 'red';
+                        }
+                        this.pins.push(pin);
+
+                    }
+                }
+            },
 
             /**
              * Convert a google place object to a pin.
