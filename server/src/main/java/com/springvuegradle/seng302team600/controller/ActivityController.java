@@ -1,5 +1,6 @@
 package com.springvuegradle.seng302team600.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.payload.pins.Pin;
 import com.springvuegradle.seng302team600.model.User;
@@ -37,21 +38,21 @@ public class ActivityController {
     private final ActivityTypeRepository activityTypeRepository;
     private final ActivityActivityTypeRepository activityActivityTypeRepository;
     private final ActivityPinService activityPinService;
-
+    private final LocationSearchService locationSearchService;
 
     private static final int PAGE_SIZE = 5;
+    private static final int PIN_BLOCK_SIZE = 20;
     private static final String CONTINUOUS = "CONTINUOUS";
     private static final String DURATION = "DURATION";
 
     private static final String TOKEN_DECLARATION = "Token";
     private static final String NOT_FOUND = "Activity not found";
 
-
     public ActivityController(ActivityRepository activityRepository, UserAuthenticationService userAuthenticationService,
                               ActivityTypeService activityTypeService, FeedEventService feedEventService,
                               ActivityTypeRepository activityTypeRepository,
                               ActivityActivityTypeRepository activityActivityTypeRepository,
-                              ActivityPinService activityPinService) {
+                              ActivityPinService activityPinService, LocationSearchService locationSearchService) {
         this.activityRepository = activityRepository;
         this.userAuthenticationService = userAuthenticationService;
         this.activityTypeService = activityTypeService;
@@ -59,6 +60,7 @@ public class ActivityController {
         this.activityTypeRepository = activityTypeRepository;
         this.activityActivityTypeRepository = activityActivityTypeRepository;
         this.activityPinService = activityPinService;
+        this.locationSearchService = locationSearchService;
     }
 
     /**
@@ -478,5 +480,125 @@ public class ActivityController {
         }
         response.setHeader("Has-Next", Boolean.toString(hasNext));
         return paginatedBlockOfPins;
+    }
+
+
+    /**
+     * Takes some properties to search for activity pins by location.
+     * Calls the service function to find activities by location, then converts this to pins
+     * Pagination is preformed on the repo in blocks/pages of 20.
+     *
+     * @param request        the http request
+     * @param response       the http response
+     * @param strCoordinates a string to be converted into a Coordinates object containing latitude and longitude
+     * @param activityTypes  a list of activity types
+     * @param cutoffDistance the max distance to search by
+     * @param method         the type of activity type filtering
+     * @return A list of activity pins
+     */
+    @GetMapping(
+            value = "/activities/pins",
+            params = {"coordinates", "activityTypes", "cutoffDistance", "method"})
+    public List<Pin> getActivityPinsByLocation(HttpServletRequest request, HttpServletResponse response,
+                                               @RequestParam(value = "coordinates") String strCoordinates,
+                                               @RequestParam(value = "activityTypes") String activityTypes,
+                                               @RequestParam(value = "cutoffDistance") Double cutoffDistance,
+                                               @RequestParam(value = "method") String method) throws JsonProcessingException {
+
+        String token = request.getHeader(TOKEN_DECLARATION);
+        User user = userAuthenticationService.findByToken(token);
+        int pageNumber;
+        try {
+            pageNumber = request.getIntHeader("Page-Number");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Page-Number must be an integer");
+        }
+
+        Slice<Activity> paginatedActivities = locationSearchService.getActivitiesByLocation(strCoordinates, activityTypes,
+                cutoffDistance, method, PIN_BLOCK_SIZE, pageNumber);
+
+        List<Pin> paginatedBlockOfPins = new ArrayList<>();
+        boolean hasNext = false;
+        if (paginatedActivities != null) {
+            paginatedBlockOfPins = activityPinService.getPins(user, paginatedActivities.getContent());
+            hasNext = paginatedActivities.hasNext();
+        }
+        response.setHeader("Has-Next", Boolean.toString(hasNext));
+        return paginatedBlockOfPins;
+    }
+
+    /**
+     * Takes some properties to search for activities by location.
+     * Calls the service function to find activities by location.
+     * Pagination is preformed on the repo in pages of 5.
+     *
+     * @param request        the http request
+     * @param response       the http response
+     * @param strCoordinates a string to be converted into a Coordinates object containing latitude and longitude
+     * @param activityTypes  a list of activity types
+     * @param cutoffDistance the max distance to search by
+     * @param method         the type of activity type filtering
+     * @return A list of activities
+     */
+    @GetMapping(
+            value = "/activities",
+            params = {"coordinates", "activityTypes", "cutoffDistance", "method"})
+    public List<ActivityResponse> getActivitiesByLocation(HttpServletRequest request, HttpServletResponse response,
+                                               @RequestParam(value = "coordinates") String strCoordinates,
+                                               @RequestParam(value = "activityTypes") String activityTypes,
+                                               @RequestParam(value = "cutoffDistance") Double cutoffDistance,
+                                               @RequestParam(value = "method") String method) throws JsonProcessingException {
+
+        String token = request.getHeader(TOKEN_DECLARATION);
+        userAuthenticationService.findByToken(token);
+        int pageNumber;
+        try {
+            pageNumber = request.getIntHeader("Page-Number");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Page-Number must be an integer");
+        }
+
+        Slice<Activity> paginatedActivities = locationSearchService.getActivitiesByLocation(strCoordinates, activityTypes,
+                cutoffDistance, method, PAGE_SIZE, pageNumber);
+
+        List<ActivityResponse> activitiesFound = new ArrayList<>();
+        boolean hasNext = false;
+        if (paginatedActivities != null) {
+            paginatedActivities.forEach(i -> activitiesFound.add(new ActivityResponse(i)));
+            hasNext = paginatedActivities.hasNext();
+        }
+
+        response.setHeader("Has-Next", Boolean.toString(hasNext));
+        return activitiesFound;
+    }
+
+
+    /**
+     * Takes some properties to search for activities by location.
+     * Calls the service function to find the count of activities by location.
+     * Gets the length of the search results.
+     *
+     * @param request        the http request
+     * @param strCoordinates a string to be converted into a Coordinates object containing latitude and longitude
+     * @param activityTypes  a list of activity types
+     * @param cutoffDistance the max distance to search by
+     * @param method         the type of activity type filtering
+     * @return the count of activities searched for
+     */
+    @GetMapping(
+            value = "/activities/rows",
+            params = {"coordinates", "activityTypes", "cutoffDistance", "method"})
+    public int getNumberOfRowsForActivityByLocation(HttpServletRequest request,
+                                            @RequestParam(value = "coordinates") String strCoordinates,
+                                            @RequestParam(value = "activityTypes") String activityTypes,
+                                            @RequestParam(value = "cutoffDistance") Double cutoffDistance,
+                                            @RequestParam(value = "method") String method) throws JsonProcessingException {
+        String token = request.getHeader(TOKEN_DECLARATION);
+        userAuthenticationService.findByToken(token);
+
+        return locationSearchService.getRowsForActivityByLocation(strCoordinates, activityTypes,
+                cutoffDistance, method);
     }
 }
