@@ -50,7 +50,6 @@
                             v-if="!mapLoading"
                             :parent-center="currentLocation"
                             :parent-pins="pins"
-                            :draggable="true"
                             @pin-change="clearSearchResults"
                             @child-pins="pinsChanged"></location-i-o>
                 </b-col>
@@ -75,6 +74,9 @@
                 <hr/>
                 <br/>
             </div>
+            <b-alert class="align-centre" variant="danger" dismissible fade :show=isErrorAlert>
+                {{ errorAlertMessage }}
+            </b-alert>
             <section v-if="errored" class="text-center">
                 <div class="alert alert-danger alert-dismissible fade show text-center" role="alert" id="alert">
                     {{ error_message }}
@@ -119,7 +121,7 @@
         },
         data() {
             return {
-                currentLocation: {draggable: false},
+                currentLocation: {draggable: true},
                 searchPin: null,
                 mapLoading: true,
                 pins: [],
@@ -146,7 +148,9 @@
                 loading: false,
                 rows: null,
                 resultsFound: false,
-                hasNext: true
+                hasNext: true,
+                isErrorAlert: false,
+                errorAlertMessage: '',
             }
         },
         async mounted() {
@@ -297,7 +301,6 @@
              */
             async getActivityPinBlocksByLocation() {
                 this.$refs.mapComponentRef.clearPins();
-                console.log(this.currentLocation)
                 this.$refs.mapComponentRef.addMarker(this.currentLocation);
 
                 let pinBlock = 0;
@@ -314,7 +317,6 @@
                     this.$refs.mapComponentRef.addMarkers(pins);
                     pinBlock++;
                 }
-                console.log(this.pins)
                 this.loading = false;
             },
 
@@ -328,13 +330,20 @@
                             }
                             pin.draggable = false;
                             pin.windowOpen = false;
-                            console.log(pin)
                             pins.push(pin);
                         }
                         this.hasNext = response.headers['has-next'] === 'true';
                     }).catch(error => {
-                        console.log(error)
-                        //TODO this
+                        this.hasNext = false;
+                        if (error.response.status === 401) {
+                            sessionStorage.clear();
+                            this.$router.push('/login');
+                        } else if (error.response.status === 403) {
+                            this.$router.go(); // Reloads the page
+                        } else {
+                            this.errorAlertMessage = "Could not load the map markers, please try again";
+                            this.isErrorAlert = true;
+                        }
                     });
                 return pins;
             },
