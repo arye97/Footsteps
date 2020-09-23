@@ -117,46 +117,46 @@
     import ActivityCard from "./ActivityCard";
     import LocationIO from "../../components/Map/LocationIO";
 
-export default {
-    name: "ActivitySearch",
-    components: {
-        LocationIO,
-        ActivityCard,
-        Multiselect
-    },
-    data() {
-        return {
-            currentLocation: {draggable: false},
-            searchPin: null,
-            mapLoading: true,
-            maxPins: 1,
-            pins: [],
-            MAX_DISTANCE: 10000,
-            activitiesPerPage: 5,
-            cutoffDistance: 1,
-            currentPage: 1,
-            activitiesList: [],
-            searchMode: 'activityType',
-            searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
-                { value: 'activityType', text: 'Activity Type'},
-                { value: 'activityName', text: 'Activity Name'},
-                { value: 'activityLocation', text: 'Location'}
-            ],
-            // These are the ActivityTypes selected in the Multiselect
-            selectedActivityTypes : [],
-            // These are a copy of selectedActivityTypes passed to the UserCard (to avoid mutation after clicking search)
-            activityTypesSearchedFor : [],
-            activityTitle: "",
-            activityTypes: [],
-            searchType: "and",
-            errored: false,
-            error_message: "Something went wrong! Please try again.",
-            loading: false,
-            rows: null,
-            resultsFound: false,
-            filterSearch: false,
-            minFitness: "0",
-            maxFitness: "4"
+    export default {
+        name: "ActivitySearch",
+        components: {
+            LocationIO,
+            ActivityCard,
+            Multiselect
+        },
+        data() {
+            return {
+                currentLocation: {draggable: false},
+                searchPin: null,
+                mapLoading: true,
+                maxPins: 1,
+                //TODO These fitness level fields need to have proper inits after the end points have been made for the backend to deal with these passed through vars
+                minFitnessLevel: -1,
+                maxFitnessLevel: 4,
+                pins: [],
+                MAX_DISTANCE: 10000,
+                activitiesPerPage: 5,
+                cutoffDistance: 1,
+                currentPage: 1,
+                activitiesList: [],
+                searchMode: 'activityType',
+                searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
+                    {value: 'activityType', text: 'Activity Type'},
+                    {value: 'activityName', text: 'Activity Name'},
+                    {value: 'activityLocation', text: 'Location'}
+                ],
+                // These are the ActivityTypes selected in the Multiselect
+                selectedActivityTypes: [],
+                // These are a copy of selectedActivityTypes passed to the UserCard (to avoid mutation after clicking search)
+                activityTypesSearchedFor: [],
+                activityTitle: "",
+                activityTypes: [],
+                searchType: "and",
+                errored: false,
+                error_message: "Something went wrong! Please try again.",
+                loading: false,
+                rows: null,
+                resultsFound: false
         }
     },
     async mounted() {
@@ -227,7 +227,7 @@ export default {
              */
             async getPaginatedActivitiesByActivityTitle() {
                 let pageNumber = this.currentPage - 1;
-                api.getActivityByActivityTitle(this.activityTitle, pageNumber)
+                api.getActivityByActivityTitle(this.activityTitle, this.minFitnessLevel, this.maxFitnessLevel, pageNumber)
                     .then(response => {
                         this.activitiesList = response.data;
                         if (this.activityTitle.length != 0 && (response.data).length === 0) {
@@ -266,7 +266,7 @@ export default {
              */
             async getPaginatedActivitiesByActivityType() {
                 let pageNumber = this.currentPage - 1;
-                api.getActivityByActivityType(this.activityTypesSearchedFor, this.searchType, pageNumber)
+                api.getActivityByActivityType(this.activityTypesSearchedFor, this.searchType, this.minFitnessLevel, this.maxFitnessLevel, pageNumber)
                     .then(response => {
                         this.activitiesList = response.data;
                         this.rows = response.headers["total-rows"];
