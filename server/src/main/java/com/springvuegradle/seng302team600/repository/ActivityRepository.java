@@ -124,4 +124,60 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
                                                               @Param("activityTypeIds") List<Long> activityTypeIds,
                                                               @Param("numActivityTypes") int numActivityTypes,
                                                               Pageable pageable);
+
+    @Query(value = "SELECT COUNT(*) " +
+            "FROM activity as a " +
+            "INNER JOIN location as l " +
+            "ON (a.location_location_id = l.location_id) " +
+            "WHERE " +
+            "   111.111 * " +
+            "    DEGREES(ACOS(LEAST(1.0, COS(RADIANS(:userLatitude)) " +
+            "         * COS(RADIANS(l.Latitude)) " +
+            "         * COS(RADIANS(:userLongitude - l.Longitude)) " +
+            "         + SIN(RADIANS(:userLatitude)) " +
+            "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance", nativeQuery = true)
+    int countAllWithinDistance(@Param("userLatitude") Double userLatitude,
+                               @Param("userLongitude") Double userLongitude,
+                               @Param("maxDistance") Double maxDistance);
+
+    @Query(value = "SELECT SUM(count) FROM " +
+            "(SELECT COUNT(*) as count " +
+            "FROM activity as a " +
+            "INNER JOIN location as l " +
+            "ON (a.location_location_id = l.location_id) " +
+            "INNER JOIN activity_activity_type as act " +
+            "ON (act.activity_type_id IN :activityTypeIds AND act.activity_id = a.activity_id) " +
+            "WHERE " +
+            "   111.111 * " +
+            "    DEGREES(ACOS(LEAST(1.0, COS(RADIANS(:userLatitude)) " +
+            "         * COS(RADIANS(l.Latitude)) " +
+            "         * COS(RADIANS(:userLongitude - l.Longitude)) " +
+            "         + SIN(RADIANS(:userLatitude)) " +
+            "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance " +
+            "GROUP BY a.activity_id) as counts", nativeQuery = true)
+    int countAllWithinDistanceBySomeActivityTypeIds(@Param("userLatitude") Double userLatitude,
+                                                                @Param("userLongitude") Double userLongitude,
+                                                                @Param("maxDistance") Double maxDistance,
+                                                                @Param("activityTypeIds") List<Long> activityTypeIds);
+
+    @Query(value = "SELECT SUM(count) FROM " +
+            "(SELECT COUNT(*) as count " +
+            "FROM activity as a " +
+            "INNER JOIN location as l " +
+            "ON (a.location_location_id = l.location_id) " +
+            "INNER JOIN activity_activity_type as act " +
+            "ON (act.activity_type_id IN :activityTypeIds AND act.activity_id = a.activity_id) " +
+            "WHERE " +
+            "   111.111 * " +
+            "    DEGREES(ACOS(LEAST(1.0, COS(RADIANS(:userLatitude)) " +
+            "         * COS(RADIANS(l.Latitude)) " +
+            "         * COS(RADIANS(:userLongitude - l.Longitude)) " +
+            "         + SIN(RADIANS(:userLatitude)) " +
+            "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance " +
+            "GROUP BY a.activity_id HAVING COUNT(a.activity_id) = :numActivityTypes) as counts", nativeQuery = true)
+    int countAllWithinDistanceByAllActivityTypeIds(@Param("userLatitude") Double userLatitude,
+                                                               @Param("userLongitude") Double userLongitude,
+                                                               @Param("maxDistance") Double maxDistance,
+                                                               @Param("activityTypeIds") List<Long> activityTypeIds,
+                                                               @Param("numActivityTypes") int numActivityTypes);
 }

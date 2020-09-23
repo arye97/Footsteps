@@ -89,4 +89,45 @@ public class LocationSearchService {
         }
         return paginatedActivities;
     }
+
+    public int getRowsForActivityByLocation(String strCoordinates, String activityTypes,
+                                 Double cutoffDistance, String method) throws JsonProcessingException {
+        Coordinates coordinates = new ObjectMapper().readValue(strCoordinates, Coordinates.class);
+        if (coordinates.getLatitude() > 90 || coordinates.getLatitude() < -90) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Latitude must exist (be between -90 and 90 degrees)");
+        }
+        if (coordinates.getLongitude() > 180 || coordinates.getLongitude() < -180) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Longitude must exist (be between -180 and 180 degrees)");
+        }
+        if (cutoffDistance >= MAX_CUTOFF_DISTANCE) {
+            cutoffDistance = MAX_DISTANCE;
+        }
+        int numberOfRows;
+        if (activityTypes.length() >= 1) {
+            List<String> typesWithDashes = Arrays.asList(activityTypes.split(" "));
+            List<String> types = typesWithDashes.stream()
+                    .map(a -> a.replace('-', ' '))
+                    .collect(Collectors.toList());
+            List<Long> activityTypeIds = activityTypeRepository.findActivityTypeIdsByNames(types);
+            int numActivityTypes = activityTypeIds.size();
+            if (method.equalsIgnoreCase("and")) {
+                numberOfRows = activityRepository.countAllWithinDistanceByAllActivityTypeIds(
+                        coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance,
+                        activityTypeIds, numActivityTypes);
+            } else if (method.equalsIgnoreCase("or")) {
+                numberOfRows = activityRepository.countAllWithinDistanceBySomeActivityTypeIds(
+                        coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance,
+                        activityTypeIds);
+            } else {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Method must be specified as either (AND, OR)");
+            }
+        } else {
+            numberOfRows = activityRepository.countAllWithinDistance(
+                    coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance);
+        }
+        return numberOfRows;
+    }
 }
