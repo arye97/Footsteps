@@ -42,6 +42,7 @@
                 ></location-i-o>
                 <p class="light-info-message">
                     Your location is red, created activities are blue and following activities are green.
+                    If you click on an activity pin you will be directed to the page for that activity.
                 </p>
             </div>
             <section>
