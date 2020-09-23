@@ -17,16 +17,11 @@
                                       placeholder="Search activity by title"></b-form-input>
                         <br>
                         <ul>
-                            <li>All searches are case insensitive including "" searches</li>
-                            <li>Use quotation marks to search for whole matches of the string within ("run" could return
-                                run to Mars but NOT running to Venus)
-                            </li>
-                            <li>Use "+" to include both strings in the search (any leading or tailing spaces are
-                                trimmed) (CSSE + fun will return any activity with the names CSSE and fun)
-                            </li>
-                            <li>Use "-" for splitting strings. Anything following the "-" will be excluded from the
-                                search (CSSE - fun would search for anything including CSSE that does not contain fun)
-                            </li>
+                            <li>All searches are case insensitive including exact match searches</li>
+                            <li>Use double quotes around your search for exact matching</li>
+                            <li>Use OR between keywords to search for anything with any of the keywords</li>
+                            <li>Use AND between keywords to search for anything with all of the keywords</li>
+                            <li>AND and OR keywords must be spelt with capitals</li>
                         </ul>
                     </b-col>
                     <b-col class="multi-search" cols=4>

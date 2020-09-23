@@ -324,6 +324,7 @@ public class ActivityController {
                                                           HttpServletResponse response,
                                                           @RequestParam(value = "activityKeywords") String activityKeywords) {
 
+        activityKeywords = activityKeywords.trim();
         if (activityKeywords.equals("-") ||
                 activityKeywords.equals("\\+") ||
                 activityKeywords.equals("%2b") ||
@@ -352,7 +353,7 @@ public class ActivityController {
             pageNumber = 0;
         }
 
-        List<Activity> returnedActivities = null;
+        List<Activity> returnedActivities;
         if (activityKeywords.contains("AND")) {
             String searchStrings = ActivitySearchService.handleMethodSpecialCaseString(activityKeywords, "AND");
             returnedActivities = activityRepository.findAllByKeywordUsingMethod(searchStrings, "AND");
@@ -373,10 +374,7 @@ public class ActivityController {
         int totalElements = returnedActivities.size();
 
         int minIndex = pageNumber * PAGE_SIZE;
-        int maxIndex = minIndex + PAGE_SIZE;
-        if (maxIndex > totalElements) {
-            maxIndex = totalElements;
-        }
+        int maxIndex = Math.min(minIndex + PAGE_SIZE, totalElements);
 
         List<Activity> activities = returnedActivities.subList(minIndex, maxIndex);
 

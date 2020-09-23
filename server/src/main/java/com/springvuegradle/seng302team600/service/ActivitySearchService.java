@@ -9,6 +9,7 @@ public class ActivitySearchService {
      * This function handles the case when multiple separate search queries are to be linked together
      * which is denoted by the inclusion of a 'AND' or 'OR' operator in the search string
      * @param searchString the string query to parse
+     * @param method the method to split the searchString by : eg 'AND' or 'OR'
      * @return the string to be used and parsed in the SQL query
      */
     public static String handleMethodSpecialCaseString(String searchString, String method) {
@@ -43,7 +44,6 @@ public class ActivitySearchService {
                     searchString = String.format("%s%s%s", searchString, term, " ");
                 }
                 searchString = searchString.trim();
-                System.out.println(searchString);
             }
         } else {
             String newQuery = "%";
