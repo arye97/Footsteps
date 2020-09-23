@@ -297,7 +297,9 @@
                     });
             },
 
-            //ToDo write a JavaDoc
+            /**
+             * Fetches the count of Activity Location results searched for.
+             */
             async getActivityLocationRows() {
 
                 let coordinates = {
@@ -317,7 +319,11 @@
             },
 
 
-            //ToDo write a JavaDoc
+            /**
+             * Handle a back-end error
+             * @param error Object from back-end
+             * @param message404 the message to display for a 404 Not Found error
+             */
             handleError(error, message404) {
                 this.loading = false;
                 this.errored = true;
