@@ -189,8 +189,10 @@
                     let user = response.data;
                     if (user.private_location !== null) {
                         this.centerPin = user.private_location;
+                        this.pins.push(user.private_location);
                     } else if (user.public_location !== null) {
                         this.centerPin = user.public_location;
+                        this.pins.push(user.public_location);
                     } else {
                         this.centerPin = null;
                     }
