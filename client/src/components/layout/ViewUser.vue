@@ -152,14 +152,6 @@
                                     </b-card>
                                 </b-list-group>
                                 <br/>
-                                <div v-if="this.user.public_location || this.user.private_location">
-                                    <h3 class="font-weight-light"><strong>Location:</strong></h3>
-                                    <location-i-o id="location"
-                                        :view-only="true"
-                                        :parent-pins="getPinData()"
-                                        :parent-center="getMapCenter()">
-                                    </location-i-o>
-                                </div>
                                 <div v-if="this.user.public_location">
                                     <h3 class="font-weight-light"><strong>Public Location</strong></h3>
                                     <div class="address">
@@ -171,6 +163,13 @@
                                     <div class="address">
                                         <h3 id="private-location-Name" class="font-weight-light"> {{user.private_location.name}} </h3>
                                     </div>
+                                </div>
+                                <div v-if="this.user.public_location || this.user.private_location">
+                                    <location-i-o id="location"
+                                        :view-only="true"
+                                        :parent-pins="getPinData()"
+                                        :parent-center="getMapCenter()">
+                                    </location-i-o>
                                 </div>
                                 <br/>
                             </div>
