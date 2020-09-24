@@ -92,6 +92,7 @@
                                         <br/>
                                     </div>
                                     <div v-else-if="this.user.passports.length === 0">
+                                        <hr/>
                                         <h3 style="font-size: large" class="font-weight-light">No Passport Countries set</h3>
                                     </div>
                                     <hr/>
