@@ -135,6 +135,11 @@ beforeEach(() => {
         mocks: {api},
         localVue
     });
+    activitySearch.setData({
+        minFitness: -1,
+        maxFitness: 4,
+    });
+
 });
 
 
@@ -154,8 +159,6 @@ describe("Search for activities by keywords", () => {
 
             activitySearch.setData({
                 activityTitle: ["PLACEHOLDER"],
-                minFitnessLevel: -1,
-                maxFitnessLevel: 4
             });
 
             return activitySearch.vm.getPaginatedActivitiesByActivityTitle().then(() => {
@@ -179,8 +182,6 @@ describe("Search for activities by keywords", () => {
 
             activitySearch.setData({
                 activityTitle: ["PLACEHOLDER + PLACEHOLDERS"],
-                minFitnessLevel: -1,
-                maxFitnessLevel: 4
             });
 
             return activitySearch.vm.getPaginatedActivitiesByActivityTitle().then(() => {
@@ -205,8 +206,6 @@ describe("Search for activities by keywords", () => {
 
             activitySearch.setData({
                 activityTitle: ["PLACEHOLDER - PLACEHOLDERS"],
-                minFitnessLevel: -1,
-                maxFitnessLevel: 4
             });
 
             return activitySearch.vm.getPaginatedActivitiesByActivityTitle().then(() => {
@@ -231,8 +230,6 @@ describe("Search for activities by keywords", () => {
 
             activitySearch.setData({
                 activityTitle: ['"PLACEHOLDER"'],
-                minFitnesslevel: -1,
-                maxFitnessLevel: 4
             });
 
             return activitySearch.vm.getPaginatedActivitiesByActivityTitle().then(() => {
@@ -272,8 +269,6 @@ describe("Search for activities by activity type", () => {
 
         activitySearch.setData({
             activityTypesSearchedFor: ["Archery","Climbing"],
-            minFitnessLevel: -1,
-            maxFitnessLevel: 4
         });
 
         return activitySearch.vm.getPaginatedActivitiesByActivityType().then(() => {
