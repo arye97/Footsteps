@@ -29,10 +29,10 @@
                                 </h1>
                                 <h1 v-else class="font-weight-light">
                                     <strong>{{this.user.firstname}} {{this.user.middlename}} {{this.user.lastname}}
-                                    </strong> | {{this.user.nickname}}
+                                    </strong>
                                 </h1>
 
-                                <h5 class="font-weight-light" v-if="this.user.bio">"{{ this.user.bio }}"</h5>
+                                <h1 class="font-weight-light" style="word-break: break-word; font-size: x-large" v-if="this.user.bio">"{{ this.user.bio }}"</h1>
 
                                 <b-button type="submit" variant="success" size="med"
                                           v-if="this.isEditable" v-on:click="editProfile">Edit Profile
@@ -42,8 +42,6 @@
 
                                 <b-row>
                                     <b-col>
-                                        <!-- Handling for displaying Passport Countries -->
-
                                         <div>
                                             <div class="flex-fill" border-variant="secondary">
                                                 <h3 class="font-weight-light" style="font-size: large; word-break: break-word;"><strong>{{this.user.primary_email}}</strong> (Primary)</h3>
@@ -57,7 +55,7 @@
                                             <div v-if="this.user.passports.length >= 1 && this.user.passports.length <= 2">
                                                 <b-button-group v-for="country in this.user.passports" v-bind:key="country"
                                                                 border-variant="secondary">
-                                                    <b-button pill variant="primary" disabled class="font-weight-light countries">{{country}}</b-button>
+                                                    <b-button pill variant="primary" style="word-break: break-word;" disabled class="font-weight-light countries">{{country}}</b-button>
                                                 </b-button-group>
                                                 <br/>
                                             </div>
@@ -71,7 +69,7 @@
                                             </div>
                                         </div>
                                         <div>
-                                            <div class="flex-fill" border-variant="secondary" v-if="this.user.fitness > 0">
+                                            <div class="flex-fill" border-variant="secondary" v-if="this.user.fitness >= 0">
                                                 <h3 style="font-size: large" class="font-weight-light">{{this.fitness}}</h3>
                                             </div>
                                             <div v-else>
@@ -119,20 +117,25 @@
                                     </b-list-group>
                                 </div>
 
-                                <br/>
-
-                                <div v-if="this.user.public_location">
-                                    <h3 class="font-weight-light"><strong>Public Location</strong></h3>
-                                    <div class="address">
-                                        <h3 id="public-location-Name" class="font-weight-light"> {{user.public_location.name}} </h3>
-                                    </div>
-                                </div>
-                                <div v-if="this.user.private_location">
-                                    <h3 class="font-weight-light"><strong>Private Location</strong></h3>
-                                    <div class="address">
-                                        <h3 id="private-location-Name" class="font-weight-light"> {{user.private_location.name}} </h3>
-                                    </div>
-                                </div>
+                                <hr/>
+                                <b-row>
+                                    <b-col>
+                                        <div v-if="this.user.public_location">
+                                            <h3 class="font-weight-light"><strong>Public Location</strong></h3>
+                                            <div class="address">
+                                                <h3 id="public-location-Name" class="font-weight-light"> {{user.public_location.name}} </h3>
+                                            </div>
+                                        </div>
+                                    </b-col>
+                                    <b-col>
+                                        <div v-if="this.user.private_location">
+                                            <h3 class="font-weight-light"><strong>Private Location</strong></h3>
+                                            <div class="address">
+                                                <h3 id="private-location-Name" class="font-weight-light"> {{user.private_location.name}} </h3>
+                                            </div>
+                                        </div>
+                                    </b-col>
+                                </b-row>
                                 <div v-if="this.user.public_location || this.user.private_location">
                                     <location-i-o id="location"
                                         :view-only="true"
