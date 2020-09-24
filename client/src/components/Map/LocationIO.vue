@@ -195,7 +195,6 @@
              * @param pin Object containing lat, lng, name.  (Optional)
              */
             addMarker(pin) {
-                console.log(pin)
                 if (pin && ["lat", "lng", "name"].every(key => key in pin)) {
                     if (!("colour" in pin)) {
                         pin.colour = 'red';
@@ -204,8 +203,6 @@
                     this.address = pin.name;
 
                 } else if (pin === undefined) {
-                    console.log(this.center)
-                    console.log(this.$refs.mapViewerRef.currentCenter)
                     pin = {
                         colour: 'red',
                         lat: this.center ? this.center.lat : this.$refs.mapViewerRef.currentCenter.lat,
