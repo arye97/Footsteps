@@ -409,6 +409,8 @@
                         await this.getListOfActivities(false);
                     }
                 }
+
+                this.$emit("deleteUpdate")
                 this.$forceUpdate();
             },
 
