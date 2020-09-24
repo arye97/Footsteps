@@ -55,7 +55,7 @@
                             <div v-if="this.activityTypes.length >= 1">
                                 <b-button-group id="activityType" v-for="activityType in this.activityTypes" v-bind:key="activityType.name"
                                      border-variant="secondary">
-                                    <b-button pill variant="secondary" disabled class="font-weight-light activityTypes">{{activityType.name}}</b-button>
+                                    <b-button pill variant="secondary"  disabled class="font-weight-light activityTypes">{{activityType.name}}</b-button>
                                 </b-button-group>
                             </div>
                             <br/>
