@@ -37,7 +37,7 @@
                 <location-i-o
                         ref="mapComponentRef"
                         :view-only="true"
-                        :parent-center="{lat: userPin.lat, lng: userPin.lng}"
+                        :parent-center="centerPin === null ? null : {lat: centerPin.lat, lng: centerPin.lng}"
                         :parent-pins.sync="pins"
                         :max-pins="rows"
                         :description="'Your location is red, created activities are blue and following activities are green. If you click an activity pin you will be directed to the page for that activity.'"
@@ -72,7 +72,7 @@
                 errorAlertMessage: '',
                 rows: 0,
                 hasNext: false,
-                userPin: null,
+                centerPin: null,
                 pins: [],
                 loading: true,
                 userId: null
@@ -107,7 +107,10 @@
                     this.rows = 1;
                 }
                 this.loading = false;
-                this.userPin = pins[0];
+                this.centerPin = pins[0];
+                if (this.centerPin.pin_type !== "USER") {
+                    this.centerPin = null;
+                }
                 this.pins = pins;
                 while (this.hasNext) {
                     pinBlock++;

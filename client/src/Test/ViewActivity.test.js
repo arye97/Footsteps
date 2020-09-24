@@ -212,6 +212,10 @@ describe('As an activity creator', () => {
         expect(viewActivity.find('#editActivity').exists()).toBeTruthy();
     });
 
+    test('I can see the delete activity button', () => {
+        expect(viewActivity.find('#deleteActivityBtn').exists()).toBeTruthy();
+    });
+
     test('I can see the add results button', () => {
         expect(viewActivity.find('#addResults').exists()).toBeTruthy();
     });
@@ -252,6 +256,10 @@ describe("If I'm following an activity", () => {
         expect(viewActivity.find('#editActivity').exists()).toBeFalsy();
     });
 
+    test("I can't see the delete activity button", () => {
+        expect(viewActivity.find('#deleteActivityBtn').exists()).toBeFalsy();
+    });
+
     test('I can see the add results button', () => {
         expect(viewActivity.find('#addResults').exists()).toBeTruthy();
     });
@@ -283,6 +291,10 @@ describe('If I am not following the activity', () => {
 
     test("I can't see the edit activity button", () => {
         expect(viewActivity.find('#editActivity').exists()).toBeFalsy();
+    });
+
+    test("I can't see the delete activity button", () => {
+        expect(viewActivity.find('#deleteActivityBtn').exists()).toBeFalsy();
     });
 
     test("I can't see the add results button", () => {

@@ -503,7 +503,8 @@ class ActivityControllerTest {
                 put("longitude", "0.0");
                 put("latitude", "0.0");
                 put("name", "Null Island");
-            }});
+            }},
+            "fitness", 4);
 
     /**
      * Test successful creation of new activity.
@@ -553,7 +554,8 @@ class ActivityControllerTest {
                 put("longitude", "0.0");
                 put("latitude", "0.0");
                 put("name", "Null Island");
-            }});
+            }},
+            "fitness", 2);
 
 
     /**
@@ -590,7 +592,8 @@ class ActivityControllerTest {
                 put("longitude", "0.0");
                 put("latitude", "0.0");
                 put("name", "Null Island");
-            }});
+            }},
+            "fitness", 3);
 
     /**
      * Tests that Bad Request is returned when the date format is not correct, in this case representing time zone
@@ -1063,7 +1066,7 @@ class ActivityControllerTest {
         String hasNext = response.getResponse().getHeader("Has-Next");
 
         JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
-        assertEquals(1, responseArray.size());
+        assertEquals(0, responseArray.size());
         assertFalse(Boolean.parseBoolean(hasNext));
         assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), UserPin.class));
     }
@@ -1081,7 +1084,7 @@ class ActivityControllerTest {
         String hasNext = response.getResponse().getHeader("Has-Next");
 
         JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
-        assertEquals(dummyActivitiesTable.size() + 1, responseArray.size());
+        assertEquals(dummyActivitiesTable.size(), responseArray.size());
         assertFalse(Boolean.parseBoolean(hasNext));
         assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), UserPin.class));
     }
@@ -1113,7 +1116,7 @@ class ActivityControllerTest {
         String hasNext = response.getResponse().getHeader("Has-Next");
 
         JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
-        assertEquals(BLOCK_SIZE + 1, responseArray.size());
+        assertEquals(BLOCK_SIZE, responseArray.size());
         assertTrue(Boolean.parseBoolean(hasNext));
         assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), UserPin.class));
     }

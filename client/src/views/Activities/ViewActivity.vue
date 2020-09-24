@@ -20,20 +20,37 @@
                         <h1 class="font-weight-light">{{this.errorMessage}}</h1>
                     </div>
                     <div v-else>
-                        <div v-if="loading"> Loading... <br/><br/><b-spinner variant="primary" label="Spinning"></b-spinner></div>
+                        <div v-if="loading"> Loading... <br/><br/>
+                            <b-spinner variant="primary" label="Spinning"></b-spinner>
+                        </div>
                         <div v-else class="font-weight-light">
                             <br/>
                             <!-- Title -->
-                            <h1 class="font-weight-light" id="activityTitle"><strong>{{this.activityTitle}}</strong></h1>
+                            <h1 class="font-weight-light" id="activityTitle"><strong>{{this.activityTitle}}</strong>
+                            </h1>
                             <br/>
-                            <!-- Activity Descirption -->
-                            <h5 class="font-weight-light" v-if="this.description" id="description">"{{this.description}}"<br/></h5>
+                            <!-- Activity Description -->
+                            <h5 class="font-weight-light" v-if="this.description" id="description">
+                                "{{this.description}}"<br/></h5>
                             <br/>
-                            <!-- Edit Activity Button -->
+                            <!-- Edit and Delete Activity Buttons -->
                             <div v-if="this.creatorId===this.activeUserId">
-                                <b-button type="submit" variant="success"
-                                          size="med" v-on:click="goToPage(`/activities/edit/${activityId}`)"
-                                          id="editActivity">Edit Activity</b-button>
+                                <b-row>
+                                    <b-col align="right">
+                                        <b-button type="submit" variant="outline-success"
+                                                  v-on:click="goToPage(`/activities/edit/${activityId}`)"
+                                                  id="editActivity">Edit Activity
+                                        </b-button>
+                                    </b-col>
+                                    <b-col align="left">
+                                        <b-button id="deleteActivityBtn"
+                                                  class="activityBtn"
+                                                  variant="outline-danger"
+                                                  v-on:click="deleteActivity()">
+                                            Delete
+                                        </b-button>
+                                    </b-col>
+                                </b-row>
                                 <br/><br/>
                             </div>
                             <!-- Creator -->
@@ -53,9 +70,9 @@
                             </b-card>
                             <br/>
                             <div>
-                              <location-i-o
-                                  :view-only="true"
-                                  :parent-pins="[{
+                                <location-i-o
+                                        :view-only="true"
+                                        :parent-pins="[{
                                       lat: this.location.latitude,
                                       lng: this.location.longitude,
                                       colour: 'red',
@@ -64,8 +81,8 @@
                                           location: this.location,
                                       }
                                   }]"
-                                  :parent-center="{lat: this.location.latitude, lng: this.location.longitude}">
-                              </location-i-o>
+                                        :parent-center="{lat: this.location.latitude, lng: this.location.longitude}">
+                                </location-i-o>
                             </div>
                             <!-- Time details -> only relevant for duration activities -->
                             <div v-if="!continuous">
@@ -129,8 +146,10 @@
                                              @submit-result="submitOutcomeResult"></add-results>
                             </b-modal>
                             <!-- Add Results/Following Button Group -->
-                            <b-button block v-if="(this.isFollowing || this.creatorId === this.activeUserId) && this.hasOutcomes"
-                                      variant="success" id="addResults" v-b-modal="'addResultsModel'">Add My Results</b-button>
+                            <b-button block
+                                      v-if="(this.isFollowing || this.creatorId === this.activeUserId) && this.hasOutcomes"
+                                      variant="success" id="addResults" v-b-modal="'addResultsModel'">Add My Results
+                            </b-button>
                             <br/>
                             <div v-if="this.creatorId !== this.activeUserId">
                                 <b-button block v-if="!this.isFollowing"
@@ -140,7 +159,8 @@
                                           id="followButton"
                                 >
                                     Follow Activity
-                                    <img src="../../../assets/png/footsteps_icon_hollow.png" class="footSteps" alt="Footsteps Logo">
+                                    <img src="../../../assets/png/footsteps_icon_hollow.png" class="footSteps"
+                                         alt="Footsteps Logo">
                                 </b-button>
                                 <b-button block v-else
                                           variant="outline-dark"
@@ -149,12 +169,14 @@
                                           id="unfollowButton"
                                 >
                                     Unfollow Activity
-                                    <img src="../../../assets/png/footsteps_icon.png" class="footSteps" alt="Footsteps Logo">
+                                    <img src="../../../assets/png/footsteps_icon.png" class="footSteps"
+                                         alt="Footsteps Logo">
                                 </b-button>
                                 <br/>
                             </div>
                             <!--View Participants Modal-->
-                            <b-modal id="viewParticipantsModal" size="lg" centered ok-only scrollable :title="activityTitle + ' Participants'">
+                            <b-modal id="viewParticipantsModal" size="lg" centered ok-only scrollable
+                                     :title="activityTitle + ' Participants'">
                                 <view-participants :participants="participants"></view-participants>
                             </b-modal>
                             <!--View Participants and Results Buttons-->
@@ -163,23 +185,27 @@
                                     <!--View Participants-->
                                     <b-button type="submit" variant="success" size="med"
                                               v-b-modal="'viewParticipantsModal'" id="viewParticipants">
-                                        View Participants</b-button>
+                                        View Participants
+                                    </b-button>
                                 </b-col>
                                 <b-col v-if="this.hasOutcomes">
                                     <!--View Results-->
                                     <b-button type="submit" variant="success" size="med" disabled
                                               id="viewResultsError" v-if="resultError">
-                                        There was an error fetching results</b-button>
+                                        There was an error fetching results
+                                    </b-button>
                                     <b-button type="submit" variant="success" size="med"
                                               id="viewResults" v-b-modal="'resultsModal'" v-else>
-                                        View Results</b-button>
+                                        View Results
+                                    </b-button>
 
-                                    <b-modal id="resultsModal" title="Activity Results" scrollable ok-only ok-variant="secondary" ok-title="Back">
+                                    <b-modal id="resultsModal" title="Activity Results" scrollable ok-only
+                                             ok-variant="secondary" ok-title="Back">
                                         <view-results :outcome-list="outcomeList"></view-results>
                                     </b-modal>
                                 </b-col>
                             </b-row>
-                          <br/>
+                            <br/>
                         </div>
                     </div>
                 </div>
@@ -201,7 +227,7 @@
     export default {
         name: "ViewActivity",
         components: {LocationIO, ViewResults, AddResults, ViewParticipants, Header},
-        data () {
+        data() {
             return {
                 count: 0,
                 errored: false,
@@ -235,14 +261,14 @@
                         unit_type: "",
                         activeUsersResult:
                             {
-                            result_id: null,
-                            user_id: null,
-                            user_name: null,
-                            outcome_id: null,
-                            value: "",
-                            did_not_finish: false,
-                            comment: "",
-                            submitted: false
+                                result_id: null,
+                                user_id: null,
+                                user_name: null,
+                                outcome_id: null,
+                                value: "",
+                                did_not_finish: false,
+                                comment: "",
+                                submitted: false
                             },
                         results: [
                             { // Result object
@@ -260,7 +286,7 @@
                 ],
             }
         },
-        async mounted () {
+        async mounted() {
             await this.init();
         },
         methods: {
@@ -554,6 +580,33 @@
                         this.errorMessage = "Unable to get outcomes - please try again later";
                         break;
                 }
+            },
+            /**
+             * Delete the activity if the user agrees after being prompted.
+             */
+            async deleteActivity() {
+                this.errored = false;
+                let confirmDeleteActivity = false;
+
+                // Open dialog box
+                await this.$bvModal.msgBoxConfirm("Are you sure you want to delete this Activity?")
+                    .then(value => {
+                        confirmDeleteActivity = value
+                    }).catch(() => {
+                        this.errored = true;
+                        this.errorMessage = "Could not delete activity";
+                    });
+                if (!confirmDeleteActivity) {
+                    return;
+                }
+
+                // Delete from database
+                await api.deleteActivity(this.activeUserId, this.activityId).then(() => {
+                    this.goToPage(`/home`);
+                }).catch(() => {
+                    this.errored = true;
+                    this.errorMessage = "Could not delete activity";
+                });
             }
         }
     }
@@ -563,17 +616,6 @@
     .footSteps {
         width: 7.5%;
         height: 7.5%;
-    }
-    .footStepsSimplified {
-        width: 16%;
-        height: 16%;
-    }
-    .noMore {
-        text-align: center;
-
-    }
-    .text-justified {
-        text-align: justify;
     }
 
     .activity-button-group {
@@ -588,14 +630,7 @@
         width: 100%;
     }
 
-    .participantButton {
-        margin: 3px;
-        display: inline-block;
-    }
-
-    .word-count {
-        padding-top: 7px;
-        color: #707070;
-        font-size: 0.8em;
+    .activityBtn {
+        padding: 0.375rem 2rem;
     }
 </style>
