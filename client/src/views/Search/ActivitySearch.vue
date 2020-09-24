@@ -131,7 +131,7 @@
                 currentPage: 1,
                 activitiesList: [],
                 searchMode: 'activityType',
-                searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
+                searchModes: [
                     {value: 'activityType', text: 'Activity Type'},
                     {value: 'activityName', text: 'Activity Name'},
                     {value: 'activityLocation', text: 'Location'}
