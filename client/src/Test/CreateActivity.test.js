@@ -1,5 +1,5 @@
 import 'vue-jest'
-import {mount, createLocalVue} from '@vue/test-utils'
+import {shallowMount, createLocalVue} from '@vue/test-utils'
 import CreateActivity from "../views/Activities/CreateActivity";
 import api from "../Api";
 import router from '../index';
@@ -65,7 +65,7 @@ beforeAll(() => {
     });
     api.getUserId.mockImplementation(() => Promise.resolve({data: 1, status: 200}));
     api.getActivityTypes.mockImplementation(() => Promise.resolve({data: ACTIVITY_TYPES, status: 200}));
-    createActivity = mount(CreateActivity, config);
+    createActivity = shallowMount(CreateActivity, config);
 });
 
 beforeEach(() => {

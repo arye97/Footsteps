@@ -1,13 +1,13 @@
 package com.springvuegradle.seng302team600.repository;
 
 import com.springvuegradle.seng302team600.model.Activity;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import com.springvuegradle.seng302team600.repository.ActivityRepositoryCustomImpl.SearchResponse;
 
 import java.util.List;
 
@@ -60,9 +60,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
     @Query(value = "SELECT * FROM activity WHERE activity_id in ?1", nativeQuery = true)
     List<Activity> getActivitiesByIds(@Param("userIds") List<Long> activityIds);
 
-    @Query(value =
-            "SELECT * FROM activity WHERE activity_name LIKE ?1", nativeQuery = true)
-    List<Activity> findAllByKeyword(@Param("keyword") String keyword);
+    SearchResponse findAllByKeyword(@Param("keyword") List<String> keyword, int pageSize, int page);
 
     @Query(value = "SELECT a.*" +
             "FROM activity as a " +
@@ -151,12 +149,12 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
             "         * COS(RADIANS(:userLongitude - l.Longitude)) " +
             "         + SIN(RADIANS(:userLatitude)) " +
             "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance", nativeQuery = true)
-    int countAllWithinDistance(@Param("userLatitude") Double userLatitude,
+    Integer countAllWithinDistance(@Param("userLatitude") Double userLatitude,
                                @Param("userLongitude") Double userLongitude,
                                @Param("maxDistance") Double maxDistance);
 
     @Query(value = "SELECT SUM(count) FROM " +
-            "(SELECT COUNT(*) as count " +
+            "(SELECT 1 as count " +
             "FROM activity as a " +
             "INNER JOIN location as l " +
             "ON (a.location_location_id = l.location_id) " +
@@ -170,13 +168,13 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
             "         + SIN(RADIANS(:userLatitude)) " +
             "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance " +
             "GROUP BY a.activity_id) as counts", nativeQuery = true)
-    int countAllWithinDistanceBySomeActivityTypeIds(@Param("userLatitude") Double userLatitude,
+    Integer countAllWithinDistanceBySomeActivityTypeIds(@Param("userLatitude") Double userLatitude,
                                                                 @Param("userLongitude") Double userLongitude,
                                                                 @Param("maxDistance") Double maxDistance,
                                                                 @Param("activityTypeIds") List<Long> activityTypeIds);
 
     @Query(value = "SELECT SUM(count) FROM " +
-            "(SELECT COUNT(*) as count " +
+            "(SELECT 1 as count " +
             "FROM activity as a " +
             "INNER JOIN location as l " +
             "ON (a.location_location_id = l.location_id) " +
@@ -190,7 +188,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
             "         + SIN(RADIANS(:userLatitude)) " +
             "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance " +
             "GROUP BY a.activity_id HAVING COUNT(a.activity_id) = :numActivityTypes) as counts", nativeQuery = true)
-    int countAllWithinDistanceByAllActivityTypeIds(@Param("userLatitude") Double userLatitude,
+    Integer countAllWithinDistanceByAllActivityTypeIds(@Param("userLatitude") Double userLatitude,
                                                                @Param("userLongitude") Double userLongitude,
                                                                @Param("maxDistance") Double maxDistance,
                                                                @Param("activityTypeIds") List<Long> activityTypeIds,

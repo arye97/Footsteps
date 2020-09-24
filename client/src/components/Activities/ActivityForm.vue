@@ -151,8 +151,9 @@
                         @pin-change="locationValue"
                         @locationIO-focus="setLocationFocus"
                         :single-only="true"
+                        :canDelete="true"
                         :parent-pins="this.isEdit && this.activity.location ?
-                            [{lat: this.activity.location.latitude, lng: this.activity.location.longitude}] :  undefined"
+                            [{lat: this.activity.location.latitude, lng: this.activity.location.longitude, colour: 'blue',}] :  undefined"
 
                         :parent-center="this.isEdit && this.activity.location ?
                             {lat: this.activity.location.latitude, lng: this.activity.location.longitude} : undefined"
@@ -160,7 +161,6 @@
                         :parent-address="this.isEdit && this.activity.location ?
                             this.activity.location.name : undefined"
                     ></location-i-o>
-
                 </b-form-group>
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_location">
                     Field is mandatory and a location must be set

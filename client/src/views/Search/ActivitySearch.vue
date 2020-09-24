@@ -36,7 +36,7 @@
                         </b-col>
                     </b-row>
                 </div>
-                <b-col v-if="searchMode==='activityLocation'" class="distanceSlider">
+                <b-col v-if="searchMode==='activityLocation'" class="activity-location-search">
                     <p for="range-1">Please specify the distance range to search for:</p>
                     <b-form-input id="range-1" v-model="cutoffDistance" type="range" min="0" :max="MAX_DISTANCE"
                                   step="100"></b-form-input>
@@ -45,12 +45,14 @@
                         {{ (cutoffDistance != MAX_DISTANCE)?cutoffDistance:MAX_DISTANCE.toString().concat("+") }}
                     </div>
                     <location-i-o
+                            pin-legend-mode="ActivitySearch"
                             ref="mapComponentRef"
                             v-if="!mapLoading"
                             :parent-center="currentLocation"
                             :parent-pins="pins"
                             @pin-change="clearSearchResults"
-                            @child-pins="pinsChanged"></location-i-o>
+                            @child-pins="pinsChanged"
+                    ></location-i-o>
                 </b-col>
                 <b-row v-if="searchMode==='activityName'">
                     <b-button class="rulesButton" v-if="!showRules" size="sm" variant="link"  v-on:click="showRules=true">Search Help</b-button>
@@ -66,7 +68,7 @@
                         <li>AND and OR keywords must be spelt with capitals</li>
                     </ul>
                 </b-row>
-                <b-row>
+                <b-row id="search-activity-button">
                     <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
                         Search
                     </b-button>
@@ -190,8 +192,8 @@
                         await this.getPaginatedActivitiesByActivityTitle();
                         break;
                     case 'activityLocation':
-                        await this.getPaginatedActivitiesByLocation();
                         await this.getActivityLocationRows();
+                        await this.getPaginatedActivitiesByLocation();
                         break;
                 }
 
@@ -294,11 +296,16 @@
                 api.getActivityByLocation(urlCoordinates, this.activityTypesSearchedFor, this.cutoffDistance, this.searchType, pageNumber)
                     .then(response => {
                         this.activitiesList = response.data;
-
+                        if ((response.data).length === 0) {
+                            this.errored = true;
+                            this.error_message = "No activities that fit your search criteria have been found.";
+                        }
                         this.resultsFound = true;
                     }).catch(error => {
                         this.handleError(error, "No activities within distance of location ".concat(this.cutoffDistance) + " have been found!");
                     });
+
+                this.loading = false;
             },
 
             /**
@@ -318,8 +325,6 @@
                     }).catch(error => {
                         this.handleError(error, "No activities within distance of location ".concat(this.cutoffDistance) + " have been found!");
                     });
-
-                this.loading = false;
             },
 
 
@@ -417,6 +422,7 @@
              * @param pin a moved pin
              */
             clearSearchResults(pin) {
+                if (pin === null) return;
                 if (pin.colour !== "red") return;
                 this.currentLocation = pin;
                 this.$refs.mapComponentRef.clearPins();
@@ -449,8 +455,8 @@
                 } else if (this.searchMode === 'activityLocation') {
                     this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
                     await this.getActivityPinBlocksByLocation();
-                    await this.getPaginatedActivitiesByLocation();
                     await this.getActivityLocationRows();
+                    await this.getPaginatedActivitiesByLocation();
                 }
             }
         }
@@ -463,8 +469,11 @@
         margin-top: 1rem !important;
     }
 
-    .distanceSlider {
+    .activity-location-search {
         margin-top: 1rem !important;
-        margin-left: -1rem !important;
+    }
+
+    #search-activity-button {
+        margin-top: -35px;
     }
 </style>
