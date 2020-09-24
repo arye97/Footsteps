@@ -36,7 +36,7 @@
                         </b-col>
                     </b-row>
                 </div>
-                <b-col v-if="searchMode==='activityLocation'" class="distanceSlider">
+                <b-col v-if="searchMode==='activityLocation'" class="activity-location-search">
                     <p for="range-1">Please specify the distance range to search for:</p>
                     <b-form-input id="range-1" v-model="cutoffDistance" type="range" min="0" :max="MAX_DISTANCE"
                                   step="100"></b-form-input>
@@ -464,8 +464,7 @@
         margin-top: 1rem !important;
     }
 
-    .distanceSlider {
+    .activity-location-search {
         margin-top: 1rem !important;
-        margin-left: -1rem !important;
     }
 </style>
