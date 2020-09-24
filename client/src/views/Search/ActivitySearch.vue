@@ -166,9 +166,9 @@
                 loading: false,
                 rows: null,
                 resultsFound: false,
-            filterSearch: false,
-            minFitness: 0,
-            maxFitness: 4
+                filterSearch: false,
+                minFitness: 0,
+                maxFitness: 4,
                 hasNext: true,
                 isErrorAlert: false,
                 errorAlertMessage: '',
