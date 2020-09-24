@@ -57,33 +57,31 @@
                                      border-variant="secondary">
                                     <b-button pill variant="secondary"  disabled class="font-weight-light activityTypes">{{activityType.name}}</b-button>
                                 </b-button-group>
-                            </div>
-                            <!-- Fitness Level -->
-                            <h3 class="font-weight-light"><strong>Target Fitness Level:</strong></h3>
-                            <b-card v-if="this.userFitnessLevel >= this.activityFitnessLevel" bg-variant="success" class="flex-fill" border-variant="secondary">
-                              <b-card-text class="font-weight-light">
-                               Target fitness level: {{this.activityFitnessLevel}}, your fitness level: {{this.userFitnessLevel}}
-                              </b-card-text>
-                              <b-card-text class="font-weight-light">
-                                You are at or above the target fitness level for this activity!
-                              </b-card-text>
-                            </b-card>
-                          <b-card v-else-if="this.activityFitnessLevel - this.userFitnessLevel == 1" bg-variant="warning" class="flex-fill" border-variant="secondary">
-                            <b-card-text class="font-weight-light">
-                              Target fitness level: {{this.activityFitnessLevel}}, your fitness level: {{this.userFitnessLevel}}
-                            </b-card-text>
-                            <b-card-text class="font-weight-light">
+                            </div><br />
+
+                          <!-- Fitness Level -->
+                          <div v-if="this.userFitnessLevel >= this.activityFitnessLevel" class="flex-fill"
+                               v-b-tooltip.hover
+                               :title="'Target fitness lllevel: ' + this.activityFitnessLevel +
+                               '  Your fitness level: ' + this.userFitnessLevel"
+                          >
+                              You are at or above the target fitness level for this activity!
+                            <b-icon-check-circle variant="success"/>
+                          </div>
+                          <div v-else-if="this.activityFitnessLevel - this.userFitnessLevel == 1" class="flex-fill"
+                               v-b-tooltip.hover
+                               title="Target fitness level: Your fitness level: "
+                          >
                               Warning: You are just below the target fitness level for this activity!
-                            </b-card-text>
-                          </b-card>
-                          <b-card v-else bg-variant="danger" class="flex-fill">
-                            <b-card-text class="font-weight-light">
-                              Target fitness level: {{this.activityFitnessLevel}}, your fitness level: {{this.userFitnessLevel}}
-                            </b-card-text>
-                            <b-card-text class="font-weight-light">
+                            <b-icon-exclamation-circle variant="warning"/>
+                          </div>
+                          <div v-else class="flex-fill" v-b-tooltip.hover
+                               title="Target fitness level: Your fitness level: "
+                          >
                               Warning: You are far below the recommended fitness level for this activity! Better get training!
-                            </b-card-text>
-                          </b-card>
+                            <b-icon-x-circle variant="danger"/>
+                          </div>
+
                             <!-- Location -->
                             <div class="address">
                                 <h3 v-if="this.location" id="location" class="font-weight-light">{{this.location.name}} </h3>
