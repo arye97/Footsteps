@@ -707,6 +707,10 @@
                 this.submitDisabled = inFocus;
             },
 
+            /**
+             * This method is called if an invalid location warning is emitted from LocationIO
+             * This displays a warning to the user so they are aware that it is invalid
+             */
             invalidLocation() {
                 this.activity.location = null;
                 showError("unapproved_location");

@@ -283,6 +283,11 @@
                 this.$emit("pin-change", null);
             },
 
+            /**
+             * Checks the formatted address from the autocomplete box. If it hasn't been selected from the google autocomplete
+             * suggestions it emits an invlaid-location warning to the user
+             * @param place the information in the box
+             */
             check(place) {
                 if (this.canDelete) {
                     if (place.formatted_address === undefined) {
