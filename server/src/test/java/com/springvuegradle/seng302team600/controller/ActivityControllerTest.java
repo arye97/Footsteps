@@ -5,15 +5,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.springvuegradle.seng302team600.model.*;
+import com.springvuegradle.seng302team600.payload.pins.ActivityPin;
 import com.springvuegradle.seng302team600.payload.pins.Pin;
 import com.springvuegradle.seng302team600.payload.pins.UserPin;
 import com.springvuegradle.seng302team600.payload.response.ActivityResponse;
 import com.springvuegradle.seng302team600.payload.request.UserRegisterRequest;
 import com.springvuegradle.seng302team600.repository.*;
-import com.springvuegradle.seng302team600.service.ActivityPinService;
-import com.springvuegradle.seng302team600.service.ActivityTypeService;
-import com.springvuegradle.seng302team600.service.FeedEventService;
-import com.springvuegradle.seng302team600.service.UserAuthenticationService;
+import com.springvuegradle.seng302team600.service.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -59,6 +57,8 @@ class ActivityControllerTest {
     private ActivityTypeRepository activityTypeRepository;
     @MockBean
     private ActivityPinService activityPinService;
+    @MockBean
+    private LocationSearchService locationSearchService;
     @Autowired
     private MockMvc mvc;
 
@@ -114,8 +114,9 @@ class ActivityControllerTest {
     private Set<User> userMockTable = new HashSet<>();
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws JsonProcessingException {
         MockitoAnnotations.initMocks(this);
+        DUMMY_ACTIVITY_STUB_ID = 8L;
         dummyUser1 = new User();
         dummyUser1.setToken(validToken);
         ReflectionTestUtils.setField(dummyUser1, "userId", DEFAULT_USER_ID);
@@ -131,6 +132,23 @@ class ActivityControllerTest {
         dummyUserStub = new User();
         dummyUserStub.setToken(anotherValidToken);
         ReflectionTestUtils.setField(dummyUserStub, "userId", DUMMY_USER_STUB_ID);
+
+        // Mocking LocationSearchService
+        // Mock getActivitiesByLocation within the test methods, if you don't want all the activities
+        when(locationSearchService.getActivitiesByLocation(Mockito.anyString(), Mockito.anyString(), Mockito.anyDouble(),
+                Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> {
+            int pageNumber = i.getArgument(5);
+            if (pageNumber < 0) {
+                pageNumber = 0;
+            }
+            Pageable pageable = PageRequest.of(0, BLOCK_SIZE);
+            int leftIndex = pageNumber * BLOCK_SIZE;
+            int rightIndex = pageNumber * BLOCK_SIZE + BLOCK_SIZE;
+            Slice<Activity> slice = new SliceImpl<>(dummyActivitiesTable.subList(leftIndex, rightIndex), pageable, false);
+            return slice;
+        });
+        when(locationSearchService.getRowsForActivityByLocation(Mockito.anyString(), Mockito.anyString(),
+                Mockito.anyDouble(), Mockito.anyString())).thenAnswer(i -> dummyActivitiesTable.size());
 
         // Mocking ActivityTypeService
         when(activityTypeService.getMatchingEntitiesFromRepository(Mockito.any())).thenAnswer(i -> i.getArgument(0));
@@ -311,7 +329,7 @@ class ActivityControllerTest {
         });
         // FindByActivityId
         when(activityRepository.findByActivityId(Mockito.any(Long.class))).thenAnswer(i -> {
-            for (Activity activity: activityMockTable) {
+            for (Activity activity : activityMockTable) {
                 if (activity.getActivityId() == i.getArgument(0)) {
                     return activity;
                 }
@@ -338,11 +356,10 @@ class ActivityControllerTest {
         });
 
 
-
         // Mock ActivityType repository for each activity
         Map<String, Long> activityTypeNameToIdMap = new HashMap<>(4);
         Map<Long, ActivityType> activityTypeIdToObjectMap = new HashMap<>(4);
-        for (ActivityType activityType: dummySearchActivityTypes) {
+        for (ActivityType activityType : dummySearchActivityTypes) {
             activityTypeNameToIdMap.put(activityType.getName().toLowerCase(), activityType.getActivityTypeId());
             activityTypeIdToObjectMap.put(activityType.getActivityTypeId(), activityType);
         }
@@ -350,7 +367,7 @@ class ActivityControllerTest {
         when(activityTypeRepository.findActivityTypeIdsByNames(Mockito.anyList())).thenAnswer(i -> {
             List<String> activityTypeNames = i.getArgument(0);
             List<Long> activityTypeIds = new ArrayList<>();
-            for (String name: activityTypeNames) {
+            for (String name : activityTypeNames) {
                 activityTypeIds.add(activityTypeNameToIdMap.get(name.toLowerCase()));
             }
             return activityTypeIds;
@@ -359,7 +376,7 @@ class ActivityControllerTest {
         when(activityRepository.getActivitiesByIds(Mockito.anyList())).thenAnswer(i -> {
             List<Long> activityIds = i.getArgument(0);
             List<Activity> activities = new ArrayList<>();
-            for (Activity activity: dummySearchActivitiesTable) {
+            for (Activity activity : dummySearchActivitiesTable) {
                 if (activityIds.contains(activity.getActivityId())) {
                     activities.add(activity);
                 }
@@ -375,11 +392,11 @@ class ActivityControllerTest {
             int pageSize = pageWithFiveActivities.getPageSize();
 
             List<ActivityType> activityTypesToMatch = new ArrayList<>();
-            for (Long id: activityTypeIdsToMatch) {
+            for (Long id : activityTypeIdsToMatch) {
                 activityTypesToMatch.add(activityTypeIdToObjectMap.get(id));
             }
             List<Long> activityIdsToSearch = new ArrayList<>();
-            for (Activity activity: dummySearchActivitiesTable) {
+            for (Activity activity : dummySearchActivitiesTable) {
                 if (activity.getActivityTypes().containsAll(activityTypesToMatch)) {
                     activityIdsToSearch.add(activity.getActivityId());
                 }
@@ -437,8 +454,6 @@ class ActivityControllerTest {
     }
 
 
-
-
     private final String newUserJson1 = JsonConverter.toJson(true,
             "lastname", "Cucumber",
             "firstname", "Larry",
@@ -484,7 +499,7 @@ class ActivityControllerTest {
             "continuous", false,
             "start_time", "2020-02-20T08:00:00+1300",
             "end_time", "2020-02-20T08:00:00+1300",
-            "location", new HashMap<String, String>(){{
+            "location", new HashMap<String, String>() {{
                 put("longitude", "0.0");
                 put("latitude", "0.0");
                 put("name", "Null Island");
@@ -505,7 +520,9 @@ class ActivityControllerTest {
                 .andExpect(status().isCreated())
                 .andReturn();
         assertNotNull(result.getResponse());
-        assertDoesNotThrow(() -> {Long.valueOf(result.getResponse().getContentAsString());});
+        assertDoesNotThrow(() -> {
+            Long.valueOf(result.getResponse().getContentAsString());
+        });
     }
 
     /**
@@ -532,13 +549,11 @@ class ActivityControllerTest {
             "continuous", false,
             "start_time", "2020-02-20T08:00:00+1300",
             "end_time", "2020-02-20T08:00:00+1300",
-            "location", new HashMap<String, String>(){{
+            "location", new HashMap<String, String>() {{
                 put("longitude", "0.0");
                 put("latitude", "0.0");
                 put("name", "Null Island");
             }});
-
-
 
 
     /**
@@ -571,7 +586,7 @@ class ActivityControllerTest {
             "continuous", false,
             "start_time", "2020-02-20T08:00:00Z",
             "end_time", "2020-02-20T08:00:00Z",
-            "location", new HashMap<String, String>(){{
+            "location", new HashMap<String, String>() {{
                 put("longitude", "0.0");
                 put("latitude", "0.0");
                 put("name", "Null Island");
@@ -604,7 +619,7 @@ class ActivityControllerTest {
             "continuous", false,
             "start_time", "2020-02-20T08:00:00+1300",
             "end_time", "2020-02-20T08:00:00+1300",
-            "location", new HashMap<String, String>(){{
+            "location", new HashMap<String, String>() {{
                 put("longitude", "0.0");
                 put("latitude", "0.0");
                 put("name", "Null Island");
@@ -879,7 +894,7 @@ class ActivityControllerTest {
 
     @Test
     void getActivitiesByAKeyword() throws Exception {
-        when(activityRepository.findAllByKeyword(Mockito.anyString(), Mockito.any())).thenAnswer(i -> {
+        when(activityRepository.findAllByKeyword(Mockito.anyString())).thenAnswer(i -> {
             String keyword = i.getArgument(0);
             List<Activity> foundActivities = new ArrayList<>();
             if (keyword.contains("Climb")) {
@@ -892,8 +907,7 @@ class ActivityControllerTest {
                 foundActivities.add(dumActivity1);
                 foundActivities.add(dumActivity2);
             }
-            Page<Activity> result = new PageImpl(foundActivities);
-            return result;
+            return foundActivities;
         });
 
         URI uri = new URI(
@@ -915,7 +929,7 @@ class ActivityControllerTest {
 
     @Test
     void getActivitiesByExactSearch() throws Exception {
-        when(activityRepository.findAllByKeyword(Mockito.anyString(), Mockito.any())).thenAnswer(i -> {
+        when(activityRepository.findAllByKeyword(Mockito.anyString())).thenAnswer(i -> {
             String keyword = i.getArgument(0);
             List<Activity> foundActivities = new ArrayList<>();
             Activity dumActivity1 = new Activity();
@@ -927,6 +941,7 @@ class ActivityControllerTest {
             foundActivities.add(dumActivity1);
             foundActivities.add(dumActivity2);
             List<Activity> selectedActivities = new ArrayList<>();
+            keyword = keyword.replaceAll("%20", " ");
             if (keyword.equals("Climb Mount Fuji")) {
                 for (Activity activity : foundActivities) {
                     if (activity.getName().equals(keyword)) {
@@ -934,8 +949,7 @@ class ActivityControllerTest {
                     }
                 }
             }
-            Page<Activity> result = new PageImpl(selectedActivities);
-            return result;
+            return selectedActivities;
         });
 
         URI uri = new URI(
@@ -954,6 +968,7 @@ class ActivityControllerTest {
         JsonNode responseString = objectMapper.readTree(result.getResponse().getContentAsString());
         assertEquals(1, responseString.size());
     }
+
     @Test
     void requireKeywordToFindActivityByName() throws Exception {
 
@@ -969,7 +984,7 @@ class ActivityControllerTest {
 
     @Test
     void cannotFindActivitiesByKeyword() throws Exception {
-        when(activityRepository.findAllByKeyword(Mockito.anyString(), Mockito.any())).thenAnswer(i -> {
+        when(activityRepository.findAllByKeyword(Mockito.anyString())).thenAnswer(i -> {
             String keyword = i.getArgument(0);
             List<Activity> foundActivities = new ArrayList<>();
             if (keyword.equals("Climb") || keyword.equals("%Climb%")) {
@@ -982,8 +997,7 @@ class ActivityControllerTest {
                 foundActivities.add(dumActivity1);
                 foundActivities.add(dumActivity2);
             }
-            Page<Activity> result = new PageImpl(foundActivities);
-            return result;
+            return foundActivities;
         });
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityKeywords=keyword"))
                 .header("Token", validToken);
@@ -995,43 +1009,6 @@ class ActivityControllerTest {
         assertEquals(0, responseString.size());
     }
 
-    @Test
-    void findActivitiesWhileExcludingKeyword() throws Exception {
-        List<Activity> activities = new ArrayList<>();
-        Activity dumActivity1 = new Activity();
-        ReflectionTestUtils.setField(dumActivity1, "activityId", 1L);
-        Activity dumActivity2 = new Activity();
-        ReflectionTestUtils.setField(dumActivity2, "activityId", 2L);
-        dumActivity1.setName("Climb Mount Fuji");
-        dumActivity2.setName("Climb the Ivory Tower");
-        activities.add(dumActivity1);
-        activities.add(dumActivity2);
-
-        when(activityRepository.findAllByKeywordExcludingTerm(Mockito.anyString(), Mockito.anyString())).thenAnswer(i -> {
-            List<Activity> foundActivities = new ArrayList<>();
-            String keyword = i.getArgument(0);
-            String exclusion = i.getArgument(1);
-            keyword = keyword.replaceAll("[^a-zA-Z0-9\\\\s+]", "");
-            exclusion = exclusion.replaceAll("[^a-zA-Z0-9\\\\s+]", "");
-            for (Activity activity : activities) {
-                List<String> name = Arrays.asList(activity.getName().split(" "));
-                if ((!name.contains(exclusion)) && (name.contains(keyword))) {
-                    foundActivities.add(activity);
-                }
-            }
-            return foundActivities;
-        });
-
-        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityKeywords=Climb%20-%20Fuji"))
-                .header("Token", validToken);
-
-        MvcResult result = mvc.perform(httpReq)
-                .andExpect(status().isOk())
-                .andReturn();
-        JsonNode responseString = objectMapper.readTree(result.getResponse().getContentAsString());
-        assertEquals(1, responseString.size());
-
-    }
 
     @Test
     void findAllActivitiesUsingMultipleNames() throws Exception {
@@ -1045,19 +1022,23 @@ class ActivityControllerTest {
         activities.add(dumActivity1);
         activities.add(dumActivity2);
 
-        when(activityRepository.findAllByKeyword(Mockito.anyString(), Mockito.any())).thenAnswer(i -> {
+        when(activityRepository.findAllByKeyword(Mockito.anyString())).thenAnswer(i -> {
             List<Activity> foundActivities = new ArrayList<>();
             Page<Activity> pagedFoundActivities;
             String keyword = i.getArgument(0);
-            keyword = keyword.replaceAll("[^a-zA-Z0-9\\\\s+]", "");
+            keyword = keyword.replaceAll("[^a-zA-Z0-9\\\\s+]", " ");
+            keyword = keyword.trim();
+            List<String> keywords = Arrays.asList(keyword.split(" "));
             for (Activity activity : activities) {
                 List<String> name = Arrays.asList(activity.getName().split(" "));
-                if (name.contains(keyword)) {
-                    foundActivities.add(activity);
+                for (String key : keywords) {
+                    if (name.contains(key)) {
+                        foundActivities.add(activity);
+                    }
                 }
+
             }
-            pagedFoundActivities = new PageImpl<>(foundActivities);
-            return pagedFoundActivities;
+            return foundActivities;
         });
 
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityKeywords=Fuji%20%2b%20Tower"))
@@ -1082,7 +1063,7 @@ class ActivityControllerTest {
         String hasNext = response.getResponse().getHeader("Has-Next");
 
         JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
-        assertEquals(1, responseArray.size());
+        assertEquals(0, responseArray.size());
         assertFalse(Boolean.parseBoolean(hasNext));
         assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), UserPin.class));
     }
@@ -1100,7 +1081,7 @@ class ActivityControllerTest {
         String hasNext = response.getResponse().getHeader("Has-Next");
 
         JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
-        assertEquals(dummyActivitiesTable.size() + 1, responseArray.size());
+        assertEquals(dummyActivitiesTable.size(), responseArray.size());
         assertFalse(Boolean.parseBoolean(hasNext));
         assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), UserPin.class));
     }
@@ -1132,7 +1113,7 @@ class ActivityControllerTest {
         String hasNext = response.getResponse().getHeader("Has-Next");
 
         JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
-        assertEquals(BLOCK_SIZE + 1, responseArray.size());
+        assertEquals(BLOCK_SIZE, responseArray.size());
         assertTrue(Boolean.parseBoolean(hasNext));
         assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), UserPin.class));
     }
@@ -1153,6 +1134,70 @@ class ActivityControllerTest {
         assertEquals(dummyActivitiesTable.size() - BLOCK_SIZE, responseArray.size());
         assertFalse(Boolean.parseBoolean(hasNext));
         assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), UserPin.class));
+    }
+
+    @Test
+    public void successfullyGetPinsByLocation() throws Exception {
+        populateDummyActivityList(INITIAL_ACTIVITIES_COUNT + BLOCK_SIZE);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities/pins"))
+                .param("coordinates",
+                        "%7B%22lat%22%3A%22-45.8667783%22%2C%22lng%22%3A%22170.4910567%22%7D")
+                .param("activityTypes", "smile")
+                .param("cutoffDistance", "1000")
+                .param("method", "OR")
+                .header("Token", validToken)
+                .header("Page-Number", PAGE_ONE);
+
+        MvcResult response = mvc.perform(request)
+                .andExpect(status().isOk())
+                .andReturn();
+        String hasNext = response.getResponse().getHeader("Has-Next");
+
+        JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
+        assertEquals(BLOCK_SIZE, responseArray.size());
+        assertFalse(Boolean.parseBoolean(hasNext));
+        assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), ActivityPin.class));
+    }
+
+    @Test
+    public void successfullyGetActivityByLocation() throws Exception {
+        populateDummyActivityList(INITIAL_ACTIVITIES_COUNT + BLOCK_SIZE);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities"))
+                .param("coordinates",
+                        "%7B%22lat%22%3A%22-45.8667783%22%2C%22lng%22%3A%22170.4910567%22%7D")
+                .param("activityTypes", "smile")
+                .param("cutoffDistance", "1000")
+                .param("method", "OR")
+                .header("Token", validToken)
+                .header("Page-Number", PAGE_ONE);
+
+        MvcResult response = mvc.perform(request)
+                .andExpect(status().isOk())
+                .andReturn();
+        String hasNext = response.getResponse().getHeader("Has-Next");
+
+        JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
+        assertEquals(BLOCK_SIZE, responseArray.size());
+        assertFalse(Boolean.parseBoolean(hasNext));
+        assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), ActivityResponse.class));
+    }
+
+    @Test
+    public void successfullyGetNumberOfRowsForActivityByLocation() throws Exception {
+        populateDummyActivityList(INITIAL_ACTIVITIES_COUNT + BLOCK_SIZE);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities/rows"))
+                .param("coordinates",
+                        "%7B%22lat%22%3A%22-45.8667783%22%2C%22lng%22%3A%22170.4910567%22%7D")
+                .param("activityTypes", "smile")
+                .param("cutoffDistance", "1000")
+                .param("method", "OR")
+                .header("Token", validToken);
+
+        MvcResult response = mvc.perform(request)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        assertEquals(dummyActivitiesTable.size(), Integer.parseInt(response.getResponse().getContentAsString()));
     }
 
     /**

@@ -24,11 +24,11 @@
                             <b-form-radio id="orRadioButton" v-model="searchType" name="orType" value="or">Must include one selection</b-form-radio>
                         </b-col>
                     </b-row>
+                    <br/>
                     <b-row>
                         <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
                             Search
                         </b-button>
-                        <br/>
                     </b-row>
                 </b-form>
             </div>

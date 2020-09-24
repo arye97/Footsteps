@@ -95,7 +95,7 @@ public class Activity {
         startTime = activity.getStartTime();
         endTime = activity.getEndTime();
         location = new Location(activity.getLocation());
-        fitnessLevel = activity.getFitnessLevel();
+        //fitnessLevel = activity.getFitnessLevel();
     }
 
     public Activity(ActivityPutRequest activity) {
@@ -108,7 +108,7 @@ public class Activity {
         startTime = activity.getStartTime();
         endTime = activity.getEndTime();
         location = new Location(activity.getLocation());
-        fitnessLevel = activity.getFitnessLevel();
+        //fitnessLevel = activity.getFitnessLevel();
     }
 
     public Long getActivityId() {
