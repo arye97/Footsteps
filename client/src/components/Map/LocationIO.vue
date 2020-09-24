@@ -15,7 +15,10 @@
         ></map-viewer>
         <br/>
         <b-button-group id="mapButtons" v-if="!viewOnly">
-          <b-button id='addMarkerButton' v-b-popover.hover.top="'Place Pin in Exact Center of the Map'" variant="primary" block @click="addMarker()">Drop Pin</b-button>
+          <b-button id='addMarkerButton'
+                    v-b-popover.hover.top="'Place Pin in Exact Center of the Map'"
+                    variant="primary" block @click="addMarker()">
+              Drop Pin</b-button>
         </b-button-group>
         <p class="light-info-message" v-if="this.description">
             {{  this.description  }}
@@ -180,18 +183,16 @@
              * @param pin Object containing lat, lng, name.  (Optional)
              */
             addMarker(pin) {
-                if (pin && ["lat", "lng", "name"].every(key => key in pin)) {
-                    if (!("colour" in pin)) {
-                        pin.colour = 'red';
-                    }
-                    this.pins.push(pin);
-                    this.address = pin.name;
+                console.log("A");
+
+                if (pin === undefined || pin === null) {
 
                 } else if (pin === undefined) {
+
                     pin = {
                         colour: 'red',
-                        lat: this.$refs.mapViewerRef.currentCenter.lat,
-                        lng: this.$refs.mapViewerRef.currentCenter.lng,
+                        lat: this.center.lat,
+                        lng: this.center.lng,
                         name: "",
                         windowOpen: false
                     };
@@ -199,6 +200,13 @@
 
                     // Fetches pin.name from API and sets this.address
                     this.$refs.mapViewerRef.repositionPin(pin, this.pins.length - 1);
+
+                } else if (pin && ["lat", "lng", "name"].every(key => key in pin)) {
+                    if (!("colour" in pin)) {
+                        // pin.colour = 'red';
+                    }
+                    this.pins.push(pin);
+                    this.address = pin.name;
 
                 } else {
                     // An error occurred.  This would the place to add a message box "The location can not be found"
@@ -215,13 +223,14 @@
              * @param pins Array of pin Objects containing lat, lng, name.
              */
             addMarkers(pins) {
+                console.log("B");
                 for (let pin of pins) {
                     if (pin && ["lat", "lng"].every(key => key in pin)) {
                         if (!("name" in pin)) {
                             pin["name"] = pin.lat.toFixed(5) + ', ' + pin.lng.toFixed(5);
                         }
                         if (!("colour" in pin)) {
-                            pin.colour = 'red';
+                            // pin.colour = 'red';
                         }
                         this.pins.push(pin);
 
@@ -236,6 +245,7 @@
              * @return Object with properties colour, lat, lng, name
              */
             placeToPin(place) {
+                console.log("C");
                 let pin;
                 try {
                     pin = {
