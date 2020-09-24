@@ -1073,7 +1073,7 @@ class ActivityControllerTest {
         String hasNext = response.getResponse().getHeader("Has-Next");
 
         JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
-        assertEquals(1, responseArray.size());
+        assertEquals(0, responseArray.size());
         assertFalse(Boolean.parseBoolean(hasNext));
         assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), UserPin.class));
     }
@@ -1091,7 +1091,7 @@ class ActivityControllerTest {
         String hasNext = response.getResponse().getHeader("Has-Next");
 
         JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
-        assertEquals(dummyActivitiesTable.size() + 1, responseArray.size());
+        assertEquals(dummyActivitiesTable.size(), responseArray.size());
         assertFalse(Boolean.parseBoolean(hasNext));
         assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), UserPin.class));
     }
@@ -1123,7 +1123,7 @@ class ActivityControllerTest {
         String hasNext = response.getResponse().getHeader("Has-Next");
 
         JsonNode responseArray = objectMapper.readTree(response.getResponse().getContentAsString());
-        assertEquals(BLOCK_SIZE + 1, responseArray.size());
+        assertEquals(BLOCK_SIZE, responseArray.size());
         assertTrue(Boolean.parseBoolean(hasNext));
         assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), UserPin.class));
     }

@@ -139,6 +139,14 @@
                     this.$router.push(`/activity/${pin.id}`);
                     return;
                 }
+                this.panToPin(pin);
+            },
+
+            /**
+             * Centres the map on a pin using a smooth animation
+             * @param pin object containing lat, lng
+             */
+            panToPin(pin) {
                 // NOTE there are timing considerations with this function because it's async
                 this.$refs.mapRef.$mapPromise.then((map) => {
                     map.panTo(pin)
