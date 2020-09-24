@@ -48,8 +48,10 @@
                     continuous: true,
                     submitStartTime: null,
                     submitEndTime: null,
-                    startTime: null,
-                    endTime: null,
+                    startDate: null,
+                    startTime: "12:00",
+                    endDate: null,
+                    endTime: "12:00",
                     location: null
                 },
                 outcomeList: []
@@ -104,8 +106,7 @@
                 await api.createActivity(activityForm, this.activity.profileId).then(response => {
                     activityId = response.data;
                 }).catch(error => {
-                    this.throwError(error.response, false)
-                    return;
+                    this.throwError(error.response, false);
                 });
 
                 // Send the outcomes to the server.  Adds the activityId to the outcomes.

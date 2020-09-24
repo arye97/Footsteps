@@ -32,7 +32,7 @@ const userData = {
         "lng": 15.0,
         "lat": 15.0,
     }
-}
+};
 
 const SEARCH_RESPONSE1 = [
     {
@@ -282,6 +282,58 @@ describe("Search for activities by activity type", () => {
     });
 });
 
+describe("Filter search", () => {
+    test("Filter search button exists when the clear filters button doesn't", () => {
+        expect(activitySearch.find('#filterSearchButton').exists()).toBeTruthy();
+        expect(activitySearch.find('#clearFiltersButton').exists()).toBeFalsy();
+    });
+
+    test("Clear filters button exists when filter search button doesn't", () => {
+        activitySearch = shallowMount(ActivitySearch, {
+            router,
+            mocks: {api},
+            localVue,
+            data() {
+                return {
+                    filterSearch: true
+                }
+            }
+        });
+        expect(activitySearch.find('#clearFiltersButton').exists()).toBeTruthy();
+        expect(activitySearch.find('#filterSearchButton').exists()).toBeFalsy();
+    });
+
+    test("When the user can filter, they should be able to access the clearFiltersButton, minimumFitnessLevel and maximumFitnessLevel", () => {
+        activitySearch = shallowMount(ActivitySearch, {
+            router,
+            mocks: {api},
+            localVue,
+            data() {
+                return {
+                    filterSearch: true
+                }
+            }
+        });
+        expect(activitySearch.find('#clearFiltersButton').exists()).toBeTruthy();
+        expect(activitySearch.find('#minimumFitnessLevel').exists()).toBeTruthy();
+        expect(activitySearch.find('#maximumFitnessLevel').exists()).toBeTruthy();
+    });
+
+    test("When the user can filter, they should be able to access the checkbox for including unleveled activities", () => {
+        activitySearch = shallowMount(ActivitySearch, {
+            router,
+            mocks: {api},
+            localVue,
+            data() {
+                return {
+                    filterSearch: true
+                }
+            }
+        });
+        expect(activitySearch.find('#clearFiltersButton').exists()).toBeTruthy();
+        expect(activitySearch.find('#includeUnleveledBox').exists()).toBeTruthy();
+    })
+});
 
 test('map pane does not exist at default', () => {
     expect(activitySearch.find('#mapComponent').exists()).toBeFalsy();
