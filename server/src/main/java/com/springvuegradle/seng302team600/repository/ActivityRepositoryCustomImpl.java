@@ -52,14 +52,8 @@ public class ActivityRepositoryCustomImpl implements ActivityRepositoryCustom {
             else predicate = cb.and(basePredicate, currentPredicate);
 
             if (keywords.size() > i + 1) {
-                if (keywords.get(i + 1).equals("\"+\"")) {
-                    if (!orMode) {
-                        predicates.add(predicate);
-                        predicate = cb.notLike(activity_name, "%");
-                    }
-                    orMode = true;
-                } else if (keywords.size() > i + 2 && keywords.get(i + 2).equals("\"+\"")) {
-                    //This branch means that OR statements have priority over AND statements
+                if (keywords.get(i + 1).equals("\"+\"") ||
+                    keywords.size() > i + 2 && keywords.get(i + 2).equals("\"+\"")) {
                     if (!orMode) {
                         predicates.add(predicate);
                         predicate = cb.notLike(activity_name, "%");
