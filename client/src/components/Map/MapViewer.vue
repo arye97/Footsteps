@@ -4,7 +4,7 @@
             <GmapMap class="map"
                     ref="mapRef"
                     :center="initialCenter"
-                    :zoom="10"
+                    :zoom="zoom"
                     map-type-id="terrain"
                     style="width: 500px; height: 300px"
                     @dragend="updateCenter"
@@ -71,6 +71,11 @@
                 validator: function (initialCenter) {
                     // Center must have lat and lng
                     return !isNaN(initialCenter.lat) && !isNaN(initialCenter.lng);
+                }
+            },
+            zoom: {
+                default() {
+                    return 4.5;
                 }
             },
             /**

@@ -12,6 +12,8 @@
                 @child-pins="(newPins) => this.pins = newPins ? newPins : this.pins"
                 @pin-change="pinChanged"
                 :initial-center="center"
+                :zoom="zoom"
+
         ></map-viewer>
         <br/>
         <b-button-group id="mapButtons" v-if="!viewOnly">
@@ -141,6 +143,7 @@
                 address: "",
                 pins: [],
                 center: undefined,
+                zoom: undefined
             }
         },
 
@@ -157,10 +160,12 @@
                     this.pinChanged(pin);
                 }
                 this.center = pin;
+                this.zoom = 10;
             }
 
             if (this.parentCenter) {
                 this.center = this.parentCenter;
+                this.zoom = 10;
             }
             if (this.parentPins) {
                 this.pins = this.pins.concat(this.parentPins);
@@ -210,6 +215,7 @@
                     this.$refs.mapViewerRef.panToPin(pin);
                 }
                 this.center = pin;
+                this.zoom = 10;
             },
 
             /**
