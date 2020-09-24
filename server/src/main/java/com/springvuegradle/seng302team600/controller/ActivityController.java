@@ -316,6 +316,8 @@ public class ActivityController {
      * @param request          the http request with the user token we need
      * @param response         the http response
      * @param activityKeywords the word/sentence we need to search for
+     * @param minFitnessLevel  the minimum fitness level that an activity can have (inclusive)
+     * @param maxFitnessLevel  the maximum fitness level that an activity can have (inclusive)
      * @return a list containing all activities found
      */
     @GetMapping(

@@ -894,10 +894,13 @@ class ActivityControllerTest {
 
     @Test
     void getActivitiesByAKeyword() throws Exception {
-        when(activityRepository.findAllByKeyword(Mockito.anyString())).thenAnswer(i -> {
+        when(activityRepository.findAllByKeyword(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> {
             String keyword = i.getArgument(0);
+            Integer minFitness = i.getArgument(1);
+            Integer maxFitness = i.getArgument(2);
+
             List<Activity> foundActivities = new ArrayList<>();
-            if (keyword.contains("Climb")) {
+            if (keyword.contains("Climb") && 2 >= minFitness && 2 <= maxFitness) {
                 Activity dumActivity1 = new Activity();
                 ReflectionTestUtils.setField(dumActivity1, "activityId", 1L);
                 Activity dumActivity2 = new Activity();
@@ -914,7 +917,7 @@ class ActivityControllerTest {
                 null,
                 null,
                 "/activities",
-                "activityKeywords=Climb",
+                "activityKeywords=Climb&minFitnessLevel=2&maxFitnessLevel=3",
                 null);
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(uri)
                 .header("Token", validToken);
@@ -929,8 +932,12 @@ class ActivityControllerTest {
 
     @Test
     void getActivitiesByExactSearch() throws Exception {
-        when(activityRepository.findAllByKeyword(Mockito.anyString())).thenAnswer(i -> {
+        when(activityRepository.findAllByKeyword(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> {
             String keyword = i.getArgument(0);
+            Integer minFitness = i.getArgument(1);
+            Integer maxFitness = i.getArgument(2);
+            if (!(2 >= minFitness && 2 <= maxFitness)) return new ArrayList<>();
+
             List<Activity> foundActivities = new ArrayList<>();
             Activity dumActivity1 = new Activity();
             ReflectionTestUtils.setField(dumActivity1, "activityId", 1L);
@@ -956,7 +963,7 @@ class ActivityControllerTest {
                 null,
                 null,
                 "/activities",
-                "activityKeywords=\"Climb%20Mount%20Fuji\"",
+                "activityKeywords=\"Climb%20Mount%20Fuji\"&minFitnessLevel=2&maxFitnessLevel=3",
                 null);
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(uri)
                 .header("Token", validToken);
@@ -984,7 +991,7 @@ class ActivityControllerTest {
 
     @Test
     void cannotFindActivitiesByKeyword() throws Exception {
-        when(activityRepository.findAllByKeyword(Mockito.anyString())).thenAnswer(i -> {
+        when(activityRepository.findAllByKeyword(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> {
             String keyword = i.getArgument(0);
             List<Activity> foundActivities = new ArrayList<>();
             if (keyword.equals("Climb") || keyword.equals("%Climb%")) {
@@ -1022,10 +1029,13 @@ class ActivityControllerTest {
         activities.add(dumActivity1);
         activities.add(dumActivity2);
 
-        when(activityRepository.findAllByKeyword(Mockito.anyString())).thenAnswer(i -> {
+        when(activityRepository.findAllByKeyword(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> {
             List<Activity> foundActivities = new ArrayList<>();
-            Page<Activity> pagedFoundActivities;
             String keyword = i.getArgument(0);
+            Integer minFitness = i.getArgument(1);
+            Integer maxFitness = i.getArgument(2);
+            if (!(2 >= minFitness && 2 <= maxFitness)) return foundActivities;
+
             keyword = keyword.replaceAll("[^a-zA-Z0-9\\\\s+]", " ");
             keyword = keyword.trim();
             List<String> keywords = Arrays.asList(keyword.split(" "));
@@ -1041,7 +1051,7 @@ class ActivityControllerTest {
             return foundActivities;
         });
 
-        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityKeywords=Fuji%20%2b%20Tower"))
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityKeywords=Fuji%20%2b%20Tower&minFitnessLevel=2&maxFitnessLevel=3"))
                 .header("Token", validToken);
 
         MvcResult result = mvc.perform(httpReq)
