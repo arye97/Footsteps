@@ -192,8 +192,8 @@
                         await this.getPaginatedActivitiesByActivityTitle();
                         break;
                     case 'activityLocation':
-                        await this.getPaginatedActivitiesByLocation();
                         await this.getActivityLocationRows();
+                        await this.getPaginatedActivitiesByLocation();
                         break;
                 }
 
@@ -301,6 +301,8 @@
                     }).catch(error => {
                         this.handleError(error, "No activities within distance of location ".concat(this.cutoffDistance) + " have been found!");
                     });
+
+                this.loading = false;
             },
 
             /**
@@ -320,8 +322,6 @@
                     }).catch(error => {
                         this.handleError(error, "No activities within distance of location ".concat(this.cutoffDistance) + " have been found!");
                     });
-
-                this.loading = false;
             },
 
 
@@ -452,8 +452,8 @@
                 } else if (this.searchMode === 'activityLocation') {
                     this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
                     await this.getActivityPinBlocksByLocation();
-                    await this.getPaginatedActivitiesByLocation();
                     await this.getActivityLocationRows();
+                    await this.getPaginatedActivitiesByLocation();
                 }
             }
         }

@@ -151,12 +151,12 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
             "         * COS(RADIANS(:userLongitude - l.Longitude)) " +
             "         + SIN(RADIANS(:userLatitude)) " +
             "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance", nativeQuery = true)
-    int countAllWithinDistance(@Param("userLatitude") Double userLatitude,
+    Integer countAllWithinDistance(@Param("userLatitude") Double userLatitude,
                                @Param("userLongitude") Double userLongitude,
                                @Param("maxDistance") Double maxDistance);
 
     @Query(value = "SELECT SUM(count) FROM " +
-            "(SELECT COUNT(*) as count " +
+            "(SELECT 1 as count " +
             "FROM activity as a " +
             "INNER JOIN location as l " +
             "ON (a.location_location_id = l.location_id) " +
@@ -170,13 +170,13 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
             "         + SIN(RADIANS(:userLatitude)) " +
             "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance " +
             "GROUP BY a.activity_id) as counts", nativeQuery = true)
-    int countAllWithinDistanceBySomeActivityTypeIds(@Param("userLatitude") Double userLatitude,
+    Integer countAllWithinDistanceBySomeActivityTypeIds(@Param("userLatitude") Double userLatitude,
                                                                 @Param("userLongitude") Double userLongitude,
                                                                 @Param("maxDistance") Double maxDistance,
                                                                 @Param("activityTypeIds") List<Long> activityTypeIds);
 
     @Query(value = "SELECT SUM(count) FROM " +
-            "(SELECT COUNT(*) as count " +
+            "(SELECT 1 as count " +
             "FROM activity as a " +
             "INNER JOIN location as l " +
             "ON (a.location_location_id = l.location_id) " +
@@ -190,7 +190,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
             "         + SIN(RADIANS(:userLatitude)) " +
             "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance " +
             "GROUP BY a.activity_id HAVING COUNT(a.activity_id) = :numActivityTypes) as counts", nativeQuery = true)
-    int countAllWithinDistanceByAllActivityTypeIds(@Param("userLatitude") Double userLatitude,
+    Integer countAllWithinDistanceByAllActivityTypeIds(@Param("userLatitude") Double userLatitude,
                                                                @Param("userLongitude") Double userLongitude,
                                                                @Param("maxDistance") Double maxDistance,
                                                                @Param("activityTypeIds") List<Long> activityTypeIds,
