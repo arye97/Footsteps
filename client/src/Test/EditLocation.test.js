@@ -1,4 +1,4 @@
-import {mount, createLocalVue} from '@vue/test-utils';
+import {shallowMount, createLocalVue} from '@vue/test-utils';
 import EditLocation from '../components/Settings/EditLocation.vue';
 import api from '../Api';
 import 'vue-jest';
@@ -64,9 +64,12 @@ beforeEach(() => {
         setValues();
         api.checkProfile.mockImplementation(() => Promise.resolve({status: 200}));
         api.getUserData.mockImplementation(() => Promise.resolve({data: USER_DATA, status: 200}));
-        api.editLocation.mockImplementation(() => Promise.resolve({status: 200}));
+        api.editLocation.mockImplementation(() => {
+            console.log('CALLED');
+            Promise.resolve({status: 200})
+        });
 
-        editLocation = mount(EditLocation, {
+        editLocation = shallowMount(EditLocation, {
             mocks: {
                 $route
             },
@@ -92,7 +95,7 @@ describe('User starts with no location data', () => {
             USER_DATA.public_location = null;
             USER_DATA.private_location = null;
             api.getUserData.mockImplementation(() => Promise.resolve({data: USER_DATA, status: 200}));
-            editLocation = mount(EditLocation, {
+            editLocation = shallowMount(EditLocation, {
                 mocks: {
                     $route
                 },
@@ -117,7 +120,6 @@ describe('User starts with no location data', () => {
         await editLocation.vm.$nextTick().then(() => {
             editLocation.find('#save-changes-btn').trigger('click');
             expect(api.editLocation).toBeCalledTimes(1);
-
         });
         await editLocation.vm.$nextTick().then(() => {
             expect(editLocation.find('#public-Name').text()).toBe(USER_DATA.public_location.name);
