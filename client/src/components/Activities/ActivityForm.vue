@@ -138,7 +138,7 @@
                     </div>
                 </div>
 
-                <b-form-group label-for="activity-form-fitness" label="Activity Fitness Level:">
+                <b-form-group id="input-fitness-level" label-for="activity-form-fitness" label="Activity Fitness Level:">
                     <!-- fitness level field -->
                     <multiselect v-model="fitness" id="activity-form-fitness" :options="fitnessOptions" :multiple="false" label="desc" :return="fitnessOptions.desc"
                                  placeholder="Please select a fitness level" track-by="value">
