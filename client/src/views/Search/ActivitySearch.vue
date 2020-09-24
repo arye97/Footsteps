@@ -190,8 +190,8 @@
                         await this.getPaginatedActivitiesByActivityTitle();
                         break;
                     case 'activityLocation':
-                        await this.getPaginatedActivitiesByLocation();
                         await this.getActivityLocationRows();
+                        await this.getPaginatedActivitiesByLocation();
                         break;
                 }
 
@@ -449,8 +449,8 @@
                 } else if (this.searchMode === 'activityLocation') {
                     this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
                     await this.getActivityPinBlocksByLocation();
-                    await this.getPaginatedActivitiesByLocation();
                     await this.getActivityLocationRows();
+                    await this.getPaginatedActivitiesByLocation();
                 }
             }
         }

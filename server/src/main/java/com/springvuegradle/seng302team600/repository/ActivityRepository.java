@@ -156,7 +156,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
                                @Param("maxDistance") Double maxDistance);
 
     @Query(value = "SELECT SUM(count) FROM " +
-            "(SELECT COUNT(*) as count " +
+            "(SELECT 1 as count " +
             "FROM activity as a " +
             "INNER JOIN location as l " +
             "ON (a.location_location_id = l.location_id) " +
@@ -176,7 +176,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
                                                                 @Param("activityTypeIds") List<Long> activityTypeIds);
 
     @Query(value = "SELECT SUM(count) FROM " +
-            "(SELECT COUNT(*) as count " +
+            "(SELECT 1 as count " +
             "FROM activity as a " +
             "INNER JOIN location as l " +
             "ON (a.location_location_id = l.location_id) " +
