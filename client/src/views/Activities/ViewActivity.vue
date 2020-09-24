@@ -25,33 +25,33 @@
                             <br/>
                             <!-- Title -->
                             <h1 class="font-weight-light" id="activityTitle"><strong>{{this.activityTitle}}</strong></h1>
-                            <br/>
-                            <!-- Activity Descirption -->
-                            <h5 class="font-weight-light" v-if="this.description" id="description">"{{this.description}}"<br/></h5>
-                            <br/>
+                            <h3 class="font-weight-light" style="font-size: large;">Created by {{this.creatorName}}</h3>
                             <!-- Edit Activity Button -->
                             <div v-if="this.creatorId===this.activeUserId">
                                 <b-button type="submit" variant="success"
                                           size="med" v-on:click="goToPage(`/activities/edit/${activityId}`)"
                                           id="editActivity">Edit Activity</b-button>
-                                <br/><br/>
+
                             </div>
-                            <!-- Creator -->
-                            <h3 class="font-weight-light"><strong>Creator:</strong></h3><br/>
-                            <b-card class="flex-fill" border-variant="secondary" id="creatorName">
-                                <b-card-text class="font-weight-light">
-                                    {{this.creatorName}}
-                                </b-card-text>
-                            </b-card>
                             <br/>
+                            <!-- Activity Description -->
+                            <h5 class="font-weight-light" v-if="this.description" id="description" style="display: inline-block; word-break: break-word; margin-bottom: 15px;">{{this.description}}<br/></h5>
+                            <br/>
+                            <!-- Activity Types -->
+                            <div v-if="this.activityTypes.length >= 1">
+                                <b-button-group v-for="activityType in this.activityTypes" v-bind:key="activityType.name"
+                                     border-variant="secondary">
+                                    <b-button pill variant="secondary" disabled class="font-weight-light activityTypes">{{activityType.name}}</b-button>
+                                </b-button-group>
+                            </div>
+                            <br/>
+
                             <!-- Location -->
-                            <h3 class="font-weight-light"><strong>Location:</strong></h3><br/>
-                            <b-card class="flex-fill" border-variant="secondary" id="location">
-                                <b-card-text class="font-weight-light">
-                                    {{this.location.name}}
-                                </b-card-text>
-                            </b-card>
-                            <br/>
+                            <div class="address">
+                                <h3 v-if="this.location" class="font-weight-light">{{this.location.name}} </h3>
+                                <h3 v-else class="font-weight-light">Location not yet specified</h3>
+                                <br/>
+                            </div>
                             <div>
                               <location-i-o
                                   :view-only="true"
@@ -69,54 +69,23 @@
                             </div>
                             <!-- Time details -> only relevant for duration activities -->
                             <div v-if="!continuous">
+                                <br/>
                                 <b-row class="mb-1">
                                     <b-col>
                                         <!--Start Time-->
-                                        <h3 class="font-weight-light"><strong>Start Date:</strong></h3><br/>
-                                        <b-card class="flex-fill" border-variant="secondary" id="startTime">
-                                            <b-card-text class="font-weight-light">
-                                                {{getDateTime(startTime)}}
-                                            </b-card-text>
-                                        </b-card>
+                                        <h3 class="font-weight-light">{{getDateTime(startTime)}} - {{getDateTime(endTime)}}</h3><br/>
                                     </b-col>
+
+                                </b-row>
+                                <b-row class="mb-1">
                                     <b-col>
-                                        <!--End Time-->
-                                        <h3 class="font-weight-light"><strong>End Date:</strong></h3><br/>
-                                        <b-card class="flex-fill" border-variant="secondary" id="endTime">
-                                            <b-card-text class="font-weight-light">
-                                                {{getDateTime(endTime)}}
-                                            </b-card-text>
-                                        </b-card>
+                                        <h3 class="font-weight-light">{{duration}}</h3>
                                     </b-col>
                                 </b-row>
-                                <br/>
                                 <!--Total Duration-->
                                 <!--End Time-->
-                                <h3 class="font-weight-light"><strong>Total Duration:</strong></h3><br/>
-                                <b-card class="flex-fill" border-variant="secondary" id="totalDuration">
-                                    <b-card-text class="font-weight-light">
-                                        {{duration}}
-                                    </b-card-text>
-                                </b-card>
+
                             </div>
-                            <br/>
-                            <!-- Activity Types -->
-                            <h3 class="font-weight-light"><strong>Activity Types:</strong></h3><br/>
-                            <b-list-group v-if="this.activityTypes.length >= 1">
-                                <b-card v-for="activityType in this.activityTypes" v-bind:key="activityType.name"
-                                        class="flex-fill" border-variant="secondary" id="activityType">
-                                    <b-card-text class="font-weight-light">
-                                        {{activityType.name}}
-                                    </b-card-text>
-                                </b-card>
-                            </b-list-group>
-                            <b-list-group v-else>
-                                <b-card class="flex-fill" border-variant="secondary" id="noActivityType">
-                                    <b-card-text class="font-weight-light">
-                                        No activity types selected
-                                    </b-card-text>
-                                </b-card>
-                            </b-list-group>
                             <br/>
                             <!--Add results Modal-->
                             <b-modal id="addResultsModel" centered ok-only ok-variant="secondary" ok-title="Back"
@@ -597,5 +566,10 @@
         padding-top: 7px;
         color: #707070;
         font-size: 0.8em;
+    }
+
+    .activityTypes {
+        margin: 3px;
+        display: inline-block;
     }
 </style>
