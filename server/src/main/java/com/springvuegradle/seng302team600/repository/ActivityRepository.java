@@ -132,7 +132,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
             "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance " +
             "   AND a.fitness >= :minFitnessLevel " +
             "   AND a.fitness <= :maxFitnessLevel " +
-            "GROUP BY a.activity_id HAVING COUNT(a.activity_type_id) = :numActivityTypes " +
+            "GROUP BY a.activity_id HAVING COUNT(a.activity_id) = :numActivityTypes " +
             "ORDER BY 111.111 * " +
             "    DEGREES(ACOS(LEAST(1.0, COS(RADIANS(:userLatitude)) " +
             "         * COS(RADIANS(l.Latitude)) " +
