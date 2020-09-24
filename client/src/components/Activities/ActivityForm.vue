@@ -692,11 +692,17 @@
            */
             locationValue: function (pin) {
                 if (pin.name !== "" || pin.name !== null) {
-                    let errorAlert = document.getElementById("unapproved_location");
-                    errorAlert.hidden = true;
                     this.activity.location = pinToLocation(pin);
+                    this.clearError();
                 }
 
+            },
+            /**
+             * Clears the activity location error message
+             */
+            clearError() {
+                let errorAlert = document.getElementById("unapproved_location");
+                errorAlert.hidden = true;
             },
             /**
              * Toggles the submitDisabled boolean
