@@ -65,16 +65,16 @@
                                 <h3 v-if="this.location" id="location" class="font-weight-light">{{this.location.name}} </h3>
                                 <h3 v-else class="font-weight-light">Location not yet specified</h3>
                             </div>
-                            <div>
+                            <div class="font-weight-normal">
                                 <location-i-o
+                                        pin-legend-mode="ViewActivity"
                                         :view-only="true"
                                         :parent-pins="[{
                                       lat: this.location.latitude,
                                       lng: this.location.longitude,
-                                      colour: 'red',
+                                      colour: 'blue',
                                       title: this.activityTitle,
                                       location_name: this.location.name
-
                                   }]"
                                         :parent-center="{lat: this.location.latitude, lng: this.location.longitude}">
                                 </location-i-o>
