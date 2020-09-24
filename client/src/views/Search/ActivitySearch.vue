@@ -262,7 +262,7 @@
              */
             async getPaginatedActivitiesByActivityTitle() {
                 let pageNumber = this.currentPage - 1;
-                api.getActivityByActivityTitle(this.activityTitle, this.minFitnessLevel, this.maxFitnessLevel, pageNumber)
+                api.getActivityByActivityTitle(this.activityTitle, this.minFitness, this.maxFitness, pageNumber)
                     .then(response => {
                         this.activitiesList = response.data;
                         if (this.activityTitle.length !== 0 && (response.data).length === 0) {
@@ -283,7 +283,7 @@
              */
             async getPaginatedActivitiesByActivityType() {
                 let pageNumber = this.currentPage - 1;
-                api.getActivityByActivityType(this.activityTypesSearchedFor, this.searchType, this.minFitnessLevel, this.maxFitnessLevel, pageNumber)
+                api.getActivityByActivityType(this.activityTypesSearchedFor, this.searchType, this.minFitness, this.maxFitness, pageNumber)
                     .then(response => {
                         this.activitiesList = response.data;
                         this.rows = response.headers["total-rows"];
@@ -308,7 +308,7 @@
                 };
                 let urlCoordinates = encodeURIComponent(JSON.stringify(coordinates));
 
-                api.getActivityByLocation(urlCoordinates, this.activityTypesSearchedFor, this.cutoffDistance, this.searchType, pageNumber)
+                api.getActivityByLocation(urlCoordinates, this.activityTypesSearchedFor, this.cutoffDistance, this.searchType, this.minFitness, this.maxFitness, pageNumber)
                     .then(response => {
                         this.activitiesList = response.data;
 
@@ -329,7 +329,7 @@
                 };
                 let urlCoordinates = encodeURIComponent(JSON.stringify(coordinates));
 
-                await api.getNumberOfRowsForActivityByLocation(urlCoordinates, this.activityTypesSearchedFor, this.cutoffDistance, this.searchType)
+                await api.getNumberOfRowsForActivityByLocation(urlCoordinates, this.activityTypesSearchedFor, this.cutoffDistance, this.minFitness, this.maxFitness, this.searchType)
                     .then(response => {
                         this.rows = response.data;
                     }).catch(error => {
@@ -401,7 +401,7 @@
              */
             async requestActivityPinsByBlock(blockNumber, urlCoordinates) {
                 let pins = [];
-                await api.getActivityPinsByLocation(urlCoordinates, this.activityTypesSearchedFor, this.cutoffDistance, this.searchType, blockNumber)
+                await api.getActivityPinsByLocation(urlCoordinates, this.activityTypesSearchedFor, this.cutoffDistance, this.searchType, this.minFitness, this.maxFitness, blockNumber)
                     .then(response => {
                         for (let pin of response.data) {
                             if (!("name" in pin)) {
