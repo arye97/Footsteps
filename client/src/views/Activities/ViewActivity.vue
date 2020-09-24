@@ -53,7 +53,7 @@
                             <br/>
                             <!-- Activity Types -->
                             <div v-if="this.activityTypes.length >= 1">
-                                <b-button-group v-for="activityType in this.activityTypes" v-bind:key="activityType.name"
+                                <b-button-group id="activityType" v-for="activityType in this.activityTypes" v-bind:key="activityType.name"
                                      border-variant="secondary">
                                     <b-button pill variant="secondary" disabled class="font-weight-light activityTypes">{{activityType.name}}</b-button>
                                 </b-button-group>
@@ -62,7 +62,7 @@
 
                             <!-- Location -->
                             <div class="address">
-                                <h3 v-if="this.location" class="font-weight-light">{{this.location.name}} </h3>
+                                <h3 v-if="this.location" id="location" class="font-weight-light">{{this.location.name}} </h3>
                                 <h3 v-else class="font-weight-light">Location not yet specified</h3>
                             </div>
                             <div>
@@ -86,7 +86,8 @@
                                 <b-row class="mb-1">
                                     <b-col>
                                         <!--Start Time-->
-                                        <h3 class="font-weight-light">{{getDateTime(startTime)}} - {{getDateTime(endTime)}}</h3><br/>
+                                        <h3 class="font-weight-light">{{getDateTime(startTime)}} - </h3>
+                                        <h3 class="font-weight-light">{{getDateTime(endTime)}}</h3><br/>
                                     </b-col>
 
                                 </b-row>

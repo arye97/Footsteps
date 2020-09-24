@@ -84,19 +84,21 @@
                                     </b-col>
                                 </b-row>
                                 <div>
-                                    <hr/>
-                                    <div v-if="this.user.passports.length >= 1 && this.user.passports.length > 2">
+
+                                    <div v-if="this.user.passports.length > 2">
+                                        <hr/>
                                         <b-button-group v-for="country in this.user.passports" v-bind:key="country"
                                                         border-variant="secondary">
                                             <b-button pill variant="primary" disabled class="font-weight-light countries">{{country}}</b-button>
                                         </b-button-group>
                                         <br/>
                                     </div>
-                                    <div v-else>
+                                    <div v-else-if="this.user.passports.length === 0">
                                         <h3 style="font-size: large" class="font-weight-light">No Passport Countries set</h3>
                                     </div>
+                                    <hr/>
                                 </div>
-                                <hr/>
+
 
                                 <!-- Activity Types -->
                                 <div>
