@@ -174,6 +174,9 @@ public class LocationSearchService {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "Method must be specified as either (AND, OR)");
             }
+            if(numberOfRows == null) {
+                numberOfRows = 0;
+            }
         } else {
             numberOfRows = activityRepository.countAllWithinDistance(
                     coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance);
