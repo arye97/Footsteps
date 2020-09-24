@@ -153,7 +153,7 @@ public class LocationSearchService {
         if (cutoffDistance >= MAX_CUTOFF_DISTANCE) {
             cutoffDistance = MAX_DISTANCE;
         }
-        int numberOfRows;
+        Integer numberOfRows;
         if (activityTypes.length() >= 1) {
             List<String> typesWithDashes = Arrays.asList(activityTypes.split(" "));
             List<String> types = typesWithDashes.stream()
@@ -172,6 +172,9 @@ public class LocationSearchService {
             } else {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "Method must be specified as either (AND, OR)");
+            }
+            if(numberOfRows == null) {
+                numberOfRows = 0;
             }
         } else {
             numberOfRows = activityRepository.countAllWithinDistance(
