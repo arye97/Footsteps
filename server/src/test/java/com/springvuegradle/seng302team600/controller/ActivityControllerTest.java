@@ -1020,46 +1020,45 @@ class ActivityControllerTest {
     }
 
 
-//    @Test
-//    void findAllActivitiesUsingMultipleNames() throws Exception {
-//        List<Activity> activities = new ArrayList<>();
-//        Activity dumActivity1 = new Activity();
-//        ReflectionTestUtils.setField(dumActivity1, "activityId", 1L);
-//        Activity dumActivity2 = new Activity();
-//        ReflectionTestUtils.setField(dumActivity2, "activityId", 2L);
-//        dumActivity1.setName("Climb Mount Fuji");
-//        dumActivity2.setName("Climb the Ivory Tower");
-//        activities.add(dumActivity1);
-//        activities.add(dumActivity2);
-//
-//        when(activityRepository.findAllByKeyword(Mockito.anyList(), Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> {
-//            List<Activity> foundActivities = new ArrayList<>();
-//            List<String> keywords = i.getArgument(0);
-//            String keyword = keywords.get(0);
-//            keyword = keyword.replaceAll("[^a-zA-Z0-9\\\\s+]", " ");
-//            keyword = keyword.trim();
-//            List<String> keywords = Arrays.asList(keyword.split(" "));
-//            for (Activity activity : activities) {
-//                List<String> name = Arrays.asList(activity.getName().split(" "));
-//                for (String key : keywords) {
-//                    if (name.contains(key)) {
-//                        foundActivities.add(activity);
-//                    }
-//                }
-//
-//            }
-//            return foundActivities;
-//        });
-//
-//        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityKeywords=Fuji%20%2b%20Tower"))
-//                .header("Token", validToken);
-//
-//        MvcResult result = mvc.perform(httpReq)
-//                .andExpect(status().isOk())
-//                .andReturn();
-//        JsonNode responseString = objectMapper.readTree(result.getResponse().getContentAsString());
-//        assertEquals(2, responseString.size());
-//    }
+    @Test
+    void findAllActivitiesUsingMultipleNames() throws Exception {
+        List<Activity> activities = new ArrayList<>();
+        Activity dumActivity1 = new Activity();
+        ReflectionTestUtils.setField(dumActivity1, "activityId", 1L);
+        Activity dumActivity2 = new Activity();
+        ReflectionTestUtils.setField(dumActivity2, "activityId", 2L);
+        dumActivity1.setName("Climb Mount Fuji");
+        dumActivity2.setName("Climb the Ivory Tower");
+        activities.add(dumActivity1);
+        activities.add(dumActivity2);
+
+        when(activityRepository.findAllByKeyword(Mockito.anyList(), Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> {
+            List<Activity> foundActivities = new ArrayList<>();
+            List<String> keywords = i.getArgument(0);
+            Long count = 0L;
+            String keyword = keywords.get(0);
+            for (Activity activity : activities) {
+                List<String> name = Arrays.asList(activity.getName().split(" "));
+                for (String key : keywords) {
+                    if (name.contains(key)) {
+                        foundActivities.add(activity);
+                        count++;
+                    }
+                }
+
+            }
+            return new SearchResponse(foundActivities, count);
+        });
+
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityKeywords=Fuji%20%2b%20Tower"))
+                .header("Token", validToken);
+
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isOk())
+                .andReturn();
+        JsonNode responseString = objectMapper.readTree(result.getResponse().getContentAsString());
+        assertEquals(2, responseString.size());
+    }
 
     @Test
     void getPageOneOfPaginatedBlockOfPinsWithNoActivitiesSuccess() throws Exception {
