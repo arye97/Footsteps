@@ -437,7 +437,7 @@ public class ActivityController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No activities have been found");
         }
 
-        List<Activity> activityList = activityRepository.getActivitiesByIdsFitness(paginatedActivityIds.getContent(), minFitnessLevel, maxFitnessLevel);
+        List<Activity> activityList = activityRepository.getActivitiesByIds(paginatedActivityIds.getContent());
         List<ActivityResponse> activitySearchList = new ArrayList<>();
         for (Activity activity : activityList) {
             activitySearchList.add(new ActivityResponse(activity));
