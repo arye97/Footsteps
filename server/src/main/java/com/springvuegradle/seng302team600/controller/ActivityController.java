@@ -476,6 +476,7 @@ public class ActivityController {
             hasNext = paginatedBlockOfActivities.hasNext();
         }
         if (pageNumber == 0) {
+            if (user.getPrivateLocation() != null && user.getPublicLocation() != null)
             paginatedBlockOfPins.add(0, new UserPin(user));
         }
         response.setHeader("Has-Next", Boolean.toString(hasNext));
@@ -504,7 +505,6 @@ public class ActivityController {
                                                @RequestParam(value = "activityTypes") String activityTypes,
                                                @RequestParam(value = "cutoffDistance") Double cutoffDistance,
                                                @RequestParam(value = "method") String method) throws JsonProcessingException {
-
         String token = request.getHeader(TOKEN_DECLARATION);
         User user = userAuthenticationService.findByToken(token);
         int pageNumber;

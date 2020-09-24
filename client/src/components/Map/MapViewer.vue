@@ -15,7 +15,7 @@
                         v-for="(pin, pinIndex) in pins"
                         :position="google && new google.maps.LatLng(pin.lat, pin.lng)"
                         :clickable="true"
-                        :draggable="(draggablePins) ? true : (pin.draggable === true)"
+                        :draggable="isDraggable(pin)"
                         :icon="'http://maps.google.com/mapfiles/ms/icons/'.concat((!pin.colour) ? 'red' : pin.colour.toLowerCase()) + '-dot.png'"
                         @click="directToPage(pin)"
                         @dragend="repositionPin({lat: $event.latLng.lat(), lng: $event.latLng.lng()}, pinIndex)"
@@ -139,6 +139,14 @@
                     this.$router.push(`/activity/${pin.id}`);
                     return;
                 }
+                this.panToPin(pin);
+            },
+
+            /**
+             * Centres the map on a pin using a smooth animation
+             * @param pin object containing lat, lng
+             */
+            panToPin(pin) {
                 // NOTE there are timing considerations with this function because it's async
                 this.$refs.mapRef.$mapPromise.then((map) => {
                     map.panTo(pin)
@@ -191,6 +199,19 @@
                 //Needs to update the screen because it is not done automatically
                 this.$forceUpdate();
             },
+
+            /**
+             * If the pin has an attribute draggable, return that value, else return the value of this.draggablePins.
+             * @param pin Object with optional draggable key
+             * @return {*} Boolean
+             */
+            isDraggable(pin) {
+                if ("draggable" in pin) {
+                    return pin.draggable;
+                } else {
+                    return this.draggablePins;
+                }
+            }
         }
     }
 
