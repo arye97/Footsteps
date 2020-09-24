@@ -52,7 +52,8 @@
                     startTime: "12:00",
                     endDate: null,
                     endTime: "12:00",
-                    location: null
+                    location: null,
+                    fitness: null
                 },
                 outcomeList: []
             }
@@ -99,7 +100,8 @@
                     continuous: this.activity.continuous,
                     location: this.activity.location,
                     start_time: this.activity.submitStartTime,
-                    end_time: this.activity.submitEndTime
+                    end_time: this.activity.submitEndTime,
+                    fitness: this.activity.fitness.value
                 };
 
                 // Send the activityForm to the server to create a new activity, and get it's id

@@ -56,7 +56,23 @@
                     <b-button class="rulesButton" v-if="!showRules" size="sm" variant="link"  v-on:click="showRules=true">Search Help</b-button>
                     <b-button class="rulesButton" v-if="showRules" size="sm" variant="link"  v-on:click="showRules=false">Close Search Help</b-button>
                 </b-row>
-                    <br/>
+                <section v-if="filterSearch">
+                    <b-button id="clearFiltersButton" size="sm" variant="link" align-self="end" v-on:click="filterSearch=false">Clear Filters</b-button><br/>
+                    <label>Minimum Fitness Level:
+                        <p>{{convertFitnessToString(this.minFitness)}}</p>
+                    </label>
+                    <b-form-input id="minimumFitnessLevel" type="range" min="0" max="4"
+                                  focus v-model="minFitness"></b-form-input>
+                    <label>Maximum Fitness Level:
+                        <p>{{convertFitnessToString(this.maxFitness)}}</p>
+                    </label>
+                    <b-form-input id="maximumFitnessLevel" type="range" min="0" max="4"
+                                  focus v-model="maxFitness"></b-form-input>
+                    <b-form-checkbox id="includeUnleveledBox">Include activities without fitness levels?</b-form-checkbox>
+                </section>
+                <section v-else>
+                    <b-button id="filterSearchButton" size="sm" variant="link" align-self="end" v-on:click="filterSearch=true">Filter Search</b-button><br/>
+                </section>
                 <b-row v-if="searchMode==='activityName' && showRules">
                     <ul v-if="showRules" style="align-content: center;">
                         <li>All searches are case insensitive including exact match searches</li>
@@ -114,6 +130,7 @@
     import api from "../../Api";
     import ActivityCard from "./ActivityCard";
     import LocationIO from "../../components/Map/LocationIO";
+    import {fitnessLevels} from "../../constants";
 
     export default {
         name: "ActivitySearch",
@@ -151,10 +168,13 @@
                 loading: false,
                 rows: null,
                 resultsFound: false,
+                filterSearch: false,
+                minFitness: 0,
+                maxFitness: 4,
                 hasNext: true,
                 isErrorAlert: false,
                 errorAlertMessage: '',
-            showRules: false
+                showRules: false
             }
         },
         async mounted() {
@@ -417,6 +437,7 @@
              * @param pin a moved pin
              */
             clearSearchResults(pin) {
+                if (pin === null) return;
                 if (pin.colour !== "red") return;
                 this.currentLocation = pin;
                 this.$refs.mapComponentRef.clearPins();
@@ -452,6 +473,22 @@
                     await this.getPaginatedActivitiesByLocation();
                     await this.getActivityLocationRows();
                 }
+            },
+
+            /**
+             * Convert fitness level to fitness level string
+             * @param the fitness level as an integer
+             * @return String the fitness level string
+             */
+            convertFitnessToString(fitness) {
+                fitness = Number(fitness);
+                let fitnessString = "No fitness level";
+                for (const option in fitnessLevels) {
+                    if (fitnessLevels[option].value === fitness) {
+                        fitnessString = fitnessLevels[option].desc;
+                    }
+                }
+                return fitnessString;
             }
         }
     }

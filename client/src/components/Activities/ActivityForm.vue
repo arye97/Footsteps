@@ -138,6 +138,17 @@
                     </div>
                 </div>
 
+                <b-form-group id="input-fitness-level" label-for="activity-form-fitness" label="Activity Fitness Level:">
+                    <!-- fitness level field -->
+                    <multiselect v-model="activity.fitness" id="activity-form-fitness" :options="fitnessOptions" :multiple="false" label="desc" :return="fitnessOptions.desc"
+                                 placeholder="Please select a fitness level" track-by="value">
+                        <template slot="singleLabel" slot-scope="{ option }"><footer> {{ option.desc }}</footer></template>
+                    </multiselect>
+                </b-form-group>
+                <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_fitness">
+                    Invalid fitness level, try re selecting
+                </div>
+
                 <b-form-group
                         id="input-group-location"
                         label="Location: *"
@@ -151,6 +162,7 @@
                         @pin-change="locationValue"
                         @locationIO-focus="setLocationFocus"
                         :single-only="true"
+                        :canDelete="true"
                         :parent-pins="this.isEdit && this.activity.location ?
                             [{lat: this.activity.location.latitude, lng: this.activity.location.longitude}] :  undefined"
 
@@ -199,6 +211,7 @@
                         </b-form-group>
                     </b-col>
                 </b-row>
+
                 <b-row>
                     <b-col align-self="center">
                         <div v-if="errored" class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert">
@@ -254,7 +267,7 @@
                     <b-button class="float-right" type="submit" variant="primary" @submit="onSubmit">Submit</b-button>
                 </div>
             </b-form>
-            <footer class="col-12 text-center">
+            <footer class="col-12 text-center footer-info">
                 Entries marked with * are required
             </footer><br/><br/>
         </div>
@@ -266,7 +279,7 @@
     import api from "../../Api";
     import {localTimeZoneToBackEndTime, pinToLocation} from "../../util";
     import LocationIO from "../Map/LocationIO";
-
+    import {fitnessLevels} from '../../constants';
 
     /**
      * Displays an error on the element with id equal to alert_name
@@ -302,6 +315,7 @@
                 startTime: String,
                 endDate: String,
                 endTime: String,
+                fitness: Object
             },
             outcomeList: {
                 default() {
@@ -346,7 +360,9 @@
                 maxOutcomeUnitCharCount: 15,
                 errored: false,
                 error_message: "Something went wrong",
-                submitDisabled: false
+                submitDisabled: false,
+
+                fitnessOptions: fitnessLevels,
             }
         },
         async created() {
@@ -356,6 +372,18 @@
             async outcomeList() {
                 if (this.outcomeList.length !== this.editableOutcomes.length) {
                     await this.checkOutcomesAreEditable();
+                }
+            }
+        },
+        computed: {
+            value: {
+                get () {
+                    return this.fitnessOptions.filter(
+                        option => this.activity.fitness.includes(option.desc)
+                    )
+                },
+                set (newSelectedOptions) {
+                    this.activity.fitness = newSelectedOptions.map(option => option.desc)
                 }
             }
         },
@@ -526,6 +554,10 @@
                 if (!this.activity.location ||
                     (this.activity.location && !["latitude", "longitude", "name"].every(key => key in this.activity.location))) {
                     showError('alert_location');
+                    this.isValidFormFlag = false;
+                }
+                if (!this.activity.fitness || !this.fitnessOptions.includes(this.activity.fitness)) {
+                    showError('alert_fitness');
                     this.isValidFormFlag = false;
                 }
             },
@@ -702,7 +734,7 @@
 </script>
 
 <style scoped>
-    footer {
+    .footer-info {
         padding-top: 55px;
     }
 

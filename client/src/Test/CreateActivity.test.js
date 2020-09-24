@@ -1,5 +1,5 @@
 import 'vue-jest'
-import {mount, createLocalVue} from '@vue/test-utils'
+import {shallowMount, createLocalVue} from '@vue/test-utils'
 import CreateActivity from "../views/Activities/CreateActivity";
 import api from "../Api";
 import router from '../index';
@@ -11,6 +11,7 @@ localVue.use(BootstrapVue);
 localVue.use(BootstrapVueIcons);
 localVue.use(IconsPlugin);
 import EmptyComponent from "./EmptyComponent.vue";
+import {fitnessLevels} from "../constants";
 localVue.component('GmapAutocomplete', EmptyComponent);
 
 let createActivity;
@@ -27,7 +28,8 @@ const ACTIVITY1 = {
     continuous: false,
     location: "Arthur's Pass National Park",
     start_time: "2020-12-16T09:00:00+0000",
-    end_time: "2020-12-17T17:00:00+0000"
+    end_time: "2020-12-17T17:00:00+0000",
+    fitness: fitnessLevels[0]
 };
 
 const OUTCOME1 = {
@@ -57,7 +59,6 @@ beforeAll(() => {
             }
         }
     };
-    // This Removes: TypeError: Cannot read property 'then' of undefined
     api.getUserId.mockImplementation(() => Promise.resolve({ data: DEFAULT_USER_ID, status: 200 }));
     api.createOutcome.mockImplementation(outcomeRequest => {
         receivedOutcomeRequests.push(outcomeRequest);
@@ -65,7 +66,7 @@ beforeAll(() => {
     });
     api.getUserId.mockImplementation(() => Promise.resolve({data: 1, status: 200}));
     api.getActivityTypes.mockImplementation(() => Promise.resolve({data: ACTIVITY_TYPES, status: 200}));
-    createActivity = mount(CreateActivity, config);
+    createActivity = shallowMount(CreateActivity, config);
 });
 
 beforeEach(() => {
@@ -88,9 +89,7 @@ test('Adds 2 Outcomes and deletes an Outcome to outcomeList', () => {
 });
 
 test('Catches an http status error of 400 or an invalid activity field when create activity form is submitted and gives user an appropriate alert', () => {
-    createActivity.setProps({
-        ACTIVITY1
-    });
+    createActivity.vm.$data.activity = ACTIVITY1;
 
     let networkError = new Error("Mocked Network Error");
     networkError.response = {status: 400};   // Explicitly give the error a response.status
@@ -101,9 +100,7 @@ test('Catches an http status error of 400 or an invalid activity field when crea
 });
 
 test('Catches an http status error of 401 or user not authenticated when create activity form is submitted and takes user to login page', async () => {
-    createActivity.setProps({
-        ACTIVITY1
-    });
+    createActivity.vm.$data.activity = ACTIVITY1;
     await createActivity.vm.$router.push('/activities/create');
 
     let networkError = new Error("Mocked Network Error");
@@ -118,9 +115,7 @@ test('Catches an http status error of 401 or user not authenticated when create 
 });
 
 test('Catches an http status error of 403 or forbidden access when create activity form is submitted and gives user an appropriate alert', async () => {
-    createActivity.setProps({
-        ACTIVITY1
-    });
+    createActivity.vm.$data.activity = ACTIVITY1;
 
     let networkError = new Error("Mocked Network Error");
     networkError.response = {status: 403};   // Explicitly give the error a response.status
@@ -131,9 +126,7 @@ test('Catches an http status error of 403 or forbidden access when create activi
 });
 
 test('Catches an http status error that isnt 401, 404, 403 and gives the user an appropriate alert', () => {
-    createActivity.setProps({
-        ACTIVITY1
-    });
+    createActivity.vm.$data.activity = ACTIVITY1;
 
     let networkError = new Error("Mocked Network Error");
     networkError.response = {status: 408};   // Explicitly give the error a response.status
