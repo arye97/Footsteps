@@ -16,6 +16,10 @@
                     <section v-for="activity in this.continuousActivityList" :key="activity.id">
                         <!-- Activity List -->
                         <b-card border-variant="secondary" style="background-color: #f3f3f3" class="continuousCard">
+                            <fitness-progress-bar :id="'continuousActivityFitBar' + activity.id"
+                                    :activity-fitness-level="activity.fitness"
+                                    :user-fitness-level="userFitnessLevel"
+                            ></fitness-progress-bar>
                             <b-row no-gutters>
                                 <b-col md="6">
                                     <b-card-text>
@@ -79,6 +83,10 @@
                     <section v-for="activity in this.durationActivityList" :key="activity.id">
                         <!-- Activity List -->
                         <b-card border-variant="secondary" style="background-color: #f3f3f3" class="durationCard">
+                            <fitness-progress-bar :id="'durationActivityFitBar' + activity.id"
+                                    :activity-fitness-level="activity.fitness"
+                                    :user-fitness-level="userFitnessLevel"
+                            ></fitness-progress-bar>
                             <b-row no-gutters>
                                 <b-col md="6">
                                     <b-card-text :id="'activity' + activity.id + '-duration-card'">
@@ -148,9 +156,11 @@
 <script>
     import {formatDateTime} from "../../util";
     import api from "../../Api";
+    import FitnessProgressBar from "./FitnessProgressBar";
 
     export default {
         name: "ActivityList",
+        components: {FitnessProgressBar},
         props: {
             // This is named userIdProp because we shouldn't be modifying props
             userIdProp: {
@@ -159,6 +169,7 @@
         },
         data() {
             return {
+                userFitnessLevel: null,
                 continuousActivityList: [],
                 durationActivityList: [],
                 continuousCurrentPage: 1,
@@ -208,7 +219,7 @@
         async mounted() {
             this.loading = true;
             this.isTabLoading = true;
-            await this.getActiveUserId();
+            await this.getActiveUser();
             await this.getListOfActivities(true);
             await this.getListOfActivities(false);
             await this.getCreatorNamesForActivities(true);
@@ -273,10 +284,12 @@
 
             /**
              * Obtains user id of person currently logged in.
+             * And fitness level of person currently logged in.
              */
-            getActiveUserId() {
-                api.getUserId().then(response => {
-                    this.activeUserId = response.data;
+            getActiveUser() {
+                api.getAllUserData().then(response => {
+                    this.activeUserId = response.data.id;
+                    this.userFitnessLevel = response.data.fitness;
                 }).catch()
             },
 

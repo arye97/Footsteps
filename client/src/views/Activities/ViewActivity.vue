@@ -328,7 +328,7 @@ export default {
                     this.endTime = response.data.end_time;
                     this.activityTypes = response.data.activity_type;
                     this.continuous = response.data.continuous;
-                    if (response.data.fitness) {
+                    if (response.data.fitness !== null) {
                         this.activityFitnessLevel = response.data.fitness;
                     } else {
                         this.activityFitnessLevel = -1;

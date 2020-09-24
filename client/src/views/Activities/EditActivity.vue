@@ -202,7 +202,7 @@
                     this.activity.continuous = (response.data.continuous === true);
                     this.activity.description = response.data.description;
                     this.activity.location = response.data.location;
-                    if (response.data.fitness) {
+                    if (response.data.fitness !== null) {
                         this.activity.fitness = fitnessLevels[response.data.fitness + 1];
                     } else {
                         this.activity.fitness = fitnessLevels[0];
