@@ -400,12 +400,14 @@ public class ActivityController {
      */
     @GetMapping(
             value = "/activities",
-            params = {"activity", "method"}
+            params = {"activity", "method", "minFitnessLevel", "maxFitnessLevel"}
     )
     public List<ActivityResponse> getActivitiesByActivityType(HttpServletRequest request,
                                                               HttpServletResponse response,
                                                               @RequestParam(value = "activity") String activityTypes,
-                                                              @RequestParam(value = "method") String method) {
+                                                              @RequestParam(value = "method") String method,
+                                                              @RequestParam(value = "minFitnessLevel") Integer minFitnessLevel,
+                                                              @RequestParam(value = "maxFitnessLevel") Integer maxFitnessLevel) {
         String token = request.getHeader(TOKEN_DECLARATION);
         int pageNumber = request.getIntHeader("Page-Number");
         userAuthenticationService.findByToken(token);
@@ -435,7 +437,7 @@ public class ActivityController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No activities have been found");
         }
 
-        List<Activity> activityList = activityRepository.getActivitiesByIds(paginatedActivityIds.getContent());
+        List<Activity> activityList = activityRepository.getActivitiesByIdsFitness(paginatedActivityIds.getContent(), minFitnessLevel, maxFitnessLevel);
         List<ActivityResponse> activitySearchList = new ArrayList<>();
         for (Activity activity : activityList) {
             activitySearchList.add(new ActivityResponse(activity));
