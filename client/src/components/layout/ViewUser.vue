@@ -335,11 +335,11 @@
                 return userPins;
             },
             getMapCenter() {
-                if (this.user.public_location) {
-                    return {lat: this.user.public_location.latitude, lng: this.user.public_location.longitude}
-                }
                 if (this.user.private_location) {
                     return {lat: this.user.private_location.latitude, lng: this.user.private_location.longitude}
+                }
+                if (this.user.public_location) {
+                    return {lat: this.user.public_location.latitude, lng: this.user.public_location.longitude}
                 }
             }
         }
