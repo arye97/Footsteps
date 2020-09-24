@@ -86,16 +86,27 @@ export default {
   createResult: (resultData, outcomeId) => server.post(`/outcomes/${outcomeId}/results`, resultData, getTokenHeader()),
   updateOutcome: (outcomeData) => server.put(`/activities/outcomes`, outcomeData, getTokenHeader()),
   getActivityByActivityTitle: (activityNames, pageNumber) => {
-    let activityNamesStr = activityNames.replace(/\s/g, '%20');  // Use RegEx to replace ALL spaces with dashes
-    activityNamesStr = activityNamesStr.replace(/\+/, '%2b');
-    return server.get(`/activities?activityKeywords=${activityNamesStr}`, getExtendedPageNumberTokenHeader(pageNumber))
+    let uri = encodeURIComponent(activityNames);
+    return server.get(`/activities?activityKeywords=${uri}`, getExtendedPageNumberTokenHeader(pageNumber))
   },
   getActivityByActivityType: (activityTypes, method, pageNumber) => {    // method denotes "and" or "or"
     let activityTypesStr = activityTypes.map(a => a.replace(/\s/g, '-')).join(' ');  // Use RegEx to replace ALL spaces with dashes
     return server.get(`activities?activity=${activityTypesStr}&method=${method}`, getExtendedPageNumberTokenHeader(pageNumber))
   },
-  getActivityPins: (profileId, pageNumber)  => server.get(`/profiles/${profileId}/activities/pins`, getExtendedPageNumberTokenHeader(pageNumber)),
+  getActivityPinsByLocation: (coordinates, activityTypes, cutoffDistance, method, pageNumber) => {
+    let activityTypesStr = activityTypes.map(a => a.replace(/\s/g, '-')).join(' ');
+    return server.get(`/activities/pins?coordinates=${coordinates}&activityTypes=${activityTypesStr}&cutoffDistance=${cutoffDistance}&method=${method}`,
+        getExtendedPageNumberTokenHeader(pageNumber))
+  },
   getActivityByLocation: (coordinates, activityTypes, cutoffDistance, method, pageNumber) => {
-    return server.get(`/activities?coordinates=${coordinates}&activityTypes=${activityTypes}&cutoffDistance=${cutoffDistance}&method=${method}`, getExtendedPageNumberTokenHeader(pageNumber))
-  }
+    let activityTypesStr = activityTypes.map(a => a.replace(/\s/g, '-')).join(' ');
+    return server.get(`/activities?coordinates=${coordinates}&activityTypes=${activityTypesStr}&cutoffDistance=${cutoffDistance}&method=${method}`,
+        getExtendedPageNumberTokenHeader(pageNumber))
+  },
+  getNumberOfRowsForActivityByLocation: (coordinates, activityTypes, cutoffDistance, method) => {
+    let activityTypesStr = activityTypes.map(a => a.replace(/\s/g, '-')).join(' ');
+    return server.get(`/activities/rows?coordinates=${coordinates}&activityTypes=${activityTypesStr}&cutoffDistance=${cutoffDistance}&method=${method}`,
+        getTokenHeader())
+  },
+  getActivityPins: (profileId, pageNumber) => server.get(`/profiles/${profileId}/activities/pins`, getExtendedPageNumberTokenHeader(pageNumber)),
 }

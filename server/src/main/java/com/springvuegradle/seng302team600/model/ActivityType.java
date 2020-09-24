@@ -46,10 +46,6 @@ public class ActivityType {
         return activityTypeId;
     }
 
-    public void setActivityTypeId(Long activityTypeId) {
-        this.activityTypeId = activityTypeId;
-    }
-
     @Override
     public boolean equals(final Object obj) {
         if (obj instanceof ActivityType) {

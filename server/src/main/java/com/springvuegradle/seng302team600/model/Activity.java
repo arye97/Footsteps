@@ -74,6 +74,10 @@ public class Activity {
     @JsonProperty("location")
     private Location location;
 
+    @JsonProperty("fitness")
+    @Column(name = "fitness")
+    private Integer fitnessLevel;
+
 
     /**
      * Default constructor for Activity.
@@ -91,6 +95,7 @@ public class Activity {
         startTime = activity.getStartTime();
         endTime = activity.getEndTime();
         location = new Location(activity.getLocation());
+        fitnessLevel = activity.getFitnessLevel();
     }
 
     public Activity(ActivityPutRequest activity) {
@@ -103,6 +108,7 @@ public class Activity {
         startTime = activity.getStartTime();
         endTime = activity.getEndTime();
         location = new Location(activity.getLocation());
+        fitnessLevel = activity.getFitnessLevel();
     }
 
     public Long getActivityId() {
@@ -139,6 +145,14 @@ public class Activity {
 
     public void setActivityTypes(Set<ActivityType> activityTypes) {
         this.activityTypes = activityTypes;
+    }
+
+    public Integer getFitnessLevel() {
+        return fitnessLevel;
+    }
+
+    public void setFitnessLevel(Integer fitnessLevel) {
+        this.fitnessLevel = fitnessLevel;
     }
 
     public boolean isContinuous() {
@@ -228,6 +242,7 @@ public class Activity {
                 ", endTime=" + endTime +
                 ", location='" + location + '\'' +
                 ", participants='" + participants + '\'' +
+                ", fitnessLevel=" + fitnessLevel + '\'' +
                 '}';
     }
 }

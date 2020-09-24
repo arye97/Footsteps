@@ -7,11 +7,14 @@ import "jest"
 
 jest.mock('../Api');
 
+const mockSetFitnessColour = jest.fn();
+
 const ACTIVITY_ID = 1;
 const USER_ID = 1;
 const USER = {
     firstname: 'Tim',
-    lastname: 'Wong'
+    lastname: 'Wong',
+    fitness: 3
 };
 
 const ACTIVITY = {
@@ -36,13 +39,15 @@ const ACTIVITY = {
     continuous: false,
     start_time: 'Wed, 02 Sep 2020 03:41 PM',
     end_time: 'Wed, 02 Sep 2020 04:43 PM',
-    location: {name: "Queenstown, New Zealand" }
+    location: {name: "Queenstown, New Zealand" },
+    fitness: 4
 };
 
 let activityCard;
 
 beforeEach(() => {
     api.getUserData.mockImplementation(() => Promise.resolve({data: USER, status: 200}));
+    api.getAllUserData.mockImplementation(() => Promise.resolve({data: USER, status: 200}));
     activityCard = mount(ActivityCard, {
         propsData: {
             activity: ACTIVITY,
@@ -51,6 +56,7 @@ beforeEach(() => {
         router,
         mocks: {api}
     });
+    activityCard.vm.setFitnessColour = mockSetFitnessColour;
 });
 
 test('Is a vue instance', () => {
@@ -71,6 +77,7 @@ describe("The ActivityCard errors", () => {
             router,
             mocks: {api}
         });
+        activityCard.vm.setFitnessColour = mockSetFitnessColour;
     });
 
     test('Displays an error card if creator name is not found', () => {
@@ -114,5 +121,9 @@ describe('The ActivityCard elements', () => {
         expect(names).toContain(ACTIVITY.start_time);
         expect(names).toContain(ACTIVITY.end_time);
         expect(names).toContain(ACTIVITY.description);
+    });
+
+    test('Displays fitness level when an activity has one', () => {
+        expect(activityCard.find('#fitnessLevel1').exists).toBeTruthy();
     });
 });
