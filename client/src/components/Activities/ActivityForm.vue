@@ -151,6 +151,7 @@
                         @pin-change="locationValue"
                         @locationIO-focus="setLocationFocus"
                         :single-only="true"
+                        :canDelete="true"
                         :parent-pins="this.isEdit && this.activity.location ?
                             [{lat: this.activity.location.latitude, lng: this.activity.location.longitude}] :  undefined"
 
