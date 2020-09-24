@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "location")
 public class Location {
-    final static private int NAME_LEN = 75;
+    final static private int NAME_LEN = 300;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
