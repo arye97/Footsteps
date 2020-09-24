@@ -4,7 +4,7 @@
             <GmapMap class="map"
                     ref="mapRef"
                     :center="initialCenter"
-                    :zoom="4.5"
+                    :zoom="10"
                     map-type-id="terrain"
                     style="width: 500px; height: 300px"
                     @dragend="updateCenter"
@@ -15,9 +15,9 @@
                         v-for="(pin, pinIndex) in pins"
                         :position="google && new google.maps.LatLng(pin.lat, pin.lng)"
                         :clickable="true"
-                        :draggable="(draggablePins) ? true : (pin.draggable === true)"
+                        :draggable="isDraggable(pin)"
                         :icon="'http://maps.google.com/mapfiles/ms/icons/'.concat((!pin.colour) ? 'red' : pin.colour.toLowerCase()) + '-dot.png'"
-                        @click="panToPin(pin)"
+                        @click="directToPage(pin)"
                         @dragend="repositionPin({lat: $event.latLng.lat(), lng: $event.latLng.lng()}, pinIndex)"
                         @mouseover="toggleInfoWindow(pin, true)"
                         @mouseout="toggleInfoWindow(pin, false)"
@@ -129,6 +129,20 @@
             },
 
             /**
+             * Redirects the user to the page associated with the pin shown
+             * If the pin is not associated with an activity,
+             * the map is redirected to be centered on this pin
+             * @param pin object
+             */
+            directToPage(pin) {
+                if (pin.pin_type === "ACTIVITY") {
+                    this.$router.push(`/activity/${pin.id}`);
+                    return;
+                }
+                this.panToPin(pin);
+            },
+
+            /**
              * Centres the map on a pin using a smooth animation
              * @param pin object containing lat, lng
              */
@@ -185,6 +199,19 @@
                 //Needs to update the screen because it is not done automatically
                 this.$forceUpdate();
             },
+
+            /**
+             * If the pin has an attribute draggable, return that value, else return the value of this.draggablePins.
+             * @param pin Object with optional draggable key
+             * @return {*} Boolean
+             */
+            isDraggable(pin) {
+                if ("draggable" in pin) {
+                    return pin.draggable;
+                } else {
+                    return this.draggablePins;
+                }
+            }
         }
     }
 

@@ -32,6 +32,7 @@
     import api from "../../Api";
     import ActivityForm from "../../components/Activities/ActivityForm";
     import {backendDateToLocalTimeZone, UnitType} from "../../util";
+    import {fitnessLevels} from "../../constants";
 
     /**
      * A view used to edit an activity
@@ -50,9 +51,13 @@
                     submitStartTime: null,
                     submitEndTime: null,
                     location: null,
+                    startDate: null,
                     startTime: null,
+                    endDate: null,
                     endTime: null,
+                    fitness: null
                 },
+                defaultTime: "12:00",
                 activityId: null,
                 show: true,
                 outcomeList: [],
@@ -106,7 +111,8 @@
                     continuous: this.activity.continuous,
                     location: this.activity.location,
                     start_time: this.activity.submitStartTime,
-                    end_time: this.activity.submitEndTime
+                    end_time: this.activity.submitEndTime,
+                    fitness: this.activity.fitness.value
                 };
 
                 // Send the activityForm to the server to edit the activity
@@ -196,6 +202,11 @@
                     this.activity.continuous = (response.data.continuous === true);
                     this.activity.description = response.data.description;
                     this.activity.location = response.data.location;
+                    if (response.data.fitness) {
+                        this.activity.fitness = fitnessLevels[response.data.fitness + 1];
+                    } else {
+                        this.activity.fitness = fitnessLevels[0];
+                    }
                     this.activity.submitStartTime = backendDateToLocalTimeZone(response.data.start_time);
                     this.activity.submitEndTime = backendDateToLocalTimeZone(response.data.end_time);
                     for (let i = 0; i < response.data.activity_type.length; i++) {
@@ -222,8 +233,17 @@
                     this.activity.submitStartTime = null;
                     this.activity.submitEndTime = null;
                 }
-                this.activity.startTime = this.activity.submitStartTime;
-                this.activity.endTime = this.activity.submitEndTime;
+                if (this.activity.submitStartTime) {
+                    let startArray = this.activity.submitStartTime.split("T");
+                    let endArray = this.activity.submitEndTime.split("T");
+                    this.activity.startDate = startArray[0];
+                    this.activity.startTime = startArray[1];
+                    this.activity.endDate = endArray[0];
+                    this.activity.endTime = endArray[1];
+                } else {
+                    this.activity.startTime = this.defaultTime;
+                    this.activity.endTime = this.defaultTime;
+                }
             },
 
             /**

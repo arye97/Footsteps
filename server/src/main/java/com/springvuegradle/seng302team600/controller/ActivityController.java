@@ -1,5 +1,6 @@
 package com.springvuegradle.seng302team600.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.payload.pins.Pin;
 import com.springvuegradle.seng302team600.model.User;
@@ -37,8 +38,10 @@ public class ActivityController {
     private final ActivityTypeRepository activityTypeRepository;
     private final ActivityActivityTypeRepository activityActivityTypeRepository;
     private final ActivityPinService activityPinService;
+    private final LocationSearchService locationSearchService;
 
     private static final int PAGE_SIZE = 5;
+    private static final int PIN_BLOCK_SIZE = 20;
     private static final String CONTINUOUS = "CONTINUOUS";
     private static final String DURATION = "DURATION";
 
@@ -49,7 +52,7 @@ public class ActivityController {
                               ActivityTypeService activityTypeService, FeedEventService feedEventService,
                               ActivityTypeRepository activityTypeRepository,
                               ActivityActivityTypeRepository activityActivityTypeRepository,
-                              ActivityPinService activityPinService) {
+                              ActivityPinService activityPinService, LocationSearchService locationSearchService) {
         this.activityRepository = activityRepository;
         this.userAuthenticationService = userAuthenticationService;
         this.activityTypeService = activityTypeService;
@@ -57,6 +60,7 @@ public class ActivityController {
         this.activityTypeRepository = activityTypeRepository;
         this.activityActivityTypeRepository = activityActivityTypeRepository;
         this.activityPinService = activityPinService;
+        this.locationSearchService = locationSearchService;
     }
 
     /**
@@ -152,6 +156,7 @@ public class ActivityController {
         oldActivity.setName(activity.getName());
         oldActivity.setLocation(activity.getLocation());
         oldActivity.setContinuous(activity.isContinuous());
+        oldActivity.setFitnessLevel(activity.getFitnessLevel());
         if (!activity.isContinuous()) {
             oldActivity.setStartTime(activity.getStartTime());
             oldActivity.setEndTime(activity.getEndTime());
@@ -319,8 +324,19 @@ public class ActivityController {
             params = {"activityKeywords"}
     )
     public List<ActivityResponse> getActivitiesByKeywords(HttpServletRequest request,
-                                                      HttpServletResponse response,
-                                                      @RequestParam(value="activityKeywords") String activityKeywords) {
+                                                          HttpServletResponse response,
+                                                          @RequestParam(value = "activityKeywords") String activityKeywords) {
+
+        activityKeywords = activityKeywords.trim();
+        if (activityKeywords.equals("-") ||
+                activityKeywords.equals("\\+") ||
+                activityKeywords.equals("%2b") ||
+                activityKeywords.equals("%20") ||
+                activityKeywords.equals(" ") ||
+                activityKeywords.length() == 0) {
+            return new ArrayList<>();
+        }
+
         String token = request.getHeader(TOKEN_DECLARATION);
         userAuthenticationService.findByToken(token);
 
@@ -336,51 +352,39 @@ public class ActivityController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Page-Number must be an integer");
         }
 
-        if (pageNumber == -1) {
+        if (pageNumber <= -1) {
             pageNumber = 0;
         }
 
-        List<Activity> activities;
-        List<String> searchStrings;
-        Page<Activity> paginatedActivities;
-        Pageable pageWithFiveActivities = PageRequest.of(pageNumber, PAGE_SIZE);
-
-        if (activityKeywords.contains("-")) {
-            //this gives <searchQuery, exclusions>
-            searchStrings = ActivitySearchService.handleMinusSpecialCaseString(activityKeywords);
-            activities = activityRepository.findAllByKeywordExcludingTerm(searchStrings.get(0), searchStrings.get(1));
-
-            for (Activity activity : activities) {
-                activitiesFound.add(new ActivityResponse(activity));
-            }
-
-            return activitiesFound;
-        } else if (activityKeywords.contains("%2b") || (activityKeywords.contains("+"))) {
-            //this gives a list of all separate search queries
-            searchStrings = ActivitySearchService.handlePlusSpecialCaseString(activityKeywords);
-            Set<Activity> setToRemoveDuplicates = new HashSet<>();
-
-            for (String term : searchStrings) {
-                Page<Activity> currPage = activityRepository.findAllByKeyword(term, pageWithFiveActivities);
-                setToRemoveDuplicates.addAll(currPage.getContent());
-            }
-
-            List<Activity> listedActivities = new ArrayList<>(setToRemoveDuplicates);
-            paginatedActivities = new PageImpl<>(listedActivities);
-        } else {
+        List<Activity> returnedActivities;
+        if (activityKeywords.contains("AND")) {
+            String searchStrings = ActivitySearchService.handleMethodSpecialCaseString(activityKeywords, "AND");
+            returnedActivities = activityRepository.findAllByKeywordUsingMethod(searchStrings, "AND");
+        } else if (activityKeywords.contains("OR")) {
+            activityKeywords = ActivitySearchService.handleMethodSpecialCaseString(activityKeywords, "OR");
+            returnedActivities = activityRepository.findAllByKeywordUsingMethod(activityKeywords, "OR");
+        } else if (activityKeywords.length() > 1) {
             activityKeywords = ActivitySearchService.getSearchQuery(activityKeywords);
-            paginatedActivities = activityRepository.findAllByKeyword(activityKeywords, pageWithFiveActivities);
+            returnedActivities = activityRepository.findAllByKeyword(activityKeywords);
+        } else {
+            return new ArrayList<>();
         }
 
-        if (paginatedActivities == null || paginatedActivities.getTotalPages() == 0) {
+        if (returnedActivities == null || returnedActivities.size() == 0) {
             return activitiesFound;
         }
 
-        List<Activity> pageActivities = paginatedActivities.getContent();
-        pageActivities.forEach(i -> activitiesFound.add(new ActivityResponse(i)));
+        int totalElements = returnedActivities.size();
 
-        int totalElements = (int) paginatedActivities.getTotalElements();
+        int minIndex = pageNumber * PAGE_SIZE;
+        int maxIndex = Math.min(minIndex + PAGE_SIZE, totalElements);
+
+        List<Activity> activities = returnedActivities.subList(minIndex, maxIndex);
+
+        activities.forEach(i -> activitiesFound.add(new ActivityResponse(i)));
+
         response.setIntHeader("Total-Rows", totalElements);
+
         return activitiesFound;
     }
 
@@ -396,12 +400,12 @@ public class ActivityController {
      */
     @GetMapping(
             value = "/activities",
-            params = { "activity", "method" }
+            params = {"activity", "method"}
     )
     public List<ActivityResponse> getActivitiesByActivityType(HttpServletRequest request,
-                                                     HttpServletResponse response,
-                                                     @RequestParam(value="activity") String activityTypes,
-                                                     @RequestParam(value="method") String method) {
+                                                              HttpServletResponse response,
+                                                              @RequestParam(value = "activity") String activityTypes,
+                                                              @RequestParam(value = "method") String method) {
         String token = request.getHeader(TOKEN_DECLARATION);
         int pageNumber = request.getIntHeader("Page-Number");
         userAuthenticationService.findByToken(token);
@@ -470,11 +474,132 @@ public class ActivityController {
         boolean hasNext = false;
         if (paginatedBlockOfActivities != null) {
             paginatedBlockOfPins = activityPinService.getPins(user, paginatedBlockOfActivities.getContent());
-            hasNext = paginatedBlockOfActivities.hasNext();        }
+            hasNext = paginatedBlockOfActivities.hasNext();
+        }
         if (pageNumber == 0) {
+            if (user.getPrivateLocation() != null && user.getPublicLocation() != null)
             paginatedBlockOfPins.add(0, new UserPin(user));
         }
         response.setHeader("Has-Next", Boolean.toString(hasNext));
         return paginatedBlockOfPins;
+    }
+
+
+    /**
+     * Takes some properties to search for activity pins by location.
+     * Calls the service function to find activities by location, then converts this to pins
+     * Pagination is preformed on the repo in blocks/pages of 20.
+     *
+     * @param request        the http request
+     * @param response       the http response
+     * @param strCoordinates a string to be converted into a Coordinates object containing latitude and longitude
+     * @param activityTypes  a list of activity types
+     * @param cutoffDistance the max distance to search by
+     * @param method         the type of activity type filtering
+     * @return A list of activity pins
+     */
+    @GetMapping(
+            value = "/activities/pins",
+            params = {"coordinates", "activityTypes", "cutoffDistance", "method"})
+    public List<Pin> getActivityPinsByLocation(HttpServletRequest request, HttpServletResponse response,
+                                               @RequestParam(value = "coordinates") String strCoordinates,
+                                               @RequestParam(value = "activityTypes") String activityTypes,
+                                               @RequestParam(value = "cutoffDistance") Double cutoffDistance,
+                                               @RequestParam(value = "method") String method) throws JsonProcessingException {
+        String token = request.getHeader(TOKEN_DECLARATION);
+        User user = userAuthenticationService.findByToken(token);
+        int pageNumber;
+        try {
+            pageNumber = request.getIntHeader("Page-Number");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Page-Number must be an integer");
+        }
+
+        Slice<Activity> paginatedActivities = locationSearchService.getActivitiesByLocation(strCoordinates, activityTypes,
+                cutoffDistance, method, PIN_BLOCK_SIZE, pageNumber);
+
+        List<Pin> paginatedBlockOfPins = new ArrayList<>();
+        boolean hasNext = false;
+        if (paginatedActivities != null) {
+            paginatedBlockOfPins = activityPinService.getPins(user, paginatedActivities.getContent());
+            hasNext = paginatedActivities.hasNext();
+        }
+        response.setHeader("Has-Next", Boolean.toString(hasNext));
+        return paginatedBlockOfPins;
+    }
+
+    /**
+     * Takes some properties to search for activities by location.
+     * Calls the service function to find activities by location.
+     * Pagination is preformed on the repo in pages of 5.
+     *
+     * @param request        the http request
+     * @param response       the http response
+     * @param strCoordinates a string to be converted into a Coordinates object containing latitude and longitude
+     * @param activityTypes  a list of activity types
+     * @param cutoffDistance the max distance to search by
+     * @param method         the type of activity type filtering
+     * @return A list of activities
+     */
+    @GetMapping(
+            value = "/activities",
+            params = {"coordinates", "activityTypes", "cutoffDistance", "method"})
+    public List<ActivityResponse> getActivitiesByLocation(HttpServletRequest request, HttpServletResponse response,
+                                               @RequestParam(value = "coordinates") String strCoordinates,
+                                               @RequestParam(value = "activityTypes") String activityTypes,
+                                               @RequestParam(value = "cutoffDistance") Double cutoffDistance,
+                                               @RequestParam(value = "method") String method) throws JsonProcessingException {
+
+        String token = request.getHeader(TOKEN_DECLARATION);
+        userAuthenticationService.findByToken(token);
+        int pageNumber;
+        try {
+            pageNumber = request.getIntHeader("Page-Number");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Page-Number must be an integer");
+        }
+
+        Slice<Activity> paginatedActivities = locationSearchService.getActivitiesByLocation(strCoordinates, activityTypes,
+                cutoffDistance, method, PAGE_SIZE, pageNumber);
+
+        List<ActivityResponse> activitiesFound = new ArrayList<>();
+        boolean hasNext = false;
+        if (paginatedActivities != null) {
+            paginatedActivities.forEach(i -> activitiesFound.add(new ActivityResponse(i)));
+            hasNext = paginatedActivities.hasNext();
+        }
+
+        response.setHeader("Has-Next", Boolean.toString(hasNext));
+        return activitiesFound;
+    }
+
+
+    /**
+     * Takes some properties to search for activities by location.
+     * Calls the service function to find the count of activities by location.
+     * Gets the length of the search results.
+     *
+     * @param request        the http request
+     * @param strCoordinates a string to be converted into a Coordinates object containing latitude and longitude
+     * @param activityTypes  a list of activity types
+     * @param cutoffDistance the max distance to search by
+     * @param method         the type of activity type filtering
+     * @return the count of activities searched for
+     */
+    @GetMapping(
+            value = "/activities/rows",
+            params = {"coordinates", "activityTypes", "cutoffDistance", "method"})
+    public int getNumberOfRowsForActivityByLocation(HttpServletRequest request,
+                                            @RequestParam(value = "coordinates") String strCoordinates,
+                                            @RequestParam(value = "activityTypes") String activityTypes,
+                                            @RequestParam(value = "cutoffDistance") Double cutoffDistance,
+                                            @RequestParam(value = "method") String method) throws JsonProcessingException {
+        String token = request.getHeader(TOKEN_DECLARATION);
+        userAuthenticationService.findByToken(token);
+
+        return locationSearchService.getRowsForActivityByLocation(strCoordinates, activityTypes,
+                cutoffDistance, method);
     }
 }

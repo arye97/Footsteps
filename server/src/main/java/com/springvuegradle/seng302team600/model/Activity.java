@@ -242,7 +242,6 @@ public class Activity {
                 ", endTime=" + endTime +
                 ", location='" + location + '\'' +
                 ", participants='" + participants + '\'' +
-                ", fitnessLevel=" + fitnessLevel + '\'' +
                 '}';
     }
 }

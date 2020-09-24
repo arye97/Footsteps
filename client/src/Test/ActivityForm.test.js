@@ -1,12 +1,17 @@
 import "vue-jest"
-import {mount, createLocalVue} from "@vue/test-utils";
+import {shallowMount, createLocalVue} from "@vue/test-utils";
 import api from "../Api";
 import ActivityForm from "../components/Activities/ActivityForm";
-import { BootstrapVue } from 'bootstrap-vue';
+import {BootstrapVue, BootstrapVueIcons, IconsPlugin} from 'bootstrap-vue';
 
 jest.mock("../Api");
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
+localVue.use(BootstrapVueIcons);
+localVue.use(IconsPlugin);
+import EmptyComponent from "./EmptyComponent.vue";
+localVue.component('GmapAutocomplete', EmptyComponent);
+
 
 const locationData = {
     longitude: 55.0,
@@ -46,7 +51,7 @@ let activityForm;
  */
 beforeEach(() => {
     api.getActivityTypes.mockImplementation(() => Promise.resolve({data: ACTIVITY_TYPES, status: 200}));
-    activityForm = mount(ActivityForm, {
+    activityForm = shallowMount(ActivityForm, {
         propsData: {
             activity: ACTIVITY1
         },
@@ -57,6 +62,10 @@ beforeEach(() => {
 
 test('Is a vue instance', () => {
     expect(activityForm.isVueInstance).toBeTruthy();
+});
+
+test('Fitness level input exists', () => {
+    expect(activityForm.find('#input-fitness-level').exists()).toBeTruthy();
 });
 
 test('Outcome title input exists', () => {
