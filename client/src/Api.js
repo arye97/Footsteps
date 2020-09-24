@@ -85,27 +85,27 @@ export default {
   getOutcomeResults: (outcomeId) => server.get(`/outcomes/${outcomeId}/results`, getTokenHeader()),
   createResult: (resultData, outcomeId) => server.post(`/outcomes/${outcomeId}/results`, resultData, getTokenHeader()),
   updateOutcome: (outcomeData) => server.put(`/activities/outcomes`, outcomeData, getTokenHeader()),
-  getActivityByActivityTitle: (activityNames, pageNumber) => {
+  getActivityByActivityTitle: (activityNames, minFitnessLevel, maxFitnessLevel, pageNumber) => {
     let uri = encodeURIComponent(activityNames);
-    return server.get(`/activities?activityKeywords=${uri}`, getExtendedPageNumberTokenHeader(pageNumber))
+    return server.get(`/activities?activityKeywords=${uri}&fitnessMin=${minFitnessLevel}&fitnessMax=${maxFitnessLevel}`, getExtendedPageNumberTokenHeader(pageNumber))
   },
   getActivityByActivityType: (activityTypes, method, pageNumber) => {    // method denotes "and" or "or"
     let activityTypesStr = activityTypes.map(a => a.replace(/\s/g, '-')).join(' ');  // Use RegEx to replace ALL spaces with dashes
     return server.get(`activities?activity=${activityTypesStr}&method=${method}`, getExtendedPageNumberTokenHeader(pageNumber))
   },
-  getActivityPinsByLocation: (coordinates, activityTypes, cutoffDistance, method, pageNumber) => {
+  getActivityPinsByLocation: (coordinates, activityTypes, cutoffDistance, method, minFitnessLevel, maxFitnessLevel, pageNumber) => {
     let activityTypesStr = activityTypes.map(a => a.replace(/\s/g, '-')).join(' ');
-    return server.get(`/activities/pins?coordinates=${coordinates}&activityTypes=${activityTypesStr}&cutoffDistance=${cutoffDistance}&method=${method}`,
+    return server.get(`/activities/pins?coordinates=${coordinates}&activityTypes=${activityTypesStr}&cutoffDistance=${cutoffDistance}&method=${method}&fitnessMin=${minFitnessLevel}&fitnessMax=${maxFitnessLevel}`,
         getExtendedPageNumberTokenHeader(pageNumber))
   },
-  getActivityByLocation: (coordinates, activityTypes, cutoffDistance, method, pageNumber) => {
+  getActivityByLocation: (coordinates, activityTypes, cutoffDistance, method, minFitnessLevel, maxFitnessLevel, pageNumber) => {
     let activityTypesStr = activityTypes.map(a => a.replace(/\s/g, '-')).join(' ');
-    return server.get(`/activities?coordinates=${coordinates}&activityTypes=${activityTypesStr}&cutoffDistance=${cutoffDistance}&method=${method}`,
+    return server.get(`/activities?coordinates=${coordinates}&activityTypes=${activityTypesStr}&cutoffDistance=${cutoffDistance}&method=${method}&minFitness=${minFitnessLevel}&maxFitness=${maxFitnessLevel}`,
         getExtendedPageNumberTokenHeader(pageNumber))
   },
-  getNumberOfRowsForActivityByLocation: (coordinates, activityTypes, cutoffDistance, method) => {
+  getNumberOfRowsForActivityByLocation: (coordinates, activityTypes, cutoffDistance, minFitnessLevel, maxFitnessLevel, method) => {
     let activityTypesStr = activityTypes.map(a => a.replace(/\s/g, '-')).join(' ');
-    return server.get(`/activities/rows?coordinates=${coordinates}&activityTypes=${activityTypesStr}&cutoffDistance=${cutoffDistance}&method=${method}`,
+    return server.get(`/activities/rows?coordinates=${coordinates}&activityTypes=${activityTypesStr}&cutoffDistance=${cutoffDistance}&method=${method}&fitnessMin=${minFitnessLevel}&fitnessMax=${maxFitnessLevel}`,
         getTokenHeader())
   },
   getActivityPins: (profileId, pageNumber) => server.get(`/profiles/${profileId}/activities/pins`, getExtendedPageNumberTokenHeader(pageNumber)),
