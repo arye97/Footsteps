@@ -138,6 +138,14 @@
                     </div>
                 </div>
 
+                <b-form-group id="input-fitness-level" label-for="activity-form-fitness" label="Activity Fitness Level:">
+                    <!-- fitness level field -->
+                    <multiselect v-model="fitness" id="activity-form-fitness" :options="fitnessOptions" :multiple="false" label="desc" :return="fitnessOptions.desc"
+                                 placeholder="Please select a fitness level" track-by="value">
+                        <template slot="singleLabel" slot-scope="{ option }"><footer> {{ option.desc }}</footer></template>
+                    </multiselect>
+                </b-form-group>
+
                 <b-form-group
                         id="input-group-location"
                         label="Location: *"
@@ -199,6 +207,7 @@
                         </b-form-group>
                     </b-col>
                 </b-row>
+
                 <b-row>
                     <b-col align-self="center">
                         <div v-if="errored" class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="alert">
@@ -254,7 +263,7 @@
                     <b-button class="float-right" type="submit" variant="primary" @submit="onSubmit">Submit</b-button>
                 </div>
             </b-form>
-            <footer class="col-12 text-center">
+            <footer class="col-12 text-center footer-info">
                 Entries marked with * are required
             </footer><br/><br/>
         </div>
@@ -266,7 +275,7 @@
     import api from "../../Api";
     import {localTimeZoneToBackEndTime, pinToLocation} from "../../util";
     import LocationIO from "../Map/LocationIO";
-
+    import {fitnessLevels} from '../../constants';
 
     /**
      * Displays an error on the element with id equal to alert_name
@@ -346,7 +355,10 @@
                 maxOutcomeUnitCharCount: 15,
                 errored: false,
                 error_message: "Something went wrong",
-                submitDisabled: false
+                submitDisabled: false,
+
+                fitness: '',
+                fitnessOptions: fitnessLevels,
             }
         },
         async created() {
@@ -356,6 +368,18 @@
             async outcomeList() {
                 if (this.outcomeList.length !== this.editableOutcomes.length) {
                     await this.checkOutcomesAreEditable();
+                }
+            }
+        },
+        computed: {
+            value: {
+                get () {
+                    return this.fitnessOptions.filter(
+                        option => this.fitness.includes(option.desc)
+                    )
+                },
+                set (newSelectedOptions) {
+                    this.fitness = newSelectedOptions.map(option => option.desc)
                 }
             }
         },
@@ -702,7 +726,7 @@
 </script>
 
 <style scoped>
-    footer {
+    .footer-info {
         padding-top: 55px;
     }
 
