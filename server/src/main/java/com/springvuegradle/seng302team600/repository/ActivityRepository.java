@@ -145,7 +145,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
                                                               @Param("userLongitude") Double userLongitude,
                                                               @Param("maxDistance") Double maxDistance,
                                                               @Param("activityTypeIds") List<Long> activityTypeIds,
-                                                              @Param("numActivityTypes") int numActivityTypes,
+                                                              @Param("numActivityTypes") Integer numActivityTypes,
                                                               @Param("minFitnessLevel") Integer minFitnessLevel,
                                                               @Param("maxFitnessLevel") Integer maxFitnessLevel,
                                                               Pageable pageable);
@@ -204,5 +204,5 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
                                                                @Param("userLongitude") Double userLongitude,
                                                                @Param("maxDistance") Double maxDistance,
                                                                @Param("activityTypeIds") List<Long> activityTypeIds,
-                                                               @Param("numActivityTypes") int numActivityTypes);
+                                                               @Param("numActivityTypes") Integer numActivityTypes);
 }

@@ -46,7 +46,7 @@
                         <strong>Fitness Level:</strong>
                         <br>
                         <b-card-text :id="'fitnessLevel' + activity.id">
-                            this.fitness
+                            {{this.fitness}}
                         </b-card-text>
                     </div>
                     <b-list-group class="mx-2" id="matchingActivityTypes">
