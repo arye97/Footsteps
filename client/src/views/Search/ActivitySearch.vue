@@ -17,18 +17,6 @@
                         <b-form-input id="searchBoxActivityTitle" v-model="activityTitle"
                                       placeholder="Search activity by title"></b-form-input>
                         <br>
-                        <ul>
-                            <li>All searches are case insensitive including "" searches</li>
-                            <li>Use quotation marks to search for whole matches of the string within ("run" could return
-                                run to Mars but NOT running to Venus)
-                            </li>
-                            <li>Use "+" to include both strings in the search (any leading or tailing spaces are
-                                trimmed) (CSSE + fun will return any activity with the names CSSE and fun)
-                            </li>
-                            <li>Use "-" for splitting strings. Anything following the "-" will be excluded from the
-                                search (CSSE - fun would search for anything including CSSE that does not contain fun)
-                            </li>
-                        </ul>
                     </b-col>
                     <b-col class="multi-search" cols=4>
                         <b-form-select id="searchModeSelect" v-model="searchMode"
@@ -57,14 +45,28 @@
                         Distance in Kilometres:
                         {{ (cutoffDistance != MAX_DISTANCE)?cutoffDistance:MAX_DISTANCE.toString().concat("+") }}
                     </div>
-                    <LocationIO v-if="!mapLoading" :parent-center="currentLocation" :max-pins="maxPins"
-                                :parent-pins="pins" :draggable="true" @child-pins="pinsChanged"></LocationIO>
+                    <location-i-o
+                            ref="mapComponentRef"
+                            v-if="!mapLoading"
+                            :parent-center="currentLocation"
+                            :parent-pins="pins"
+                            @pin-change="clearSearchResults"
+                            @child-pins="pinsChanged"></location-i-o>
                 </b-col>
                 <b-row>
                     <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
                         Search
                     </b-button>
-                    <br/>
+                </b-row>
+                <br/>
+                <b-row v-if="searchMode==='activityName'">
+                    <ul style="align-content: center;">
+                        <li>All searches are case insensitive including exact match searches</li>
+                        <li>Use double quotes around your search for exact matching</li>
+                        <li>Use OR between keywords to search for anything with any of the keywords</li>
+                        <li>Use AND between keywords to search for anything with all of the keywords</li>
+                        <li>AND and OR keywords must be spelt with capitals</li>
+                    </ul>
                 </b-row>
                 </b-form>
             </div>
@@ -72,6 +74,9 @@
                 <hr/>
                 <br/>
             </div>
+            <b-alert class="align-centre" variant="danger" dismissible fade :show=isErrorAlert>
+                {{ errorAlertMessage }}
+            </b-alert>
             <section v-if="errored" class="text-center">
                 <div class="alert alert-danger alert-dismissible fade show text-center" role="alert" id="alert">
                     {{ error_message }}
@@ -91,11 +96,11 @@
             </section>
             <!-- Pagination Nav Bar -->
             <b-pagination
-                    v-if="!errored && !loading && activitiesList.length >= 1"
-                    align="fill"
-                    v-model="currentPage"
-                    :total-rows="rows"
-                    :per-page="activitiesPerPage"
+                v-if="!errored && !loading && activitiesList.length >= 1"
+                align="fill"
+                v-model="currentPage"
+                :total-rows="rows"
+                :per-page="activitiesPerPage"
             ></b-pagination>
         </div>
     </div>
@@ -116,10 +121,9 @@
         },
         data() {
             return {
-                currentLocation: {draggable: false},
+                currentLocation: {draggable: true},
                 searchPin: null,
                 mapLoading: true,
-                maxPins: 1,
                 pins: [],
                 MAX_DISTANCE: 10000,
                 activitiesPerPage: 5,
@@ -127,14 +131,14 @@
                 currentPage: 1,
                 activitiesList: [],
                 searchMode: 'activityType',
-                searchModes: [  //can be expanded to allow for different searching mode (ie; search by username, email... etc)
+                searchModes: [
                     {value: 'activityType', text: 'Activity Type'},
                     {value: 'activityName', text: 'Activity Name'},
                     {value: 'activityLocation', text: 'Location'}
                 ],
                 // These are the ActivityTypes selected in the Multiselect
                 selectedActivityTypes: [],
-                // These are a copy of selectedActivityTypes passed to the UserCard (to avoid mutation after clicking search)
+                // These are a copy of selectedActivityTypes passed to the Activity Card (to avoid mutation after clicking search)
                 activityTypesSearchedFor: [],
                 activityTitle: "",
                 activityTypes: [],
@@ -143,7 +147,10 @@
                 error_message: "Something went wrong! Please try again.",
                 loading: false,
                 rows: null,
-                resultsFound: false
+                resultsFound: false,
+                hasNext: true,
+                isErrorAlert: false,
+                errorAlertMessage: '',
             }
         },
         async mounted() {
@@ -154,20 +161,40 @@
                     this.currentLocation.lng = response.data.private_location.longitude;
                     this.currentLocation.lat = response.data.private_location.latitude;
                     this.currentLocation.name = response.data.private_location.name;
+                    this.pins.push(this.currentLocation);
                 } else if (response.data.public_location !== null) {
                     this.currentLocation.lng = response.data.public_location.longitude;
                     this.currentLocation.lat = response.data.public_location.latitude;
                     this.currentLocation.name = response.data.public_location.name;
+                    this.pins.push(this.currentLocation);
                 }
             });
-            this.pins.push(this.currentLocation);
             this.mapLoading = false;
             await this.fetchActivityTypes();
         },
+        watch: {
+            /**
+             * Watcher is called whenever currentPage is changed, via searching new query
+             * or the pagination bar.
+             */
+            async currentPage() {
+                switch (this.searchMode) {
+                    case 'activityType':
+                        await this.getPaginatedActivitiesByActivityType();
+                        break;
+                    case 'activityName':
+                        await this.getPaginatedActivitiesByActivityTitle();
+                        break;
+                    case 'activityLocation':
+                        await this.getPaginatedActivitiesByLocation();
+                        await this.getActivityLocationRows();
+                        break;
+                }
 
+            }
+        },
         methods: {
             pinsChanged(pins) {
-                this.maxPins = pins.length;
                 this.pins = pins;
             },
             goToPage(url) {
@@ -217,7 +244,7 @@
                 api.getActivityByActivityTitle(this.activityTitle, pageNumber)
                     .then(response => {
                         this.activitiesList = response.data;
-                        if (this.activityTitle.length != 0 && (response.data).length === 0) {
+                        if (this.activityTitle.length !== 0 && (response.data).length === 0) {
                             this.errored = true;
                             this.error_message = "No activities with activity names ".concat(this.activityTitle) + " have been found!"
                         }
@@ -225,26 +252,8 @@
                         this.loading = false;
                         this.resultsFound = true;
                     }).catch(error => {
-                    this.loading = false;
-                    this.errored = true;
-                    this.userList = [];
-                    if ((error.code === "ECONNREFUSED") || (error.code === "ECONNABORTED")) {
-                        this.error_message = "Cannot connect to server - please try again later!";
-                    } else {
-                        if (error.response.status === 401) {
-                            this.error_message = "You aren't logged in! You're being redirected!";
-                            setTimeout(() => {
-                                this.logout()
-                            }, 3000)
-                        } else if (error.response.status === 400) {
-                            this.error_message = error.response.data.message;
-                        } else if (error.response.status === 404) {
-                            this.error_message = "No activities with activity names ".concat(this.activityTitle) + " have been found!"
-                        } else {
-                            this.error_message = "Something went wrong! Please try again."
-                        }
-                    }
-                });
+                        this.handleError(error, "No activities with activity names ".concat(this.activityTitle) + " have been found!");
+                    });
             },
 
             /**
@@ -260,26 +269,154 @@
                         this.loading = false;
                         this.resultsFound = true;
                     }).catch(error => {
-                    this.loading = false;
-                    this.errored = true;
-                    this.userList = [];
-                    if ((error.code === "ECONNREFUSED") || (error.code === "ECONNABORTED")) {
-                        this.error_message = "Cannot connect to server - please try again later!";
+                        this.handleError(error, "No activities with activity types ".concat(this.selectedActivityTypes) + " have been found!");
+                    });
+            },
+
+
+            /**
+             * Fetches a paginated list of activities, filtered by specified location,
+             * through an API call.
+             */
+            async getPaginatedActivitiesByLocation() {
+                let pageNumber = this.currentPage - 1;
+
+                let coordinates = {
+                    "lat": this.currentLocation.lat,
+                    "lng": this.currentLocation.lng
+                };
+                let urlCoordinates = encodeURIComponent(JSON.stringify(coordinates));
+
+                api.getActivityByLocation(urlCoordinates, this.activityTypesSearchedFor, this.cutoffDistance, this.searchType, pageNumber)
+                    .then(response => {
+                        this.activitiesList = response.data;
+
+                        this.resultsFound = true;
+                    }).catch(error => {
+                        this.handleError(error, "No activities within distance of location ".concat(this.cutoffDistance) + " have been found!");
+                    });
+            },
+
+            /**
+             * Fetches the count of Activity Location results searched for.
+             */
+            async getActivityLocationRows() {
+
+                let coordinates = {
+                    "lat": this.currentLocation.lat,
+                    "lng": this.currentLocation.lng
+                };
+                let urlCoordinates = encodeURIComponent(JSON.stringify(coordinates));
+
+                await api.getNumberOfRowsForActivityByLocation(urlCoordinates, this.activityTypesSearchedFor, this.cutoffDistance, this.searchType)
+                    .then(response => {
+                        this.rows = response.data;
+                    }).catch(error => {
+                        this.handleError(error, "No activities within distance of location ".concat(this.cutoffDistance) + " have been found!");
+                    });
+
+                this.loading = false;
+            },
+
+
+            /**
+             * Handle a back-end error
+             * @param error Object from back-end
+             * @param message404 the message to display for a 404 Not Found error
+             */
+            handleError(error, message404) {
+                this.loading = false;
+                this.errored = true;
+                if ((error.code === "ECONNREFUSED") || (error.code === "ECONNABORTED")) {
+                    this.error_message = "Cannot connect to server - please try again later!";
+                } else {
+                    if (error.response.status === 401) {
+                        this.error_message = "You aren't logged in! You're being redirected!";
+                        setTimeout(() => {
+                            this.logout()
+                        }, 3000)
+                    } else if (error.response.status === 400) {
+                        this.error_message = error.response.data.message;
+                    } else if (error.response.status === 404) {
+                        this.error_message = message404
                     } else {
-                        if (error.response.status === 401) {
-                            this.error_message = "You aren't logged in! You're being redirected!";
-                            setTimeout(() => {
-                                this.logout()
-                            }, 3000)
-                        } else if (error.response.status === 400) {
-                            this.error_message = error.response.data.message;
-                        } else if (error.response.status === 404) {
-                            this.error_message = "No activities with activity types ".concat(this.selectedActivityTypes) + " have been found!"
-                        } else {
-                            this.error_message = "Something went wrong! Please try again."
-                        }
+                        this.error_message = "Something went wrong! Please try again."
                     }
-                });
+                }
+            },
+
+
+
+            /**
+             * Fetches blocks of pins within the specified current location.
+             */
+            async getActivityPinBlocksByLocation() {
+                this.$refs.mapComponentRef.clearPins();
+                this.$refs.mapComponentRef.addMarker(this.currentLocation);
+
+                let pinBlock = 0;
+                let coordinates = {
+                    "lat": this.currentLocation.lat,
+                    "lng": this.currentLocation.lng
+                };
+                let urlCoordinates = encodeURIComponent(JSON.stringify(coordinates));
+                this.hasNext = true;
+                let pins;
+                while (this.hasNext) {
+                    pins = await this.requestActivityPinsByBlock(pinBlock, urlCoordinates);
+                    this.pins = this.pins.concat(pins);
+                    this.$refs.mapComponentRef.addMarkers(pins);
+                    pinBlock++;
+                }
+                this.loading = false;
+            },
+
+            /**
+             * Fetches pins in blocks of 20 through an api call, filtered by the specified current coordinates.
+             * Works exactly like pagination, but instead uses refers to pages as 'blocks'.
+             *
+             * @param blockNumber block number to be retrieved
+             * @param urlCoordinates coordinates of current location
+             */
+            async requestActivityPinsByBlock(blockNumber, urlCoordinates) {
+                let pins = [];
+                await api.getActivityPinsByLocation(urlCoordinates, this.activityTypesSearchedFor, this.cutoffDistance, this.searchType, blockNumber)
+                    .then(response => {
+                        for (let pin of response.data) {
+                            if (!("name" in pin)) {
+                                pin["name"] = pin["location_name"];
+                            }
+                            pin.draggable = false;
+                            pin.windowOpen = false;
+                            pins.push(pin);
+                        }
+                        this.hasNext = response.headers['has-next'] === 'true';
+                    }).catch(error => {
+                        this.hasNext = false;
+                        if (error.response.status === 401) {
+                            sessionStorage.clear();
+                            this.$router.push('/login');
+                        } else if (error.response.status === 403) {
+                            this.$router.go(); // Reloads the page
+                        } else {
+                            this.errorAlertMessage = "Could not load the map markers, please try again";
+                            this.isErrorAlert = true;
+                        }
+                    });
+                return pins;
+            },
+
+            /**
+             * Helper function called when 'pin-changed' is emitted by LocationIO
+             * to clear all activity pins (non-red pins).
+             * 
+             * @param pin a moved pin
+             */
+            clearSearchResults(pin) {
+                if (pin.colour !== "red") return;
+                this.currentLocation = pin;
+                this.$refs.mapComponentRef.clearPins();
+                this.$refs.mapComponentRef.addMarker(pin);
             },
 
             /**
@@ -290,22 +427,28 @@
                 // e.g. ["Hiking", "Biking"] into "Hiking Biking"
                 this.errored = false;
                 this.loading = true;
+                this.currentPage = 1;
                 if (this.searchMode === 'activityType') {
-                    // Set is as a copy so the User card is only updated after clicking search
+                    // Set is as a copy so the Activity card is only updated after clicking search
                     this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
                     this.getPaginatedActivitiesByActivityType();
                 } else if (this.searchMode === 'activityName') {
                     if (this.activityTitle.length === 0) {
                         this.errored = true;
                         this.error_message = "Cannot have empty search field, please try again!";
-                    } else if (this.activityTitle.length === 75) {
+                    } else if (this.activityTitle.length >= 75) {
                         this.errored = true;
                         this.error_message = "Cannot have more than 75 characters in the search field.";
                     }
                     this.getPaginatedActivitiesByActivityTitle();
+
+                } else if (this.searchMode === 'activityLocation') {
+                    this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
+                    await this.getActivityPinBlocksByLocation();
+                    await this.getPaginatedActivitiesByLocation();
+                    await this.getActivityLocationRows();
                 }
             }
-
         }
     }
 </script>
