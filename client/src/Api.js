@@ -89,9 +89,9 @@ export default {
     let uri = encodeURIComponent(activityNames);
     return server.get(`/activities?activityKeywords=${uri}&fitnessMin=${minFitnessLevel}&fitnessMax=${maxFitnessLevel}`, getExtendedPageNumberTokenHeader(pageNumber))
   },
-  getActivityByActivityType: (activityTypes, method, pageNumber) => {    // method denotes "and" or "or"
+  getActivityByActivityType: (activityTypes, method, minFitnessLevel, maxFitnessLevel, pageNumber) => {    // method denotes "and" or "or"
     let activityTypesStr = activityTypes.map(a => a.replace(/\s/g, '-')).join(' ');  // Use RegEx to replace ALL spaces with dashes
-    return server.get(`activities?activity=${activityTypesStr}&method=${method}`, getExtendedPageNumberTokenHeader(pageNumber))
+    return server.get(`activities?activity=${activityTypesStr}&method=${method}&fitnessMin=${minFitnessLevel}&fitnessMax=${maxFitnessLevel}`, getExtendedPageNumberTokenHeader(pageNumber))
   },
   getActivityPinsByLocation: (coordinates, activityTypes, cutoffDistance, method, minFitnessLevel, maxFitnessLevel, pageNumber) => {
     let activityTypesStr = activityTypes.map(a => a.replace(/\s/g, '-')).join(' ');
@@ -100,7 +100,7 @@ export default {
   },
   getActivityByLocation: (coordinates, activityTypes, cutoffDistance, method, minFitnessLevel, maxFitnessLevel, pageNumber) => {
     let activityTypesStr = activityTypes.map(a => a.replace(/\s/g, '-')).join(' ');
-    return server.get(`/activities?coordinates=${coordinates}&activityTypes=${activityTypesStr}&cutoffDistance=${cutoffDistance}&method=${method}&minFitness=${minFitnessLevel}&maxFitness=${maxFitnessLevel}`,
+    return server.get(`/activities?coordinates=${coordinates}&activityTypes=${activityTypesStr}&cutoffDistance=${cutoffDistance}&method=${method}&fitnessMin=${minFitnessLevel}&fitnessMax=${maxFitnessLevel}`,
         getExtendedPageNumberTokenHeader(pageNumber))
   },
   getNumberOfRowsForActivityByLocation: (coordinates, activityTypes, cutoffDistance, minFitnessLevel, maxFitnessLevel, method) => {
