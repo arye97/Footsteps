@@ -35,12 +35,12 @@
             </div>
             <div class="align-centre" id="mapComponent" v-if="!loading">
                 <location-i-o
+                        pin-legend-mode="AllActivities"
                         ref="mapComponentRef"
                         :view-only="true"
                         :parent-center="centerPin === null ? null : {lat: centerPin.lat, lng: centerPin.lng}"
                         :parent-pins.sync="pins"
                         :max-pins="rows"
-                        :description="'Your location is red, created activities are blue and following activities are green. If you click an activity pin you will be directed to the page for that activity.'"
                 ></location-i-o>
                 <br/>
             </div>
@@ -194,6 +194,10 @@
 
     .align-centre {
         text-align: center;
+    }
+
+    #mapComponent {
+        height: 575px;
     }
 
     .light-info-message {
