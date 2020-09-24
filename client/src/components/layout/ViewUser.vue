@@ -92,6 +92,7 @@
                                         <br/>
                                     </div>
                                     <div v-else-if="this.user.passports.length === 0">
+                                        <hr/>
                                         <h3 style="font-size: large" class="font-weight-light">No Passport Countries set</h3>
                                     </div>
                                     <hr/>
@@ -148,9 +149,12 @@
                                 </b-row>
                                 <div v-if="this.user.public_location || this.user.private_location">
                                     <location-i-o id="location"
-                                        :view-only="true"
-                                        :parent-pins="getPinData()"
-                                        :parent-center="getMapCenter()">
+                                                  pin-legend-mode="ViewUser"
+                                                  :view-only="true"
+                                                  :parent-pins="getPinData()"
+                                                  :parent-center="getMapCenter()"
+                                                  class="font-weight-normal"
+                                    >
                                     </location-i-o>
                                 </div>
                                 <br/>
@@ -337,7 +341,7 @@
                     userPins.push({
                         lat: this.user.private_location.latitude,
                         lng: this.user.private_location.longitude,
-                        colour:'green',
+                        colour:'red',
                         title: 'Private Location',
                         location_name: this.user.private_location.name,
                     });
