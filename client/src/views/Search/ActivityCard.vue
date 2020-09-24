@@ -42,6 +42,13 @@
                     </b-card-text>
                 </b-col>
                 <b-col v-if="activity.activity_type.length >= 1">
+                    <div v-if="activity.fitness" style="text-align: left; padding-left: 7px">
+                        <strong>Fitness Level:</strong>
+                        <br>
+                        <b-card-text :id="'fitnessLevel' + activity.id">
+                            this.fitness
+                        </b-card-text>
+                    </div>
                     <b-list-group class="mx-2" id="matchingActivityTypes">
                         <section v-for="activityType in activity.activity_type" v-bind:key="activityType.name">
                             <!-- Only display queried activity types -->
@@ -60,6 +67,7 @@
 <script>
     import api from "../../Api";
     import {formatDateTime} from "../../util";
+    import {fitnessLevels} from "../../constants";
 
     export default {
         name: "ActivityCard",
@@ -73,7 +81,8 @@
                 continuous: Boolean,
                 start_time: Date,
                 end_time: Date,
-                location: String
+                location: String,
+                fitness: Number
             },
             activityTypesSearchedFor: {
                 default() {
@@ -87,12 +96,15 @@
             return {
                 errored: false,
                 errorMessage: 'An error occurred when loading this activity, please try again',
-                creatorName: ''
+                creatorName: '',
+                fitness: "",
+                myFitness: null
             }
         },
 
         async mounted() {
             await this.getCreatorName();
+            await this.getFitnessLevel();
         },
 
         methods: {
@@ -100,6 +112,36 @@
              * Imports formatDateTime function from util.js
              */
             getDateTime: formatDateTime,
+            /**
+             * Function to get the string and colour for fitness level
+             */
+            async getFitnessLevel() {
+                for (let i = 0; i < fitnessLevels.length; i++) {
+                    if (fitnessLevels[i].value === this.activity.fitness) {
+                        this.fitness = fitnessLevels[i].desc;
+                    }
+                }
+                if (this.fitness === "No fitness level") {
+                    return null;
+                }
+                await api.getAllUserData().then(response => {
+                    this.myFitness = response.data.fitness;
+                }).catch(() => {
+                    this.errored = true;
+                });
+                this.setFitnessColour();
+            },
+
+            setFitnessColour() {
+                let fitnessLevelsElement = document.getElementById('fitnessLevel' + this.activity.id);
+                if (this.myFitness === -1) {
+                    fitnessLevelsElement.style["color"] = "black";
+                } else if (this.myFitness <= this.fitness) {
+                    fitnessLevelsElement.style["color"] = "green";
+                } else {
+                    fitnessLevelsElement.style["color"] = "red";
+                }
+            },
             /**
              * Function for redirecting to view activity page via activity's ID
              */
