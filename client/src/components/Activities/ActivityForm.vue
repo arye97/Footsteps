@@ -149,7 +149,7 @@
                     <location-i-o v-if="!this.isEdit || this.activity.profileId"
                         id="input-location"
                         @pin-change="locationValue"
-                        @locationIO-focus="setLocationFocus"
+                        @invalid-location="invalidLocation"
                         :single-only="true"
                         :canDelete="true"
                         :parent-pins="this.isEdit && this.activity.location ?
@@ -165,6 +165,9 @@
                 </b-form-group>
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_location">
                     Field is mandatory and a location must be set
+                </div>
+                <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="unapproved_location">
+                    Please select a location from the autocomplete suggestions
                 </div>
 
 
@@ -347,18 +350,11 @@
                 maxOutcomeUnitCharCount: 15,
                 errored: false,
                 error_message: "Something went wrong",
-                submitDisabled: false
+                submitDisabled: false,
             }
         },
         async created() {
             await this.fetchActivityTypes();
-        },
-        watch: {
-            async outcomeList() {
-                if (this.outcomeList.length !== this.editableOutcomes.length) {
-                    await this.checkOutcomesAreEditable();
-                }
-            }
         },
         methods: {
             /**
@@ -688,7 +684,12 @@
            * @param pin Object from LocationIO
            */
             locationValue: function (pin) {
-                this.activity.location = pinToLocation(pin);
+                if (pin.name !== "" || pin.name !== null) {
+                    let errorAlert = document.getElementById("unapproved_location");
+                    errorAlert.hidden = true;
+                    this.activity.location = pinToLocation(pin);
+                }
+
             },
             /**
              * Toggles the submitDisabled boolean
@@ -696,6 +697,11 @@
              */
             setLocationFocus(inFocus) {
                 this.submitDisabled = inFocus;
+            },
+
+            invalidLocation() {
+                this.activity.location = null;
+                showError("unapproved_location");
             }
         }
     }
