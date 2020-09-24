@@ -73,10 +73,8 @@
                                       lat: this.location.latitude,
                                       lng: this.location.longitude,
                                       colour: 'blue',
-                                      windowContent: {
-                                          title: this.activityTitle,
-                                          location: this.location,
-                                      }
+                                      title: this.activityTitle,
+                                      location_name: this.location.name
                                   }]"
                                         :parent-center="{lat: this.location.latitude, lng: this.location.longitude}">
                                 </location-i-o>
