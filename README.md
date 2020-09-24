@@ -34,10 +34,11 @@ Set up the environment variables according to the information stored in eng-git
 
 ##### Server (Backend/API)
 1. Set up the following environment variables:
-    - SPRING_DATASOURCE_USERNAME
-    - SPRING_DATASOURCE_PASSWORD
-- SPRING_DEFAULT_ADMIN_EMAIL=default@default.com
-- SPRING_DEFAULT_ADMIN_PASSWORD=pzHqSbMXAsbh2Ajd
+    - SPRING_DATASOURCE_USERNAME  
+    - SPRING_DATASOURCE_PASSWORD  
+    - SPRING_DEFAULT_ADMIN_EMAIL=default@default.com  
+    - SPRING_DEFAULT_ADMIN_PASSWORD=pzHqSbMXAsbh2Ajd  
+
 You should have access to the Username and Password of the database (the first 2 variables) 
 and they should not be included here.  If you don't have access to these values, you can still 
 run the application locally (see end of step 3).  The teaching team has requested we add the username 
@@ -50,7 +51,7 @@ and run the server with `./gradlew bootRun`.
 See "Server Profiles" for all options."
     - If you do not have access to the test database or default admin credentials, you can use an in memory database by using the command `./gradlew bootRun -PspringProfile=local` instead  
 
-Running on: http://localhost:9499/
+Runs on: http://localhost:9499/
 
 ### Default Admin credentials  
 **Username/Email:**  default@default.com  
@@ -79,14 +80,17 @@ following: To run sonarqube for the backend refer to the "Server (Backend/API)" 
 above and follow step 1, then followed by the command: './gradlew sonarqube'
 
 ##### Client (Frontend/GUI)
-1. Navigate to the client folder
+1. Setup the environment variable GOOGLE_MAPS_API_KEY with your API key generated from [google](https://developers.google.com/maps/documentation/javascript/get-api-key).  
+The API key must have the 'Geocoding API', 'Maps JavaScript API', and 'Places API' APIs activated, which can be 
+activated through the account associated with the API key.
+2. Navigate to the client folder
 Example command: `cd client`
-2. Install the dependencies
+3. Install the dependencies
 Command: `npm install`
-3. Run the client:
+4. Run the client:
 Command: `npm run serve`
 
-Running on: http://localhost:9500/
+Runs on: http://localhost:9500/
 
 ### Example User
 An example user has been created, so you can view the application.  
@@ -148,3 +152,4 @@ Frontend:
 - Vue-multiselect
 - Vue-jest (and babel-core by association)
 - @vue/test-utils
+- gmap-vue

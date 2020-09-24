@@ -30,7 +30,7 @@ const USER1 = {
     bio: "This is my bio",
     fitness: 2,
     passports: [ "New Zealand", "Afghanistan" ],
-    activity_types: [ "Archery", "Astronomy", "Rock Climbing" ]
+    activity_types: [ "Archery", "Astronomy", "Rock Climbing", "Badminton", "Basketball" ]
 };
 
 const USER2 = {
@@ -45,7 +45,7 @@ const USER2 = {
     bio: "This is my bio",
     fitness: 2,
     passports: [ "New Zealand", "Afghanistan" ],
-    activity_types: [ "Archery", "Hiking" ]
+    activity_types: [ "Archery", "Hiking", "Badminton", "Basketball" ]
 };
 
 const USER3 = {
@@ -60,7 +60,51 @@ const USER3 = {
     bio: "This is my bio",
     fitness: 2,
     passports: [ "New Zealand", "Afghanistan" ],
-    activity_types: [ "Hiking", "Rock Climbing", "Astronomy", "Baseball and Softball" ]
+    activity_types: [ "Hiking", "Rock Climbing", "Astronomy", "Baseball and Softball", "Badminton", "Basketball" ]
+};
+
+const USER4 = {
+    firstname: "Irrelevant",
+    lastname: "User",
+    nickname: "Bob",
+    primary_email: "bob@testmail.com",
+    password: "password4",
+    date_of_birth: "2000-05-17",
+    gender: "Male",
+    activity_types: [ "Badminton", "Basketball" ]
+};
+
+const USER5 = {
+    firstname: "Irrelevant",
+    lastname: "User",
+    nickname: "Nancy",
+    primary_email: "nancy@testmail.com",
+    password: "password4",
+    date_of_birth: "2000-05-17",
+    gender: "Male",
+    activity_types: [ "Badminton", "Basketball" ]
+};
+
+const USER6 = {
+    firstname: "Irrelevant",
+    lastname: "User",
+    nickname: "Gob",
+    primary_email: "gob@testmail.com",
+    password: "password4",
+    date_of_birth: "2000-05-17",
+    gender: "Male",
+    activity_types: [ "Badminton", "Basketball" ]
+};
+
+const USER7 = {
+    firstname: "Irrelevant",
+    lastname: "User",
+    nickname: "Sob",
+    primary_email: "sob@testmail.com",
+    password: "password4",
+    date_of_birth: "2000-05-17",
+    gender: "Male",
+    activity_types: [ "Badminton", "Basketball" ]
 };
 
 const NEW_PASSWORD = "password2";
@@ -74,7 +118,11 @@ const ACTIVITY1 = {
     description: "A trail run of Mingha - Deception Route in Arthur's pass.  South to north.",
     activity_type: ["Hiking", "Athletics"],
     continuous: false,
-    location: "Arthur's Pass National Park",
+    location: {
+        latitude: -42.936342,
+        longitude: 171.725097,
+        name: "Arthur's Pass National Park",
+    },
     start_time: "2020-12-16T09:00:00+0000",
     end_time: "2020-12-17T17:00:00+0000"
 };
@@ -93,6 +141,8 @@ const RESULT1 = {
     comment: "Some comment"
 };
 
+let PAGE_NUMBER = 0;
+
 /**
  * Differentiates errors.  If the error originates from an api call, then creates a new error with the
  * specific HTTP message.  If the error is from jest or elsewhere, then it returns it without modification.
@@ -105,7 +155,6 @@ function procError(error) {
         return error;
     }
 }
-
 
 // ---- Preliminary Tests ----
 
@@ -285,7 +334,7 @@ describe("Run tests on new user", () => {
 
     describe("Checking user activity endpoints", () => {
         function fetchActivities() {  // Helper function to prevent duplicate code
-            return api.getUserActivities(USER1_ID).then(response => {
+            return api.getUserActivities(USER1_ID, 0, "").then(response => {
                 ACTIVITY_IDS = new Set(response.data.map(activity => activity.id));
                 OUTCOME1.activity_id = ACTIVITY_IDS.values().next().value;
             }).catch(err => console.error(procError(err)));
@@ -342,11 +391,13 @@ describe("Run tests on new user", () => {
 
             return api.getActivityData(ACTIVITY_IDS.values().next().value).then(response => {
                 expect(response.status).toEqual(200);
-
-                // Itterate through and compare properties
+                // Iterate through and compare properties
                 for (let propName in ACTIVITY1) {
-                    if (propName === "activity_type") continue;  // Because they're stored a different way
+                    if (propName === "activity_type" || propName === "location") continue;  // Because they're stored a different way
                     expect(response.data[propName]).toEqual(ACTIVITY1[propName]);
+                }
+                for (let propName in ACTIVITY1.location) {
+                    expect(response.data.location[propName]).toEqual(ACTIVITY1.location[propName]);
                 }
             }).catch(err => {throw procError(err)});
         });
@@ -365,6 +416,13 @@ describe("Run tests on new user", () => {
             }).catch(err => {throw procError(err)});
         });
 
+        test("Delete activity outcome", () => {
+            OUTCOME1.activity_id = ACTIVITY_IDS.values().next().value;  // Create attribute
+            return api.deleteOutcome(OUTCOME1.activity_id).then(response => {
+                expect(response.status).toEqual(200);
+            }).catch(err => {throw procError(err)});
+        });
+
         test("Get an activities outcomes", () => {
             return api.getActivityOutcomes(ACTIVITY_IDS.values().next().value).then(response => {
                 expect(response.status).toEqual(200);
@@ -380,7 +438,7 @@ describe("Run tests on new user", () => {
         });
 
         test("Get all activities from a user", () => {
-            return api.getUserActivities(USER1_ID).then(response => {
+            return api.getUserActivities(USER1_ID, 0, "").then(response => {
                 expect(response.status).toEqual(200);
                 expect(response.data.length).toBe(1);
             }).catch(err => {throw procError(err)});
@@ -412,7 +470,7 @@ describe("Run tests on new user", () => {
         let activityCreatedByUser1 = null;
 
         function fetchActivities() {  // Helper function to prevent duplicate code
-            return api.getUserActivities(USER1_ID).then(response => {
+            return api.getUserActivities(USER1_ID, 0, "").then(response => {
                 activityCreatedByUser1 = response.data[0];
             }).catch(err => console.error(procError(err)));
         }
@@ -448,7 +506,7 @@ describe("Run tests on new user", () => {
 
         test("Follow an unsubscribed activity", () => {
             return api.setUserSubscribed(activityCreatedByUser1.id, USER2_ID).then(response => {
-                expect(response.status).toEqual(200);
+                expect(response.status).toEqual(201);
             }).catch(err => {throw procError(err)});
         });
 
@@ -500,18 +558,18 @@ describe("Run tests on new user", () => {
     describe("Searching for users", () => {
 
         beforeAll(() => {
-            return api.register(USER2).catch(err => console.error(procError(err)));
-        });
-
-        beforeAll(() => {
-            return api.register(USER3).catch(err => console.error(procError(err)));
+            api.register(USER3).catch(err => console.error(procError(err)));
+            api.register(USER4).catch(err => console.error(procError(err)));
+            api.register(USER5).catch(err => console.error(procError(err)));
+            api.register(USER6).catch(err => console.error(procError(err)));
+            api.register(USER7).catch(err => console.error(procError(err)));
         });
 
 
         test("Get users by one activity type (OR)", () => {
-            return api.getUsersByActivityType(["Archery"], "or").then(response => {
+            return api.getUsersByActivityType(["Archery"], "or", PAGE_NUMBER).then(response => {
                 expect(response.status).toEqual(200);
-                expect(response.data.length === 2).toBeTruthy();
+                expect(response.data.length === 2);
             }).catch(err => {
                 throw procError(err)
             });
@@ -519,9 +577,9 @@ describe("Run tests on new user", () => {
 
 
         test("Get users by one activity type (AND)", () => {
-            return api.getUsersByActivityType(["Hiking"], "and").then(response => {
+            return api.getUsersByActivityType(["Hiking"], "and", PAGE_NUMBER).then(response => {
                 expect(response.status).toEqual(200);
-                expect(response.data.length === 2).toBeTruthy();
+                expect(response.data.length === 2);
             }).catch(err => {
                 throw procError(err)
             });
@@ -529,9 +587,9 @@ describe("Run tests on new user", () => {
 
 
         test("Get users by more than one activity types (OR)", () => {
-            return api.getUsersByActivityType(["Archery", "Hiking"], "or").then(response => {
+            return api.getUsersByActivityType(["Archery", "Hiking"], "or", PAGE_NUMBER).then(response => {
                 expect(response.status).toEqual(200);
-                expect(response.data.length === 3).toBeTruthy();
+                expect(response.data.length === 3);
             }).catch(err => {
                 throw procError(err)
             });
@@ -539,9 +597,9 @@ describe("Run tests on new user", () => {
 
 
         test("Get users by more than one activity types (AND)", () => {
-            return api.getUsersByActivityType(["Archery", "Hiking"], "and").then(response => {
+            return api.getUsersByActivityType(["Archery", "Hiking"], "and", PAGE_NUMBER).then(response => {
                 expect(response.status).toEqual(200);
-                expect(response.data.length === 1).toBeTruthy();
+                expect(response.data.length === 1);
             }).catch(err => {
                 throw procError(err)
             });
@@ -549,7 +607,7 @@ describe("Run tests on new user", () => {
 
 
         test("Get users with ActivityTypes containing a space (OR)", () => {
-            return api.getUsersByActivityType(["Rock Climbing"], "or").then(response => {
+            return api.getUsersByActivityType(["Rock Climbing"], "or", PAGE_NUMBER).then(response => {
                 expect(response.status).toEqual(200);
                 expect(response.data.length).toEqual(2);
             }).catch(err => {
@@ -558,7 +616,7 @@ describe("Run tests on new user", () => {
         });
 
         test("Get users with ActivityTypes containing >1 spaces (AND)", () => {
-            return api.getUsersByActivityType(["Rock Climbing", "Baseball and Softball"], "and").then(response => {
+            return api.getUsersByActivityType(["Rock Climbing", "Baseball and Softball"], "and", PAGE_NUMBER).then(response => {
                 expect(response.status).toEqual(200);
                 expect(response.data.length).toEqual(1);
             }).catch(err => {
@@ -566,6 +624,91 @@ describe("Run tests on new user", () => {
             });
         });
 
+        test("Get page 1 of paginated users with ActivityTypes (OR)", () => {
+            return api.getUsersByActivityType(["Badminton", "Rock Climbing"], "or", PAGE_NUMBER).then(response => {
+                expect(response.status).toEqual(200);
+                expect(response.data.length).toEqual(5);
+            }).catch(err => {
+                throw procError(err)
+            });
+        });
+
+        test("Get page 1 of paginated users with ActivityTypes (AND)", () => {
+            return api.getUsersByActivityType(["Badminton", "Basketball"], "and", PAGE_NUMBER).then(response => {
+                expect(response.status).toEqual(200);
+                expect(response.data.length).toEqual(5);
+            }).catch(err => {
+                throw procError(err)
+            });
+        });
+
+        test("Get page 2 of paginated users with ActivityTypes (OR)", () => {
+            PAGE_NUMBER = 1;
+            return api.getUsersByActivityType(["Badminton", "Rock Climbing"], "or", PAGE_NUMBER).then(response => {
+                expect(response.status).toEqual(200);
+                expect(response.data.length).toEqual(1);
+            }).catch(err => {
+                throw procError(err)
+            });
+        });
+
+        test("Get page 2 of paginated users with ActivityTypes (AND)", () => {
+            return api.getUsersByActivityType(["Badminton", "Basketball"], "and", PAGE_NUMBER).then(response => {
+                expect(response.status).toEqual(200);
+                expect(response.data.length).toEqual(1);
+            }).catch(err => {
+                throw procError(err)
+            });
+        });
+
+        test("Get non-existent page 3 of paginated users with ActivityTypes", () => {
+            PAGE_NUMBER = 2;
+            return api.getUsersByActivityType(["Badminton", "Basketball"], "or", PAGE_NUMBER).then(response => {
+                expect(response.status).toEqual(200);
+                expect(response.data.length).toEqual(0);
+            }).catch(err => {
+                throw procError(err)
+            });
+        });
+
+        test("Get paginated users with ActivityTypes and BAD_METHOD", () => {
+            PAGE_NUMBER = 0;
+            return api.getUsersByActivityType(["Hiking"], "BAD_METHOD", PAGE_NUMBER).then(response => {
+                fail("API should have thrown a 400 error")
+            }).catch(err => {
+                expect(err.response.data.status).toEqual(400);
+                expect(err.response.data.message).toEqual(
+                    "Method must be specified as either (AND, OR)"
+                );
+                procError(err)
+            });
+        });
+
+        test("Get paginated users with ActivityTypes that does not exist", () => {
+            PAGE_NUMBER = 0;
+            return api.getUsersByActivityType(["Rugby"], "or", PAGE_NUMBER).then(response => {
+                fail("API should have thrown a 404 error")
+            }).catch(err => {
+                expect(err.response.data.status).toEqual(404);
+                expect(err.response.data.message).toEqual(
+                    "No users have been found"
+                );
+                procError(err)
+            });
+        });
+
+        test("Get paginated users with ActivityTypes with BAD PAGE_NUMBER", () => {
+            PAGE_NUMBER = 2;
+            return api.getUsersByActivityType(["Badminton", "Basketball"], "or", "BAD_NUMBER").then(response => {
+                fail("API should have thrown a 400 error")
+            }).catch(err => {
+                expect(err.response.data.status).toEqual(400);
+                expect(err.response.data.message).toEqual(
+                    "Page-Number must be an integer"
+                );
+                procError(err)
+            });
+        });
     });
 });
 

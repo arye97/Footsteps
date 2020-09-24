@@ -2,6 +2,8 @@ package com.springvuegradle.seng302team600.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.springvuegradle.seng302team600.payload.request.ActivityPostRequest;
+import com.springvuegradle.seng302team600.payload.request.ActivityPutRequest;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -33,7 +35,8 @@ public class Activity {
     private String description;
 
     @NotNull(message = "This Activity needs one or more ActivityTypes associated with it")
-    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})  // ALL except REMOVE
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    // ALL except REMOVE
     @JoinTable(
             name = "activity_activity_type",
             joinColumns = @JoinColumn(name = "activity_id"),
@@ -41,7 +44,8 @@ public class Activity {
     @JsonProperty("activity_type")
     private Set<ActivityType> activityTypes;
 
-    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})  // ALL except REMOVE
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    // ALL except REMOVE
     @JoinTable(
             name = "activity_participant",
             joinColumns = @JoinColumn(name = "activity_id"),
@@ -55,29 +59,52 @@ public class Activity {
 
     @Column(name = "start_time", columnDefinition = "DATETIME")
     // See here for format pattern: https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
-    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ")
     @Temporal(TemporalType.TIMESTAMP)
     @JsonProperty("start_time")
     private Date startTime;
 
     @Column(name = "end_time", columnDefinition = "DATETIME")
-    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ")
     @Temporal(TemporalType.TIMESTAMP)
     @JsonProperty("end_time")
     private Date endTime;
 
-    // ToDO These tags need to be modified in U9 (see  api-minimal-spec2.1.txt)
-    @NotNull(message = "This Activity needs a location")
-    @Column(name = "location", length = NAME_LEN, nullable = false)
+    @OneToOne(cascade = CascadeType.ALL)
     @JsonProperty("location")
-    private String location;   // ToDo change String to Location in U9
-
+    private Location location;
 
     /**
      * Default constructor for Activity.
      * Mandatory for repository actions?
      */
-    public Activity() {}
+    public Activity() {
+    }
+
+    public Activity(ActivityPostRequest activity) {
+        creatorUserId = activity.getCreatorUserId();
+        name = activity.getName();
+        description = activity.getDescription();
+        activityTypes = activity.getActivityTypes();
+        continuous = activity.isContinuous();
+        startTime = activity.getStartTime();
+        endTime = activity.getEndTime();
+        location = new Location(activity.getLocation());
+        //fitnessLevel = activity.getFitnessLevel();
+    }
+
+    public Activity(ActivityPutRequest activity) {
+        activityId = activity.getActivityId();
+        creatorUserId = activity.getCreatorUserId();
+        name = activity.getName();
+        description = activity.getDescription();
+        activityTypes = activity.getActivityTypes();
+        continuous = activity.isContinuous();
+        startTime = activity.getStartTime();
+        endTime = activity.getEndTime();
+        location = new Location(activity.getLocation());
+        //fitnessLevel = activity.getFitnessLevel();
+    }
 
     public Long getActivityId() {
         return activityId;
@@ -119,13 +146,21 @@ public class Activity {
         return continuous;
     }
 
-    public Set<User> getParticipants() {return participants;}
+    public Set<User> getParticipants() {
+        return participants;
+    }
 
-    public void addParticipant(User user) { this.participants.add(user); }
+    public void addParticipant(User user) {
+        this.participants.add(user);
+    }
 
-    public void removeParticipant(User user) { this.participants.remove(user); }
+    public void removeParticipant(User user) {
+        this.participants.remove(user);
+    }
 
-    public void setParticipants(Set<User> participants) {this.participants = participants;}
+    public void setParticipants(Set<User> participants) {
+        this.participants = participants;
+    }
 
     public void setContinuous(boolean continuous) {
         this.continuous = continuous;
@@ -147,16 +182,17 @@ public class Activity {
         this.endTime = endTime;
     }
 
-    public String getLocation() {
+    public Location getLocation() {
         return location;
     }
 
-    public void setLocation(String location) {
+    public void setLocation(Location location) {
         this.location = location;
     }
 
     /**
      * Return a unique hash based on attributes.
+     *
      * @return hash code
      */
     @Override
@@ -166,6 +202,7 @@ public class Activity {
 
     /**
      * Compare Activities based on attributes
+     *
      * @param obj other Activity to campare
      * @return equality
      */

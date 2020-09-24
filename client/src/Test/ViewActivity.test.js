@@ -1,19 +1,28 @@
 import ViewActivity from "../views/Activities/ViewActivity";
-import {mount} from "@vue/test-utils";
+import {createLocalVue, shallowMount, RouterLinkStub} from "@vue/test-utils";
 import "jest";
 import api from "../Api";
+import router from '../index';
+import { BootstrapVue } from 'bootstrap-vue';
+
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
 
 jest.mock('../Api');
+jest.mock('../index');
+jest.mock('gmap-vue')
 
 let viewActivity;
 
 let CONTINUOUS_ACTIVITY_DATA;
-let ACTIVE_USER_DATA;
+let ACTIVE_USER_ID;
 let SUBSCRIBED_DATA;
 let CREATOR_USER_DATA;
 let PARTICIPANTS_DATA;
 let OUTCOMES_DATA;
 let RESULTS_DATA;
+
+let config;
 
 const $route = {
     params: {
@@ -37,8 +46,10 @@ const setValues = () => {
     CONTINUOUS_ACTIVITY_DATA = {
         activity_name: "My activity",
         description: "An activity description",
+        location: {
+            name: "Test Island"
+        },
         creatorUserId: 18,
-        location: "Activity location",
         start_time: new Date(),
         end_time: new Date(),
         activity_type: [
@@ -47,7 +58,7 @@ const setValues = () => {
         ],
         continuous: true
     };
-    ACTIVE_USER_DATA = 18;
+    ACTIVE_USER_ID = 18;
     SUBSCRIBED_DATA = {"subscribed":false};
     CREATOR_USER_DATA = {
         "lastname":"Tomato",
@@ -84,126 +95,108 @@ const setValues = () => {
     }];
 };
 
+beforeEach(() => {
+    setValues();
+    api.getActivityData.mockImplementation(() => {
+        return Promise.resolve({
+            data: CONTINUOUS_ACTIVITY_DATA,
+            status: 200
+        });
+    });
+    api.getUserData.mockImplementation(() => {
+        return Promise.resolve({
+            data: CREATOR_USER_DATA,
+            status: 200
+        });
+    });
+    api.getUserId.mockImplementation(() => {
+        return Promise.resolve({
+            data: ACTIVE_USER_ID,
+            status: 200
+        });
+    });
+    api.getUserSubscribed.mockImplementation(() => {
+        return Promise.resolve({
+            data: SUBSCRIBED_DATA,
+            status: 200
+        });
+    });
+    api.getParticipants.mockImplementation(() => {
+        return Promise.resolve({
+            data: PARTICIPANTS_DATA,
+            status: 200
+        });
+    });
+    api.getActivityOutcomes.mockImplementation(() => {
+        return Promise.resolve({
+            data: OUTCOMES_DATA,
+            status: 200
+        });
+    });
+    api.getOutcomeResults.mockImplementation(() => {
+        return Promise.resolve({
+            data: RESULTS_DATA,
+            status: 200
+        });
+    });
+    api.createResult.mockImplementation(() => {
+        return Promise.resolve({
+            status: 201
+        });
+    });
+    config = {
+        mocks: {
+            $route
+        },
+        stubs: {
+            RouterLink: RouterLinkStub
+        },
+        router,
+        localVue
+    };
+    return new Promise(resolve => {
+        viewActivity = shallowMount(ViewActivity, config);
+        // This causes a delay between beforeEach finishing, and the tests being run.
+        // This isn't at all good practice, but its the only way I am able
+        // to get ViewActivity to fully mount before the tests are run.
+        // resolve() signals the above promise to complete
+        sleep(150).then(() => resolve());
+    });
+});
+
 test('Is a vue instance', () => {
-    viewActivity = mount(ViewActivity);
     expect(viewActivity.isVueInstance).toBeTruthy();
 });
 
 describe('The view activity page', () => {
-    beforeEach(() => {
-        setValues();
-        return new Promise(resolve => {
-            api.getActivityData.mockImplementation(() => {
-                return Promise.resolve({
-                    data: CONTINUOUS_ACTIVITY_DATA,
-                    status: 200
-                });
-            });
-            api.getUserId.mockImplementation(() => {
-                return Promise.resolve({
-                    data: ACTIVE_USER_DATA,
-                    status: 200
-                });
-            });
-            api.getUserSubscribed.mockImplementation(() => {
-                return Promise.resolve({
-                    data: SUBSCRIBED_DATA,
-                    status: 200
-                });
-            });
-            api.getUserData.mockImplementation(() => {
-                return Promise.resolve({
-                    data: CREATOR_USER_DATA,
-                    status: 200
-                });
-            });
-            api.getParticipants.mockImplementation(() => {
-                return Promise.resolve({
-                    data: PARTICIPANTS_DATA,
-                    status: 200
-                });
-            });
-            api.getActivityOutcomes.mockImplementation(() => {
-                return Promise.resolve({
-                    data: OUTCOMES_DATA,
-                    status: 200
-                });
-            });
-            api.getOutcomeResults.mockImplementation(() => {
-                return Promise.resolve({
-                    data: RESULTS_DATA,
-                    status: 200
-                });
-            });
-            api.createResult.mockImplementation(() => {
-                return Promise.resolve({
-                    status: 201
-                });
-            });
-            viewActivity = mount(ViewActivity, {
-                mocks: {
-                    api,
-                    $route
-                }
-            });
 
-            // This causes a delay between beforeEach finishing, and the tests being run.
-            // This isn't at all good practice, but its the only way I am able
-            // to get ViewActivity to fully mount before the tests are run.
-            // resolve() signals the above promise to complete
-            sleep(150).then(() => resolve());
-        });
-    });
-
-    test('displays the activity title', () => {
+    test('Displays the activity title', () => {
         expect(viewActivity.find('#activityTitle').exists()).toBeTruthy();
     });
 
-    test('displays the activity description', () => {
+    test('Displays the activity description', () => {
         expect(viewActivity.find('#description').exists()).toBeTruthy();
     });
 
-    test('displays the activity location', () => {
+    test('Displays the activity location', () => {
         expect(viewActivity.find('#location').exists()).toBeTruthy();
     });
 
-    test('has a view participants button', () => {
+    test('Has a view participants button', () => {
         expect(viewActivity.find('#viewParticipants').exists()).toBeTruthy();
     });
 
-    test('has a view results button', () => {
+    test('Has a view results button', () => {
         expect(viewActivity.find('#viewResults').exists()).toBeTruthy();
     });
 
-    test('shows the activity type', () => {
+    test('Shows the activity type', () => {
         expect(viewActivity.find('#activityType').exists()).toBeTruthy();
     });
 
-    test('has a view participants modal', () => {
-        expect(viewActivity.find('#viewParticipantsModal').exists()).toBeTruthy();
+    test('The location name is set correctly', () => {
+        expect(viewActivity.get('#location').text()).toBe("Test Island");
     });
-
-    test('displays 2 participants', () => {
-        // The set up data is set with 2 people participating in this activity
-        expect(viewActivity.findAll('#participant').length).toBe(2);
-    });
-
-    test('has add result model', () => {
-        expect(viewActivity.find('#addResultsModel').exists()).toBeTruthy();
-    });
-
-    test('displays 1 outcome card', () => {
-        expect(viewActivity.findAll('#outcomeAddResultCard').length).toBe(1);
-    });
-
-    test('displays 1 input for the result', () => {
-        expect(viewActivity.findAll('#NotSubmittedInputValue1').length).toBe(1);
-    });
-
-    test('displays 1 submit result button', () => {
-        expect(viewActivity.findAll('#submitResult').length).toBe(1);
-    });
-
 });
 
 describe('As an activity creator', () => {
@@ -219,6 +212,10 @@ describe('As an activity creator', () => {
         expect(viewActivity.find('#editActivity').exists()).toBeTruthy();
     });
 
+    test('I can see the delete activity button', () => {
+        expect(viewActivity.find('#deleteActivityBtn').exists()).toBeTruthy();
+    });
+
     test('I can see the add results button', () => {
         expect(viewActivity.find('#addResults').exists()).toBeTruthy();
     });
@@ -226,50 +223,23 @@ describe('As an activity creator', () => {
 
 describe("If I'm following an activity", () => {
     beforeEach(() => {
-        ACTIVE_USER_DATA = 2;
+        setValues()
+        ACTIVE_USER_ID = 2;
         SUBSCRIBED_DATA = {"subscribed":true};
+        api.getUserId.mockImplementation(() => {
+            return Promise.resolve({
+                data: 2,
+                status: 200
+            });
+        });
+        api.getUserSubscribed.mockImplementation(() => {
+            return Promise.resolve({
+                data: SUBSCRIBED_DATA,
+                status: 200
+            });
+        });
         return new Promise(resolve => {
-            api.getActivityData.mockImplementation(() => {
-                return Promise.resolve({
-                    data: CONTINUOUS_ACTIVITY_DATA,
-                    status: 200
-                });
-            });
-            api.getUserId.mockImplementation(() => {
-                return Promise.resolve({
-                    data: ACTIVE_USER_DATA,
-                    status: 200
-                });
-            });
-            api.getUserSubscribed.mockImplementation(() => {
-                return Promise.resolve({
-                    data: SUBSCRIBED_DATA,
-                    status: 200
-                });
-            });
-            api.getUserData.mockImplementation(() => {
-                return Promise.resolve({
-                    data: CREATOR_USER_DATA,
-                    status: 200
-                });
-            });
-            api.getOutcomeResults.mockImplementation(() => {
-                return Promise.resolve({
-                    data: RESULTS_DATA,
-                    status: 200
-                });
-            });
-            viewActivity = mount(ViewActivity, {
-                mocks: {
-                    api,
-                    $route
-                }
-            });
-
-            // This causes a delay between beforeEach finishing, and the tests being run.
-            // This isn't at all good practice, but its the only way I am able
-            // to get ViewActivity to fully mount before the tests are run.
-            // resolve() signals the above promise to complete
+            viewActivity = shallowMount(ViewActivity, config);
             sleep(150).then(() => resolve());
         });
     });
@@ -286,6 +256,10 @@ describe("If I'm following an activity", () => {
         expect(viewActivity.find('#editActivity').exists()).toBeFalsy();
     });
 
+    test("I can't see the delete activity button", () => {
+        expect(viewActivity.find('#deleteActivityBtn').exists()).toBeFalsy();
+    });
+
     test('I can see the add results button', () => {
         expect(viewActivity.find('#addResults').exists()).toBeTruthy();
     });
@@ -293,50 +267,16 @@ describe("If I'm following an activity", () => {
 
 describe('If I am not following the activity', () => {
     beforeEach(() => {
-        ACTIVE_USER_DATA = 2;
-        SUBSCRIBED_DATA = {"subscribed":false};
+        setValues()
+        ACTIVE_USER_ID = 2;
+        api.getUserId.mockImplementation(() => {
+            return Promise.resolve({
+                data: ACTIVE_USER_ID,
+                status: 200
+            });
+        });
         return new Promise(resolve => {
-            api.getActivityData.mockImplementation(() => {
-                return Promise.resolve({
-                    data: CONTINUOUS_ACTIVITY_DATA,
-                    status: 200
-                });
-            });
-            api.getUserId.mockImplementation(() => {
-                return Promise.resolve({
-                    data: ACTIVE_USER_DATA,
-                    status: 200
-                });
-            });
-            api.getUserSubscribed.mockImplementation(() => {
-                return Promise.resolve({
-                    data: SUBSCRIBED_DATA,
-                    status: 200
-                });
-            });
-            api.getUserData.mockImplementation(() => {
-                return Promise.resolve({
-                    data: CREATOR_USER_DATA,
-                    status: 200
-                });
-            });
-            api.getOutcomeResults.mockImplementation(() => {
-                return Promise.resolve({
-                    data: RESULTS_DATA,
-                    status: 200
-                });
-            });
-            viewActivity = mount(ViewActivity, {
-                mocks: {
-                    api,
-                    $route
-                }
-            });
-
-            // This causes a delay between beforeEach finishing, and the tests being run.
-            // This isn't at all good practice, but its the only way I am able
-            // to get ViewActivity to fully mount before the tests are run.
-            // resolve() signals the above promise to complete
+            viewActivity = shallowMount(ViewActivity, config);
             sleep(150).then(() => resolve());
         });
     });
@@ -353,61 +293,11 @@ describe('If I am not following the activity', () => {
         expect(viewActivity.find('#editActivity').exists()).toBeFalsy();
     });
 
+    test("I can't see the delete activity button", () => {
+        expect(viewActivity.find('#deleteActivityBtn').exists()).toBeFalsy();
+    });
+
     test("I can't see the add results button", () => {
         expect(viewActivity.find('#addResults').exists()).toBeFalsy();
-    });
-});
-
-describe('When there are no participants', () => {
-    beforeEach(() => {
-        PARTICIPANTS_DATA = [];
-        return new Promise(resolve => {
-            api.getActivityData.mockImplementation(() => {
-                return Promise.resolve({
-                    data: CONTINUOUS_ACTIVITY_DATA,
-                    status: 200
-                });
-            });
-            api.getUserId.mockImplementation(() => {
-                return Promise.resolve({
-                    data: ACTIVE_USER_DATA,
-                    status: 200
-                });
-            });
-            api.getUserSubscribed.mockImplementation(() => {
-                return Promise.resolve({
-                    data: SUBSCRIBED_DATA,
-                    status: 200
-                });
-            });
-            api.getUserData.mockImplementation(() => {
-                return Promise.resolve({
-                    data: CREATOR_USER_DATA,
-                    status: 200
-                });
-            });
-            api.getOutcomeResults.mockImplementation(() => {
-                return Promise.resolve({
-                    data: RESULTS_DATA,
-                    status: 200
-                });
-            });
-            viewActivity = mount(ViewActivity, {
-                mocks: {
-                    api,
-                    $route
-                }
-            });
-
-            // This causes a delay between beforeEach finishing, and the tests being run.
-            // This isn't at all good practice, but its the only way I am able
-            // to get ViewActivity to fully mount before the tests are run.
-            // resolve() signals the above promise to complete
-            sleep(150).then(() => resolve());
-        });
-    });
-
-    test("When there are no participants, it displays 'No participants to show'", () => {
-        expect(viewActivity.find('#noParticipants').text()).toBe('No participants to show');
     });
 });

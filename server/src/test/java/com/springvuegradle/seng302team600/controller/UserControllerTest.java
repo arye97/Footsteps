@@ -3,11 +3,11 @@ package com.springvuegradle.seng302team600.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.springvuegradle.seng302team600.Utilities.UserValidator;
+import com.springvuegradle.seng302team600.validator.UserValidator;
 import com.springvuegradle.seng302team600.model.*;
-import com.springvuegradle.seng302team600.payload.LoginResponse;
-import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
-import com.springvuegradle.seng302team600.payload.UserResponse;
+import com.springvuegradle.seng302team600.payload.response.LoginResponse;
+import com.springvuegradle.seng302team600.payload.request.UserRegisterRequest;
+import com.springvuegradle.seng302team600.payload.response.UserResponse;
 import com.springvuegradle.seng302team600.repository.*;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
@@ -19,6 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -68,17 +71,24 @@ class UserControllerTest {
     private static final Long DEFAULT_USER_ID = 1L;
     private static final Long DEFAULT_EMAIL_ID = 1L;
 
+    private int pageNumber;
+
     private User dummyUser1;
     private User dummyUser2; // Used when a second user is required
     private Email dummyEmail;
     private String validToken = "valid";
     private boolean defaultAdminIsRegistered;
 
+    private final Location dummyPublicLocation = new Location(6.0, 9.0, "Puerto Rico");
+    private final Location dummyPrivateLocation = new Location(5.0, 2.0, "Paris");
+
+
     @BeforeEach
     void setUp() {
         defaultAdminIsRegistered = false;
         MockitoAnnotations.initMocks(this);
         dummyUser1 = new User();
+        pageNumber = 0;
     }
 
     private void setupMocking(String json) throws JsonProcessingException {
@@ -125,6 +135,7 @@ class UserControllerTest {
         });
         ReflectionTestUtils.setField(dummyUser1, "userId", DEFAULT_USER_ID);
         ReflectionTestUtils.setField(dummyEmail, "emailId", DEFAULT_EMAIL_ID);
+
         when(userAuthenticationService.login(Mockito.anyString(),Mockito.anyString())).thenAnswer(i -> {
                 if (i.getArgument(0).equals(dummyEmail.getEmail()) && dummyUser1.checkPassword(i.getArgument(1))) return new LoginResponse("ValidToken", dummyUser1.getUserId());
                 else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
@@ -159,12 +170,13 @@ class UserControllerTest {
         /**
          * Mock the AND function of UserController
          */
-        when(userActivityTypeRepository.findByAllActivityTypeIds(Mockito.anyList(), Mockito.anyInt())).thenAnswer(i -> {
+        when(userActivityTypeRepository.findByAllActivityTypeIds(Mockito.anyList(), Mockito.anyInt(), Mockito.any(Pageable.class))).thenAnswer(i -> {
             List<Long> activityTypeIdsToMatch = i.getArgument(0);
 
             Collection<Long> allActivityTypeIds = activityNameToIdMap.values();
             if (allActivityTypeIds.containsAll(activityTypeIdsToMatch)) {   // Contains all
-                return Arrays.asList(dummyUser1.getUserId());
+                Page<Long> result = new PageImpl(Arrays.asList(dummyUser1.getUserId()));
+                return result;
             } else {
                 return null;
             }
@@ -172,13 +184,14 @@ class UserControllerTest {
         /**
          * Mock the OR function of UserController
          */
-        when(userActivityTypeRepository.findBySomeActivityTypeIds(Mockito.anyList())).thenAnswer(i -> {
+        when(userActivityTypeRepository.findBySomeActivityTypeIds(Mockito.anyList(), Mockito.any(Pageable.class))).thenAnswer(i -> {
             List<Long> activityTypeIdsToMatch = i.getArgument(0);
             boolean matched = false;
 
             Collection<Long> allActivityTypeIds = activityNameToIdMap.values();
             if (!Collections.disjoint(allActivityTypeIds, activityTypeIdsToMatch)) {  // Contains any
-                return Arrays.asList(dummyUser1.getUserId());
+                Page<Long> result = new PageImpl(Arrays.asList(dummyUser1.getUserId()));
+                return result;
             } else {
                 return null;
             }
@@ -749,7 +762,7 @@ class UserControllerTest {
 
         // Check that email is set
         assertNotNull(defaultAdmin.getPrimaryEmail());
-        assertNotEquals(defaultAdmin.getPrimaryEmail(), "");
+        assertNotEquals("", defaultAdmin.getPrimaryEmail());
 
         // Use a private boolean flag to determine whether the default admin was added to the database
         // Can't find any other way to do it :(
@@ -827,7 +840,8 @@ class UserControllerTest {
         setupMocking(newUserWithActivityTypes);
                                                                         // Passing path in as a URI prevents it from being re-encoded
         MockHttpServletRequestBuilder httpReqOR = MockMvcRequestBuilders.get(new URI("/profiles?activity=Hiking%20biking&method=or"))
-                .header("Token", validToken);
+                .header("Token", validToken)
+                .header("Page-Number", pageNumber);
 
         MvcResult requestOR = mvc.perform(httpReqOR).andExpect(status().isOk()).andReturn();
 
@@ -848,7 +862,8 @@ class UserControllerTest {
         setupMocking(newUserWithActivityTypes);
 
         MockHttpServletRequestBuilder httpReqAND = MockMvcRequestBuilders.get(new URI("/profiles?activity=hiking%20biking&method=and"))
-                .header("Token", validToken);
+                .header("Token", validToken)
+                .header("Page-Number", pageNumber);
 
         MvcResult requestAND = mvc.perform(httpReqAND).andExpect(status().is4xxClientError()).andReturn();
 
@@ -879,7 +894,8 @@ class UserControllerTest {
         setupMocking(newUserWithSpacedActivityTypes);
 
         MockHttpServletRequestBuilder httpReqOR = MockMvcRequestBuilders.get(new URI("/profiles?activity=rock-climbing%20Hiking&method=or"))
-                .header("Token", validToken);
+                .header("Token", validToken)
+                .header("Page-Number", pageNumber);
 
 
         //---Test-OR-Response----
@@ -902,8 +918,8 @@ class UserControllerTest {
         setupMocking(newUserWithSpacedActivityTypes);
 
         MockHttpServletRequestBuilder httpReqAND = MockMvcRequestBuilders.get(new URI("/profiles?activity=baseball-and-Softball%20Rock-Climbing&method=and"))
-                .header("Token", validToken);
-
+                .header("Token", validToken)
+                .header("Page-Number", pageNumber);
 
         //---Test-AND-Response----
         MvcResult requestAND = mvc.perform(httpReqAND).andExpect(status().isOk()).andReturn();
@@ -938,7 +954,8 @@ class UserControllerTest {
         setupMocking(newUserWithOneSpacedActivityType);
 
         MockHttpServletRequestBuilder httpReqAND = MockMvcRequestBuilders.get(new URI("/profiles?activity=baseball-and-Softball%20Rock-Climbing&method=and"))
-                .header("Token", validToken);
+                .header("Token", validToken)
+                .header("Page-Number", pageNumber);
 
 
         //---Test-AND-Response----
@@ -946,5 +963,115 @@ class UserControllerTest {
 
         // Should be null because this user has ONLY Baseball and Softball, not Rock Climbing
         assertNull(requestAND.getResponse().getContentType());
+    }
+
+    private final String userWithNoLocations = JsonConverter.toJson(true,
+            "lastname", "Bobman",
+            "middlename", "Cindy",
+            "firstname", "Papu",
+            "nickname", "Patty",
+            "primary_email", "patty@google.com",
+            "password", "QwErRTY1234",
+            "bio", "Cindy loves to ride my bike on crazy rivers!",
+            "date_of_birth", "1999-12-20",
+            "gender", "Female"
+    );
+
+    private final String publicAndPrivateLocations = JsonConverter.toJson(true,
+            "public_location", dummyPublicLocation,
+            "private_location", dummyPrivateLocation
+    );
+
+    @Test
+    public void editLocationOfUserWithNoLocationsSuccess() throws Exception {
+        setupMocking(userWithNoLocations);
+        MockHttpServletRequestBuilder getRequest = MockMvcRequestBuilders.get("/profiles")
+                .header("Token", validToken);
+        MvcResult result = mvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andReturn();
+        String jsonResponseStr = result.getResponse().getContentAsString();
+        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
+        Long userId = jsonNode.get("id").asLong();
+
+        MockHttpServletRequestBuilder editLocationRequest = MockMvcRequestBuilders.put("/profiles/{profileId}/location", userId)
+                .header("Token", validToken)
+                .content(publicAndPrivateLocations)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mvc.perform(editLocationRequest)
+                .andExpect(status().isOk());
+
+
+        getRequest = MockMvcRequestBuilders.get("/profiles")
+                .header("Token", validToken);
+        result = mvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        jsonResponseStr = result.getResponse().getContentAsString();
+        UserResponse user = objectMapper.readValue(jsonResponseStr, UserResponse.class);
+
+        assertEquals(dummyPublicLocation.getLocationName(), user.getPublicLocation().getLocationName());
+        assertEquals(dummyPrivateLocation.getLocationName(), user.getPrivateLocation().getLocationName());
+        assertEquals(dummyPublicLocation.getLatitude(), user.getPublicLocation().getLatitude());
+        assertEquals(dummyPrivateLocation.getLatitude(), user.getPrivateLocation().getLatitude());
+        assertEquals(dummyPublicLocation.getLongitude(), user.getPublicLocation().getLongitude());
+        assertEquals(dummyPrivateLocation.getLongitude(), user.getPrivateLocation().getLongitude());
+    }
+
+
+    private final String nullLocations = JsonConverter.toJson(true,
+            "public_location", null,
+            "private_location", null
+    );
+
+    /**
+     * Test setting a user's locations to null.
+     * @throws Exception
+     */
+    @Test
+    public void removeLocationOfUserWithLocationsSuccess() throws Exception {
+        setupMocking(userWithNoLocations);
+        MockHttpServletRequestBuilder getRequest = MockMvcRequestBuilders.get("/profiles")
+                .header("Token", validToken);
+        MvcResult result = mvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andReturn();
+        String jsonResponseStr = result.getResponse().getContentAsString();
+        JsonNode jsonNode = objectMapper.readTree(jsonResponseStr);
+        Long userId = jsonNode.get("id").asLong();
+
+        MockHttpServletRequestBuilder editLocationRequest = MockMvcRequestBuilders.put("/profiles/{profileId}/location", userId)
+                .header("Token", validToken)
+                .content(publicAndPrivateLocations)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mvc.perform(editLocationRequest)
+                .andExpect(status().isOk());
+
+        editLocationRequest = MockMvcRequestBuilders.put("/profiles/{profileId}/location", userId)
+                .header("Token", validToken)
+                .content(nullLocations)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mvc.perform(editLocationRequest)
+                .andExpect(status().isOk());
+
+
+        getRequest = MockMvcRequestBuilders.get("/profiles")
+                .header("Token", validToken);
+        result = mvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andReturn();
+
+        jsonResponseStr = result.getResponse().getContentAsString();
+        UserResponse user = objectMapper.readValue(jsonResponseStr, UserResponse.class);
+
+        assertNull(user.getPublicLocation());
+        assertNull(user.getPrivateLocation());
     }
 }

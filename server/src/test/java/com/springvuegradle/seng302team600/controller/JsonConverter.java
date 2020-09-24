@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.Map;
 
-class JsonConverter {
+public class JsonConverter {
     private static ObjectMapper mapper = new ObjectMapper();
 
     /**
@@ -21,7 +21,7 @@ class JsonConverter {
      *             1st argument can be a boolean.
      * @return a json string
      */
-    static String toJson(Object ... args) {
+    public static String toJson(Object ... args) {
         String jsonString;
         // This try-catch isn't great.  But can throw it because you can't catch an exception in a final variable initialization
         try {

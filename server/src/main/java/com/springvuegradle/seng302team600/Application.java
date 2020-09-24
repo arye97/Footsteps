@@ -23,6 +23,7 @@ public class Application {
     // Fix the CORS errors
     @Bean
     public FilterRegistrationBean simpleCorsFilter() {
+        List<String> exposedHeaders = Arrays.asList("Total-Rows", "Has-Next");
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
@@ -37,6 +38,7 @@ public class Application {
                 "https://localhost:9500")));
         config.setAllowedMethods(Collections.singletonList("*"));
         config.setAllowedHeaders(Collections.singletonList("*"));
+        config.setExposedHeaders(exposedHeaders);
         source.registerCorsConfiguration("/**", config);
         FilterRegistrationBean bean = new FilterRegistrationBean<>(new CorsFilter(source));
         bean.setOrder(Ordered.HIGHEST_PRECEDENCE);

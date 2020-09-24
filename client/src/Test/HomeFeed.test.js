@@ -1,9 +1,13 @@
 import 'vue-jest'
-import {mount} from "@vue/test-utils";
+import {mount, createLocalVue} from "@vue/test-utils";
 import HomeFeed from "../components/HomeFeed/HomeFeed";
 import api from "../Api";
+import BootstrapVue from 'bootstrap-vue';
 
 jest.mock('../Api');
+
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
 
 let homeFeed;
 // Follow event has the date set as 10m ago
@@ -44,7 +48,10 @@ beforeEach(() => {
         api.getFeedEvents.mockImplementation(() => {
             return Promise.resolve({
                 data: [FEED_EVENT],
-                status: 200
+                status: 200,
+                headers: {
+                    "total-rows": 5
+                }
             })
         });
         api.getUserId.mockImplementation(() => {
@@ -60,14 +67,22 @@ beforeEach(() => {
             })
         });
 
+        window.scrollTo = jest.fn();
+
         homeFeed = mount(HomeFeed, {
-            mocks: {api}
+            mocks: {api},
+            localVue
         });
 
         sleep(150).then(() => resolve());
     });
 });
 
+afterAll(() => {
+   jest.clearAllMocks();
+});
+
 test('Check that feed event data is fetched and rendered properly', () => {
+    window.scrollTo = jest.fn();
     expect(homeFeed.find('#description').text()).toBe('You modified the activity The First Activity')
 });

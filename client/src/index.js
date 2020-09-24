@@ -12,9 +12,23 @@ import EditActivity from "./views/Activities/EditActivity";
 import AllActivities from "./views/Activities/AllActivities";
 import EditProfile from "./views/Settings/EditProfile";
 import Search from "./views/Search/Search";
+
+const routerPush = Router.prototype.push;
+Router.prototype.push = function push(location) {
+    return routerPush.call(this, location).catch(error => {
+        if (error.name !== "NavigationDuplicated") {
+            throw error;
+        } else {
+            window.location.reload();
+        }
+    });
+};
+
 Vue.use(Router);
 Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
+Vue.config.productionTip = false;
+Vue.config.devtools = false;
 
 /**
 * Guard my route function is a function that checks if a user is 
@@ -35,10 +49,11 @@ function guardMyroute(to, from, next)
 
     //uses sessionstorage to figure out if a user is logged in or not, goes through
     //if not assigns false to boolean variable to show that user is not logged in
-    if(sessionStorage.getItem("token"))
+    if(sessionStorage.getItem("token")) {
         isAuthenticated = true;
-    else
-        isAuthenticated= false;
+    } else {
+        isAuthenticated = false;
+    }
     //Checks if the user is authenticated, if user is authenticated will go to home page
     //because you shouldn't be able to access the login page if so
     if(!isAuthenticated)
@@ -108,7 +123,7 @@ export default new Router({
             component: EditProfile
         },
         {
-            path: '/search/users',
+            path: '/search',
             name: 'searchPage',
             component: Search
         },

@@ -1,10 +1,9 @@
 package com.springvuegradle.seng302team600.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springvuegradle.seng302team600.enumeration.UnitType;
-import com.springvuegradle.seng302team600.payload.OutcomeRequest;
+import com.springvuegradle.seng302team600.payload.request.OutcomeRequest;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -24,7 +23,8 @@ import java.util.Set;
  * - title
  * - description
  * - activity_id
- * - units (this is a set of Unit objects. Look at model.Unit.java for Json params for each of these objects)
+ * - unit_name
+ * - unit_type
  */
 @Entity
 public class Outcome {
@@ -54,7 +54,7 @@ public class Outcome {
     @JsonProperty("unit_type")
     private UnitType unitType;
 
-    @JsonManagedReference
+    @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "outcome", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Result> results;
 

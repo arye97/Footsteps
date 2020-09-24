@@ -15,7 +15,12 @@
                     </div>
                 </div>
             </header>
-            <activity-form :submit-activity-func="submitCreateActivity" :activity="activity" :outcome-list="outcomeList"/>
+            <activity-form :submit-activity-func="submitCreateActivity"
+                           :activity="activity"
+                           :outcome-list="outcomeList"
+                           :is-edit="false"
+                           @add-outcome="addOutcome"
+                           @delete-outcome="deleteOutcome"/>
         </b-container>
         <br/><br/>
     </div>
@@ -43,8 +48,10 @@
                     continuous: true,
                     submitStartTime: null,
                     submitEndTime: null,
-                    startTime: null,
-                    endTime: null,
+                    startDate: null,
+                    startTime: "12:00",
+                    endDate: null,
+                    endTime: "12:00",
                     location: null
                 },
                 outcomeList: []
@@ -59,6 +66,25 @@
             this.activity.profileId = userId;
         },
         methods: {
+            /**
+             * Adds an outcome to outcomeList
+             * to prevent prop mutation.
+             * @param outcomeToBeAdded Outcome to be added to list
+             */
+            addOutcome(outcomeToBeAdded) {
+                this.outcomeList.push(outcomeToBeAdded);
+            },
+            /**
+             * Removes a specified outcome from outcomeList
+             * @param outcomeToBeRemoved Outcome to be removed from list
+             */
+            deleteOutcome(outcomeToBeRemoved) {
+                this.outcomeList = this.outcomeList.filter(
+                    function(outcome) {
+                        return outcome !== outcomeToBeRemoved
+                    }
+                );
+            },
 
             /**
              * Makes a POST request to the back-end to create an activity
@@ -80,13 +106,11 @@
                 await api.createActivity(activityForm, this.activity.profileId).then(response => {
                     activityId = response.data;
                 }).catch(error => {
-                    this.throwError(error.response, false)
-                    return;
+                    this.throwError(error.response, false);
                 });
 
                 // Send the outcomes to the server.  Adds the activityId to the outcomes.
                 await this.createAllOutcomes(this.outcomeList, activityId);
-
                 this.$router.push({name: 'allActivities', params: {alertMessage: 'Activity added successfully', alertCount: 5}});
             },
 

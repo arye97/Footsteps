@@ -1,12 +1,12 @@
 package com.springvuegradle.seng302team600.controller;
 
-import com.springvuegradle.seng302team600.Utilities.ResultValidator;
+import com.springvuegradle.seng302team600.validator.ResultValidator;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.Outcome;
 import com.springvuegradle.seng302team600.model.Result;
 import com.springvuegradle.seng302team600.model.User;
-import com.springvuegradle.seng302team600.payload.ResultRequest;
-import com.springvuegradle.seng302team600.payload.ResultResponse;
+import com.springvuegradle.seng302team600.payload.request.ResultRequest;
+import com.springvuegradle.seng302team600.payload.response.ResultResponse;
 import com.springvuegradle.seng302team600.repository.ActivityParticipantRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.OutcomeRepository;

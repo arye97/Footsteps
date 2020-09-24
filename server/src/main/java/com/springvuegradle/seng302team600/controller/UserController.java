@@ -5,19 +5,24 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.springvuegradle.seng302team600.Utilities.UserValidator;
-import com.springvuegradle.seng302team600.Utilities.PasswordValidator;
+import com.springvuegradle.seng302team600.payload.request.EditPasswordRequest;
+import com.springvuegradle.seng302team600.payload.request.EditUserLocationRequest;
+import com.springvuegradle.seng302team600.payload.request.LocationRequest;
+import com.springvuegradle.seng302team600.payload.request.UserRegisterRequest;
+import com.springvuegradle.seng302team600.payload.response.LoginResponse;
+import com.springvuegradle.seng302team600.payload.response.UserResponse;
+import com.springvuegradle.seng302team600.validator.UserValidator;
+import com.springvuegradle.seng302team600.validator.PasswordValidator;
 import com.springvuegradle.seng302team600.model.*;
-import com.springvuegradle.seng302team600.payload.EditPasswordRequest;
-import com.springvuegradle.seng302team600.payload.UserRegisterRequest;
-import com.springvuegradle.seng302team600.payload.LoginResponse;
-import com.springvuegradle.seng302team600.payload.UserResponse;
 import com.springvuegradle.seng302team600.repository.*;
 import com.springvuegradle.seng302team600.service.ActivityTypeService;
 import com.springvuegradle.seng302team600.service.UserAuthenticationService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -39,12 +44,12 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final EmailRepository emailRepository;
-    private final ActivityActivityTypeRepository activityActivityTypeRepository;
     private final ActivityTypeRepository activityTypeRepository;
     private final UserValidator userValidator;
 
     private static Log log = LogFactory.getLog(UserController.class);
 
+    private static final int PAGE_SIZE = 5;
 
     /**
      * The DefaultAdminUser that is added to the Database if one doesn't
@@ -58,14 +63,12 @@ public class UserController {
 
     public UserController(UserRepository userRepository, EmailRepository emailRepository,
                           UserAuthenticationService userService, ActivityTypeService activityTypeService,
-                          ActivityActivityTypeRepository activityActivityTypeRepository,
                           UserActivityTypeRepository userActivityTypeRepository,
                           ActivityTypeRepository activityTypeRepository, UserValidator userValidator) {
         this.userRepository = userRepository;
         this.emailRepository = emailRepository;
         this.userService = userService;
         this.activityTypeService = activityTypeService;
-        this.activityActivityTypeRepository = activityActivityTypeRepository;
         this.activityTypeRepository = activityTypeRepository;
         this.userValidator = userValidator;
         this.userActivityTypeRepository = userActivityTypeRepository;
@@ -95,7 +98,7 @@ public class UserController {
      */
     @GetMapping("/profiles")
     public UserResponse findUserData(HttpServletRequest request,
-                             HttpServletResponse response) {
+                                     HttpServletResponse response) {
         String token = request.getHeader("Token");
         User user = userService.findByToken(token);
         user.setTransientEmailStrings();
@@ -130,7 +133,6 @@ public class UserController {
         user.setTransientEmailStrings();
         // Security breach if password is sent to the client
         user.setPassword(null);
-//        user.setToken(null);
         response.setStatus(HttpServletResponse.SC_OK); //200
         return new UserResponse(user);
     }
@@ -282,6 +284,43 @@ public class UserController {
     }
 
     /**
+     * Edits the private and public locations of a user.
+     * Since it is a PUT request, it completely replaces
+     * @param userLocationsRequest the payload containing the locations (public, private)
+     * @param request the http request to the endpoint
+     * @param response the http response
+     * @param profileId user id obtained from the request url
+     * @throws JsonProcessingException thrown if there is an issue when converting the body to an object node
+     */
+    @PutMapping("/profiles/{profileId}/location")
+    public void editLocation(@Validated @RequestBody EditUserLocationRequest userLocationsRequest,
+                             HttpServletRequest request,
+                             HttpServletResponse response,
+                             @PathVariable(value = "profileId") Long profileId) throws IOException {
+        String token = request.getHeader("Token");
+        User user = userService.findByUserId(token, profileId);
+
+
+        LocationRequest publicLocationRequest = userLocationsRequest.getPublicLocation();
+        if (publicLocationRequest != null) {
+            user.setPublicLocation(new Location(publicLocationRequest));
+        } else {
+            user.setPublicLocation(null);
+        }
+
+        LocationRequest privateLocationRequest = userLocationsRequest.getPrivateLocation();
+        if (privateLocationRequest != null) {
+            user.setPrivateLocation(new Location(privateLocationRequest));
+        } else {
+            user.setPrivateLocation(null);
+        }
+
+
+        userRepository.save(user);
+        response.setStatus(HttpServletResponse.SC_OK); //200
+    }
+
+    /**
      * Takes a token and a user id and queries the repository
      * to check if a user is logged in with a provided token.
      * @param request the http request to the endpoint
@@ -334,7 +373,7 @@ public class UserController {
      * Returns a user's role, based on users id
      * @param request the http request to the endpoint
      * @param response the http response
-     * @profileId the user's id from the request url
+     * @param profileId the user's id from the request url
      */
     @GetMapping("/profiles/{profileId}/role")
     public int getUsersRole(HttpServletRequest request,
@@ -349,27 +388,31 @@ public class UserController {
         }
     }
 
-    @RequestMapping(
-            value = "/profiles",
-            params = { "activity", "method" },
-            method = RequestMethod.GET
-    )
     /**
-     * Returns a list of users having activity types attributed to their profiles
+     * Returns a paginated list of 5 users having activity types attributed to their profiles.
      * Either using AND so all provided activity types MUST be included in returned user or
-     * OR where one or more can be related to a user
-     * @param activity the list of activity types
+     * OR where one or more can be related to a user.
+     * @param activityTypes the list of activity types
      * @param method the method to use (OR, AND)
      * @return a list of users
      */
+    @GetMapping(
+            value = "/profiles",
+            params = { "activity", "method" }
+    )
     public List<UserResponse> getUsersByActivityType(HttpServletRequest request,
                                                      HttpServletResponse response,
                                                      @RequestParam(value="activity") String activityTypes,
                                                      @RequestParam(value="method") String method) {
         String token = request.getHeader("Token");
-        // User validation
-        userService.findByToken(token);
+        int pageNumber;
+        try {
+            pageNumber = request.getIntHeader("Page-Number");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Page-Number must be an integer");
+        }
 
+        userService.findByToken(token);
         if (activityTypes.length() < 1) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Activity Types must be specified");
         }
@@ -386,24 +429,31 @@ public class UserController {
         //Need to get the activityTypeIds from the names
         List<Long> activityTypeIds = activityTypeRepository.findActivityTypeIdsByNames(types);
         int numActivityTypes = activityTypeIds.size();
-        List<Long> userIds;
-        if (method.toLowerCase().equals("and")) {
-             userIds = userActivityTypeRepository.findByAllActivityTypeIds(activityTypeIds, numActivityTypes); //Gets the userIds
-        } else if (method.toLowerCase().equals("or")) {
-            userIds = userActivityTypeRepository.findBySomeActivityTypeIds(activityTypeIds); //Gets the userIds
+
+        Page<Long> paginatedUserIds;
+        Pageable pageWithFiveUsers = PageRequest.of(pageNumber, PAGE_SIZE);
+        if (method.equalsIgnoreCase("and")) {
+            paginatedUserIds = userActivityTypeRepository.findByAllActivityTypeIds(activityTypeIds, numActivityTypes, pageWithFiveUsers); //Gets the userIds
+        } else if (method.equalsIgnoreCase("or")) {
+            paginatedUserIds = userActivityTypeRepository.findBySomeActivityTypeIds(activityTypeIds, pageWithFiveUsers); //Gets the userIds
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Method must be specified as either (AND, OR)");
         }
-        //Change the user objects list to a list of userResponse payloads
-        List<User> userList =  userRepository.getUsersByIds(userIds);
-        if (userList.isEmpty()) {
+
+        if (paginatedUserIds == null || paginatedUserIds.getTotalPages() == 0) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No users have been found");
         }
+
+        List<User> userList =  userRepository.getUsersByIds(paginatedUserIds.getContent());
+
+        //Change the user objects list to a list of userResponse payloads
         List<UserResponse> userSearchList = new ArrayList<>();
         for (User user : userList) {
             user.setTransientEmailStrings();
             userSearchList.add(new UserResponse(user));
         }
+        int totalElements = (int) paginatedUserIds.getTotalElements();
+        response.setIntHeader("Total-Rows", totalElements);
         return userSearchList;
     }
 }

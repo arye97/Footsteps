@@ -1,5 +1,6 @@
 import {nameRegex} from "./constants";
 import api from "./Api";
+import router from './index'
 
 export function validateUser(fieldData, fieldType) {
     const emailRegex = new RegExp(/^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/);
@@ -223,3 +224,71 @@ export const UnitType = {
     TIME: "TIME",
     BOOLEAN: "BOOLEAN"
 };
+
+/**
+ * Clear Cached Pages.  If no array is provided, then removes all page caches.  Can be used to removed pages cached
+ * with <keep-alive>.
+ * @param pageNames Array of page names.
+ */
+export function clearPageCaches(pageNames) {
+    pageNames = Symbol.iterator in Object(pageNames) ? [...pageNames] : undefined;
+    setTimeout(() => {
+        let pageName;
+        let d = [];
+        for(let vm of router.app.$children[0].$children) {
+            pageName = vm.$options.name;
+            if((pageNames === undefined || pageNames.includes(pageName)) && vm._inactive === true)
+                d.push(vm);
+        }
+        for(let vm of d) {
+            vm.$destroy();
+        }
+    });
+}
+
+/**
+ * Does a deep comparision of two objects
+ * @param obj1 Object
+ * @param obj2 Object
+ * @return {boolean} if the two object's properties are equal
+ */
+export function compareObjs(obj1, obj2) {
+    if (obj1 === obj2) return true;
+
+    if (typeof obj1 != 'object' || typeof obj2 != 'object' || obj1 == null || obj2 == null) return false;
+
+    let keys1 = Object.keys(obj1), keys2 = Object.keys(obj2);
+
+    if (keys1.length != keys2.length) return false;
+
+    for (let key of keys1) {
+        if (!keys2.includes(key)) return false;
+
+        if (typeof obj1[key] === 'function' || typeof obj2[key] === 'function') {
+            if (obj1[key].toString() != obj2[key].toString()) return false;
+        } else {
+            if (!compareObjs(obj1[key], obj2[key])) return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * Convert a pin object to a Location object (that is accepted by the back end).
+ * @param pin Object {lat: *, lng: *, name: *}
+ * @return {null|{latitude: *, name: *, longitude: *}}
+ */
+export function pinToLocation(pin) {
+    let location;
+    if (pin) {
+        location = {
+            latitude: pin.lat,
+            longitude: pin.lng,
+            name: pin.name,
+        };
+    } else {
+        location = null;
+    }
+    return location;
+}

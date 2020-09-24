@@ -1,9 +1,13 @@
-import {mount} from '@vue/test-utils'
-import EditPassword from '../views/Settings/EditPassword.vue'
-import api from "../Api"
-import 'vue-jest'
+import {mount, createLocalVue} from '@vue/test-utils';
+import EditPassword from '../components/Settings/EditPassword.vue';
+import api from "../Api";
+import 'vue-jest';
 import router from "../index";
+import {BootstrapVue} from "bootstrap-vue";
 jest.mock("../Api");
+
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
 
 let editWrapper;
 const testUser = {
@@ -36,7 +40,16 @@ beforeEach(() => {
     return new Promise(resolve => {
         api.getUserData.mockImplementation(() => Promise.resolve({data: testUser, status: 200}));
         api.updatePassword.mockImplementation(() => Promise.resolve({status: 200}));
-        editWrapper = mount(EditPassword, {router, attachToDocument: true, mocks: {api}});
+        let div = document.createElement('div');
+        if (document.body) {
+            document.body.appendChild(div);
+        }
+        editWrapper = mount(EditPassword, {
+            router,
+            attachTo: div,
+            mocks: {api},
+            localVue
+        });
         sleep(150).then(() => resolve());
     });
 });

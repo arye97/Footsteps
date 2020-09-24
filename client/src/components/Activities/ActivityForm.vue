@@ -86,24 +86,14 @@
 
                 <div v-if="activity.continuous === false">
                     <b-form-group>
-                        <div v-if="has_start_time === false" >
-                            <label id="input-start-label" for="input-start">Start Date: *</label>
-                            <input type="date" class="form-control"
-                                   :value="activity.startTime && activity.startTime.split('T')[0]"
-                                   @input="activity.startTime = dateIntoDateTimeStr($event.target.value, activity.startTime)"
-                                   id="input-start">
-                        </div>
-                        <div v-else>
-                            <label id="input-start-time-label" for="input-start-time">Start Date: *</label>
-                            <input type="datetime-local" class="form-control"
-                                   :value="activity.startTime"
-                                   @input="activity.startTime = $event.target.value === '' ? activity.startTime : $event.target.value"
-                                   id="input-start-time">
-                        </div>
+                        <label id="input-start-label">Start Date: *</label>
+                        <b-form-datepicker v-model="activity.startDate" class="mb-2"></b-form-datepicker>
+                        <b-form-timepicker v-model="activity.startTime" :disabled="!has_start_time" locale="en"></b-form-timepicker>
                         <b-form-checkbox
                                 class="checkbox-time"
                                 size="sm"
                                 v-model="has_start_time"
+                                @change="this.disabledStart"
                         >
                             Include starting time
                         </b-form-checkbox>
@@ -122,24 +112,14 @@
                     </div>
 
                     <b-form-group>
-                        <div v-if="has_end_time === false" >
-                            <label id="input-end-label" for="input-end">End Date: *</label>
-                            <input type="date" class="form-control"
-                                   :value="activity.endTime && activity.endTime.split('T')[0]"
-                                   @input="activity.endTime = dateIntoDateTimeStr($event.target.value, activity.endTime)"
-                                   id="input-end">
-                        </div>
-                        <div v-else>
-                            <label id="input-end-time-label" for="input-end-time">End Date: *</label>
-                            <input type="datetime-local" class="form-control"
-                                   :value="activity.endTime"
-                                   @input="activity.endTime = $event.target.value === '' ? activity.endTime : $event.target.value"
-                                   id="input-end-time">
-                        </div>
+                        <label id="input-end-label">End Date: *</label>
+                        <b-form-datepicker v-model="activity.endDate" class="mb-2"></b-form-datepicker>
+                        <b-form-timepicker v-model="activity.endTime" :disabled="!has_end_time" locale="en"></b-form-timepicker>
                         <b-form-checkbox
                                 class="checkbox-time"
                                 size="sm"
                                 v-model="has_end_time"
+                                @change="this.disabledEnd"
                         >
                             Include ending time
                         </b-form-checkbox>
@@ -158,23 +138,32 @@
                     </div>
                 </div>
 
-
-
-
-
                 <b-form-group
                         id="input-group-location"
                         label="Location: *"
                         label-for="input-location"
                 >
-                    <b-form-input
-                            id="input-location"
-                            v-model="activity.location"
-                            placeholder="Location of your activity..."
-                    ></b-form-input>
+                    <!-- This gets around an issue where vue will throw a warning that location has not been defined -->
+                    <!--Without checking that activity.profileId is defined, there will be a race condition, the -->
+                    <!--activity data won't have been loaded, and the LocationIO won't receive the location-->
+                    <location-i-o v-if="!this.isEdit || this.activity.profileId"
+                        id="input-location"
+                        @pin-change="locationValue"
+                        @locationIO-focus="setLocationFocus"
+                        :single-only="true"
+                        :canDelete="true"
+                        :parent-pins="this.isEdit && this.activity.location ?
+                            [{lat: this.activity.location.latitude, lng: this.activity.location.longitude, colour: 'blue',}] :  undefined"
+
+                        :parent-center="this.isEdit && this.activity.location ?
+                            {lat: this.activity.location.latitude, lng: this.activity.location.longitude} : undefined"
+
+                        :parent-address="this.isEdit && this.activity.location ?
+                            this.activity.location.name : undefined"
+                    ></location-i-o>
                 </b-form-group>
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_location">
-                    {{ "Field is mandatory and a location must be set" }}
+                    Field is mandatory and a location must be set
                 </div>
 
 
@@ -229,39 +218,33 @@
                     </b-col>
                 </b-row>
 
-
                 <section class="outcomesDisplay">
-                    <table id="additionalEmailsTable" class="table table-hover">
+                    <table id="outcomesTable" class="table table-hover">
                         <tr class="outcomesTable" v-for="(outcome, index) in this.outcomeList"
                             v-bind:key="'outcome' + index"
                             :id="'outcome' + index">
                             <td>
-                                    <p :id="'title' + index">
-                                        {{ outcome.title }}
-                                    </p>
+                                <p :id="'title' + index">
+                                    {{ outcome.title }}
+                                </p>
                             </td>
-                                <td>
-                                    <p :id="'unit_name' + index">
-                                        {{ outcome.unit_name }}
-                                    </p>
-                                </td>
-                            <!--Only show edit and delete buttons if this is a newly added Outcome. Uhg O(n^2)-->
-                            <!--This v-if should be removed when we add functionality for editing existing Outcomes-->
-                            <div v-if="!originalOutcomeList.includes(outcome)">
-                                <td class="tableButtonTd">
-                                    <b-button variant="danger" :id="'deleteButton' + index" v-on:click="deleteOutcome(index)">
-                                        <b-icon-trash-fill></b-icon-trash-fill>
-                                    </b-button>
-                                </td>
-                                <td class="tableButtonTd">
-                                    <b-button variant="primary" :id="'editButton' + index" v-on:click="editOutcome(index)">Edit</b-button>
-                                </td>
-                            </div>
+                            <td>
+                                <p :id="'unit_name' + index">
+                                    {{ outcome.unit_name }}
+                                </p>
+                            </td>
+                            <!--Only show edit button if this Outcome does not have results-->
+                            <td class="tableButtonTd" v-if="editableOutcomes[index]">
+                                <b-button variant="danger" :id="'deleteButton' + index" v-on:click="deleteOutcome(index)">
+                                    <b-icon-trash-fill></b-icon-trash-fill>
+                                </b-button>
+                            </td>
+                            <td class="tableButtonTd" v-if="editableOutcomes[index]">
+                                <b-button variant="primary" :id="'editButton' + index" v-on:click="editOutcome(index)">Edit</b-button>
+                            </td>
                         </tr>
                     </table>
                 </section>
-
-
 
                 <div class="alert alert-danger alert-dismissible fade show sticky-top" role="alert" id="overall_message" hidden>
                     <p id="alert-message">{{ overallMessageText }}</p>
@@ -281,7 +264,8 @@
 <script>
     import Multiselect from 'vue-multiselect'
     import api from "../../Api";
-    import {localTimeZoneToBackEndTime} from "../../util";
+    import {localTimeZoneToBackEndTime, pinToLocation} from "../../util";
+    import LocationIO from "../Map/LocationIO";
 
 
     /**
@@ -302,7 +286,7 @@
      * CreateActivity and EditActivity at the time of writing.
      */
     export default {
-        components: { Multiselect },
+        components: {LocationIO, Multiselect},
         name: "ActivityForm",
         props: {
             activity: {
@@ -313,8 +297,10 @@
                 continuous: Boolean,
                 submitStartTime: String,
                 submitEndTime: String,
-                location: String,
+                location: Object,
+                startDate: String,
                 startTime: String,
+                endDate: String,
                 endTime: String,
             },
             outcomeList: {
@@ -330,11 +316,13 @@
                 type: Array
             },
             submitActivityFunc: Function,
-            startTime: String,
-            endTime: String,
+            isEdit:  Boolean,
         },
         data() {
             return {
+                inputStartTime: null,
+                inputEndTime: null,
+
                 activityTypes: [],
                 nameCharCount: 0,
                 maxNameCharCount: 75,
@@ -350,19 +338,59 @@
 
                 activeOutcome: {title:"", unit_name:""},
                 validOutcome: false,
+                editableOutcomes: [],
 
                 outcomeTitleCharCount: 0,
                 maxOutcomeTitleCharCount: 75,
                 outcomeUnitCharCount: 0,
                 maxOutcomeUnitCharCount: 15,
                 errored: false,
-                error_message: "Something went wrong"
+                error_message: "Something went wrong",
+                submitDisabled: false
             }
         },
         async created() {
             await this.fetchActivityTypes();
         },
+        watch: {
+            async outcomeList() {
+                if (this.outcomeList.length !== this.editableOutcomes.length) {
+                    await this.checkOutcomesAreEditable();
+                }
+            }
+        },
         methods: {
+            /**
+             * Helper function when checking/unchecking enable start time tick box
+             * @param checked status of tick box
+             */
+            disabledStart(checked) {
+                if (!checked) {
+                    this.inputStartTime = this.activity.startTime;
+                    this.activity.startTime = null;
+                } else {
+                    if (this.inputStartTime === null) {
+                        this.inputStartTime = this.defaultTime;
+                    }
+                    this.activity.startTime = this.inputStartTime;
+                }
+            },
+
+            /**
+             * Helper function when checking/unchecking enable end time tick box
+             * @param checked status of tick box
+             */
+            disabledEnd(checked) {
+                if (!checked) {
+                    this.inputEndTime = this.activity.endTime;
+                    this.activity.endTime = null;
+                } else {
+                    if (this.inputEndTime === null) {
+                        this.inputEndTime = this.defaultTime;
+                    }
+                    this.activity.endTime = this.inputEndTime
+                }
+            },
 
             /**
              * Called when submit button is pressed.  Validates the form input, then calls the function passed in
@@ -370,13 +398,18 @@
              */
             async onSubmit(evt) {
                 evt.preventDefault();
+
+                if (this.submitDisabled) {
+                    return;
+                }
+
                 this.isValidFormFlag = true;
                 await this.validateActivityInputs();
                 if (this.isValidFormFlag) {
                     this.formatDurationActivity();
                     try {
                         await this.submitActivityFunc();
-                    } catch(errResponse) {
+                    } catch (errResponse) {
                         this.processPostError(errResponse);
                     }
                 }
@@ -421,34 +454,22 @@
             },
 
             /**
-             * Takes a date string of the form yyyy-MM-dd and inserts it into a date and time string of the
-             * format yyyy-MM-ddThh:mm.  Helper method used in DOM.
-             * (wish this could be a function)
-             * @param dateStr string of the format yyyy-MM-dd
-             * @param dateTimeStr string of the format yyyy-MM-ddThh:mm
-             */
-            dateIntoDateTimeStr(dateStr, dateTimeStr) {
-                if (dateStr === null || dateStr === "") {
-                    return dateTimeStr;
-                }
-                let dateTimeArr;
-                if (dateTimeStr === null || dateTimeStr === "") {
-                    dateTimeArr = ["", this.defaultTime]   // 12:00
-                } else {
-                    dateTimeArr = dateTimeStr.split('T');
-                }
-                dateTimeArr[0] = dateStr;
-                return dateTimeArr.join('T');
-            },
-
-            /**
              * Validate activity inputs, called when onSubmit is called
              */
             async validateActivityInputs() {
-                this.activity.submitStartTime = this.activity.startTime;
-                let startTime = new Date(this.activity.startTime);
-                this.activity.submitEndTime = this.activity.endTime;
-                let endTime = new Date(this.activity.endTime);
+                if (!this.has_start_time) {
+                    this.activity.submitStartTime = this.activity.startDate + "T" + this.defaultTime;
+                } else {
+                    this.activity.submitStartTime = this.activity.startDate + "T" + this.activity.startTime.substr(0,5);
+                }
+                let startTime = new Date(this.activity.submitStartTime);
+
+                if (!this.has_end_time) {
+                    this.activity.submitEndTime = this.activity.endDate + "T" + this.defaultTime;
+                } else {
+                    this.activity.submitEndTime = this.activity.endDate + "T" + this.activity.endTime.substr(0,5);
+                }
+                let endTime = new Date(this.activity.submitEndTime);
 
                 if (!this.activity.activityName || this.nameCharCount > this.maxNameCharCount) {
                     showError('alert_activity_name');
@@ -502,7 +523,8 @@
                     }
                 }
 
-                if (!this.activity.location) {
+                if (!this.activity.location ||
+                    (this.activity.location && !["latitude", "longitude", "name"].every(key => key in this.activity.location))) {
                     showError('alert_location');
                     this.isValidFormFlag = false;
                 }
@@ -580,39 +602,99 @@
             },
 
             /**
-             * Adds the current outcome to the outcomeList and clears the outcome input fields
+             * Adds the current outcome to the outcomeList through parent component
+             * to prevent prop mutation.
+             * Clears the outcome input fields.
              * (current outcome is the outcome in the input boxes)
              */
             addOutcome() {
-                this.outcomeList.push(this.activeOutcome);
+                this.$emit("add-outcome", this.activeOutcome);
+                this.editableOutcomes.push(true);
                 this.activeOutcome = {title:"", unit_name:""};
                 this.updateOutcomeWordCount();
             },
 
             /**
-             * Removes a specified outcome from the list of outcomes
+             * Removes a specified outcome from the list of outcomes through parent component
+             * to prevent prop mutation.
              * (Active outcome is not part of this list)
              * @param index The index of the outcome, to be deleted, in the outcomeList
              */
-            deleteOutcome (index) {
+            deleteOutcome(index) {
                 let outcomeToBeRemoved = this.outcomeList[index];
-                // Remove outcomeToBeRemoved from this.outcomeList
-                this.outcomeList = this.outcomeList.filter(
-                    function(outcome) {
-                        return outcome !== outcomeToBeRemoved
-                    });
+                this.$emit("delete-outcome", outcomeToBeRemoved);
+                this.editableOutcomes.splice(index, 1);
             },
 
             /**
              * Sets the active outcome to the selected outcome
              * Deletes the to be edited outcome from the outcomeList
              * Updates the outcome input boxes and their respective word counts
+             * Sets isEdited to true for when submitting the final outcome list
              * @param index The index of the outcome, to be edited, in the outcomeList
              */
             editOutcome(index) {
                 this.activeOutcome = this.outcomeList[index];
+                this.activeOutcome.isEdited = true;
                 this.deleteOutcome(index);
-                this.updateOutcomeWordCount();
+                this.editableOutcomes.splice(index, 1);
+                // The prop outcomeList takes time to update within this child.
+                // Therefore, the method updateOutcomeWordCount can't be called as it invalids the outcome each time.
+                // Hence, the three lines below are duplicated code from that method.
+                this.outcomeTitleCharCount = this.activeOutcome.title.length;
+                this.outcomeUnitCharCount = this.activeOutcome.unit_name.length;
+                this.validOutcome = true;
+            },
+
+            /**
+             * Add outcomes which can be edited to the editableOutcomes list
+             */
+            async checkOutcomesAreEditable() {
+                this.editableOutcomes = [];
+                for (let i = 0 ; i < this.outcomeList.length ; i++) {
+                    this.editableOutcomes.push(await this.outcomeIsEditable(i));
+                }
+            },
+
+            /**
+             * Checks whether or not the outcome at the given index can be edited.
+             * @param index The index of the outcome being checked
+             * @return true if outcome is editable, otherwise false
+             */
+            async outcomeIsEditable(index) {
+                let result = false;
+                let outcome = this.outcomeList[index];
+                if (outcome.outcome_id === undefined) {
+                    return true;
+                }
+                await api.getOutcomeResults(outcome.outcome_id).then(response => {
+                    if (response.data.length <= 0) {
+                        result = true;
+                    }
+                }).catch(error => {
+                    if (error.response.status === 401) {
+                        this.logout();
+                    } else {
+                        this.$router.push({name: 'allActivities', params:
+                                {alertMessage: "Sorry, an unknown error occurred while loading the outcomes", alertCount: 5}});
+                    }
+                });
+                return result;
+            },
+          /**
+           * Sets the location of the activity.  Converts a pin to a location object used by the backend.
+           * Called when the pins in the LocationIO child component are changed
+           * @param pin Object from LocationIO
+           */
+            locationValue: function (pin) {
+                this.activity.location = pinToLocation(pin);
+            },
+            /**
+             * Toggles the submitDisabled boolean
+             * @param inFocus true if the user is using the gmap-autocomplete field, false otherwise
+             */
+            setLocationFocus(inFocus) {
+                this.submitDisabled = inFocus;
             }
         }
     }

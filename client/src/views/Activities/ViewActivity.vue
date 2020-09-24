@@ -20,135 +20,101 @@
                         <h1 class="font-weight-light">{{this.errorMessage}}</h1>
                     </div>
                     <div v-else>
-                        <div v-if="loading"> Loading... <br/><br/><b-spinner variant="primary" label="Spinning"></b-spinner></div>
+                        <div v-if="loading"> Loading... <br/><br/>
+                            <b-spinner variant="primary" label="Spinning"></b-spinner>
+                        </div>
                         <div v-else class="font-weight-light">
                             <br/>
                             <!-- Title -->
                             <h1 class="font-weight-light" id="activityTitle"><strong>{{this.activityTitle}}</strong></h1>
-                            <br/>
-                            <!-- Activity Descirption -->
-                            <h5 class="font-weight-light" v-if="this.description" id="description">"{{this.description}}"<br/></h5>
-                            <br/>
-                            <!-- Edit Activity Button -->
+                            <h3 class="font-weight-light" style="font-size: large;">Created by {{this.creatorName}}</h3>
+                            <!-- Edit and Delete Activity Buttons -->
                             <div v-if="this.creatorId===this.activeUserId">
-                                <b-button type="submit" variant="success"
-                                          size="med" v-on:click="goToPage(`/activities/edit/${activityId}`)"
-                                          id="editActivity">Edit Activity</b-button>
-                                <br/><br/>
+                                <b-row>
+                                    <b-col align="right">
+                                        <b-button type="submit" variant="outline-success"
+                                                  v-on:click="goToPage(`/activities/edit/${activityId}`)"
+                                                  id="editActivity">Edit Activity
+                                        </b-button>
+                                    </b-col>
+                                    <b-col align="left">
+                                        <b-button id="deleteActivityBtn"
+                                                  class="activityBtn"
+                                                  variant="outline-danger"
+                                                  v-on:click="deleteActivity()">
+                                            Delete
+                                        </b-button>
+                                    </b-col>
+                                </b-row>
                             </div>
-                            <!-- Creator -->
-                            <h3 class="font-weight-light"><strong>Creator:</strong></h3><br/>
-                            <b-card class="flex-fill" border-variant="secondary" id="creatorName">
-                                <b-card-text class="font-weight-light">
-                                    {{this.creatorName}}
-                                </b-card-text>
-                            </b-card>
                             <br/>
+                            <!-- Activity Description -->
+                            <h5 class="font-weight-light" v-if="this.description" id="description" style="display: inline-block; word-break: break-word; margin-bottom: 15px;">{{this.description}}<br/></h5>
+                            <br/>
+                            <!-- Activity Types -->
+                            <div v-if="this.activityTypes.length >= 1">
+                                <b-button-group id="activityType" v-for="activityType in this.activityTypes" v-bind:key="activityType.name"
+                                     border-variant="secondary">
+                                    <b-button pill variant="secondary"  disabled class="font-weight-light activityTypes">{{activityType.name}}</b-button>
+                                </b-button-group>
+                            </div>
+                            <br/>
+
                             <!-- Location -->
-                            <h3 class="font-weight-light"><strong>Location:</strong></h3><br/>
-                            <b-card class="flex-fill" border-variant="secondary" id="location">
-                                <b-card-text class="font-weight-light">
-                                    {{this.location}}
-                                </b-card-text>
-                            </b-card>
-                            <br/>
+                            <div class="address">
+                                <h3 v-if="this.location" id="location" class="font-weight-light">{{this.location.name}} </h3>
+                                <h3 v-else class="font-weight-light">Location not yet specified</h3>
+                            </div>
+                            <div class="font-weight-normal">
+                                <location-i-o
+                                        pin-legend-mode="ViewActivity"
+                                        :view-only="true"
+                                        :parent-pins="[{
+                                      lat: this.location.latitude,
+                                      lng: this.location.longitude,
+                                      colour: 'blue',
+                                      title: this.activityTitle,
+                                      location_name: this.location.name
+                                  }]"
+                                        :parent-center="{lat: this.location.latitude, lng: this.location.longitude}">
+                                </location-i-o>
+                            </div>
                             <!-- Time details -> only relevant for duration activities -->
                             <div v-if="!continuous">
+                                <br/>
                                 <b-row class="mb-1">
                                     <b-col>
                                         <!--Start Time-->
-                                        <h3 class="font-weight-light"><strong>Start Date:</strong></h3><br/>
-                                        <b-card class="flex-fill" border-variant="secondary" id="startTime">
-                                            <b-card-text class="font-weight-light">
-                                                {{getDateTime(startTime)}}
-                                            </b-card-text>
-                                        </b-card>
+                                        <h3 class="font-weight-light">{{getDateTime(startTime)}} - </h3>
+                                        <h3 class="font-weight-light">{{getDateTime(endTime)}}</h3><br/>
                                     </b-col>
+
+                                </b-row>
+                                <b-row class="mb-1">
                                     <b-col>
-                                        <!--End Time-->
-                                        <h3 class="font-weight-light"><strong>End Date:</strong></h3><br/>
-                                        <b-card class="flex-fill" border-variant="secondary" id="endTime">
-                                            <b-card-text class="font-weight-light">
-                                                {{getDateTime(endTime)}}
-                                            </b-card-text>
-                                        </b-card>
+                                        <h3 class="font-weight-light">{{duration}}</h3>
                                     </b-col>
                                 </b-row>
-                                <br/>
                                 <!--Total Duration-->
                                 <!--End Time-->
-                                <h3 class="font-weight-light"><strong>Total Duration:</strong></h3><br/>
-                                <b-card class="flex-fill" border-variant="secondary" id="totalDuration">
-                                    <b-card-text class="font-weight-light">
-                                        {{duration}}
-                                    </b-card-text>
-                                </b-card>
+
                             </div>
-                            <br/>
-                            <!-- Activity Types -->
-                            <h3 class="font-weight-light"><strong>Activity Types:</strong></h3><br/>
-                            <b-list-group v-if="this.activityTypes.length >= 1">
-                                <b-card v-for="activityType in this.activityTypes" v-bind:key="activityType.name"
-                                        class="flex-fill" border-variant="secondary" id="activityType">
-                                    <b-card-text class="font-weight-light">
-                                        {{activityType.name}}
-                                    </b-card-text>
-                                </b-card>
-                            </b-list-group>
-                            <b-list-group v-else>
-                                <b-card class="flex-fill" border-variant="secondary" id="noActivityType">
-                                    <b-card-text class="font-weight-light">
-                                        No activity types selected
-                                    </b-card-text>
-                                </b-card>
-                            </b-list-group>
                             <br/>
                             <!--Add results Modal-->
                             <b-modal id="addResultsModel" centered ok-only ok-variant="secondary" ok-title="Back"
                                      scrollable title="Here are your results">
-                                <b-alert dismissible variant="danger" id="addResultAlert"
-                                         :show="dismissCountDown"
-                                         @dismissed="dismissCountDown=0"
-                                         @dismiss-count-down="countDownChanged">
-                                    {{ this.errorMessage }}
-                                </b-alert>
-                                <section v-for="outcome in this.outcomeList" :key="outcome.outcome_id">
-                                    <b-card id="outcomeAddResultCard" :title="outcome.title">
-                                        <div v-if="outcome.activeUsersResult.submitted">
-                                            <div style="color:red" v-if="outcome.activeUsersResult.did_not_finish" >
-                                                Did not Finish
-                                            </div>
-                                            <b-input-group
-                                                    :append="outcome.unit_name">
-                                                <b-input :id="'submittedInputValue' + outcome.outcome_id"
-                                                         v-model="outcome.activeUsersResult.value"
-                                                         disabled></b-input>
-                                            </b-input-group>
-                                        </div>
-                                        <div v-else>
-                                            <b-input-group
-                                                    :append="outcome.unit_name">
-                                                <b-input :id="'NotSubmittedInputValue' + outcome.outcome_id" v-model="outcome.activeUsersResult.value"
-                                                         placeholder="Input your result here..."></b-input>
-                                            </b-input-group>
-                                            <b-form-checkbox
-                                                    :id="'checkboxDNF' + outcome.outcome_id"
-                                                    v-model="outcome.activeUsersResult.did_not_finish"
-                                                    name="checkboxDNF"
-                                            >
-                                                I did not finish
-                                            </b-form-checkbox>
-                                            <b-button block id="submitResult" variant="success"
-                                                      @click="submitOutcomeResult(outcome.outcome_id)">
-                                                Submit
-                                            </b-button>
-                                        </div>
-                                    </b-card>
-                                </section>
+                                <add-results :outcome-list="outcomeList"
+                                             :dismiss-count-down="dismissCountDown"
+                                             :error-message="errorMessage"
+                                             :key="count"
+                                             @count-down-changed="countDownChanged"
+                                             @submit-result="submitOutcomeResult"></add-results>
                             </b-modal>
                             <!-- Add Results/Following Button Group -->
-                            <b-button block v-if="(this.isFollowing || this.creatorId === this.activeUserId) && this.hasOutcomes"
-                                      variant="success" id="addResults" v-b-modal="'addResultsModel'">Add My Results</b-button>
+                            <b-button block
+                                      v-if="(this.isFollowing || this.creatorId === this.activeUserId) && this.hasOutcomes"
+                                      variant="success" id="addResults" v-b-modal="'addResultsModel'">Add My Results
+                            </b-button>
                             <br/>
                             <div v-if="this.creatorId !== this.activeUserId">
                                 <b-button block v-if="!this.isFollowing"
@@ -158,7 +124,8 @@
                                           id="followButton"
                                 >
                                     Follow Activity
-                                    <img src="../../../assets/png/footsteps_icon_hollow.png" class="footSteps" alt="Footsteps Logo">
+                                    <img src="../../../assets/png/footsteps_icon_hollow.png" class="footSteps"
+                                         alt="Footsteps Logo">
                                 </b-button>
                                 <b-button block v-else
                                           variant="outline-dark"
@@ -167,21 +134,15 @@
                                           id="unfollowButton"
                                 >
                                     Unfollow Activity
-                                    <img src="../../../assets/png/footsteps_icon.png" class="footSteps" alt="Footsteps Logo">
+                                    <img src="../../../assets/png/footsteps_icon.png" class="footSteps"
+                                         alt="Footsteps Logo">
                                 </b-button>
                                 <br/>
                             </div>
                             <!--View Participants Modal-->
-                            <b-modal id="viewParticipantsModal" size="lg" centered ok-only scrollable :title="activityTitle + ' Participants'">
-                                <b-card class="flex-fill" border-variant="secondary" id="viewParticipantsCard">
-                                    <strong>Participants: </strong><br>
-                                    <b-button-group v-for="participant in participants" :key="participant.id" id="viewParticipantsButtonGroup">
-                                        <b-button
-                                                class="participantButton" pill variant="success"
-                                                v-on:click="toUserProfile(participant.id)" id="participant">{{participant.name}}</b-button>
-                                    </b-button-group>
-                                    <p v-if="participants.length === 0" id="noParticipants">No participants to show</p>
-                                </b-card>
+                            <b-modal id="viewParticipantsModal" size="lg" centered ok-only scrollable
+                                     :title="activityTitle + ' Participants'">
+                                <view-participants :participants="participants"></view-participants>
                             </b-modal>
                             <!--View Participants and Results Buttons-->
                             <b-row class="mb-1">
@@ -189,37 +150,27 @@
                                     <!--View Participants-->
                                     <b-button type="submit" variant="success" size="med"
                                               v-b-modal="'viewParticipantsModal'" id="viewParticipants">
-                                        View Participants</b-button>
+                                        View Participants
+                                    </b-button>
                                 </b-col>
                                 <b-col v-if="this.hasOutcomes">
                                     <!--View Results-->
                                     <b-button type="submit" variant="success" size="med" disabled
                                               id="viewResultsError" v-if="resultError">
-                                        There was an error fetching results</b-button>
+                                        There was an error fetching results
+                                    </b-button>
                                     <b-button type="submit" variant="success" size="med"
                                               id="viewResults" v-b-modal="'resultsModal'" v-else>
-                                        View Results</b-button>
+                                        View Results
+                                    </b-button>
 
-                                    <b-modal id="resultsModal" title="Activity Results" scrollable ok-only ok-variant="secondary" ok-title="Back">
-                                        <div v-for="outcome in this.outcomeList" :key="outcome.outcome_id">
-                                            <b-button v-b-toggle="'collapse' + outcome.outcome_id" variant="success" block>{{outcome.title}}</b-button>
-                                            <b-collapse :id="'collapse' + outcome.outcome_id">
-                                                <div v-if="outcome.results.length > 0">
-                                                    <b-card v-for="result in outcome.results" :key="result.result_id">
-                                                        <div v-if="result.did_not_finish">{{result.user_name}}: Did not finish</div>
-                                                        <div v-else>{{result.user_name}}: {{result.value}} {{outcome.unit_name}}</div>
-                                                        <div v-if="result.comment"> ({{result.comment}})</div>
-                                                    </b-card>
-                                                </div>
-                                                <b-card v-else>
-                                                    This outcome currently has no registered results
-                                                </b-card>
-                                            </b-collapse><br/>
-                                        </div>
+                                    <b-modal id="resultsModal" title="Activity Results" scrollable ok-only
+                                             ok-variant="secondary" ok-title="Back">
+                                        <view-results :outcome-list="outcomeList"></view-results>
                                     </b-modal>
                                 </b-col>
                             </b-row>
-                          <br/>
+                            <br/>
                         </div>
                     </div>
                 </div>
@@ -233,12 +184,17 @@
     import Header from "../../components/Header/Header";
     import api from "../../Api";
     import {formatDateTime} from "../../util";
+    import ViewParticipants from "../../components/Activities/modals/ViewParticipants";
+    import AddResults from "../../components/Activities/modals/AddResults";
+    import ViewResults from "../../components/Activities/modals/ViewResults";
+    import LocationIO from "../../components/Map/LocationIO";
 
     export default {
         name: "ViewActivity",
-        components: {Header},
-        data () {
+        components: {LocationIO, ViewResults, AddResults, ViewParticipants, Header},
+        data() {
             return {
+                count: 0,
                 errored: false,
                 errorMessage: "",
                 dismissSecs: 5,
@@ -270,14 +226,14 @@
                         unit_type: "",
                         activeUsersResult:
                             {
-                            result_id: null,
-                            user_id: null,
-                            user_name: null,
-                            outcome_id: null,
-                            value: "",
-                            did_not_finish: false,
-                            comment: "",
-                            submitted: false
+                                result_id: null,
+                                user_id: null,
+                                user_name: null,
+                                outcome_id: null,
+                                value: "",
+                                did_not_finish: false,
+                                comment: "",
+                                submitted: false
                             },
                         results: [
                             { // Result object
@@ -295,23 +251,10 @@
                 ],
             }
         },
-        async mounted () {
+        async mounted() {
             await this.init();
         },
         methods: {
-            /**
-             * Update dismissCountDown
-             */
-            countDownChanged(dismissCountDown) {
-                this.dismissCountDown = dismissCountDown;
-            },
-            /**
-             * Display add result error alert
-             */
-            showAlert() {
-                this.dismissCountDown = this.dismissSecs
-                window.scrollTo(0,0);
-            },
             /**
              * The initialisation function.
              * Gets all of the data required for the page
@@ -334,6 +277,18 @@
                 await this.fetchOutcomesForActivity();
                 await this.fetchResultsForOutcomes();
                 this.loading = false;
+            },
+            /**
+             * Update dismissCountDown
+             */
+            countDownChanged(dismissCountDown) {
+                this.dismissCountDown = dismissCountDown;
+            },
+            /**
+             * Display add result error alert
+             */
+            showAlert() {
+                this.dismissCountDown = this.dismissSecs
             },
             /**
              * Gets and set the details about the activity
@@ -467,13 +422,6 @@
                 await this.fetchParticipantsForActivities();
             },
             /**
-             * Sends you to the profile page of a specific user
-             * @param id
-             */
-            toUserProfile(id) {
-                this.$router.push({ name: 'profile', params: {userId: id} });
-            },
-            /**
              * Gets list of participants for the activity
              */
             async fetchParticipantsForActivities() {
@@ -565,6 +513,7 @@
                 await api.createResult(outcomes[0].activeUsersResult, outcomeId).then(() => {
                     outcomes[0].activeUsersResult.submitted = true;
                     outcomes[0].results.push(outcomes[0].activeUsersResult);
+                    this.count++;
                     this.$forceUpdate();
                 }).catch(error => {
                     this.processPostError(error);
@@ -596,6 +545,33 @@
                         this.errorMessage = "Unable to get outcomes - please try again later";
                         break;
                 }
+            },
+            /**
+             * Delete the activity if the user agrees after being prompted.
+             */
+            async deleteActivity() {
+                this.errored = false;
+                let confirmDeleteActivity = false;
+
+                // Open dialog box
+                await this.$bvModal.msgBoxConfirm("Are you sure you want to delete this Activity?")
+                    .then(value => {
+                        confirmDeleteActivity = value
+                    }).catch(() => {
+                        this.errored = true;
+                        this.errorMessage = "Could not delete activity";
+                    });
+                if (!confirmDeleteActivity) {
+                    return;
+                }
+
+                // Delete from database
+                await api.deleteActivity(this.activeUserId, this.activityId).then(() => {
+                    this.goToPage(`/home`);
+                }).catch(() => {
+                    this.errored = true;
+                    this.errorMessage = "Could not delete activity";
+                });
             }
         }
     }
@@ -605,17 +581,6 @@
     .footSteps {
         width: 7.5%;
         height: 7.5%;
-    }
-    .footStepsSimplified {
-        width: 16%;
-        height: 16%;
-    }
-    .noMore {
-        text-align: center;
-
-    }
-    .text-justified {
-        text-align: justify;
     }
 
     .activity-button-group {
@@ -630,14 +595,18 @@
         width: 100%;
     }
 
-    .participantButton {
-        margin: 3px;
-        display: inline-block;
+    .activityBtn {
+        padding: 0.375rem 2rem;
     }
 
     .word-count {
         padding-top: 7px;
         color: #707070;
         font-size: 0.8em;
+    }
+
+    .activityTypes {
+        margin: 3px;
+        display: inline-block;
     }
 </style>

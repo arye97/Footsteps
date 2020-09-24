@@ -3,7 +3,7 @@ package com.springvuegradle.seng302team600.service;
 import com.springvuegradle.seng302team600.model.Email;
 import com.springvuegradle.seng302team600.model.User;
 import com.springvuegradle.seng302team600.model.UserRole;
-import com.springvuegradle.seng302team600.payload.LoginResponse;
+import com.springvuegradle.seng302team600.payload.response.LoginResponse;
 import com.springvuegradle.seng302team600.repository.EmailRepository;
 import com.springvuegradle.seng302team600.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ public class UserAuthenticationService {
      */
     private String generateNewToken() {
         int length = 30;
-        StringBuffer strBuffer = new StringBuffer(length);
+        StringBuilder strBuffer = new StringBuilder(length);
         SecureRandom secureRandom = new SecureRandom();
         for(int i = 0; i < length; i++)
             strBuffer.append(CHAR_LIST.charAt(secureRandom.nextInt(CHAR_LIST.length())));
@@ -135,27 +135,16 @@ public class UserAuthenticationService {
      * @return the user requested or ResponseStatusException is the user is not found
      */
     public User viewUserById(Long id, String token) {
-        findByToken(token); // Checks that a user is logged in
+        User activeUser = findByToken(token); // Checks that a user is logged in
         User user = userRepository.findByUserId(id);
         if (user != null) {
+            if (!(id.equals(activeUser.getUserId()) || hasAdminPrivileges(activeUser))) {
+                user.setPrivateLocation(null);
+            }
+
             return user;
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with ID: " + id);
-    }
 
-    /**
-     * Will need to be changed later when the database is fully implemented
-     * Checks that the session gives the request access to modify the user with a given id
-     * This will allow for checking both admins and users
-     * @param userId the id of the user linked to the session
-     * @param profileId the id of the user to access the profile of
-     * @return true if the session has permission to modify the user; false otherwise
-     */
-    private boolean validUser(long userId, long profileId) {
-        if (userId == profileId) {
-            return true;
-        } else {
-            return false;
-        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with ID: " + id);
     }
 }
