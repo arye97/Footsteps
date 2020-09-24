@@ -41,15 +41,15 @@
                         </div>
                     </b-card-text>
                 </b-col>
-                <b-col v-if="activity.activity_type.length >= 1">
-                    <div v-if="activity.fitness" style="text-align: left; padding-left: 7px">
+                <b-col>
+                    <div style="text-align: left; padding-left: 7px">
                         <strong>Fitness Level:</strong>
                         <br>
                         <b-card-text :id="'fitnessLevel' + activity.id">
-                            this.fitness
+                            {{this.fitness}}
                         </b-card-text>
                     </div>
-                    <b-list-group class="mx-2" id="matchingActivityTypes">
+                    <b-list-group class="mx-2" id="matchingActivityTypes" v-if="activity.activity_type.length >= 1">
                         <section v-for="activityType in activity.activity_type" v-bind:key="activityType.name">
                             <!-- Only display queried activity types -->
                             <b-list-group-item v-if="activityTypesSearchedFor.includes(activityType.name)"
@@ -116,6 +116,9 @@
              * Function to get the string and colour for fitness level
              */
             async getFitnessLevel() {
+                if (this.activity.fitness === null) {
+                    this.fitness = fitnessLevels[0].desc; // No fitness level
+                }
                 for (let i = 0; i < fitnessLevels.length; i++) {
                     if (fitnessLevels[i].value === this.activity.fitness) {
                         this.fitness = fitnessLevels[i].desc;
@@ -136,10 +139,10 @@
                 let fitnessLevelsElement = document.getElementById('fitnessLevel' + this.activity.id);
                 if (this.myFitness === -1) {
                     fitnessLevelsElement.style["color"] = "black";
-                } else if (this.myFitness <= this.fitness) {
-                    fitnessLevelsElement.style["color"] = "green";
-                } else {
+                } else if (this.myFitness < this.activity.fitness) {
                     fitnessLevelsElement.style["color"] = "red";
+                } else {
+                    fitnessLevelsElement.style["color"] = "green";
                 }
             },
             /**
