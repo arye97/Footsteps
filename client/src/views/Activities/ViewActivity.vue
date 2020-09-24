@@ -60,7 +60,7 @@
                             </div>
                             <!-- Fitness Level -->
                             <h3 class="font-weight-light"><strong>Target Fitness Level:</strong></h3>
-                            <b-card v-if="this.userFitnessLevel >= this.activityFitnessLevel" variant="success" class="flex-fill" border-variant="secondary">
+                            <b-card v-if="this.userFitnessLevel >= this.activityFitnessLevel" bg-variant="success" class="flex-fill" border-variant="secondary">
                               <b-card-text class="font-weight-light">
                                Target fitness level: {{this.activityFitnessLevel}}, your fitness level: {{this.userFitnessLevel}}
                               </b-card-text>
@@ -68,7 +68,7 @@
                                 You are at or above the target fitness level for this activity!
                               </b-card-text>
                             </b-card>
-                          <b-card v-else-if="this.activityFitnessLevel - this.userFitnessLevel == 1" variant="warning" class="flex-fill" border-variant="secondary">
+                          <b-card v-else-if="this.activityFitnessLevel - this.userFitnessLevel == 1" bg-variant="warning" class="flex-fill" border-variant="secondary">
                             <b-card-text class="font-weight-light">
                               Target fitness level: {{this.activityFitnessLevel}}, your fitness level: {{this.userFitnessLevel}}
                             </b-card-text>
@@ -76,23 +76,14 @@
                               Warning: You are just below the target fitness level for this activity!
                             </b-card-text>
                           </b-card>
-                          <b-card v-else class="flex-fill">
+                          <b-card v-else bg-variant="danger" class="flex-fill">
                             <b-card-text class="font-weight-light">
                               Target fitness level: {{this.activityFitnessLevel}}, your fitness level: {{this.userFitnessLevel}}
                             </b-card-text>
-                            <b-card-text text-variant="warning" class="font-weight-light">
+                            <b-card-text class="font-weight-light">
                               Warning: You are far below the recommended fitness level for this activity! Better get training!
                             </b-card-text>
                           </b-card>
-                            <!-- Creator -->
-                            <h3 class="font-weight-light"><strong>Creator:</strong></h3><br/>
-                            <b-card class="flex-fill" border-variant="secondary" id="creatorName">
-                                <b-card-text class="font-weight-light">
-                                    {{this.creatorName}}
-                                </b-card-text>
-                            </b-card>
-                            <br/>
-
                             <!-- Location -->
                             <div class="address">
                                 <h3 v-if="this.location" id="location" class="font-weight-light">{{this.location.name}} </h3>
@@ -251,7 +242,7 @@
                 participants: [],
                 hasOutcomes: false,
                 activityFitnessLevel: 3,
-                userFitnessLevel: 1,
+                userFitnessLevel: 3,
                 outcomeList: [
                     { // Outcome object
                         outcome_id: null,
