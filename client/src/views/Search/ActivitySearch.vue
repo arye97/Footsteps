@@ -297,7 +297,7 @@
                         this.loading = false;
                         this.resultsFound = true;
                     }).catch(error => {
-                        this.handleError(error, "No activities with activity types ".concat(this.selectedActivityTypes) + " have been found!");
+                        this.handleError(error, "No activities with activity types ".concat(this.selectedActivityTypes.join(", ")) + " have been found!");
                     });
             },
 
