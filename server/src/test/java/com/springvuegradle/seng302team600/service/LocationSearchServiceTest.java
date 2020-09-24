@@ -185,7 +185,38 @@ public class LocationSearchServiceTest {
             }
             return resultSlice;
         });
+        when(activityRepository.findAllWithinDistanceByAllActivityTypeIds(Mockito.anyDouble(), Mockito.anyDouble(),
+                Mockito.anyDouble(), Mockito.anyList(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt(),
+                Mockito.any(Pageable.class))).thenAnswer(i -> {
+            List<Long> activityTypeIds = i.getArgument(3);
+            int numActivityTypes = i.getArgument(4);
 
+            Pageable pageable = i.getArgument(7);
+            List<Activity> resultList = new ArrayList<>();
+            int matchCount = 0;
+
+            for (Activity activity : activityList) {
+                for (ActivityType activityType : activity.getActivityTypes()) {
+                    if (activityTypeIds.contains(activityType.getActivityTypeId())) {
+                        matchCount++;
+                    }
+                }
+                if (matchCount == numActivityTypes) {
+                    resultList.add(activity);
+                }
+                matchCount = 0;
+            }
+
+            Slice<Activity> resultSlice;
+            if (resultList.size() > BLOCK_SIZE) {
+                int leftIndex = PAGE_ONE * BLOCK_SIZE;
+                int rightIndex = PAGE_TWO * BLOCK_SIZE + BLOCK_SIZE;
+                resultSlice = new SliceImpl<>(resultList.subList(leftIndex, rightIndex), pageable, true);
+            } else {
+                resultSlice = new SliceImpl<>(resultList, pageable, false);
+            }
+            return resultSlice;
+        });
 
         // activityRepository.findAllWithinDistanceBySomeActivityTypeIds(
         //                        coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance,
@@ -378,7 +409,7 @@ public class LocationSearchServiceTest {
                 MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE, -1, 4);
         List<Activity> activities = resultSlice.getContent();
         assertTrue(activities.size() <= BLOCK_SIZE);
-        assertEquals(0, activities.size()); // No activity has type writing
+        assertEquals(0, activities.size());
     }
 
     @Test
