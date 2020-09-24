@@ -53,9 +53,11 @@
                         </b-card>
                         <br/>
                     </section>
-                    <hr/>
-                    <footer class="noMore">No more activities to show</footer>
-                    <hr/>
+                    <div v-if="continuousCurrentPage === (durationRows/activitiesPerPage)">
+                        <hr/>
+                        <footer  class="noMore">No more activities to show</footer>
+                        <hr/>
+                    </div>
                     <!-- Continuous Pagination Nav Bar -->
                     <b-pagination
                             id="continuousPaginationBar"
@@ -118,9 +120,11 @@
                             <br/>
                         </b-card>
                     </section>
-                    <hr/>
-                    <footer class="noMore">No more activities to show</footer>
-                    <hr/>
+                    <div v-if="durationCurrentPage === (durationRows/activitiesPerPage)">
+                        <hr/>
+                        <footer  class="noMore">No more activities to show</footer>
+                        <hr/>
+                    </div>
                     <!-- Duration Pagination Nav Bar -->
                     <b-pagination
                             id="durationPaginationBar"

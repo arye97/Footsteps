@@ -15,8 +15,7 @@
                     </b-col>
                     <b-col cols="8" v-if="searchMode==='activityName'">
                         <b-form-input id="searchBoxActivityTitle" v-model="activityTitle"
-                                      placeholder="Search activity by title"></b-form-input>
-                        <br>
+                                      placeholder="Search for Activities by Title"></b-form-input>
                     </b-col>
                     <b-col class="multi-search" cols=4>
                         <b-form-select id="searchModeSelect" v-model="searchMode"
@@ -48,20 +47,24 @@
                     <LocationIO v-if="!mapLoading" :parent-center="currentLocation" :max-pins="maxPins"
                                 :parent-pins="pins" :draggable="true" @child-pins="pinsChanged"></LocationIO>
                 </b-col>
-                <b-row>
-                    <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
-                        Search
-                    </b-button>
-                </b-row>
-                <br/>
                 <b-row v-if="searchMode==='activityName'">
-                    <ul style="align-content: center;">
+                    <b-button class="rulesButton" v-if="!showRules" size="sm" variant="link"  v-on:click="showRules=true">Search Help</b-button>
+                    <b-button class="rulesButton" v-if="showRules" size="sm" variant="link"  v-on:click="showRules=false">Close Search Help</b-button>
+                </b-row>
+                    <br/>
+                <b-row v-if="searchMode==='activityName' && showRules">
+                    <ul v-if="showRules" style="align-content: center;">
                         <li>All searches are case insensitive including exact match searches</li>
                         <li>Use double quotes around your search for exact matching</li>
                         <li>Use OR between keywords to search for anything with any of the keywords</li>
                         <li>Use AND between keywords to search for anything with all of the keywords</li>
                         <li>AND and OR keywords must be spelt with capitals</li>
                     </ul>
+                </b-row>
+                <b-row>
+                    <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
+                        Search
+                    </b-button>
                 </b-row>
                 </b-form>
             </div>
@@ -140,7 +143,8 @@ export default {
             error_message: "Something went wrong! Please try again.",
             loading: false,
             rows: null,
-            resultsFound: false
+            resultsFound: false,
+            showRules: false
         }
     },
     async mounted() {
@@ -244,7 +248,7 @@ export default {
                     } else if (error.response.status === 400) {
                         this.error_message = error.response.data.message;
                     } else if (error.response.status === 404) {
-                        this.error_message = "No activities with activity names ".concat(this.activityTitle) + " have been found!"
+                        this.error_message = "No results found, please try again."
                     } else {
                         this.error_message = "Something went wrong! Please try again."
                     }
@@ -279,7 +283,7 @@ export default {
                     } else if (error.response.status === 400) {
                         this.error_message = error.response.data.message;
                     } else if (error.response.status === 404) {
-                        this.error_message = "No activities with activity types ".concat(this.selectedActivityTypes) + " have been found!"
+                        this.error_message = "No results found, please try again."
                     } else {
                         this.error_message = "Something went wrong! Please try again."
                     }
@@ -325,4 +329,10 @@ export default {
     margin-top: 1rem !important;
     margin-left: -1rem !important;
 }
+
+.rulesButton {
+    margin-top: 3px;
+    margin-left: 1rem !important;
+}
+
 </style>
