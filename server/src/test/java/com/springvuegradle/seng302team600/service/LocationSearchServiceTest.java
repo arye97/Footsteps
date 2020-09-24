@@ -151,11 +151,12 @@ public class LocationSearchServiceTest {
         //                        coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance,
         //                        activityTypeIds, numActivityTypes, activitiesBlock)
         when(activityRepository.findAllWithinDistanceByAllActivityTypeIds(Mockito.anyDouble(), Mockito.anyDouble(),
-                Mockito.anyDouble(), Mockito.anyList(), Mockito.anyInt(), Mockito.any(Pageable.class))).thenAnswer(i -> {
+                Mockito.anyDouble(), Mockito.anyList(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt(),
+                Mockito.any(Pageable.class))).thenAnswer(i -> {
             List<Long> activityTypeIds = i.getArgument(3);
             int numActivityTypes = i.getArgument(4);
 
-            Pageable pageable = i.getArgument(5);
+            Pageable pageable = i.getArgument(7);
             List<Activity> resultList = new ArrayList<>();
             int matchCount = 0;
 
@@ -187,9 +188,10 @@ public class LocationSearchServiceTest {
         //                        coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance,
         //                        activityTypeIds, activitiesBlock);
         when(activityRepository.findAllWithinDistanceBySomeActivityTypeIds(Mockito.anyDouble(), Mockito.anyDouble(),
-                Mockito.anyDouble(), Mockito.anyList(), Mockito.any(Pageable.class))).thenAnswer(i -> {
+                Mockito.anyDouble(), Mockito.anyList(), Mockito.anyInt(), Mockito.anyInt(),
+                Mockito.any(Pageable.class))).thenAnswer(i -> {
             List<Long> activityTypeIds = i.getArgument(3);
-            Pageable pageable = i.getArgument(4);
+            Pageable pageable = i.getArgument(6);
             List<Activity> resultList = new ArrayList<>();
 
             for (Activity activity : activityList) {
