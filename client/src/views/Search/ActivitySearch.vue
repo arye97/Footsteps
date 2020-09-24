@@ -55,6 +55,7 @@
                 <b-row v-if="searchMode==='activityName'">
                     <b-button class="rulesButton" v-if="!showRules" size="sm" variant="link"  v-on:click="showRules=true">Search Help</b-button>
                     <b-button class="rulesButton" v-if="showRules" size="sm" variant="link"  v-on:click="showRules=false">Close Search Help</b-button>
+                </b-row>
                 <section v-if="filterSearch">
                     <b-button id="clearFiltersButton" size="sm" variant="link" align-self="end" v-on:click="filterSearch=false">Clear Filters</b-button><br/>
                     <label>Minimum Fitness Level:
