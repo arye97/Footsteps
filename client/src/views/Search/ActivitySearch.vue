@@ -417,6 +417,7 @@
              * @param pin a moved pin
              */
             clearSearchResults(pin) {
+                if (pin === null) return;
                 if (pin.colour !== "red") return;
                 this.currentLocation = pin;
                 this.$refs.mapComponentRef.clearPins();

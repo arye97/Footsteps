@@ -180,7 +180,6 @@
              * @param pin Object containing lat, lng, name.  (Optional)
              */
             addMarker(pin) {
-
                 if (pin && ["lat", "lng", "name"].every(key => key in pin)) {
                     if (!("colour" in pin)) {
                         pin.colour = 'red';
@@ -189,7 +188,6 @@
                     this.address = pin.name;
 
                 } else if (pin === undefined) {
-
                     pin = {
                         colour: 'red',
                         lat: this.$refs.mapViewerRef.currentCenter.lat,
@@ -218,7 +216,6 @@
              */
             addMarkers(pins) {
                 for (let pin of pins) {
-
                     if (pin && ["lat", "lng"].every(key => key in pin)) {
                         if (!("name" in pin)) {
                             pin["name"] = pin.lat.toFixed(5) + ', ' + pin.lng.toFixed(5);
