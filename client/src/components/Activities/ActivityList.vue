@@ -16,50 +16,50 @@
                     <section v-for="activity in this.continuousActivityList" :key="activity.id">
                         <!-- Activity List -->
                         <b-card border-variant="secondary" style="background-color: #f3f3f3" class="continuousCard">
+                            <b-card-text :id="'activity' + activity.id + '-continuous-card'">
+                                <div style="text-align: center">
+                                    <strong>{{ activity.activity_name }} |</strong> {{ activity.creatorName }}
+                                </div>
+                                <hr/>
+                                <div style="text-align: center">
+                                    {{ getDateTime(activity.start_time )}} - {{ getDateTime(activity.end_time) }}
+                                </div>
+                                <hr/>
+                                <div v-if="activity.description.length <= 250">
+                                    {{ activity.description }}
+                                </div>
+                                <div v-else>
+                                    {{ activity.description.substring(0,250)+"...." }}
+                                </div>
+                            </b-card-text>
                             <fitness-progress-bar :id="'continuousActivityFitBar' + activity.id"
-                                    :activity-fitness-level="activity.fitness"
-                                    :user-fitness-level="userFitnessLevel"
+                                                  :activity-fitness-level="activity.fitness"
+                                                  :user-fitness-level="userFitnessLevel"
                             ></fitness-progress-bar>
-                            <b-row no-gutters>
-                                <b-col md="6">
-                                    <b-card-text>
-                                        <strong>{{ activity.activity_name }} | {{ activity.creatorName }}</strong>
-                                        <hr/>
-                                        <div v-if="activity.description.length <= 100">
-                                            {{ activity.description }}
-                                        </div>
-                                        <div v-else>
-                                            {{ activity.description.substring(0,100)+"...." }}
-                                        </div>
-                                    </b-card-text>
-                                </b-col>
-                                <b-col md="6">
-                                    <div class="activity-button-group float-right">
-                                        <b-button-group vertical>
-                                            <b-button v-if="activity.creatorUserId === activeUserId"
-                                                      variant="outline-primary"
-                                                      v-on:click="goToPage(`/activities/edit/${activity.id}`)">
-                                                Edit
-                                            </b-button>
-                                            <b-button variant="outline-primary"
-                                                      v-on:click="goToPage(`/activity/${activity.id}`)">
-                                                Details
-                                            </b-button>
-                                            <b-button v-if="activity.creatorUserId === activeUserId"
-                                                      variant="outline-danger"
-                                                      v-on:click="deleteActivity(activity.id)">
-                                                Delete
-                                            </b-button>
-                                        </b-button-group>
-                                    </div>
-                                </b-col>
-                            </b-row>
+                            <div class="activity-button-group" style="align-content: center">
+                                <b-button-group class="btnGroup">
+                                    <b-button v-if="activity.creatorUserId === activeUserId"
+                                              variant="outline-success"
+                                              v-on:click="goToPage(`/activities/edit/${activity.id}`)">
+                                        Edit
+                                    </b-button>
+                                    <b-button variant="outline-primary"
+                                              v-on:click="goToPage(`/activity/${activity.id}`)">
+                                        Details
+                                    </b-button>
+                                    <b-button v-if="activity.creatorUserId === activeUserId"
+                                              variant="outline-danger"
+                                              v-on:click="deleteActivity(activity.id)">
+                                        Delete
+                                    </b-button>
+                                </b-button-group>
+                            </div>
                         </b-card>
                         <br/>
                     </section>
                     <div v-if="continuousCurrentPage === (durationRows/activitiesPerPage)">
                         <hr/>
-                        <footer  class="noMore">No more activities to show</footer>
+                        <footer class="noMore">No more activities to show</footer>
                         <hr/>
                     </div>
                     <!-- Continuous Pagination Nav Bar -->
@@ -83,54 +83,49 @@
                     <section v-for="activity in this.durationActivityList" :key="activity.id">
                         <!-- Activity List -->
                         <b-card border-variant="secondary" style="background-color: #f3f3f3" class="durationCard">
+                            <b-card-text :id="'activity' + activity.id + '-duration-card'">
+                                <div style="text-align: center">
+                                    <strong>{{ activity.activity_name }} |</strong> {{ activity.creatorName }}
+                                </div>
+                                <hr/>
+                                <div style="text-align: center">
+                                    {{ getDateTime(activity.start_time )}} - {{ getDateTime(activity.end_time) }}
+                                </div>
+                                <hr/>
+                                <div v-if="activity.description.length <= 250">
+                                    {{ activity.description }}
+                                </div>
+                                <div v-else>
+                                    {{ activity.description.substring(0,250)+"...." }}
+                                </div>
+                            </b-card-text>
                             <fitness-progress-bar :id="'durationActivityFitBar' + activity.id"
-                                    :activity-fitness-level="activity.fitness"
-                                    :user-fitness-level="userFitnessLevel"
+                                                  :activity-fitness-level="activity.fitness"
+                                                  :user-fitness-level="userFitnessLevel"
                             ></fitness-progress-bar>
-                            <b-row no-gutters>
-                                <b-col md="6">
-                                    <b-card-text :id="'activity' + activity.id + '-duration-card'">
-                                        <strong>{{ activity.activity_name }} | {{ activity.creatorName }}</strong>
-                                        <hr/>
-                                        <strong>Start Date: </strong>{{ getDateTime(activity.start_time )}}
-                                        <br/>
-                                        <strong>End Date: </strong>{{ getDateTime(activity.end_time) }}
-                                        <br/><br/>
-                                        <div v-if="activity.description.length <= 100">
-                                            {{ activity.description }}
-                                        </div>
-                                        <div v-else>
-                                            {{ activity.description.substring(0,100)+"...." }}
-                                        </div>
-                                    </b-card-text>
-                                </b-col>
-                                <b-col md="6">
-                                    <div class="activity-button-group float-right">
-                                        <b-button-group vertical>
-                                            <b-button v-if="activity.creatorUserId === activeUserId"
-                                                      variant="outline-primary"
-                                                      v-on:click="goToPage(`/activities/edit/${activity.id}`)">
-                                                Edit
-                                            </b-button>
-                                            <b-button variant="outline-primary"
-                                                      v-on:click="goToPage(`/activity/${activity.id}`)">
-                                                Details
-                                            </b-button>
-                                            <b-button v-if="activity.creatorUserId === activeUserId"
-                                                      variant="outline-danger"
-                                                      v-on:click="deleteActivity(activity.id)">
-                                                Delete
-                                            </b-button>
-                                        </b-button-group>
-                                    </div>
-                                </b-col>
-                            </b-row>
-                            <br/>
+                            <div class="activity-button-group" style="align-content: center">
+                                <b-button-group class="btnGroup">
+                                    <b-button v-if="activity.creatorUserId === activeUserId"
+                                              variant="outline-success"
+                                              v-on:click="goToPage(`/activities/edit/${activity.id}`)">
+                                        Edit
+                                    </b-button>
+                                    <b-button variant="outline-primary"
+                                              v-on:click="goToPage(`/activity/${activity.id}`)">
+                                        Details
+                                    </b-button>
+                                    <b-button v-if="activity.creatorUserId === activeUserId"
+                                              variant="outline-danger"
+                                              v-on:click="deleteActivity(activity.id)">
+                                        Delete
+                                    </b-button>
+                                </b-button-group>
+                            </div>
                         </b-card>
                     </section>
                     <div v-if="durationCurrentPage === (durationRows/activitiesPerPage)">
                         <hr/>
-                        <footer  class="noMore">No more activities to show</footer>
+                        <footer class="noMore">No more activities to show</footer>
                         <hr/>
                     </div>
                     <!-- Duration Pagination Nav Bar -->
@@ -495,12 +490,12 @@
 
     }
 
-    .activity-button-group {
-        padding: 7.5% 30px;
+    .activity-button-group button {
+        width: 10em;
     }
 
-    .activity-button-group button {
-        width: 190px;
+    .btnGroup {
+        width: 100%;
     }
 
     .continuousCard {
