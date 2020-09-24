@@ -12,6 +12,8 @@ import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ActivityRepositoryCustomImpl implements ActivityRepositoryCustom {
 
@@ -19,7 +21,10 @@ public class ActivityRepositoryCustomImpl implements ActivityRepositoryCustom {
     private EntityManager entityManager;
 
     @Override
-    public List<Activity> findAllByKeywordUsingMethod(@Param("keywords") String keywords, String method) {
+    public List<Activity> findAllByKeywordUsingMethod(@Param("keywords") String keywords,
+                                                      String method,
+                                                      @Param("minFitnessLevel") Integer minFitnessLevel,
+                                                      @Param("minFitnessLevel") Integer maxFitnessLevel) {
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Activity> query = cb.createQuery(Activity.class);
@@ -45,8 +50,11 @@ public class ActivityRepositoryCustomImpl implements ActivityRepositoryCustom {
                     .where(cb.or(predicates.toArray(new Predicate[predicates.size()])));
         }
 
-        return entityManager.createQuery(query)
-                .getResultList();
+        Stream<Activity> queryResultStream = entityManager.createQuery(query).getResultStream();
+
+        return queryResultStream
+                .filter(a -> (a.getFitnessLevel() != null && a.getFitnessLevel() >= minFitnessLevel && a.getFitnessLevel() <= maxFitnessLevel))
+                .collect(Collectors.toList());
     }
 
 }

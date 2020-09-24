@@ -13,16 +13,20 @@ import java.util.List;
 @RepositoryRestResource
 public interface ActivityActivityTypeRepository extends JpaRepository<Activity, Long> {
 
-    @Query(value="SELECT activity_id FROM activity_activity_type WHERE activity_type_id in ?1 " +
-            "GROUP BY activity_id HAVING COUNT(activity_id) = ?2", nativeQuery=true)
+    @Query(value="SELECT AAT.activity_id FROM activity_activity_type AS AAT JOIN activity AS A ON (AAT.activity_id = A.activity_id) WHERE AAT.activity_type_id in :activityTypeIds AND A.fitness >= :minFitnessLevel AND A.fitness <= :maxFitnessLevel " +
+            "GROUP BY AAT.activity_id HAVING COUNT(AAT.activity_id) = :numOfActivityTypes", nativeQuery=true)
     Page<Long> findByAllActivityTypeIds(@Param("activityTypeIds") List<Long> activityTypeIds,
                                         @Param("numOfActivityTypes") int numOfActivityTypes,
-                                        Pageable pageable);
+                                        Pageable pageable,
+                                        @Param("minFitnessLevel") Integer minFitnessLevel,
+                                        @Param("maxFitnessLevel") Integer maxFitnessLevel);
 
-    @Query(value="SELECT activity_id FROM activity_activity_type WHERE activity_type_id in ?1 " +
-            "GROUP BY activity_id", nativeQuery=true)
+    @Query(value="SELECT AAT.activity_id FROM activity_activity_type AS AAT JOIN activity AS A ON (AAT.activity_id = A.activity_id) WHERE AAT.activity_type_id in :activityTypeIds AND A.fitness >= :minFitnessLevel AND A.fitness <= :maxFitnessLevel " +
+            "GROUP BY AAT.activity_id", nativeQuery=true)
     Page<Long> findBySomeActivityTypeIds(@Param("activityTypeIds") List<Long> activityTypeIds,
-                                         Pageable pageable);
+                                         Pageable pageable,
+                                         @Param("minFitnessLevel") Integer minFitnessLevel,
+                                         @Param("maxFitnessLevel") Integer maxFitnessLevel);
 
 
 }
