@@ -52,10 +52,6 @@
                 </div>
             </div>
 
-            <label v-if="!changesMade" class="warningMessage">
-                Specify a valid location above to save changes
-            </label>
-
             <b-alert
                     id="locationAlert"
                     :show="dismissCountDown"

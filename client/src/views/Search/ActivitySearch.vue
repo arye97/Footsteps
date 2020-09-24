@@ -15,8 +15,7 @@
                     </b-col>
                     <b-col cols="8" v-if="searchMode==='activityName'">
                         <b-form-input id="searchBoxActivityTitle" v-model="activityTitle"
-                                      placeholder="Search activity by title"></b-form-input>
-                        <br>
+                                      placeholder="Search for Activities by Title"></b-form-input>
                     </b-col>
                     <b-col class="multi-search" cols=4>
                         <b-form-select id="searchModeSelect" v-model="searchMode"
@@ -53,6 +52,9 @@
                             @pin-change="clearSearchResults"
                             @child-pins="pinsChanged"></location-i-o>
                 </b-col>
+                <b-row v-if="searchMode==='activityName'">
+                    <b-button class="rulesButton" v-if="!showRules" size="sm" variant="link"  v-on:click="showRules=true">Search Help</b-button>
+                    <b-button class="rulesButton" v-if="showRules" size="sm" variant="link"  v-on:click="showRules=false">Close Search Help</b-button>
                 <section v-if="filterSearch">
                     <b-button id="clearFiltersButton" size="sm" variant="link" align-self="end" v-on:click="filterSearch=false">Clear Filters</b-button><br/>
                     <label>Minimum Fitness Level:
@@ -70,20 +72,19 @@
                 <section v-else>
                     <b-button id="filterSearchButton" size="sm" variant="link" align-self="end" v-on:click="filterSearch=true">Filter Search</b-button><br/>
                 </section>
-                <b-row>
-                    <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
-                        Search
-                    </b-button>
-                </b-row>
-                <br/>
-                <b-row v-if="searchMode==='activityName'">
-                    <ul style="align-content: center;">
+                <b-row v-if="searchMode==='activityName' && showRules">
+                    <ul v-if="showRules" style="align-content: center;">
                         <li>All searches are case insensitive including exact match searches</li>
                         <li>Use double quotes around your search for exact matching</li>
                         <li>Use OR between keywords to search for anything with any of the keywords</li>
                         <li>Use AND between keywords to search for anything with all of the keywords</li>
                         <li>AND and OR keywords must be spelt with capitals</li>
                     </ul>
+                </b-row>
+                <b-row>
+                    <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
+                        Search
+                    </b-button>
                 </b-row>
                 </b-form>
             </div>
@@ -172,6 +173,7 @@
                 hasNext: true,
                 isErrorAlert: false,
                 errorAlertMessage: '',
+                showRules: false
             }
         },
         async mounted() {
@@ -434,6 +436,7 @@
              * @param pin a moved pin
              */
             clearSearchResults(pin) {
+                if (pin === null) return;
                 if (pin.colour !== "red") return;
                 this.currentLocation = pin;
                 this.$refs.mapComponentRef.clearPins();
