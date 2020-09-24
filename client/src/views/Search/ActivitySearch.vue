@@ -36,7 +36,7 @@
                         </b-col>
                     </b-row>
                 </div>
-                <b-col v-if="searchMode==='activityLocation'" class="distanceSlider">
+                <b-col v-if="searchMode==='activityLocation'" class="activity-location-search">
                     <p for="range-1">Please specify the distance range to search for:</p>
                     <b-form-input id="range-1" v-model="cutoffDistance" type="range" min="0" :max="MAX_DISTANCE"
                                   step="100"></b-form-input>
@@ -52,41 +52,45 @@
                             @pin-change="clearSearchResults"
                             @child-pins="pinsChanged"></location-i-o>
                 </b-col>
-                <b-row v-if="searchMode==='activityName'">
-                    <b-button class="rulesButton" v-if="!showRules" size="sm" variant="link"  v-on:click="showRules=true">Search Help</b-button>
-                    <b-button class="rulesButton" v-if="showRules" size="sm" variant="link"  v-on:click="showRules=false">Close Search Help</b-button>
-                </b-row>
-                <section v-if="filterSearch">
-                    <b-button id="clearFiltersButton" size="sm" variant="link" align-self="end" v-on:click="filterSearch=false">Clear Filters</b-button><br/>
-                    <label>Minimum Fitness Level:
-                        <p>{{convertFitnessToString(this.minFitness)}}</p>
-                    </label>
-                    <b-form-input id="minimumFitnessLevel" type="range" min="0" max="4"
-                                  focus v-model="minFitness"></b-form-input>
-                    <label>Maximum Fitness Level:
-                        <p>{{convertFitnessToString(this.maxFitness)}}</p>
-                    </label>
-                    <b-form-input id="maximumFitnessLevel" type="range" min="0" max="4"
-                                  focus v-model="maxFitness"></b-form-input>
-                    <b-form-checkbox id="includeUnleveledBox">Include activities without fitness levels?</b-form-checkbox>
-                </section>
-                <section v-else>
-                    <b-button id="filterSearchButton" size="sm" variant="link" align-self="end" v-on:click="filterSearch=true">Filter Search</b-button><br/>
-                </section>
-                <b-row v-if="searchMode==='activityName' && showRules">
-                    <ul v-if="showRules" style="align-content: center;">
-                        <li>All searches are case insensitive including exact match searches</li>
-                        <li>Use double quotes around your search for exact matching</li>
-                        <li>Use OR between keywords to search for anything with any of the keywords</li>
-                        <li>Use AND between keywords to search for anything with all of the keywords</li>
-                        <li>AND and OR keywords must be spelt with capitals</li>
-                    </ul>
-                </b-row>
-                <b-row>
-                    <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
-                        Search
-                    </b-button>
-                </b-row>
+                <b-col>
+                    <b-row v-if="searchMode==='activityName'">
+                        <b-button class="rulesButton" v-if="!showRules" size="sm" variant="link"  v-on:click="showRules=true">Search Help</b-button>
+                        <b-button class="rulesButton" v-if="showRules" size="sm" variant="link"  v-on:click="showRules=false">Close Search Help</b-button>
+                    </b-row>
+                    <b-row v-if="searchMode==='activityName' && showRules">
+                        <ul v-if="showRules" style="align-content: center;">
+                            <li>All searches are case insensitive including exact match searches</li>
+                            <li>Use double quotes around your search for exact matching</li>
+                            <li>Use OR between keywords to search for anything with any of the keywords</li>
+                            <li>Use AND between keywords to search for anything with all of the keywords</li>
+                            <li>AND and OR keywords must be spelt with capitals</li>
+                        </ul>
+                    </b-row>
+                    <b-row>
+                        <section v-if="filterSearch">
+                            <b-button id="clearFiltersButton" size="sm" variant="link" align-self="end" v-on:click="filterSearch=false">Clear Filters</b-button><br/>
+                            <label>Minimum Fitness Level:
+                                <p>{{convertFitnessToString(this.minFitness)}}</p>
+                            </label>
+                            <b-form-input id="minimumFitnessLevel" type="range" min="0" max="4"
+                                          focus v-model="minFitness"></b-form-input>
+                            <label>Maximum Fitness Level:
+                                <p>{{convertFitnessToString(this.maxFitness)}}</p>
+                            </label>
+                            <b-form-input id="maximumFitnessLevel" type="range" min="0" max="4"
+                                          focus v-model="maxFitness"></b-form-input>
+                            <b-form-checkbox id="includeUnleveledBox">Include activities without fitness levels?</b-form-checkbox>
+                        </section>
+                        <section v-else>
+                            <b-button id="filterSearchButton" size="sm" variant="link" align-self="end" v-on:click="filterSearch=true">Filter Search</b-button><br/>
+                        </section>
+                    </b-row>
+                    <b-row>
+                        <b-button class="searchButton" id="searchButton" variant="primary" v-on:click="search()">
+                            Search
+                        </b-button>
+                    </b-row>
+                </b-col>
                 </b-form>
             </div>
             <div v-if="resultsFound">
@@ -210,8 +214,8 @@
                         await this.getPaginatedActivitiesByActivityTitle();
                         break;
                     case 'activityLocation':
-                        await this.getPaginatedActivitiesByLocation();
                         await this.getActivityLocationRows();
+                        await this.getPaginatedActivitiesByLocation();
                         break;
                 }
 
@@ -319,6 +323,8 @@
                     }).catch(error => {
                         this.handleError(error, "No activities within distance of location ".concat(this.cutoffDistance) + " have been found!");
                     });
+
+                this.loading = false;
             },
 
             /**
@@ -338,8 +344,6 @@
                     }).catch(error => {
                         this.handleError(error, "No activities within distance of location ".concat(this.cutoffDistance) + " have been found!");
                     });
-
-                this.loading = false;
             },
 
 
@@ -470,8 +474,8 @@
                 } else if (this.searchMode === 'activityLocation') {
                     this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
                     await this.getActivityPinBlocksByLocation();
-                    await this.getPaginatedActivitiesByLocation();
                     await this.getActivityLocationRows();
+                    await this.getPaginatedActivitiesByLocation();
                 }
             },
 
@@ -500,8 +504,7 @@
         margin-top: 1rem !important;
     }
 
-    .distanceSlider {
+    .activity-location-search {
         margin-top: 1rem !important;
-        margin-left: -1rem !important;
     }
 </style>
