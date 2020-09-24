@@ -54,33 +54,31 @@
                             <!-- Activity Types -->
                             <div v-if="this.activityTypes.length >= 1">
                                 <b-button-group id="activityType" v-for="activityType in this.activityTypes" v-bind:key="activityType.name"
-                                     border-variant="secondary">
+                                                border-variant="secondary">
                                     <b-button pill variant="secondary"  disabled class="font-weight-light activityTypes">{{activityType.name}}</b-button>
                                 </b-button-group>
                             </div><br />
 
-                          <!-- Fitness Level -->
-                          <div v-if="this.userFitnessLevel >= this.activityFitnessLevel" class="flex-fill"
-                               v-b-tooltip.hover
-                               :title="'Target fitness lllevel: ' + this.activityFitnessLevel +
-                               '  Your fitness level: ' + this.userFitnessLevel"
-                          >
-                              You are at or above the target fitness level for this activity!
-                            <b-icon-check-circle variant="success"/>
-                          </div>
-                          <div v-else-if="this.activityFitnessLevel - this.userFitnessLevel == 1" class="flex-fill"
-                               v-b-tooltip.hover
-                               title="Target fitness level: Your fitness level: "
-                          >
-                              Warning: You are just below the target fitness level for this activity!
-                            <b-icon-exclamation-circle variant="warning"/>
-                          </div>
-                          <div v-else class="flex-fill" v-b-tooltip.hover
-                               title="Target fitness level: Your fitness level: "
-                          >
-                              Warning: You are far below the recommended fitness level for this activity! Better get training!
-                            <b-icon-x-circle variant="danger"/>
-                          </div>
+                            <!-- Fitness Level -->
+                            <FitnessProgressBar
+                                :user-fitness-level="userFitnessLevel"
+                                :activity-fitness-level="activityFitnessLevel"
+                            ></FitnessProgressBar>
+
+                            <div v-if="activityFitnessLevel >= 0">
+                                <div v-if="userFitnessLevel < 0" class="flex-fill">
+                                    You don't have a set fitness level!
+                                </div>
+                                <div v-else-if="this.userFitnessLevel >= this.activityFitnessLevel" class="flex-fill">
+                                    You are at or above the target fitness level for this activity!
+                                    <b-icon-check-circle variant="success"/>
+                                </div>
+                                <div v-else-if="this.userFitnessLevel < this.activityFitnessLevel" class="flex-fill">
+                                    You are just below the target fitness level for this activity!
+                                    <b-icon-exclamation-circle variant="warning"/>
+                                </div>
+                                <br/>
+                            </div>
 
                             <!-- Location -->
                             <div class="address">
@@ -89,8 +87,8 @@
                             </div>
                             <div>
                                 <location-i-o
-                                        :view-only="true"
-                                        :parent-pins="[{
+                                    :view-only="true"
+                                    :parent-pins="[{
                                       lat: this.location.latitude,
                                       lng: this.location.longitude,
                                       colour: 'red',
@@ -99,7 +97,7 @@
                                           location: this.location,
                                       }
                                   }]"
-                                        :parent-center="{lat: this.location.latitude, lng: this.location.longitude}">
+                                    :parent-center="{lat: this.location.latitude, lng: this.location.longitude}">
                                 </location-i-o>
                             </div>
                             <!-- Time details -> only relevant for duration activities -->
@@ -203,434 +201,441 @@
 </template>
 
 <script>
-    import Header from "../../components/Header/Header";
-    import api from "../../Api";
-    import {formatDateTime} from "../../util";
-    import ViewParticipants from "../../components/Activities/modals/ViewParticipants";
-    import AddResults from "../../components/Activities/modals/AddResults";
-    import ViewResults from "../../components/Activities/modals/ViewResults";
-    import LocationIO from "../../components/Map/LocationIO";
+import Header from "../../components/Header/Header";
+import api from "../../Api";
+import {formatDateTime} from "../../util";
+import ViewParticipants from "../../components/Activities/modals/ViewParticipants";
+import AddResults from "../../components/Activities/modals/AddResults";
+import ViewResults from "../../components/Activities/modals/ViewResults";
+import LocationIO from "../../components/Map/LocationIO";
+import FitnessProgressBar from "@/components/Activities/FitnessProgressBar";
 
-    export default {
-        name: "ViewActivity",
-        components: {LocationIO, ViewResults, AddResults, ViewParticipants, Header},
-        data() {
-            return {
-                count: 0,
-                errored: false,
-                errorMessage: "",
-                dismissSecs: 5,
-                dismissCountDown: 0,
-                loading: false,
-                activityId: null,
-                activityTitle: "",
-                description: "",
-                creatorId: null,
-                creatorName: "",
-                location: "",
-                startTime: null,
-                endTime: null,
-                activityTypes: [],
-                activeUserId: null,
-                continuous: false,
-                resultError: false,
-                duration: "",
-                activeUserName: "",
-                isFollowing: false,
-                participants: [],
-                hasOutcomes: false,
-                activityFitnessLevel: 3,
-                userFitnessLevel: 3,
-                outcomeList: [
-                    { // Outcome object
-                        outcome_id: null,
-                        title: "",
-                        activity_id: null,
-                        unit_name: "",
-                        unit_type: "",
-                        activeUsersResult:
-                            {
-                                result_id: null,
-                                user_id: null,
-                                user_name: null,
-                                outcome_id: null,
-                                value: "",
-                                did_not_finish: false,
-                                comment: "",
-                                submitted: false
-                            },
-                        results: [
-                            { // Result object
-                                result_id: null,
-                                user_id: null,
-                                user_name: null,
-                                outcome_id: null,
-                                value: "",
-                                did_not_finish: false,
-                                comment: "",
-                                submitted: false
-                            }
-                        ]
+export default {
+    name: "ViewActivity",
+    components: {FitnessProgressBar, LocationIO, ViewResults, AddResults, ViewParticipants, Header},
+    data() {
+        return {
+            count: 0,
+            errored: false,
+            errorMessage: "",
+            dismissSecs: 5,
+            dismissCountDown: 0,
+            loading: false,
+            activityId: null,
+            activityTitle: "",
+            description: "",
+            creatorId: null,
+            creatorName: "",
+            location: "",
+            startTime: null,
+            endTime: null,
+            activityTypes: [],
+            activeUserId: null,
+            continuous: false,
+            resultError: false,
+            duration: "",
+            activeUserName: "",
+            isFollowing: false,
+            participants: [],
+            hasOutcomes: false,
+            activityFitnessLevel: null,
+            userFitnessLevel: null,
+            outcomeList: [
+                { // Outcome object
+                    outcome_id: null,
+                    title: "",
+                    activity_id: null,
+                    unit_name: "",
+                    unit_type: "",
+                    activeUsersResult:
+                        {
+                            result_id: null,
+                            user_id: null,
+                            user_name: null,
+                            outcome_id: null,
+                            value: "",
+                            did_not_finish: false,
+                            comment: "",
+                            submitted: false
+                        },
+                    results: [
+                        { // Result object
+                            result_id: null,
+                            user_id: null,
+                            user_name: null,
+                            outcome_id: null,
+                            value: "",
+                            did_not_finish: false,
+                            comment: "",
+                            submitted: false
+                        }
+                    ]
+                }
+            ],
+        }
+    },
+    async mounted() {
+        await this.init();
+    },
+    methods: {
+        /**
+         * The initialisation function.
+         * Gets all of the data required for the page
+         * @returns {Promise<void>}
+         */
+        async init() {
+            this.loading = true;
+            this.activityId = this.$route.params.activityId;
+            if (isNaN(this.activityId)) {
+                this.errored = true;
+                this.errorMessage = "Invalid Activity ID, must be a number";
+            }
+            await this.getActivityDetails();
+            this.getTime();
+            await this.getActiveUserId();
+            await this.getActiveUserName();
+            await this.getFollowingDetails();
+            await this.getCreatorUserDetails();
+            await this.fetchParticipantsForActivities();
+            await this.fetchOutcomesForActivity();
+            await this.fetchResultsForOutcomes();
+            this.loading = false;
+        },
+        /**
+         * Update dismissCountDown
+         */
+        countDownChanged(dismissCountDown) {
+            this.dismissCountDown = dismissCountDown;
+        },
+        /**
+         * Display add result error alert
+         */
+        showAlert() {
+            this.dismissCountDown = this.dismissSecs
+        },
+        /**
+         * Gets and set the details about the activity
+         * @returns {Promise<void>}
+         */
+        async getActivityDetails() {
+            if (!this.errored) {
+                await api.getActivityData(this.activityId).then(response => {
+                    this.activityTitle = response.data.activity_name;
+                    this.description = response.data.description;
+                    this.creatorId = response.data.creatorUserId;
+                    this.location = response.data.location;
+                    this.startTime = response.data.start_time;
+                    this.endTime = response.data.end_time;
+                    this.activityTypes = response.data.activity_type;
+                    this.continuous = response.data.continuous;
+                    if (response.data.fitness) {
+                        this.activityFitnessLevel = response.data.fitness;
+                    } else {
+                        this.activityFitnessLevel = -1;
                     }
-                ],
+                }).catch(err => {
+                    this.errored = true;
+                    this.errorMessage = err.response.data.message;
+                });
             }
         },
-        async mounted() {
-            await this.init();
+        /**
+         * Get the ID of the user who is viewing the activity
+         * @returns {Promise<void>}
+         */
+        async getActiveUserId() {
+            if (!this.errored) {
+                await api.getUserId().then(response => {
+                    this.activeUserId = response.data;
+                }).catch(err => {
+                    this.errored = true;
+                    this.errorMessage = err.response.data.message;
+                })
+            }
         },
-        methods: {
-            /**
-             * The initialisation function.
-             * Gets all of the data required for the page
-             * @returns {Promise<void>}
-             */
-            async init() {
-                this.loading = true;
-                this.activityId = this.$route.params.activityId;
-                if (isNaN(this.activityId)) {
+        /**
+         * Get the name of the user who is viewing the activity
+         * @returns {Promise<void>}
+         */
+        async getActiveUserName() {
+            if (!this.errored) {
+                await api.getUserData(this.activeUserId).then(response => {
+                    this.activeUserName = response.data.firstname + " " + response.data.lastname;
+                    this.userFitnessLevel = response.data.fitness;
+                }).catch(err => {
                     this.errored = true;
-                    this.errorMessage = "Invalid Activity ID, must be a number";
-                }
-                await this.getActivityDetails();
-                this.getTime();
-                await this.getActiveUserId();
-                await this.getActiveUserName();
-                await this.getFollowingDetails();
-                await this.getCreatorUserDetails();
-                await this.fetchParticipantsForActivities();
-                await this.fetchOutcomesForActivity();
-                await this.fetchResultsForOutcomes();
-                this.loading = false;
-            },
-            /**
-             * Update dismissCountDown
-             */
-            countDownChanged(dismissCountDown) {
-                this.dismissCountDown = dismissCountDown;
-            },
-            /**
-             * Display add result error alert
-             */
-            showAlert() {
-                this.dismissCountDown = this.dismissSecs
-            },
-            /**
-             * Gets and set the details about the activity
-             * @returns {Promise<void>}
-             */
-            async getActivityDetails() {
-                if (!this.errored) {
-                    await api.getActivityData(this.activityId).then(response => {
-                        this.activityTitle = response.data.activity_name;
-                        this.description = response.data.description;
-                        this.creatorId = response.data.creatorUserId;
-                        this.location = response.data.location;
-                        this.startTime = response.data.start_time;
-                        this.endTime = response.data.end_time;
-                        this.activityTypes = response.data.activity_type;
-                        this.continuous = response.data.continuous;
-                    }).catch(err => {
-                        this.errored = true;
-                        this.errorMessage = err.response.data.message;
-                    });
-                }
-            },
-            /**
-             * Get the ID of the user who is viewing the activity
-             * @returns {Promise<void>}
-             */
-            async getActiveUserId() {
-                if (!this.errored) {
-                    await api.getUserId().then(response => {
-                        this.activeUserId = response.data;
-                    }).catch(err => {
-                        this.errored = true;
-                        this.errorMessage = err.response.data.message;
-                    })
-                }
-            },
-            /**
-             * Get the name of the user who is viewing the activity
-             * @returns {Promise<void>}
-             */
-            async getActiveUserName() {
-                if (!this.errored) {
-                    await api.getUserData(this.activeUserId).then(response => {
-                        this.activeUserName = response.data.firstname + " " + response.data.lastname;
-                    }).catch(err => {
-                        this.errored = true;
-                        this.errorMessage = err.response.data.message;
-                    })
-                }
-            },
-            /**
-             * Get the name of the activity creator
-             * @returns {Promise<void>}
-             */
-            async getCreatorUserDetails() {
-                if (!this.errored) {
-                    await api.getUserData(this.creatorId).then(response => {
-                        this.creatorName = response.data.firstname + " " + response.data.lastname;
-                    }).catch(err => {
-                        this.errored = true;
-                        this.errorMessage = err.response.data.message;
-                    })
-                }
-            },
-            /**
-             * Utilises the formatDateTime utility function
-             */
-            getDateTime: formatDateTime,
-            /**
-             * Gets the duration of the activity
-             */
-            getTime() {
-                if (!this.errored) {
-                    let timeUnits = [];
-                    let days = Math.floor(((new Date(this.endTime) - new Date(this.startTime)) / 1000 / 60 / 60 / 24));
-                    let hours = Math.ceil(((new Date(this.endTime) - new Date(this.startTime)) / 1000 / 60 / 60)) % 24;
-                    if (days > 0) {
-                        timeUnits.push(days + " Days");
-                    }
-                    if (hours > 0) {
-                        timeUnits.push(hours + " Hours");
-                    }
-                    this.duration = timeUnits.join(", ")
-                }
-            },
-            /**
-             * Routes to a given url
-             * @param url
-             */
-            goToPage(url) {
-                this.$router.push(url);
-            },
-            /**
-             * Determines whether the viewer of the page is currently following this activity
-             * @returns {Promise<void>}
-             */
-            async getFollowingDetails() {
-                if (!this.errored) {
-                    await api.getUserSubscribed(this.activityId, this.activeUserId).then((response) => {
-                        this.isFollowing = response.data.subscribed;
-                    }).catch((err) => {
-                        this.errored = true;
-                        this.errorMessage = err.response.data.message;
-                    });
-                }
-            },
-            /**
-             * Sends the post request so a user can follow the activity
-             * @returns {Promise<void>}
-             */
-            async followActivity() {
-                await api.setUserSubscribed(this.activityId, this.activeUserId).then(() => {
-                    this.isFollowing = true;
-                }).catch((error) => {
+                    this.errorMessage = err.response.data.message;
+                })
+            }
+        },
+        /**
+         * Get the name of the activity creator
+         * @returns {Promise<void>}
+         */
+        async getCreatorUserDetails() {
+            if (!this.errored) {
+                await api.getUserData(this.creatorId).then(response => {
+                    this.creatorName = response.data.firstname + " " + response.data.lastname;
+                }).catch(err => {
                     this.errored = true;
-                    this.errorMessage = error.response.data.message;
-                });
-                await this.fetchParticipantsForActivities();
-            },
-            /**
-             * Sends the delete request so the user can unfollow the activity
-             * @returns {Promise<void>}
-             */
-            async unfollowActivity() {
-                await api.deleteUserSubscribed(this.activityId, this.activeUserId).then(() => {
-                    this.isFollowing = false;
-                }).catch((error) => {
+                    this.errorMessage = err.response.data.message;
+                })
+            }
+        },
+        /**
+         * Utilises the formatDateTime utility function
+         */
+        getDateTime: formatDateTime,
+        /**
+         * Gets the duration of the activity
+         */
+        getTime() {
+            if (!this.errored) {
+                let timeUnits = [];
+                let days = Math.floor(((new Date(this.endTime) - new Date(this.startTime)) / 1000 / 60 / 60 / 24));
+                let hours = Math.ceil(((new Date(this.endTime) - new Date(this.startTime)) / 1000 / 60 / 60)) % 24;
+                if (days > 0) {
+                    timeUnits.push(days + " Days");
+                }
+                if (hours > 0) {
+                    timeUnits.push(hours + " Hours");
+                }
+                this.duration = timeUnits.join(", ")
+            }
+        },
+        /**
+         * Routes to a given url
+         * @param url
+         */
+        goToPage(url) {
+            this.$router.push(url);
+        },
+        /**
+         * Determines whether the viewer of the page is currently following this activity
+         * @returns {Promise<void>}
+         */
+        async getFollowingDetails() {
+            if (!this.errored) {
+                await api.getUserSubscribed(this.activityId, this.activeUserId).then((response) => {
+                    this.isFollowing = response.data.subscribed;
+                }).catch((err) => {
                     this.errored = true;
-                    this.errorMessage = error.response.data.message;
+                    this.errorMessage = err.response.data.message;
                 });
-                await this.fetchParticipantsForActivities();
-            },
-            /**
-             * Gets list of participants for the activity
-             */
-            async fetchParticipantsForActivities() {
-                if (!this.errored) {
-                    await api.getParticipants(this.activityId).then(response => {
-                        let participants = [];
-                        let user;
-                        for (let j = 0; j < response.data.length; j++) {
-                            user = response.data[j];
-                            participants.push({
-                                "name": user.firstname + ' ' + user.lastname,
-                                "id": user.id
-                            });
-                        }
-                        this.participants = participants;
-                    }).catch(error => {
-                        //Log out if error
-                        if (error.response.status === 401) {
-                            sessionStorage.clear();
-                            this.$router.push('/login');
-                        } else {
-                            this.errored = true;
-                            this.errorMessage = "Unable to get participants - please try again later";
-                        }
-                    });
-                }
-            },
-            /**
-             * Gets the list of outcomes for the activity
-             */
-            async fetchOutcomesForActivity() {
-                if (!this.errored) {
-                    await api.getActivityOutcomes(this.activityId).then(response => {
-                        this.outcomeList = response.data;
-                        if (this.outcomeList.length > 0) {
-                            this.hasOutcomes = true;
-                        }
-                    }).catch(error => {
-                        if (error.response.status === 401) {
-                            sessionStorage.clear();
-                            this.goToPage('/login');
-                        } else {
-                            this.errored = true;
-                            this.errorMessage = "Unable to get outcomes - please try again later";
-                        }
-                    });
-                }
-            },
-            /**
-             * Gets a list of results for each outcome
-             */
-            async fetchResultsForOutcomes() {
-                if (!this.errored) {
-                    for (let i = 0; i < this.outcomeList.length; i++) {
-                        let outcomeId = this.outcomeList[i].outcome_id;
-                        await api.getOutcomeResults(outcomeId).then(response => {
-                            this.outcomeList[i].results = response.data;
-                        }).catch(() => {
-                            this.resultError = true;
-                        });
-                        // If the active user's result is not returned create one
-                        let activeUsersResults = this.outcomeList[i].results.filter(i => i.user_id === this.activeUserId);
-                        if (activeUsersResults.length < 1) {
-                            this.outcomeList[i].activeUsersResult = {
-                                user_id: this.activeUserId,
-                                outcome_id: outcomeId,
-                                user_name: this.activeUserName,
-                                value: "",
-                                did_not_finish: false,
-                                comment: "",
-                                submitted: false
-                            };
-                        } else {
-                            this.outcomeList[i].activeUsersResult = activeUsersResults[0];
-                            this.outcomeList[i].activeUsersResult.submitted = true;
-                        }
-                    }
-                }
-            },
-            /**
-             * Submit result to back-end for an outcome
-             * @param outcomeId the outcome ID
-             */
-            async submitOutcomeResult(outcomeId) {
-                // Finds the active user's result for the given outcome
-                let outcomes = this.outcomeList.filter(i => i.outcome_id === outcomeId);
-                if (outcomes.length < 1) return;
-
-                await api.createResult(outcomes[0].activeUsersResult, outcomeId).then(() => {
-                    outcomes[0].activeUsersResult.submitted = true;
-                    outcomes[0].results.push(outcomes[0].activeUsersResult);
-                    this.count++;
-                    this.$forceUpdate();
-                }).catch(error => {
-                    this.processPostError(error);
-                });
-            },
-            /**
-             * Process the error in terms of status codes returned
-             * @param error being processed
-             */
-            processPostError(error) {
+            }
+        },
+        /**
+         * Sends the post request so a user can follow the activity
+         * @returns {Promise<void>}
+         */
+        async followActivity() {
+            await api.setUserSubscribed(this.activityId, this.activeUserId).then(() => {
+                this.isFollowing = true;
+            }).catch((error) => {
                 this.errored = true;
-                switch (error.response.status) {
-                    case 401:
+                this.errorMessage = error.response.data.message;
+            });
+            await this.fetchParticipantsForActivities();
+        },
+        /**
+         * Sends the delete request so the user can unfollow the activity
+         * @returns {Promise<void>}
+         */
+        async unfollowActivity() {
+            await api.deleteUserSubscribed(this.activityId, this.activeUserId).then(() => {
+                this.isFollowing = false;
+            }).catch((error) => {
+                this.errored = true;
+                this.errorMessage = error.response.data.message;
+            });
+            await this.fetchParticipantsForActivities();
+        },
+        /**
+         * Gets list of participants for the activity
+         */
+        async fetchParticipantsForActivities() {
+            if (!this.errored) {
+                await api.getParticipants(this.activityId).then(response => {
+                    let participants = [];
+                    let user;
+                    for (let j = 0; j < response.data.length; j++) {
+                        user = response.data[j];
+                        participants.push({
+                            "name": user.firstname + ' ' + user.lastname,
+                            "id": user.id
+                        });
+                    }
+                    this.participants = participants;
+                }).catch(error => {
+                    //Log out if error
+                    if (error.response.status === 401) {
+                        sessionStorage.clear();
+                        this.$router.push('/login');
+                    } else {
+                        this.errored = true;
+                        this.errorMessage = "Unable to get participants - please try again later";
+                    }
+                });
+            }
+        },
+        /**
+         * Gets the list of outcomes for the activity
+         */
+        async fetchOutcomesForActivity() {
+            if (!this.errored) {
+                await api.getActivityOutcomes(this.activityId).then(response => {
+                    this.outcomeList = response.data;
+                    if (this.outcomeList.length > 0) {
+                        this.hasOutcomes = true;
+                    }
+                }).catch(error => {
+                    if (error.response.status === 401) {
                         sessionStorage.clear();
                         this.goToPage('/login');
-                        break;
-                    case 400:
-                        this.errored = false;
-                        this.errorMessage = error.response.data.message;
-                        this.showAlert();
-                        break;
-                    case 403:
-                        this.errorMessage = "User is not a participant of this outcome's activity";
-                        break;
-                    case 404:
-                        this.errorMessage = "Outcome not found - please try again later";
-                        break;
-                    default:
-                        this.errorMessage = "Unable to get outcomes - please try again later";
-                        break;
-                }
-            },
-            /**
-             * Delete the activity if the user agrees after being prompted.
-             */
-            async deleteActivity() {
-                this.errored = false;
-                let confirmDeleteActivity = false;
-
-                // Open dialog box
-                await this.$bvModal.msgBoxConfirm("Are you sure you want to delete this Activity?")
-                    .then(value => {
-                        confirmDeleteActivity = value
-                    }).catch(() => {
+                    } else {
                         this.errored = true;
-                        this.errorMessage = "Could not delete activity";
+                        this.errorMessage = "Unable to get outcomes - please try again later";
+                    }
+                });
+            }
+        },
+        /**
+         * Gets a list of results for each outcome
+         */
+        async fetchResultsForOutcomes() {
+            if (!this.errored) {
+                for (let i = 0; i < this.outcomeList.length; i++) {
+                    let outcomeId = this.outcomeList[i].outcome_id;
+                    await api.getOutcomeResults(outcomeId).then(response => {
+                        this.outcomeList[i].results = response.data;
+                    }).catch(() => {
+                        this.resultError = true;
                     });
-                if (!confirmDeleteActivity) {
-                    return;
+                    // If the active user's result is not returned create one
+                    let activeUsersResults = this.outcomeList[i].results.filter(i => i.user_id === this.activeUserId);
+                    if (activeUsersResults.length < 1) {
+                        this.outcomeList[i].activeUsersResult = {
+                            user_id: this.activeUserId,
+                            outcome_id: outcomeId,
+                            user_name: this.activeUserName,
+                            value: "",
+                            did_not_finish: false,
+                            comment: "",
+                            submitted: false
+                        };
+                    } else {
+                        this.outcomeList[i].activeUsersResult = activeUsersResults[0];
+                        this.outcomeList[i].activeUsersResult.submitted = true;
+                    }
                 }
+            }
+        },
+        /**
+         * Submit result to back-end for an outcome
+         * @param outcomeId the outcome ID
+         */
+        async submitOutcomeResult(outcomeId) {
+            // Finds the active user's result for the given outcome
+            let outcomes = this.outcomeList.filter(i => i.outcome_id === outcomeId);
+            if (outcomes.length < 1) return;
 
-                // Delete from database
-                await api.deleteActivity(this.activeUserId, this.activityId).then(() => {
-                    this.goToPage(`/home`);
+            await api.createResult(outcomes[0].activeUsersResult, outcomeId).then(() => {
+                outcomes[0].activeUsersResult.submitted = true;
+                outcomes[0].results.push(outcomes[0].activeUsersResult);
+                this.count++;
+                this.$forceUpdate();
+            }).catch(error => {
+                this.processPostError(error);
+            });
+        },
+        /**
+         * Process the error in terms of status codes returned
+         * @param error being processed
+         */
+        processPostError(error) {
+            this.errored = true;
+            switch (error.response.status) {
+                case 401:
+                    sessionStorage.clear();
+                    this.goToPage('/login');
+                    break;
+                case 400:
+                    this.errored = false;
+                    this.errorMessage = error.response.data.message;
+                    this.showAlert();
+                    break;
+                case 403:
+                    this.errorMessage = "User is not a participant of this outcome's activity";
+                    break;
+                case 404:
+                    this.errorMessage = "Outcome not found - please try again later";
+                    break;
+                default:
+                    this.errorMessage = "Unable to get outcomes - please try again later";
+                    break;
+            }
+        },
+        /**
+         * Delete the activity if the user agrees after being prompted.
+         */
+        async deleteActivity() {
+            this.errored = false;
+            let confirmDeleteActivity = false;
+
+            // Open dialog box
+            await this.$bvModal.msgBoxConfirm("Are you sure you want to delete this Activity?")
+                .then(value => {
+                    confirmDeleteActivity = value
                 }).catch(() => {
                     this.errored = true;
                     this.errorMessage = "Could not delete activity";
                 });
+            if (!confirmDeleteActivity) {
+                return;
             }
+
+            // Delete from database
+            await api.deleteActivity(this.activeUserId, this.activityId).then(() => {
+                this.goToPage(`/home`);
+            }).catch(() => {
+                this.errored = true;
+                this.errorMessage = "Could not delete activity";
+            });
         }
     }
+}
 </script>
 
 <style scoped>
-    .footSteps {
-        width: 7.5%;
-        height: 7.5%;
-    }
+.footSteps {
+    width: 7.5%;
+    height: 7.5%;
+}
 
-    .activity-button-group {
-        padding: 7.5% 30px;
-    }
+.activity-button-group {
+    padding: 7.5% 30px;
+}
 
-    .activity-button-group button {
-        width: 190px;
-    }
+.activity-button-group button {
+    width: 190px;
+}
 
-    .footerButton {
-        width: 100%;
-    }
+.footerButton {
+    width: 100%;
+}
 
-    .activityBtn {
-        padding: 0.375rem 2rem;
-    }
+.activityBtn {
+    padding: 0.375rem 2rem;
+}
 
-    .word-count {
-        padding-top: 7px;
-        color: #707070;
-        font-size: 0.8em;
-    }
+.word-count {
+    padding-top: 7px;
+    color: #707070;
+    font-size: 0.8em;
+}
 
-    .activityTypes {
-        margin: 3px;
-        display: inline-block;
-    }
+.activityTypes {
+    margin: 3px;
+    display: inline-block;
+}
 </style>
