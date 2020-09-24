@@ -151,7 +151,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
             "         * COS(RADIANS(:userLongitude - l.Longitude)) " +
             "         + SIN(RADIANS(:userLatitude)) " +
             "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance", nativeQuery = true)
-    int countAllWithinDistance(@Param("userLatitude") Double userLatitude,
+    Integer countAllWithinDistance(@Param("userLatitude") Double userLatitude,
                                @Param("userLongitude") Double userLongitude,
                                @Param("maxDistance") Double maxDistance);
 
@@ -170,7 +170,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
             "         + SIN(RADIANS(:userLatitude)) " +
             "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance " +
             "GROUP BY a.activity_id) as counts", nativeQuery = true)
-    int countAllWithinDistanceBySomeActivityTypeIds(@Param("userLatitude") Double userLatitude,
+    Integer countAllWithinDistanceBySomeActivityTypeIds(@Param("userLatitude") Double userLatitude,
                                                                 @Param("userLongitude") Double userLongitude,
                                                                 @Param("maxDistance") Double maxDistance,
                                                                 @Param("activityTypeIds") List<Long> activityTypeIds);
@@ -190,7 +190,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
             "         + SIN(RADIANS(:userLatitude)) " +
             "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance " +
             "GROUP BY a.activity_id HAVING COUNT(a.activity_id) = :numActivityTypes) as counts", nativeQuery = true)
-    int countAllWithinDistanceByAllActivityTypeIds(@Param("userLatitude") Double userLatitude,
+    Integer countAllWithinDistanceByAllActivityTypeIds(@Param("userLatitude") Double userLatitude,
                                                                @Param("userLongitude") Double userLongitude,
                                                                @Param("maxDistance") Double maxDistance,
                                                                @Param("activityTypeIds") List<Long> activityTypeIds,
