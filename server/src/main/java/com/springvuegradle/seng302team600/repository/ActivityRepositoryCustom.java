@@ -8,5 +8,5 @@ import java.util.List;
 
 @RepositoryRestResource
 public interface ActivityRepositoryCustom {
-    SearchResponse findAllByKeywordUsingMethod(@Param("keywords") List<String> keywords, int pageSize, int page);
+    SearchResponse findAllByKeyword(@Param("keywords") List<String> keywords, int pageSize, int page);
 }

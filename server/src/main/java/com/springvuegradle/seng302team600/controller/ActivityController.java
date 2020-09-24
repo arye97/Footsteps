@@ -355,7 +355,7 @@ public class ActivityController {
         }
         int page = pageNumber * PAGE_SIZE;
         List<String> searchStrings = ActivitySearchService.extractExactMatches(activityKeywords);
-        SearchResponse searchResponse = activityRepository.findAllByKeywordUsingMethod(searchStrings, PAGE_SIZE, page);
+        SearchResponse searchResponse = activityRepository.findAllByKeyword(searchStrings, PAGE_SIZE, page);
         List<Activity> returnedActivities = searchResponse.activities;
 
         if (returnedActivities == null || returnedActivities.size() == 0) {

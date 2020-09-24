@@ -15,21 +15,20 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ActivityRepositoryCustomImpl implements ActivityRepositoryCustom {
-    public class SearchResponse {
+    public static class SearchResponse {
         public final List<Activity> activities;
         public final int count;
-        private SearchResponse(List<Activity> activities, Long count) {
+        public SearchResponse(List<Activity> activities, Long count) {
             this.activities = activities;
             this.count = count.intValue();
         }
-
     }
 
     @PersistenceContext
     private EntityManager entityManager;
 
     @Override
-    public SearchResponse findAllByKeywordUsingMethod(@Param("keywords") List<String> keywords, int pageSize, int page) {
+    public SearchResponse findAllByKeyword(@Param("keywords") List<String> keywords, int pageSize, int page) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Activity> query = cb.createQuery(Activity.class);
         CriteriaQuery<Long> cQuery = cb.createQuery(Long.class);
@@ -38,32 +37,43 @@ public class ActivityRepositoryCustomImpl implements ActivityRepositoryCustom {
         Path<String> activity_name = activity.get("name");
 
         boolean orMode = false;
-        Predicate predicate = cb.like(activity_name, "");
+        Predicate predicate = null;
         if (keywords.size() > 1) orMode = keywords.get(1).equals("\"+\"");
-        if (orMode) predicate = cb.notLike(activity_name, "");
+        if (orMode) predicate = cb.notLike(activity_name, "%");
+        else predicate = cb.like(activity_name, "%");
         for (int i = 0; i < keywords.size(); i++) {
             String word = keywords.get(i);
             if (word.equals("\"+\"")) continue; //Ignore the or symbol
             else word = "%" + word + "%";
-            Predicate currentPredicate = predicate = cb.like(activity_name, word);
-            Predicate base = predicate;
-            if (orMode) predicate = cb.or(base, currentPredicate);
-            else predicate = cb.and(base, currentPredicate);
+            Predicate currentPredicate = cb.like(activity_name, word);
+            Predicate basePredicate = predicate;
+
+            if (orMode) predicate = cb.or(basePredicate, currentPredicate);
+            else predicate = cb.and(basePredicate, currentPredicate);
+
             if (keywords.size() > i + 1) {
                 if (keywords.get(i + 1).equals("\"+\"")) {
                     if (!orMode) {
                         predicates.add(predicate);
-                        predicate = cb.notLike(activity_name, "");
+                        predicate = cb.notLike(activity_name, "%");
+                    }
+                    orMode = true;
+                } else if (keywords.size() > i + 2 && keywords.get(i + 2).equals("\"+\"")) {
+                    //This branch means that OR statements have priority over AND statements
+                    if (!orMode) {
+                        predicates.add(predicate);
+                        predicate = cb.notLike(activity_name, "%");
                     }
                     orMode = true;
                 } else {
                     if (orMode) {
                         predicates.add(predicate);
-                        predicate = cb.like(activity_name, "");
+                        predicate = cb.like(activity_name, "%");
                     }
                     orMode = false;
                 }
-            } else {
+            }
+            else {
                 predicates.add(predicate);
             }
         }

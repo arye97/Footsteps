@@ -10,6 +10,7 @@ import com.springvuegradle.seng302team600.payload.pins.Pin;
 import com.springvuegradle.seng302team600.payload.pins.UserPin;
 import com.springvuegradle.seng302team600.payload.response.ActivityResponse;
 import com.springvuegradle.seng302team600.payload.request.UserRegisterRequest;
+import com.springvuegradle.seng302team600.repository.ActivityRepositoryCustomImpl.SearchResponse;
 import com.springvuegradle.seng302team600.repository.*;
 import com.springvuegradle.seng302team600.service.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -892,82 +893,88 @@ class ActivityControllerTest {
         assertDoesNotThrow(() -> objectMapper.treeToValue(responseArray.get(0), ActivityResponse.class));
     }
 
-//    @Test
-//    void getActivitiesByAKeyword() throws Exception {
-//        when(activityRepository.findAllByKeyword(Mockito.anyString())).thenAnswer(i -> {
-//            String keyword = i.getArgument(0);
-//            List<Activity> foundActivities = new ArrayList<>();
-//            if (keyword.contains("Climb")) {
-//                Activity dumActivity1 = new Activity();
-//                ReflectionTestUtils.setField(dumActivity1, "activityId", 1L);
-//                Activity dumActivity2 = new Activity();
-//                ReflectionTestUtils.setField(dumActivity2, "activityId", 2L);
-//                dumActivity1.setName("Climb Mount Fuji");
-//                dumActivity2.setName("Climb the Ivory Tower");
-//                foundActivities.add(dumActivity1);
-//                foundActivities.add(dumActivity2);
-//            }
-//            return foundActivities;
-//        });
-//
-//        URI uri = new URI(
-//                null,
-//                null,
-//                "/activities",
-//                "activityKeywords=Climb",
-//                null);
-//        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(uri)
-//                .header("Token", validToken);
-//
-//        MvcResult result = mvc.perform(httpReq)
-//                .andExpect(status().isOk())
-//                .andReturn();
-//        assertNotNull(result);
-//        JsonNode responseString = objectMapper.readTree(result.getResponse().getContentAsString());
-//        assertEquals(2, responseString.size());
-//    }
+    @Test
+    void getActivitiesByAKeyword() throws Exception {
+        when(activityRepository.findAllByKeyword(Mockito.anyList(), Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> {
+            List<String> keywords = i.getArgument(0);
+            List<Activity> foundActivities = new ArrayList<>();
+            Long count = 0L;
+            if (keywords.get(0).contains("Climb")) {
+                Activity dumActivity1 = new Activity();
+                ReflectionTestUtils.setField(dumActivity1, "activityId", 1L);
+                Activity dumActivity2 = new Activity();
+                ReflectionTestUtils.setField(dumActivity2, "activityId", 2L);
+                dumActivity1.setName("Climb Mount Fuji");
+                dumActivity2.setName("Climb the Ivory Tower");
+                foundActivities.add(dumActivity1);
+                foundActivities.add(dumActivity2);
+                count = 2L;
+            }
+            SearchResponse response = new SearchResponse(foundActivities, count);
+            return response;
+        });
 
-//    @Test
-//    void getActivitiesByExactSearch() throws Exception {
-//        when(activityRepository.findAllByKeyword(Mockito.anyString())).thenAnswer(i -> {
-//            String keyword = i.getArgument(0);
-//            List<Activity> foundActivities = new ArrayList<>();
-//            Activity dumActivity1 = new Activity();
-//            ReflectionTestUtils.setField(dumActivity1, "activityId", 1L);
-//            Activity dumActivity2 = new Activity();
-//            ReflectionTestUtils.setField(dumActivity2, "activityId", 2L);
-//            dumActivity1.setName("Climb Mount Fuji");
-//            dumActivity2.setName("Climb the Ivory Tower");
-//            foundActivities.add(dumActivity1);
-//            foundActivities.add(dumActivity2);
-//            List<Activity> selectedActivities = new ArrayList<>();
-//            keyword = keyword.replaceAll("%20", " ");
-//            if (keyword.equals("Climb Mount Fuji")) {
-//                for (Activity activity : foundActivities) {
-//                    if (activity.getName().equals(keyword)) {
-//                        selectedActivities.add(activity);
-//                    }
-//                }
-//            }
-//            return selectedActivities;
-//        });
-//
-//        URI uri = new URI(
-//                null,
-//                null,
-//                "/activities",
-//                "activityKeywords=\"Climb%20Mount%20Fuji\"",
-//                null);
-//        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(uri)
-//                .header("Token", validToken);
-//
-//        MvcResult result = mvc.perform(httpReq)
-//                .andExpect(status().isOk())
-//                .andReturn();
-//        assertNotNull(result);
-//        JsonNode responseString = objectMapper.readTree(result.getResponse().getContentAsString());
-//        assertEquals(1, responseString.size());
-//    }
+        URI uri = new URI(
+                null,
+                null,
+                "/activities",
+                "activityKeywords=Climb",
+                null);
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(uri)
+                .header("Token", validToken);
+
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isOk())
+                .andReturn();
+        assertNotNull(result);
+        JsonNode responseString = objectMapper.readTree(result.getResponse().getContentAsString());
+        assertEquals(2, responseString.size());
+    }
+
+    @Test
+    void getActivitiesByExactSearch() throws Exception {
+        when(activityRepository.findAllByKeyword(Mockito.anyList(), Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> {
+            List<String> keywords = i.getArgument(0);
+            List<Activity> foundActivities = new ArrayList<>();
+            Long count = 0L;
+            Activity dumActivity1 = new Activity();
+            ReflectionTestUtils.setField(dumActivity1, "activityId", 1L);
+            Activity dumActivity2 = new Activity();
+            ReflectionTestUtils.setField(dumActivity2, "activityId", 2L);
+            dumActivity1.setName("Climb Mount Fuji");
+            dumActivity2.setName("Climb the Ivory Tower");
+            foundActivities.add(dumActivity1);
+            foundActivities.add(dumActivity2);
+            List<Activity> selectedActivities = new ArrayList<>();
+            String keyword = keywords.get(0).replaceAll("%20", " ");
+            if (keyword.equals("Climb Mount Fuji")) {
+                for (Activity activity : foundActivities) {
+                    if (activity.getName().equals(keyword)) {
+                        selectedActivities.add(activity);
+                        count++;
+                    }
+                }
+            }
+            SearchResponse response = new SearchResponse(selectedActivities, count);
+            return response;
+        });
+
+        URI uri = new URI(
+                null,
+                null,
+                "/activities",
+                "activityKeywords=\"Climb%20Mount%20Fuji\"",
+                null);
+        MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(uri)
+                .header("Token", validToken);
+
+        MvcResult result = mvc.perform(httpReq)
+                .andExpect(status().isOk())
+                .andReturn();
+        assertNotNull(result);
+        JsonNode responseString = objectMapper.readTree(result.getResponse().getContentAsString());
+        assertEquals(1, responseString.size());
+    }
 
     @Test
     void requireKeywordToFindActivityByName() throws Exception {
@@ -984,10 +991,11 @@ class ActivityControllerTest {
 
     @Test
     void cannotFindActivitiesByKeyword() throws Exception {
-        when(activityRepository.findAllByKeyword(Mockito.anyString())).thenAnswer(i -> {
-            String keyword = i.getArgument(0);
+        when(activityRepository.findAllByKeyword(Mockito.anyList(), Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> {
+            List<String> keywords = i.getArgument(0);
             List<Activity> foundActivities = new ArrayList<>();
-            if (keyword.equals("Climb") || keyword.equals("%Climb%")) {
+            Long count = 0L;
+            if (keywords.get(0).equals("Climb") || keywords.get(0).equals("%Climb%")) {
                 Activity dumActivity1 = new Activity();
                 ReflectionTestUtils.setField(dumActivity1, "activityId", 1L);
                 Activity dumActivity2 = new Activity();
@@ -996,8 +1004,10 @@ class ActivityControllerTest {
                 dumActivity2.setName("Climb the Ivory Tower");
                 foundActivities.add(dumActivity1);
                 foundActivities.add(dumActivity2);
+                count = 2L;
             }
-            return foundActivities;
+            SearchResponse response = new SearchResponse(foundActivities, count);
+            return response;
         });
         MockHttpServletRequestBuilder httpReq = MockMvcRequestBuilders.get(new URI("/activities?activityKeywords=keyword"))
                 .header("Token", validToken);
@@ -1022,10 +1032,10 @@ class ActivityControllerTest {
 //        activities.add(dumActivity1);
 //        activities.add(dumActivity2);
 //
-//        when(activityRepository.findAllByKeyword(Mockito.anyString())).thenAnswer(i -> {
+//        when(activityRepository.findAllByKeyword(Mockito.anyList(), Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> {
 //            List<Activity> foundActivities = new ArrayList<>();
-//            Page<Activity> pagedFoundActivities;
-//            String keyword = i.getArgument(0);
+//            List<String> keywords = i.getArgument(0);
+//            String keyword = keywords.get(0);
 //            keyword = keyword.replaceAll("[^a-zA-Z0-9\\\\s+]", " ");
 //            keyword = keyword.trim();
 //            List<String> keywords = Arrays.asList(keyword.split(" "));
