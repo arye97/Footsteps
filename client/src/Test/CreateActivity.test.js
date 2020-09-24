@@ -49,7 +49,7 @@ const ACTIVITY_TYPES = [
     {activityTypeId: 2, name: "Attics"}
 ];
 
-beforeEach(() => {
+beforeAll(() => {
     config = {
         router,
         localVue,
