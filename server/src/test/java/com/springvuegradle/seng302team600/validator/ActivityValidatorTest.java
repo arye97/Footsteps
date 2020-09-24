@@ -156,12 +156,4 @@ public class ActivityValidatorTest {
         activity.setFitnessLevel(-2);
         assertThrows(ResponseStatusException.class, () -> ActivityValidator.validate(activity));
     }
-
-    @Test
-    public void edgeCasesFitnessLevels() {
-        activity.setFitnessLevel(-1);
-        assertTrue(ActivityValidator.validate(activity));
-        activity.setFitnessLevel(4);
-        assertTrue(ActivityValidator.validate(activity));
-    }
 }
