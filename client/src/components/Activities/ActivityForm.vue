@@ -140,11 +140,14 @@
 
                 <b-form-group id="input-fitness-level" label-for="activity-form-fitness" label="Activity Fitness Level:">
                     <!-- fitness level field -->
-                    <multiselect v-model="fitness" id="activity-form-fitness" :options="fitnessOptions" :multiple="false" label="desc" :return="fitnessOptions.desc"
+                    <multiselect v-model="activity.fitness" id="activity-form-fitness" :options="fitnessOptions" :multiple="false" label="desc" :return="fitnessOptions.desc"
                                  placeholder="Please select a fitness level" track-by="value">
                         <template slot="singleLabel" slot-scope="{ option }"><footer> {{ option.desc }}</footer></template>
                     </multiselect>
                 </b-form-group>
+                <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_fitness">
+                    Invalid fitness level, try re selecting
+                </div>
 
                 <b-form-group
                         id="input-group-location"
@@ -311,6 +314,7 @@
                 startTime: String,
                 endDate: String,
                 endTime: String,
+                fitness: Object
             },
             outcomeList: {
                 default() {
@@ -357,7 +361,6 @@
                 error_message: "Something went wrong",
                 submitDisabled: false,
 
-                fitness: '',
                 fitnessOptions: fitnessLevels,
             }
         },
@@ -375,11 +378,11 @@
             value: {
                 get () {
                     return this.fitnessOptions.filter(
-                        option => this.fitness.includes(option.desc)
+                        option => this.activity.fitness.includes(option.desc)
                     )
                 },
                 set (newSelectedOptions) {
-                    this.fitness = newSelectedOptions.map(option => option.desc)
+                    this.activity.fitness = newSelectedOptions.map(option => option.desc)
                 }
             }
         },
@@ -550,6 +553,10 @@
                 if (!this.activity.location ||
                     (this.activity.location && !["latitude", "longitude", "name"].every(key => key in this.activity.location))) {
                     showError('alert_location');
+                    this.isValidFormFlag = false;
+                }
+                if (!this.activity.fitness || !this.fitnessOptions.includes(this.activity.fitness)) {
+                    showError('alert_fitness');
                     this.isValidFormFlag = false;
                 }
             },

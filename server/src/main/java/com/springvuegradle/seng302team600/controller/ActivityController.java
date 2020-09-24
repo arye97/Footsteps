@@ -156,6 +156,7 @@ public class ActivityController {
         oldActivity.setName(activity.getName());
         oldActivity.setLocation(activity.getLocation());
         oldActivity.setContinuous(activity.isContinuous());
+        oldActivity.setFitnessLevel(activity.getFitnessLevel());
         if (!activity.isContinuous()) {
             oldActivity.setStartTime(activity.getStartTime());
             oldActivity.setEndTime(activity.getEndTime());
