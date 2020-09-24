@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service("locationSearchService")
@@ -153,7 +154,7 @@ public class LocationSearchService {
         if (cutoffDistance >= MAX_CUTOFF_DISTANCE) {
             cutoffDistance = MAX_DISTANCE;
         }
-        int numberOfRows;
+        Integer numberOfRows;
         if (activityTypes.length() >= 1) {
             List<String> typesWithDashes = Arrays.asList(activityTypes.split(" "));
             List<String> types = typesWithDashes.stream()
@@ -177,6 +178,7 @@ public class LocationSearchService {
             numberOfRows = activityRepository.countAllWithinDistance(
                     coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance);
         }
-        return numberOfRows;
+        // Empty result list
+        return Objects.requireNonNullElse(numberOfRows, 0);
     }
 }
