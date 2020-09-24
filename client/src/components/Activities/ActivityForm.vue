@@ -523,7 +523,8 @@
                     }
                 }
 
-                if (!this.activity.location) {
+                if (!this.activity.location ||
+                    (this.activity.location && !["latitude", "longitude", "name"].every(key => key in this.activity.location))) {
                     showError('alert_location');
                     this.isValidFormFlag = false;
                 }
