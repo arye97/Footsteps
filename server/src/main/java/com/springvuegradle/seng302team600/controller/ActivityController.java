@@ -558,7 +558,6 @@ public class ActivityController {
                                                @RequestParam(value = "minFitnessLevel") Integer minFitnessLevel,
                                                @RequestParam(value = "maxFitnessLevel") Integer maxFitnessLevel
                                                ) throws JsonProcessingException {
-
         String token = request.getHeader(TOKEN_DECLARATION);
         userAuthenticationService.findByToken(token);
         int pageNumber;
