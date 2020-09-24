@@ -47,7 +47,7 @@
             </b-row>
             </b-container>
         </div>
-        <pin-legend class="pin-legend" :mode="pinLegendMode"/>
+        <pin-legend v-if="pinLegendMode" class="pin-legend" :mode="pinLegendMode"/>
     </b-card>
   </div>
 
@@ -119,7 +119,7 @@
                 default: null,
                 type: String
             },
-            pinLegendMode: { //  ViewUser, ActivitySearch, AllActivities
+            pinLegendMode: {
                 default: null,
                 type: String
             },
@@ -294,6 +294,5 @@
     }
 
     .input-location-container {
-        margin-bottom: 30px;
     }
 </style>

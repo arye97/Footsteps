@@ -23,7 +23,7 @@
         props: {
             /**
              * Dictates variants of Pin Legends
-             * Can be ViewUser, AllActivities, or ActivitySearch,
+             * Can be ViewUser, AllActivities, or ActivitySearch, ViewActivity
              * indicating the page that requires Pin Legends
              */
             mode: {
@@ -41,17 +41,20 @@
         mounted() {
             switch(this.mode) {
                 case "ViewUser":
-                    this.redPinDescription = "Your Public and Private Location";
+                    this.redPinDescription = "Your Location(s)";
                     break;
                 case "ActivitySearch":
                     this.redPinDescription = "Your Current Location";
                     this.bluePinDescription = "Your Activities";
-                    this.greenPinDescription = "Followed and Unfollowed Activities";
+                    this.greenPinDescription = "Other Activities";
                     break;
                 case "AllActivities":
                     this.redPinDescription = "Your Current Location";
                     this.bluePinDescription = "Your Activities";
                     this.greenPinDescription = "Followed Activities";
+                    break;
+                case "ViewActivity":
+                    this.bluePinDescription = "This Activity";
                     break;
             }
         }
@@ -60,7 +63,7 @@
 
 <style scoped>
     div {
-        margin-top: 10px;
+        margin-top: 20px;
         vertical-align:middle
     }
 
