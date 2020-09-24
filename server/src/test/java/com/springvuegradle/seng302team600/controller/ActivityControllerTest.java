@@ -1171,6 +1171,9 @@ class ActivityControllerTest {
                 .param("activityTypes", "smile")
                 .param("cutoffDistance", "1000")
                 .param("method", "OR")
+                .param("minFitnessLevel", "0")
+                .param("maxFitnessLevel", "2")
+                .param("method", "OR")
                 .header("Token", validToken)
                 .header("Page-Number", PAGE_ONE);
 

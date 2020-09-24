@@ -543,12 +543,15 @@ public class ActivityController {
      */
     @GetMapping(
             value = "/activities",
-            params = {"coordinates", "activityTypes", "cutoffDistance", "method"})
+            params = {"coordinates", "activityTypes", "cutoffDistance", "method", "minFitnessLevel", "maxFitnessLevel"})
     public List<ActivityResponse> getActivitiesByLocation(HttpServletRequest request, HttpServletResponse response,
                                                @RequestParam(value = "coordinates") String strCoordinates,
                                                @RequestParam(value = "activityTypes") String activityTypes,
                                                @RequestParam(value = "cutoffDistance") Double cutoffDistance,
-                                               @RequestParam(value = "method") String method) throws JsonProcessingException {
+                                               @RequestParam(value = "method") String method,
+                                               @RequestParam(value = "minFitnessLevel") Integer minFitnessLevel,
+                                               @RequestParam(value = "maxFitnessLevel") Integer maxFitnessLevel
+                                               ) throws JsonProcessingException {
 
         String token = request.getHeader(TOKEN_DECLARATION);
         userAuthenticationService.findByToken(token);

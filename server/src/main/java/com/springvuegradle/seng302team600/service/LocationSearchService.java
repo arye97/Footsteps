@@ -45,7 +45,7 @@ public class LocationSearchService {
      */
     public Slice<Activity> getActivitiesByLocation(String strCoordinates, String activityTypes,
                                                    Double cutoffDistance, String method,
-                                                   int blockSize, int pageNumber)
+                                                   int blockSize, int pageNumber)//, int minFitness, int maxFitness)
             throws JsonProcessingException {
         if (pageNumber < 0) {
             pageNumber = 0;
