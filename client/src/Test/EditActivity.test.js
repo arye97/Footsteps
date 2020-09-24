@@ -1,13 +1,18 @@
 import 'vue-jest'
-import {createLocalVue, mount} from '@vue/test-utils'
+import {createLocalVue, shallowMount} from '@vue/test-utils'
 import EditActivity from "../views/Activities/EditActivity";
 import api from "../Api";
 import router from '../index';
-import {BootstrapVue} from 'bootstrap-vue';
+import {BootstrapVue, BootstrapVueIcons, IconsPlugin} from 'bootstrap-vue';
 jest.mock("../Api");
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
+localVue.use(BootstrapVueIcons);
+localVue.use(IconsPlugin);
+import EmptyComponent from "./EmptyComponent.vue";
+localVue.component('GmapAutocomplete', EmptyComponent);
+
 
 let editActivity;
 let config;
@@ -54,6 +59,7 @@ const ACTIVITY_DATA = {
     description: "My activity description",
     location: "My activity location",
     activity_type: ["Hng", "Attics"],
+    fitness: 4
 };
 
 beforeEach(() => {
@@ -83,7 +89,7 @@ beforeEach(() => {
     });
     api.getActivityTypes.mockImplementation(() => Promise.resolve({data: ACTIVITY_TYPES, status: 200}));
     api.getActivityData.mockImplementation(() => Promise.resolve({data: ACTIVITY_DATA, status: 200}));
-    editActivity = mount(EditActivity, config);
+    editActivity = shallowMount(EditActivity, config);
     if (editActivity.vm.$router.currentRoute.name !== "editActivity") {
         editActivity.vm.$router.push(`/activities/edit/${DEFAULT_ACTIVITY_ID}`);
     }

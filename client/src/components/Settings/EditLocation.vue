@@ -52,10 +52,6 @@
                 </div>
             </div>
 
-            <label v-if="!changesMade" class="warningMessage">
-                Specify a valid location above to save changes
-            </label>
-
             <b-alert
                     id="locationAlert"
                     :show="dismissCountDown"
@@ -87,7 +83,7 @@
 <script>
 import api from "../../Api";
 import LocationIO from "../../components/Map/LocationIO";
-import { compareObjs } from "../../util"
+import {compareObjs, pinToLocation} from "../../util"
 
 const TIMEOUT_DURATION = 5;   // Time for error/success messages to disappear
 
@@ -304,15 +300,7 @@ export default {
          * Function emitted from LocationIO.vue to set inputPublicLocation
          */
         setLocationPublic(pin) {
-            if (pin) {
-                this.inputPublicLocation = {
-                    latitude: pin.lat,
-                    longitude: pin.lng,
-                    name: pin.name,
-                };
-            } else {
-                this.inputPublicLocation = null;
-            }
+            this.inputPublicLocation = pinToLocation(pin);
 
             this.identicalPublicLocationWarningMessage = null;
             if (compareObjs(this.publicLocation, this.inputPublicLocation)) {
@@ -324,15 +312,7 @@ export default {
          * Function emitted from LocationIO.vue to set inputPrivateLocation
          */
         setLocationPrivate(pin) {
-            if (pin) {
-                this.inputPrivateLocation = {
-                    latitude: pin.lat,
-                    longitude: pin.lng,
-                    name: pin.name,
-                };
-            } else {
-                this.inputPrivateLocation = null;
-            }
+            this.inputPrivateLocation = pinToLocation(pin);
 
             this.identicalPrivateLocationWarningMessage = null;
             if (compareObjs(this.privateLocation, this.inputPrivateLocation)) {

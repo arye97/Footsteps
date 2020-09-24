@@ -1,14 +1,13 @@
-import {mount, createLocalVue} from '@vue/test-utils'
+import {shallowMount, createLocalVue} from '@vue/test-utils'
 import LocationIO from '../components/Map/LocationIO.vue'
 import {BootstrapVue} from 'bootstrap-vue';
-import { gmapApi } from 'gmap-vue';
-import "vue-jest"
-
-jest.mock("gmap-vue");
+import "vue-jest";
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(gmapApi);
+
+import EmptyComponent from "./EmptyComponent.vue";
+localVue.component('GmapAutocomplete', EmptyComponent);
 
 let config;
 
@@ -40,7 +39,7 @@ beforeEach(() => {
     config = {
         localVue
     };
-    locationIO = mount(LocationIO, config);
+    locationIO = shallowMount(LocationIO, config);
 });
 
 test('Is a vue instance', () => {
@@ -48,23 +47,19 @@ test('Is a vue instance', () => {
 });
 
 test('map pane does not exist at default', () => {
-    expect(locationIO.find('#mapComponent').exists()).toBeFalsy();
-});
-
-test('gmap Auto complete does not exist at default', () => {
-    expect(locationIO.find('#gmapAutoComplete').exists()).toBeFalsy();
+    expect(locationIO.find('#mapComponent').exists()).toBeTruthy();
 });
 
 test('Add marker button does not exist at default', () => {
-    expect(locationIO.find('#addMarkerButton').exists()).toBeFalsy();
+    expect(locationIO.find('#addMarkerButton').exists()).toBeTruthy();
 });
 
 test('Hide map button does not exist at default', () => {
-    expect(locationIO.find('#hideMapButton').exists()).toBeFalsy();
+    expect(locationIO.find('#hideMapButton').exists()).toBeTruthy();
 });
 
 test('Show map button exists at default', () => {
-    expect(locationIO.find('#showMapButton').exists()).toBeTruthy();
+    expect(locationIO.find('#showMapButton').exists()).toBeFalsy();
 });
 
 describe("Test placeToPin", () => {
@@ -114,7 +109,7 @@ describe("Test addMarker", () => {
         {maxPins: 1},
         {singleOnly: true, maxPins: 1},
     ])('Only a single pin can be added in single-only mode and when max-pin == 1', async (props) => {
-        locationIO = mount(LocationIO, {localVue, propsData: props});
+        locationIO = shallowMount(LocationIO, {localVue, propsData: props});
         locationIO.vm.$refs.mapViewerRef = {panToPin: () => {}};
 
         expect(locationIO.vm.$data.pins).toHaveLength(0);
@@ -142,7 +137,7 @@ describe("Test addMarker", () => {
 
 
 test('Pins obtained from the parent are added to the map', () => {
-    locationIO = mount(LocationIO, {localVue, propsData:{parentPins: [parentPinData]}});
+    locationIO = shallowMount(LocationIO, {localVue, propsData:{parentPins: [parentPinData]}});
     expect(locationIO.vm.$data.pins).toContain(parentPinData);
 });
 
@@ -151,7 +146,7 @@ test('Pins are empty by default', () => {
 });
 
 test('Map is centered on the point specified by the parent', () => {
-    locationIO = mount(LocationIO, {localVue, propsData:{parentCenter: parentCenterData}});
+    locationIO = shallowMount(LocationIO, {localVue, propsData:{parentCenter: parentCenterData}});
     expect(locationIO.vm.$data.center).toBe(parentCenterData)
 });
 

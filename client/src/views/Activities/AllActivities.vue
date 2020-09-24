@@ -35,16 +35,17 @@
             </div>
             <div class="align-centre" id="mapComponent" v-if="!loading">
                 <location-i-o
+                        ref="mapComponentRef"
                         :view-only="true"
-                        :parent-center="{lat: userPin.lat, lng: userPin.lng}"
+                        :parent-center="centerPin === null ? null : {lat: centerPin.lat, lng: centerPin.lng}"
                         :parent-pins.sync="pins"
                         :max-pins="rows"
-                        :description="'Your location is red, created activities are blue and following activities are green.'"
+                        :description="'Your location is red, created activities are blue and following activities are green. If you click an activity pin you will be directed to the page for that activity.'"
                 ></location-i-o>
                 <br/>
             </div>
             <section>
-                <ActivityList id="activityList" v-if="userId !== null" :user-id-prop="userId"/>
+                <ActivityList @deleteUpdate="getPins" id="activityList" v-if="userId !== null" :user-id-prop="userId"/>
             </section>
 
         </b-container>
@@ -71,7 +72,7 @@
                 errorAlertMessage: '',
                 rows: 0,
                 hasNext: false,
-                userPin: null,
+                centerPin: null,
                 pins: [],
                 loading: true,
                 userId: null
@@ -90,6 +91,7 @@
         async mounted() {
             this.userId = await this.getUserId();
             await this.getPins();
+            this.addPinsToMap(this.pins.reverse());  // reverse() Puts the user's location at end of the array
         },
         methods: {
             /**
@@ -101,11 +103,14 @@
                 let pinBlock = 0;
                 let pins = await this.requestPinBlock(pinBlock);
                 if (pins.length < 1) {
-                    pins = [{lat: -40.9006, lng: 174.8860, colour: 'red'}] // No pins received, default to New Zealand
+                    pins = [{lat: -40.9006, lng: 174.8860, colour: 'red'}]; // No pins received, default to New Zealand
                     this.rows = 1;
                 }
                 this.loading = false;
-                this.userPin = pins[0];
+                this.centerPin = pins[0];
+                if (this.centerPin.pin_type !== "USER") {
+                    this.centerPin = null;
+                }
                 this.pins = pins;
                 while (this.hasNext) {
                     pinBlock++;
@@ -122,6 +127,13 @@
             async requestPinBlock(pinBlock) {
                 let pins = [];
                 await api.getActivityPins(this.userId, pinBlock).then(response => {
+                    for (let pin of response.data) {
+                        pin.windowOpen = false;
+                        if (!("name" in pin)) {
+                            pin["name"] = pin["location_name"];
+                        }
+                        pins.push(pin);
+                    }
                     pins = response.data;
                     this.hasNext = response.headers['has-next'] === 'true';
                     this.rows += pins.length;
@@ -161,6 +173,15 @@
             goToPage(url) {
                 this.$router.push(url);
             },
+
+            /**
+             * This method was needed, as it doesn't seem possible to stub $refs when they are called in a Vue's
+             * mounted hook.
+             * @param pins Array of pin Objects containing lat, lng, name.
+             */
+            addPinsToMap(pins) {
+                this.$refs.mapComponentRef.addMarkers(pins);
+            }
         }
     }
 </script>
