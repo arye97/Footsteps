@@ -11,7 +11,7 @@
 
         <b-progress-bar class="white-space" :value="value[1]"></b-progress-bar>
 
-        <b-progress-bar variant="danger" :value="value[2]"></b-progress-bar>
+        <b-progress-bar variant="dark" :value="value[2]"></b-progress-bar>
 
         <b-progress-bar variant="success" :value="(isGreen) ? value[3] : 0"></b-progress-bar>
         <b-progress-bar variant="warning" :value="(!isGreen) ? value[3] : 0"></b-progress-bar>
