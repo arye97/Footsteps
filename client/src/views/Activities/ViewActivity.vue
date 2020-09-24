@@ -208,7 +208,7 @@ import ViewParticipants from "../../components/Activities/modals/ViewParticipant
 import AddResults from "../../components/Activities/modals/AddResults";
 import ViewResults from "../../components/Activities/modals/ViewResults";
 import LocationIO from "../../components/Map/LocationIO";
-import FitnessProgressBar from "@/components/Activities/FitnessProgressBar";
+import FitnessProgressBar from "../../components/Activities/FitnessProgressBar";
 
 export default {
     name: "ViewActivity",
