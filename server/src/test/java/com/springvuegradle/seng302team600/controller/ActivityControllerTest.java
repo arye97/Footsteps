@@ -136,7 +136,8 @@ class ActivityControllerTest {
         // Mocking LocationSearchService
         // Mock getActivitiesByLocation within the test methods, if you don't want all the activities
         when(locationSearchService.getActivitiesByLocation(Mockito.anyString(), Mockito.anyString(), Mockito.anyDouble(),
-                Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> {
+                Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt()))
+                .thenAnswer(i -> {
             int pageNumber = i.getArgument(5);
             if (pageNumber < 0) {
                 pageNumber = 0;
@@ -1147,6 +1148,8 @@ class ActivityControllerTest {
                         "%7B%22lat%22%3A%22-45.8667783%22%2C%22lng%22%3A%22170.4910567%22%7D")
                 .param("activityTypes", "smile")
                 .param("cutoffDistance", "1000")
+                .param("minFitnessLevel", "0")
+                .param("maxFitnessLevel", "2")
                 .param("method", "OR")
                 .header("Token", validToken)
                 .header("Page-Number", PAGE_ONE);
