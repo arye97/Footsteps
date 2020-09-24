@@ -61,9 +61,13 @@ public class LocationSearchService {
             cutoffDistance = MAX_DISTANCE;
         }
 
-        if (minFitness < -1 || minFitness > 4 || maxFitness < -1 || minFitness > 4) {
+        if (minFitness < -1 || minFitness > 4 || maxFitness < -1 || maxFitness > 4) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Fitness Level must be in the range -1 to 4, where -1 is activities with no fitness level and 4 is the highest level.");
+        }
+        if (minFitness > maxFitness) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Minimum fitness level should not be greater than the maximum fitness level");
         }
 
         Slice<Activity> paginatedActivities;
