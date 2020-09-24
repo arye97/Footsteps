@@ -3,10 +3,12 @@ import {createLocalVue, shallowMount, RouterLinkStub} from "@vue/test-utils";
 import "jest";
 import api from "../Api";
 import router from '../index';
-import { BootstrapVue } from 'bootstrap-vue';
+import {BootstrapVue, BootstrapVueIcons, IconsPlugin} from 'bootstrap-vue';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
+localVue.use(BootstrapVueIcons);
+localVue.use(IconsPlugin);
 
 jest.mock('../Api');
 jest.mock('../index');
