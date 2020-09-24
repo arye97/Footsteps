@@ -144,21 +144,26 @@
                         label-for="input-location"
                 >
                     <!-- This gets around an issue where vue will throw a warning that location has not been defined -->
-                    <location-i-o v-if="!this.isEdit || this.activity.location !== null"
+                    <!--Without checking that activity.profileId is defined, there will be a race condition, the -->
+                    <!--activity data won't have been loaded, and the LocationIO won't receive the location-->
+                    <location-i-o v-if="!this.isEdit || this.activity.profileId"
                         id="input-location"
                         @pin-change="locationValue"
                         @locationIO-focus="setLocationFocus"
                         :single-only="true"
-                        :parent-pins="this.isEdit ?
-                            [{lat: this.activity.location.latitude, lng: this.activity.location.longitude}] :  null"
-                        :parent-center="this.isEdit ?
-                            {lat: this.activity.location.latitude, lng: this.activity.location.longitude} : null"
-                        :parent-address="this.isEdit ? this.activity.location.name : null"
+                        :parent-pins="this.isEdit && this.activity.location ?
+                            [{lat: this.activity.location.latitude, lng: this.activity.location.longitude}] :  undefined"
+
+                        :parent-center="this.isEdit && this.activity.location ?
+                            {lat: this.activity.location.latitude, lng: this.activity.location.longitude} : undefined"
+
+                        :parent-address="this.isEdit && this.activity.location ?
+                            this.activity.location.name : undefined"
                     ></location-i-o>
 
                 </b-form-group>
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_location">
-                    {{ "Field is mandatory and a location must be set" }}
+                    Field is mandatory and a location must be set
                 </div>
 
 
@@ -259,7 +264,7 @@
 <script>
     import Multiselect from 'vue-multiselect'
     import api from "../../Api";
-    import {localTimeZoneToBackEndTime} from "../../util";
+    import {localTimeZoneToBackEndTime, pinToLocation} from "../../util";
     import LocationIO from "../Map/LocationIO";
 
 
@@ -518,7 +523,8 @@
                     }
                 }
 
-                if (!this.activity.location) {
+                if (!this.activity.location ||
+                    (this.activity.location && !["latitude", "longitude", "name"].every(key => key in this.activity.location))) {
                     showError('alert_location');
                     this.isValidFormFlag = false;
                 }
@@ -672,20 +678,16 @@
                         this.$router.push({name: 'allActivities', params:
                                 {alertMessage: "Sorry, an unknown error occurred while loading the outcomes", alertCount: 5}});
                     }
-                })
+                });
                 return result;
             },
           /**
-           * Sets the location of the activity
+           * Sets the location of the activity.  Converts a pin to a location object used by the backend.
            * Called when the pins in the LocationIO child component are changed
            * @param pin Object from LocationIO
            */
             locationValue: function (pin) {
-                this.activity.location = {
-                    latitude: pin.lat,
-                    longitude: pin.lng,
-                    name: pin.name,
-                };
+                this.activity.location = pinToLocation(pin);
             },
             /**
              * Toggles the submitDisabled boolean
