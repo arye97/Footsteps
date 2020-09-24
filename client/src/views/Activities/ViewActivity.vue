@@ -64,7 +64,6 @@
                             <div class="address">
                                 <h3 v-if="this.location" class="font-weight-light">{{this.location.name}} </h3>
                                 <h3 v-else class="font-weight-light">Location not yet specified</h3>
-                                <br/>
                             </div>
                             <div>
                                 <location-i-o
