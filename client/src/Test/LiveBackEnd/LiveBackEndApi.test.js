@@ -118,7 +118,11 @@ const ACTIVITY1 = {
     description: "A trail run of Mingha - Deception Route in Arthur's pass.  South to north.",
     activity_type: ["Hiking", "Athletics"],
     continuous: false,
-    location: "Arthur's Pass National Park",
+    location: {
+        latitude: -42.936342,
+        longitude: 171.725097,
+        name: "Arthur's Pass National Park",
+    },
     start_time: "2020-12-16T09:00:00+0000",
     end_time: "2020-12-17T17:00:00+0000"
 };
@@ -387,11 +391,13 @@ describe("Run tests on new user", () => {
 
             return api.getActivityData(ACTIVITY_IDS.values().next().value).then(response => {
                 expect(response.status).toEqual(200);
-
-                // Itterate through and compare properties
+                // Iterate through and compare properties
                 for (let propName in ACTIVITY1) {
-                    if (propName === "activity_type") continue;  // Because they're stored a different way
+                    if (propName === "activity_type" || propName === "location") continue;  // Because they're stored a different way
                     expect(response.data[propName]).toEqual(ACTIVITY1[propName]);
+                }
+                for (let propName in ACTIVITY1.location) {
+                    expect(response.data.location[propName]).toEqual(ACTIVITY1.location[propName]);
                 }
             }).catch(err => {throw procError(err)});
         });

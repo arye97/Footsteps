@@ -273,3 +273,22 @@ export function compareObjs(obj1, obj2) {
 
     return true;
 }
+
+/**
+ * Convert a pin object to a Location object (that is accepted by the back end).
+ * @param pin Object {lat: *, lng: *, name: *}
+ * @return {null|{latitude: *, name: *, longitude: *}}
+ */
+export function pinToLocation(pin) {
+    let location;
+    if (pin) {
+        location = {
+            latitude: pin.lat,
+            longitude: pin.lng,
+            name: pin.name,
+        };
+    } else {
+        location = null;
+    }
+    return location;
+}
