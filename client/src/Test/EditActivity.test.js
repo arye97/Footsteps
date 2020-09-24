@@ -1,5 +1,5 @@
 import 'vue-jest'
-import {createLocalVue, mount} from '@vue/test-utils'
+import {createLocalVue, shallowMount} from '@vue/test-utils'
 import EditActivity from "../views/Activities/EditActivity";
 import api from "../Api";
 import router from '../index';
@@ -88,7 +88,7 @@ beforeEach(() => {
     });
     api.getActivityTypes.mockImplementation(() => Promise.resolve({data: ACTIVITY_TYPES, status: 200}));
     api.getActivityData.mockImplementation(() => Promise.resolve({data: ACTIVITY_DATA, status: 200}));
-    editActivity = mount(EditActivity, config);
+    editActivity = shallowMount(EditActivity, config);
     if (editActivity.vm.$router.currentRoute.name !== "editActivity") {
         editActivity.vm.$router.push(`/activities/edit/${DEFAULT_ACTIVITY_ID}`);
     }

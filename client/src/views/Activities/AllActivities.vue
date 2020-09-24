@@ -45,7 +45,7 @@
                 <br/>
             </div>
             <section>
-                <ActivityList id="activityList" v-if="userId !== null" :user-id-prop="userId"/>
+                <ActivityList @deleteUpdate="getPins" id="activityList" v-if="userId !== null" :user-id-prop="userId"/>
             </section>
 
         </b-container>

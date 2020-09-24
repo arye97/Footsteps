@@ -508,8 +508,7 @@ public class ActivityController {
                                                @RequestParam(value = "cutoffDistance") Double cutoffDistance,
                                                @RequestParam(value = "method") String method,
                                                @RequestParam(value = "minFitnessLevel") Integer minFitnessLevel,
-                                               @RequestParam(value = "maxFitnessLevel") Integer maxFitnessLevel
-                                               ) throws JsonProcessingException {
+                                               @RequestParam(value = "maxFitnessLevel") Integer maxFitnessLevel) throws JsonProcessingException {
         String token = request.getHeader(TOKEN_DECLARATION);
         User user = userAuthenticationService.findByToken(token);
         int pageNumber;
