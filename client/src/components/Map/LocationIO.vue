@@ -1,6 +1,6 @@
 <template>
   <div class="col-12 text-center">
-    <b-card class="flex-fill" border-variant="secondary">
+    <b-card class="flex-fill overflow-hidden" border-style="hidden" border-variant="white">
       <div v-if="isMapVisible">
         <b-button id="hideMapButton" variant="info" @click="isMapVisible=false">Hide Map</b-button>
         <br/><br/>
@@ -137,7 +137,7 @@
 
         data() {
             return {
-                isMapVisible: false,
+                isMapVisible: true,
                 address: "",
                 pins: [],
                 center: undefined,
@@ -282,5 +282,7 @@
 </script>
 
 <style scoped>
-
+    .border-white {
+        background-color: white;
+    }
 </style>

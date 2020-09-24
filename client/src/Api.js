@@ -93,8 +93,15 @@ export default {
     let activityTypesStr = activityTypes.map(a => a.replace(/\s/g, '-')).join(' ');  // Use RegEx to replace ALL spaces with dashes
     return server.get(`activities?activity=${activityTypesStr}&method=${method}`, getExtendedPageNumberTokenHeader(pageNumber))
   },
+  getActivityPinsByLocation: (coordinates, activityTypes, cutoffDistance, method, pageNumber) => {    // method denotes "and" or "or"
+    let activityTypesStr = activityTypes.map(a => a.replace(/\s/g, '-')).join(' ');  // Use RegEx to replace ALL spaces with dashes
+    return server.get(`/activities/pins?coordinates=${coordinates}&activityTypes=${activityTypesStr}&cutoffDistance=${cutoffDistance}&method=${method}`,
+        getExtendedPageNumberTokenHeader(pageNumber))
+  },
+  getActivityByLocation: (coordinates, activityTypes, cutoffDistance, method, pageNumber) => {    // method denotes "and" or "or"
+    let activityTypesStr = activityTypes.map(a => a.replace(/\s/g, '-')).join(' ');  // Use RegEx to replace ALL spaces with dashes
+    return server.get(`/activities/pins?coordinates=${coordinates}&activityTypes=${activityTypesStr}&cutoffDistance=${cutoffDistance}&method=${method}`,
+        getExtendedPageNumberTokenHeader(pageNumber))
+  },
   getActivityPins: (profileId, pageNumber)  => server.get(`/profiles/${profileId}/activities/pins`, getExtendedPageNumberTokenHeader(pageNumber)),
-  getActivityByLocation: (coordinates, activityTypes, cutoffDistance, method, pageNumber) => {
-    return server.get(`/activities?coordinates=${coordinates}&activityTypes=${activityTypes}&cutoffDistance=${cutoffDistance}&method=${method}`, getExtendedPageNumberTokenHeader(pageNumber))
-  }
 }

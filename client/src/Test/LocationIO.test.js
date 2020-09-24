@@ -47,19 +47,19 @@ test('Is a vue instance', () => {
 });
 
 test('map pane does not exist at default', () => {
-    expect(locationIO.find('#mapComponent').exists()).toBeFalsy();
+    expect(locationIO.find('#mapComponent').exists()).toBeTruthy();
 });
 
 test('Add marker button does not exist at default', () => {
-    expect(locationIO.find('#addMarkerButton').exists()).toBeFalsy();
+    expect(locationIO.find('#addMarkerButton').exists()).toBeTruthy();
 });
 
 test('Hide map button does not exist at default', () => {
-    expect(locationIO.find('#hideMapButton').exists()).toBeFalsy();
+    expect(locationIO.find('#hideMapButton').exists()).toBeTruthy();
 });
 
 test('Show map button exists at default', () => {
-    expect(locationIO.find('#showMapButton').exists()).toBeTruthy();
+    expect(locationIO.find('#showMapButton').exists()).toBeFalsy();
 });
 
 describe("Test placeToPin", () => {
