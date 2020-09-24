@@ -177,8 +177,20 @@
              * Watcher is called whenever currentPage is changed, via searching new query
              * or the pagination bar.
              */
-            currentPage() {
-                this.getPaginatedActivitiesByActivityTitle();
+            async currentPage() {
+                switch (this.searchMode) {
+                    case 'activityType':
+                        await this.getPaginatedActivitiesByActivityType();
+                        break;
+                    case 'activityName':
+                        await this.getPaginatedActivitiesByActivityTitle();
+                        break;
+                    case 'activityLocation':
+                        await this.getPaginatedActivitiesByLocation();
+                        await this.getActivityLocationRows();
+                        break;
+                }
+
             }
         },
         methods: {
@@ -240,25 +252,8 @@
                         this.loading = false;
                         this.resultsFound = true;
                     }).catch(error => {
-                    this.loading = false;
-                    this.errored = true;
-                    if ((error.code === "ECONNREFUSED") || (error.code === "ECONNABORTED")) {
-                        this.error_message = "Cannot connect to server - please try again later!";
-                    } else {
-                        if (error.response.status === 401) {
-                            this.error_message = "You aren't logged in! You're being redirected!";
-                            setTimeout(() => {
-                                this.logout()
-                            }, 3000)
-                        } else if (error.response.status === 400) {
-                            this.error_message = error.response.data.message;
-                        } else if (error.response.status === 404) {
-                            this.error_message = "No activities with activity names ".concat(this.activityTitle) + " have been found!"
-                        } else {
-                            this.error_message = "Something went wrong! Please try again."
-                        }
-                    }
-                });
+                        this.handleError(error, "No activities with activity names ".concat(this.activityTitle) + " have been found!");
+                    });
             },
 
             /**
@@ -274,25 +269,80 @@
                         this.loading = false;
                         this.resultsFound = true;
                     }).catch(error => {
-                    this.loading = false;
-                    this.errored = true;
-                    if ((error.code === "ECONNREFUSED") || (error.code === "ECONNABORTED")) {
-                        this.error_message = "Cannot connect to server - please try again later!";
+                        this.handleError(error, "No activities with activity types ".concat(this.selectedActivityTypes) + " have been found!");
+                    });
+            },
+
+
+            /**
+             * Fetches a paginated list of activities, filtered by specified location,
+             * through an API call.
+             */
+            async getPaginatedActivitiesByLocation() {
+                let pageNumber = this.currentPage - 1;
+
+                let coordinates = {
+                    "lat": this.currentLocation.lat,
+                    "lng": this.currentLocation.lng
+                };
+                let urlCoordinates = encodeURIComponent(JSON.stringify(coordinates));
+
+                api.getActivityByLocation(urlCoordinates, this.activityTypesSearchedFor, this.cutoffDistance, this.searchType, pageNumber)
+                    .then(response => {
+                        this.activitiesList = response.data;
+
+                        this.resultsFound = true;
+                    }).catch(error => {
+                        this.handleError(error, "No activities within distance of location ".concat(this.cutoffDistance) + " have been found!");
+                    });
+            },
+
+            /**
+             * Fetches the count of Activity Location results searched for.
+             */
+            async getActivityLocationRows() {
+
+                let coordinates = {
+                    "lat": this.currentLocation.lat,
+                    "lng": this.currentLocation.lng
+                };
+                let urlCoordinates = encodeURIComponent(JSON.stringify(coordinates));
+
+                await api.getNumberOfRowsForActivityByLocation(urlCoordinates, this.activityTypesSearchedFor, this.cutoffDistance, this.searchType)
+                    .then(response => {
+                        this.rows = response.data;
+                    }).catch(error => {
+                        this.handleError(error, "No activities within distance of location ".concat(this.cutoffDistance) + " have been found!");
+                    });
+
+                this.loading = false;
+            },
+
+
+            /**
+             * Handle a back-end error
+             * @param error Object from back-end
+             * @param message404 the message to display for a 404 Not Found error
+             */
+            handleError(error, message404) {
+                this.loading = false;
+                this.errored = true;
+                if ((error.code === "ECONNREFUSED") || (error.code === "ECONNABORTED")) {
+                    this.error_message = "Cannot connect to server - please try again later!";
+                } else {
+                    if (error.response.status === 401) {
+                        this.error_message = "You aren't logged in! You're being redirected!";
+                        setTimeout(() => {
+                            this.logout()
+                        }, 3000)
+                    } else if (error.response.status === 400) {
+                        this.error_message = error.response.data.message;
+                    } else if (error.response.status === 404) {
+                        this.error_message = message404
                     } else {
-                        if (error.response.status === 401) {
-                            this.error_message = "You aren't logged in! You're being redirected!";
-                            setTimeout(() => {
-                                this.logout()
-                            }, 3000)
-                        } else if (error.response.status === 400) {
-                            this.error_message = error.response.data.message;
-                        } else if (error.response.status === 404) {
-                            this.error_message = "No activities with activity types ".concat(this.selectedActivityTypes) + " have been found!"
-                        } else {
-                            this.error_message = "Something went wrong! Please try again."
-                        }
+                        this.error_message = "Something went wrong! Please try again."
                     }
-                });
+                }
             },
 
 
@@ -391,10 +441,12 @@
                         this.error_message = "Cannot have more than 75 characters in the search field.";
                     }
                     this.getPaginatedActivitiesByActivityTitle();
-                } else {
+
+                } else if (this.searchMode === 'activityLocation') {
                     this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
                     await this.getActivityPinBlocksByLocation();
-
+                    await this.getPaginatedActivitiesByLocation();
+                    await this.getActivityLocationRows();
                 }
             }
         }
