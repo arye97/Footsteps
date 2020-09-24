@@ -82,6 +82,9 @@ class ActivityControllerTest {
     private static final Long DEFAULT_ACTIVITY_TYPE_ID_3 = 3L;
     private static final Long DEFAULT_ACTIVITY_TYPE_ID_4 = 4L;
 
+    private static final Integer MIN_FITNESS_LEVEL = -1;
+    private static final Integer MAX_FITNESS_LEVEL = 4;
+
     private final Double DUMMY_LAT = 12.345678D;
     private final Double DUMMY_LON = 12.345678D;
     private Long DUMMY_ACTIVITY_STUB_ID = 8L;
@@ -386,7 +389,7 @@ class ActivityControllerTest {
         });
 
         // Mock the AND function of ActivityController
-        when(activityActivityTypeRepository.findByAllActivityTypeIds(Mockito.anyList(), Mockito.anyInt(), Mockito.any(Pageable.class))).thenAnswer(i -> {
+        when(activityActivityTypeRepository.findByAllActivityTypeIds(Mockito.anyList(), Mockito.anyInt(), Mockito.any(Pageable.class), Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> {
             List<Long> activityTypeIdsToMatch = i.getArgument(0);
             Pageable pageWithFiveActivities = i.getArgument(2);
             int pageNumber = pageWithFiveActivities.getPageNumber();
@@ -419,7 +422,7 @@ class ActivityControllerTest {
         });
 
         //Mock the OR functionality
-        when(activityActivityTypeRepository.findBySomeActivityTypeIds(Mockito.anyList(), Mockito.any(Pageable.class))).thenAnswer(i -> {
+        when(activityActivityTypeRepository.findBySomeActivityTypeIds(Mockito.anyList(), Mockito.any(Pageable.class), Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> {
             List<Long> activityTypeIdsToMatch = i.getArgument(0);
             Pageable pageWithFiveActivities = i.getArgument(1);
             int pageNumber = pageWithFiveActivities.getPageNumber();
@@ -736,7 +739,9 @@ class ActivityControllerTest {
     void searchOneActivityByActivityTypesANDSuccessful() throws Exception {
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities?activity=eating&method=and"))
                 .header("Token", validToken)
-                .header("Page-Number", currentPageNumber);
+                .header("Page-Number", currentPageNumber)
+                .param("minFitnessLevel", String.valueOf(MIN_FITNESS_LEVEL))
+                .param("maxFitnessLevel", String.valueOf(MAX_FITNESS_LEVEL));
 
         MvcResult response = mvc.perform(request)
                 .andExpect(status().isOk())
@@ -751,7 +756,9 @@ class ActivityControllerTest {
     void searchTwoActivitiesByActivityTypesANDSuccessful() throws Exception {
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities?activity=biking%20hiking&method=and"))
                 .header("Token", validToken)
-                .header("Page-Number", currentPageNumber);
+                .header("Page-Number", currentPageNumber)
+                .param("minFitnessLevel", String.valueOf(MIN_FITNESS_LEVEL))
+                .param("maxFitnessLevel", String.valueOf(MAX_FITNESS_LEVEL));
 
         MvcResult response = mvc.perform(request)
                 .andExpect(status().isOk())
@@ -766,7 +773,9 @@ class ActivityControllerTest {
     void searchPageOneOfPaginatedActivitiesByActivityTypesANDSuccessful() throws Exception {
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities?activity=smiling&method=and"))
                 .header("Token", validToken)
-                .header("Page-Number", currentPageNumber);
+                .header("Page-Number", currentPageNumber)
+                .param("minFitnessLevel", String.valueOf(MIN_FITNESS_LEVEL))
+                .param("maxFitnessLevel", String.valueOf(MAX_FITNESS_LEVEL));
 
         MvcResult response = mvc.perform(request)
                 .andExpect(status().isOk())
@@ -782,7 +791,9 @@ class ActivityControllerTest {
         currentPageNumber++;
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities?activity=smiling&method=and"))
                 .header("Token", validToken)
-                .header("Page-Number", currentPageNumber);
+                .header("Page-Number", currentPageNumber)
+                .param("minFitnessLevel", String.valueOf(MIN_FITNESS_LEVEL))
+                .param("maxFitnessLevel", String.valueOf(MAX_FITNESS_LEVEL));
 
         MvcResult response = mvc.perform(request)
                 .andExpect(status().isOk())
@@ -800,7 +811,9 @@ class ActivityControllerTest {
         currentPageNumber++;
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities?activity=smiling&method=and"))
                 .header("Token", validToken)
-                .header("Page-Number", currentPageNumber);
+                .header("Page-Number", currentPageNumber)
+                .param("minFitnessLevel", String.valueOf(MIN_FITNESS_LEVEL))
+                .param("maxFitnessLevel", String.valueOf(MAX_FITNESS_LEVEL));
 
         mvc.perform(request)
                 .andExpect(status().isNotFound())
@@ -813,7 +826,9 @@ class ActivityControllerTest {
     void searchOneActivityByActivityTypesANDFailNotFound() throws Exception {
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities?activity=smelling&method=and"))
                 .header("Token", validToken)
-                .header("Page-Number", currentPageNumber);
+                .header("Page-Number", currentPageNumber)
+                .param("minFitnessLevel", String.valueOf(MIN_FITNESS_LEVEL))
+                .param("maxFitnessLevel", String.valueOf(MAX_FITNESS_LEVEL));
 
         mvc.perform(request)
                 .andExpect(status().isNotFound())
@@ -824,7 +839,9 @@ class ActivityControllerTest {
     void searchOneActivityByActivityTypesMethodFailBadRequest() throws Exception {
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities?activity=eating&method=blah"))
                 .header("Token", validToken)
-                .header("Page-Number", currentPageNumber);
+                .header("Page-Number", currentPageNumber)
+                .param("minFitnessLevel", String.valueOf(MIN_FITNESS_LEVEL))
+                .param("maxFitnessLevel", String.valueOf(MAX_FITNESS_LEVEL));
 
         mvc.perform(request)
                 .andExpect(status().isBadRequest())
@@ -836,7 +853,9 @@ class ActivityControllerTest {
         currentPageNumber = 0;
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities?activity=eating&method=OR"))
                 .header("Token", validToken)
-                .header("Page-Number", currentPageNumber);
+                .header("Page-Number", currentPageNumber)
+                .param("minFitnessLevel", String.valueOf(MIN_FITNESS_LEVEL))
+                .param("maxFitnessLevel", String.valueOf(MAX_FITNESS_LEVEL));
 
         MvcResult result = mvc.perform(request)
                 .andExpect(status().isOk())
@@ -852,7 +871,9 @@ class ActivityControllerTest {
         currentPageNumber = 0;
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities?activity=hiking%20biking&method=OR"))
                 .header("Token", validToken)
-                .header("Page-Number", currentPageNumber);
+                .header("Page-Number", currentPageNumber)
+                .param("minFitnessLevel", String.valueOf(MIN_FITNESS_LEVEL))
+                .param("maxFitnessLevel", String.valueOf(MAX_FITNESS_LEVEL));
 
         MvcResult result = mvc.perform(request)
                 .andExpect(status().isOk())
@@ -869,7 +890,9 @@ class ActivityControllerTest {
         currentPageNumber = 0;
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities?activity=smile&method=OR"))
                 .header("Token", validToken)
-                .header("Page-Number", currentPageNumber);
+                .header("Page-Number", currentPageNumber)
+                .param("minFitnessLevel", String.valueOf(MIN_FITNESS_LEVEL))
+                .param("maxFitnessLevel", String.valueOf(MAX_FITNESS_LEVEL));
 
         MvcResult result = mvc.perform(request)
                 .andExpect(status().isNotFound())
@@ -885,7 +908,9 @@ class ActivityControllerTest {
         currentPageNumber = 0;
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(new URI("/activities?activity=smile%20crying&method=OR"))
                 .header("Token", validToken)
-                .header("Page-Number", currentPageNumber);
+                .header("Page-Number", currentPageNumber)
+                .param("minFitnessLevel", String.valueOf(MIN_FITNESS_LEVEL))
+                .param("maxFitnessLevel", String.valueOf(MAX_FITNESS_LEVEL));
 
         MvcResult result = mvc.perform(request)
                 .andExpect(status().isNotFound())

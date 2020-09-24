@@ -135,6 +135,11 @@ beforeEach(() => {
         mocks: {api},
         localVue
     });
+    activitySearch.setData({
+        minFitness: -1,
+        maxFitness: 4,
+    });
+
 });
 
 
@@ -157,7 +162,7 @@ describe("Search for activities by keywords", () => {
             });
 
             return activitySearch.vm.getPaginatedActivitiesByActivityTitle().then(() => {
-                expect(activitySearch.vm.api.getActivityByActivityTitle).toHaveBeenCalledWith(["PLACEHOLDER"], activitySearch.vm.$data.currentPage - 1);
+                expect(activitySearch.vm.api.getActivityByActivityTitle).toHaveBeenCalledWith(["PLACEHOLDER"], -1, 4, activitySearch.vm.$data.currentPage - 1);
             });
         });
 
@@ -180,7 +185,7 @@ describe("Search for activities by keywords", () => {
             });
 
             return activitySearch.vm.getPaginatedActivitiesByActivityTitle().then(() => {
-                expect(activitySearch.vm.api.getActivityByActivityTitle).toHaveBeenCalledWith(["PLACEHOLDER + PLACEHOLDERS"], activitySearch.vm.$data.currentPage - 1);
+                expect(activitySearch.vm.api.getActivityByActivityTitle).toHaveBeenCalledWith(["PLACEHOLDER + PLACEHOLDERS"], -1, 4, activitySearch.vm.$data.currentPage - 1);
             });
         });
     });
@@ -204,7 +209,7 @@ describe("Search for activities by keywords", () => {
             });
 
             return activitySearch.vm.getPaginatedActivitiesByActivityTitle().then(() => {
-                expect(activitySearch.vm.api.getActivityByActivityTitle).toHaveBeenCalledWith(["PLACEHOLDER - PLACEHOLDERS"], activitySearch.vm.$data.currentPage - 1);
+                expect(activitySearch.vm.api.getActivityByActivityTitle).toHaveBeenCalledWith(["PLACEHOLDER - PLACEHOLDERS"], -1, 4, activitySearch.vm.$data.currentPage - 1);
             });
         });
     });
@@ -228,7 +233,7 @@ describe("Search for activities by keywords", () => {
             });
 
             return activitySearch.vm.getPaginatedActivitiesByActivityTitle().then(() => {
-                expect(activitySearch.vm.api.getActivityByActivityTitle).toHaveBeenCalledWith(['"PLACEHOLDER"'], activitySearch.vm.$data.currentPage - 1);
+                expect(activitySearch.vm.api.getActivityByActivityTitle).toHaveBeenCalledWith(['"PLACEHOLDER"'], -1, 4, activitySearch.vm.$data.currentPage - 1);
             });
         });
     });
@@ -267,7 +272,7 @@ describe("Search for activities by activity type", () => {
         });
 
         return activitySearch.vm.getPaginatedActivitiesByActivityType().then(() => {
-            expect(activitySearch.vm.api.getActivityByActivityType).toHaveBeenCalledWith(["Archery","Climbing"],"and", activitySearch.vm.$data.currentPage - 1);
+            expect(activitySearch.vm.api.getActivityByActivityType).toHaveBeenCalledWith(["Archery","Climbing"],"and", -1, 4, activitySearch.vm.$data.currentPage - 1);
         });
     });
 });

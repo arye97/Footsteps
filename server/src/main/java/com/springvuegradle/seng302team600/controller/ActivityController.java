@@ -418,12 +418,14 @@ public class ActivityController {
      */
     @GetMapping(
             value = "/activities",
-            params = {"activity", "method"}
+            params = {"activity", "method", "minFitnessLevel", "maxFitnessLevel"}
     )
     public List<ActivityResponse> getActivitiesByActivityType(HttpServletRequest request,
                                                               HttpServletResponse response,
                                                               @RequestParam(value = "activity") String activityTypes,
-                                                              @RequestParam(value = "method") String method) {
+                                                              @RequestParam(value = "method") String method,
+                                                              @RequestParam(value = "minFitnessLevel") Integer minFitnessLevel,
+                                                              @RequestParam(value = "maxFitnessLevel") Integer maxFitnessLevel) {
         String token = request.getHeader(TOKEN_DECLARATION);
         int pageNumber = request.getIntHeader("Page-Number");
         userAuthenticationService.findByToken(token);
@@ -441,9 +443,9 @@ public class ActivityController {
         Page<Long> paginatedActivityIds;
         Pageable pageWithFiveActivities = PageRequest.of(pageNumber, PAGE_SIZE);
         if (method.equalsIgnoreCase("and")) {
-            paginatedActivityIds = activityActivityTypeRepository.findByAllActivityTypeIds(activityTypeIds, numActivityTypes, pageWithFiveActivities);
+            paginatedActivityIds = activityActivityTypeRepository.findByAllActivityTypeIds(activityTypeIds, numActivityTypes, pageWithFiveActivities, minFitnessLevel, maxFitnessLevel);
         } else if (method.equalsIgnoreCase("or")) {
-            paginatedActivityIds = activityActivityTypeRepository.findBySomeActivityTypeIds(activityTypeIds, pageWithFiveActivities); //Gets the userIds
+            paginatedActivityIds = activityActivityTypeRepository.findBySomeActivityTypeIds(activityTypeIds, pageWithFiveActivities, minFitnessLevel, maxFitnessLevel); //Gets the userIds
 
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Method must be specified as either (AND, OR)");
