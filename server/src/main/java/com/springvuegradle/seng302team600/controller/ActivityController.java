@@ -504,7 +504,9 @@ public class ActivityController {
                                                @RequestParam(value = "coordinates") String strCoordinates,
                                                @RequestParam(value = "activityTypes") String activityTypes,
                                                @RequestParam(value = "cutoffDistance") Double cutoffDistance,
-                                               @RequestParam(value = "method") String method) throws JsonProcessingException {
+                                               @RequestParam(value = "method") String method,
+                                               @RequestParam(value = "minFitnessLevel") Integer minFitnessLevel,
+                                               @RequestParam(value = "maxFitnessLevel") Integer maxFitnessLevel) throws JsonProcessingException {
         String token = request.getHeader(TOKEN_DECLARATION);
         User user = userAuthenticationService.findByToken(token);
         int pageNumber;
@@ -516,7 +518,7 @@ public class ActivityController {
         }
 
         Slice<Activity> paginatedActivities = locationSearchService.getActivitiesByLocation(strCoordinates, activityTypes,
-                cutoffDistance, method, PIN_BLOCK_SIZE, pageNumber);
+                cutoffDistance, method, minFitnessLevel, maxFitnessLevel, PIN_BLOCK_SIZE, pageNumber);
 
         List<Pin> paginatedBlockOfPins = new ArrayList<>();
         boolean hasNext = false;
