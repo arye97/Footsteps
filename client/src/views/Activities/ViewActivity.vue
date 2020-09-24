@@ -87,7 +87,8 @@
                                 <b-row class="mb-1">
                                     <b-col>
                                         <!--Start Time-->
-                                        <h3 class="font-weight-light">{{getDateTime(startTime)}} - {{getDateTime(endTime)}}</h3><br/>
+                                        <h3 class="font-weight-light">{{getDateTime(startTime)}} - </h3>
+                                        <h3 class="font-weight-light">{{getDateTime(endTime)}}</h3><br/>
                                     </b-col>
 
                                 </b-row>

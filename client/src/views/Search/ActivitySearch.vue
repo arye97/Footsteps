@@ -296,7 +296,10 @@
                 api.getActivityByLocation(urlCoordinates, this.activityTypesSearchedFor, this.cutoffDistance, this.searchType, pageNumber)
                     .then(response => {
                         this.activitiesList = response.data;
-
+                        if ((response.data).length === 0) {
+                            this.errored = true;
+                            this.error_message = "No activities that fit your search criteria have been found.";
+                        }
                         this.resultsFound = true;
                     }).catch(error => {
                         this.handleError(error, "No activities within distance of location ".concat(this.cutoffDistance) + " have been found!");

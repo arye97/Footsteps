@@ -23,16 +23,16 @@
                             </div>
                             <div v-else class="font-weight-light">
                                 <br/>
-                                <h1 class="font-weight-light">
+                                <h1 class="font-weight-light" v-if="this.user.nickname">
+                                    <strong>{{this.user.firstname}} {{this.user.middlename}} {{this.user.lastname}}
+                                    </strong> | {{this.user.nickname}}
+                                </h1>
+                                <h1 v-else class="font-weight-light">
                                     <strong>{{this.user.firstname}} {{this.user.middlename}} {{this.user.lastname}}
                                     </strong>
                                 </h1>
-                                <h1 class="font-weight-light" v-if="this.user.nickname">{{this.user.nickname}}</h1>
-                                <br/>
-                                <h5 class="font-weight-light" v-if="this.user.bio">"{{ this.user.bio }}"
-                                    <br/>
-                                </h5>
-                                <br/>
+
+                                <h1 class="font-weight-light" style="word-break: break-word; font-size: x-large" v-if="this.user.bio">"{{ this.user.bio }}"</h1>
 
                                 <b-button type="submit" variant="success" size="med"
                                           v-if="this.isEditable" v-on:click="editProfile">Edit Profile
@@ -40,130 +40,112 @@
                                 <br/>
                                 <br/>
 
-                                <!-- Handling for displaying Passport Countries -->
-                                <h3 class="font-weight-light">
-                                    <strong>Passport countries:</strong>
-                                </h3>
-                                <b-list-group v-if="this.user.passports.length >= 1">
-                                    <b-card v-for="country in this.user.passports" v-bind:key="country"
-                                            class="flex-fill" border-variant="secondary">
-                                        <b-card-text class="font-weight-light">
-                                            {{country}}
-                                        </b-card-text>
-                                    </b-card>
-                                    <br/>
-                                </b-list-group>
+                                <b-row>
+                                    <b-col>
+                                        <div>
+                                            <div class="flex-fill" border-variant="secondary">
+                                                <h3 class="font-weight-light" style="font-size: large; word-break: break-word;"><strong>{{this.user.primary_email}}</strong> (Primary)</h3>
+                                            </div>
+                                            <div v-for="email in this.user.additional_email" v-bind:key="email"
+                                                    class="flex-fill" border-variant="secondary">
+                                                <h3 style="font-size: large; word-break: break-word;" class="font-weight-light">{{email}}</h3>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div v-if="this.user.passports.length >= 1 && this.user.passports.length <= 2">
+                                                <b-button-group v-for="country in this.user.passports" v-bind:key="country"
+                                                                border-variant="secondary">
+                                                    <b-button pill variant="primary" style="word-break: break-word;" disabled class="font-weight-light countries">{{country}}</b-button>
+                                                </b-button-group>
+                                                <br/>
+                                            </div>
+                                        </div>
+                                    </b-col>
 
-                                <b-list-group v-else horizontal="md">
-                                    <b-card class="flex-fill" border-variant="secondary">
-                                        <b-card-text class="font-weight-light">
-                                            No selected passport countries
-                                        </b-card-text>
-                                    </b-card>
-                                </b-list-group>
-                                <br/>
+                                    <b-col>
+                                        <div class="flex-fill" border-variant="secondary">
+                                            <div class="font-weight-light">
+                                                <h3 style="font-size: large" class="font-weight-light">{{this.user.gender}}</h3>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="flex-fill" border-variant="secondary" v-if="this.user.fitness >= 0">
+                                                <h3 style="font-size: large" class="font-weight-light">{{this.fitness}}</h3>
+                                            </div>
+                                            <div v-else>
+                                                <h3 style="font-size: large" class="font-weight-light">No Fitness Level set</h3>
+                                            </div>
+                                        </div>
+                                            <div class="flex-fill" border-variant="secondary">
+                                                <h3 style="font-size: large" class="font-weight-light"><strong>DOB</strong> {{this.user.date_of_birth}}</h3>
+                                            </div>
+                                    </b-col>
+                                </b-row>
+                                <div>
 
-                                <!--Handling for displaying of Fitness Level-->
-                                <h3 class="font-weight-light">
-                                    <strong>Fitness Level:</strong>
-                                </h3>
-
-                                <b-list-group v-if="this.user.fitness >= 0">
-                                    <b-card class="flex-fill" border-variant="secondary">
-                                        <b-card-text class="font-weight-light">
-                                            {{this.fitness}}
-                                        </b-card-text>
-                                    </b-card>
-                                    <br/>
-                                </b-list-group>
-
-                                <b-list-group v-else>
-                                    <b-card class="flex-fill" border-variant="secondary">
-                                        <b-card-text class="font-weight-light">
-                                            No Fitness Level selected
-                                        </b-card-text>
-                                    </b-card>
-                                    <br/>
-                                </b-list-group>
-                                <br/>
-
-                                <!--Handling for displaying of Emails -->
-                                <h3 class="font-weight-light">
-                                    <strong>Email(s):</strong>
-                                </h3>
-
-                                <b-list-group>
-                                    <b-card class="flex-fill" border-variant="secondary">
-                                        <b-card-text class="font-weight-light">
-                                            {{this.user.primary_email}} (Primary)
-                                        </b-card-text>
-                                    </b-card>
-                                    <b-card v-for="email in this.user.additional_email" v-bind:key="email"
-                                            class="flex-fill" border-variant="secondary">
-                                        <b-card-text class="font-weight-light">
-                                            {{email}}
-                                        </b-card-text>
-                                    </b-card>
-                                    <br/>
-                                </b-list-group>
-
-                                <br/>
-
-                                <h3 class="font-weight-light">
-                                    <strong>Gender:</strong>
-                                </h3>
-                                <b-card class="flex-fill" border-variant="secondary">
-                                    <b-card-text class="font-weight-light">
-                                        {{this.user.gender}}
-                                    </b-card-text>
-                                </b-card>
-                                <br/>
-
-                                <h3 class="font-weight-light">
-                                    <strong>Date of Birth:</strong>
-                                </h3>
-
-                                <b-card class="flex-fill" border-variant="secondary">
-                                    <b-card-text class="font-weight-light">
-                                        {{this.user.date_of_birth}}
-                                    </b-card-text>
-                                </b-card>
-                                <br/>
-
-                                <!-- Handling for displaying Activity Types -->
-                                <h3 class="font-weight-light">
-                                    <strong>Activity Types:</strong>
-                                </h3>
-                                <b-list-group v-if="this.user.activityTypes.length >= 1">
-                                    <b-card v-for="activityType in this.user.activityTypes"
-                                            v-bind:key="activityType.name" class="flex-fill" border-variant="secondary">
-                                        <b-card-text class="font-weight-light">
-                                            {{activityType.name}}
-                                        </b-card-text>
-                                    </b-card>
-                                    <br/>
-                                </b-list-group>
-
-                                <b-list-group v-else horizontal="md">
-                                    <b-card class="flex-fill" border-variant="secondary">
-                                        <b-card-text class="font-weight-light">
-                                            No selected Activity Types
-                                        </b-card-text>
-                                    </b-card>
-                                </b-list-group>
-                                <br/>
-                                <div v-if="this.user.public_location">
-                                    <h3 class="font-weight-light"><strong>Public Location</strong></h3>
-                                    <div class="address">
-                                        <h3 id="public-location-Name" class="font-weight-light"> {{user.public_location.name}} </h3>
+                                    <div v-if="this.user.passports.length > 2">
+                                        <hr/>
+                                        <b-button-group v-for="country in this.user.passports" v-bind:key="country"
+                                                        border-variant="secondary">
+                                            <b-button pill variant="primary" disabled class="font-weight-light countries">{{country}}</b-button>
+                                        </b-button-group>
+                                        <br/>
                                     </div>
-                                </div>
-                                <div v-if="this.user.private_location">
-                                    <h3 class="font-weight-light"><strong>Private Location</strong></h3>
-                                    <div class="address">
-                                        <h3 id="private-location-Name" class="font-weight-light"> {{user.private_location.name}} </h3>
+                                    <div v-else-if="this.user.passports.length === 0">
+                                        <h3 style="font-size: large" class="font-weight-light">No Passport Countries set</h3>
                                     </div>
+                                    <hr/>
                                 </div>
+
+
+                                <!-- Activity Types -->
+                                <div>
+                                    <div v-if="this.user.activityTypes.length >= 1">
+                                        <b-button-group v-for="activityType in this.user.activityTypes"
+                                                        v-bind:key="activityType.name" border-variant="secondary">
+                                            <b-button pill variant="secondary"  disabled class="font-weight-light activityTypes">{{activityType.name}}</b-button>
+                                        </b-button-group>
+                                    </div>
+
+
+                                    <b-list-group v-else horizontal="md">
+                                        <b-card class="flex-fill" border-variant="secondary">
+                                            <b-card-text class="font-weight-light">
+                                                No selected Activity Types
+                                            </b-card-text>
+                                        </b-card>
+                                    </b-list-group>
+                                </div>
+
+                                <hr/>
+                                <b-row>
+                                    <b-col>
+                                        <h3 class="font-weight-light"><strong>Public Location</strong></h3>
+                                        <div v-if="this.user.public_location">
+                                            <div class="address">
+                                                <h3 id="public-location-Name" class="font-weight-light"> {{user.public_location.name}} </h3>
+                                            </div>
+                                        </div>
+                                        <div v-else>
+                                            <div class="address">
+                                                <h3 class="font-weight-light">No Location Specified yet </h3>
+                                            </div>
+                                        </div>
+                                    </b-col>
+                                    <b-col>
+                                        <h3 class="font-weight-light"><strong>Private Location</strong></h3>
+                                        <div v-if="this.user.private_location">
+                                            <div class="address">
+                                                <h3 id="private-location-Name" class="font-weight-light"> {{user.private_location.name}} </h3>
+                                            </div>
+                                        </div>
+                                        <div v-else>
+                                            <div class="address">
+                                                <h3 class="font-weight-light">No Location Specified yet </h3>
+                                            </div>
+                                        </div>
+                                    </b-col>
+                                </b-row>
                                 <div v-if="this.user.public_location || this.user.private_location">
                                     <location-i-o id="location"
                                                   pin-legend-mode="ViewUser"
@@ -376,3 +358,17 @@
         }
     }
 </script>
+
+<style scoped>
+    .countries {
+        margin: 3px;
+        display: inline-block;
+    }
+
+    .activityTypes {
+        margin: 3px;
+        display: inline-block;
+    }
+
+
+</style>
