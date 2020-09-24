@@ -514,6 +514,8 @@ public class ActivityController {
      * @param activityTypes  a list of activity types
      * @param cutoffDistance the max distance to search by
      * @param method         the type of activity type filtering
+     * @param minFitnessLevel the minimum fitness level for the activity
+     * @param maxFitnessLevel the maximum fitness level for the activity
      * @return A list of activity pins
      */
     @GetMapping(
@@ -523,7 +525,9 @@ public class ActivityController {
                                                @RequestParam(value = "coordinates") String strCoordinates,
                                                @RequestParam(value = "activityTypes") String activityTypes,
                                                @RequestParam(value = "cutoffDistance") Double cutoffDistance,
-                                               @RequestParam(value = "method") String method) throws JsonProcessingException {
+                                               @RequestParam(value = "method") String method,
+                                               @RequestParam(value = "minFitnessLevel") Integer minFitnessLevel,
+                                               @RequestParam(value = "maxFitnessLevel") Integer maxFitnessLevel) throws JsonProcessingException {
         String token = request.getHeader(TOKEN_DECLARATION);
         User user = userAuthenticationService.findByToken(token);
         int pageNumber;
@@ -535,7 +539,7 @@ public class ActivityController {
         }
 
         Slice<Activity> paginatedActivities = locationSearchService.getActivitiesByLocation(strCoordinates, activityTypes,
-                cutoffDistance, method, PIN_BLOCK_SIZE, pageNumber);
+                cutoffDistance, method, PIN_BLOCK_SIZE, pageNumber, minFitnessLevel, maxFitnessLevel);
 
         List<Pin> paginatedBlockOfPins = new ArrayList<>();
         boolean hasNext = false;
@@ -558,17 +562,21 @@ public class ActivityController {
      * @param activityTypes  a list of activity types
      * @param cutoffDistance the max distance to search by
      * @param method         the type of activity type filtering
+     * @param minFitnessLevel the minimum fitness level for the activity
+     * @param maxFitnessLevel the maximum fitness level for the activity
      * @return A list of activities
      */
     @GetMapping(
             value = "/activities",
-            params = {"coordinates", "activityTypes", "cutoffDistance", "method"})
+            params = {"coordinates", "activityTypes", "cutoffDistance", "method", "minFitnessLevel", "maxFitnessLevel"})
     public List<ActivityResponse> getActivitiesByLocation(HttpServletRequest request, HttpServletResponse response,
                                                @RequestParam(value = "coordinates") String strCoordinates,
                                                @RequestParam(value = "activityTypes") String activityTypes,
                                                @RequestParam(value = "cutoffDistance") Double cutoffDistance,
-                                               @RequestParam(value = "method") String method) throws JsonProcessingException {
-
+                                               @RequestParam(value = "method") String method,
+                                               @RequestParam(value = "minFitnessLevel") Integer minFitnessLevel,
+                                               @RequestParam(value = "maxFitnessLevel") Integer maxFitnessLevel
+                                               ) throws JsonProcessingException {
         String token = request.getHeader(TOKEN_DECLARATION);
         userAuthenticationService.findByToken(token);
         int pageNumber;
@@ -580,7 +588,7 @@ public class ActivityController {
         }
 
         Slice<Activity> paginatedActivities = locationSearchService.getActivitiesByLocation(strCoordinates, activityTypes,
-                cutoffDistance, method, PAGE_SIZE, pageNumber);
+                cutoffDistance, method, PAGE_SIZE, pageNumber, minFitnessLevel, maxFitnessLevel);
 
         List<ActivityResponse> activitiesFound = new ArrayList<>();
         boolean hasNext = false;

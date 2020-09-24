@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "f99540e8-7b54-40c5-9fb1-da0a0e527e0a",
+		"_postman_id": "84c8ffec-ab36-442c-b130-5c09c0c34153",
 		"name": "SENG302",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -11,7 +11,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "d936cd71-accd-42fd-81fa-8e3974dea25f",
+						"id": "8c434b14-3cc3-4d35-b802-1feabb7c9d8f",
 						"exec": [
 							"var jsonData = JSON.parse(responseBody);\r",
 							"postman.setEnvironmentVariable(\"Token\", jsonData.Token);"
@@ -193,8 +193,11 @@
 		},
 		{
 			"name": "Add Result",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
 			"request": {
-				"method": "POST",
+				"method": "GET",
 				"header": [
 					{
 						"key": "Token",
@@ -212,16 +215,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:9499/outcomes/1/results",
+					"raw": "http://localhost:9499/activities",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "9499",
 					"path": [
-						"outcomes",
-						"1",
-						"results"
+						"activities"
 					]
 				}
 			},
@@ -297,6 +298,111 @@
 						"profiles",
 						"2",
 						"activities"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d3935809-c247-4f59-a310-c530923bd06d",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"postman.setEnvironmentVariable(\"Token\", jsonData.Token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"user@uclive.ac.nz\",\r\n    \"password\": \"pasword1234\"\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:9499/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9499",
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search By Location",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Token",
+						"value": "{{Token}}",
+						"type": "text"
+					},
+					{
+						"key": "Page-Number",
+						"value": "1",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9499/activities/pins?coordinates=%7B%22lat%22%3A-43.362059338169644%2C%22lng%22%3A172.7894415583871%7D&activityTypes=airsoft&cutoffDistance=1000&method=or&minFitnessLevel=-1&maxFitnessLevel=4",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9499",
+					"path": [
+						"activities",
+						"pins"
+					],
+					"query": [
+						{
+							"key": "coordinates",
+							"value": "%7B%22lat%22%3A-43.362059338169644%2C%22lng%22%3A172.7894415583871%7D"
+						},
+						{
+							"key": "activityTypes",
+							"value": "airsoft"
+						},
+						{
+							"key": "cutoffDistance",
+							"value": "1000"
+						},
+						{
+							"key": "method",
+							"value": "or"
+						},
+						{
+							"key": "minFitnessLevel",
+							"value": "-1"
+						},
+						{
+							"key": "maxFitnessLevel",
+							"value": "4"
+						}
 					]
 				}
 			},

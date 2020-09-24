@@ -46,7 +46,7 @@ public class LocationSearchService {
      */
     public Slice<Activity> getActivitiesByLocation(String strCoordinates, String activityTypes,
                                                    Double cutoffDistance, String method,
-                                                   int blockSize, int pageNumber)
+                                                   int blockSize, int pageNumber, int minFitness, int maxFitness)
             throws JsonProcessingException {
         if (pageNumber < 0) {
             pageNumber = 0;
@@ -62,11 +62,20 @@ public class LocationSearchService {
             cutoffDistance = MAX_DISTANCE;
         }
 
+        if (minFitness < -1 || minFitness > 4 || maxFitness < -1 || maxFitness > 4) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Fitness Level must be in the range -1 to 4, where -1 is activities with no fitness level and 4 is the highest level.");
+        }
+        if (minFitness > maxFitness) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Minimum fitness level should not be greater than the maximum fitness level");
+        }
+
         Slice<Activity> paginatedActivities;
         if (activityTypes.length() >= 1) {
             List<Long> activityTypeIds = getActivityTypeIds(activityTypes);
             paginatedActivities = getPaginatedActivities(method, coordinates,
-                    cutoffDistance, activityTypeIds, activitiesBlock);
+                    cutoffDistance, activityTypeIds, minFitness, maxFitness, activitiesBlock);
         } else {
             paginatedActivities = activityRepository.findAllWithinDistance(
                     coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance, activitiesBlock);
@@ -119,17 +128,17 @@ public class LocationSearchService {
      * @return paginatedActivities  Paginated Slice of activities retried based on search parameters
      */
     private Slice<Activity> getPaginatedActivities(String method, Coordinates coordinates, Double cutoffDistance,
-                           List<Long> activityTypeIds, Pageable activitiesBlock) {
+                           List<Long> activityTypeIds, Integer minFitnessLevel, Integer maxFitnessLevel, Pageable activitiesBlock) {
         Slice<Activity> paginatedActivities;
         if (method.equalsIgnoreCase("and")) {
             int numActivityTypes = activityTypeIds.size();
             paginatedActivities = activityRepository.findAllWithinDistanceByAllActivityTypeIds(
                     coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance,
-                    activityTypeIds, numActivityTypes, activitiesBlock);
+                    activityTypeIds, numActivityTypes, minFitnessLevel, maxFitnessLevel, activitiesBlock);
         } else if (method.equalsIgnoreCase("or")) {
             paginatedActivities = activityRepository.findAllWithinDistanceBySomeActivityTypeIds(
                     coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance,
-                    activityTypeIds, activitiesBlock);
+                    activityTypeIds, minFitnessLevel, maxFitnessLevel, activitiesBlock);
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Method must be specified as either (AND, OR)");

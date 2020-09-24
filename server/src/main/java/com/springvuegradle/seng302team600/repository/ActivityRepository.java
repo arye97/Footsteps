@@ -102,6 +102,8 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
             "         * COS(RADIANS(:userLongitude - l.Longitude)) " +
             "         + SIN(RADIANS(:userLatitude)) " +
             "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance " +
+            "   AND a.fitness >= :minFitnessLevel " +
+            "   AND a.fitness <= :maxFitnessLevel " +
             "GROUP BY a.activity_id " +
             "ORDER BY 111.111 * " +
             "    DEGREES(ACOS(LEAST(1.0, COS(RADIANS(:userLatitude)) " +
@@ -113,6 +115,8 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
                                                                @Param("userLongitude") Double userLongitude,
                                                                @Param("maxDistance") Double maxDistance,
                                                                @Param("activityTypeIds") List<Long> activityTypeIds,
+                                                               @Param("minFitnessLevel") Integer minFitnessLevel,
+                                                               @Param("maxFitnessLevel") Integer maxFitnessLevel,
                                                                Pageable pageable);
 
     @Query(value = "SELECT a.*" +
@@ -128,6 +132,8 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
             "         * COS(RADIANS(:userLongitude - l.Longitude)) " +
             "         + SIN(RADIANS(:userLatitude)) " +
             "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance " +
+            "   AND a.fitness >= :minFitnessLevel " +
+            "   AND a.fitness <= :maxFitnessLevel " +
             "GROUP BY a.activity_id HAVING COUNT(a.activity_id) = :numActivityTypes " +
             "ORDER BY 111.111 * " +
             "    DEGREES(ACOS(LEAST(1.0, COS(RADIANS(:userLatitude)) " +
@@ -140,6 +146,8 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
                                                               @Param("maxDistance") Double maxDistance,
                                                               @Param("activityTypeIds") List<Long> activityTypeIds,
                                                               @Param("numActivityTypes") int numActivityTypes,
+                                                              @Param("minFitnessLevel") Integer minFitnessLevel,
+                                                              @Param("maxFitnessLevel") Integer maxFitnessLevel,
                                                               Pageable pageable);
 
     @Query(value = "SELECT COUNT(*) " +
