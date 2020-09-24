@@ -317,15 +317,19 @@ public class ActivityController {
      * @param request          the http request with the user token we need
      * @param response         the http response
      * @param activityKeywords the word/sentence we need to search for
+     * @param minFitnessLevel  the minimum fitness level that an activity can have (inclusive)
+     * @param maxFitnessLevel  the maximum fitness level that an activity can have (inclusive)
      * @return a list containing all activities found
      */
     @GetMapping(
             value = "/activities",
-            params = {"activityKeywords"}
+            params = {"activityKeywords", "minFitnessLevel", "maxFitnessLevel"}
     )
     public List<ActivityResponse> getActivitiesByKeywords(HttpServletRequest request,
                                                           HttpServletResponse response,
-                                                          @RequestParam(value = "activityKeywords") String activityKeywords) {
+                                                          @RequestParam(value = "activityKeywords") String activityKeywords,
+                                                          @RequestParam(value = "minFitnessLevel") Integer minFitnessLevel,
+                                                          @RequestParam(value = "maxFitnessLevel") Integer maxFitnessLevel) {
 
         activityKeywords = activityKeywords.trim();
         if (activityKeywords.equals("-") ||
@@ -359,13 +363,27 @@ public class ActivityController {
         List<Activity> returnedActivities;
         if (activityKeywords.contains("AND")) {
             String searchStrings = ActivitySearchService.handleMethodSpecialCaseString(activityKeywords, "AND");
-            returnedActivities = activityRepository.findAllByKeywordUsingMethod(searchStrings, "AND");
+            returnedActivities = activityRepository.findAllByKeywordUsingMethod(
+                    searchStrings,
+                    "AND",
+                    minFitnessLevel,
+                    maxFitnessLevel
+            );
         } else if (activityKeywords.contains("OR")) {
             activityKeywords = ActivitySearchService.handleMethodSpecialCaseString(activityKeywords, "OR");
-            returnedActivities = activityRepository.findAllByKeywordUsingMethod(activityKeywords, "OR");
+            returnedActivities = activityRepository.findAllByKeywordUsingMethod(
+                    activityKeywords,
+                    "OR",
+                    minFitnessLevel,
+                    maxFitnessLevel
+            );
         } else if (activityKeywords.length() > 1) {
             activityKeywords = ActivitySearchService.getSearchQuery(activityKeywords);
-            returnedActivities = activityRepository.findAllByKeyword(activityKeywords);
+            returnedActivities = activityRepository.findAllByKeyword(
+                    activityKeywords,
+                    minFitnessLevel,
+                    maxFitnessLevel
+            );
         } else {
             return new ArrayList<>();
         }

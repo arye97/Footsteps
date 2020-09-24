@@ -61,8 +61,10 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
     List<Activity> getActivitiesByIds(@Param("userIds") List<Long> activityIds);
 
     @Query(value =
-            "SELECT * FROM activity WHERE activity_name LIKE ?1", nativeQuery = true)
-    List<Activity> findAllByKeyword(@Param("keyword") String keyword);
+            "SELECT * FROM activity WHERE activity_name LIKE :keyword AND fitness >= :minFitnessLevel AND fitness <= :maxFitnessLevel", nativeQuery = true)
+    List<Activity> findAllByKeyword(@Param("keyword") String keyword,
+                                    @Param("minFitnessLevel") Integer minFitnessLevel,
+                                    @Param("maxFitnessLevel") Integer maxFitnessLevel);
 
     @Query(value = "SELECT a.*" +
             "FROM activity as a " +
