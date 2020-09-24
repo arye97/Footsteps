@@ -258,6 +258,9 @@
                     <b-button class="float-right" type="submit" variant="primary" @submit="onSubmit">Submit</b-button>
                 </div>
             </b-form>
+            <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="any_alert">
+                {{"This activity cannot be saved as there is an invalid field"}}
+            </div>
             <footer class="col-12 text-center">
                 Entries marked with * are required
             </footer><br/><br/>
@@ -277,11 +280,16 @@
      */
     function showError(alert_name) {
         let errorAlert = document.getElementById(alert_name);
-
+        let anyAlert = document.getElementById("any_alert");
         errorAlert.hidden = false;          //Show alert bar
+        anyAlert.hidden = false;
         setTimeout(function () {    //Hide alert bar after ~9000ms
             errorAlert.hidden = true;
         }, 9000);
+        setTimeout(function () {    //Hide alert bar after ~4500ms
+            anyAlert.hidden = true;
+        }, 4500);
+
     }
 
     /**
