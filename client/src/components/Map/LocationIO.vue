@@ -42,7 +42,7 @@
                     class="form-control">
                 </GmapAutocomplete>
             </b-col>
-                <b-col cols="1">
+                <b-col cols="1" v-if="!isActivityForm" >
                 <b-button id="clearPinsButton" variant="danger" @click="clearPins" v-bind:disabled="pins.length === 0">
                     <b-icon-trash-fill />
                 </b-button>
@@ -122,6 +122,13 @@
             description: {
                 default: null,
                 type: String
+            },
+            /**
+             *
+             */
+            isActivityForm: {
+                default: false,
+                type: Boolean
             }
         },
 
