@@ -92,6 +92,7 @@
                                         <br/>
                                     </div>
                                     <div v-else-if="this.user.passports.length === 0">
+                                        <hr/>
                                         <h3 style="font-size: large" class="font-weight-light">No Passport Countries set</h3>
                                     </div>
                                     <hr/>
@@ -120,27 +121,40 @@
                                 <hr/>
                                 <b-row>
                                     <b-col>
+                                        <h3 class="font-weight-light"><strong>Public Location</strong></h3>
                                         <div v-if="this.user.public_location">
-                                            <h3 class="font-weight-light"><strong>Public Location</strong></h3>
                                             <div class="address">
                                                 <h3 id="public-location-Name" class="font-weight-light"> {{user.public_location.name}} </h3>
                                             </div>
                                         </div>
+                                        <div v-else>
+                                            <div class="address">
+                                                <h3 class="font-weight-light">No Location Specified yet </h3>
+                                            </div>
+                                        </div>
                                     </b-col>
                                     <b-col>
+                                        <h3 class="font-weight-light"><strong>Private Location</strong></h3>
                                         <div v-if="this.user.private_location">
-                                            <h3 class="font-weight-light"><strong>Private Location</strong></h3>
                                             <div class="address">
                                                 <h3 id="private-location-Name" class="font-weight-light"> {{user.private_location.name}} </h3>
+                                            </div>
+                                        </div>
+                                        <div v-else>
+                                            <div class="address">
+                                                <h3 class="font-weight-light">No Location Specified yet </h3>
                                             </div>
                                         </div>
                                     </b-col>
                                 </b-row>
                                 <div v-if="this.user.public_location || this.user.private_location">
                                     <location-i-o id="location"
-                                        :view-only="true"
-                                        :parent-pins="getPinData()"
-                                        :parent-center="getMapCenter()">
+                                                  pin-legend-mode="ViewUser"
+                                                  :view-only="true"
+                                                  :parent-pins="getPinData()"
+                                                  :parent-center="getMapCenter()"
+                                                  class="font-weight-normal"
+                                    >
                                     </location-i-o>
                                 </div>
                                 <br/>
@@ -327,7 +341,7 @@
                     userPins.push({
                         lat: this.user.private_location.latitude,
                         lng: this.user.private_location.longitude,
-                        colour:'green',
+                        colour:'red',
                         title: 'Private Location',
                         location_name: this.user.private_location.name,
                     });
@@ -335,11 +349,11 @@
                 return userPins;
             },
             getMapCenter() {
-                if (this.user.public_location) {
-                    return {lat: this.user.public_location.latitude, lng: this.user.public_location.longitude}
-                }
                 if (this.user.private_location) {
                     return {lat: this.user.private_location.latitude, lng: this.user.private_location.longitude}
+                }
+                if (this.user.public_location) {
+                    return {lat: this.user.public_location.latitude, lng: this.user.public_location.longitude}
                 }
             }
         }
