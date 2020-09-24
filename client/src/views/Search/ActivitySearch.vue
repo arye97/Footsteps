@@ -138,7 +138,7 @@
                 ],
                 // These are the ActivityTypes selected in the Multiselect
                 selectedActivityTypes: [],
-                // These are a copy of selectedActivityTypes passed to the UserCard (to avoid mutation after clicking search)
+                // These are a copy of selectedActivityTypes passed to the Activity Card (to avoid mutation after clicking search)
                 activityTypesSearchedFor: [],
                 activityTitle: "",
                 activityTypes: [],
@@ -244,7 +244,7 @@
                 api.getActivityByActivityTitle(this.activityTitle, pageNumber)
                     .then(response => {
                         this.activitiesList = response.data;
-                        if (this.activityTitle.length != 0 && (response.data).length === 0) {
+                        if (this.activityTitle.length !== 0 && (response.data).length === 0) {
                             this.errored = true;
                             this.error_message = "No activities with activity names ".concat(this.activityTitle) + " have been found!"
                         }
@@ -429,19 +429,21 @@
                 this.loading = true;
                 this.currentPage = 1;
                 if (this.searchMode === 'activityType') {
-                    // Set is as a copy so the User card is only updated after clicking search
+                    // Set is as a copy so the Activity card is only updated after clicking search
                     this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
                     this.getPaginatedActivitiesByActivityType();
                 } else if (this.searchMode === 'activityName') {
                     if (this.activityTitle.length === 0) {
                         this.errored = true;
                         this.error_message = "Cannot have empty search field, please try again!";
-                    } else if (this.activityTitle.length === 75) {
+                    } else if (this.activityTitle.length >= 75) {
                         this.errored = true;
                         this.error_message = "Cannot have more than 75 characters in the search field.";
                     }
                     this.getPaginatedActivitiesByActivityTitle();
+
                 } else if (this.searchMode === 'activityLocation') {
+                    this.activityTypesSearchedFor = this.selectedActivityTypes.slice();
                     await this.getActivityPinBlocksByLocation();
                     await this.getPaginatedActivitiesByLocation();
                     await this.getActivityLocationRows();

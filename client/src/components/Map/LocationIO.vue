@@ -1,6 +1,6 @@
 <template>
   <div class="col-12 text-center">
-    <b-card class="flex-fill" border-variant="secondary">
+    <b-card class="flex-fill overflow-hidden" border-style="hidden" border-variant="white">
       <div v-if="isMapVisible">
         <b-button id="hideMapButton" variant="info" @click="isMapVisible=false">Hide Map</b-button>
         <br/><br/>
@@ -15,7 +15,7 @@
         ></map-viewer>
         <br/>
         <b-button-group id="mapButtons" v-if="!viewOnly">
-          <b-button id='addMarkerButton' variant="primary" block @click="addMarker()">Drop Pin</b-button>
+          <b-button id='addMarkerButton' v-b-popover.hover.top="'Place Pin in Exact Center of the Map'" variant="primary" block @click="addMarker()">Drop Pin</b-button>
         </b-button-group>
         <p class="light-info-message" v-if="this.description">
             {{  this.description  }}
@@ -137,7 +137,7 @@
 
         data() {
             return {
-                isMapVisible: false,
+                isMapVisible: true,
                 address: "",
                 pins: [],
                 center: undefined,
@@ -275,6 +275,7 @@
             clearPins() {
                 this.pins = [];
                 this.address = "";
+                this.$emit("pin-change", null);
             }
 
         }
@@ -282,5 +283,7 @@
 </script>
 
 <style scoped>
-
+    .border-white {
+        background-color: white;
+    }
 </style>

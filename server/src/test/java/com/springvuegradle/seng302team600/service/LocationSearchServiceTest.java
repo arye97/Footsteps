@@ -1,5 +1,6 @@
 package com.springvuegradle.seng302team600.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.springvuegradle.seng302team600.model.Activity;
 import com.springvuegradle.seng302team600.model.ActivityType;
 import com.springvuegradle.seng302team600.model.Location;
@@ -14,9 +15,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.*;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
-import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -48,7 +49,9 @@ public class LocationSearchServiceTest {
     private final Long DUMMY_TYPE_ID_1 = 1L;
     private final Long DUMMY_TYPE_ID_2 = 2L;
     private final Long DUMMY_TYPE_ID_3 = 3L;
+    private final Long DUMMY_TYPE_ID_4 = 4L;
 
+    private final Double NEGATIVE_DISTANCE = -234D;
     private final Double SHORT_DISTANCE = 120D;
     private final Double MEDIUM_DISTANCE = 4300D;
     private final Double LONG_DISTANCE = 8900D;
@@ -56,11 +59,12 @@ public class LocationSearchServiceTest {
 
     private final Double LAT_A = -45.8667783;
     private final Double LNG_A = 170.4910567;
-    private final String STRING_COORDINATES_A = "{\"lat\":\"-45.8667783\",\"lng\":\"170.4910567\"}";
-    //            "%7B%22lat%22%3A%22" + LAT_A + "%22%2C%22lng%22%3A%22" + LNG_A + "%22%7D";
-    private final Double LAT_B = 5.8667783;
-    private final Double LNG_B = -89.810567;
-    private final String STRING_COORDINATES_B = "%7B%22lat%22%3A%22" + LAT_B + "%22%2C%22lng%22%3A%22" + LNG_B + "%22%7D";
+    private final String STRING_COORDINATES_A = "{\"lat\":\"" + LAT_A + "\",\"lng\":\"" + LNG_A + "\"}";
+    private final Double LAT_BAD = 90.8667783;      // Valid range of 90,-90
+    private final Double LNG_BAD = -189.810567;     // Valid range of 180,-180
+    private final String STRING_COORDINATES_BAD_LNG = "{\"lat\":\"" + LAT_A + "\",\"lng\":\"" + LNG_BAD + "\"}";
+    private final String STRING_COORDINATES_BAD_LAT = "{\"lat\":\"" + LAT_BAD + "\",\"lng\":\"" + LNG_A + "\"}";
+    private final String STRING_COORDINATES_INVALID = "Nonsensical string. idk just hit bloq";
 
     private final Double LONDON_LAT = 51.507351D;
     private final Double LONDON_LON = -0.127758D;
@@ -77,10 +81,6 @@ public class LocationSearchServiceTest {
     private final Double MOSCOW_LAT = 37.617298D;
     private final Double MOSCOW_LON = 55.755825D;
     private final Location MOSCOW = new Location(MOSCOW_LON, MOSCOW_LAT, "Moscow");
-
-    private final Double DUMMY_LAT = 12.345678D;
-    private final Double DUMMY_LON = 12.345678D;
-
     /**
      * Mock Activity repository actions
      */
@@ -107,10 +107,13 @@ public class LocationSearchServiceTest {
         ReflectionTestUtils.setField(dummyActivityType2, "activityTypeId", DUMMY_TYPE_ID_2);
         ActivityType dummyActivityType3 = new ActivityType("Kiting");
         ReflectionTestUtils.setField(dummyActivityType3, "activityTypeId", DUMMY_TYPE_ID_3);
+        ActivityType dummyActivityType4 = new ActivityType("Writing");
+        ReflectionTestUtils.setField(dummyActivityType4, "activityTypeId", DUMMY_TYPE_ID_4);
 
         activityTypeSet.add(dummyActivityType1);
         activityTypeSet.add(dummyActivityType2);
         activityTypeSet.add(dummyActivityType3);
+        activityTypeSet.add(dummyActivityType4);
 
         //Hiking Biking
         Set<ActivityType> HBset = new HashSet<>();
@@ -168,9 +171,15 @@ public class LocationSearchServiceTest {
                 matchCount = 0;
             }
 
-            int leftIndex = PAGE_ONE * BLOCK_SIZE;
-            int rightIndex = PAGE_TWO * BLOCK_SIZE + BLOCK_SIZE;
-            return new SliceImpl<>(resultList.subList(leftIndex, rightIndex), pageable, false);
+            Slice<Activity> resultSlice;
+            if (resultList.size() > BLOCK_SIZE) {
+                int leftIndex = PAGE_ONE * BLOCK_SIZE;
+                int rightIndex = PAGE_TWO * BLOCK_SIZE + BLOCK_SIZE;
+                resultSlice = new SliceImpl<>(resultList.subList(leftIndex, rightIndex), pageable, true);
+            } else {
+                resultSlice = new SliceImpl<>(resultList, pageable, false);
+            }
+            return resultSlice;
         });
 
 
@@ -281,6 +290,95 @@ public class LocationSearchServiceTest {
         assertEquals(3, activities.size()); // All 3 activities in activityList are expected to return
     }
 
+    @Test
+    public void getOrActivityByLocationNone() throws Exception {
+        String method = "or";
+        String activitiesString = "Writing";
+        Slice<Activity> resultSlice = locationSearchService.getActivitiesByLocation(STRING_COORDINATES_A, activitiesString,
+                MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE);
+        List<Activity> activities = resultSlice.getContent();
+        assertTrue(activities.size() <= BLOCK_SIZE);
+        assertEquals(0, activities.size()); // No activities with writing
+    }
+
+    @Test
+    public void getAndActivityByLocationSuccess() throws Exception {
+        String method = "and";
+        String activitiesString = "Biking Hiking";
+        Slice<Activity> resultSlice = locationSearchService.getActivitiesByLocation(STRING_COORDINATES_A, activitiesString,
+                MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE);
+        List<Activity> activities = resultSlice.getContent();
+        assertTrue(activities.size() <= BLOCK_SIZE);
+        assertEquals(1, activities.size()); // Only activity with Biking and Hiking are expected to return
+    }
+
+    @Test
+    public void getAndActivityByLocationBadCombo() throws Exception {
+        String method = "and";
+        String activitiesString = "Biking Hiking Kiting";
+        Slice<Activity> resultSlice = locationSearchService.getActivitiesByLocation(STRING_COORDINATES_A, activitiesString,
+                MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE);
+        List<Activity> activities = resultSlice.getContent();
+        assertTrue(activities.size() <= BLOCK_SIZE);
+        assertEquals(0, activities.size()); // No activities with all 3 types
+    }
+
+    @Test
+    public void getAndActivityByLocationNone() throws Exception {
+        String method = "and";
+        String activitiesString = "Writing";
+        Slice<Activity> resultSlice = locationSearchService.getActivitiesByLocation(STRING_COORDINATES_A, activitiesString,
+                MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE);
+        List<Activity> activities = resultSlice.getContent();
+        assertTrue(activities.size() <= BLOCK_SIZE);
+        assertEquals(0, activities.size()); // No activity has type writing
+    }
+
+    @Test
+    public void getActivityByLocationInvalidMethod() {
+        String method = "flower";
+        String activitiesString = "Biking";
+        Exception exception = assertThrows(ResponseStatusException.class, () -> locationSearchService.getActivitiesByLocation
+                (STRING_COORDINATES_A, activitiesString,MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE));
+        assertEquals("400 BAD_REQUEST \"Method must be specified as either (AND, OR)\"", exception.getMessage());
+    }
+
+    @Test
+    public void getActivityByLocationInvalidLat() {
+        String method = "or";
+        String activitiesString = "Biking";
+        Exception exception = assertThrows(ResponseStatusException.class, () -> locationSearchService.getActivitiesByLocation
+                (STRING_COORDINATES_BAD_LAT, activitiesString,MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE));
+        assertEquals("400 BAD_REQUEST \"Latitude must exist (be between -90 and 90 degrees)\"", exception.getMessage());
+    }
+
+    @Test
+    public void getActivityByLocationInvalidLng() {
+        String method = "or";
+        String activitiesString = "Biking";
+        Exception exception = assertThrows(ResponseStatusException.class, () -> locationSearchService.getActivitiesByLocation
+                (STRING_COORDINATES_BAD_LNG, activitiesString,MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE));
+        assertEquals("400 BAD_REQUEST \"Longitude must exist (be between -180 and 180 degrees)\"", exception.getMessage());
+    }
+
+    @Test
+    public void getActivityByLocationInvalidCoordString() {
+        String method = "or";
+        String activitiesString = "Biking";
+        Exception exception = assertThrows(JsonProcessingException.class, () -> locationSearchService.getActivitiesByLocation
+                (STRING_COORDINATES_INVALID, activitiesString,MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE));
+    }
+
+    @Test
+    public void getActivityByLocationNegativeCutoff() {
+        String method = "or";
+        String activitiesString = "Biking";
+        Exception exception = assertThrows(ResponseStatusException.class, () -> locationSearchService.getActivitiesByLocation
+                (STRING_COORDINATES_A, activitiesString,NEGATIVE_DISTANCE, method, BLOCK_SIZE, PAGE_ONE));
+        assertEquals("400 BAD_REQUEST \"Cutoff distance must be 0 or greater\"", exception.getMessage());
+    }
+
+    // --------------- Count tests ---------------
     @Test
     public void getOrNumberOfActivitiesByLocation() throws Exception {
         String method = "or";
