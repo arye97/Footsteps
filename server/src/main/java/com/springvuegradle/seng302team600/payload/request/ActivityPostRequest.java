@@ -36,11 +36,11 @@ public class ActivityPostRequest {
     private final LocationRequest location;
 
     @JsonProperty("fitness")
-    private final int fitnessLevel;
+    private final Integer fitnessLevel;
 
     public ActivityPostRequest(Long creatorUserId, String name, String description,
                                Set<ActivityType> activityTypes, boolean continuous,
-                               Date startTime, Date endTime, LocationRequest location, int fitnessLevel) {
+                               Date startTime, Date endTime, LocationRequest location, Integer fitnessLevel) {
         this.creatorUserId = creatorUserId;
         this.name = name;
         this.description = description;
@@ -84,5 +84,5 @@ public class ActivityPostRequest {
         return location;
     }
 
-    public int getFitnessLevel() { return fitnessLevel; }
+    public Integer getFitnessLevel() { return fitnessLevel; }
 }
