@@ -14,7 +14,6 @@ public class ActivitySearchService {
         Matcher m = p.matcher(searchString);
         while (m.find()) {
             String matched = m.group(1);
-            System.out.println(matched + '|');
             if (matched.equalsIgnoreCase("OR")) {
                 result.add("\"+\"");
             } else if (matched.equalsIgnoreCase("AND")) {

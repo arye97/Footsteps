@@ -12,6 +12,7 @@ import com.springvuegradle.seng302team600.payload.response.ParticipantResponse;
 import com.springvuegradle.seng302team600.repository.ActivityActivityTypeRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
+import com.springvuegradle.seng302team600.repository.ActivityRepositoryCustomImpl.SearchResponse;
 import com.springvuegradle.seng302team600.service.*;
 import com.springvuegradle.seng302team600.validator.ActivityValidator;
 import org.springframework.data.domain.*;
@@ -352,22 +353,18 @@ public class ActivityController {
         if (pageNumber <= -1) {
             pageNumber = 0;
         }
-
+        int page = pageNumber * PAGE_SIZE;
         List<String> searchStrings = ActivitySearchService.extractExactMatches(activityKeywords);
-        List<Activity> returnedActivities = activityRepository.findAllByKeywordUsingMethod(searchStrings);
+        SearchResponse searchResponse = activityRepository.findAllByKeywordUsingMethod(searchStrings, PAGE_SIZE, page);
+        List<Activity> returnedActivities = searchResponse.activities;
 
         if (returnedActivities == null || returnedActivities.size() == 0) {
             return activitiesFound;
         }
 
-        int totalElements = returnedActivities.size();
+        int totalElements = searchResponse.count;
 
-        int minIndex = pageNumber * PAGE_SIZE;
-        int maxIndex = Math.min(minIndex + PAGE_SIZE, totalElements);
-
-        List<Activity> activities = returnedActivities.subList(minIndex, maxIndex);
-
-        activities.forEach(i -> activitiesFound.add(new ActivityResponse(i)));
+        returnedActivities.forEach(i -> activitiesFound.add(new ActivityResponse(i)));
 
         response.setIntHeader("Total-Rows", totalElements);
 

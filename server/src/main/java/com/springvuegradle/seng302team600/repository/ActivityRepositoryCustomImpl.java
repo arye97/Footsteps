@@ -8,77 +8,74 @@ import org.springframework.data.repository.query.Param;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class ActivityRepositoryCustomImpl implements ActivityRepositoryCustom {
+    public class SearchResponse {
+        public final List<Activity> activities;
+        public final int count;
+        private SearchResponse(List<Activity> activities, Long count) {
+            this.activities = activities;
+            this.count = count.intValue();
+        }
+
+    }
 
     @PersistenceContext
     private EntityManager entityManager;
 
     @Override
-    public List<Activity> findAllByKeywordUsingMethod(@Param("keywords") List<String> keywords) {
+    public SearchResponse findAllByKeywordUsingMethod(@Param("keywords") List<String> keywords, int pageSize, int page) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Activity> query = cb.createQuery(Activity.class);
+        CriteriaQuery<Long> cQuery = cb.createQuery(Long.class);
         Root<Activity> activity = query.from(Activity.class);
-
         List<Predicate> predicates = new ArrayList<>();
         Path<String> activity_name = activity.get("name");
-        System.out.println(keywords);
 
         boolean orMode = false;
         Predicate predicate = cb.like(activity_name, "");
         if (keywords.size() > 1) orMode = keywords.get(1).equals("\"+\"");
-        if (orMode) {
-            predicate = cb.notLike(activity_name, "");
-        }
-        System.out.println(orMode);
+        if (orMode) predicate = cb.notLike(activity_name, "");
         for (int i = 0; i < keywords.size(); i++) {
             String word = keywords.get(i);
-            if (word.equals("\"+\"")) {
-                continue; //Ignore the or symbol
-            } else {
-                Predicate currentPredicate = predicate = cb.like(activity_name, word);
-                if (orMode) {
-                    Predicate base = predicate;
-                    System.out.println("Or with " + word);
-                    predicate = cb.or(base, currentPredicate);
-                } else {
-                    Predicate base = predicate;
-                    System.out.println("And with " + word);
-                    predicate = cb.and(base, currentPredicate);
-                }
-
-                if (keywords.size() > i + 1) {
-                    if (keywords.get(i + 1).equals("\"+\"")) {
-                        if (!orMode) {
-                            System.out.println("Swapping from AND to OR mode");
-                            predicates.add(predicate);
-                            predicate = cb.notLike(activity_name, "");
-                        }
-                        orMode = true;
-                    } else {
-                        if (orMode) {
-                            System.out.println("Swapping from OR to AND mode");
-                            predicates.add(predicate);
-                            predicate = cb.like(activity_name, "");
-                        }
-                        orMode = false;
+            if (word.equals("\"+\"")) continue; //Ignore the or symbol
+            else word = "%" + word + "%";
+            Predicate currentPredicate = predicate = cb.like(activity_name, word);
+            Predicate base = predicate;
+            if (orMode) predicate = cb.or(base, currentPredicate);
+            else predicate = cb.and(base, currentPredicate);
+            if (keywords.size() > i + 1) {
+                if (keywords.get(i + 1).equals("\"+\"")) {
+                    if (!orMode) {
+                        predicates.add(predicate);
+                        predicate = cb.notLike(activity_name, "");
                     }
+                    orMode = true;
                 } else {
-                    System.out.println("Pushing final predicate");
-                    predicates.add(predicate);
+                    if (orMode) {
+                        predicates.add(predicate);
+                        predicate = cb.like(activity_name, "");
+                    }
+                    orMode = false;
                 }
+            } else {
+                predicates.add(predicate);
             }
         }
-
-        query.select(activity).where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
-
-
-        return entityManager.createQuery(query)
-                .getResultList();
+        Predicate searchPredicate = cb.and(predicates.toArray(new Predicate[predicates.size()]));
+        query.select(activity).where(searchPredicate);
+        cQuery.select(cb.count(cQuery.from(Activity.class))).where(searchPredicate);
+        Query finalQuery = entityManager.createQuery(query);
+        finalQuery.setFirstResult(page);
+        finalQuery.setMaxResults(pageSize);
+        List<Activity> activities = finalQuery.getResultList();
+        Long count = entityManager.createQuery(cQuery).getSingleResult();
+        return new SearchResponse(activities, count);
     }
 
 }
