@@ -135,6 +135,9 @@
                 this.setFitnessColour();
             },
 
+            /**
+             * Updates the colour of a b-card-text element based on the value of this.myFitness
+             */
             setFitnessColour() {
                 let fitnessLevelsElement = document.getElementById('fitnessLevel' + this.activity.id);
                 if (this.myFitness === -1) {
