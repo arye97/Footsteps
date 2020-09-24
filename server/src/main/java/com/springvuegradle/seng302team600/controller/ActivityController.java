@@ -327,9 +327,7 @@ public class ActivityController {
                                                           @RequestParam(value = "activityKeywords") String activityKeywords) {
 
         activityKeywords = activityKeywords.trim();
-        if (activityKeywords.equals("-") ||
-                activityKeywords.equals("\\+") ||
-                activityKeywords.equals("%2b") ||
+        if (activityKeywords.equals("%2b") ||
                 activityKeywords.equals("%20") ||
                 activityKeywords.equals(" ") ||
                 activityKeywords.length() == 0) {
@@ -355,19 +353,8 @@ public class ActivityController {
             pageNumber = 0;
         }
 
-        List<Activity> returnedActivities;
-        if (activityKeywords.contains("AND")) {
-            String searchStrings = ActivitySearchService.handleMethodSpecialCaseString(activityKeywords, "AND");
-            returnedActivities = activityRepository.findAllByKeywordUsingMethod(searchStrings, "AND");
-        } else if (activityKeywords.contains("OR")) {
-            activityKeywords = ActivitySearchService.handleMethodSpecialCaseString(activityKeywords, "OR");
-            returnedActivities = activityRepository.findAllByKeywordUsingMethod(activityKeywords, "OR");
-        } else if (activityKeywords.length() > 1) {
-            activityKeywords = ActivitySearchService.getSearchQuery(activityKeywords);
-            returnedActivities = activityRepository.findAllByKeyword(activityKeywords);
-        } else {
-            return new ArrayList<>();
-        }
+        List<String> searchStrings = ActivitySearchService.extractExactMatches(activityKeywords);
+        List<Activity> returnedActivities = activityRepository.findAllByKeywordUsingMethod(searchStrings);
 
         if (returnedActivities == null || returnedActivities.size() == 0) {
             return activitiesFound;

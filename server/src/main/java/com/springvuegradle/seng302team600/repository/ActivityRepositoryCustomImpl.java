@@ -19,31 +19,63 @@ public class ActivityRepositoryCustomImpl implements ActivityRepositoryCustom {
     private EntityManager entityManager;
 
     @Override
-    public List<Activity> findAllByKeywordUsingMethod(@Param("keywords") String keywords, String method) {
-
+    public List<Activity> findAllByKeywordUsingMethod(@Param("keywords") List<String> keywords) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Activity> query = cb.createQuery(Activity.class);
         Root<Activity> activity = query.from(Activity.class);
 
-        Path<String> activity_name = activity.get("name");
         List<Predicate> predicates = new ArrayList<>();
-        List<String> keywordsList = Arrays.asList(keywords.split("-"));
-        for (String keyword : keywordsList) {
-            keyword = "%" + keyword + "%";
-            predicates.add(cb.like(activity_name, keyword));
+        Path<String> activity_name = activity.get("name");
+        System.out.println(keywords);
+
+        boolean orMode = false;
+        Predicate predicate = cb.like(activity_name, "");
+        if (keywords.size() > 1) orMode = keywords.get(1).equals("\"+\"");
+        if (orMode) {
+            predicate = cb.notLike(activity_name, "");
+        }
+        System.out.println(orMode);
+        for (int i = 0; i < keywords.size(); i++) {
+            String word = keywords.get(i);
+            if (word.equals("\"+\"")) {
+                continue; //Ignore the or symbol
+            } else {
+                Predicate currentPredicate = predicate = cb.like(activity_name, word);
+                if (orMode) {
+                    Predicate base = predicate;
+                    System.out.println("Or with " + word);
+                    predicate = cb.or(base, currentPredicate);
+                } else {
+                    Predicate base = predicate;
+                    System.out.println("And with " + word);
+                    predicate = cb.and(base, currentPredicate);
+                }
+
+                if (keywords.size() > i + 1) {
+                    if (keywords.get(i + 1).equals("\"+\"")) {
+                        if (!orMode) {
+                            System.out.println("Swapping from AND to OR mode");
+                            predicates.add(predicate);
+                            predicate = cb.notLike(activity_name, "");
+                        }
+                        orMode = true;
+                    } else {
+                        if (orMode) {
+                            System.out.println("Swapping from OR to AND mode");
+                            predicates.add(predicate);
+                            predicate = cb.like(activity_name, "");
+                        }
+                        orMode = false;
+                    }
+                } else {
+                    System.out.println("Pushing final predicate");
+                    predicates.add(predicate);
+                }
+            }
         }
 
-        if ((predicates.size() != keywordsList.size()) && (method.equals("AND"))) {
-            return new ArrayList<Activity>();
-        }
+        query.select(activity).where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
 
-        if (method.equals("AND")) {
-            query.select(activity)
-                    .where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
-        } else if (method.equals("OR")) {
-            query.select(activity)
-                    .where(cb.or(predicates.toArray(new Predicate[predicates.size()])));
-        }
 
         return entityManager.createQuery(query)
                 .getResultList();
