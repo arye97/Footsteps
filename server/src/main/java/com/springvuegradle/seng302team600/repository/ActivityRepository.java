@@ -1,13 +1,13 @@
 package com.springvuegradle.seng302team600.repository;
 
 import com.springvuegradle.seng302team600.model.Activity;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import com.springvuegradle.seng302team600.repository.ActivityRepositoryCustomImpl.SearchResponse;
 
 import java.util.List;
 
@@ -60,11 +60,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
     @Query(value = "SELECT * FROM activity WHERE activity_id in ?1", nativeQuery = true)
     List<Activity> getActivitiesByIds(@Param("userIds") List<Long> activityIds);
 
-    @Query(value =
-            "SELECT * FROM activity WHERE activity_name LIKE :keyword AND fitness >= :minFitnessLevel AND fitness <= :maxFitnessLevel", nativeQuery = true)
-    List<Activity> findAllByKeyword(@Param("keyword") String keyword,
-                                    @Param("minFitnessLevel") Integer minFitnessLevel,
-                                    @Param("maxFitnessLevel") Integer maxFitnessLevel);
+    SearchResponse findAllByKeyword(@Param("keyword") List<String> keyword, int pageSize, int page);
 
     @Query(value = "SELECT a.*" +
             "FROM activity as a " +
@@ -115,8 +111,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
                                                                @Param("userLongitude") Double userLongitude,
                                                                @Param("maxDistance") Double maxDistance,
                                                                @Param("activityTypeIds") List<Long> activityTypeIds,
-                                                               @Param("minFitnessLevel") Integer minFitnessLevel,
-                                                               @Param("maxFitnessLevel") Integer maxFitnessLevel,
+                                                               @Param("minFitnessLevel") Integer minFitnessLevel,@Param("maxFitnessLevel") Integer maxFitnessLevel,
                                                                Pageable pageable);
 
     @Query(value = "SELECT a.*" +
@@ -145,9 +140,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
                                                               @Param("userLongitude") Double userLongitude,
                                                               @Param("maxDistance") Double maxDistance,
                                                               @Param("activityTypeIds") List<Long> activityTypeIds,
-                                                              @Param("numActivityTypes") Integer numActivityTypes,
-                                                              @Param("minFitnessLevel") Integer minFitnessLevel,
-                                                              @Param("maxFitnessLevel") Integer maxFitnessLevel,
+                                                              @Param("numActivityTypes") int numActivityTypes,
                                                               Pageable pageable);
 
     @Query(value = "SELECT COUNT(*) " +
@@ -204,5 +197,5 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
                                                                @Param("userLongitude") Double userLongitude,
                                                                @Param("maxDistance") Double maxDistance,
                                                                @Param("activityTypeIds") List<Long> activityTypeIds,
-                                                               @Param("numActivityTypes") Integer numActivityTypes);
+                                                               @Param("numActivityTypes") int numActivityTypes);
 }

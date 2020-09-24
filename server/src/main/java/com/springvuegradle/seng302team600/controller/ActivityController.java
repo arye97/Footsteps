@@ -12,6 +12,7 @@ import com.springvuegradle.seng302team600.payload.response.ParticipantResponse;
 import com.springvuegradle.seng302team600.repository.ActivityActivityTypeRepository;
 import com.springvuegradle.seng302team600.repository.ActivityRepository;
 import com.springvuegradle.seng302team600.repository.ActivityTypeRepository;
+import com.springvuegradle.seng302team600.repository.ActivityRepositoryCustomImpl.SearchResponse;
 import com.springvuegradle.seng302team600.service.*;
 import com.springvuegradle.seng302team600.validator.ActivityValidator;
 import org.springframework.data.domain.*;
@@ -332,9 +333,7 @@ public class ActivityController {
                                                           @RequestParam(value = "maxFitnessLevel") Integer maxFitnessLevel) {
 
         activityKeywords = activityKeywords.trim();
-        if (activityKeywords.equals("-") ||
-                activityKeywords.equals("\\+") ||
-                activityKeywords.equals("%2b") ||
+        if (activityKeywords.equals("%2b") ||
                 activityKeywords.equals("%20") ||
                 activityKeywords.equals(" ") ||
                 activityKeywords.length() == 0) {
@@ -359,47 +358,18 @@ public class ActivityController {
         if (pageNumber <= -1) {
             pageNumber = 0;
         }
-
-        List<Activity> returnedActivities;
-        if (activityKeywords.contains("AND")) {
-            String searchStrings = ActivitySearchService.handleMethodSpecialCaseString(activityKeywords, "AND");
-            returnedActivities = activityRepository.findAllByKeywordUsingMethod(
-                    searchStrings,
-                    "AND",
-                    minFitnessLevel,
-                    maxFitnessLevel
-            );
-        } else if (activityKeywords.contains("OR")) {
-            activityKeywords = ActivitySearchService.handleMethodSpecialCaseString(activityKeywords, "OR");
-            returnedActivities = activityRepository.findAllByKeywordUsingMethod(
-                    activityKeywords,
-                    "OR",
-                    minFitnessLevel,
-                    maxFitnessLevel
-            );
-        } else if (activityKeywords.length() > 1) {
-            activityKeywords = ActivitySearchService.getSearchQuery(activityKeywords);
-            returnedActivities = activityRepository.findAllByKeyword(
-                    activityKeywords,
-                    minFitnessLevel,
-                    maxFitnessLevel
-            );
-        } else {
-            return new ArrayList<>();
-        }
+        int firstElementIndex = pageNumber * PAGE_SIZE;
+        List<String> searchStrings = ActivitySearchService.extractExactMatches(activityKeywords);
+        SearchResponse searchResponse = activityRepository.findAllByKeyword(searchStrings, PAGE_SIZE, firstElementIndex);
+        List<Activity> returnedActivities = searchResponse.activities;
 
         if (returnedActivities == null || returnedActivities.size() == 0) {
             return activitiesFound;
         }
 
-        int totalElements = returnedActivities.size();
+        int totalElements = searchResponse.count;
 
-        int minIndex = pageNumber * PAGE_SIZE;
-        int maxIndex = Math.min(minIndex + PAGE_SIZE, totalElements);
-
-        List<Activity> activities = returnedActivities.subList(minIndex, maxIndex);
-
-        activities.forEach(i -> activitiesFound.add(new ActivityResponse(i)));
+        returnedActivities.forEach(i -> activitiesFound.add(new ActivityResponse(i)));
 
         response.setIntHeader("Total-Rows", totalElements);
 

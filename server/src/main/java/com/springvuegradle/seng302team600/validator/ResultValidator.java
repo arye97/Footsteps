@@ -68,15 +68,6 @@ public class ResultValidator {
                             "Value does not convert to a boolean");
                 }
                 break;
-            case DATE:
-                // TODO implement when doing feature to use different unit data types
-                break;
-            case TIME:
-                // TODO implement when doing feature to use different unit data types
-                break;
-            case DATE_AND_TIME:
-                // TODO implement when doing feature to use different unit data types
-                break;
         }
     }
 }

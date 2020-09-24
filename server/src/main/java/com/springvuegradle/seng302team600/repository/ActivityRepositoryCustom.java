@@ -1,8 +1,6 @@
 package com.springvuegradle.seng302team600.repository;
 
-import com.springvuegradle.seng302team600.model.Activity;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.springvuegradle.seng302team600.repository.ActivityRepositoryCustomImpl.SearchResponse;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
@@ -10,8 +8,5 @@ import java.util.List;
 
 @RepositoryRestResource
 public interface ActivityRepositoryCustom {
-    List<Activity> findAllByKeywordUsingMethod(@Param("keywords") String keywords,
-                                               String method,
-                                               @Param("minFitnessLevel") Integer minFitnessLevel,
-                                               @Param("minFitnessLevel") Integer maxFitnessLevel);
+    SearchResponse findAllByKeyword(@Param("keywords") List<String> keywords, int pageSize, int page);
 }

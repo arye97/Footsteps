@@ -85,17 +85,16 @@
                                 <h3 v-if="this.location" id="location" class="font-weight-light">{{this.location.name}} </h3>
                                 <h3 v-else class="font-weight-light">Location not yet specified</h3>
                             </div>
-                            <div>
+                            <div class="font-weight-normal">
                                 <location-i-o
+                                    pin-legend-mode="ViewActivity"
                                     :view-only="true"
                                     :parent-pins="[{
                                       lat: this.location.latitude,
                                       lng: this.location.longitude,
-                                      colour: 'red',
-                                      windowContent: {
-                                          title: this.activityTitle,
-                                          location: this.location,
-                                      }
+                                      colour: 'blue',
+                                      title: this.activityTitle,
+                                      location_name: this.location.name
                                   }]"
                                     :parent-center="{lat: this.location.latitude, lng: this.location.longitude}">
                                 </location-i-o>
@@ -106,7 +105,8 @@
                                 <b-row class="mb-1">
                                     <b-col>
                                         <!--Start Time-->
-                                        <h3 class="font-weight-light">{{getDateTime(startTime)}} - {{getDateTime(endTime)}}</h3><br/>
+                                        <h3 class="font-weight-light">{{getDateTime(startTime)}} - </h3>
+                                        <h3 class="font-weight-light">{{getDateTime(endTime)}}</h3><br/>
                                     </b-col>
 
                                 </b-row>

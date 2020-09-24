@@ -12,14 +12,13 @@
                 @child-pins="(newPins) => this.pins = newPins ? newPins : this.pins"
                 @pin-change="pinChanged"
                 :initial-center="center"
+                :zoom="zoom"
+
         ></map-viewer>
-        <br/>
+          <br/>
         <b-button-group id="mapButtons" v-if="!viewOnly">
           <b-button id='addMarkerButton' v-b-popover.hover.top="'Place Pin in Exact Center of the Map'" variant="primary" block @click="addMarker()">Drop Pin</b-button>
         </b-button-group>
-        <p class="light-info-message" v-if="this.description">
-            {{  this.description  }}
-        </p>
       </div>
       <div v-else>
         <b-button id="showMapButton" variant="info" @click="isMapVisible=true">Show Map</b-button>
@@ -29,10 +28,10 @@
             <h3 class="font-weight-light"><strong>Search and add a location</strong></h3>
             <!--We should add to fields in :options if we want to receive other data from the API-->
 
-            <b-container>
+            <b-container class="input-location-container">
             <b-row no-gutters>
             <b-col>
-                <GmapAutocomplete
+                <GmapAutocompletet
                     id="gmapAutoComplete"
                     :value="address"
                     :options="{fields: ['geometry', 'formatted_address', 'address_components']}"
@@ -40,7 +39,7 @@
                     @focusin="emitFocus(true)"
                     @focusout="emitFocus(false)"
                     class="form-control">
-                </GmapAutocomplete>
+                </GmapAutocompletet>
             </b-col>
                 <b-col cols="1" v-if="!canDelete" >
                 <b-button id="clearPinsButton" variant="danger" @click="clearPins" v-bind:disabled="pins.length === 0">
@@ -50,6 +49,7 @@
             </b-row>
             </b-container>
         </div>
+        <pin-legend v-if="pinLegendMode" class="pin-legend" :mode="pinLegendMode"/>
     </b-card>
   </div>
 
@@ -57,6 +57,7 @@
 
 <script>
     import MapViewer from "../../components/Map/MapViewer";
+    import PinLegend from "../Map/PinLegend";
 
     /**
      * A component for viewing or editing a location using a textbox and interactive map.  Composes MapViewer.
@@ -69,7 +70,8 @@
         name: "LocationIO",
 
         components: {
-            MapViewer
+            MapViewer,
+            PinLegend
         },
 
 
@@ -119,13 +121,10 @@
                 default: null,
                 type: String
             },
-            description: {
+            pinLegendMode: {
                 default: null,
                 type: String
             },
-            /**
-             *
-             */
             canDelete: {
                 default: false,
                 type: Boolean
@@ -148,6 +147,7 @@
                 address: "",
                 pins: [],
                 center: undefined,
+                zoom: undefined
             }
         },
 
@@ -164,10 +164,12 @@
                     this.pinChanged(pin);
                 }
                 this.center = pin;
+                this.zoom = 10;
             }
 
             if (this.parentCenter) {
                 this.center = this.parentCenter;
+                this.zoom = 10;
             }
             if (this.parentPins) {
                 this.pins = this.pins.concat(this.parentPins);
@@ -215,6 +217,7 @@
                     this.$refs.mapViewerRef.panToPin(pin);
                 }
                 this.center = pin;
+                this.zoom = 10;
             },
 
             /**
@@ -287,7 +290,15 @@
 </script>
 
 <style scoped>
+    .pin-legend {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
     .border-white {
         background-color: white;
+    }
+
+    .input-location-container {
     }
 </style>
