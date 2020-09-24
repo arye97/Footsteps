@@ -70,7 +70,7 @@ public class LocationSearchService {
         if (activityTypes.length() >= 1) {
             List<Long> activityTypeIds = getActivityTypeIds(activityTypes);
             paginatedActivities = getPaginatedActivities(method, coordinates,
-                    cutoffDistance, activityTypeIds, minFitnessLevel, maxFitnessLevel, activitiesBlock);
+                    cutoffDistance, activityTypeIds, minFitness, maxFitness, activitiesBlock);
         } else {
             paginatedActivities = activityRepository.findAllWithinDistance(
                     coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance, activitiesBlock);
