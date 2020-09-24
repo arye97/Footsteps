@@ -197,7 +197,7 @@
     }
 
     #mapComponent {
-        height: 575px;
+        height: auto;
     }
 
     .light-info-message {

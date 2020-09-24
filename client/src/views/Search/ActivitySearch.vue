@@ -163,6 +163,7 @@
             // If not logged in
             await api.getUserId().catch(() => this.logout())
             await api.getAllUserData().then(response => {
+                console.log(response.data)
                 if (response.data.private_location !== null) {
                     this.currentLocation.lng = response.data.private_location.longitude;
                     this.currentLocation.lat = response.data.private_location.latitude;
@@ -175,6 +176,7 @@
                     this.pins.push(this.currentLocation);
                 }
             });
+            console.log(this.currentLocation);
             this.mapLoading = false;
             await this.fetchActivityTypes();
         },
