@@ -214,7 +214,6 @@ export default {
          * If changes have not been made, SAVE button is disabled.
          */
         async saveChanges() {
-            console.log('HELLO');
             // If input location is none, then dont modify location
             let editedLocationRequest = this.getLocationRequest();
             if (!editedLocationRequest) {

@@ -65,13 +65,13 @@ beforeEach(() => {
         api.checkProfile.mockImplementation(() => Promise.resolve({status: 200}));
         api.getUserData.mockImplementation(() => Promise.resolve({data: USER_DATA, status: 200}));
         api.editLocation.mockImplementation(() => {
-            console.log('CALLED');
-            Promise.resolve({status: 200})
+            return Promise.resolve({status: 200});
         });
 
         editLocation = shallowMount(EditLocation, {
             mocks: {
-                $route
+                $route,
+                api
             },
             router,
             localVue
@@ -117,25 +117,17 @@ describe('User starts with no location data', () => {
     test('User can add a public location', async () => {
         setValues();
         editLocation.vm.inputPublicLocation = USER_DATA.public_location;
-        await editLocation.vm.$nextTick().then(() => {
-            editLocation.find('#save-changes-btn').trigger('click');
-            expect(api.editLocation).toBeCalledTimes(1);
-        });
-        await editLocation.vm.$nextTick().then(() => {
-            expect(editLocation.find('#public-Name').text()).toBe(USER_DATA.public_location.name);
-        });
+        await editLocation.vm.saveChanges();
+        expect(api.editLocation).toBeCalledTimes(1);
+        expect(editLocation.find('#public-Name').text()).toBe(USER_DATA.public_location.name);
     });
 
     test('User can add a private location', async () => {
         setValues();
         editLocation.vm.inputPrivateLocation = USER_DATA.private_location;
-        await editLocation.vm.$nextTick().then(() => {
-            editLocation.find('#save-changes-btn').trigger('click');
-            expect(api.editLocation).toBeCalledTimes(1);
-        });
-        await editLocation.vm.$nextTick().then(() => {
-            expect(editLocation.find('#private-Name').text()).toBe(USER_DATA.private_location.name);
-        });
+        await editLocation.vm.saveChanges();
+        expect(api.editLocation).toBeCalledTimes(1);
+        expect(editLocation.find('#private-Name').text()).toBe(USER_DATA.private_location.name);
     });
  });
 
