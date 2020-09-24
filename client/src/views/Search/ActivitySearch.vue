@@ -155,8 +155,8 @@ export default {
             rows: null,
             resultsFound: false,
             filterSearch: false,
-            minFitness: "0",
-            maxFitness: "4"
+            minFitness: -1,
+            maxFitness: 4
         }
     },
     async mounted() {
