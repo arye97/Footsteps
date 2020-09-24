@@ -24,12 +24,12 @@
                             <table id="primaryEmailTable" class="table table-borderless">
                                 <tr>
                                     <td>
-                                        <p id="primaryEmailLabel">
+                                        <p id="primaryEmailLabel" style="word-break: break-word;">
                                             <b>Primary Email:</b>
                                         </p>
                                     </td>
                                     <td>
-                                        <p id="primaryEmail">
+                                        <p id="primaryEmail" style="word-break: break-word;">
                                             <b>{{ this.primaryEmail }}</b>
                                         </p>
                                     </td>
@@ -42,7 +42,7 @@
                                 <tr v-for="(additionalEmail, index) in this.additionalEmails"
                                     v-bind:key="additionalEmail">
                                     <td>
-                                        <p :id="'additionalEmail' + index">
+                                        <p :id="'additionalEmail' + index" style="word-break: break-word;">
                                             {{ additionalEmail }}
                                         </p>
                                     </td>
