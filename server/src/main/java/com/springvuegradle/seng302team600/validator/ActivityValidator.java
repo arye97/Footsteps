@@ -56,7 +56,7 @@ public class ActivityValidator {
      * @throws ResponseStatusException if invalid then bad request (400) should be returned
      */
     private static void validateFitness(Integer fitnessLevel) {
-        if (fitnessLevel > MAX_FITNESS_LEVEL || fitnessLevel < MIN_FITNESS_LEVEL) {
+        if (fitnessLevel.intValue() > MAX_FITNESS_LEVEL || fitnessLevel.intValue() < MIN_FITNESS_LEVEL) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Activity fitness level does not exist");
         }
     }
