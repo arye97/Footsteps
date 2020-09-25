@@ -157,8 +157,6 @@
 
         mounted() {
             this.id = this._uid;
-            console.log("HERE!!!!   : " + this.id)
-
             if (this.currentLocation) {
                 let pin = {
                     colour: 'red',
