@@ -258,7 +258,7 @@
                 </div>
             </b-form>
             <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="any_alert">
-                {{"This activity cannot be saved as there is an invalid field"}}
+                "This activity cannot be saved as there is an invalid field"
             </div>
             <footer class="col-12 text-center">
                 Entries marked with * are required
@@ -357,7 +357,7 @@
                 maxOutcomeUnitCharCount: 15,
                 errored: false,
                 error_message: "Something went wrong",
-                submitDisabled: false,
+                submitDisabled: false
             }
         },
         async created() {
