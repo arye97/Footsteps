@@ -138,6 +138,17 @@
                     </div>
                 </div>
 
+                <b-form-group id="input-fitness-level" label-for="activity-form-fitness" label="Activity Fitness Level:">
+                    <!-- fitness level field -->
+                    <multiselect v-model="activity.fitness" id="activity-form-fitness" :options="fitnessOptions" :multiple="false" label="desc" :return="fitnessOptions.desc"
+                                 placeholder="Please select a fitness level" track-by="value">
+                        <template slot="singleLabel" slot-scope="{ option }"><footer> {{ option.desc }}</footer></template>
+                    </multiselect>
+                </b-form-group>
+                <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_fitness">
+                    Invalid fitness level, try re selecting
+                </div>
+
                 <b-form-group
                         id="input-group-location"
                         label="Location: *"
@@ -149,7 +160,7 @@
                     <location-i-o v-if="!this.isEdit || this.activity.profileId"
                         id="input-location"
                         @pin-change="locationValue"
-                        @locationIO-focus="setLocationFocus"
+                        @invalid-location="invalidLocation"
                         :single-only="true"
                         :canDelete="true"
                         :parent-pins="this.isEdit && this.activity.location ?
@@ -164,6 +175,9 @@
                 </b-form-group>
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_location">
                     Field is mandatory and a location must be set
+                </div>
+                <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="unapproved_location">
+                    Please select a location from the autocomplete suggestions
                 </div>
 
 
@@ -254,7 +268,10 @@
                     <b-button class="float-right" type="submit" variant="primary" @submit="onSubmit">Submit</b-button>
                 </div>
             </b-form>
-            <footer class="col-12 text-center">
+            <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="any_alert">
+                This activity cannot be saved as there is an invalid field
+            </div>
+            <footer class="col-12 text-center footer-info">
                 Entries marked with * are required
             </footer><br/><br/>
         </div>
@@ -266,18 +283,23 @@
     import api from "../../Api";
     import {localTimeZoneToBackEndTime, pinToLocation} from "../../util";
     import LocationIO from "../Map/LocationIO";
-
+    import {fitnessLevels} from '../../constants';
 
     /**
      * Displays an error on the element with id equal to alert_name
      */
     function showError(alert_name) {
         let errorAlert = document.getElementById(alert_name);
-
+        let anyAlert = document.getElementById("any_alert");
         errorAlert.hidden = false;          //Show alert bar
+        anyAlert.hidden = false;
         setTimeout(function () {    //Hide alert bar after ~9000ms
             errorAlert.hidden = true;
         }, 9000);
+        setTimeout(function () {    //Hide alert bar after ~4500ms
+            anyAlert.hidden = true;
+        }, 4500);
+
     }
 
     /**
@@ -302,6 +324,7 @@
                 startTime: String,
                 endDate: String,
                 endTime: String,
+                fitness: Object
             },
             outcomeList: {
                 default() {
@@ -346,7 +369,8 @@
                 maxOutcomeUnitCharCount: 15,
                 errored: false,
                 error_message: "Something went wrong",
-                submitDisabled: false
+                submitDisabled: false,
+                fitnessOptions: fitnessLevels,
             }
         },
         async created() {
@@ -356,6 +380,18 @@
             async outcomeList() {
                 if (this.outcomeList.length !== this.editableOutcomes.length) {
                     await this.checkOutcomesAreEditable();
+                }
+            }
+        },
+        computed: {
+            value: {
+                get () {
+                    return this.fitnessOptions.filter(
+                        option => this.activity.fitness.includes(option.desc)
+                    )
+                },
+                set (newSelectedOptions) {
+                    this.activity.fitness = newSelectedOptions.map(option => option.desc)
                 }
             }
         },
@@ -528,6 +564,10 @@
                     showError('alert_location');
                     this.isValidFormFlag = false;
                 }
+                if (!this.activity.fitness || !this.fitnessOptions.includes(this.activity.fitness)) {
+                    showError('alert_fitness');
+                    this.isValidFormFlag = false;
+                }
             },
 
             /**
@@ -687,7 +727,18 @@
            * @param pin Object from LocationIO
            */
             locationValue: function (pin) {
-                this.activity.location = pinToLocation(pin);
+                if (pin.name !== "" || pin.name !== null) {
+                    this.activity.location = pinToLocation(pin);
+                    this.clearError();
+                }
+
+            },
+            /**
+             * Clears the activity location error message
+             */
+            clearError() {
+                let errorAlert = document.getElementById("unapproved_location");
+                errorAlert.hidden = true;
             },
             /**
              * Toggles the submitDisabled boolean
@@ -695,6 +746,15 @@
              */
             setLocationFocus(inFocus) {
                 this.submitDisabled = inFocus;
+            },
+
+            /**
+             * This method is called if an invalid location warning is emitted from LocationIO
+             * This displays a warning to the user so they are aware that it is invalid
+             */
+            invalidLocation() {
+                this.activity.location = null;
+                showError("unapproved_location");
             }
         }
     }
@@ -702,7 +762,7 @@
 </script>
 
 <style scoped>
-    footer {
+    .footer-info {
         padding-top: 55px;
     }
 

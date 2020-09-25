@@ -32,6 +32,7 @@
     import api from "../../Api";
     import ActivityForm from "../../components/Activities/ActivityForm";
     import {backendDateToLocalTimeZone, UnitType} from "../../util";
+    import {fitnessLevels} from "../../constants";
 
     /**
      * A view used to edit an activity
@@ -54,6 +55,7 @@
                     startTime: null,
                     endDate: null,
                     endTime: null,
+                    fitness: null
                 },
                 defaultTime: "12:00",
                 activityId: null,
@@ -109,7 +111,8 @@
                     continuous: this.activity.continuous,
                     location: this.activity.location,
                     start_time: this.activity.submitStartTime,
-                    end_time: this.activity.submitEndTime
+                    end_time: this.activity.submitEndTime,
+                    fitness: this.activity.fitness.value
                 };
 
                 // Send the activityForm to the server to edit the activity
@@ -199,6 +202,11 @@
                     this.activity.continuous = (response.data.continuous === true);
                     this.activity.description = response.data.description;
                     this.activity.location = response.data.location;
+                    if (response.data.fitness !== null) {
+                        this.activity.fitness = fitnessLevels[response.data.fitness + 1];
+                    } else {
+                        this.activity.fitness = fitnessLevels[0];
+                    }
                     this.activity.submitStartTime = backendDateToLocalTimeZone(response.data.start_time);
                     this.activity.submitEndTime = backendDateToLocalTimeZone(response.data.end_time);
                     for (let i = 0; i < response.data.activity_type.length; i++) {

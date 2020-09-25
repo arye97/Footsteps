@@ -5,7 +5,6 @@ import com.springvuegradle.seng302team600.model.ActivityType;
 import com.springvuegradle.seng302team600.model.Location;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
@@ -14,9 +13,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ActivityValidatorTest {
 
-    final static private Long MILLISECONDS_PER_DAY = 86400000L;
-    final static private int NAME_LEN = 75;
-    final static private int DESCRIPTION_LEN = 1500;
+    private static final Long MILLISECONDS_PER_DAY = 86400000L;
+    private static final int NAME_LEN = 75;
+    private static final int DESCRIPTION_LEN = 1500;
 
     private Activity activity;
     private Location location;
@@ -27,6 +26,7 @@ public class ActivityValidatorTest {
         activity = new Activity();
         activity.setName("Snow day");
         activity.setDescription("Skiing and snowboarding for a whole day!");
+        activity.setFitnessLevel(4);
 
         Set<ActivityType> activityTypes = new HashSet<>();
         ActivityType activityType = new ActivityType();
@@ -141,5 +141,17 @@ public class ActivityValidatorTest {
         activity.setLocation(location);
         exception = assertThrows(ResponseStatusException.class, () -> ActivityValidator.validate(activity));
         assertEquals("400 BAD_REQUEST \"Location longitude must exist (be between -180 and 180 degrees)\"", exception.getMessage());
+    }
+
+    @Test
+    public void aboveMaxFitnessLevelCausesError() {
+        activity.setFitnessLevel(5);
+        assertThrows(ResponseStatusException.class, () -> ActivityValidator.validate(activity));
+    }
+
+    @Test
+    public void belowMinFitnessLevelCausesError() {
+        activity.setFitnessLevel(-2);
+        assertThrows(ResponseStatusException.class, () -> ActivityValidator.validate(activity));
     }
 }

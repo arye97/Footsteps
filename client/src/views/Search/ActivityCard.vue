@@ -4,55 +4,47 @@
             {{ errorMessage }}
         </b-card>
         <b-card v-else border-variant="secondary" style="background-color: #f3f3f3" id="activityCard">
-            <b-row>
-                <b-col id="activityName-creatorName">
-                    <strong>{{ activity.activity_name }} | {{ creatorName }}</strong>
-                </b-col>
-                <b-col>
-                    <b-button id="viewActivityButton" style="float: right" variant="success"
-                              v-on:click="viewActivity()">View Activity
-                    </b-button>
-                </b-col>
-            </b-row>
+            <h5 id="activityName-creatorName" style="text-align: center">
+                <strong>{{ activity.activity_name }} |</strong> {{ creatorName }}
+            </h5>
             <hr style="border-color: inherit">
-            <b-row no-gutters>
-                <b-col cols="6">
-                    <b-card-text :id="'activity' + activity.id + 'Card'">
-                        <strong>Location:</strong>
-                        <br>
-                        {{ activity.location.name  }}
-                        <br/>
-                        <div v-if="!activity.continuous">
-                            <strong>Start Date:</strong>
-                            <br/>
-                            {{ getDateTime(activity.start_time) }}
-                            <br/>
-                            <strong>End Date:</strong>
-                            <br/>
-                            {{ getDateTime(activity.end_time) }}
-                            <br/>
-                        </div>
-                        <br/>
-                        <div v-if="activity.description.length <= 75">
-                            {{ activity.description }}
-                        </div>
-                        <div v-else>
-                            {{ activity.description.substring(0,75)+"...." }}
-                        </div>
-                    </b-card-text>
-                </b-col>
-                <b-col v-if="activity.activity_type.length >= 1">
-                    <b-list-group class="mx-2" id="matchingActivityTypes">
-                        <section v-for="activityType in activity.activity_type" v-bind:key="activityType.name">
-                            <!-- Only display queried activity types -->
-                            <b-list-group-item v-if="activityTypesSearchedFor.includes(activityType.name)"
-                                               style="text-align: center" variant="success">
-                                {{ activityType.name }}
-                            </b-list-group-item>
-                        </section>
-                    </b-list-group>
-                </b-col>
-            </b-row>
+            <b-card-text :id="'activity' + activity.id + 'Card'">
+                <h6 style="text-align: center">
+                    {{ activity.location.name }}
+                </h6>
+                <hr>
+                <div v-if="!activity.continuous" style="text-align: center">
+                    {{ getDateTime(activity.start_time) }} - {{ getDateTime(activity.end_time) }}
+                    <hr>
+                </div>
+                <div v-if="activity.description.length <= 200">
+                    {{ activity.description }}
+                </div>
+                <div v-else>
+                    {{ activity.description.substring(0,200)+"...." }}
+                </div>
+            </b-card-text>
+            <div id="matchingActivityTypes" v-if="activity.activity_type.length >= 1" align="center">
+                <hr>
+                <b-button-group v-for="activityType in activity.activity_type" v-bind:key="activityType.name"
+                                border-variant="secondary">
+                    <!-- Only display queried activity types -->
+                    <b-button v-if="activityTypesSearchedFor.includes(activityType.name)" pill variant="secondary"
+                              disabled class="font-weight-light activityTypes">
+                        {{ activityType.name }}
+                    </b-button>
+                </b-button-group>
+            </div>
+            <hr/>
+            <fitness-progress-bar
+                    :user-fitness-level="myFitness"
+                    :activity-fitness-level="activityFitness"
+                    v-if="loaded"
+            >
+            </fitness-progress-bar>
+            <b-button id="viewActivityButton" variant="success" block
+                      v-on:click="viewActivity()">View Activity
+            </b-button>
         </b-card>
     </div>
 </template>
@@ -60,9 +52,11 @@
 <script>
     import api from "../../Api";
     import {formatDateTime} from "../../util";
+    import FitnessProgressBar from "../../components/Activities/FitnessProgressBar";
 
     export default {
         name: "ActivityCard",
+        components: {FitnessProgressBar},
         props: {
             activity: {
                 id: Number,
@@ -73,7 +67,8 @@
                 continuous: Boolean,
                 start_time: Date,
                 end_time: Date,
-                location: String
+                location: String,
+                fitness: Number
             },
             activityTypesSearchedFor: {
                 default() {
@@ -87,12 +82,17 @@
             return {
                 errored: false,
                 errorMessage: 'An error occurred when loading this activity, please try again',
-                creatorName: ''
+                creatorName: '',
+                activityFitness: null,
+                myFitness: null,
+                loaded: false
             }
         },
 
         async mounted() {
             await this.getCreatorName();
+            await this.getFitnessLevel();
+            this.loaded = true;
         },
 
         methods: {
@@ -100,6 +100,22 @@
              * Imports formatDateTime function from util.js
              */
             getDateTime: formatDateTime,
+            /**
+             * Function to get the string and colour for fitness level
+             */
+            async getFitnessLevel() {
+                if (this.activity.fitness === null) {
+                    this.activityFitness = -1; // No fitness level
+                } else {
+                    this.activityFitness = this.activity.fitness;
+                }
+
+                await api.getAllUserData().then(response => {
+                    this.myFitness = response.data.fitness;
+                }).catch(() => {
+                    this.errored = true;
+                });
+            },
             /**
              * Function for redirecting to view activity page via activity's ID
              */
@@ -134,5 +150,8 @@
 </script>
 
 <style scoped>
-
+    .activityTypes {
+        margin: 3px;
+        display: inline-block;
+    }
 </style>

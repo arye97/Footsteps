@@ -64,6 +64,10 @@ test('Is a vue instance', () => {
     expect(activityForm.isVueInstance).toBeTruthy();
 });
 
+test('Fitness level input exists', () => {
+    expect(activityForm.find('#input-fitness-level').exists()).toBeTruthy();
+});
+
 test('Outcome title input exists', () => {
     expect(activityForm.find('#input-outcome-title').exists()).toBeTruthy();
 });
@@ -89,6 +93,7 @@ test('Outcomes table exists', () => {
 });
 
 test('Form catches emitted pin-change event', async () => {
+    activityForm.vm.clearError = jest.fn();
     activityForm.find('#input-location').vm.$emit('pin-change', pinData);
     await activityForm.vm.$nextTick();
     expect(activityForm.vm.$props.activity.location).toStrictEqual(pinLocationData);

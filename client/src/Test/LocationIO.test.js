@@ -83,7 +83,7 @@ describe("Test addMarker", () => {
 
         locationIO.vm.addMarker(pin);
         expect(locationIO.vm.pins.length).toBe(1);
-        expect(locationIO.vm.pins[0]).toEqual({lat: 0, lng: 0, name: "Somewhere", colour: 'red'});
+        expect(locationIO.vm.pins[0]).toEqual({lat: 0, lng: 0, name: "Somewhere", "title": "Search center", "location_name": "Somewhere", colour: 'red'});
         expect(locationIO.vm.address).toEqual("Somewhere")
     });
 

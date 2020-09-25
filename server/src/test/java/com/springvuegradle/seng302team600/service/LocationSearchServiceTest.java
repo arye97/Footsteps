@@ -89,12 +89,15 @@ public class LocationSearchServiceTest {
 
         Activity dummyActivity1 = new Activity();
         ReflectionTestUtils.setField(dummyActivity1, "activityId", DUMMY_ACTIVITY_ID_1);
+        dummyActivity1.setFitnessLevel(2);
         dummyActivity1.setLocation(BERLIN);
         Activity dummyActivity2 = new Activity();
         ReflectionTestUtils.setField(dummyActivity2, "activityId", DUMMY_ACTIVITY_ID_2);
+        dummyActivity2.setFitnessLevel(4);
         dummyActivity2.setLocation(WARSAW);
         Activity dummyActivity3 = new Activity();
         ReflectionTestUtils.setField(dummyActivity3, "activityId", DUMMY_ACTIVITY_ID_3);
+        dummyActivity3.setFitnessLevel(3);
         dummyActivity3.setLocation(MOSCOW);
 
         activityList.add(dummyActivity1);
@@ -151,11 +154,44 @@ public class LocationSearchServiceTest {
         //                        coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance,
         //                        activityTypeIds, numActivityTypes, activitiesBlock)
         when(activityRepository.findAllWithinDistanceByAllActivityTypeIds(Mockito.anyDouble(), Mockito.anyDouble(),
-                Mockito.anyDouble(), Mockito.anyList(), Mockito.anyInt(), Mockito.any(Pageable.class))).thenAnswer(i -> {
+                Mockito.anyDouble(), Mockito.anyList(), Mockito.anyInt(), Mockito.eq(2), Mockito.eq(3),
+                Mockito.any(Pageable.class))).thenAnswer(i -> {
             List<Long> activityTypeIds = i.getArgument(3);
             int numActivityTypes = i.getArgument(4);
 
-            Pageable pageable = i.getArgument(5);
+            Pageable pageable = i.getArgument(7);
+            List<Activity> resultList = new ArrayList<>();
+            int matchCount = 0;
+
+            for (Activity activity : activityList) {
+                for (ActivityType activityType : activity.getActivityTypes()) {
+                    if (activityTypeIds.contains(activityType.getActivityTypeId())) {
+                        matchCount++;
+                    }
+                }
+                if (matchCount == numActivityTypes && activity.getFitnessLevel() <= 3 && activity.getFitnessLevel() >= 2) {
+                    resultList.add(activity);
+                }
+                matchCount = 0;
+            }
+
+            Slice<Activity> resultSlice;
+            if (resultList.size() > BLOCK_SIZE) {
+                int leftIndex = PAGE_ONE * BLOCK_SIZE;
+                int rightIndex = PAGE_TWO * BLOCK_SIZE + BLOCK_SIZE;
+                resultSlice = new SliceImpl<>(resultList.subList(leftIndex, rightIndex), pageable, true);
+            } else {
+                resultSlice = new SliceImpl<>(resultList, pageable, false);
+            }
+            return resultSlice;
+        });
+        when(activityRepository.findAllWithinDistanceByAllActivityTypeIds(Mockito.anyDouble(), Mockito.anyDouble(),
+                Mockito.anyDouble(), Mockito.anyList(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt(),
+                Mockito.any(Pageable.class))).thenAnswer(i -> {
+            List<Long> activityTypeIds = i.getArgument(3);
+            int numActivityTypes = i.getArgument(4);
+
+            Pageable pageable = i.getArgument(7);
             List<Activity> resultList = new ArrayList<>();
             int matchCount = 0;
 
@@ -182,14 +218,14 @@ public class LocationSearchServiceTest {
             return resultSlice;
         });
 
-
         // activityRepository.findAllWithinDistanceBySomeActivityTypeIds(
         //                        coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance,
         //                        activityTypeIds, activitiesBlock);
         when(activityRepository.findAllWithinDistanceBySomeActivityTypeIds(Mockito.anyDouble(), Mockito.anyDouble(),
-                Mockito.anyDouble(), Mockito.anyList(), Mockito.any(Pageable.class))).thenAnswer(i -> {
+                Mockito.anyDouble(), Mockito.anyList(), Mockito.anyInt(), Mockito.anyInt(),
+                Mockito.any(Pageable.class))).thenAnswer(i -> {
             List<Long> activityTypeIds = i.getArgument(3);
-            Pageable pageable = i.getArgument(4);
+            Pageable pageable = i.getArgument(6);
             List<Activity> resultList = new ArrayList<>();
 
             for (Activity activity : activityList) {
@@ -211,12 +247,43 @@ public class LocationSearchServiceTest {
             }
             return resultSlice;
         });
+        when(activityRepository.findAllWithinDistanceBySomeActivityTypeIds(Mockito.anyDouble(), Mockito.anyDouble(),
+                Mockito.anyDouble(), Mockito.anyList(), Mockito.eq(2), Mockito.eq(3),
+                Mockito.any(Pageable.class))).thenAnswer(i -> {
+            List<Long> activityTypeIds = i.getArgument(3);
+            Pageable pageable = i.getArgument(6);
+            List<Activity> resultList = new ArrayList<>();
+
+            Integer minFitness = i.getArgument(4);
+            Integer maxFitness = i.getArgument(5);
+
+            for (Activity activity : activityList) {
+                for (ActivityType activityType : activity.getActivityTypes()) {
+                    if (activityTypeIds.contains(activityType.getActivityTypeId())
+                            && activity.getFitnessLevel() >= minFitness
+                            && activity.getFitnessLevel() <= maxFitness) {
+                        resultList.add(activity);
+                        break;
+                    }
+                }
+            }
+
+            Slice<Activity> resultSlice;
+            if (resultList.size() > BLOCK_SIZE) {
+                int leftIndex = PAGE_ONE * BLOCK_SIZE;
+                int rightIndex = PAGE_TWO * BLOCK_SIZE + BLOCK_SIZE;
+                resultSlice = new SliceImpl<>(resultList.subList(leftIndex, rightIndex), pageable, true);
+            } else {
+                resultSlice = new SliceImpl<>(resultList, pageable, false);
+            }
+            return resultSlice;
+        });
 
 
         // activityRepository.findAllWithinDistance(
         //                    coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance, activitiesBlock);
         when(activityRepository.findAllWithinDistance(Mockito.anyDouble(), Mockito.anyDouble(),
-                Mockito.anyDouble(), Mockito.any(Pageable.class))).thenAnswer(i -> {
+                Mockito.anyDouble(), Mockito.anyInt(), Mockito.anyInt(),Mockito.any(Pageable.class))).thenAnswer(i -> {
             Pageable pageable = i.getArgument(3);
             List<Activity> resultList = new ArrayList<>(activityList);
 
@@ -233,11 +300,11 @@ public class LocationSearchServiceTest {
 
 
         when(activityRepository.countAllWithinDistance(
-                Mockito.anyDouble(), Mockito.anyDouble(), Mockito.anyDouble())).thenAnswer(i -> activityList.size());
+                Mockito.anyDouble(), Mockito.anyDouble(), Mockito.anyDouble(), Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> activityList.size());
 
 
         when(activityRepository.countAllWithinDistanceByAllActivityTypeIds(Mockito.anyDouble(), Mockito.anyDouble(),
-                Mockito.anyDouble(), Mockito.anyList(), Mockito.anyInt())).thenAnswer(i -> {
+                Mockito.anyDouble(), Mockito.anyList(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> {
             List<Long> activityTypeIds = i.getArgument(3);
             int numActivityTypes = i.getArgument(4);
             List<Activity> resultList = new ArrayList<>();
@@ -258,7 +325,7 @@ public class LocationSearchServiceTest {
 
 
         when(activityRepository.countAllWithinDistanceBySomeActivityTypeIds(Mockito.anyDouble(), Mockito.anyDouble(),
-                Mockito.anyDouble(), Mockito.anyList())).thenAnswer(i -> {
+                Mockito.anyDouble(), Mockito.anyList(), Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> {
             List<Long> activityTypeIds = i.getArgument(3);
             List<Activity> resultList = new ArrayList<>();
             for (Activity activity : activityList) {
@@ -284,10 +351,21 @@ public class LocationSearchServiceTest {
         String method = "or";
         String activitiesString = "Kiting Hiking";
         Slice<Activity> resultSlice = locationSearchService.getActivitiesByLocation(STRING_COORDINATES_A, activitiesString,
-                MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE);
+                MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE, -1, 4);
         List<Activity> activities = resultSlice.getContent();
         assertTrue(activities.size() <= BLOCK_SIZE);
         assertEquals(3, activities.size()); // All 3 activities in activityList are expected to return
+    }
+
+    @Test
+    public void getOrActivityByLocationWithFitnessLevelBetween2And3Success() throws Exception {
+        String method = "or";
+        String activitiesString = "Kiting Hiking";
+        Slice<Activity> resultSlice = locationSearchService.getActivitiesByLocation(STRING_COORDINATES_A, activitiesString,
+                MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE, 2, 3);
+        List<Activity> activities = resultSlice.getContent();
+        assertTrue(activities.size() <= BLOCK_SIZE);
+        assertEquals(2, activities.size()); // 2 activities in activityList are expected to return
     }
 
     @Test
@@ -295,7 +373,7 @@ public class LocationSearchServiceTest {
         String method = "or";
         String activitiesString = "Writing";
         Slice<Activity> resultSlice = locationSearchService.getActivitiesByLocation(STRING_COORDINATES_A, activitiesString,
-                MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE);
+                MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE, -1, 4);
         List<Activity> activities = resultSlice.getContent();
         assertTrue(activities.size() <= BLOCK_SIZE);
         assertEquals(0, activities.size()); // No activities with writing
@@ -306,7 +384,7 @@ public class LocationSearchServiceTest {
         String method = "and";
         String activitiesString = "Biking Hiking";
         Slice<Activity> resultSlice = locationSearchService.getActivitiesByLocation(STRING_COORDINATES_A, activitiesString,
-                MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE);
+                MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE, -1, 4);
         List<Activity> activities = resultSlice.getContent();
         assertTrue(activities.size() <= BLOCK_SIZE);
         assertEquals(1, activities.size()); // Only activity with Biking and Hiking are expected to return
@@ -317,7 +395,7 @@ public class LocationSearchServiceTest {
         String method = "and";
         String activitiesString = "Biking Hiking Kiting";
         Slice<Activity> resultSlice = locationSearchService.getActivitiesByLocation(STRING_COORDINATES_A, activitiesString,
-                MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE);
+                MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE, -1, 4);
         List<Activity> activities = resultSlice.getContent();
         assertTrue(activities.size() <= BLOCK_SIZE);
         assertEquals(0, activities.size()); // No activities with all 3 types
@@ -328,10 +406,10 @@ public class LocationSearchServiceTest {
         String method = "and";
         String activitiesString = "Writing";
         Slice<Activity> resultSlice = locationSearchService.getActivitiesByLocation(STRING_COORDINATES_A, activitiesString,
-                MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE);
+                MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE, -1, 4);
         List<Activity> activities = resultSlice.getContent();
         assertTrue(activities.size() <= BLOCK_SIZE);
-        assertEquals(0, activities.size()); // No activity has type writing
+        assertEquals(0, activities.size());
     }
 
     @Test
@@ -339,7 +417,7 @@ public class LocationSearchServiceTest {
         String method = "flower";
         String activitiesString = "Biking";
         Exception exception = assertThrows(ResponseStatusException.class, () -> locationSearchService.getActivitiesByLocation
-                (STRING_COORDINATES_A, activitiesString,MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE));
+                (STRING_COORDINATES_A, activitiesString,MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE, -1, 4));
         assertEquals("400 BAD_REQUEST \"Method must be specified as either (AND, OR)\"", exception.getMessage());
     }
 
@@ -348,7 +426,7 @@ public class LocationSearchServiceTest {
         String method = "or";
         String activitiesString = "Biking";
         Exception exception = assertThrows(ResponseStatusException.class, () -> locationSearchService.getActivitiesByLocation
-                (STRING_COORDINATES_BAD_LAT, activitiesString,MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE));
+                (STRING_COORDINATES_BAD_LAT, activitiesString,MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE, -1, 4));
         assertEquals("400 BAD_REQUEST \"Latitude must exist (be between -90 and 90 degrees)\"", exception.getMessage());
     }
 
@@ -357,7 +435,7 @@ public class LocationSearchServiceTest {
         String method = "or";
         String activitiesString = "Biking";
         Exception exception = assertThrows(ResponseStatusException.class, () -> locationSearchService.getActivitiesByLocation
-                (STRING_COORDINATES_BAD_LNG, activitiesString,MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE));
+                (STRING_COORDINATES_BAD_LNG, activitiesString,MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE, -1, 4));
         assertEquals("400 BAD_REQUEST \"Longitude must exist (be between -180 and 180 degrees)\"", exception.getMessage());
     }
 
@@ -366,7 +444,7 @@ public class LocationSearchServiceTest {
         String method = "or";
         String activitiesString = "Biking";
         Exception exception = assertThrows(JsonProcessingException.class, () -> locationSearchService.getActivitiesByLocation
-                (STRING_COORDINATES_INVALID, activitiesString,MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE));
+                (STRING_COORDINATES_INVALID, activitiesString,MEDIUM_DISTANCE, method, BLOCK_SIZE, PAGE_ONE, -1, 4));
     }
 
     @Test
@@ -374,7 +452,7 @@ public class LocationSearchServiceTest {
         String method = "or";
         String activitiesString = "Biking";
         Exception exception = assertThrows(ResponseStatusException.class, () -> locationSearchService.getActivitiesByLocation
-                (STRING_COORDINATES_A, activitiesString,NEGATIVE_DISTANCE, method, BLOCK_SIZE, PAGE_ONE));
+                (STRING_COORDINATES_A, activitiesString,NEGATIVE_DISTANCE, method, BLOCK_SIZE, PAGE_ONE, -1, 4));
         assertEquals("400 BAD_REQUEST \"Cutoff distance must be 0 or greater\"", exception.getMessage());
     }
 
@@ -384,7 +462,7 @@ public class LocationSearchServiceTest {
         String method = "or";
         String activitiesString = "Kiting Hiking";
         int numberOfActivities = locationSearchService.getRowsForActivityByLocation(STRING_COORDINATES_A, activitiesString,
-                MEDIUM_DISTANCE, method);
+                MEDIUM_DISTANCE, method, -1, 4);
         assertEquals(3, numberOfActivities);
     }
 
@@ -393,7 +471,7 @@ public class LocationSearchServiceTest {
         String method = "and";
         String activitiesString = "Kiting Hiking";
         int numberOfActivities = locationSearchService.getRowsForActivityByLocation(STRING_COORDINATES_A, activitiesString,
-                MEDIUM_DISTANCE, method);
+                MEDIUM_DISTANCE, method, -1, 4);
         assertEquals(1, numberOfActivities);
     }
 
@@ -402,7 +480,7 @@ public class LocationSearchServiceTest {
         String method = "Doesn't matter";
         String activitiesString = ""; // Leave empty
         int numberOfActivities = locationSearchService.getRowsForActivityByLocation(STRING_COORDINATES_A, activitiesString,
-                MEDIUM_DISTANCE, method);
+                MEDIUM_DISTANCE, method, -1, 4);
         assertEquals(3, numberOfActivities);
     }
 }

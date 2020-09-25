@@ -32,7 +32,7 @@ const userData = {
         "lng": 15.0,
         "lat": 15.0,
     }
-}
+};
 
 const SEARCH_RESPONSE1 = [
     {
@@ -135,6 +135,11 @@ beforeEach(() => {
         mocks: {api},
         localVue
     });
+    activitySearch.setData({
+        minFitness: -1,
+        maxFitness: 4,
+    });
+
 });
 
 
@@ -157,7 +162,7 @@ describe("Search for activities by keywords", () => {
             });
 
             return activitySearch.vm.getPaginatedActivitiesByActivityTitle().then(() => {
-                expect(activitySearch.vm.api.getActivityByActivityTitle).toHaveBeenCalledWith(["PLACEHOLDER"], activitySearch.vm.$data.currentPage - 1);
+                expect(activitySearch.vm.api.getActivityByActivityTitle).toHaveBeenCalledWith(["PLACEHOLDER"], -1, 4, activitySearch.vm.$data.currentPage - 1);
             });
         });
 
@@ -180,7 +185,7 @@ describe("Search for activities by keywords", () => {
             });
 
             return activitySearch.vm.getPaginatedActivitiesByActivityTitle().then(() => {
-                expect(activitySearch.vm.api.getActivityByActivityTitle).toHaveBeenCalledWith(["PLACEHOLDER + PLACEHOLDERS"], activitySearch.vm.$data.currentPage - 1);
+                expect(activitySearch.vm.api.getActivityByActivityTitle).toHaveBeenCalledWith(["PLACEHOLDER + PLACEHOLDERS"], -1, 4, activitySearch.vm.$data.currentPage - 1);
             });
         });
     });
@@ -204,7 +209,7 @@ describe("Search for activities by keywords", () => {
             });
 
             return activitySearch.vm.getPaginatedActivitiesByActivityTitle().then(() => {
-                expect(activitySearch.vm.api.getActivityByActivityTitle).toHaveBeenCalledWith(["PLACEHOLDER - PLACEHOLDERS"], activitySearch.vm.$data.currentPage - 1);
+                expect(activitySearch.vm.api.getActivityByActivityTitle).toHaveBeenCalledWith(["PLACEHOLDER - PLACEHOLDERS"], -1, 4, activitySearch.vm.$data.currentPage - 1);
             });
         });
     });
@@ -228,7 +233,7 @@ describe("Search for activities by keywords", () => {
             });
 
             return activitySearch.vm.getPaginatedActivitiesByActivityTitle().then(() => {
-                expect(activitySearch.vm.api.getActivityByActivityTitle).toHaveBeenCalledWith(['"PLACEHOLDER"'], activitySearch.vm.$data.currentPage - 1);
+                expect(activitySearch.vm.api.getActivityByActivityTitle).toHaveBeenCalledWith(['"PLACEHOLDER"'], -1, 4, activitySearch.vm.$data.currentPage - 1);
             });
         });
     });
@@ -267,11 +272,62 @@ describe("Search for activities by activity type", () => {
         });
 
         return activitySearch.vm.getPaginatedActivitiesByActivityType().then(() => {
-            expect(activitySearch.vm.api.getActivityByActivityType).toHaveBeenCalledWith(["Archery","Climbing"],"and", activitySearch.vm.$data.currentPage - 1);
+            expect(activitySearch.vm.api.getActivityByActivityType).toHaveBeenCalledWith(["Archery","Climbing"],"and", -1, 4, activitySearch.vm.$data.currentPage - 1);
         });
     });
 });
 
+describe("Filter search", () => {
+    test("Filter search button exists when the clear filters button doesn't", () => {
+        expect(activitySearch.find('#filterSearchButton').exists()).toBeTruthy();
+        expect(activitySearch.find('#clearFiltersButton').exists()).toBeFalsy();
+    });
+
+    test("Clear filters button exists when filter search button doesn't", () => {
+        activitySearch = shallowMount(ActivitySearch, {
+            router,
+            mocks: {api},
+            localVue,
+            data() {
+                return {
+                    filterSearch: true
+                }
+            }
+        });
+        expect(activitySearch.find('#clearFiltersButton').exists()).toBeTruthy();
+        expect(activitySearch.find('#filterSearchButton').exists()).toBeFalsy();
+    });
+
+    test("When the user can filter, they should be able to access the clearFiltersButton, minimumFitnessLevel and maximumFitnessLevel", () => {
+        activitySearch = shallowMount(ActivitySearch, {
+            router,
+            mocks: {api},
+            localVue,
+            data() {
+                return {
+                    filterSearch: true
+                }
+            }
+        });
+        expect(activitySearch.find('#clearFiltersButton').exists()).toBeTruthy();
+        expect(activitySearch.find('#minimumFitnessLevel').exists()).toBeTruthy();
+        expect(activitySearch.find('#maximumFitnessLevel').exists()).toBeTruthy();
+    });
+
+    test("When the user can filter, they should be able to access the checkbox for including unleveled activities", () => {
+        activitySearch = shallowMount(ActivitySearch, {
+            router,
+            mocks: {api},
+            localVue,
+            data() {
+                return {
+                    filterSearch: true
+                }
+            }
+        });
+        expect(activitySearch.find('#clearFiltersButton').exists()).toBeTruthy();
+    })
+});
 
 test('map pane does not exist at default', () => {
     expect(activitySearch.find('#mapComponent').exists()).toBeFalsy();
