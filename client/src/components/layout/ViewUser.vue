@@ -120,29 +120,19 @@
 
                                 <hr/>
                                 <b-row>
-                                    <b-col>
+                                    <b-col v-if="this.user.public_location">
                                         <h3 class="font-weight-light"><strong>Public Location</strong></h3>
-                                        <div v-if="this.user.public_location">
+                                        <div>
                                             <div class="address">
                                                 <h3 id="public-location-Name" class="font-weight-light"> {{user.public_location.name}} </h3>
                                             </div>
                                         </div>
-                                        <div v-else>
-                                            <div class="address">
-                                                <h3 class="font-weight-light">No Location Specified yet </h3>
-                                            </div>
-                                        </div>
                                     </b-col>
-                                    <b-col>
-                                        <h3 class="font-weight-light"><strong>Private Location</strong></h3>
-                                        <div v-if="this.user.private_location">
+                                    <b-col v-if="this.user.private_location">
+                                        <div>
+                                            <h3 class="font-weight-light"><strong>Private Location</strong></h3>
                                             <div class="address">
                                                 <h3 id="private-location-Name" class="font-weight-light"> {{user.private_location.name}} </h3>
-                                            </div>
-                                        </div>
-                                        <div v-else>
-                                            <div class="address">
-                                                <h3 class="font-weight-light">No Location Specified yet </h3>
                                             </div>
                                         </div>
                                     </b-col>
