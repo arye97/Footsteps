@@ -35,6 +35,7 @@
                     </b-button>
                 </b-button-group>
             </div>
+            <hr/>
             <fitness-progress-bar
                     :user-fitness-level="myFitness"
                     :activity-fitness-level="activityFitness"

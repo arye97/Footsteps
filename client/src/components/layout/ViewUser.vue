@@ -33,13 +33,11 @@
                                 </h1>
 
                                 <h1 class="font-weight-light" style="word-break: break-word; font-size: x-large" v-if="this.user.bio">"{{ this.user.bio }}"</h1>
-
-                                <b-button type="submit" variant="success" size="med"
+                                <hr/>
+                                <b-button type="submit" variant="outline-success" size="med"
                                           v-if="this.isEditable" v-on:click="editProfile">Edit Profile
                                 </b-button>
-                                <br/>
-                                <br/>
-
+                                <hr/>
                                 <b-row>
                                     <b-col>
                                         <div>
