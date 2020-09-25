@@ -32,7 +32,7 @@
             <b-row no-gutters>
             <b-col>
                 <GmapAutocomplete
-                    id="gmapAutoComplete"
+                    :id="'gmapAutoComplete' + id"
                     :value="address"
                     :options="{fields: ['geometry', 'formatted_address', 'address_components']}"
                     @change="(place) => {check(place)}"
@@ -131,6 +131,10 @@
             canDelete: {
                 default: false,
                 type: Boolean
+            },
+            isActivityForm: {
+                default: false,
+                type: Boolean
             }
         },
 
@@ -150,11 +154,13 @@
                 address: "",
                 pins: [],
                 center: undefined,
-                zoom: undefined
+                zoom: undefined,
+                id: null
             }
         },
 
         mounted() {
+            this.id = this._uid;
             if (this.currentLocation) {
                 let pin = {
                     colour: 'red',
@@ -211,7 +217,7 @@
 
                 } else if (pin === undefined) {
                     pin = {
-                        colour: 'red',
+                        colour: this.isActivityForm ? 'blue' : 'red',
                         lat: this.$refs.mapViewerRef.dragged || !this.center ? this.$refs.mapViewerRef.currentCenter.lat: this.center.lat,
                         lng: this.$refs.mapViewerRef.dragged || !this.center ? this.$refs.mapViewerRef.currentCenter.lng : this.center.lng,
                         name: "",
