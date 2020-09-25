@@ -585,6 +585,8 @@ public class ActivityController {
      * @param activityTypes  a list of activity types
      * @param cutoffDistance the max distance to search by
      * @param method         the type of activity type filtering
+     * @param minFitnessLevel the minimum fitness level this search is interested in
+     * @param maxFitnessLevel the maximum fitness level this search is interested in
      * @return the count of activities searched for
      */
     @GetMapping(
