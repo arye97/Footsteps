@@ -132,7 +132,7 @@
                 pins: [],
                 MAX_DISTANCE: 10000,
                 activitiesPerPage: 5,
-                cutoffDistance: 1,
+                cutoffDistance: 5000,
                 currentPage: 1,
                 activitiesList: [],
                 searchMode: 'activityType',
