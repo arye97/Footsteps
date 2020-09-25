@@ -3,8 +3,8 @@
         <b-card border-variant="secondary" style="background-color: #f3f3f3">
             <b-row>
                 <b-col>
-                    <h4 id="fullName" class="font-weight-light" v-if="user.nickname" style="text-align: center;"><strong>{{ user.firstname }} {{ user.lastname }} |</strong> {{user.nickname}}</h4>
-                    <h4 id="fullName1" class="font-weight-light" v-else style="text-align: center;"><strong>{{ user.firstname }} {{ user.lastname }}</strong></h4>
+                    <h4 id="fullName1" class="font-weight-light" v-if="user.nickname" style="text-align: center;"><strong>{{ user.firstname }} {{ user.lastname }} |</strong> {{user.nickname}}</h4>
+                    <h4 id="fullName" class="font-weight-light" v-else style="text-align: center;"><strong>{{ user.firstname }} {{ user.lastname }}</strong></h4>
 
                 </b-col>
             </b-row>
@@ -19,7 +19,7 @@
             <b-row>
                 <b-col>
                     <div style="align-items: center; text-align: center;" v-if="this.user.activityTypes.length >= 1">
-                        <b-button-group  v-for="activityType in this.user.activityTypes"
+                        <b-button-group id="matchingActivityTypes" v-for="activityType in this.user.activityTypes"
                                         v-bind:key="activityType.name" border-variant="secondary">
                             <b-button pill variant="secondary" disabled class="font-weight-light activityTypes">{{activityType.name}}</b-button>
                         </b-button-group>
