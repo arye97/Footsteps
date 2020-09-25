@@ -22,9 +22,6 @@ public class UserPin extends Pin {
         } else if (user.getPublicLocation() != null) {
             this.title = "Public Location";
             this.locationName = user.getPublicLocation().getLocationName();
-        } else {
-            this.title = "";
-            this.locationName = "New Zealand";
         }
     }
 
