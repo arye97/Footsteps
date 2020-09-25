@@ -57,8 +57,9 @@ public class ActivityRepositoryCustomImpl implements ActivityRepositoryCustom {
 
             if (keywords.size() > i + 1) {
                 if (keywords.get(i + 1).equals("\"+\"") ||
-                    keywords.size() > i + 2 && keywords.get(i + 2).equals("\"+\"")) {
-                    if (!orMode) {
+                        (keywords.size() > i + 2 && keywords.get(i + 2).equals("\"+\""))) {
+                    if (!orMode ||
+                            (keywords.size() > i + 2 && keywords.get(i + 2).equals("\"+\""))) {
                         predicates.add(predicate);
                         predicate = cb.notLike(activity_name, "%");
                     }
