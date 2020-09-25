@@ -326,7 +326,6 @@ describe("Filter search", () => {
             }
         });
         expect(activitySearch.find('#clearFiltersButton').exists()).toBeTruthy();
-        expect(activitySearch.find('#includeUnleveledBox').exists()).toBeTruthy();
     })
 });
 
