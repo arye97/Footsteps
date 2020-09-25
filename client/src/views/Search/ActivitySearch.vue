@@ -70,18 +70,17 @@
                     </b-row>
                     <b-row>
                         <section v-if="filterSearch">
-                            <b-button id="clearFiltersButton" size="sm" variant="link" align-self="end" v-on:click="filterSearch=false">Clear Filters</b-button><br/>
+                            <b-button id="clearFiltersButton" size="sm" variant="link" align-self="end" v-on:click="clearFilters">Clear Filters</b-button><br/>
                             <label>Minimum Fitness Level:
                                 <p>{{convertFitnessToString(this.minFitness)}}</p>
                             </label>
-                            <b-form-input id="minimumFitnessLevel" type="range" min="0" max="4"
+                            <b-form-input id="minimumFitnessLevel" type="range" min="-1" max="4"
                                           focus v-model="minFitness"></b-form-input>
                             <label>Maximum Fitness Level:
                                 <p>{{convertFitnessToString(this.maxFitness)}}</p>
                             </label>
-                            <b-form-input id="maximumFitnessLevel" type="range" min="0" max="4"
+                            <b-form-input id="maximumFitnessLevel" type="range" min="-1" max="4"
                                           focus v-model="maxFitness"></b-form-input>
-                            <b-form-checkbox id="includeUnleveledBox">Include activities without fitness levels?</b-form-checkbox>
                         </section>
                         <section v-else>
                             <b-button id="filterSearchButton" size="sm" variant="link" align-self="end" v-on:click="filterSearch=true">Filter Search</b-button><br/>
@@ -175,7 +174,7 @@
                 rows: null,
                 resultsFound: false,
                 filterSearch: false,
-                minFitness: 0,
+                minFitness: -1,
                 maxFitness: 4,
                 hasNext: true,
                 isErrorAlert: false,
@@ -491,6 +490,9 @@
              */
             convertFitnessToString(fitness) {
                 fitness = Number(fitness);
+                if (fitness === -1) {
+                    return "Activities with no fitness level defined";
+                }
                 let fitnessString = "No fitness level";
                 for (const option in fitnessLevels) {
                     if (fitnessLevels[option].value === fitness) {
@@ -498,6 +500,18 @@
                     }
                 }
                 return fitnessString;
+            },
+
+            /**
+             * This helper function clears the search filters
+             * Sets the minimum fitness level back to -1
+             * Sets the maximum fitness level to 4
+             * Closes the filter information
+             */
+            clearFilters() {
+                this.filterSearch = false;
+                this.minFitness = -1;
+                this.maxFitness = 4;
             }
         }
     }
