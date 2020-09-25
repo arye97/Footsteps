@@ -74,6 +74,8 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
             "         * COS(RADIANS(:userLongitude - l.Longitude)) " +
             "         + SIN(RADIANS(:userLatitude)) " +
             "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance " +
+            "   AND a.fitness >= :minFitness " +
+            "   AND a.fitness <= :maxFitness " +
             "GROUP BY activity_id " +
             "ORDER BY 111.111 * " +
             "    DEGREES(ACOS(LEAST(1.0, COS(RADIANS(:userLatitude)) " +
@@ -84,6 +86,8 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
     Slice<Activity> findAllWithinDistance(@Param("userLatitude") Double userLatitude,
                                           @Param("userLongitude") Double userLongitude,
                                           @Param("maxDistance") Double maxDistance,
+                                          @Param("minFitness") Integer minFitness,
+                                          @Param("maxFitness") Integer maxFitness,
                                           Pageable pageable);
 
     @Query(value = "SELECT a.*" +

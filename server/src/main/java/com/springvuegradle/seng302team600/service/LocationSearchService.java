@@ -70,7 +70,6 @@ public class LocationSearchService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Minimum fitness level should not be greater than the maximum fitness level");
         }
-
         Slice<Activity> paginatedActivities;
         if (activityTypes.length() >= 1) {
             List<Long> activityTypeIds = getActivityTypeIds(activityTypes);
@@ -78,7 +77,7 @@ public class LocationSearchService {
                     cutoffDistance, activityTypeIds, minFitness, maxFitness, activitiesBlock);
         } else {
             paginatedActivities = activityRepository.findAllWithinDistance(
-                    coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance, activitiesBlock);
+                    coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance, minFitness, maxFitness, activitiesBlock);
         }
         return paginatedActivities;
     }

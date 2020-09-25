@@ -283,7 +283,7 @@ public class LocationSearchServiceTest {
         // activityRepository.findAllWithinDistance(
         //                    coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance, activitiesBlock);
         when(activityRepository.findAllWithinDistance(Mockito.anyDouble(), Mockito.anyDouble(),
-                Mockito.anyDouble(), Mockito.any(Pageable.class))).thenAnswer(i -> {
+                Mockito.anyDouble(), Mockito.anyInt(), Mockito.anyInt(),Mockito.any(Pageable.class))).thenAnswer(i -> {
             Pageable pageable = i.getArgument(3);
             List<Activity> resultList = new ArrayList<>(activityList);
 

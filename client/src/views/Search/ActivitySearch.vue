@@ -327,7 +327,6 @@
                     }).catch(error => {
                         this.handleError(error, "No activities within distance of location ".concat(this.cutoffDistance) + " have been found!");
                     });
-
                 this.loading = false;
             },
 
