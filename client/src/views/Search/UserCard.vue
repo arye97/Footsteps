@@ -1,47 +1,55 @@
 <template>
     <div>
         <b-card border-variant="secondary" style="background-color: #f3f3f3">
-            <b-row class="mb-1">
+            <b-row>
                 <b-col>
-                    <b-card-text id="fullName"><strong>{{ user.firstname }} {{ user.lastname }}</strong></b-card-text>
+                    <h4 id="fullName" class="font-weight-light" v-if="user.nickname" style="text-align: center;"><strong>{{ user.firstname }} {{ user.lastname }} |</strong> {{user.nickname}}</h4>
+                    <h4 id="fullName1" class="font-weight-light" v-else style="text-align: center;"><strong>{{ user.firstname }} {{ user.lastname }}</strong></h4>
+
                 </b-col>
+            </b-row>
+            <hr style="border-color: inherit">
+            <b-row class="mb-1">
+                <b-col id="userDetails" class="font-weight-light" style="text-align: center; font-size: x-large;">
+                    <!-- user.primary_email would be better but is null from BE -->
+                    {{ user.primary_email }}
+                </b-col>
+            </b-row>
+            <hr/>
+            <b-row>
+                <b-col>
+                    <div style="align-items: center; text-align: center;" v-if="this.user.activityTypes.length >= 1">
+                        <b-button-group  v-for="activityType in this.user.activityTypes"
+                                        v-bind:key="activityType.name" border-variant="secondary">
+                            <b-button pill variant="secondary" disabled class="font-weight-light activityTypes">{{activityType.name}}</b-button>
+                        </b-button-group>
+                    </div>
+                </b-col>
+            </b-row>
+            <b-row v-if="this.user.bio">
+                <b-col style="text-align: center;">
+                    <hr/>
+                    <div v-if="user.bio.length <= 125">
+                        {{ user.bio }}
+                    </div>
+                    <div v-else>
+                        <hr/>
+                        {{ user.bio.substring(0,125)+"...." }}
+                    </div>
+                </b-col>
+            </b-row>
+            <hr/>
+            <b-row>
                 <b-col>
                     <!-- View user button -->
-                    <b-button id="viewProfileButton" style="float: right" variant="primary" v-b-modal="'modal-view-profile' + user.id">View Profile</b-button>
+                    <b-button id="viewProfileButton" style="width: 100%;" variant="success" v-b-modal="'modal-view-profile' + user.id">View Profile</b-button>
 
                     <!--View User Details Modal-->
                     <b-modal size="lg" :id="'modal-view-profile' + user.id" :title="user.firstname + ' ' + user.lastname" scrollable>
                         <!--The User's Details-->
                         <b-button id="goToProfileButton" style="float: right" variant="primary" v-on:click="viewProfile(user.id)">Go To Profile</b-button>
                         <view-user v-bind:user-id-prop="user.id" v-bind:modalView="true"/>
-
-
                     </b-modal>
-                </b-col>
-            </b-row>
-            <hr style="border-color: inherit">
-            <b-row class="mb-1">
-                <b-col id="userDetails">
-                    <!-- user.primary_email would be better but is null from BE -->
-                    <strong>Email: </strong>{{ user.primary_email }}
-                    <br/><br/>
-                    <div v-if="user.bio.length <= 75">
-                        {{ user.bio }}
-                    </div>
-                    <div v-else>
-                        {{ user.bio.substring(0,75)+"...." }}
-                    </div>
-                </b-col>
-                <b-col v-if="user.activityTypes.length >= 1">
-                    <b-list-group id="matchingActivityTypes">
-                        <section v-for="activityType in user.activityTypes" v-bind:key="activityType.name">
-                            <!-- Only display queried activity types -->
-                            <b-list-group-item v-if="activityTypesSearchedFor.indexOf(activityType.name) > -1"
-                                               style="text-align: center" variant="primary">
-                                {{ activityType.name }}
-                            </b-list-group-item>
-                        </section>
-                    </b-list-group>
                 </b-col>
             </b-row>
         </b-card>
@@ -101,5 +109,13 @@
 </script>
 
 <style scoped>
+
+
+    .activityTypes {
+        text-align: center;
+        align-items: center;
+        margin: 3px;
+        display: inline-block;
+    }
 
 </style>
