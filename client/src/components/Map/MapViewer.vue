@@ -1,5 +1,5 @@
 <template>
-    <div id="mapDiv" class="map-pane">
+    <div class="map-pane">
         <keep-alive>
             <GmapMap class="map"
                     ref="mapRef"
