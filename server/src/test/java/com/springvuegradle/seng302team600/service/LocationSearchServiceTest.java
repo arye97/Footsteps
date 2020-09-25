@@ -300,11 +300,11 @@ public class LocationSearchServiceTest {
 
 
         when(activityRepository.countAllWithinDistance(
-                Mockito.anyDouble(), Mockito.anyDouble(), Mockito.anyDouble())).thenAnswer(i -> activityList.size());
+                Mockito.anyDouble(), Mockito.anyDouble(), Mockito.anyDouble(), Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> activityList.size());
 
 
         when(activityRepository.countAllWithinDistanceByAllActivityTypeIds(Mockito.anyDouble(), Mockito.anyDouble(),
-                Mockito.anyDouble(), Mockito.anyList(), Mockito.anyInt())).thenAnswer(i -> {
+                Mockito.anyDouble(), Mockito.anyList(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> {
             List<Long> activityTypeIds = i.getArgument(3);
             int numActivityTypes = i.getArgument(4);
             List<Activity> resultList = new ArrayList<>();
@@ -325,7 +325,7 @@ public class LocationSearchServiceTest {
 
 
         when(activityRepository.countAllWithinDistanceBySomeActivityTypeIds(Mockito.anyDouble(), Mockito.anyDouble(),
-                Mockito.anyDouble(), Mockito.anyList())).thenAnswer(i -> {
+                Mockito.anyDouble(), Mockito.anyList(), Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> {
             List<Long> activityTypeIds = i.getArgument(3);
             List<Activity> resultList = new ArrayList<>();
             for (Activity activity : activityList) {
@@ -462,7 +462,7 @@ public class LocationSearchServiceTest {
         String method = "or";
         String activitiesString = "Kiting Hiking";
         int numberOfActivities = locationSearchService.getRowsForActivityByLocation(STRING_COORDINATES_A, activitiesString,
-                MEDIUM_DISTANCE, method);
+                MEDIUM_DISTANCE, method, -1, 4);
         assertEquals(3, numberOfActivities);
     }
 
@@ -471,7 +471,7 @@ public class LocationSearchServiceTest {
         String method = "and";
         String activitiesString = "Kiting Hiking";
         int numberOfActivities = locationSearchService.getRowsForActivityByLocation(STRING_COORDINATES_A, activitiesString,
-                MEDIUM_DISTANCE, method);
+                MEDIUM_DISTANCE, method, -1, 4);
         assertEquals(1, numberOfActivities);
     }
 
@@ -480,7 +480,7 @@ public class LocationSearchServiceTest {
         String method = "Doesn't matter";
         String activitiesString = ""; // Leave empty
         int numberOfActivities = locationSearchService.getRowsForActivityByLocation(STRING_COORDINATES_A, activitiesString,
-                MEDIUM_DISTANCE, method);
+                MEDIUM_DISTANCE, method, -1, 4);
         assertEquals(3, numberOfActivities);
     }
 }

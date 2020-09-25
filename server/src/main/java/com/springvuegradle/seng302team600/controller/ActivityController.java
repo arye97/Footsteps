@@ -469,7 +469,7 @@ public class ActivityController {
         }
         if (pageNumber == 0) {
             if (user.getPrivateLocation() != null || user.getPublicLocation() != null)
-            paginatedBlockOfPins.add(0, new UserPin(user));
+                paginatedBlockOfPins.add(0, new UserPin(user));
         }
         response.setHeader("Has-Next", Boolean.toString(hasNext));
         return paginatedBlockOfPins;
@@ -481,12 +481,12 @@ public class ActivityController {
      * Calls the service function to find activities by location, then converts this to pins
      * Pagination is preformed on the repo in blocks/pages of 20.
      *
-     * @param request        the http request
-     * @param response       the http response
-     * @param strCoordinates a string to be converted into a Coordinates object containing latitude and longitude
-     * @param activityTypes  a list of activity types
-     * @param cutoffDistance the max distance to search by
-     * @param method         the type of activity type filtering
+     * @param request         the http request
+     * @param response        the http response
+     * @param strCoordinates  a string to be converted into a Coordinates object containing latitude and longitude
+     * @param activityTypes   a list of activity types
+     * @param cutoffDistance  the max distance to search by
+     * @param method          the type of activity type filtering
      * @param minFitnessLevel the minimum fitness level for the activity
      * @param maxFitnessLevel the maximum fitness level for the activity
      * @return A list of activity pins
@@ -529,12 +529,12 @@ public class ActivityController {
      * Calls the service function to find activities by location.
      * Pagination is preformed on the repo in pages of 5.
      *
-     * @param request        the http request
-     * @param response       the http response
-     * @param strCoordinates a string to be converted into a Coordinates object containing latitude and longitude
-     * @param activityTypes  a list of activity types
-     * @param cutoffDistance the max distance to search by
-     * @param method         the type of activity type filtering
+     * @param request         the http request
+     * @param response        the http response
+     * @param strCoordinates  a string to be converted into a Coordinates object containing latitude and longitude
+     * @param activityTypes   a list of activity types
+     * @param cutoffDistance  the max distance to search by
+     * @param method          the type of activity type filtering
      * @param minFitnessLevel the minimum fitness level for the activity
      * @param maxFitnessLevel the maximum fitness level for the activity
      * @return A list of activities
@@ -543,13 +543,13 @@ public class ActivityController {
             value = "/activities",
             params = {"coordinates", "activityTypes", "cutoffDistance", "method", "minFitnessLevel", "maxFitnessLevel"})
     public List<ActivityResponse> getActivitiesByLocation(HttpServletRequest request, HttpServletResponse response,
-                                               @RequestParam(value = "coordinates") String strCoordinates,
-                                               @RequestParam(value = "activityTypes") String activityTypes,
-                                               @RequestParam(value = "cutoffDistance") Double cutoffDistance,
-                                               @RequestParam(value = "method") String method,
-                                               @RequestParam(value = "minFitnessLevel") Integer minFitnessLevel,
-                                               @RequestParam(value = "maxFitnessLevel") Integer maxFitnessLevel
-                                               ) throws JsonProcessingException {
+                                                          @RequestParam(value = "coordinates") String strCoordinates,
+                                                          @RequestParam(value = "activityTypes") String activityTypes,
+                                                          @RequestParam(value = "cutoffDistance") Double cutoffDistance,
+                                                          @RequestParam(value = "method") String method,
+                                                          @RequestParam(value = "minFitnessLevel") Integer minFitnessLevel,
+                                                          @RequestParam(value = "maxFitnessLevel") Integer maxFitnessLevel
+    ) throws JsonProcessingException {
         String token = request.getHeader(TOKEN_DECLARATION);
         userAuthenticationService.findByToken(token);
         int pageNumber;
@@ -591,14 +591,16 @@ public class ActivityController {
             value = "/activities/rows",
             params = {"coordinates", "activityTypes", "cutoffDistance", "method"})
     public int getNumberOfRowsForActivityByLocation(HttpServletRequest request,
-                                            @RequestParam(value = "coordinates") String strCoordinates,
-                                            @RequestParam(value = "activityTypes") String activityTypes,
-                                            @RequestParam(value = "cutoffDistance") Double cutoffDistance,
-                                            @RequestParam(value = "method") String method) throws JsonProcessingException {
+                                                    @RequestParam(value = "coordinates") String strCoordinates,
+                                                    @RequestParam(value = "activityTypes") String activityTypes,
+                                                    @RequestParam(value = "cutoffDistance") Double cutoffDistance,
+                                                    @RequestParam(value = "method") String method,
+                                                    @RequestParam(value = "minFitnessLevel") Integer minFitnessLevel,
+                                                    @RequestParam(value = "maxFitnessLevel") Integer maxFitnessLevel) throws JsonProcessingException {
         String token = request.getHeader(TOKEN_DECLARATION);
         userAuthenticationService.findByToken(token);
 
         return locationSearchService.getRowsForActivityByLocation(strCoordinates, activityTypes,
-                cutoffDistance, method);
+                cutoffDistance, method, minFitnessLevel, maxFitnessLevel);
     }
 }
