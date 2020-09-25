@@ -106,7 +106,8 @@
         data() {
             return {
                 currentCenter: this.initialCenter,  // We shouldn't mutate the prop initialCenter
-                geoCoder: {geocode: () => {}}
+                geoCoder: {geocode: () => {}},
+                dragged: false
             }
         },
 
@@ -165,6 +166,7 @@
              * the call to get the center is async.
              */
             updateCenter() {
+                this.dragged = true;
                 this.$refs.mapRef.$mapPromise.then((map) => {
                     const mapBounds = map && map.getBounds();
                     const mapCenter = mapBounds && mapBounds.getCenter();
