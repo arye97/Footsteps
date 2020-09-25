@@ -360,7 +360,8 @@ public class ActivityController {
         }
         int firstElementIndex = pageNumber * PAGE_SIZE;
         List<String> searchStrings = ActivitySearchService.extractExactMatches(activityKeywords);
-        SearchResponse searchResponse = activityRepository.findAllByKeyword(searchStrings, PAGE_SIZE, firstElementIndex);
+        SearchResponse searchResponse = activityRepository.findAllByKeyword(searchStrings, PAGE_SIZE, firstElementIndex,
+                minFitnessLevel, maxFitnessLevel);
         List<Activity> returnedActivities = searchResponse.activities;
 
         if (returnedActivities == null || returnedActivities.size() == 0) {

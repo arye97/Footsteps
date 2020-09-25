@@ -924,10 +924,11 @@ class ActivityControllerTest {
 
     @Test
     void getActivitiesByAKeyword() throws Exception {
-        when(activityRepository.findAllByKeyword(Mockito.anyList(), Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> {
+        when(activityRepository.findAllByKeyword(Mockito.anyList(), Mockito.anyInt(), Mockito.anyInt(),
+                Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> {
             List<String> keywords = i.getArgument(0);
-            Integer minFitness = i.getArgument(1);
-            Integer maxFitness = i.getArgument(2);
+            Integer minFitness = i.getArgument(3);
+            Integer maxFitness = i.getArgument(4);
             List<Activity> foundActivities = new ArrayList<>();
             Long count = 0L;
             if (keywords.get(0).contains("Climb") && 2 >= minFitness && 2 <= maxFitness) {
@@ -964,11 +965,12 @@ class ActivityControllerTest {
 
     @Test
     void getActivitiesByExactSearch() throws Exception {
-        when(activityRepository.findAllByKeyword(Mockito.anyList(), Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> {
+        when(activityRepository.findAllByKeyword(Mockito.anyList(), Mockito.anyInt(), Mockito.anyInt(),
+                Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> {
             List<String> keywords = i.getArgument(0);
             List<Activity> foundActivities = new ArrayList<>();
-            Integer minFitness = i.getArgument(1);
-            Integer maxFitness = i.getArgument(2);
+            Integer minFitness = i.getArgument(3);
+            Integer maxFitness = i.getArgument(4);
             Long count = 0L;
             if (!(2>= minFitness && 2 <= maxFitness)) return new SearchResponse(foundActivities, count);
             Activity dumActivity1 = new Activity();
@@ -1025,7 +1027,8 @@ class ActivityControllerTest {
 
     @Test
     void cannotFindActivitiesByKeyword() throws Exception {
-        when(activityRepository.findAllByKeyword(Mockito.anyList(), Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> {
+        when(activityRepository.findAllByKeyword(Mockito.anyList(), Mockito.anyInt(), Mockito.anyInt(),
+                Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> {
             List<String> keywords = i.getArgument(0);
             List<Activity> foundActivities = new ArrayList<>();
             Long count = 0L;
@@ -1066,13 +1069,14 @@ class ActivityControllerTest {
         activities.add(dumActivity1);
         activities.add(dumActivity2);
 
-        when(activityRepository.findAllByKeyword(Mockito.anyList(), Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> {
+        when(activityRepository.findAllByKeyword(Mockito.anyList(), Mockito.anyInt(), Mockito.anyInt(),
+                Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> {
             List<Activity> foundActivities = new ArrayList<>();
             List<String> keywords = i.getArgument(0);
             Long count = 0L;
             String keyword = keywords.get(0);
-            Integer minFitness = i.getArgument(1);
-            Integer maxFitness = i.getArgument(2);
+            Integer minFitness = i.getArgument(3);
+            Integer maxFitness = i.getArgument(4);
             if (!(2 >= minFitness && 2 <= maxFitness)) return new SearchResponse(foundActivities, count);
             for (Activity activity : activities) {
                 List<String> name = Arrays.asList(activity.getName().split(" "));

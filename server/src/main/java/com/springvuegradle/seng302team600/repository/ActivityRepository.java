@@ -60,7 +60,8 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
     @Query(value = "SELECT * FROM activity WHERE activity_id in ?1", nativeQuery = true)
     List<Activity> getActivitiesByIds(@Param("userIds") List<Long> activityIds);
 
-    SearchResponse findAllByKeyword(@Param("keyword") List<String> keyword, int pageSize, int page);
+    SearchResponse findAllByKeyword(@Param("keyword") List<String> keyword, int pageSize,
+                                    int page, Integer minFitness, Integer maxFitness);
 
     @Query(value = "SELECT a.*" +
             "FROM activity as a " +
@@ -111,7 +112,8 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
                                                                @Param("userLongitude") Double userLongitude,
                                                                @Param("maxDistance") Double maxDistance,
                                                                @Param("activityTypeIds") List<Long> activityTypeIds,
-                                                               @Param("minFitnessLevel") Integer minFitnessLevel,@Param("maxFitnessLevel") Integer maxFitnessLevel,
+                                                               @Param("minFitnessLevel") Integer minFitnessLevel,
+                                                               @Param("maxFitnessLevel") Integer maxFitnessLevel,
                                                                Pageable pageable);
 
     @Query(value = "SELECT a.*" +
@@ -141,6 +143,8 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
                                                               @Param("maxDistance") Double maxDistance,
                                                               @Param("activityTypeIds") List<Long> activityTypeIds,
                                                               @Param("numActivityTypes") int numActivityTypes,
+                                                              @Param("minFitnessLevel") Integer minFitnessLevel,
+                                                              @Param("maxFitnessLevel") Integer maxFitnessLevel,
                                                               Pageable pageable);
 
     @Query(value = "SELECT COUNT(*) " +

@@ -30,13 +30,15 @@ public class ActivityRepositoryCustomImpl implements ActivityRepositoryCustom {
     private EntityManager entityManager;
 
     @Override
-    public SearchResponse findAllByKeyword(@Param("keywords") List<String> keywords, int pageSize, int page) {
+    public SearchResponse findAllByKeyword(@Param("keywords") List<String> keywords, int pageSize,
+                                           int page, Integer minFitness, Integer maxFitness) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Activity> query = cb.createQuery(Activity.class);
         CriteriaQuery<Long> cQuery = cb.createQuery(Long.class);
         Root<Activity> activity = query.from(Activity.class);
         List<Predicate> predicates = new ArrayList<>();
         Path<String> activity_name = activity.get("name");
+        Path<Integer> activityFitness = activity.get("fitnessLevel");
 
         boolean orMode = false;
         Predicate predicate = null;
@@ -73,6 +75,10 @@ public class ActivityRepositoryCustomImpl implements ActivityRepositoryCustom {
                 predicates.add(predicate);
             }
         }
+        predicates.add(cb.and(
+                cb.greaterThanOrEqualTo(activityFitness, minFitness),
+                cb.lessThanOrEqualTo(activityFitness, maxFitness)
+        ));
         Predicate searchPredicate = cb.and(predicates.toArray(new Predicate[predicates.size()]));
         query.select(activity).where(searchPredicate);
         cQuery.select(cb.count(cQuery.from(Activity.class))).where(searchPredicate);
