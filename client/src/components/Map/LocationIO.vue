@@ -173,7 +173,7 @@
             if (this.parentCenter) {
                 this.center = this.parentCenter;
                 this.zoom = 10;
-                if (!this.center.lat && !this.center.lng) {
+                if (!this.center.lat) {
                     this.center.lat = this.$refs.mapViewerRef.currentCenter.lat;
                     this.center.lng = this.$refs.mapViewerRef.currentCenter.lng;
                 }
@@ -212,8 +212,8 @@
                 } else if (pin === undefined) {
                     pin = {
                         colour: 'red',
-                        lat: this.center ? this.center.lat : this.$refs.mapViewerRef.currentCenter.lat,
-                        lng: this.center ? this.center.lng : this.$refs.mapViewerRef.currentCenter.lng,
+                        lat: this.$refs.mapViewerRef.dragged || !this.center ? this.$refs.mapViewerRef.currentCenter.lat: this.center.lat,
+                        lng: this.$refs.mapViewerRef.dragged || !this.center ? this.$refs.mapViewerRef.currentCenter.lng : this.center.lng,
                         name: "",
                         title: 'Search center',
                         windowOpen: false
