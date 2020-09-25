@@ -153,7 +153,7 @@ class ActivityControllerTest {
             return slice;
         });
         when(locationSearchService.getRowsForActivityByLocation(Mockito.anyString(), Mockito.anyString(),
-                Mockito.anyDouble(), Mockito.anyString())).thenAnswer(i -> dummyActivitiesTable.size());
+                Mockito.anyDouble(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt())).thenAnswer(i -> dummyActivitiesTable.size());
 
         // Mocking ActivityTypeService
         when(activityTypeService.getMatchingEntitiesFromRepository(Mockito.any())).thenAnswer(i -> i.getArgument(0));
@@ -1246,6 +1246,8 @@ class ActivityControllerTest {
                 .param("activityTypes", "smile")
                 .param("cutoffDistance", "1000")
                 .param("method", "OR")
+                .param("minFitnessLevel", "-1")
+                .param("maxFitnessLevel", "4")
                 .header("Token", validToken);
 
         MvcResult response = mvc.perform(request)

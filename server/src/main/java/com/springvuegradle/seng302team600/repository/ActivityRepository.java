@@ -161,10 +161,14 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
             "         * COS(RADIANS(l.Latitude)) " +
             "         * COS(RADIANS(:userLongitude - l.Longitude)) " +
             "         + SIN(RADIANS(:userLatitude)) " +
-            "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance", nativeQuery = true)
+            "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance" +
+            "   AND a.fitness >= :minFitnessLevel " +
+            "   AND a.fitness <= :maxFitnessLevel ", nativeQuery = true)
     Integer countAllWithinDistance(@Param("userLatitude") Double userLatitude,
                                @Param("userLongitude") Double userLongitude,
-                               @Param("maxDistance") Double maxDistance);
+                               @Param("maxDistance") Double maxDistance,
+                               @Param("minFitnessLevel") Integer minFitnessLevel,
+                               @Param("maxFitnessLevel") Integer maxFitnessLevel);
 
     @Query(value = "SELECT SUM(count) FROM " +
             "(SELECT 1 as count " +
@@ -180,11 +184,15 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
             "         * COS(RADIANS(:userLongitude - l.Longitude)) " +
             "         + SIN(RADIANS(:userLatitude)) " +
             "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance " +
+            "   AND a.fitness >= :minFitnessLevel " +
+            "   AND a.fitness <= :maxFitnessLevel " +
             "GROUP BY a.activity_id) as counts", nativeQuery = true)
     Integer countAllWithinDistanceBySomeActivityTypeIds(@Param("userLatitude") Double userLatitude,
                                                                 @Param("userLongitude") Double userLongitude,
                                                                 @Param("maxDistance") Double maxDistance,
-                                                                @Param("activityTypeIds") List<Long> activityTypeIds);
+                                                                @Param("activityTypeIds") List<Long> activityTypeIds,
+                                                                @Param("minFitnessLevel") Integer minFitnessLevel,
+                                                                @Param("maxFitnessLevel") Integer maxFitnessLevel);
 
     @Query(value = "SELECT SUM(count) FROM " +
             "(SELECT 1 as count " +
@@ -200,10 +208,14 @@ public interface ActivityRepository extends JpaRepository<Activity, Long>, Activ
             "         * COS(RADIANS(:userLongitude - l.Longitude)) " +
             "         + SIN(RADIANS(:userLatitude)) " +
             "         * SIN(RADIANS(l.Latitude))))) <= :maxDistance " +
+            "   AND a.fitness >= :minFitnessLevel " +
+            "   AND a.fitness <= :maxFitnessLevel " +
             "GROUP BY a.activity_id HAVING COUNT(a.activity_id) = :numActivityTypes) as counts", nativeQuery = true)
     Integer countAllWithinDistanceByAllActivityTypeIds(@Param("userLatitude") Double userLatitude,
                                                                @Param("userLongitude") Double userLongitude,
                                                                @Param("maxDistance") Double maxDistance,
                                                                @Param("activityTypeIds") List<Long> activityTypeIds,
-                                                               @Param("numActivityTypes") int numActivityTypes);
+                                                               @Param("numActivityTypes") int numActivityTypes,
+                                                               @Param("minFitnessLevel") Integer minFitnessLevel,
+                                                               @Param("maxFitnessLevel") Integer maxFitnessLevel);
 }

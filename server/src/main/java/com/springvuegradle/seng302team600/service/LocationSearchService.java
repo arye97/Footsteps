@@ -155,14 +155,24 @@ public class LocationSearchService {
      * @param activityTypes  a list of activity types
      * @param cutoffDistance the max distance to search by
      * @param method         the type of activity type filtering
+     * @param minFitnessLevel the minimum fitness level this search is interested in
+     * @param maxFitnessLevel the maximum fitness level this search is interested in
      * @return the count of activities searched for
      * @throws JsonProcessingException thrown if error occurs when converting strCoordinates to coordinates
      */
     public int getRowsForActivityByLocation(String strCoordinates, String activityTypes,
-                                 Double cutoffDistance, String method) throws JsonProcessingException {
+                                 Double cutoffDistance, String method, Integer minFitnessLevel, Integer maxFitnessLevel) throws JsonProcessingException {
         Coordinates coordinates = validateCoordinates(strCoordinates);
         if (cutoffDistance >= MAX_CUTOFF_DISTANCE) {
             cutoffDistance = MAX_DISTANCE;
+        }
+        if (minFitnessLevel < MIN_FITNESS_LEVEL || minFitnessLevel > MAX_FITNESS_LEVEL || maxFitnessLevel < MIN_FITNESS_LEVEL || maxFitnessLevel > MAX_FITNESS_LEVEL) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Fitness Level must be in the range -1 to 4, where -1 is activities with no fitness level and 4 is the highest level.");
+        }
+        if (minFitnessLevel > maxFitnessLevel) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Minimum fitness level should not be greater than the maximum fitness level");
         }
         Integer numberOfRows;
         if (activityTypes.length() >= 1) {
@@ -175,11 +185,11 @@ public class LocationSearchService {
             if (method.equalsIgnoreCase("and")) {
                 numberOfRows = activityRepository.countAllWithinDistanceByAllActivityTypeIds(
                         coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance,
-                        activityTypeIds, numActivityTypes);
+                        activityTypeIds, numActivityTypes, minFitnessLevel, maxFitnessLevel);
             } else if (method.equalsIgnoreCase("or")) {
                 numberOfRows = activityRepository.countAllWithinDistanceBySomeActivityTypeIds(
                         coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance,
-                        activityTypeIds);
+                        activityTypeIds, minFitnessLevel, maxFitnessLevel);
             } else {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "Method must be specified as either (AND, OR)");
@@ -189,7 +199,7 @@ public class LocationSearchService {
             }
         } else {
             numberOfRows = activityRepository.countAllWithinDistance(
-                    coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance);
+                    coordinates.getLatitude(), coordinates.getLongitude(), cutoffDistance, minFitnessLevel, maxFitnessLevel);
         }
         // Empty result list
         return Objects.requireNonNullElse(numberOfRows, 0);
