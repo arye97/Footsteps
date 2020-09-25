@@ -93,6 +93,7 @@ test('Outcomes table exists', () => {
 });
 
 test('Form catches emitted pin-change event', async () => {
+    activityForm.vm.clearError = jest.fn();
     activityForm.find('#input-location').vm.$emit('pin-change', pinData);
     await activityForm.vm.$nextTick();
     expect(activityForm.vm.$props.activity.location).toStrictEqual(pinLocationData);

@@ -35,6 +35,7 @@
                     id="gmapAutoComplete"
                     :value="address"
                     :options="{fields: ['geometry', 'formatted_address', 'address_components']}"
+                    @change="(place) => {check(place)}"
                     @place_changed="(place) => {addMarker(placeToPin(place)); pinChanged(placeToPin(place));}"
                     @focusin="emitFocus(true)"
                     @focusout="emitFocus(false)"
@@ -49,7 +50,9 @@
             </b-row>
             </b-container>
         </div>
-        <pin-legend v-if="pinLegendMode" class="pin-legend" :mode="pinLegendMode"/>
+        <div v-if="isMapVisible">
+            <pin-legend v-if="pinLegendMode" class="pin-legend" :mode="pinLegendMode"/>
+        </div>
     </b-card>
   </div>
 
@@ -170,6 +173,10 @@
             if (this.parentCenter) {
                 this.center = this.parentCenter;
                 this.zoom = 10;
+                if (!this.center.lat && !this.center.lng) {
+                    this.center.lat = this.$refs.mapViewerRef.currentCenter.lat;
+                    this.center.lng = this.$refs.mapViewerRef.currentCenter.lng;
+                }
             }
             if (this.parentPins) {
                 this.pins = this.pins.concat(this.parentPins);
@@ -199,8 +206,8 @@
                 } else if (pin === undefined) {
                     pin = {
                         colour: 'red',
-                        lat: this.$refs.mapViewerRef.currentCenter.lat,
-                        lng: this.$refs.mapViewerRef.currentCenter.lng,
+                        lat: this.center ? this.center.lat : this.$refs.mapViewerRef.currentCenter.lat,
+                        lng: this.center ? this.center.lng : this.$refs.mapViewerRef.currentCenter.lng,
                         name: "",
                         windowOpen: false
                     };
@@ -264,7 +271,7 @@
              * Emits an event when the gmap-autocomplete field is focused
              */
             emitFocus(inFocus) {
-                this.$emit('locationIO-focus', inFocus)
+                this.$emit('locationIO-focus', inFocus);
             },
             /**
              * Updates the this.address in gmap-autocomplete and emits the changed pin to the parent component.
@@ -283,6 +290,19 @@
                 this.pins = [];
                 this.address = "";
                 this.$emit("pin-change", null);
+            },
+
+            /**
+             * Checks the formatted address from the autocomplete box. If it hasn't been selected from the google autocomplete
+             * suggestions it emits an invlaid-location warning to the user
+             * @param place the information in the box
+             */
+            check(place) {
+                if (this.canDelete) {
+                    if (place.formatted_address === undefined) {
+                        this.$emit("invalid-location");
+                    }
+                }
             }
 
         }

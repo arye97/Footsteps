@@ -28,6 +28,7 @@
                             <!-- Title -->
                             <h1 class="font-weight-light" id="activityTitle"><strong>{{this.activityTitle}}</strong></h1>
                             <h3 class="font-weight-light" style="font-size: large;">Created by {{this.creatorName}}</h3>
+                            <hr/>
                             <!-- Edit and Delete Activity Buttons -->
                             <div v-if="this.creatorId===this.activeUserId">
                                 <b-row>
@@ -46,11 +47,11 @@
                                         </b-button>
                                     </b-col>
                                 </b-row>
+                                <hr/>
                             </div>
-                            <br/>
                             <!-- Activity Description -->
-                            <h5 class="font-weight-light" v-if="this.description" id="description" style="display: inline-block; word-break: break-word; margin-bottom: 15px;">{{this.description}}<br/></h5>
-                            <br/>
+                            <h5 class="font-weight-light" v-if="this.description" id="description" style="display: inline-block; word-break: break-word;">{{this.description}}<br/></h5>
+                            <hr/>
                             <!-- Activity Types -->
                             <div v-if="this.activityTypes.length >= 1">
                                 <b-button-group id="activityType" v-for="activityType in this.activityTypes" v-bind:key="activityType.name"
@@ -99,7 +100,9 @@
                                     :parent-center="{lat: this.location.latitude, lng: this.location.longitude}">
                                 </location-i-o>
                             </div>
+                            <hr/>
                             <!-- Time details -> only relevant for duration activities -->
+
                             <div v-if="!continuous">
                                 <br/>
                                 <b-row class="mb-1">

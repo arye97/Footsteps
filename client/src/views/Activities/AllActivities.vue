@@ -17,11 +17,12 @@
                     <div class="col-12 text-center">
                         <h1 class="font-weight-light">
                             <br/>
-                            Find something to do!<br/>
+                            <strong>Find something to do</strong>
                         </h1>
                     </div>
                 </div>
             </div>
+            <hr/>
             <b-alert class="align-centre" variant="success" dismissible fade :show=alertCount>
                 {{ alertMessage }}
             </b-alert>
@@ -29,10 +30,11 @@
                 {{ errorAlertMessage }}
             </b-alert>
             <div class="align-centre">
-                <b-button id="creatActivityButton" style="margin-bottom: 1.7em; margin-top: 0.8em" variant="primary"
-                          v-on:click="goToPage('/activities/create')">Create New Activity
+                <b-button id="creatActivityButton" style="margin-bottom: 1em; margin-top: 0.8em" variant="primary"
+                          v-on:click="goToPage('/activities/create')">Create Activity
                 </b-button>
             </div>
+            <hr/>
             <div class="align-centre" id="mapComponent" v-if="!loading">
                 <location-i-o
                         pin-legend-mode="AllActivities"
@@ -42,7 +44,6 @@
                         :parent-pins.sync="pins"
                         :max-pins="rows"
                 ></location-i-o>
-                <br/>
             </div>
             <section>
                 <ActivityList @deleteUpdate="getPins" id="activityList" v-if="userId !== null" :user-id-prop="userId"/>
@@ -197,7 +198,7 @@
     }
 
     #mapComponent {
-        height: 575px;
+        height: auto;
     }
 
     .light-info-message {
