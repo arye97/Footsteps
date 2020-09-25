@@ -59,6 +59,7 @@ const ACTIVITY_DATA = {
     description: "My activity description",
     location: "My activity location",
     activity_type: ["Hng", "Attics"],
+    fitness: 4
 };
 
 beforeEach(() => {

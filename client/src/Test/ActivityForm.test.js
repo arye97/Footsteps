@@ -64,6 +64,10 @@ test('Is a vue instance', () => {
     expect(activityForm.isVueInstance).toBeTruthy();
 });
 
+test('Fitness level input exists', () => {
+    expect(activityForm.find('#input-fitness-level').exists()).toBeTruthy();
+});
+
 test('Outcome title input exists', () => {
     expect(activityForm.find('#input-outcome-title').exists()).toBeTruthy();
 });

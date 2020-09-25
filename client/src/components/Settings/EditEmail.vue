@@ -197,7 +197,6 @@
                             this.$router.push("/login");
                         }
                         else if (error.response.status === 500) {
-                            console.error(error.response.data.message);
                             // Return to root home screen when timeout.
                             this.$router.push('/');
                         }
