@@ -132,6 +132,10 @@
                 default: false,
                 type: Boolean
             },
+            isActivityForm: {
+                default: false,
+                type: Boolean
+            }
         },
 
         watch: {
@@ -213,7 +217,7 @@
 
                 } else if (pin === undefined) {
                     pin = {
-                        colour: 'red',
+                        colour: this.isActivityForm ? 'blue' : 'red',
                         lat: this.$refs.mapViewerRef.dragged || !this.center ? this.$refs.mapViewerRef.currentCenter.lat: this.center.lat,
                         lng: this.$refs.mapViewerRef.dragged || !this.center ? this.$refs.mapViewerRef.currentCenter.lng : this.center.lng,
                         name: "",
