@@ -370,7 +370,6 @@
                 errored: false,
                 error_message: "Something went wrong",
                 submitDisabled: false,
-
                 fitnessOptions: fitnessLevels,
             }
         },

@@ -23,6 +23,8 @@ public class LocationSearchService {
 
     private static final Double MAX_CUTOFF_DISTANCE = 10000.0;  // Max distance from front end sliders
     private static final Double MAX_DISTANCE = 45000.0;         // If above the max distance search entire world, distance of 45000 covers whole world
+    private static final Integer MIN_FITNESS_LEVEL = -1;
+    private static final Integer MAX_FITNESS_LEVEL = 4;
 
     private final ActivityTypeRepository activityTypeRepository;
     private final ActivityRepository activityRepository;
@@ -62,7 +64,7 @@ public class LocationSearchService {
             cutoffDistance = MAX_DISTANCE;
         }
 
-        if (minFitness < -1 || minFitness > 4 || maxFitness < -1 || maxFitness > 4) {
+        if (minFitness < MIN_FITNESS_LEVEL || minFitness > MAX_FITNESS_LEVEL || maxFitness < MIN_FITNESS_LEVEL || maxFitness > MAX_FITNESS_LEVEL) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Fitness Level must be in the range -1 to 4, where -1 is activities with no fitness level and 4 is the highest level.");
         }

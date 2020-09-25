@@ -13,8 +13,6 @@ localVue.use(BootstrapVue);
 localVue.use(BootstrapVueIcons);
 localVue.use(IconsPlugin);
 
-const mockSetFitnessColour = jest.fn();
-
 const ACTIVITY_ID = 1;
 const USER_ID = 1;
 const USER = {
@@ -62,7 +60,6 @@ beforeEach(() => {
         router,
         mocks: {api}
     });
-    activityCard.vm.setFitnessColour = mockSetFitnessColour;
 });
 
 test('Is a vue instance', () => {
@@ -83,7 +80,6 @@ describe("The ActivityCard errors", () => {
             router,
             mocks: {api}
         });
-        activityCard.vm.setFitnessColour = mockSetFitnessColour;
     });
 
     test('Displays an error card if creator name is not found', () => {
