@@ -149,7 +149,7 @@
                     <location-i-o v-if="!this.isEdit || this.activity.profileId"
                         id="input-location"
                         @pin-change="locationValue"
-                        @locationIO-focus="setLocationFocus"
+                        @invalid-location="invalidLocation"
                         :single-only="true"
                         :canDelete="true"
                         :parent-pins="this.isEdit && this.activity.location ?
@@ -164,6 +164,9 @@
                 </b-form-group>
                 <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="alert_location">
                     Field is mandatory and a location must be set
+                </div>
+                <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="unapproved_location">
+                    Please select a location from the autocomplete suggestions
                 </div>
 
 
@@ -254,6 +257,9 @@
                     <b-button class="float-right" type="submit" variant="primary" @submit="onSubmit">Submit</b-button>
                 </div>
             </b-form>
+            <div class="alert alert-danger alert-dismissible fade show" hidden role="alert" id="any_alert">
+                "This activity cannot be saved as there is an invalid field"
+            </div>
             <footer class="col-12 text-center">
                 Entries marked with * are required
             </footer><br/><br/>
@@ -273,11 +279,16 @@
      */
     function showError(alert_name) {
         let errorAlert = document.getElementById(alert_name);
-
+        let anyAlert = document.getElementById("any_alert");
         errorAlert.hidden = false;          //Show alert bar
+        anyAlert.hidden = false;
         setTimeout(function () {    //Hide alert bar after ~9000ms
             errorAlert.hidden = true;
         }, 9000);
+        setTimeout(function () {    //Hide alert bar after ~4500ms
+            anyAlert.hidden = true;
+        }, 4500);
+
     }
 
     /**
@@ -351,13 +362,6 @@
         },
         async created() {
             await this.fetchActivityTypes();
-        },
-        watch: {
-            async outcomeList() {
-                if (this.outcomeList.length !== this.editableOutcomes.length) {
-                    await this.checkOutcomesAreEditable();
-                }
-            }
         },
         methods: {
             /**
@@ -687,7 +691,18 @@
            * @param pin Object from LocationIO
            */
             locationValue: function (pin) {
-                this.activity.location = pinToLocation(pin);
+                if (pin.name !== "" || pin.name !== null) {
+                    this.activity.location = pinToLocation(pin);
+                    this.clearError();
+                }
+
+            },
+            /**
+             * Clears the activity location error message
+             */
+            clearError() {
+                let errorAlert = document.getElementById("unapproved_location");
+                errorAlert.hidden = true;
             },
             /**
              * Toggles the submitDisabled boolean
@@ -695,6 +710,15 @@
              */
             setLocationFocus(inFocus) {
                 this.submitDisabled = inFocus;
+            },
+
+            /**
+             * This method is called if an invalid location warning is emitted from LocationIO
+             * This displays a warning to the user so they are aware that it is invalid
+             */
+            invalidLocation() {
+                this.activity.location = null;
+                showError("unapproved_location");
             }
         }
     }
