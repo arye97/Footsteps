@@ -167,11 +167,15 @@
                     this.currentLocation.lng = response.data.private_location.longitude;
                     this.currentLocation.lat = response.data.private_location.latitude;
                     this.currentLocation.name = response.data.private_location.name;
+                    this.currentLocation.location_name = response.data.private_location.name;
+                    this.currentLocation.title = "Search Centre";
                     this.pins.push(this.currentLocation);
                 } else if (response.data.public_location !== null) {
                     this.currentLocation.lng = response.data.public_location.longitude;
                     this.currentLocation.lat = response.data.public_location.latitude;
                     this.currentLocation.name = response.data.public_location.name;
+                    this.currentLocation.location_name = response.data.public_location.name;
+                    this.currentLocation.title = "Search centre";
                     this.pins.push(this.currentLocation);
                 }
             });

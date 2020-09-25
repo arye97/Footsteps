@@ -200,6 +200,12 @@
                     if (!("colour" in pin)) {
                         pin.colour = 'red';
                     }
+                    if (!("title" in pin) ) {
+                        pin.title = 'Search center';
+                    }
+                    if (!("location_name" in pin) ) {
+                        pin.location_name = pin.name;
+                    }
                     this.pins.push(pin);
                     this.address = pin.name;
 
@@ -209,6 +215,7 @@
                         lat: this.center ? this.center.lat : this.$refs.mapViewerRef.currentCenter.lat,
                         lng: this.center ? this.center.lng : this.$refs.mapViewerRef.currentCenter.lng,
                         name: "",
+                        title: 'Search center',
                         windowOpen: false
                     };
                     this.pins.push(pin);
