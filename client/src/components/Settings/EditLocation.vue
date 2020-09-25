@@ -24,7 +24,6 @@
                                       @pin-change="setLocationPublic"
                                       @child-pins="(pins) => pins.length === 0 && setLocationPublic(null)"
                                       :current-location="publicLocation"
-                                      :mapId="'publicLocation'"
                                       :single-only="true"></location-i-o>
                     </div>
                     <label v-if="identicalPublicLocationWarningMessage && identicalPublicLocationWarningMessage.length > 0" class="errorMessage">
@@ -45,7 +44,6 @@
                                       @pin-change="setLocationPrivate"
                                       @child-pins="(pins) => pins.length === 0 && setLocationPrivate(null)"
                                       :current-location="privateLocation"
-                                      :mapId="'privateLocation'"
                                       :single-only="true"></location-i-o>
                     </div>
                     <label v-if="identicalPrivateLocationWarningMessage && identicalPrivateLocationWarningMessage.length > 0" class="errorMessage">
