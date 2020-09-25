@@ -70,7 +70,7 @@
                     </b-row>
                     <b-row>
                         <section v-if="filterSearch">
-                            <b-button id="clearFiltersButton" size="sm" variant="link" align-self="end" v-on:click="filterSearch=false">Clear Filters</b-button><br/>
+                            <b-button id="clearFiltersButton" size="sm" variant="link" align-self="end" v-on:click="clearFilters">Clear Filters</b-button><br/>
                             <label>Minimum Fitness Level:
                                 <p>{{convertFitnessToString(this.minFitness)}}</p>
                             </label>
@@ -500,6 +500,18 @@
                     }
                 }
                 return fitnessString;
+            },
+
+            /**
+             * This helper function clears the search filters
+             * Sets the minimum fitness level back to -1
+             * Sets the maximum fitness level to 4
+             * Closes the filter information
+             */
+            clearFilters() {
+                this.filterSearch = false;
+                this.minFitness = -1;
+                this.maxFitness = 4;
             }
         }
     }
