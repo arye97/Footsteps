@@ -21,10 +21,6 @@
                                     <strong>{{ activity.activity_name }} |</strong> {{ activity.creatorName }}
                                 </div>
                                 <hr/>
-                                <div style="text-align: center">
-                                    {{ getDateTime(activity.start_time )}} - {{ getDateTime(activity.end_time) }}
-                                </div>
-                                <hr/>
                                 <div v-if="activity.description.length <= 250">
                                     {{ activity.description }}
                                 </div>

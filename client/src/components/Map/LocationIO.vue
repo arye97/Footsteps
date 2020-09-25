@@ -32,7 +32,7 @@
             <b-row no-gutters>
             <b-col>
                 <GmapAutocomplete
-                    id="gmapAutoComplete"
+                    :id="'gmapAutoComplete' + id"
                     :value="address"
                     :options="{fields: ['geometry', 'formatted_address', 'address_components']}"
                     @change="(place) => {check(place)}"
@@ -131,7 +131,7 @@
             canDelete: {
                 default: false,
                 type: Boolean
-            }
+            },
         },
 
         watch: {
@@ -150,11 +150,13 @@
                 address: "",
                 pins: [],
                 center: undefined,
-                zoom: undefined
+                zoom: undefined,
+                id: null
             }
         },
 
         mounted() {
+            this.id = this._uid;
             if (this.currentLocation) {
                 let pin = {
                     colour: 'red',
