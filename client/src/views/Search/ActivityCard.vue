@@ -38,6 +38,7 @@
             <fitness-progress-bar
                     :user-fitness-level="myFitness"
                     :activity-fitness-level="activityFitness"
+                    v-if="loaded"
             >
             </fitness-progress-bar>
             <b-button id="viewActivityButton" variant="success" block
@@ -82,13 +83,15 @@
                 errorMessage: 'An error occurred when loading this activity, please try again',
                 creatorName: '',
                 activityFitness: null,
-                myFitness: null
+                myFitness: null,
+                loaded: false
             }
         },
 
         async mounted() {
             await this.getCreatorName();
             await this.getFitnessLevel();
+            this.loaded = true;
         },
 
         methods: {
@@ -102,7 +105,10 @@
             async getFitnessLevel() {
                 if (this.activity.fitness === null) {
                     this.activityFitness = -1; // No fitness level
+                } else {
+                    this.activityFitness = this.activity.fitness;
                 }
+
                 await api.getAllUserData().then(response => {
                     this.myFitness = response.data.fitness;
                 }).catch(() => {

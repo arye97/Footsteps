@@ -44,7 +44,7 @@
             }
         },
         mounted() {
-            if (this.activityFitnessLevel < 0) return
+            if (this.activityFitnessLevel < 0 || this.activityFitnessLevel === null) return;
             this.value[2] = 0.05;
             if (this.userFitnessLevel < 0) {
                 this.value[1] = this.activityFitnessLevel + 1;
