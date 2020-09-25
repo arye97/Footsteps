@@ -32,7 +32,7 @@
             <b-row no-gutters>
             <b-col>
                 <GmapAutocomplete
-                    id="gmapAutoComplete"
+                    :id="'gmapAutoComplete'+mapId"
                     :value="address"
                     :options="{fields: ['geometry', 'formatted_address', 'address_components']}"
                     @change="(place) => {check(place)}"
@@ -131,6 +131,10 @@
             canDelete: {
                 default: false,
                 type: Boolean
+            },
+            mapId: {
+                default: 'one',
+                type: String
             }
         },
 
