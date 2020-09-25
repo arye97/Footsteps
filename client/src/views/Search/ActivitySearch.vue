@@ -63,9 +63,10 @@
                         <ul v-if="showRules" style="align-content: center;">
                             <li>All searches are case insensitive including exact match searches</li>
                             <li>Use double quotes around your search for exact matching</li>
-                            <li>Use OR between keywords to search for anything with any of the keywords</li>
-                            <li>Use AND between keywords to search for anything with all of the keywords</li>
-                            <li>AND and OR keywords must be spelt with capitals</li>
+                            <li>Use OR between keywords to search for activities with either of the keywords</li>
+                            <li>Use AND between keywords to search for activities with both of the keywords</li>
+                            <li>For searches with both AND and OR, OR takes precedence</li>
+                            <li>To search for activities with OR or AND in the name, wrap the operators in double quotes</li>
                         </ul>
                     </b-row>
                     <b-row>
