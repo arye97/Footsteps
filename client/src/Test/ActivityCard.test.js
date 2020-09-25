@@ -1,11 +1,17 @@
 import "vue-jest"
 import api from '../Api'
-import {mount} from "@vue/test-utils";
+import {createLocalVue, shallowMount} from "@vue/test-utils";
 import router from "../index";
 import ActivityCard from '../views/Search/ActivityCard.vue'
 import "jest"
+import {BootstrapVue, BootstrapVueIcons, IconsPlugin} from 'bootstrap-vue';
 
 jest.mock('../Api');
+
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
+localVue.use(BootstrapVueIcons);
+localVue.use(IconsPlugin);
 
 const mockSetFitnessColour = jest.fn();
 
@@ -48,7 +54,7 @@ let activityCard;
 beforeEach(() => {
     api.getUserData.mockImplementation(() => Promise.resolve({data: USER, status: 200}));
     api.getAllUserData.mockImplementation(() => Promise.resolve({data: USER, status: 200}));
-    activityCard = mount(ActivityCard, {
+    activityCard = shallowMount(ActivityCard, {
         propsData: {
             activity: ACTIVITY,
             activityTypesSearchedFor: ["Archery", "Orienteering"]
@@ -69,7 +75,7 @@ describe("The ActivityCard errors", () => {
         let networkError = new Error("Mocked Network Error");
         networkError.response = {status: 404};
         api.getUserData.mockImplementation(() => Promise.reject(networkError));
-        activityCard = mount(ActivityCard, {
+        activityCard = shallowMount(ActivityCard, {
             propsData: {
                 activity: ACTIVITY,
                 activityTypesSearchedFor: ["Archery", "Orienteering", 'Gymnastics']
