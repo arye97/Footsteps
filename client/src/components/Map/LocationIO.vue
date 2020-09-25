@@ -31,7 +31,7 @@
             <b-container class="input-location-container">
             <b-row no-gutters>
             <b-col>
-                <GmapAutocompletet
+                <GmapAutocomplete
                     id="gmapAutoComplete"
                     :value="address"
                     :options="{fields: ['geometry', 'formatted_address', 'address_components']}"
@@ -39,7 +39,7 @@
                     @focusin="emitFocus(true)"
                     @focusout="emitFocus(false)"
                     class="form-control">
-                </GmapAutocompletet>
+                </GmapAutocomplete>
             </b-col>
                 <b-col cols="1" v-if="!canDelete" >
                 <b-button id="clearPinsButton" variant="danger" @click="clearPins" v-bind:disabled="pins.length === 0">
@@ -49,7 +49,9 @@
             </b-row>
             </b-container>
         </div>
-        <pin-legend v-if="pinLegendMode" class="pin-legend" :mode="pinLegendMode"/>
+        <div v-if="isMapVisible">
+            <pin-legend v-if="pinLegendMode" class="pin-legend" :mode="pinLegendMode"/>
+        </div>
     </b-card>
   </div>
 
@@ -170,6 +172,10 @@
             if (this.parentCenter) {
                 this.center = this.parentCenter;
                 this.zoom = 10;
+                if (!this.center.lat && !this.center.lng) {
+                    this.center.lat = this.$refs.mapViewerRef.currentCenter.lat;
+                    this.center.lng = this.$refs.mapViewerRef.currentCenter.lng;
+                }
             }
             if (this.parentPins) {
                 this.pins = this.pins.concat(this.parentPins);
@@ -199,8 +205,8 @@
                 } else if (pin === undefined) {
                     pin = {
                         colour: 'red',
-                        lat: this.$refs.mapViewerRef.currentCenter.lat,
-                        lng: this.$refs.mapViewerRef.currentCenter.lng,
+                        lat: this.center ? this.center.lat : this.$refs.mapViewerRef.currentCenter.lat,
+                        lng: this.center ? this.center.lng : this.$refs.mapViewerRef.currentCenter.lng,
                         name: "",
                         windowOpen: false
                     };
