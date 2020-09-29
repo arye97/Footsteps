@@ -3,6 +3,7 @@ import api from '../Api'
 import {createLocalVue, shallowMount} from "@vue/test-utils";
 import router from "../index";
 import ActivityCard from '../views/Search/ActivityCard.vue'
+import {isDayLightSavings} from "./util.test"
 import "jest"
 import {BootstrapVue, BootstrapVueIcons, IconsPlugin} from 'bootstrap-vue';
 
@@ -120,8 +121,8 @@ describe('The ActivityCard elements', () => {
     test('Displays activity info', () => {
         let names = activityCard.find('#activity' + ACTIVITY_ID + 'Card').text();
         expect(names).toContain(ACTIVITY.location.name);
-        expect(names).toContain(ACTIVITY.start_time);
-        expect(names).toContain(ACTIVITY.end_time);
+        expect(names).toContain(isDayLightSavings() ? 'Wed, 02 Sep 2020 04:41 PM' : 'Wed, 02 Sep 2020 03:41 PM');
+        expect(names).toContain(isDayLightSavings() ? 'Wed, 02 Sep 2020 05:43 PM' : 'Wed, 02 Sep 2020 04:43 PM');
         expect(names).toContain(ACTIVITY.description);
     });
 

@@ -2,7 +2,7 @@ import { backendDateToLocalTimeZone , localTimeZoneToBackEndTime, formatDateTime
 import "jest"
 
 
-const isDayLightSavings = function () {
+export const isDayLightSavings = function () {
     const date = new Date();
     const jan = new Date(date.getFullYear(), 0, 1);
     const jul = new Date(date.getFullYear(), 6, 1);
