@@ -13,7 +13,7 @@
     "sonarqube": "node sonarqube-analysis.js"
   },
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "bootstrap-vue": "^2.16.0",
     "core-js": "^3.6.5",
     "jquery": "^3.5.1",
